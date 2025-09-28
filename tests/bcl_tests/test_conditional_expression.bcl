@@ -1,0 +1,36 @@
+GET "libhdr.h"
+
+LET START() = VALOF
+$(
+  LET A = 10
+  LET B = 5
+  LET C = 0
+
+  // Basic conditional evaluation
+  C := (A > B) -> 100, 200 // Expected: 100 (A > B is true)
+  WRITEN(C)
+
+  C := (A < B) -> 100, 200 // Expected: 200 (A < B is false)
+  WRITEN(C)
+
+  // Nested conditional expressions
+  C := (A = 10) -> ((B = 5) -> 300, 400), 500 // Expected: 300
+  WRITEN(C)
+
+  C := (A = 10) -> ((B = 6) -> 300, 400), 500 // Expected: 400
+  WRITEN(C)
+
+  // Conditional expressions within arithmetic operations
+  C := 1 + (A > B) -> 10, 20 // Expected: 1 + 10 = 11
+  WRITEN(C)
+
+  C := ((A < B) -> 10, 20) + 1 // Expected: 20 + 1 = 21
+  WRITEN(C)
+
+  // Precedence test: should evaluate conditional first
+  C := A + (A > B) -> 1, 0 * B // Expected: 10 + 1 = 11
+  WRITEN(C)
+
+  C := A + (A < B) -> 1, 0 * B // Expected: 10 + 0 = 10
+  WRITEN(C)
+$)

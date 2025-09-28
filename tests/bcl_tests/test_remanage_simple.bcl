@@ -1,0 +1,10 @@
+// Minimal test for REMANAGE keyword
+LET START() BE $(
+    WRITES("Testing REMANAGE keyword...*N")
+
+    LET x = VEC 10
+    RETAIN x
+    REMANAGE x
+
+    WRITES("REMANAGE test complete*N")
+$)

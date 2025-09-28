@@ -1,0 +1,31 @@
+LET START() = VALOF
+$(
+    // Test cases for WRITEF validation
+
+    // Valid cases that should work
+    WRITEF("Integer: %d*N", 42)
+    WRITEF("Float: %f*N", 3.14)
+    WRITEF("String: %s*N", "hello")
+    WRITEF("Multiple: %d %f %s*N", 42, 3.14, "world")
+
+    // Invalid cases that should trigger warnings
+    WRITEF("Type mismatch: %f*N", 42)        // integer to float specifier
+    WRITEF("Wrong count: %d %d*N", 42)       // too few arguments
+    WRITEF("Wrong count: %d*N", 42, 99)      // too many arguments
+
+    // Common mistakes that should trigger specific warnings
+    WRITEF("Old style: %N*N", 42)            // should warn about %N vs %d
+    WRITEF("Wrong newline: hello\n")         // should warn about \n vs *N
+
+    // Edge cases
+    LET x = 42
+    LET y = 3.14
+    LET msg = "test"
+    WRITEF("Variables: %d %f %s*N", x, y, msg)
+
+    // Non-literal format string (should skip validation)
+    LET format = "Dynamic: %d*N"
+    WRITEF(format, 42)
+
+    RESULTIS 0
+$)

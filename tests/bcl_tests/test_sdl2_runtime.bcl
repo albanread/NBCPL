@@ -1,0 +1,68 @@
+// test_sdl2_runtime.bcl
+// Test program to verify SDL2 runtime functionality with JIT compilation
+
+LET start() BE {
+    WRITEF("Testing SDL2 Runtime Integration\n")
+
+    // Test basic SDL2 initialization
+    LET init_result = SDL2_INIT()
+    WRITEF("SDL2_INIT returned: %d\n", init_result)
+
+    IF init_result = 0 THEN {
+        WRITEF("SDL2 initialized successfully!\n")
+
+        // Test window creation
+        LET window = SDL2_CREATE_WINDOW("NewBCPL SDL2 Test")
+        WRITEF("SDL2_CREATE_WINDOW returned: %p\n", window)
+
+        IF window ~= 0 THEN {
+            WRITEF("Window created successfully!\n")
+
+            // Test renderer creation
+            LET renderer = SDL2_CREATE_RENDERER(window)
+            WRITEF("SDL2_CREATE_RENDERER returned: %p\n", renderer)
+
+            IF renderer ~= 0 THEN {
+                WRITEF("Renderer created successfully!\n")
+
+                // Test basic rendering
+                SDL2_SET_DRAW_COLOR(renderer, 255, 0, 0, 255)  // Red color
+                SDL2_CLEAR(renderer)
+                SDL2_PRESENT(renderer)
+
+                WRITEF("Red screen should be visible!\n")
+                WRITEF("Waiting 2 seconds...\n")
+                SDL2_DELAY(2000)
+
+                // Draw a simple rectangle
+                SDL2_SET_DRAW_COLOR(renderer, 0, 255, 0, 255)  // Green color
+                SDL2_FILL_RECT(renderer, 100, 100, 200, 150)
+                SDL2_PRESENT(renderer)
+
+                WRITEF("Green rectangle should be visible!\n")
+                WRITEF("Waiting 2 seconds...\n")
+                SDL2_DELAY(2000)
+
+                // Clean up renderer
+                SDL2_DESTROY_RENDERER(renderer)
+                WRITEF("Renderer destroyed\n")
+            } ELSE {
+                WRITEF("Failed to create renderer\n")
+            }
+
+            // Clean up window
+            SDL2_DESTROY_WINDOW(window)
+            WRITEF("Window destroyed\n")
+        } ELSE {
+            WRITEF("Failed to create window\n")
+        }
+
+        // Clean up SDL2
+        SDL2_QUIT()
+        WRITEF("SDL2 quit\n")
+    } ELSE {
+        WRITEF("Failed to initialize SDL2\n")
+    }
+
+    WRITEF("SDL2 runtime test completed!\n")
+}

@@ -1,0 +1,204 @@
+// Simple Barnsley Fern - SDL2 fractal renderer
+// This version uses hardcoded constants to avoid manifest parsing issues
+
+// Global variables for fern state
+GLOBALS {
+    FLET current_x = 0.0
+    FLET current_y = 0.0
+    LET point_count = 0
+}
+
+// Initialize the fern starting position
+LET init_fern() BE {
+    current_x := 0.0
+    current_y := 0.0
+    point_count := 0
+}
+
+// Apply one iteration of the IFS transformation
+LET iterate_fern() BE $(
+    FLET new_x = 0.0
+    FLET new_y = 0.0
+    FLET random = FRND()  // Get random number between 0.0 and 1.0
+
+    TEST random < 0.01 THEN $(
+        // f1: Stem (1% probability)
+        new_x := 0.0
+        new_y := 0.16 * current_y
+    $) ELSE TEST random < 0.86 THEN $(
+        // f2: Main frond (85% probability)
+        new_x := 0.85 * current_x + 0.04 * current_y
+        new_y := -0.04 * current_x + 0.85 * current_y + 1.6
+    $) ELSE TEST random < 0.93 THEN $(
+        // f3: Left leaflet (7% probability)
+        new_x := 0.2 * current_x - 0.26 * current_y
+        new_y := 0.23 * current_x + 0.22 * current_y + 1.6
+    $) ELSE $(
+        // f4: Right leaflet (7% probability)
+        new_x := -0.15 * current_x + 0.28 * current_y
+        new_y := 0.26 * current_x + 0.24 * current_y + 0.44
+    $)
+
+    current_x := new_x
+    current_y := new_y
+    point_count := point_count + 1
+$)
+
+// Convert fern coordinates to screen coordinates
+LET fern_to_screen_x(fern_x) = VALOF $(
+    FLET scaled_x = fern_x * 60.0  // FERN_SCALE
+    LET screen_x = FIX(scaled_x) + 400  // FERN_OFFSET_X
+    RESULTIS screen_x
+$)
+
+LET fern_to_screen_y(fern_y) = VALOF $(
+    FLET scaled_y = fern_y * 60.0  // FERN_SCALE
+    LET screen_y = 500 - FIX(scaled_y)  // FERN_OFFSET_Y
+    RESULTIS screen_y
+$)
+
+// Draw a single point of the fern
+LET draw_fern_point(renderer, x, y) BE $(
+    LET screen_x = fern_to_screen_x(x)
+    LET screen_y = fern_to_screen_y(y)
+
+    // Only draw if point is within window bounds (800x600)
+    IF screen_x >= 0 && screen_x < 800 && screen_y >= 0 && screen_y < 600 THEN $(
+        SDL2_DRAW_POINT(renderer, screen_x, screen_y)
+    $)
+$)
+
+// Generate and draw multiple points in one cycle
+LET draw_fern_cycle(renderer) BE $(
+    // Set fern color (bright green)
+    SDL2_SET_DRAW_COLOR(renderer, 0, 255, 100, 255)
+
+    FOR i = 1 TO 100 DO $(  // POINTS_PER_CYCLE
+        iterate_fern()
+
+        // Skip the first few iterations to let the system settle
+        IF point_count > 10 THEN $(
+            draw_fern_point(renderer, current_x, current_y)
+        $)
+    $)
+$)
+
+// Main program
+LET START() BE $(
+    WRITES("Barnsley Fern Fractal")
+    NEWLINE()
+    WRITES("====================")
+    NEWLINE()
+    WRITES("Generating fractal fern using FRND...")
+    NEWLINE()
+
+    // Initialize SDL2
+    LET result = SDL2_INIT()
+    TEST result = 0 THEN $(
+        WRITES("SDL2 initialized")
+        NEWLINE()
+
+        // Create window (800x600, centered, shown)
+        LET window = SDL2_CREATE_WINDOW("BCPL Fern")
+        TEST window > 0 THEN $(
+            WRITES("Window created")
+            NEWLINE()
+
+            // Create renderer
+            LET renderer = SDL2_CREATE_RENDERER(window)
+            TEST renderer > 0 THEN $(
+                WRITES("Renderer created")
+                NEWLINE()
+                WRITES("Generating fern...")
+                NEWLINE()
+
+                // Initialize fern state
+                init_fern()
+
+                LET running = TRUE
+                LET frame_count = 0
+
+                // Main rendering loop
+                WHILE running && frame_count < 500 DO $(
+                    // Handle events
+                    LET event_type = SDL2_POLL_EVENT()
+
+                    SWITCHON event_type INTO
+                    $(
+                        CASE 256: $(
+                            running := FALSE
+                            ENDCASE
+                        $)
+
+                        CASE 768: $(
+                            running := FALSE
+                            ENDCASE
+                        $)
+
+                        DEFAULT: $(
+                            ENDCASE
+                        $)
+                    $)
+
+                    // Clear screen occasionally
+                    IF (frame_count REM 100) = 0 THEN $(
+                        // Set background color (dark)
+                        SDL2_SET_DRAW_COLOR(renderer, 10, 15, 25, 255)
+                        SDL2_CLEAR(renderer)
+                    $)
+
+                    // Draw fern points
+                    draw_fern_cycle(renderer)
+
+                    // Present the frame
+                    SDL2_PRESENT(renderer)
+
+                    // Small delay
+                    SDL2_DELAY(50)
+
+                    frame_count := frame_count + 1
+
+                    // Progress indicator
+                    IF (frame_count REM 50) = 0 THEN $(
+                        WRITES("Frame: ")
+                        WRITEN(frame_count)
+                        WRITES(", Points: ")
+                        WRITEN(point_count)
+                        NEWLINE()
+                    $)
+                $)
+
+                WRITES("Fern generation completed")
+                NEWLINE()
+                WRITES("Total frames: ")
+                WRITEN(frame_count)
+                NEWLINE()
+                WRITES("Total points: ")
+                WRITEN(point_count)
+                NEWLINE()
+
+                // Cleanup
+                SDL2_DESTROY_RENDERER(renderer)
+
+            $) ELSE $(
+                WRITES("Failed to create renderer")
+                NEWLINE()
+            $)
+
+            SDL2_DESTROY_WINDOW(window)
+
+        $) ELSE $(
+            WRITES("Failed to create window")
+            NEWLINE()
+        $)
+
+        SDL2_QUIT()
+
+    $) ELSE $(
+        WRITES("SDL2 initialization failed")
+        NEWLINE()
+    $)
+
+    WRITES("Program complete")
+    NEWLINE()
+$)

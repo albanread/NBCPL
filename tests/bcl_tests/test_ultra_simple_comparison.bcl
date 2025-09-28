@@ -1,0 +1,5 @@
+LET main() BE {
+    LET x = 5
+    LET y = x > 3
+    WRITEF("Result: %d*N", y)
+}

@@ -1,0 +1,35 @@
+// Ultra-basic test for object member access
+// Testing only core dot notation functionality
+
+CLASS Point$(
+    LET x, y
+
+    LET init(newX, newY) BE {
+        x := newX
+        y := newY
+    }
+
+    LET getX() = x
+$)
+
+LET START() BE {
+    // Create object
+    LET p = NEW Point()
+
+    // Test method call
+    p.init(10, 20)
+
+    // Test direct member access reading
+    LET dx = p.x
+    LET dy = p.y
+
+    // Test direct member access writing
+    p.x := 30
+    p.y := 40
+
+    // Test member access in simple expression
+    LET sum = p.x + p.y
+
+    // Cleanup
+    p.RELEASE()
+}

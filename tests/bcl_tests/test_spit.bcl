@@ -1,0 +1,12 @@
+LET START() BE {
+
+	SPIT("thid id the age of the train", "tests/test.txt")
+
+	LET S = "that was the age of the train"
+	SPIT(S, "./tests/test2.txt")
+
+	LET fn = "./tests/test3.txt"
+
+	SPIT(S, fn)
+
+}

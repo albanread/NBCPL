@@ -1,0 +1,26 @@
+
+
+LET START() BE {
+
+LET F = 10.5
+
+WRITEF(F)
+
+ F := 0.5 +# 1.0
+
+WRITEF(F)
+
+F := F /# 2.0 *# 2.5
+
+WRITEF(F)
+
+F := F *# 4.5
+
+WRITEF(F)
+
+
+
+WRITES("Thats that!*N")
+
+
+}

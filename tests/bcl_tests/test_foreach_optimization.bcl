@@ -1,0 +1,15 @@
+LET START() BE
+$(
+    WRITES("Testing FOREACH with bracket vector optimization...*N")
+
+    LET vec = VEC [1, 2, 3]
+
+    WRITES("Using FOREACH: ")
+    FOREACH x IN vec DO
+    $(
+        WRITEN(x) WRITES(" ")
+    $)
+    WRITES("*N")
+
+    WRITES("Test complete*N")
+$)

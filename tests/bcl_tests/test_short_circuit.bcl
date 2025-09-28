@@ -1,0 +1,66 @@
+// Test for boolean short-circuiting behavior
+// This test should verify that logical AND and OR operators
+// properly short-circuit to prevent evaluation of dangerous expressions
+
+LET START() BE $(
+    WRITES("Testing short-circuit evaluation...*N")
+
+    // Test 1: AND short-circuiting with null pointer
+    // This should NOT crash because the right side should not be evaluated
+    LET p = 0  // Null pointer
+
+    WRITES("Test 1: TEST p ~= 0 AND p!0 = 1*N")
+    TEST p ~= 0 AND p!0 = 1 DO $(
+        WRITES("This should not print*N")
+    $) OR $(
+        WRITES("Correctly short-circuited - null pointer not dereferenced*N")
+    $)
+
+    // Test 2: AND short-circuiting with false condition
+    LET x = 0
+    WRITES("Test 2: TEST x = 1 AND (x := 99)*N")
+    TEST x = 1 AND (x := 99) DO $(
+        WRITES("This should not print*N")
+    $) OR $(
+        WRITES("Short-circuited: x should still be 0: ")
+        WRITEN(x)
+        WRITES("*N")
+    $)
+
+    // Test 3: OR short-circuiting with true condition
+    x := 5
+    WRITES("Test 3: TEST x = 5 OR (x := 99)*N")
+    TEST x = 5 OR (x := 99) DO $(
+        WRITES("Short-circuited: x should still be 5: ")
+        WRITEN(x)
+        WRITES("*N")
+    $) OR $(
+        WRITES("This should not print*N")
+    $)
+
+    // Test 4: Vector bounds with short-circuiting
+    LET v = VEC 3
+    v!0 := 10
+    v!1 := 20
+    v!2 := 30
+
+    LET i = 5  // Out of bounds index
+    WRITES("Test 4: TEST i < 3 AND v!i = 10*N")
+    TEST i < 3 AND v!i = 10 DO $(
+        WRITES("This should not print*N")
+    $) OR $(
+        WRITES("Correctly avoided out-of-bounds access*N")
+    $)
+
+    // Test 5: Nested short-circuiting
+    p := 0
+    LET q = 0
+    WRITES("Test 5: TEST (p ~= 0 AND p!0 > 0) OR (q ~= 0 AND q!0 > 0)*N")
+    TEST (p ~= 0 AND p!0 > 0) OR (q ~= 0 AND q!0 > 0) DO $(
+        WRITES("This should not print*N")
+    $) OR $(
+        WRITES("Correctly handled nested short-circuiting*N")
+    $)
+
+    WRITES("*NAll short-circuit tests completed successfully!*N")
+$)

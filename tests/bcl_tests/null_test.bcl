@@ -1,0 +1,75 @@
+// null_test.bcl - Test program for the new ? null literal feature
+
+CLASS TestClass $(
+    DECL value
+
+    ROUTINE CREATE(initial_value) BE $(
+        value := initial_value
+        WRITES("TestClass created with value ")
+        WRITEN(value)
+        WRITES("*N")
+    $)
+
+    FUNCTION getValue() = VALOF RESULTIS value
+
+    ROUTINE RELEASE() BE $(
+        WRITES("TestClass being released*N")
+    $)
+$)
+
+LET START() BE $(
+    WRITES("Testing ? null literal*N")
+    WRITES("=====================*N*N")
+
+    // Test 1: Basic null literal
+    WRITES("Test 1: Basic null assignment*N")
+    LET ptr = ?
+    WRITES("ptr assigned to null*N")
+
+    // Test 2: Null comparison
+    WRITES("*NTest 2: Null comparison*N")
+    IF ptr = ? THEN $(
+        WRITES("ptr is null (correct!)*N")
+    $) ELSE $(
+        WRITES("ptr is not null (ERROR!)*N")
+    $)
+
+    // Test 3: Assign object then compare to null
+    WRITES("*NTest 3: Object assignment and null check*N")
+    ptr := NEW TestClass(42)
+    IF ptr ~= ? THEN $(
+        WRITES("ptr is not null after object creation (correct!)*N")
+        WRITES("Object value: ")
+        WRITEN(ptr.getValue())
+        WRITES("*N")
+    $) ELSE $(
+        WRITES("ptr is null after object creation (ERROR!)*N")
+    $)
+
+    // Test 4: Reset to null
+    WRITES("*NTest 4: Reset to null*N")
+    ptr.RELEASE()
+    ptr := ?
+    IF ptr = ? THEN $(
+        WRITES("ptr is null after reset (correct!)*N")
+    $) ELSE $(
+        WRITES("ptr is not null after reset (ERROR!)*N")
+    $)
+
+    // Test 5: Multiple null variables
+    WRITES("*NTest 5: Multiple null variables*N")
+    LET ptr1 = ?
+    LET ptr2 = ?
+    LET ptr3 = NEW TestClass(100)
+
+    IF ptr1 = ? AND ptr2 = ? AND ptr3 ~= ? THEN $(
+        WRITES("All null checks passed (correct!)*N")
+    $) ELSE $(
+        WRITES("Some null checks failed (ERROR!)*N")
+    $)
+
+    // Clean up
+    ptr3.RELEASE()
+
+    WRITES("*N=== All tests complete ===*N")
+$)

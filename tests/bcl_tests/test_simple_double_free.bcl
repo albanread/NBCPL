@@ -1,0 +1,40 @@
+// Simple test program to verify double-free detection and metrics
+MANIFEST {
+    HEAP_SIZE = 1000
+}
+
+LET start() BE {
+    writef("Simple double-free test with metrics...*n")
+
+    // Print initial heap metrics
+    writef("=== Initial Heap Metrics ===*n")
+    heap_print_metrics()
+
+    // Test 1: Single allocation and free (normal case)
+    writef("*nTest 1: Normal allocation and free*n")
+    LET vec1 = VEC 5
+    writef("Allocated vec1*n")
+    FREEVEC(vec1)
+    writef("Freed vec1 normally*n")
+
+    // Print metrics after normal operation
+    writef("=== Metrics after normal free ===*n")
+    heap_print_metrics()
+
+    // Test 2: Double-free attempt
+    writef("*nTest 2: Double-free attempt*n")
+    LET vec2 = VEC 5
+    writef("Allocated vec2*n")
+    FREEVEC(vec2)
+    writef("First free of vec2 completed*n")
+
+    writef("Attempting second free (should be detected)...*n")
+    FREEVEC(vec2)
+    writef("ERROR: Second free completed - this should not happen!*n")
+
+    // Print final metrics
+    writef("*n=== Final Heap Metrics ===*n")
+    heap_print_metrics()
+
+    writef("*nTest completed.*n")
+}

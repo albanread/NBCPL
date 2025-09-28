@@ -1,0 +1,29 @@
+// Minimal test for VEC [1,2,3] bracket initialization
+
+LET START() BE
+$(
+    WRITES("=== Bracket Vector Test ==*N")
+
+    // Test 1: Simple bracket initialization
+    LET v = VEC [5, 10, 15]
+
+    WRITES("Vector length: ") WRITEN(LEN(v)) WRITES("*N")
+
+    // Test 2: Manual element access
+    WRITES("Manual access: ")
+    FOR i = 0 TO LEN(v)-1 DO
+    $(
+        WRITEN(v!i) WRITES(" ")
+    $)
+    WRITES("*N")
+
+    // Test 3: FOREACH (to debug the issue)
+    WRITES("FOREACH access: ")
+    FOREACH x IN v DO
+    $(
+        WRITEN(x) WRITES(" ")
+    $)
+    WRITES("*N")
+
+    WRITES("Test complete*N")
+$)

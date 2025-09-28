@@ -1,0 +1,41 @@
+// Test program to verify parameter type inference is working correctly
+// This should demonstrate that the type inference system correctly handles mixed-type arguments
+
+LET START() BE {
+    LET my_int = 42
+    LET my_float = 3.14
+
+    WRITEF("Testing parameter type inference...*n")
+
+    // Test 1: Call IntFunc with mixed arguments
+    // The second argument (my_float) should be converted to integer
+    LET result1 = IntFunc(my_int, my_float)
+    WRITEF("IntFunc(42, 3.14) = %d*n", result1)
+
+    // Test 2: Call FloatFunc with mixed arguments
+    // The first argument (my_int) should be converted to float
+    LET result2 = FloatFunc(my_int, my_float)
+    WRITEF("FloatFunc(42, 3.14) = %f*n", result2)
+
+    // Test 3: Call routine with mixed arguments
+    MixedRoutine(my_int, my_float)
+
+    WRITEF("Type inference test completed.*n")
+}
+
+// Function that expects two integers - use them in integer operations
+LET IntFunc(a, b) = a + b + (a * 2) + (b / 2)
+
+// Function that expects two floats - use them in float operations
+FLET FloatFunc(x, y) = x + y + (x * 2.0) + (y / 2.0)
+
+// Routine that expects integer first, float second - use them in type-revealing operations
+LET MixedRoutine(int_param, float_param) BE {
+    // Force int_param to be used as integer
+    LET int_doubled = int_param * 2
+
+    // Force float_param to be used as float
+    LET float_doubled = float_param * 2.0
+
+    WRITEF("MixedRoutine: int*2=%d, float*2=%f*n", int_doubled, float_doubled)
+}

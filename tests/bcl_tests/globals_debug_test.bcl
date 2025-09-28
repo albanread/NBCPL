@@ -1,0 +1,44 @@
+// Debug test for GLOBALS block feature
+// Tests basic global variable declarations with explicit output
+
+GLOBALS $(
+    LET global_int = 123
+    LET another_int = 456
+    LET test_val = 999
+$)
+
+LET START() BE $(
+    WRITES("GLOBALS Debug Test")
+    NEWLINE()
+    WRITES("==================")
+    NEWLINE()
+    NEWLINE()
+
+    WRITES("Testing global_int: ")
+    WRITEN(global_int)
+    NEWLINE()
+
+    WRITES("Testing another_int: ")
+    WRITEN(another_int)
+    NEWLINE()
+
+    WRITES("Testing test_val: ")
+    WRITEN(test_val)
+    NEWLINE()
+
+    // Test modification
+    global_int := global_int + 100
+    WRITES("After adding 100 to global_int: ")
+    WRITEN(global_int)
+    NEWLINE()
+
+    // Test arithmetic with globals
+    LET sum = global_int + another_int + test_val
+    WRITES("Sum of all globals: ")
+    WRITEN(sum)
+    NEWLINE()
+
+    NEWLINE()
+    WRITES("✅ GLOBALS debug test completed!")
+    NEWLINE()
+$)

@@ -1,0 +1,172 @@
+// Test comprehensive object member access functionality
+// This tests both reading (LET K = object.x) and writing (object.x := 100) syntax
+
+CLASS Point$(
+    LET x, y
+
+    LET getX() = x
+    LET getY() = y
+
+    LET setX(newX) BE x := newX
+    LET setY(newY) BE y := newY
+
+    LET toString() = VALOF {
+        writef("Point(%d, %d)", x, y)
+        RESULTIS 0
+    }
+
+    LET distance(other) = VALOF {
+        LET dx = x - other.x
+        LET dy = y - other.y
+        RESULTIS dx * dx + dy * dy
+    }
+$)
+
+CLASS Circle$(
+    LET center, radius
+
+    LET getRadius() = radius
+    LET setRadius(r) BE radius := r
+
+    LET getCenter() = center
+
+    LET area() = VALOF {
+        // Using member access to get center coordinates
+        LET cx = center.x
+        LET cy = center.y
+        writef("Circle center at (%d, %d) with radius %d", cx, cy, radius)
+        RESULTIS 3 * radius * radius  // Simplified pi * r^2
+    }
+
+    LET moveBy(dx, dy) BE {
+        // Direct member access assignment
+        center.x := center.x + dx
+        center.y := center.y + dy
+    }
+$)
+
+LET START() BE {
+    writef("Testing Object Member Access")
+
+    // Test 1: Basic Point creation and member access
+    writef("=== Test 1: Basic Member Access ===")
+    LET p1 = NEW Point()
+    p1.x := 10
+    p1.y := 20
+
+    // Test reading members with dot notation
+    LET x1 = p1.x
+    LET y1 = p1.y
+    writef("p1 coordinates: x=%d, y=%d", x1, y1)
+
+    // Test writing members with dot notation
+    p1.x := 15
+    p1.y := 25
+    writef("After assignment - p1.x=%d, p1.y=%d", p1.x, p1.y)
+
+    // Test 2: Method calls vs member access
+    writef("=== Test 2: Methods vs Members ===")
+    LET x2 = p1.getX()  // Method call
+    LET x3 = p1.x       // Direct member access
+    writef("Method call getX()=%d, direct access x=%d", x2, x3)
+
+    // Test 3: Complex expressions with member access
+    writef("=== Test 3: Complex Expressions ===")
+    LET p2 = NEW Point()
+    p2.x := 5
+    p2.y := 8
+
+    // Using member access in expressions
+    LET sum = p1.x + p2.x
+    LET diff = p1.y - p2.y
+    writef("p1.x + p2.x = %d", sum)
+    writef("p1.y - p2.y = %d", diff)
+
+    // Assignment with expressions
+    p2.x := p1.x * 2
+    p2.y := p1.y / 2
+    writef("After expression assignment - p2.x=%d, p2.y=%d", p2.x, p2.y)
+
+    // Test 4: Nested object member access
+    writef("=== Test 4: Nested Objects ===")
+    LET center = NEW Point()
+    center.x := 100
+    center.y := 200
+    LET circle = NEW Circle()
+    circle.center := center
+    circle.radius := 50
+
+    // Access nested object members
+    LET centerX = circle.center.x
+    LET centerY = circle.center.y
+    writef("Circle center: (%d, %d)", centerX, centerY)
+
+    // Modify nested object members
+    circle.center.x := 150
+    circle.center.y := 250
+    writef("After moving center: (%d, %d)", circle.center.x, circle.center.y)
+
+    // Test 5: Method calls on member objects
+    writef("=== Test 5: Method Calls on Members ===")
+    circle.moveBy(10, 20)
+    writef("After moveBy(10, 20): center at (%d, %d)", circle.center.x, circle.center.y)
+
+    // Test 6: Member access in method parameters
+    writef("=== Test 6: Members as Parameters ===")
+    LET p3 = NEW Point()
+    p3.x := circle.center.x
+    p3.y := circle.center.y
+    LET dist = p1.distance(p3)
+    writef("Distance between p1 and p3: %d", dist)
+
+    // Test 7: Chained assignments
+    writef("=== Test 7: Chained Operations ===")
+    LET p4 = NEW Point()
+    LET p5 = NEW Point()
+    p4.x := 0
+    p4.y := 0
+    p5.x := 0
+    p5.y := 0
+
+    // Chain of member assignments (simplified)
+    p5.x := p1.x
+    p4.x := p5.x
+    p5.y := p1.y
+    p4.y := p5.y
+    writef("After chained assignment - p4(%d,%d), p5(%d,%d)", p4.x, p4.y, p5.x, p5.y)
+
+    // Test 8: Member access with different types
+    writef("=== Test 8: Type Handling ===")
+    circle.radius := circle.center.x / 10  // Integer division
+    writef("Circle radius set to: %d", circle.radius)
+
+    // Test 9: Conditional expressions with member access
+    writef("=== Test 9: Conditionals ===")
+    LET larger = p1.x > p2.x -> p1.x, p2.x
+    writef("Larger x coordinate: %d", larger)
+
+    // Test member access in TEST statement
+    TEST p1.x > 20 THEN
+        writef("p1.x is greater than 20")
+    ELSE
+        writef("p1.x is not greater than 20")
+
+    // Test 10: Member access in loops
+    writef("=== Test 10: Loops ===")
+    FOR i = 0 TO 2 DO {
+        LET newX = p1.x + 1
+        p1.x := newX
+        writef("Loop %d: p1.x = %d", i, p1.x)
+    }
+
+    writef("=== All Tests Complete ===")
+
+    // Cleanup
+    p1.RELEASE()
+    p2.RELEASE()
+    p3.RELEASE()
+    p4.RELEASE()
+    p5.RELEASE()
+    center.RELEASE()
+    circle.RELEASE()
+}

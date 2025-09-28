@@ -1,0 +1,49 @@
+// Test with simple float operations to find register pressure point
+
+GLOBALS {
+    FLET global_x = 0.0
+    FLET global_y = 0.0
+}
+
+LET test_simple_float() BE $(
+    FLET local_a = 1.5
+    FLET local_b = 2.5
+
+    // Simple float operations
+    local_a := global_x + 1.0
+    local_b := global_y * 2.0
+
+    global_x := local_a
+    global_y := local_b
+$)
+
+LET test_complex_float() BE $(
+    FLET temp1 = 0.0
+    FLET temp2 = 0.0
+
+    // More complex expression - this might trigger register pressure
+    temp1 := global_x * 0.85 + global_y * 0.04
+    temp2 := global_x * (-0.04) + global_y * 0.85 + 1.6
+
+    global_x := temp1
+    global_y := temp2
+$)
+
+LET START() BE $(
+    WRITES("Testing float register pressure")
+    NEWLINE()
+
+    global_x := 1.0
+    global_y := 2.0
+
+    test_simple_float()
+    WRITES("Simple float test passed")
+    NEWLINE()
+
+    test_complex_float()
+    WRITES("Complex float test passed")
+    NEWLINE()
+
+    WRITES("All tests completed")
+    NEWLINE()
+$)

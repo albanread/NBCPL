@@ -1,0 +1,56 @@
+LET START() BE {
+    WRITES("Testing MULTIPLY_BY_TWO function with integer input...*N")
+
+    // First, test direct floating point operation
+    FLET a = 2.0
+    FLET b = 4.0
+    FLET c = a *# b
+    WRITES("Direct float multiplication: 2.0 *# 4.0 = ")
+    WRITEF(c)
+    WRITES("*N")
+
+    // Now test the function with integer input
+    FLET result = MULTIPLY_BY_TWO(8)
+    WRITES("MULTIPLY_BY_TWO(8) = ")
+    WRITEF(result)
+    WRITES(" (should be 16.0)*N")
+
+    // Test direct FLOAT conversion
+    FLET x = 8
+    FLET y = FLOAT(x)
+    WRITES("Direct FLOAT(8) = ")
+    WRITEF(y)
+    WRITES("*N")
+
+    // Test FLOAT + multiplication
+    FLET z = FLOAT(8) *# 2.0
+    WRITES("FLOAT(8) *# 2.0 = ")
+    WRITEF(z)
+    WRITES("*N")
+
+    // Test a workaround function with separate calculation steps
+    FLET result2 = MULTIPLY_BY_TWO_SAFE(8)
+    WRITES("MULTIPLY_BY_TWO_SAFE(8) = ")
+    WRITEF(result2)
+    WRITES(" (should be 16.0)*N")
+
+    WRITES("Test complete.*N")
+}
+
+// Simple function to multiply its input by two
+// This simulates the function mentioned in the issue
+LET MULTIPLY_BY_TWO(x) = FVALOF {
+    // Convert to float and multiply by 2.0
+    LET result = FLOAT(x) *# 2.0
+    RESULTIS result
+}
+
+// Safe workaround: Separate conversion and multiplication steps
+LET MULTIPLY_BY_TWO_SAFE(x) = FVALOF {
+    // First convert to float
+    LET fx = FLOAT(x)
+    // Then multiply as a separate step
+    LET result = fx *# 2.0
+    // Return the result
+    RESULTIS result
+}

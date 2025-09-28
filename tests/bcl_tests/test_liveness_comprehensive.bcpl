@@ -1,0 +1,144 @@
+// Comprehensive test for corrected liveness analysis
+// Tests edge cases and validates proper def/use set computation
+
+LET test_edge_cases(param1, param2) BE
+{
+    // Edge Case 1: Parameter used and then redefined
+    writef("Original param1: %d*n", param1)  // USE of param1
+    param1 := param1 + 100                   // USE and DEF of param1
+    writef("Modified param1: %d*n", param1)  // USE of param1 (after def)
+
+    // Edge Case 2: Variable used in its own assignment
+    LET counter = 0
+    counter := counter + 1                    // USE and DEF of counter
+    counter := counter * 2                    // USE and DEF of counter
+
+    // Expected: param1, counter in both USE and DEF sets
+}
+
+LET test_control_flow_liveness() BE
+{
+    LET condition = 1
+    LET branch_var = 0
+
+    // Test variables that may be used conditionally
+    TEST condition DO
+    {
+        branch_var := 42                      // DEF of branch_var
+        writef("In true branch: %d*n", branch_var)  // USE of branch_var
+    }
+    OR
+    {
+        branch_var := 24                      // DEF of branch_var
+        writef("In false branch: %d*n", branch_var) // USE of branch_var
+    }
+
+    // Variable used after conditional
+    writef("Final value: %d*n", branch_var)  // USE of branch_var
+
+    // Expected: condition, branch_var in DEF; condition, branch_var in USE
+}
+
+LET test_loop_liveness() BE
+{
+    LET i = 0
+    LET sum = 0
+
+    // FOR loop with variable usage patterns
+    FOR i = 1 TO 10 DO
+    {
+        sum := sum + i                        // USE and DEF of sum, USE of i
+        writef("Iteration %d, sum=%d*n", i, sum)  // USE of i, sum
+    }
+
+    // Variables used after loop
+    writef("Final sum: %d*n", sum)           // USE of sum
+
+    // Expected: i, sum in both USE and DEF sets
+}
+
+LET test_complex_expressions() BE
+{
+    LET a = 5
+    LET b = 10
+    LET c = 15
+    LET result = 0
+
+    // Complex expression with multiple variable uses
+    result := (a * b) + (c - a) + (b / 2)   // Uses: a(2x), b(2x), c(1x); Def: result
+
+    // Nested expression with reassignment
+    a := (a + b) * (result - c)             // Uses: a, b, result, c; Def: a
+
+    // Chain assignment
+    b := c := result                        // Uses: result; Defs: b, c
+
+    writef("Results: a=%d, b=%d, c=%d, result=%d*n", a, b, c, result)
+
+    // Expected: All variables in both USE and DEF sets
+}
+
+LET test_function_calls_with_vars() BE
+{
+    LET local1 = 100
+    LET local2 = 200
+    LET local3 = 300
+
+    // Variables passed to function calls should be marked as uses
+    test_edge_cases(local1, local2)         // USE of local1, local2
+
+    // Variable modified after call
+    local3 := local3 + local1               // USE of local3, local1; DEF of local3
+
+    writef("After call: %d*n", local3)     // USE of local3
+
+    // Expected: local1, local2, local3 in USE; local3 in DEF
+}
+
+LET test_variable_shadowing() BE
+{
+    LET outer_var = 10
+
+    writef("Outer scope: %d*n", outer_var) // USE of outer_var
+
+    // Block with local variable that shadows outer one
+    {
+        LET outer_var = 20                  // DEF of new outer_var (different scope)
+        writef("Inner scope: %d*n", outer_var)  // USE of inner outer_var
+        outer_var := outer_var + 5          // USE and DEF of inner outer_var
+    }
+
+    writef("Back to outer: %d*n", outer_var)  // USE of original outer_var
+
+    // This tests that liveness analysis handles scoping correctly
+}
+
+LET test_uninitialized_usage() BE
+{
+    LET uninit_var = ?                      // Uninitialized variable
+
+    // Using uninitialized variable should still count as USE
+    writef("Uninitialized: %d*n", uninit_var)  // USE of uninit_var
+
+    uninit_var := 42                       // DEF of uninit_var
+    writef("Now initialized: %d*n", uninit_var)  // USE of uninit_var
+
+    // Expected: uninit_var in both USE and DEF sets
+}
+
+LET start() BE
+{
+    writef("=== Comprehensive Liveness Analysis Test ===*n")
+
+    // Run all test cases
+    test_edge_cases(1, 2)
+    test_control_flow_liveness()
+    test_loop_liveness()
+    test_complex_expressions()
+    test_function_calls_with_vars()
+    test_variable_shadowing()
+    test_uninitialized_usage()
+
+    writef("=== Test Complete ===*n")
+    FINISH
+}

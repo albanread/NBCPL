@@ -1,0 +1,9 @@
+// Test with only RETAIN to make sure basic setup works
+LET START() BE $(
+    WRITES("Testing RETAIN only...*N")
+
+    LET x = VEC 10
+    RETAIN x
+
+    WRITES("RETAIN only test complete*N")
+$)

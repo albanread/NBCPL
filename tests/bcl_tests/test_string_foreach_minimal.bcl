@@ -1,0 +1,11 @@
+// Minimal test to verify basic string FOREACH functionality
+LET START() BE {
+    WRITEF("Testing basic string FOREACH\n")
+
+    // Test with a simple string literal
+    FOREACH char IN "abc" DO {
+        WRITEF("Character: %c\n", char)
+    }
+
+    WRITEF("String FOREACH test completed\n")
+}

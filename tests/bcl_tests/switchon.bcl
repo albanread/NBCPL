@@ -1,0 +1,50 @@
+GET "libhdr.h"
+
+// Routine to demonstrate the SWITCHON statement
+LET TESTSWITCH(VAL) BE
+$(
+    WRITES("Testing value: ")
+    WRITEN(VAL)
+    WRITEC(10)
+
+    SWITCHON VAL INTO
+    $(
+        CASE 1:
+            WRITES("  -> Matched CASE 1*N")
+            WRITEC(10)
+            ENDCASE
+        CASE 5:
+            WRITES("  -> Matched CASE 5*N")
+            WRITEC(10)
+            ENDCASE
+        CASE 10:
+            WRITES("  -> Matched CASE 10*N")
+            WRITEC(10)
+            ENDCASE
+        DEFAULT:
+            WRITES("  -> Fell into DEFAULT case*N")
+            WRITEC(10)
+            ENDCASE
+    $)
+    WRITEC(10)
+$)
+
+// Main entry point for the program
+LET START() BE
+$(
+    WRITES("--- BCPL SWITCHON Statement Test ---*N*N")
+
+    // Test a value that should match a case
+    TESTSWITCH(5)
+
+    // Test another value that should match a case
+    TESTSWITCH(1)
+
+    // Test a value that should fall into the default case
+    TESTSWITCH(99)
+    
+    // Test the last case
+    TESTSWITCH(10)
+
+    WRITES("--- Test Complete ---*N")
+$)

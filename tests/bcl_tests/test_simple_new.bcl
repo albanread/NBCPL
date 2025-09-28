@@ -1,0 +1,25 @@
+// test_simple_new.bcl - Minimal test for NEW expression detection
+
+CLASS TestClass $(
+    DECL value
+
+    ROUTINE CREATE(v) BE $(
+        value := v
+        WRITES("TestClass created*N")
+    $)
+
+    FUNCTION getValue() = VALOF $(
+        RESULTIS value
+    $)
+$)
+
+LET START() BE $(
+    WRITES("Simple NEW test*N")
+
+    // This should be detected by SymbolTableBuilder
+    LET obj = NEW TestClass
+    obj.CREATE(42)
+
+    WRITEN(obj.getValue())
+    WRITES("*N")
+$)

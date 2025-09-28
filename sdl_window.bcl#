@@ -1,0 +1,59 @@
+// Define constants for SDL2 events and flags for better readability.
+// The value for SDL_QUIT (0x100) comes from the SDL documentation.
+MANIFEST $(
+    SDL_INIT_VIDEO = 0x00000020,
+    SDL_QUIT       = 0x100
+$)
+
+LET START() BE $(
+    WRITEF("SDL2 Window Example*N")
+    WRITEF("===================*N")
+
+    // Initialize only the video subsystem.
+    SDL2_INIT_SUBSYSTEMS(SDL_INIT_VIDEO)
+
+    // Create a window and a renderer for it.
+    LET window = SDL2_CREATE_WINDOW("My BCPL Window")
+    TEST window > 0 THEN $(
+        LET renderer = SDL2_CREATE_RENDERER(window)
+        TEST renderer > 0 THEN $(
+            LET running = TRUE
+            
+            // This is the main event loop.
+            WHILE running DO $(
+                // Check for the next event in the queue.
+                LET event_type = SDL2_POLL_EVENT()
+
+                // If the event is the quit signal, stop the loop.
+                TEST event_type = SDL_QUIT THEN running := FALSE
+                
+                // --- Drawing Cycle ---
+                // 1. Set the background color (a dark blue).
+                SDL2_SET_DRAW_COLOR(renderer, 30, 30, 50, 255)
+                
+                // 2. Clear the screen with the current color.
+                SDL2_CLEAR(renderer)
+                
+                // 3. Present the renderer to show the changes on the screen.
+                SDL2_PRESENT(renderer)
+                
+                // 4. Add a small delay to prevent the loop from using 100% CPU.
+                SDL2_DELAY(16) // Roughly 60 frames per second.
+            $)
+
+            // Clean up resources in reverse order of creation.
+            WRITEF("Cleaning up renderer and window...*N")
+            SDL2_DESTROY_RENDERER(renderer)
+            SDL2_DESTROY_WINDOW(window)
+
+        $) ELSE $(
+            WRITEF("❌ Failed to create renderer!*N")
+        $)
+    $) ELSE $(
+        WRITEF("❌ Failed to create window!*N")
+    $)
+
+    // Shut down all SDL subsystems.
+    SDL2_QUIT()
+    WRITEF("✅ SDL2 shutdown complete.*N")
+$)

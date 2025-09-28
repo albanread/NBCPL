@@ -1,0 +1,26 @@
+GET "libhdr.h"
+
+LET START() = VALOF
+$(
+  WRITES("Testing FSIN function*N")
+  WRITES("=====================*N*N")
+
+  // Test FSIN with simple values
+  WRITES("FSIN(0.0) = ")
+  FLET result1 = FSIN(0.0)
+  FWRITE(result1)
+  WRITES(" (should be 0.0)*N")
+
+  WRITES("FSIN(1.5708) = ")
+  FLET result2 = FSIN(1.5708)
+  FWRITE(result2)
+  WRITES(" (pi/2, should be ~1.0)*N")
+
+  WRITES("FSIN(3.14159) = ")
+  FLET result3 = FSIN(3.14159)
+  FWRITE(result3)
+  WRITES(" (pi, should be ~0.0)*N*N")
+
+  WRITES("FSIN testing complete!*N")
+  RESULTIS 0
+$)

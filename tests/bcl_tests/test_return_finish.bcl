@@ -1,0 +1,15 @@
+GET "libhdr.h"
+
+LET MYROUTINE() BE
+$(
+  WRITES("Inside MyRoutine*N")
+  RETURN
+$)
+
+LET START() = VALOF
+$(
+  MYROUTine()
+  WRITES("After MyRoutine (should not be seen)*N")
+  FINISH
+  RESULTIS 0
+$)

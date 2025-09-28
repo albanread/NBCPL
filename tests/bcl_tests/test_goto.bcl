@@ -1,0 +1,13 @@
+GET "libhdr.h"
+
+LET START() = VALOF
+$(
+
+  LET I = 0
+  MyLabel: WRITEN(I)
+  WRITES("*N")
+  I := I + 1
+  IF I < 32 THEN GOTO MyLabel
+  RESULTIS 0
+
+$)

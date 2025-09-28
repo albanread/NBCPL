@@ -1,0 +1,22 @@
+GET "libhdr"
+
+LET START() BE
+$(
+    LET i = 0
+    LET count = 0
+
+    WRITES("Starting loop test*N")
+
+    FOR i = 1 TO 5 DO
+    $(
+        WRITES("Loop iteration: ")
+        WRITEN(i)
+        count := count + 1
+    $)
+
+    WRITES("Loop finished.*N")
+    WRITES("Total iterations: ")
+    WRITEN(count)
+
+    FINISH
+$)

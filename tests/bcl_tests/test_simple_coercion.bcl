@@ -1,0 +1,23 @@
+// Simple test for assignment-level coercion without WRITEF
+// This tests the rule: LET variables are INTEGER, FLET variables are FLOAT
+// When assigning a float expression to a LET variable, it should be coerced to integer
+
+LET START() BE
+$(
+    // Test 1: Integer variable with float expression (should coerce)
+    // Expression evaluates to 6.0, should be coerced to integer 6
+    LET int_var = 1 + 2.5 * 2
+
+    // Test 2: Float variable with same expression (no coercion)
+    // Expression evaluates to 6.0, stored as 6.0
+    FLET float_var = 1 + 2.5 * 2
+
+    // Test 3: Integer variable with pure integer expression (no promotion or coercion)
+    LET pure_int = 3 * 4
+
+    // Test 4: Float variable with pure integer expression (should promote at assignment)
+    FLET promoted_float = 3 * 4
+
+    // Simple output to confirm it runs
+    WRITEF("Assignment coercion test completed")
+$)

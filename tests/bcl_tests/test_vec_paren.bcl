@@ -1,0 +1,15 @@
+LET START() BE
+$(
+   // Test VEC() syntax individually
+   WRITES("Testing VEC() syntax*N")
+
+   // Test normal VEC() without trailing comma
+   LET vec_normal = VEC("a", "b")
+   WRITES("Normal VEC(): OK*N")
+
+   // Test VEC() with trailing comma
+   LET vec_trailing = VEC("a", "b",)
+   WRITES("VEC() with trailing comma: OK*N")
+
+   WRITES("VEC() test complete*N")
+$)

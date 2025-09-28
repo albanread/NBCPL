@@ -1,0 +1,16 @@
+LET SQUARE(N) =  VALOF  $( RESULTIS N * N $)
+
+
+LET START() BE $(
+
+    LET Numbers = LIST(1, 2, 3, 4, 5)
+   
+   
+    FOREACH N IN Numbers DO $(
+        WRITEN(N) WRITES(" =  ") WRITEN(SQUARE(N)) WRITEC(10)
+    $) // Expected output: 1 4 9 16 25 
+
+    WRITES("*N")
+
+   
+$)

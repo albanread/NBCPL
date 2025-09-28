@@ -1,0 +1,29 @@
+GET "libhdr"
+
+// Test for float function detection
+
+FLET pi = 3.14
+
+// This should be detected as a float function
+LET float_func() = VALOF FLTOF
+$(
+    RESULTIS pi
+$)
+
+// This should be detected as an integer function
+LET int_func() = VALOF
+$(
+    RESULTIS 42
+$)
+
+// Main function
+LET START() BE
+$(
+    LET f = float_func()
+    LET i = int_func()
+
+    WRITEF(f)
+    WRITES(" ")
+    WRITEN(i)
+    WRITES("*n")
+$)

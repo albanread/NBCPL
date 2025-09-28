@@ -1,0 +1,180 @@
+// Test to verify that memory cleanup occurs on ALL control flow exit paths,
+// not just at the lexical end of blocks.
+
+CLASS Point $(
+    LET x = 0
+    LET y = 0
+$)
+
+// Test 1: Early RETURN from nested block
+LET TestEarlyReturn(condition) BE $(
+    LET result = 0
+
+    BLOCK
+        LET p = NEW Point() // 'p' owns heap memory
+        LET v = GETVEC(100) // 'v' owns heap memory
+
+        p.x := 10
+        p.y := 20
+
+        IF condition THEN
+            RETURN 42 // <- Control flow exits here!
+                     // Cleanup for 'p' and 'v' must happen before return
+
+        // This code should only execute if condition is false
+        result := p.x + p.y
+
+    END // <- The lexical cleanup code would be generated here
+
+    RETURN result
+$)
+
+// Test 2: BREAK from nested block inside loop
+LET TestEarlyBreak() BE $(
+    LET total = 0
+
+    FOR i = 1 TO 10 DO
+        BLOCK
+            LET temp = NEW Point() // 'temp' owns heap memory
+            LET buffer = GETVEC(50) // 'buffer' owns heap memory
+
+            temp.x := i
+            temp.y := i * 2
+
+            IF i = 5 THEN
+                BREAK // <- Control flow exits here!
+                      // Cleanup for 'temp' and 'buffer' must happen before break
+
+            total := total + temp.x + temp.y
+
+        END // <- Lexical cleanup would be here
+    REPEAT
+
+    RETURN total
+$)
+
+// Test 3: GOTO from nested block
+LET TestGoto(value) BE $(
+    LET result = 0
+
+    BLOCK
+        LET data = NEW Point() // 'data' owns heap memory
+        LET array = GETVEC(20) // 'array' owns heap memory
+
+        data.x := value
+
+        IF value < 0 THEN
+            GOTO error_exit // <- Control flow exits here!
+                           // Cleanup for 'data' and 'array' must happen before goto
+
+        data.y := value * 2
+        result := data.x + data.y
+
+    END // <- Lexical cleanup would be here
+
+    RETURN result
+
+    error_exit:
+        RETURN -1
+$)
+
+// Test 4: Nested blocks with multiple levels of cleanup
+LET TestNestedBlocks(flag1, flag2) BE $(
+    LET outer_result = 0
+
+    BLOCK
+        LET outer_obj = NEW Point() // Outer scope allocation
+
+        outer_obj.x := 100
+
+        BLOCK
+            LET inner_obj = NEW Point() // Inner scope allocation
+            LET inner_vec = GETVEC(30) // Inner scope allocation
+
+            inner_obj.y := 200
+
+            IF flag1 THEN
+                IF flag2 THEN
+                    RETURN 999 // <- Must cleanup: inner_vec, inner_obj, outer_obj
+
+                RETURN 888 // <- Must cleanup: inner_vec, inner_obj, outer_obj
+
+            outer_result := outer_obj.x + inner_obj.y
+
+        END // <- Normal cleanup for inner_vec, inner_obj
+
+        outer_result := outer_result + outer_obj.x
+
+    END // <- Normal cleanup for outer_obj
+
+    RETURN outer_result
+$)
+
+// Test 5: FINISH statement (early function exit)
+LET TestFinish(should_finish) BE $(
+    BLOCK
+        LET resource = NEW Point() // 'resource' owns heap memory
+        LET memory = GETVEC(40) // 'memory' owns heap memory
+
+        resource.x := 123
+
+        IF should_finish THEN
+            FINISH // <- Control flow exits here!
+                   // Cleanup for 'memory' and 'resource' must happen before finish
+
+        resource.y := 456
+
+    END // <- Lexical cleanup would be here
+$)
+
+// Test 6: Switch statement with ENDCASE
+LET TestSwitchEndcase(value) BE $(
+    LET result = 0
+
+    SWITCHON value INTO $(
+        CASE 1:
+        CASE 2:
+            BLOCK
+                LET switch_obj = NEW Point() // 'switch_obj' owns heap memory
+
+                switch_obj.x := value * 10
+
+                IF value = 1 THEN
+                    result := switch_obj.x
+                    ENDCASE // <- Control flow exits here!
+                           // Cleanup for 'switch_obj' must happen before endcase
+
+                switch_obj.y := value * 20
+                result := switch_obj.x + switch_obj.y
+
+            END // <- Lexical cleanup would be here
+            ENDCASE
+
+        DEFAULT:
+            result := -1
+    $)
+
+    RETURN result
+$)
+
+// Main function to run all tests
+LET START() BE $(
+    WRITEF("Testing cleanup on control flow exit paths...*N")
+
+    // These calls will test the various cleanup scenarios
+    TestEarlyReturn(TRUE)
+    TestEarlyReturn(FALSE)
+    TestEarlyBreak()
+    TestGoto(10)
+    TestGoto(-5)
+    TestNestedBlocks(TRUE, TRUE)
+    TestNestedBlocks(TRUE, FALSE)
+    TestNestedBlocks(FALSE, FALSE)
+    TestFinish(TRUE)
+    TestFinish(FALSE)
+    TestSwitchEndcase(1)
+    TestSwitchEndcase(2)
+    TestSwitchEndcase(99)
+
+    WRITEF("All tests completed.*N")
+$)

@@ -1,0 +1,34 @@
+LET START() BE
+$(
+   // Targeted test for trailing comma fixes on confirmed syntax
+   WRITES("Testing trailing comma fixes*N")
+
+   // Test 1: LIST expressions (confirmed working)
+   LET list1 = LIST("a", "b")
+   LET list2 = LIST("a", "b",)
+   WRITES("LIST trailing comma: OK*N")
+
+   // Test 2: VEC() initializer expressions (confirmed syntax)
+   LET vec1 = VEC("x", "y")
+   LET vec2 = VEC("x", "y",)
+   WRITES("VEC() trailing comma: OK*N")
+
+   // Test 3: VEC[] initializer expressions (confirmed syntax)
+   LET vecb1 = VEC["p", "q"]
+   LET vecb2 = VEC["p", "q",]
+   WRITES("VEC[] trailing comma: OK*N")
+
+   // Test 4: TABLE expressions (confirmed working earlier)
+   LET table1 = TABLE("i", "j")
+   LET table2 = TABLE("i", "j",)
+   WRITES("TABLE trailing comma: OK*N")
+
+   // Test 5: Empty forms (should work as before)
+   LET empty_list = LIST()
+   LET empty_vec = VEC()
+   LET empty_vecb = VEC[]
+   LET empty_table = TABLE()
+   WRITES("Empty forms: OK*N")
+
+   WRITES("All confirmed trailing comma fixes work!*N")
+$)

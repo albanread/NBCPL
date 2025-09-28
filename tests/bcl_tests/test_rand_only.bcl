@@ -1,0 +1,21 @@
+// Simple test to verify RAND function works correctly
+// RAND should return random integers, not always 0
+
+LET START() BE $(
+    WRITES("Testing RAND function...*N")
+    WRITES("RAND(10) called 10 times:*N")
+
+    FOR i = 1 TO 10 DO $(
+        LET result = RAND(10)
+        WRITEF("RAND(10) = %d*N", result)
+    $)
+
+    WRITES("*NTesting RAND(100) called 5 times:*N")
+
+    FOR i = 1 TO 5 DO $(
+        LET result = RAND(100)
+        WRITEF("RAND(100) = %d*N", result)
+    $)
+
+    WRITES("*NIf all values above are NOT zero and show variation, RAND is working!*N")
+$)

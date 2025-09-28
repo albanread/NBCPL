@@ -1,0 +1,8 @@
+// Ultra-simple test to debug variable type determination
+LET START() BE
+$(
+    // This should be an INTEGER variable with float expression coercion
+    LET my_int = 1.5 + 2.5
+
+    WRITEF("Test completed")
+$)

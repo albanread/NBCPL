@@ -1,0 +1,25 @@
+// Simple test to debug memory leak detection
+
+CLASS Point $(
+    LET x = 0
+    LET y = 0
+$)
+
+LET TestSimpleLeak() BE $(
+    WRITES("Testing simple memory leak detection*N")
+
+    // This should work fine - initial allocation
+    LET p = NEW Point()
+    p.x := 42
+
+    // This should trigger a memory leak warning
+    // p already owns memory from the NEW Point() above
+    p := NEW Point()  // <-- This line should warn about potential leak
+    p.y := 84
+$)
+
+LET START() BE $(
+    WRITES("Simple leak detection test*N")
+    TestSimpleLeak()
+    WRITES("Test complete - check for leak warnings*N")
+$)

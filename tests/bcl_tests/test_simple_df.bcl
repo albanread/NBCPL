@@ -1,0 +1,22 @@
+// Simple double-free test without hanging error checks
+MANIFEST {
+    HEAP_SIZE = 1000
+}
+
+LET START() BE {
+    writef("Simple double-free test...*n")
+
+    // Test 1: Double-free a vector
+    writef("Test 1: Double-free vector*n")
+    LET vec = VEC 10
+    writef("Allocated vector*n")
+
+    FREEVEC(vec)
+    writef("First free completed*n")
+
+    // This should trigger double-free detection
+    FREEVEC(vec)
+    writef("Second free completed - ERROR if this prints!*n")
+
+    writef("Test completed*n")
+}

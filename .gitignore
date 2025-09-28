@@ -1,0 +1,71 @@
+# C++ .gitignore
+
+# Compiled Object files
+*.o
+*.obj
+*.lo
+*.la
+*.slo
+
+# Precompiled Headers
+*.gch
+*.pch
+
+# Compiled static libraries
+*.a
+*.lib
+
+# Compiled shared libraries
+*.so
+*.dylib
+*.dll
+
+# Executables
+*.exe
+*.out
+*.app
+
+# Debug files
+*.dSYM/
+*.suo
+*.idb
+*.pdb
+
+# Build directories
+build/
+bin/
+obj/
+Debug/
+Release/
+x64/
+x86/
+CMakeFiles/
+CMakeCache.txt
+*.cmake
+cmake_install.cmake
+install_manifest.txt
+Makefile
+*.cbp
+*.depend
+*.layout
+
+# Project files for specific IDEs/editors
+.vscode/
+.vs/
+*.VC.db
+*.VC.VC.opendb
+
+# User-specific files
+*.user
+*.DS_Store
+
+# Log files
+*.log
+
+# Test results
+/coverage
+
+# Your BCPL compiler specific files (add as needed)
+*.bcl.o
+*.int
+run.json

@@ -1,0 +1,498 @@
+#!/bin/bash
+set -e # Exit immediately on error
+
+# --- Configuration ---
+TOP_LEVEL_DIR="."
+RUNTIME_DIR="runtime"
+HEAP_DIR="HeapManager"
+STATIC_BUILD_DIR="build/static"
+JIT_BUILD_DIR="build/jit"
+COMBINED_FILE="runtimecombined.txt"
+
+# --- Functions ---
+
+combine_files() {
+    echo "--- Combining all .cpp and .h source files into ${COMBINED_FILE} ---"
+    # Overwrite/create the file
+    > "${COMBINED_FILE}"
+
+    # Find and append all .cpp and .h files in the project, sorted for deterministic order.
+    find . -type f \( -name "*.cpp" -o -name "*.h" \) | sort | while read -r file; do
+        echo "Appending: $file"
+        echo "// -- start of file: $file" >> "${COMBINED_FILE}"
+        cat "$file" >> "${COMBINED_FILE}"
+        echo -e "\n// -- end of file\n" >> "${COMBINED_FILE}"
+    done
+
+    # Optionally, also include .c and .inc files from runtime and HeapManager for completeness.
+    find "${RUNTIME_DIR}" "${HEAP_DIR}" -type f \( -name "*.c" -o -name "*.inc" \) | sort | while read -r file; do
+        echo "Appending: $file"
+        echo "// -- start of file: $file" >> "${COMBINED_FILE}"
+        cat "$file" >> "${COMBINED_FILE}"
+        echo -e "\n// -- end of file\n" >> "${COMBINED_FILE}"
+    done
+
+    # Find 'runtime*' files outside of the main runtime and heap directories,
+    # EXCLUDING the output file itself to prevent a loop.
+    find . -path "./${RUNTIME_DIR}" -prune -o \
+           -path "./${HEAP_DIR}" -prune -o \
+           -path "./${COMBINED_FILE}" -prune -o \
+           -name 'runtime*' -type f -print | sort | while read -r file; do
+        echo "Appending: $file"
+        echo "// -- start of file: $file" >> "${COMBINED_FILE}"
+        cat "$file" >> "${COMBINED_FILE}"
+        echo -e "\n// -- end of file\n" >> "${COMBINED_FILE}"
+    done
+
+    echo "✅ Successfully created ${COMBINED_FILE}"
+}
+
+clean_build() {
+    echo "--- Cleaning build artifacts ---"
+    rm -rf build
+    echo "Removed directory: build"
+    rm -f starter.o
+    echo "Removed file: starter.o"
+    rm -f libbcpl_runtime_jit.a libbcpl_runtime_c.a libbcpl_runtime.a
+    echo "Removed libraries: libbcpl_runtime_jit.a, libbcpl_runtime_c.a, libbcpl_runtime.a"
+    rm -f "${COMBINED_FILE}"
+    echo "Removed file: ${COMBINED_FILE}"
+    echo "✅ Clean complete."
+}
+
+
+# --- Argument Parsing ---
+if [ -z "$1" ]; then
+    echo "No build mode specified. Defaulting to: unified runtime with SDL2 statically included (fully self-contained, no external SDL2 needed)."
+    BUILD_MODE="UNIFIED"
+    SDL2_ENABLED=true
+    SDL2_STATIC=true
+else
+
+    # Convert first argument to uppercase and remove leading --
+    BUILD_MODE=$(echo "$1" | tr '[:lower:]' '[:upper:]' | sed 's/--//')
+
+    # Check for SDL2 flags
+    SDL2_ENABLED=false
+    SDL2_STATIC=false
+    if [ "$BUILD_MODE" = "WITH-SDL2" ]; then
+        SDL2_ENABLED=true
+        # Default to unified build when SDL2 is requested
+        BUILD_MODE="UNIFIED"
+    elif [ "$BUILD_MODE" = "WITH-SDL2-STATIC" ]; then
+        SDL2_ENABLED=true
+        SDL2_STATIC=true
+        # Default to unified build when SDL2 is requested
+        BUILD_MODE="UNIFIED"
+    elif [ "$BUILD_MODE" = "JIT-SDL2" ]; then
+        SDL2_ENABLED=true
+        SDL2_STATIC=false
+        BUILD_MODE="JIT"
+    elif [ "$BUILD_MODE" = "JIT-SDL2-STATIC" ]; then
+        SDL2_ENABLED=true
+        SDL2_STATIC=true
+        BUILD_MODE="JIT"
+    fi
+fi
+
+# --- Main Logic ---
+case "${BUILD_MODE}" in
+    "JIT")
+        echo "--- Building JIT Runtime ---"
+        echo "Build directory: ${JIT_BUILD_DIR}"
+        mkdir -p "${JIT_BUILD_DIR}"
+
+        # Define include paths and compile flags
+        INCLUDE_DIRS="-I. -I${RUNTIME_DIR} -I${HEAP_DIR}"
+        CFLAGS="-g -fPIC -std=c99"
+        CXXFLAGS="-g -fPIC -std=c++17"
+        DEFINES="-DJIT_MODE"
+        if [ "$SDL2_ENABLED" = true ]; then
+            DEFINES="${DEFINES} -DSDL2_RUNTIME_ENABLED"
+        fi
+
+        echo "Step 1: Compiling C files..."
+        # Compile C files
+        clang ${CFLAGS} ${DEFINES} ${INCLUDE_DIRS} -c ${RUNTIME_DIR}/BCPLError.c -o ${JIT_BUILD_DIR}/BCPLError.o
+        clang ${CFLAGS} ${DEFINES} ${INCLUDE_DIRS} -c ${RUNTIME_DIR}/runtime_freelist.c -o ${JIT_BUILD_DIR}/runtime_freelist.o
+
+        echo "Step 2: Compiling C++ files..."
+        # Compile C++ files
+        clang++ ${CXXFLAGS} ${DEFINES} ${INCLUDE_DIRS} -c ${RUNTIME_DIR}/runtime_c_globals.cpp -o ${JIT_BUILD_DIR}/runtime_c_globals.o
+        clang++ ${CXXFLAGS} ${DEFINES} ${INCLUDE_DIRS} -c ${RUNTIME_DIR}/jit_runtime.cpp -o ${JIT_BUILD_DIR}/jit_runtime.o
+        clang++ ${CXXFLAGS} ${DEFINES} ${INCLUDE_DIRS} -c ${RUNTIME_DIR}/jit_heap_bridge.cpp -o ${JIT_BUILD_DIR}/jit_heap_bridge.o
+        clang++ ${CXXFLAGS} ${DEFINES} ${INCLUDE_DIRS} -c ${RUNTIME_DIR}/RuntimeBridge.cpp -o ${JIT_BUILD_DIR}/RuntimeBridge.o
+        clang++ ${CXXFLAGS} ${DEFINES} ${INCLUDE_DIRS} -c ${RUNTIME_DIR}/runtime_string_ops.cpp -o ${JIT_BUILD_DIR}/runtime_string_ops.o
+        clang++ ${CXXFLAGS} ${DEFINES} ${INCLUDE_DIRS} -c ${RUNTIME_DIR}/heap_interface.cpp -o ${JIT_BUILD_DIR}/heap_interface.o
+
+        # Compile HeapManager files
+        echo "Step 3: Compiling HeapManager files..."
+        clang++ ${CXXFLAGS} ${DEFINES} ${INCLUDE_DIRS} -c ${HEAP_DIR}/HeapManager.cpp -o ${JIT_BUILD_DIR}/HeapManager.o
+        clang++ ${CXXFLAGS} ${DEFINES} ${INCLUDE_DIRS} -c ${HEAP_DIR}/heap_manager_globals.cpp -o ${JIT_BUILD_DIR}/heap_manager_globals.o
+        clang++ ${CXXFLAGS} ${DEFINES} ${INCLUDE_DIRS} -c ${HEAP_DIR}/Heap_allocVec.cpp -o ${JIT_BUILD_DIR}/Heap_allocVec.o
+        clang++ ${CXXFLAGS} ${DEFINES} ${INCLUDE_DIRS} -c ${HEAP_DIR}/Heap_allocString.cpp -o ${JIT_BUILD_DIR}/Heap_allocString.o
+        clang++ ${CXXFLAGS} ${DEFINES} ${INCLUDE_DIRS} -c ${HEAP_DIR}/Heap_allocList.cpp -o ${JIT_BUILD_DIR}/Heap_allocList.o
+        clang++ ${CXXFLAGS} ${DEFINES} ${INCLUDE_DIRS} -c ${HEAP_DIR}/Heap_allocObject.cpp -o ${JIT_BUILD_DIR}/Heap_allocObject.o
+        clang++ ${CXXFLAGS} ${DEFINES} ${INCLUDE_DIRS} -c ${HEAP_DIR}/Heap_free.cpp -o ${JIT_BUILD_DIR}/Heap_free.o
+        clang++ ${CXXFLAGS} ${DEFINES} ${INCLUDE_DIRS} -c ${HEAP_DIR}/Heap_resizeVec.cpp -o ${JIT_BUILD_DIR}/Heap_resizeVec.o
+        clang++ ${CXXFLAGS} ${DEFINES} ${INCLUDE_DIRS} -c ${HEAP_DIR}/Heap_resizeString.cpp -o ${JIT_BUILD_DIR}/Heap_resizeString.o
+        clang++ ${CXXFLAGS} ${DEFINES} ${INCLUDE_DIRS} -c ${HEAP_DIR}/Heap_dumpHeap.cpp -o ${JIT_BUILD_DIR}/Heap_dumpHeap.o
+        clang++ ${CXXFLAGS} ${DEFINES} ${INCLUDE_DIRS} -c ${HEAP_DIR}/Heap_dumpHeapSignalSafe.cpp -o ${JIT_BUILD_DIR}/Heap_dumpHeapSignalSafe.o
+        clang++ ${CXXFLAGS} ${DEFINES} ${INCLUDE_DIRS} -c ${HEAP_DIR}/Heap_printMetrics.cpp -o ${JIT_BUILD_DIR}/Heap_printMetrics.o
+
+        echo "Step 4: Creating library archive..."
+        # Determine archive name based on SDL2 configuration
+        if [ "$SDL2_ENABLED" = true ]; then
+            if [ "$SDL2_STATIC" = true ]; then
+                ARCHIVE_NAME="libbcpl_runtime_jit_sdl2_static.a"
+            else
+                ARCHIVE_NAME="libbcpl_runtime_jit_sdl2.a"
+            fi
+        else
+            ARCHIVE_NAME="libbcpl_runtime_jit.a"
+        fi
+
+        # Create the archive
+        ar rcs ${ARCHIVE_NAME} \
+            ${JIT_BUILD_DIR}/BCPLError.o \
+            ${JIT_BUILD_DIR}/runtime_freelist.o \
+            ${JIT_BUILD_DIR}/runtime_c_globals.o \
+            ${JIT_BUILD_DIR}/jit_runtime.o \
+            ${JIT_BUILD_DIR}/jit_heap_bridge.o \
+            ${JIT_BUILD_DIR}/RuntimeBridge.o \
+            ${JIT_BUILD_DIR}/runtime_string_ops.o \
+            ${JIT_BUILD_DIR}/heap_interface.o \
+            ${JIT_BUILD_DIR}/SignalSafeUtils.o \
+            ${JIT_BUILD_DIR}/RuntimeManager.o \
+            ${JIT_BUILD_DIR}/HeapManager.o \
+            ${JIT_BUILD_DIR}/heap_manager_globals.o \
+            ${JIT_BUILD_DIR}/Heap_allocVec.o \
+            ${JIT_BUILD_DIR}/Heap_allocString.o \
+            ${JIT_BUILD_DIR}/Heap_allocList.o \
+            ${JIT_BUILD_DIR}/Heap_allocObject.o \
+            ${JIT_BUILD_DIR}/Heap_free.o \
+            ${JIT_BUILD_DIR}/Heap_resizeVec.o \
+            ${JIT_BUILD_DIR}/Heap_resizeString.o \
+            ${JIT_BUILD_DIR}/Heap_dumpHeap.o \
+            ${JIT_BUILD_DIR}/Heap_dumpHeapSignalSafe.o \
+            ${JIT_BUILD_DIR}/Heap_printMetrics.o \
+            ${SDL2_OBJECTS}
+
+        if [ "$SDL2_ENABLED" = true ]; then
+            if [ "$SDL2_STATIC" = true ]; then
+                echo "✅ Successfully built ${ARCHIVE_NAME} (JIT runtime with STATIC SDL2)"
+                echo "📋 Static SDL2 JIT linking requirements:"
+                echo "   When building the compiler, use: ${SDL2_LIBS}"
+                echo "   📦 DEPLOYMENT: No SDL2.dylib required for JIT execution!"
+                echo "   🔧 JIT ISOLATION: Fully self-contained JIT runtime!"
+            else
+                echo "✅ Successfully built ${ARCHIVE_NAME} (JIT runtime with SDL2)"
+                echo "📋 SDL2 JIT linking requirements:"
+                echo "   When building the compiler, use: ${SDL2_LIBS}"
+                echo "   Example: Link with -lSDL2 for JIT SDL2 support"
+            fi
+        else
+            echo "✅ Successfully built ${ARCHIVE_NAME} (standard JIT runtime)"
+        fi
+        ;;
+    "STANDALONE")
+        echo "--- Building Standalone Runtime ---"
+        echo "Build directory: ${STATIC_BUILD_DIR}"
+        mkdir -p "${STATIC_BUILD_DIR}"
+
+        echo "Step 1: Configuring standalone build with CMake..."
+        cmake -S "${RUNTIME_DIR}" -B "${STATIC_BUILD_DIR}" -DJIT_MODE=OFF
+
+        echo "Step 2: Compiling standalone C library..."
+        cmake --build "${STATIC_BUILD_DIR}" --target bcpl_runtime_c
+
+        echo "Step 3: Copying standalone library to top-level directory..."
+        cp "${STATIC_BUILD_DIR}/libbcpl_runtime_c.a" "${TOP_LEVEL_DIR}/"
+        echo "✅ Successfully copied libbcpl_runtime_c.a"
+
+        echo "Step 4: Compiling starter.c into starter.o in top-level directory..."
+        clang -c -o "${TOP_LEVEL_DIR}/starter.o" "${RUNTIME_DIR}/starter.c"
+        echo "✅ Successfully created starter.o"
+        ;;
+    "UNIFIED")
+        echo "--- Building Unified Runtime ---"
+        UNIFIED_BUILD_DIR="build/unified"
+        echo "Build directory: ${UNIFIED_BUILD_DIR}"
+        mkdir -p "${UNIFIED_BUILD_DIR}"
+
+        # Define include paths and compile flags for unified runtime
+        INCLUDE_DIRS="-I. -I${RUNTIME_DIR} -I${HEAP_DIR}"
+        CFLAGS="-g -fPIC -std=c99"
+        CXXFLAGS="-g -fPIC -std=c++17"
+        DEFINES="-DUNIFIED_MODE"
+        if [ "$SDL2_ENABLED" = true ]; then
+            DEFINES="${DEFINES} -DSDL2_RUNTIME_ENABLED"
+        fi
+
+        echo "Step 1: Compiling C runtime files..."
+        # Compile all C runtime files
+        clang ${CFLAGS} ${DEFINES} ${INCLUDE_DIRS} -c ${RUNTIME_DIR}/BCPLError.c -o ${UNIFIED_BUILD_DIR}/BCPLError.o
+        clang ${CFLAGS} ${DEFINES} ${INCLUDE_DIRS} -c ${RUNTIME_DIR}/runtime_freelist.c -o ${UNIFIED_BUILD_DIR}/runtime_freelist.o
+        clang ${CFLAGS} ${DEFINES} ${INCLUDE_DIRS} -c ${RUNTIME_DIR}/heap_interface.c -o ${UNIFIED_BUILD_DIR}/heap_interface_c.o
+
+        echo "Step 2: Compiling C++ runtime files..."
+        # Compile all C++ runtime files including both JIT and standalone variants
+        clang++ ${CXXFLAGS} ${DEFINES} ${INCLUDE_DIRS} -c ${RUNTIME_DIR}/runtime_c_globals.cpp -o ${UNIFIED_BUILD_DIR}/runtime_c_globals.o
+        clang++ ${CXXFLAGS} ${DEFINES} ${INCLUDE_DIRS} -c ${RUNTIME_DIR}/jit_runtime.cpp -o ${UNIFIED_BUILD_DIR}/jit_runtime.o
+        clang++ ${CXXFLAGS} ${DEFINES} ${INCLUDE_DIRS} -c ${RUNTIME_DIR}/jit_heap_bridge.cpp -o ${UNIFIED_BUILD_DIR}/jit_heap_bridge.o
+        clang++ ${CXXFLAGS} ${DEFINES} ${INCLUDE_DIRS} -c ${RUNTIME_DIR}/RuntimeBridge.cpp -o ${UNIFIED_BUILD_DIR}/RuntimeBridge.o
+        clang++ ${CXXFLAGS} ${DEFINES} ${INCLUDE_DIRS} -c ${RUNTIME_DIR}/runtime_string_ops.cpp -o ${UNIFIED_BUILD_DIR}/runtime_string_ops.o
+        clang++ ${CXXFLAGS} ${DEFINES} ${INCLUDE_DIRS} -c ${RUNTIME_DIR}/heap_interface.cpp -o ${UNIFIED_BUILD_DIR}/heap_interface.o
+        clang++ ${CXXFLAGS} ${DEFINES} ${INCLUDE_DIRS} -c SignalSafeUtils.cpp -o ${UNIFIED_BUILD_DIR}/SignalSafeUtils.o
+        clang++ ${CXXFLAGS} ${DEFINES} ${INCLUDE_DIRS} -c RuntimeManager.cpp -o ${UNIFIED_BUILD_DIR}/RuntimeManager.o
+
+        # Conditionally compile SDL2 runtime module for JIT
+        if [ "$SDL2_ENABLED" = true ]; then
+            echo "Step 2.1: Compiling SDL2 runtime module for JIT..."
+            # Check if SDL2 is available
+            if ! pkg-config --exists sdl2; then
+                echo "❌ Error: SDL2 development libraries not found."
+                echo "   Please install SDL2 development packages:"
+                echo "   - Ubuntu/Debian: sudo apt-get install libsdl2-dev"
+                echo "   - macOS: brew install sdl2"
+                echo "   - Fedora: sudo dnf install SDL2-devel"
+                exit 1
+            fi
+
+            SDL2_CFLAGS=$(pkg-config --cflags sdl2)
+            if [ "$SDL2_STATIC" = true ]; then
+                SDL2_LIBS=$(pkg-config --libs --static sdl2 | sed 's/-lSDL2//g')
+                echo "   Building JIT with STATIC SDL2 linking"
+            else
+                SDL2_LIBS=$(pkg-config --libs sdl2)
+                echo "   Building JIT with DYNAMIC SDL2 linking"
+            fi
+
+            echo "   SDL2 found: ${SDL2_CFLAGS}"
+            clang++ ${CXXFLAGS} ${DEFINES} ${INCLUDE_DIRS} ${SDL2_CFLAGS} -c ${RUNTIME_DIR}/SDL2/sdl2_runtime.cpp -o ${UNIFIED_BUILD_DIR}/sdl2_runtime.o
+            clang++ ${CXXFLAGS} ${DEFINES} ${INCLUDE_DIRS} ${SDL2_CFLAGS} -c ${RUNTIME_DIR}/SDL2/sdl2_registration.cpp -o ${UNIFIED_BUILD_DIR}/sdl2_registration.o
+
+            SDL2_OBJECTS="${UNIFIED_BUILD_DIR}/sdl2_runtime.o ${UNIFIED_BUILD_DIR}/sdl2_registration.o"
+
+            # For static builds, extract SDL2 static library objects
+            if [ "$SDL2_STATIC" = true ]; then
+                echo "   Step 2.2: Selecting minimal SDL2 objects for JIT..."
+                SDL2_LIB_PATH=$(pkg-config --variable=libdir sdl2)
+                SDL2_STATIC_LIB="${SDL2_LIB_PATH}/libSDL2.a"
+
+                if [ ! -f "$SDL2_STATIC_LIB" ]; then
+                    echo "❌ Error: SDL2 static library not found at ${SDL2_STATIC_LIB}"
+                    echo "   Please ensure SDL2 static library is installed"
+                    exit 1
+                fi
+
+                # Create temporary directory for SDL2 objects
+                SDL2_EXTRACT_DIR="${JIT_BUILD_DIR}/sdl2_static_objects"
+                mkdir -p "${SDL2_EXTRACT_DIR}"
+
+                # Extract SDL2 static library
+                cd "${SDL2_EXTRACT_DIR}"
+                ar x "${SDL2_STATIC_LIB}"
+                cd - > /dev/null
+
+                # Remove only problematic main objects (avoid SDLmain conflicts)
+                rm -f "${SDL2_EXTRACT_DIR}/SDLmain.o"
+                rm -f "${SDL2_EXTRACT_DIR}"/SDL_*main*.o
+
+                # Include ALL remaining SDL2 objects for complete functionality
+                SDL2_STATIC_OBJECTS=""
+                for obj_file in "${SDL2_EXTRACT_DIR}"/*.o; do
+                    if [ -f "$obj_file" ]; then
+                        SDL2_STATIC_OBJECTS="${SDL2_STATIC_OBJECTS} $obj_file"
+                    fi
+                done
+
+                SDL2_OBJECTS="${SDL2_OBJECTS} ${SDL2_STATIC_OBJECTS}"
+
+                echo "   ✅ All SDL2 objects included for JIT (avoiding only main objects)"
+            fi
+
+            echo "   ✅ SDL2 runtime module compiled successfully for JIT"
+        else
+            SDL2_OBJECTS=""
+        fi
+
+        echo "Step 3: Compiling HeapManager files..."
+        # Conditionally compile SDL2 runtime module
+        if [ "$SDL2_ENABLED" = true ]; then
+            echo "Step 3: Compiling SDL2 runtime module..."
+            # Check if SDL2 is available
+            if ! pkg-config --exists sdl2; then
+                echo "❌ Error: SDL2 development libraries not found."
+                echo "   Please install SDL2 development packages:"
+                echo "   - Ubuntu/Debian: sudo apt-get install libsdl2-dev"
+                echo "   - macOS: brew install sdl2"
+                echo "   - Fedora: sudo dnf install SDL2-devel"
+                exit 1
+            fi
+
+            SDL2_CFLAGS=$(pkg-config --cflags sdl2)
+            if [ "$SDL2_STATIC" = true ]; then
+                # For static builds, we only need the system frameworks, not -lSDL2
+                SDL2_LIBS=$(pkg-config --libs --static sdl2 | sed 's/-lSDL2//g')
+                echo "   Building with STATIC SDL2 linking"
+            else
+                SDL2_LIBS=$(pkg-config --libs sdl2)
+                echo "   Building with DYNAMIC SDL2 linking"
+            fi
+
+            echo "   SDL2 found: ${SDL2_CFLAGS}"
+            clang++ ${CXXFLAGS} ${DEFINES} ${INCLUDE_DIRS} ${SDL2_CFLAGS} -c ${RUNTIME_DIR}/SDL2/sdl2_runtime.cpp -o ${UNIFIED_BUILD_DIR}/sdl2_runtime.o
+            clang++ ${CXXFLAGS} ${DEFINES} ${INCLUDE_DIRS} ${SDL2_CFLAGS} -c ${RUNTIME_DIR}/SDL2/sdl2_registration.cpp -o ${UNIFIED_BUILD_DIR}/sdl2_registration.o
+
+            SDL2_OBJECTS="${UNIFIED_BUILD_DIR}/sdl2_runtime.o ${UNIFIED_BUILD_DIR}/sdl2_registration.o"
+
+            # For static builds, extract SDL2 static library objects
+            if [ "$SDL2_STATIC" = true ]; then
+                echo "   Step 3.1: Selecting minimal SDL2 static library objects..."
+                SDL2_LIB_PATH=$(pkg-config --variable=libdir sdl2)
+                SDL2_STATIC_LIB="${SDL2_LIB_PATH}/libSDL2.a"
+
+                if [ ! -f "$SDL2_STATIC_LIB" ]; then
+                    echo "❌ Error: SDL2 static library not found at ${SDL2_STATIC_LIB}"
+                    echo "   Please ensure SDL2 static library is installed"
+                    exit 1
+                fi
+
+                # Create temporary directory for SDL2 objects
+                SDL2_EXTRACT_DIR="${UNIFIED_BUILD_DIR}/sdl2_static_objects"
+                mkdir -p "${SDL2_EXTRACT_DIR}"
+
+                # Extract SDL2 static library
+                cd "${SDL2_EXTRACT_DIR}"
+                ar x "${SDL2_STATIC_LIB}"
+                cd - > /dev/null
+
+                # Remove only problematic main objects (avoid SDLmain conflicts)
+                rm -f "${SDL2_EXTRACT_DIR}/SDLmain.o"
+                rm -f "${SDL2_EXTRACT_DIR}"/SDL_*main*.o
+
+                # Include ALL remaining SDL2 objects for complete functionality
+                SDL2_STATIC_OBJECTS=""
+                for obj_file in "${SDL2_EXTRACT_DIR}"/*.o; do
+                    if [ -f "$obj_file" ]; then
+                        SDL2_STATIC_OBJECTS="${SDL2_STATIC_OBJECTS} $obj_file"
+                    fi
+                done
+
+                SDL2_OBJECTS="${SDL2_OBJECTS} ${SDL2_STATIC_OBJECTS}"
+
+                echo "   ✅ All SDL2 objects included (avoiding only main objects)"
+            fi
+
+            echo "   ✅ SDL2 runtime module compiled successfully"
+        else
+            SDL2_OBJECTS=""
+        fi
+
+        echo "Step 4: Compiling HeapManager files..."
+        # Compile all HeapManager files
+        clang++ ${CXXFLAGS} ${DEFINES} ${INCLUDE_DIRS} -c ${HEAP_DIR}/HeapManager.cpp -o ${UNIFIED_BUILD_DIR}/HeapManager.o
+        clang++ ${CXXFLAGS} ${DEFINES} ${INCLUDE_DIRS} -c ${HEAP_DIR}/heap_manager_globals.cpp -o ${UNIFIED_BUILD_DIR}/heap_manager_globals.o
+        clang++ ${CXXFLAGS} ${DEFINES} ${INCLUDE_DIRS} -c ${HEAP_DIR}/Heap_allocVec.cpp -o ${UNIFIED_BUILD_DIR}/Heap_allocVec.o
+        clang++ ${CXXFLAGS} ${DEFINES} ${INCLUDE_DIRS} -c ${HEAP_DIR}/Heap_allocString.cpp -o ${UNIFIED_BUILD_DIR}/Heap_allocString.o
+        clang++ ${CXXFLAGS} ${DEFINES} ${INCLUDE_DIRS} -c ${HEAP_DIR}/Heap_allocList.cpp -o ${UNIFIED_BUILD_DIR}/Heap_allocList.o
+        clang++ ${CXXFLAGS} ${DEFINES} ${INCLUDE_DIRS} -c ${HEAP_DIR}/Heap_allocObject.cpp -o ${UNIFIED_BUILD_DIR}/Heap_allocObject.o
+        clang++ ${CXXFLAGS} ${DEFINES} ${INCLUDE_DIRS} -c ${HEAP_DIR}/Heap_free.cpp -o ${UNIFIED_BUILD_DIR}/Heap_free.o
+        clang++ ${CXXFLAGS} ${DEFINES} ${INCLUDE_DIRS} -c ${HEAP_DIR}/Heap_resizeVec.cpp -o ${UNIFIED_BUILD_DIR}/Heap_resizeVec.o
+        clang++ ${CXXFLAGS} ${DEFINES} ${INCLUDE_DIRS} -c ${HEAP_DIR}/Heap_resizeString.cpp -o ${UNIFIED_BUILD_DIR}/Heap_resizeString.o
+        clang++ ${CXXFLAGS} ${DEFINES} ${INCLUDE_DIRS} -c ${HEAP_DIR}/Heap_dumpHeap.cpp -o ${UNIFIED_BUILD_DIR}/Heap_dumpHeap.o
+        clang++ ${CXXFLAGS} ${DEFINES} ${INCLUDE_DIRS} -c ${HEAP_DIR}/Heap_dumpHeapSignalSafe.cpp -o ${UNIFIED_BUILD_DIR}/Heap_dumpHeapSignalSafe.o
+        clang++ ${CXXFLAGS} ${DEFINES} ${INCLUDE_DIRS} -c ${HEAP_DIR}/Heap_printMetrics.cpp -o ${UNIFIED_BUILD_DIR}/Heap_printMetrics.o
+
+        # Check if heap_c_wrappers.cpp exists and compile it
+        if [ -f "${HEAP_DIR}/heap_c_wrappers.cpp" ]; then
+            echo "Step 4: Compiling HeapManager C wrappers..."
+            clang++ ${CXXFLAGS} ${DEFINES} ${INCLUDE_DIRS} -c ${HEAP_DIR}/heap_c_wrappers.cpp -o ${UNIFIED_BUILD_DIR}/heap_c_wrappers.o
+            HEAP_C_WRAPPERS_OBJ="${UNIFIED_BUILD_DIR}/heap_c_wrappers.o"
+        else
+            echo "Note: heap_c_wrappers.cpp not found, skipping..."
+            HEAP_C_WRAPPERS_OBJ=""
+        fi
+
+        echo "Step 5: Creating unified library archive..."
+        # Create the unified archive with all object files
+        ARCHIVE_NAME="libbcpl_runtime.a"
+        if [ "$SDL2_ENABLED" = true ]; then
+            if [ "$SDL2_STATIC" = true ]; then
+                ARCHIVE_NAME="libbcpl_runtime_sdl2_static.a"
+            else
+                ARCHIVE_NAME="libbcpl_runtime_sdl2.a"
+            fi
+        fi
+
+        ar rcs ${ARCHIVE_NAME} \
+            ${UNIFIED_BUILD_DIR}/BCPLError.o \
+            ${UNIFIED_BUILD_DIR}/runtime_freelist.o \
+            ${UNIFIED_BUILD_DIR}/heap_interface_c.o \
+            ${UNIFIED_BUILD_DIR}/runtime_c_globals.o \
+            ${UNIFIED_BUILD_DIR}/jit_runtime.o \
+            ${UNIFIED_BUILD_DIR}/jit_heap_bridge.o \
+            ${UNIFIED_BUILD_DIR}/RuntimeBridge.o \
+            ${UNIFIED_BUILD_DIR}/runtime_string_ops.o \
+            ${UNIFIED_BUILD_DIR}/heap_interface.o \
+            ${UNIFIED_BUILD_DIR}/SignalSafeUtils.o \
+            ${UNIFIED_BUILD_DIR}/RuntimeManager.o \
+            ${UNIFIED_BUILD_DIR}/HeapManager.o \
+            ${UNIFIED_BUILD_DIR}/heap_manager_globals.o \
+            ${UNIFIED_BUILD_DIR}/Heap_allocVec.o \
+            ${UNIFIED_BUILD_DIR}/Heap_allocString.o \
+            ${UNIFIED_BUILD_DIR}/Heap_allocList.o \
+            ${UNIFIED_BUILD_DIR}/Heap_allocObject.o \
+            ${UNIFIED_BUILD_DIR}/Heap_free.o \
+            ${UNIFIED_BUILD_DIR}/Heap_resizeVec.o \
+            ${UNIFIED_BUILD_DIR}/Heap_resizeString.o \
+            ${UNIFIED_BUILD_DIR}/Heap_dumpHeap.o \
+            ${UNIFIED_BUILD_DIR}/Heap_dumpHeapSignalSafe.o \
+            ${UNIFIED_BUILD_DIR}/Heap_printMetrics.o \
+            ${HEAP_C_WRAPPERS_OBJ} \
+            ${SDL2_OBJECTS}
+
+        if [ "$SDL2_ENABLED" = true ]; then
+            if [ "$SDL2_STATIC" = true ]; then
+                echo "✅ Successfully built ${ARCHIVE_NAME} (unified runtime library with STATIC SDL2)"
+                echo "This library contains all runtime functionality including SDL2 support (fully self-contained)"
+                echo "📋 Static SDL2 linking requirements:"
+                echo "   When linking your application, use: ${SDL2_LIBS}"
+                echo "   Example: clang++ -o myapp myapp.o ${ARCHIVE_NAME} ${SDL2_LIBS}"
+                echo "   📦 DEPLOYMENT: No SDL2 dynamic library required on target systems!"
+                echo "   🔧 JIT ISOLATION: JIT compiler does not need SDL2 dependencies!"
+                echo "   ⚠️  Note: This library is fully self-contained - no external SDL2 installation needed!"
+            else
+                echo "✅ Successfully built ${ARCHIVE_NAME} (unified runtime library with SDL2)"
+                echo "This library contains all runtime functionality including SDL2 support"
+                echo "📋 SDL2 linking requirements:"
+                echo "   When linking your application, use: ${SDL2_LIBS}"
+                echo "   Example: clang++ -o myapp myapp.o ${ARCHIVE_NAME} ${SDL2_LIBS}"
+            fi
+        else
+            echo "✅ Successfully built libbcpl_runtime.a (unified runtime library)"
+            echo "This library contains all runtime functionality for both JIT and static modes"
+        fi
+        ;;
+    "COMBINE")
+        combine_files
+        ;;
+    "CLEAN")
+        clean_build
+        ;;
+    *)
+        echo "Error: Invalid build mode '$1'."
+        echo "Valid options:"
+        echo "  --unified (default, with SDL2 statically included in runtime, fully self-contained)"
+        echo "  --jit, --jit-sdl2, --jit-sdl2-static, --standalone, --combine, --clean, --with-sdl2, --with-sdl2-static"
+        exit 1
+        ;;
+esac
+
+echo "--- Compiling starter.c into starter.o in top-level directory (always) ---"
+clang -c -o "${TOP_LEVEL_DIR}/starter.o" "${RUNTIME_DIR}/starter.c"
+echo "✅ starter.o created in top-level directory"
+
+echo "---------------------------"
+echo "Build script finished."

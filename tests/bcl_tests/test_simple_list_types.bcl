@@ -1,0 +1,25 @@
+// Simple test to verify list type inference is working correctly
+// This test focuses on the basic type inference without complex FOREACH loops
+
+LET START() BE {
+    WRITEF("Testing simple list type inference\n")
+
+    // Test 1: String list - should be inferred as POINTER_TO_STRING_LIST
+    LET string_list = LIST("hello", "world")
+    WRITEF("String list length: %d\n", LEN(string_list))
+
+    // Test 2: Integer list - should be inferred as POINTER_TO_INT_LIST
+    LET int_list = LIST(1, 2, 3)
+    WRITEF("Integer list length: %d\n", LEN(int_list))
+
+    // Test 3: Float list - should be inferred as POINTER_TO_FLOAT_LIST
+    LET float_list = LIST(1.5, 2.7, 3.14)
+    WRITEF("Float list length: %d\n", LEN(float_list))
+
+    // Test 4: Access first elements to verify types
+    WRITEF("First string: %s\n", HD(string_list))
+    WRITEF("First integer: %d\n", HD(int_list))
+    WRITEF("First float: %f\n", HD(float_list))
+
+    WRITEF("Simple list type inference test completed!\n")
+}

@@ -1,0 +1,170 @@
+// Test case for large loop constants to verify immediate range handling
+// This tests the enhanced optimization that handles constants > 4095
+// by using temporary registers when immediate values exceed ARM64 limits
+
+MANIFEST {
+    SMALL_LIMIT = 100;
+    MEDIUM_LIMIT = 4095;
+    LARGE_LIMIT = 10000;
+    HUGE_LIMIT = 100000;
+    MASSIVE_LIMIT = 1000000;
+    LARGE_STEP = 5000;
+    HUGE_STEP = 50000
+}
+
+LET test_small_constants() = VALOF {
+    LET sum = 0
+
+    // Test 1: Small constant (≤ 4095) - SHOULD USE IMMEDIATE CMP
+    // Expected: CMP X_reg, #100 (efficient immediate instruction)
+    FOR i = 1 TO SMALL_LIMIT DO {
+        sum := sum + 1
+    }
+
+    RESULTIS sum
+}
+
+LET test_boundary_constants() = VALOF {
+    LET sum = 0
+
+    // Test 2: Boundary constant (= 4095) - SHOULD USE IMMEDIATE CMP
+    // Expected: CMP X_reg, #4095 (last value that fits in 12-bit immediate)
+    FOR i = 1 TO MEDIUM_LIMIT DO {
+        sum := sum + 1
+    }
+
+    RESULTIS sum
+}
+
+LET test_large_constants() = VALOF {
+    LET sum = 0
+
+    // Test 3: Large constant (> 4095) - SHOULD USE TEMP REGISTER
+    // Expected: MOVZ/MOVK sequence to load 10000, then CMP X_reg, X_temp
+    FOR i = 1 TO LARGE_LIMIT DO {
+        sum := sum + 1
+    }
+
+    RESULTIS sum
+}
+
+LET test_huge_constants() = VALOF {
+    LET sum = 0
+
+    // Test 4: Huge constant - SHOULD USE TEMP REGISTER
+    // Expected: MOVZ/MOVK sequence to load 100000, then CMP X_reg, X_temp
+    FOR i = 1 TO HUGE_LIMIT DO {
+        sum := sum + 1
+    }
+
+    RESULTIS sum
+}
+
+LET test_massive_constants() = VALOF {
+    LET sum = 0
+
+    // Test 5: Massive constant - SHOULD USE TEMP REGISTER
+    // Expected: MOVZ/MOVK sequence to load 1000000, then CMP X_reg, X_temp
+    FOR i = 1 TO MASSIVE_LIMIT DO {
+        sum := sum + 1
+    }
+
+    RESULTIS sum
+}
+
+LET test_large_step_constants() = VALOF {
+    LET sum = 0
+
+    // Test 6: Large step constant (> 4095) - SHOULD USE TEMP REGISTER FOR ADD
+    // Expected: Small end (100) uses immediate CMP, large step uses temp register for ADD
+    FOR i = 1 TO SMALL_LIMIT BY LARGE_STEP DO {
+        sum := sum + i
+    }
+
+    RESULTIS sum
+}
+
+LET test_both_large() = VALOF {
+    LET sum = 0
+
+    // Test 7: Both end and step are large - BOTH SHOULD USE TEMP REGISTERS
+    // Expected: Both CMP and ADD use temp registers with MOVZ/MOVK sequences
+    FOR i = 1 TO LARGE_LIMIT BY HUGE_STEP DO {
+        sum := sum + i
+    }
+
+    RESULTIS sum
+}
+
+LET test_arithmetic_large() = VALOF {
+    LET sum = 0
+
+    // Test 8: Arithmetic expression resulting in large constant
+    // Expected: (LARGE_LIMIT + HUGE_LIMIT) should constant-fold to 110000,
+    // then use temp register for comparison
+    FOR i = 1 TO (LARGE_LIMIT + HUGE_LIMIT) DO {
+        sum := sum + 1
+    }
+
+    RESULTIS sum
+}
+
+LET test_negative_constants() = VALOF {
+    LET sum = 0
+
+    // Test 9: Negative constants should also work
+    // Expected: Should handle negative values correctly with temp registers
+    FOR i = -LARGE_LIMIT TO LARGE_LIMIT BY 1000 DO {
+        sum := sum + 1
+    }
+
+    RESULTIS sum
+}
+
+LET START() BE {
+    WRITEF("=== Large Constant Optimization Test ===*N*N")
+
+    WRITEF("Test 1: Small constants (≤ 4095)*N")
+    LET result1 = test_small_constants()
+    WRITEF("Result: %d*N*N", result1)
+
+    WRITEF("Test 2: Boundary constants (= 4095)*N")
+    LET result2 = test_boundary_constants()
+    WRITEF("Result: %d*N*N", result2)
+
+    WRITEF("Test 3: Large constants (> 4095)*N")
+    LET result3 = test_large_constants()
+    WRITEF("Result: %d*N*N", result3)
+
+    WRITEF("Test 4: Huge constants*N")
+    LET result4 = test_huge_constants()
+    WRITEF("Result: %d*N*N", result4)
+
+    WRITEF("Test 5: Massive constants*N")
+    LET result5 = test_massive_constants()
+    WRITEF("Result: %d*N*N", result5)
+
+    WRITEF("Test 6: Large step constants*N")
+    LET result6 = test_large_step_constants()
+    WRITEF("Result: %d*N*N", result6)
+
+    WRITEF("Test 7: Both end and step large*N")
+    LET result7 = test_both_large()
+    WRITEF("Result: %d*N*N", result7)
+
+    WRITEF("Test 8: Arithmetic resulting in large constant*N")
+    LET result8 = test_arithmetic_large()
+    WRITEF("Result: %d*N*N", result8)
+
+    WRITEF("Test 9: Negative large constants*N")
+    LET result9 = test_negative_constants()
+    WRITEF("Result: %d*N*N", result9)
+
+    WRITEF("*N=== Expected Behavior ===*N")
+    WRITEF("Constants ≤ 4095: Should use immediate CMP/ADD instructions*N")
+    WRITEF("Constants > 4095: Should use temp registers with MOVZ/MOVK*N")
+    WRITEF("*NRun with --trace-codegen to see instruction generation:*N")
+    WRITEF("- Look for 'CMP X_reg, #value' (immediate)*N")
+    WRITEF("- Look for 'temp register for large constant' (temp register)*N")
+    WRITEF("- Look for 'MOVZ/MOVK' sequences for large values*N")
+}

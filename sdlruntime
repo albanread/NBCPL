@@ -1,0 +1,148 @@
+#!/bin/bash
+set -e # Exit immediately on error
+
+# --- Configuration ---
+RUNTIME_DIR="runtime"
+HEAP_DIR="HeapManager"
+UNIFIED_BUILD_DIR="build/unified_sdl2_static"
+ARCHIVE_NAME="libbcpl_runtime_sdl2_static.a"
+
+# --- Main Build Function ---
+build_self_contained_unified_sdl2() {
+    echo "--- Building Self-Contained Unified SDL2 Runtime ---"
+    echo "Build directory: ${UNIFIED_BUILD_DIR}"
+    mkdir -p "${UNIFIED_BUILD_DIR}"
+
+    # Define common compiler flags and includes
+    local CXXFLAGS="-g -fPIC -std=c++17"
+    local CFLAGS="-g -fPIC -std=c99"
+    local DEFINES="-DUNIFIED_MODE -DSDL2_RUNTIME_ENABLED"
+    local INCLUDE_DIRS="-I. -I${RUNTIME_DIR} -I${HEAP_DIR}"
+    local ALL_OBJECTS=""
+
+    # --- Step 1: Compile all project-specific C and C++ files ---
+    echo "--- Step 1: Compiling project source files... ---"
+
+    # Explicitly list the C files to compile
+    local C_SOURCES=(
+        "${RUNTIME_DIR}/BCPLError.c"
+        "${RUNTIME_DIR}/runtime_freelist.c"
+        "${RUNTIME_DIR}/heap_interface.c"
+        "${RUNTIME_DIR}/runtime.c"
+        "${RUNTIME_DIR}/runtime_string_ops.c"
+    )
+
+    for file in "${C_SOURCES[@]}"; do
+        local obj_file="${UNIFIED_BUILD_DIR}/$(basename "${file}" .c).o"
+        echo "Compiling ${file} -> ${obj_file}"
+        clang ${CFLAGS} ${DEFINES} ${INCLUDE_DIRS} -c "${file}" -o "${obj_file}"
+        ALL_OBJECTS="${ALL_OBJECTS} ${obj_file}"
+    done
+
+    # Explicitly list the C++ files to compile
+    local CXX_SOURCES=(
+        "${RUNTIME_DIR}/runtime_c_globals.cpp"
+        "${RUNTIME_DIR}/jit_runtime.cpp"
+        "${RUNTIME_DIR}/jit_heap_bridge.cpp"
+        "${RUNTIME_DIR}/RuntimeBridge.cpp"
+        "${RUNTIME_DIR}/heap_interface.cpp"
+        "SignalSafeUtils.cpp"
+        "RuntimeManager.cpp"
+    )
+
+    for file in "${CXX_SOURCES[@]}"; do
+        local obj_file="${UNIFIED_BUILD_DIR}/$(basename "${file}" .cpp).o"
+        echo "Compiling ${file} -> ${obj_file}"
+        clang++ ${CXXFLAGS} ${DEFINES} ${INCLUDE_DIRS} -c "${file}" -o "${obj_file}"
+        ALL_OBJECTS="${ALL_OBJECTS} ${obj_file}"
+    done
+
+    # Compile all files from the HeapManager directory
+    for file in $(find "${HEAP_DIR}" -name "*.cpp"); do
+        local obj_file="${UNIFIED_BUILD_DIR}/$(basename "${file}" .cpp).o"
+        echo "Compiling ${file} -> ${obj_file}"
+        clang++ ${CXXFLAGS} ${DEFINES} ${INCLUDE_DIRS} -c "${file}" -o "${obj_file}"
+        ALL_OBJECTS="${ALL_OBJECTS} ${obj_file}"
+    done
+
+
+    # --- Step 2: Extract and select SDL2 object files ---
+    echo "--- Step 2: Extracting and selecting SDL2 object files... ---"
+
+    # Find the static SDL2 library
+    if ! pkg-config --exists sdl2; then
+        echo "❌ Error: SDL2 development libraries not found via pkg-config."
+        exit 1
+    fi
+    local SDL2_LIB_PATH=$(pkg-config --variable=libdir sdl2)
+    local SDL2_STATIC_LIB="${SDL2_LIB_PATH}/libSDL2.a"
+
+    if [ ! -f "$SDL2_STATIC_LIB" ]; then
+        echo "❌ Error: SDL2 static library not found at ${SDL2_STATIC_LIB}"
+        exit 1
+    fi
+
+    # Create a temporary directory for SDL2 objects
+    local SDL2_EXTRACT_DIR="${UNIFIED_BUILD_DIR}/sdl2_static_objects"
+    mkdir -p "${SDL2_EXTRACT_DIR}"
+
+    # Extract the static library
+    echo "   Extracting objects from ${SDL2_STATIC_LIB}..."
+    (cd "${SDL2_EXTRACT_DIR}" && ar x "${SDL2_STATIC_LIB}")
+
+    # Remove problematic objects that cause hangs or unwanted behavior
+    echo "   Removing problematic SDL2 objects..."
+    rm -f "${SDL2_EXTRACT_DIR}/SDLmain.o"
+    rm -f "${SDL2_EXTRACT_DIR}"/SDL_*main*.o
+    rm -f "${SDL2_EXTRACT_DIR}"/SDL_*audio*.o
+    rm -f "${SDL2_EXTRACT_DIR}"/SDL_*joystick*.o
+    rm -f "${SDL2_EXTRACT_DIR}"/SDL_*haptic*.o
+    rm -f "${SDL2_EXTRACT_DIR}"/SDL_*sensor*.o
+    rm -f "${SDL2_EXTRACT_DIR}"/SDL_*thread*.o
+
+    # Keep only a curated list of essential SDL2 objects
+    echo "   Selecting essential SDL2 objects..."
+    local SDL2_CORE_OBJECTS="SDL.o SDL_error.o SDL_log.o SDL_hints.o SDL_assert.o SDL_timer.o SDL_version.o SDL_cpuinfo.o SDL_platform.o SDL_stdlib.o"
+    local SDL2_VIDEO_OBJECTS="SDL_video.o SDL_surface.o SDL_pixels.o SDL_rect.o SDL_RLEaccel.o SDL_blit.o SDL_stretch.o SDL_yuv.o"
+    local SDL2_EVENTS_OBJECTS="SDL_events.o SDL_keyboard.o SDL_mouse.o SDL_quit.o SDL_windowevents.o"
+    local SDL2_RENDER_OBJECTS="SDL_render.o SDL_render_gl.o SDL_render_metal.o" # Metal for macOS, GL for others
+    local SDL2_STATIC_OBJECTS=""
+
+    for obj in ${SDL2_CORE_OBJECTS} ${SDL2_VIDEO_OBJECTS} ${SDL2_EVENTS_OBJECTS} ${SDL2_RENDER_OBJECTS}; do
+        if [ -f "${SDL2_EXTRACT_DIR}/${obj}" ]; then
+            SDL2_STATIC_OBJECTS="${SDL2_STATIC_OBJECTS} ${SDL2_EXTRACT_DIR}/${obj}"
+        fi
+    done
+    echo "   ✅ Minimal SDL2 objects selected."
+
+    # --- Step 3: Archive all project objects and selected SDL2 objects ---
+    echo "--- Step 3: Creating self-contained static library: ${ARCHIVE_NAME}... ---"
+    ar rcs "${ARCHIVE_NAME}" ${ALL_OBJECTS} ${SDL2_STATIC_OBJECTS}
+
+    # --- Final Output and Instructions ---
+    echo
+    echo "✅ Successfully built ${ARCHIVE_NAME}"
+    echo "This is a fully self-contained static library with the necessary SDL2 code bundled inside."
+    echo
+    echo "---------------------------------------------------------------------"
+    echo "📋 HOW TO USE THIS LIBRARY:"
+    echo "---------------------------------------------------------------------"
+
+    local SDL2_SYSTEM_LIBS=$(pkg-config --libs --static sdl2 | sed 's/-lSDL2//g')
+    echo "When you build your final application (either the JIT compiler or a standalone executable),"
+    echo "link it against this library AND the system frameworks that SDL2 depends on."
+    echo
+    echo "➡️  Example command for linking your JIT compiler:"
+    echo "   clang++ -o my_jit_compiler jit_compiler.o ${ARCHIVE_NAME} ${SDL2_SYSTEM_LIBS}"
+    echo
+    echo "➡️  Example command for linking a standalone BCPL application:"
+    echo "   clang++ -o my_app my_app.o starter.o ${ARCHIVE_NAME} ${SDL2_SYSTEM_LIBS}"
+    echo
+    echo "📦 The resulting executable will be self-contained and will NOT require the user to have SDL2 installed."
+    echo "---------------------------------------------------------------------"
+
+}
+
+# --- Script Execution ---
+# The entire build process is now wrapped in this single function call.
+build_self_contained_unified_sdl2

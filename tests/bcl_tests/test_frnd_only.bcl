@@ -1,0 +1,36 @@
+GET "libhdr.h"
+
+LET START() = VALOF
+$(
+  WRITES("Testing FRND function*N")
+  WRITES("====================*N*N")
+
+  // Test FRND function - should return values between 0.0 and 1.0
+  WRITES("FRND() results: ")
+  FOR i = 1 TO 5 DO
+  $(
+    FLET f = FRND()
+    FWRITE(f)
+    WRITES(" ")
+  $)
+  WRITES("*N*N")
+
+  // Test that FRND returns different values
+  FLET f1 = FRND()
+  FLET f2 = FRND()
+  FLET f3 = FRND()
+
+  WRITES("Three FRND calls:*N")
+  WRITES("f1 = ")
+  FWRITE(f1)
+  WRITES("*N")
+  WRITES("f2 = ")
+  FWRITE(f2)
+  WRITES("*N")
+  WRITES("f3 = ")
+  FWRITE(f3)
+  WRITES("*N*N")
+
+  WRITES("FRND testing complete!*N")
+  RESULTIS 0
+$)

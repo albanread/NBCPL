@@ -1,0 +1,20 @@
+LET START() BE
+$(
+   WRITES("Testing FOREACH on dynamic list from SPLIT*N")
+   LET S = "hello,world,test"
+   WRITES("Original string: ")
+   WRITES(S)
+   WRITES("*N")
+
+   LET L = SPLIT(S, ",")
+   WRITES("Created dynamic list from SPLIT*N")
+   WRITES("About to enter FOREACH on dynamic list*N")
+
+   FOREACH ITEM IN L DO
+   $(
+            WRITES("Dynamic item: ")
+            WRITES(ITEM)
+            WRITES("*N")
+    $)
+   WRITES("FOREACH on dynamic list complete*N")
+$)

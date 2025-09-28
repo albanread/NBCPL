@@ -1,0 +1,64 @@
+# Makefile for aggressive_object_stress (Aggressive Object List Stress Testing)
+# High-performance stress test for object list functionality with SAMM integration
+
+CXX = clang++
+CXXFLAGS = -std=c++17 -Wall -Wextra -O2 -g
+INCLUDES = -I. -I../../HeapManager -I../../runtime -I../../include
+LIBS = ../../libbcpl_runtime_sdl2_static.a -lpthread \
+       -framework CoreFoundation -framework CoreAudio -framework AudioToolbox \
+       -framework CoreGraphics -framework AppKit -framework IOKit \
+       -framework ForceFeedback -framework Carbon -framework CoreHaptics \
+       -framework GameController -framework Metal -framework QuartzCore
+
+# Target executable
+TARGET = aggressive_object_stress
+
+# Source files
+MAIN_SRC = aggressive_object_stress.cpp
+
+# Default target
+all: $(TARGET)
+
+# Main executable
+$(TARGET): $(TARGET).o
+	@echo "Linking aggressive_object_stress executable..."
+	$(CXX) $(CXXFLAGS) -o $@ $^ $(LIBS)
+
+# Main test source
+$(TARGET).o: $(MAIN_SRC)
+	@echo "Compiling aggressive_object_stress.cpp..."
+	$(CXX) $(CXXFLAGS) $(INCLUDES) -c $< -o $@
+
+# Clean up build artifacts
+clean:
+	@echo "Cleaning aggressive_object_stress build artifacts..."
+	rm -f $(TARGET) $(TARGET).o
+
+# Force rebuild
+rebuild: clean all
+
+# Run the test
+test: $(TARGET)
+	@echo "Running aggressive object stress test..."
+	./$(TARGET)
+
+# Run test with timing
+test-timed: $(TARGET)
+	@echo "Running aggressive object stress test with timing..."
+	time ./$(TARGET)
+
+# Run test with memory profiling (if available)
+test-profile: $(TARGET)
+	@echo "Running aggressive object stress test with profiling..."
+	@if command -v valgrind >/dev/null 2>&1; then \
+		valgrind --tool=memcheck --leak-check=full ./$(TARGET); \
+	else \
+		echo "Valgrind not available, running normal test..."; \
+		./$(TARGET); \
+	fi
+
+# Quick test (reduced scale for CI/development)
+test-quick: $(TARGET)
+	@echo "Running quick version of aggressive stress test..."
+	@echo "Note: This would need modifications to the test parameters"
+	./$(TARGET)

@@ -1,0 +1,14 @@
+// test_syscall.bcpl
+
+GET "libhdr"
+
+LET START() BE
+$(
+    LET s = "Hello from a direct syscall!*n"
+
+    // SYS_write on macOS is 4
+    // Arg 1: fd = 1 (stdout)
+    // Arg 2: s (the string address)
+    // Arg 3: 29 (the string length)
+    dosys(4, 1, s, 29)
+$)

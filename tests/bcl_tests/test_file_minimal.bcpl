@@ -1,0 +1,7 @@
+// test_file_minimal.bcpl
+// Minimal test to check if our file API functions are registered
+
+LET START() BE {
+    WRITES("Testing basic functionality...\n")
+    WRITES("Test complete.\n")
+}

@@ -1,0 +1,39 @@
+GET "libhdr.h"
+
+LET START() = VALOF
+$(
+  LET A = 10
+  LET B = 5
+  LET C = 2
+
+
+  C := A + B
+  WRITEN(C)
+
+
+  C := A - B
+  WRITEN(C)
+
+
+  C := A * B
+  WRITEN(C)
+
+
+  C := A / B
+  WRITEN(C)
+
+
+  C := A REM B
+  WRITEN(C)
+
+
+  A := -10
+  B := 3
+
+  C := A / B
+  WRITEN(C)
+
+  C := A REM B
+  WRITEN(C)
+  WRITES("*N")
+$)

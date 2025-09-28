@@ -1,0 +1,456 @@
+NewBCPL Compiler Version 1.0.1418
+
+[INFO] Re-running Liveness Analysis on modified CFG...
+--- Running Liveness Analysis ---
+[LivenessAnalysisPass] Calling compute_use_def_sets()
+[LivenessAnalysisPass] Entering compute_use_def_sets()
+[LivenessAnalysisPass] CFG #1 for function 'START' has 2 blocks.
+[LivenessAnalysisPass] Analyzing block #1 (id=START_Exit_1) in function 'START'
+[LivenessAnalysisPass] Entering analyze_block for block: START_Exit_1
+[LivenessAnalysisPass] Exiting analyze_block for block: START_Exit_1
+[LivenessAnalysisPass] Analyzing block #2 (id=START_Entry_0) in function 'START'
+[LivenessAnalysisPass] Entering analyze_block for block: START_Entry_0
+[LivenessAnalysisPass] Exiting analyze_block for block: START_Entry_0
+[LivenessAnalysisPass] CFG #2 for function 'ColorPoint::setColor' has 2 blocks.
+[LivenessAnalysisPass] Analyzing block #1 (id=ColorPoint::setColor_Exit_1) in function 'ColorPoint::setColor'
+[LivenessAnalysisPass] Entering analyze_block for block: ColorPoint::setColor_Exit_1
+[LivenessAnalysisPass] Exiting analyze_block for block: ColorPoint::setColor_Exit_1
+[LivenessAnalysisPass] Analyzing block #2 (id=ColorPoint::setColor_Entry_0) in function 'ColorPoint::setColor'
+[LivenessAnalysisPass] Entering analyze_block for block: ColorPoint::setColor_Entry_0
+[LivenessAnalysisPass] Exiting analyze_block for block: ColorPoint::setColor_Entry_0
+[LivenessAnalysisPass] CFG #3 for function 'ColorPoint::CREATE' has 2 blocks.
+[LivenessAnalysisPass] Analyzing block #1 (id=ColorPoint::CREATE_Exit_1) in function 'ColorPoint::CREATE'
+[LivenessAnalysisPass] Entering analyze_block for block: ColorPoint::CREATE_Exit_1
+[LivenessAnalysisPass] Exiting analyze_block for block: ColorPoint::CREATE_Exit_1
+[LivenessAnalysisPass] Analyzing block #2 (id=ColorPoint::CREATE_Entry_0) in function 'ColorPoint::CREATE'
+[LivenessAnalysisPass] Entering analyze_block for block: ColorPoint::CREATE_Entry_0
+[LivenessAnalysisPass] Exiting analyze_block for block: ColorPoint::CREATE_Entry_0
+[LivenessAnalysisPass] CFG #4 for function 'Point::getY' has 2 blocks.
+[LivenessAnalysisPass] Analyzing block #1 (id=Point::getY_Exit_1) in function 'Point::getY'
+[LivenessAnalysisPass] Entering analyze_block for block: Point::getY_Exit_1
+[LivenessAnalysisPass] Exiting analyze_block for block: Point::getY_Exit_1
+[LivenessAnalysisPass] Analyzing block #2 (id=Point::getY_Entry_0) in function 'Point::getY'
+[LivenessAnalysisPass] Entering analyze_block for block: Point::getY_Entry_0
+[LivenessAnalysisPass] Exiting analyze_block for block: Point::getY_Entry_0
+[LivenessAnalysisPass] CFG #5 for function 'Point::RELEASE' has 2 blocks.
+[LivenessAnalysisPass] Analyzing block #1 (id=Point::RELEASE_Exit_1) in function 'Point::RELEASE'
+[LivenessAnalysisPass] Entering analyze_block for block: Point::RELEASE_Exit_1
+[LivenessAnalysisPass] Exiting analyze_block for block: Point::RELEASE_Exit_1
+[LivenessAnalysisPass] Analyzing block #2 (id=Point::RELEASE_Entry_0) in function 'Point::RELEASE'
+[LivenessAnalysisPass] Entering analyze_block for block: Point::RELEASE_Entry_0
+[LivenessAnalysisPass] Exiting analyze_block for block: Point::RELEASE_Entry_0
+[LivenessAnalysisPass] CFG #6 for function 'Point::getX' has 2 blocks.
+[LivenessAnalysisPass] Analyzing block #1 (id=Point::getX_Exit_1) in function 'Point::getX'
+[LivenessAnalysisPass] Entering analyze_block for block: Point::getX_Exit_1
+[LivenessAnalysisPass] Exiting analyze_block for block: Point::getX_Exit_1
+[LivenessAnalysisPass] Analyzing block #2 (id=Point::getX_Entry_0) in function 'Point::getX'
+[LivenessAnalysisPass] Entering analyze_block for block: Point::getX_Entry_0
+[LivenessAnalysisPass] Exiting analyze_block for block: Point::getX_Entry_0
+[LivenessAnalysisPass] CFG #7 for function 'ColorPoint::getColor' has 2 blocks.
+[LivenessAnalysisPass] Analyzing block #1 (id=ColorPoint::getColor_Exit_1) in function 'ColorPoint::getColor'
+[LivenessAnalysisPass] Entering analyze_block for block: ColorPoint::getColor_Exit_1
+[LivenessAnalysisPass] Exiting analyze_block for block: ColorPoint::getColor_Exit_1
+[LivenessAnalysisPass] Analyzing block #2 (id=ColorPoint::getColor_Entry_0) in function 'ColorPoint::getColor'
+[LivenessAnalysisPass] Entering analyze_block for block: ColorPoint::getColor_Entry_0
+[LivenessAnalysisPass] Exiting analyze_block for block: ColorPoint::getColor_Entry_0
+[LivenessAnalysisPass] CFG #8 for function 'Point::set' has 2 blocks.
+[LivenessAnalysisPass] Analyzing block #1 (id=Point::set_Exit_1) in function 'Point::set'
+[LivenessAnalysisPass] Entering analyze_block for block: Point::set_Exit_1
+[LivenessAnalysisPass] Exiting analyze_block for block: Point::set_Exit_1
+[LivenessAnalysisPass] Analyzing block #2 (id=Point::set_Entry_0) in function 'Point::set'
+[LivenessAnalysisPass] Entering analyze_block for block: Point::set_Entry_0
+[LivenessAnalysisPass] Exiting analyze_block for block: Point::set_Entry_0
+[LivenessAnalysisPass] CFG #9 for function 'Point::CREATE' has 2 blocks.
+[LivenessAnalysisPass] Analyzing block #1 (id=Point::CREATE_Exit_1) in function 'Point::CREATE'
+[LivenessAnalysisPass] Entering analyze_block for block: Point::CREATE_Exit_1
+[LivenessAnalysisPass] Exiting analyze_block for block: Point::CREATE_Exit_1
+[LivenessAnalysisPass] Analyzing block #2 (id=Point::CREATE_Entry_0) in function 'Point::CREATE'
+[LivenessAnalysisPass] Entering analyze_block for block: Point::CREATE_Entry_0
+[LivenessAnalysisPass] Exiting analyze_block for block: Point::CREATE_Entry_0
+[LivenessAnalysisPass] Exiting compute_use_def_sets()
+[LivenessAnalysisPass] Finished compute_use_def_sets()
+[LivenessAnalysisPass] Calling run_data_flow_analysis()
+[LivenessAnalysisPass] Entering run_data_flow_analysis()
+[LivenessAnalysisPass] Data-flow iteration 1
+[LivenessAnalysisPass] Processing block: START_Exit_1 in function: START
+[LivenessAnalysisPass] Processing block: START_Entry_0 in function: START
+[LivenessAnalysisPass] Processing block: ColorPoint::setColor_Exit_1 in function: ColorPoint::setColor
+[LivenessAnalysisPass] Processing block: ColorPoint::setColor_Entry_0 in function: ColorPoint::setColor
+[LivenessAnalysisPass] Processing block: ColorPoint::CREATE_Exit_1 in function: ColorPoint::CREATE
+[LivenessAnalysisPass] Processing block: ColorPoint::CREATE_Entry_0 in function: ColorPoint::CREATE
+[LivenessAnalysisPass] Processing block: Point::getY_Exit_1 in function: Point::getY
+[LivenessAnalysisPass] Processing block: Point::getY_Entry_0 in function: Point::getY
+[LivenessAnalysisPass] Processing block: Point::RELEASE_Exit_1 in function: Point::RELEASE
+[LivenessAnalysisPass] Processing block: Point::RELEASE_Entry_0 in function: Point::RELEASE
+[LivenessAnalysisPass] Processing block: Point::getX_Exit_1 in function: Point::getX
+[LivenessAnalysisPass] Processing block: Point::getX_Entry_0 in function: Point::getX
+[LivenessAnalysisPass] Processing block: ColorPoint::getColor_Exit_1 in function: ColorPoint::getColor
+[LivenessAnalysisPass] Processing block: ColorPoint::getColor_Entry_0 in function: ColorPoint::getColor
+[LivenessAnalysisPass] Processing block: Point::set_Exit_1 in function: Point::set
+[LivenessAnalysisPass] Processing block: Point::set_Entry_0 in function: Point::set
+[LivenessAnalysisPass] Processing block: Point::CREATE_Exit_1 in function: Point::CREATE
+[LivenessAnalysisPass] Processing block: Point::CREATE_Entry_0 in function: Point::CREATE
+[LivenessAnalysisPass] Data-flow iteration 2
+[LivenessAnalysisPass] Processing block: START_Exit_1 in function: START
+[LivenessAnalysisPass] Processing block: START_Entry_0 in function: START
+[LivenessAnalysisPass] Processing block: ColorPoint::setColor_Exit_1 in function: ColorPoint::setColor
+[LivenessAnalysisPass] Processing block: ColorPoint::setColor_Entry_0 in function: ColorPoint::setColor
+[LivenessAnalysisPass] Processing block: ColorPoint::CREATE_Exit_1 in function: ColorPoint::CREATE
+[LivenessAnalysisPass] Processing block: ColorPoint::CREATE_Entry_0 in function: ColorPoint::CREATE
+[LivenessAnalysisPass] Processing block: Point::getY_Exit_1 in function: Point::getY
+[LivenessAnalysisPass] Processing block: Point::getY_Entry_0 in function: Point::getY
+[LivenessAnalysisPass] Processing block: Point::RELEASE_Exit_1 in function: Point::RELEASE
+[LivenessAnalysisPass] Processing block: Point::RELEASE_Entry_0 in function: Point::RELEASE
+[LivenessAnalysisPass] Processing block: Point::getX_Exit_1 in function: Point::getX
+[LivenessAnalysisPass] Processing block: Point::getX_Entry_0 in function: Point::getX
+[LivenessAnalysisPass] Processing block: ColorPoint::getColor_Exit_1 in function: ColorPoint::getColor
+[LivenessAnalysisPass] Processing block: ColorPoint::getColor_Entry_0 in function: ColorPoint::getColor
+[LivenessAnalysisPass] Processing block: Point::set_Exit_1 in function: Point::set
+[LivenessAnalysisPass] Processing block: Point::set_Entry_0 in function: Point::set
+[LivenessAnalysisPass] Processing block: Point::CREATE_Exit_1 in function: Point::CREATE
+[LivenessAnalysisPass] Processing block: Point::CREATE_Entry_0 in function: Point::CREATE
+[LivenessAnalysisPass] Exiting run_data_flow_analysis()
+[LivenessAnalysisPass] Finished run_data_flow_analysis()
+[LivenessAnalysisPass] Calling fix_call_crossing_variables()
+[LivenessAnalysisPass] Starting fix_call_crossing_variables pass
+[LivenessAnalysisPass] Processing function: START
+[LivenessAnalysisPass] Block START_Entry_0 contains function calls, fixing call-crossing variables
+[LivenessAnalysisPass] Processing function: ColorPoint::setColor
+[LivenessAnalysisPass] Processing function: ColorPoint::CREATE
+[LivenessAnalysisPass] Processing function: Point::getY
+[LivenessAnalysisPass] Processing function: Point::RELEASE
+[LivenessAnalysisPass] Processing function: Point::getX
+[LivenessAnalysisPass] Processing function: ColorPoint::getColor
+[LivenessAnalysisPass] Processing function: Point::set
+[LivenessAnalysisPass] Processing function: Point::CREATE
+[LivenessAnalysisPass] No call-crossing variables found, no changes needed
+[LivenessAnalysisPass] Finished fix_call_crossing_variables()
+--- Liveness Analysis Complete ---
+
+Liveness Analysis for function: START
+-------------------------------------------
+Block ID: START_Exit_1
+  Use: { }
+  Def: { }
+  In : { }
+  Out: { }
+Block ID: START_Entry_0
+  Use: { HeapManager_enter_scope HeapManager_exit_scope WRITEN WRITES }
+  Def: { cp p }
+  In : { HeapManager_enter_scope HeapManager_exit_scope WRITEN WRITES }
+  Out: { }
+
+Liveness Analysis for function: ColorPoint::setColor
+-------------------------------------------
+Block ID: ColorPoint::setColor_Exit_1
+  Use: { }
+  Def: { }
+  In : { }
+  Out: { }
+Block ID: ColorPoint::setColor_Entry_0
+  Use: { c }
+  Def: { }
+  In : { c }
+  Out: { }
+
+Liveness Analysis for function: ColorPoint::CREATE
+-------------------------------------------
+Block ID: ColorPoint::CREATE_Exit_1
+  Use: { }
+  Def: { }
+  In : { }
+  Out: { }
+Block ID: ColorPoint::CREATE_Entry_0
+  Use: { WRITEN WRITES initialColor initialX initialY x y }
+  Def: { color }
+  In : { WRITEN WRITES initialColor initialX initialY x y }
+  Out: { }
+
+Liveness Analysis for function: Point::getY
+-------------------------------------------
+Block ID: Point::getY_Exit_1
+  Use: { }
+  Def: { }
+  In : { }
+  Out: { }
+Block ID: Point::getY_Entry_0
+  Use: { y }
+  Def: { }
+  In : { y }
+  Out: { }
+
+Liveness Analysis for function: Point::RELEASE
+-------------------------------------------
+Block ID: Point::RELEASE_Exit_1
+  Use: { }
+  Def: { }
+  In : { }
+  Out: { }
+Block ID: Point::RELEASE_Entry_0
+  Use: { WRITES }
+  Def: { }
+  In : { WRITES }
+  Out: { }
+
+Liveness Analysis for function: Point::getX
+-------------------------------------------
+Block ID: Point::getX_Exit_1
+  Use: { }
+  Def: { }
+  In : { }
+  Out: { }
+Block ID: Point::getX_Entry_0
+  Use: { x }
+  Def: { }
+  In : { x }
+  Out: { }
+
+Liveness Analysis for function: ColorPoint::getColor
+-------------------------------------------
+Block ID: ColorPoint::getColor_Exit_1
+  Use: { }
+  Def: { }
+  In : { }
+  Out: { }
+Block ID: ColorPoint::getColor_Entry_0
+  Use: { color }
+  Def: { }
+  In : { color }
+  Out: { }
+
+Liveness Analysis for function: Point::set
+-------------------------------------------
+Block ID: Point::set_Exit_1
+  Use: { }
+  Def: { }
+  In : { }
+  Out: { }
+Block ID: Point::set_Entry_0
+  Use: { newX newY }
+  Def: { x y }
+  In : { newX newY }
+  Out: { }
+
+Liveness Analysis for function: Point::CREATE
+-------------------------------------------
+Block ID: Point::CREATE_Exit_1
+  Use: { }
+  Def: { }
+  In : { }
+  Out: { }
+Block ID: Point::CREATE_Entry_0
+  Use: { WRITEN WRITES initialX initialY }
+  Def: { x y }
+  In : { WRITEN WRITES initialX initialY }
+  Out: { }
+Updating register pressure from liveness data...
+[LiveIntervalPass] Building intervals for function: START
+[LiveIntervalPass] Created 6 intervals for function: START
+  HeapManager_enter_scope: [0--1]
+  HeapManager_exit_scope: [0--1]
+  WRITEN: [0--1]
+  WRITES: [0--1]
+  p: [4-16]
+  cp: [19-36]
+[LiveIntervalPass] Building intervals for function: ColorPoint::setColor
+[LiveIntervalPass] Created 2 intervals for function: ColorPoint::setColor
+  _this: [0-0]
+  c: [0-0]
+[LiveIntervalPass] Building intervals for function: ColorPoint::CREATE
+[LiveIntervalPass] Injected _this interval for class method: ColorPoint::CREATE [0-11]
+[LiveIntervalPass] Created 8 intervals for function: ColorPoint::CREATE
+  WRITEN: [0--1]
+  WRITES: [0--1]
+  _this: [0-11]
+  initialColor: [0-1]
+  initialX: [0-0]
+  initialY: [0-0]
+  x: [0--1]
+  y: [0--1]
+[LiveIntervalPass] Building intervals for function: Point::getY
+[LiveIntervalPass] Injected _this interval for class method: Point::getY [0-3]
+[LiveIntervalPass] Created 2 intervals for function: Point::getY
+  _this: [0-3]
+  y: [0--1]
+[LiveIntervalPass] Building intervals for function: Point::RELEASE
+[LiveIntervalPass] Injected _this interval for class method: Point::RELEASE [0-3]
+[LiveIntervalPass] Created 2 intervals for function: Point::RELEASE
+  WRITES: [0--1]
+  _this: [0-3]
+[LiveIntervalPass] Building intervals for function: Point::getX
+[LiveIntervalPass] Injected _this interval for class method: Point::getX [0-3]
+[LiveIntervalPass] Created 2 intervals for function: Point::getX
+  _this: [0-3]
+  x: [0--1]
+[LiveIntervalPass] Building intervals for function: ColorPoint::getColor
+[LiveIntervalPass] Injected _this interval for class method: ColorPoint::getColor [0-3]
+[LiveIntervalPass] Created 2 intervals for function: ColorPoint::getColor
+  _this: [0-3]
+  color: [0--1]
+[LiveIntervalPass] Building intervals for function: Point::set
+[LiveIntervalPass] Injected _this interval for class method: Point::set [0-4]
+[LiveIntervalPass] Created 3 intervals for function: Point::set
+  _this: [0-4]
+  newX: [0-0]
+  newY: [0-1]
+[LiveIntervalPass] Building intervals for function: Point::CREATE
+[LiveIntervalPass] Injected _this interval for class method: Point::CREATE [0-9]
+[LiveIntervalPass] Created 5 intervals for function: Point::CREATE
+  WRITEN: [0--1]
+  WRITES: [0--1]
+  _this: [0-9]
+  initialX: [0-0]
+  initialY: [0-1]
+[COERCE_DEBUG] Input argument registers: arg0=X9 
+[COERCE_DEBUG] Integer: X9 -> X0
+[COERCE_DEBUG] Executed 1 queued operations
+[COERCE_DEBUG] Input argument registers: arg0=X9 
+[COERCE_DEBUG] Integer: X9 -> X0
+[COERCE_DEBUG] Executed 1 queued operations
+[COERCE_DEBUG] Input argument registers: arg0=X9 
+[COERCE_DEBUG] Integer: X9 -> X0
+[COERCE_DEBUG] Executed 1 queued operations
+[COERCE_DEBUG] Input argument registers: arg0=X9 
+[COERCE_DEBUG] Integer: X9 -> X0
+[COERCE_DEBUG] Executed 1 queued operations
+[COERCE_DEBUG] Input argument registers: arg0=X9 
+[COERCE_DEBUG] Integer: X9 -> X0
+[COERCE_DEBUG] Executed 1 queued operations
+[COERCE_DEBUG] Input argument registers: arg0=X9 
+[COERCE_DEBUG] Integer: X9 -> X0
+[COERCE_DEBUG] Executed 1 queued operations
+[COERCE_DEBUG] Input argument registers: arg0=X9 
+[COERCE_DEBUG] Integer: X9 -> X0
+[COERCE_DEBUG] Executed 1 queued operations
+[COERCE_DEBUG] Input argument registers: arg0=X9 
+[COERCE_DEBUG] Integer: X9 -> X0
+[COERCE_DEBUG] Executed 1 queued operations
+[COERCE_DEBUG] Input argument registers: arg0=X9 
+[COERCE_DEBUG] Integer: X9 -> X0
+[COERCE_DEBUG] Executed 1 queued operations
+[COERCE_DEBUG] Input argument registers: arg0=X9 
+[COERCE_DEBUG] Integer: X9 -> X0
+[COERCE_DEBUG] Executed 1 queued operations
+[COERCE_DEBUG] Input argument registers: arg0=X9 
+[COERCE_DEBUG] Integer: X9 -> X0
+[COERCE_DEBUG] Executed 1 queued operations
+[COERCE_DEBUG] Input argument registers: arg0=X9 
+[COERCE_DEBUG] Integer: X9 -> X0
+[COERCE_DEBUG] Executed 1 queued operations
+[COERCE_DEBUG] Input argument registers: arg0=X9 
+[COERCE_DEBUG] Integer: X9 -> X0
+[COERCE_DEBUG] Executed 1 queued operations
+[COERCE_DEBUG] Input argument registers: 
+[COERCE_DEBUG] Executed 0 queued operations
+[COERCE_DEBUG] Input argument registers: arg0=X9 
+[COERCE_DEBUG] Integer: X9 -> X0
+[COERCE_DEBUG] Executed 1 queued operations
+[COERCE_DEBUG] Input argument registers: arg0=X9 
+[COERCE_DEBUG] Integer: X9 -> X0
+[COERCE_DEBUG] Executed 1 queued operations
+[COERCE_DEBUG] Input argument registers: arg0=X9 
+[COERCE_DEBUG] Integer: X9 -> X0
+[COERCE_DEBUG] Executed 1 queued operations
+[COERCE_DEBUG] Input argument registers: arg0=X9 
+[COERCE_DEBUG] Integer: X9 -> X0
+[COERCE_DEBUG] Executed 1 queued operations
+[COERCE_DEBUG] Input argument registers: arg0=X0 
+[COERCE_DEBUG] Integer: X0 -> X0
+[COERCE_DEBUG] Executed 0 queued operations
+[COERCE_DEBUG] Input argument registers: arg0=X9 
+[COERCE_DEBUG] Integer: X9 -> X0
+[COERCE_DEBUG] Executed 1 queued operations
+[COERCE_DEBUG] Input argument registers: arg0=X0 
+[COERCE_DEBUG] Integer: X0 -> X0
+[COERCE_DEBUG] Executed 0 queued operations
+[COERCE_DEBUG] Input argument registers: arg0=X9 
+[COERCE_DEBUG] Integer: X9 -> X0
+[COERCE_DEBUG] Executed 1 queued operations
+[COERCE_DEBUG] Input argument registers: arg0=X9 
+[COERCE_DEBUG] Integer: X9 -> X0
+[COERCE_DEBUG] Executed 1 queued operations
+[COERCE_DEBUG] Input argument registers: arg0=X9 
+[COERCE_DEBUG] Integer: X9 -> X0
+[COERCE_DEBUG] Executed 1 queued operations
+[COERCE_DEBUG] Input argument registers: arg0=X0 
+[COERCE_DEBUG] Integer: X0 -> X0
+[COERCE_DEBUG] Executed 0 queued operations
+[COERCE_DEBUG] Input argument registers: arg0=X9 
+[COERCE_DEBUG] Integer: X9 -> X0
+[COERCE_DEBUG] Executed 1 queued operations
+[COERCE_DEBUG] Input argument registers: arg0=X0 
+[COERCE_DEBUG] Integer: X0 -> X0
+[COERCE_DEBUG] Executed 0 queued operations
+[COERCE_DEBUG] Input argument registers: arg0=X9 
+[COERCE_DEBUG] Integer: X9 -> X0
+[COERCE_DEBUG] Executed 1 queued operations
+[COERCE_DEBUG] Input argument registers: arg0=X9 
+[COERCE_DEBUG] Integer: X9 -> X0
+[COERCE_DEBUG] Executed 1 queued operations
+[COERCE_DEBUG] Input argument registers: arg0=X9 
+[COERCE_DEBUG] Integer: X9 -> X0
+[COERCE_DEBUG] Executed 1 queued operations
+[COERCE_DEBUG] Input argument registers: arg0=X0 
+[COERCE_DEBUG] Integer: X0 -> X0
+[COERCE_DEBUG] Executed 0 queued operations
+[COERCE_DEBUG] Input argument registers: arg0=X9 
+[COERCE_DEBUG] Integer: X9 -> X0
+[COERCE_DEBUG] Executed 1 queued operations
+[COERCE_DEBUG] Input argument registers: arg0=X0 
+[COERCE_DEBUG] Integer: X0 -> X0
+[COERCE_DEBUG] Executed 0 queued operations
+[COERCE_DEBUG] Input argument registers: arg0=X9 
+[COERCE_DEBUG] Integer: X9 -> X0
+[COERCE_DEBUG] Executed 1 queued operations
+[COERCE_DEBUG] Input argument registers: arg0=X0 
+[COERCE_DEBUG] Integer: X0 -> X0
+[COERCE_DEBUG] Executed 0 queued operations
+[COERCE_DEBUG] Input argument registers: arg0=X9 
+[COERCE_DEBUG] Integer: X9 -> X0
+[COERCE_DEBUG] Executed 1 queued operations
+[COERCE_DEBUG] Input argument registers: arg0=X9 
+[COERCE_DEBUG] Integer: X9 -> X0
+[COERCE_DEBUG] Executed 1 queued operations
+[COERCE_DEBUG] Input argument registers: arg0=X9 
+[COERCE_DEBUG] Integer: X9 -> X0
+[COERCE_DEBUG] Executed 1 queued operations
+[COERCE_DEBUG] Input argument registers: arg0=X0 
+[COERCE_DEBUG] Integer: X0 -> X0
+[COERCE_DEBUG] Executed 0 queued operations
+[COERCE_DEBUG] Input argument registers: arg0=X9 
+[COERCE_DEBUG] Integer: X9 -> X0
+[COERCE_DEBUG] Executed 1 queued operations
+[COERCE_DEBUG] Input argument registers: arg0=X0 
+[COERCE_DEBUG] Integer: X0 -> X0
+[COERCE_DEBUG] Executed 0 queued operations
+[COERCE_DEBUG] Input argument registers: arg0=X9 
+[COERCE_DEBUG] Integer: X9 -> X0
+[COERCE_DEBUG] Executed 1 queued operations
+[COERCE_DEBUG] Input argument registers: arg0=X0 
+[COERCE_DEBUG] Integer: X0 -> X0
+[COERCE_DEBUG] Executed 0 queued operations
+[COERCE_DEBUG] Input argument registers: arg0=X9 
+[COERCE_DEBUG] Integer: X9 -> X0
+[COERCE_DEBUG] Executed 1 queued operations
+[COERCE_DEBUG] Input argument registers: arg0=X9 
+[COERCE_DEBUG] Integer: X9 -> X0
+[COERCE_DEBUG] Executed 1 queued operations
+[COERCE_DEBUG] Input argument registers: 
+[COERCE_DEBUG] Executed 0 queued operations
+Testing class member variable access with correct offsets
+=================================================
+
+1. Basic Point class test:
+Point created at (50, 75)
+Reading values: x=50, y=75
+Setting new values...
+Reading new values: x=100, y=200
+
+2. Inherited ColorPoint class test:
+Point created at (130, 140)
+ColorPoint created at (130, 140) with color 0
+Reading values: x=130, y=140, color=0
+Setting new values...
+Reading new values: x=60, y=80, color=123
+
+Test completed successfully

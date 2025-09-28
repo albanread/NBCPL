@@ -1,0 +1,26 @@
+// Test program for runtime bounds checking feature
+// Uses proper VEC syntax like deref.bcl
+
+LET START() BE $(
+  // Create a small vector
+  LET V = VEC 3
+
+  // Fill with test values
+  V!0 := 100
+  V!1 := 200
+  V!2 := 300
+
+  WRITES("Vector filled successfully*N")
+
+  // Test valid access
+  WRITES("V!1 = ")
+  WRITEN(V!1)
+  WRITES("*N")
+
+  // Test bounds violation - should trigger error
+  WRITES("About to access V!5 (bounds error expected)...*N")
+  LET bad_value = V!5
+
+  // This should never print
+  WRITES("ERROR: Bounds check failed!*N")
+$)

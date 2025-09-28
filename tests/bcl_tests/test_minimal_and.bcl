@@ -1,0 +1,10 @@
+LET START() BE $(
+    LET x = 0
+    LET y = 1
+
+    TEST x = 0 AND y = 1 DO $(
+        WRITES("AND works*N")
+    $) OR $(
+        WRITES("AND failed*N")
+    $)
+$)

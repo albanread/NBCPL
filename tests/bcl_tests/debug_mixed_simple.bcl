@@ -1,0 +1,4 @@
+LET START() BE {
+    // Simple test to check assembly generation
+    WRITEF("String then int: %s %d*n", "hello", 42)
+}

@@ -1,0 +1,15 @@
+// Minimal test to isolate the D15 register error with global float variables
+
+GLOBALS $(
+    FLET global_float = 2.5
+    LET global_int = 42
+    FLET global_pi = 3.14159
+    LET global_str = "hello"
+$)
+
+LET START() BE $(
+    WRITEF("Testing global float: %f%N", global_float)
+    WRITEF("Testing global int: %d%N", global_int)
+    WRITEF("Testing global pi: %f%N", global_pi)
+    WRITEF("Testing global str: %s%N", global_str)
+$)

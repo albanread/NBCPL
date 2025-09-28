@@ -1,0 +1,80 @@
+// crash_test.bcl
+// This file intentionally creates a crash to test the heap reporting
+
+CLASS Vehicle $(
+    DECL type, model, year, price
+
+    ROUTINE CREATE(t, m, y, p) BE $(
+        type := t
+        model := m
+        year := y
+        price := p
+    $)
+
+    ROUTINE display() BE $(
+        WRITES("Type: ")
+        WRITES(type)
+        WRITES(", Model: ")
+        WRITES(model)
+        WRITES(", Year: ")
+        WRITEN(year)
+        WRITES(", Price: $")
+        WRITEN(price)
+        NEWLINE()
+    $)
+$)
+
+CLASS Dealership $(
+    DECL name, inventory, count, maxSize
+
+    ROUTINE CREATE(n, max) BE $(
+        name := n
+        maxSize := max
+        // Allocate an array for inventory
+        inventory := VEC maxSize
+        // Initialize count
+        count := 0
+    $)
+
+    ROUTINE addVehicle(vehicle) BE $(
+        // Store the vehicle in the inventory
+        inventory!count := vehicle
+        count := count + 1
+    $)
+
+    ROUTINE displayAll() BE $(
+        WRITES("Dealership: ")
+        WRITES(name)
+        NEWLINE()
+        WRITES("Inventory count: ")
+        WRITEN(count)
+        NEWLINE()
+
+        // This will cause a crash - we try to access beyond the array bounds
+        // by using count+1 as index, which will be out of bounds
+        LET crashPtr = inventory!(count+5)
+        crashPtr.display() // This will try to call a method on invalid memory
+    $)
+$)
+
+LET START() BE $(
+    // Create a dealership
+    LET dealer = NEW Dealership
+    dealer.CREATE("ABC Motors", 10)
+
+    // Create some vehicles
+    LET car1 = NEW Vehicle
+    car1.CREATE("Car", "Sedan", 2023, 25000)
+
+    LET car2 = NEW Vehicle
+    car2.CREATE("SUV", "Explorer", 2022, 35000)
+
+    // Add vehicles to dealership
+    dealer.addVehicle(car1)
+    dealer.addVehicle(car2)
+
+    // This will crash
+    dealer.displayAll()
+
+    WRITES("This line will never be reached")
+$)

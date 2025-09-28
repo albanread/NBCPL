@@ -1,0 +1,102 @@
+#ifndef REGISTER_MANAGER_H
+#define REGISTER_MANAGER_H
+
+#include <string>
+#include <vector>
+#include <unordered_map>
+#include <list>
+#include <unordered_set>
+#include "Encoder.h"
+
+// Forward declarations
+class NewCodeGenerator;
+class CallFrameManager;
+
+class RegisterManager {
+public:
+    // --- Singleton Access Method ---
+    static RegisterManager& getInstance();
+
+    // Check if a register is a scratch register
+    bool is_scratch_register(const std::string& register_name) const;
+
+    bool is_variable_spilled(const std::string& variable_name) const;
+
+    // --- Variable & Scratch Management (Updated to use partitioned pools) ---
+    std::pair<std::string, bool> acquire_reg_for_variable(const std::string& variable_name, NewCodeGenerator& code_gen);
+    void release_reg_for_variable(const std::string& variable_name);
+    std::string acquire_scratch_reg();
+    void release_scratch_reg(const std::string& reg_name);
+
+    // Acquire/release a callee-saved temp register for preserving values across function calls
+    std::string acquire_callee_saved_temp_reg(CallFrameManager& cfm);
+    void release_callee_saved_temp_reg(const std::string& reg_name);
+
+    // NEW METHOD:
+    // Acquires a register for a temporary, anonymous value,
+    // using the spillable VARIABLE_REGS pool.
+    std::string acquire_spillable_temp_reg(NewCodeGenerator& code_gen);
+
+    // --- Helper methods for code generation compatibility ---
+    std::string get_free_register();
+    void release_register(const std::string& reg_name);
+    std::string get_free_float_register();
+
+    // --- Additional stubs for codegen compatibility ---
+    std::string get_zero_register() const;
+
+    void mark_register_as_used(const std::string& reg_name);
+
+    // --- ABI & State Management ---
+    void mark_dirty(const std::string& reg_name, bool is_dirty = true);
+    bool is_dirty(const std::string& reg_name) const;
+    std::vector<std::pair<std::string, std::string>> get_dirty_variable_registers() const;
+    std::vector<std::string> get_in_use_callee_saved_registers() const;
+    std::vector<std::string> get_in_use_caller_saved_registers() const;
+    void reset();
+private:
+    // Private constructor to prevent direct instantiation
+    RegisterManager();
+    // Private destructor (optional, but good practice for singletons if specific cleanup is needed)
+    ~RegisterManager() = default;
+
+    // Delete copy constructor and assignment operator to prevent copying
+    RegisterManager(const RegisterManager&) = delete;
+    RegisterManager& operator=(const RegisterManager&) = delete;
+
+    static RegisterManager* instance_;
+
+
+
+public:
+    enum RegisterStatus {
+        FREE,
+        IN_USE_VARIABLE,
+        IN_USE_SCRATCH,
+        IN_USE_ROUTINE_ADDR,
+        IN_USE_DATA_BASE
+    };
+
+    struct RegisterInfo {
+        RegisterStatus status;
+        std::string bound_to;
+        bool dirty;
+    };
+
+
+    std::unordered_map<std::string, RegisterInfo> registers;
+    std::unordered_map<std::string, std::string> variable_to_reg_map;
+    std::list<std::string> variable_reg_lru_order_;
+    std::unordered_set<std::string> spilled_variables_;
+
+    const std::string DATA_BASE_REG = "X28";
+    static const std::vector<std::string> VARIABLE_REGS;
+    const std::vector<std::string> SCRATCH_REGS = {"X10", "X11", "X12", "X13", "X14", "X15"};
+    const std::vector<std::string> RESERVED_REGS = {DATA_BASE_REG};
+
+    void initialize_registers();
+    std::string find_free_register(const std::vector<std::string>& pool);
+    Instruction generate_spill_code(const std::string& reg_name, const std::string& variable_name, CallFrameManager& cfm);
+};
+
+#endif // REGISTER_MANAGER_H

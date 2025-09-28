@@ -1,0 +1,24 @@
+// Basic PAIR test without arithmetic to isolate the issue
+LET START() BE {
+    WRITEF("Basic PAIR Test (No Arithmetic)*N")
+
+    // Test 1: Simple PAIR creation
+    WRITEF("Test 1: Creating PAIR(5, 10)*N")
+    LET p1 = PAIR(5, 10)
+    WRITEF("p1.first = %d*N", p1.first)
+    WRITEF("p1.second = %d*N", p1.second)
+
+    // Test 2: Another PAIR creation
+    WRITEF("Test 2: Creating PAIR(42, 99)*N")
+    LET p2 = PAIR(42, 99)
+    WRITEF("p2.first = %d*N", p2.first)
+    WRITEF("p2.second = %d*N", p2.second)
+
+    // Test 3: PAIR assignment
+    WRITEF("Test 3: PAIR assignment*N")
+    LET p3 = p1
+    WRITEF("p3.first = %d*N", p3.first)
+    WRITEF("p3.second = %d*N", p3.second)
+
+    WRITEF("Basic PAIR test complete*N")
+}

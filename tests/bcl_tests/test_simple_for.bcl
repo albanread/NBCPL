@@ -1,0 +1,1 @@
+LET START() BE $( FOR i = 1 TO 3 DO $( LET x = i * 2; LET y = i * 3; WRITEF("i=%d x=%d y=%d*N", i, x, y) $) $)

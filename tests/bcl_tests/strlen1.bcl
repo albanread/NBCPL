@@ -1,0 +1,19 @@
+
+LET SNAFU() BE
+$(
+   FOR J=1 TO 120 DO
+   $(
+      WRITEN(J)
+      WRITEC(32)
+   $)
+   WRITEC(10)
+$)
+
+
+LET START() BE 
+$(
+ 
+   SNAFU()
+
+   FINISH
+$)

@@ -1,0 +1,27 @@
+// Minimal test to debug universal expressions issue
+// Focus on the exact problematic case
+
+LET START() BE {
+    // Test the exact case that's failing
+    WRITEF("Testing simple float + int multiplication result*N")
+
+    // Step 1: Just the multiplication part
+    LET mult_result = 2 * 3
+    WRITEF("2 * 3 = %d*N", mult_result)
+
+    // Step 2: Just the float literal
+    FLET float_val = 1.0
+    WRITEF("1.0 = %f*N", float_val)
+
+    // Step 3: Try to add them with explicit conversion
+    FLET combined = float_val + FLOAT(mult_result)
+    WRITEF("1.0 + FLOAT(6) = %f*N", combined)
+
+    // Step 4: Try the direct expression with FLET
+    FLET direct = 1.0 + 2 * 3
+    WRITEF("FLET direct = 1.0 + 2 * 3 = %f*N", direct)
+
+    // Step 5: Try with all explicit parentheses
+    FLET paren = (1.0) + (2 * 3)
+    WRITEF("(1.0) + (2 * 3) = %f*N", paren)
+}

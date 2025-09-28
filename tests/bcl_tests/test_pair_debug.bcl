@@ -1,0 +1,46 @@
+// Debug test to isolate PAIR value extraction issue
+// This will help us understand where the problem is
+
+LET START() BE {
+    writef("PAIR Debug Test Starting...\n")
+
+    // Test 1: Simple values without PAIR first
+    writef("Test 1: Simple integer values\n")
+    LET x = 42
+    writef("x = %d\n", x)
+
+    // Test 2: Create PAIR but don't access elements yet
+    writef("Test 2: PAIR creation\n")
+    LET p = PAIR(7, 13)
+    writef("PAIR created successfully\n")
+
+    // Test 3: Try to access PAIR elements without using them in writef
+    writef("Test 3: PAIR element access\n")
+    LET first_element = p.first
+    LET second_element = p.second
+    writef("Elements extracted successfully\n")
+
+    // Test 4: Try to use the extracted values in simple operations
+    writef("Test 4: Arithmetic with PAIR elements\n")
+    LET sum = first_element + second_element
+    writef("Sum calculated successfully\n")
+
+    // Test 5: Try one element at a time in writef
+    writef("Test 5: Individual element output\n")
+    writef("About to print first element...\n")
+    // Don't use writef with %d yet, just test if we can get here
+
+    // Test 6: Try simple comparison
+    writef("Test 6: Element comparison\n")
+    TEST first_element = 7 THEN
+        writef("First element equals 7 - SUCCESS!\n")
+    ELSE
+        writef("First element does NOT equal 7 - PROBLEM!\n")
+
+    TEST second_element = 13 THEN
+        writef("Second element equals 13 - SUCCESS!\n")
+    ELSE
+        writef("Second element does NOT equal 13 - PROBLEM!\n")
+
+    writef("Debug test completed.\n")
+}

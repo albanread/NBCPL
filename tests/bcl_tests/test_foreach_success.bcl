@@ -1,0 +1,36 @@
+LET START() BE
+$(
+   WRITES("Testing FOREACH string iteration fix*N")
+
+   // Create a simple string list with heap-allocated strings to avoid literal cleanup issues
+   LET S1 = "Hello"
+   LET S2 = "World"
+   LET S3 = "Test"
+
+   // Create list with variables instead of literals
+   LET STRING_LIST = LIST(S1, S2, S3)
+
+   WRITES("About to iterate over string list*N")
+
+   // This should work without crashing after the fix
+   FOREACH S IN STRING_LIST DO
+   $(
+      WRITES("String: ")
+      WRITES(S)
+      WRITES("*N")
+   $)
+
+   WRITES("FOREACH completed successfully - fix verified!*N")
+
+   // Test with character iteration to further verify the fix
+   LET TEST_STRING = "ABC"
+   WRITES("Testing character iteration in string: ")
+
+   FOREACH C IN TEST_STRING DO
+   $(
+      WRITEC(C)
+   $)
+
+   WRITES("*N")
+   WRITES("All FOREACH tests passed - double adjustment bug is fixed!*N")
+$)

@@ -1,0 +1,58 @@
+// Demo showing FOR loop optimization impact
+// This demonstrates the register pressure reduction achieved
+// by using immediate values for constant loop bounds
+
+LET demo_optimized() = VALOF {
+    LET sum = 0
+
+    // This loop should generate:
+    // CMP X_reg, #100    (immediate comparison)
+    // ADD X_reg, X_reg, #1 (immediate increment)
+    // NO backing variables for 100 or 1
+    FOR i = 1 TO 100 DO {
+        sum := sum + i
+    }
+
+    RESULTIS sum
+}
+
+LET demo_unoptimized() = VALOF {
+    LET sum = 0
+    LET max_val = 100
+    LET step_val = 1
+
+    // This loop should generate:
+    // LDR end_reg, [stack_offset]  (load end value)
+    // LDR step_reg, [stack_offset] (load step value)
+    // CMP X_reg, end_reg           (register comparison)
+    // ADD X_reg, X_reg, step_reg   (register increment)
+    // Creates backing variables for max_val and step_val
+    FOR j = 1 TO max_val BY step_val DO {
+        sum := sum + j
+    }
+
+    RESULTIS sum
+}
+
+LET START() BE {
+    WRITEF("=== FOR Loop Optimization Demo ===*N*N")
+
+    WRITEF("Running optimized version (constant bounds)...*N")
+    LET result1 = demo_optimized()
+    WRITEF("Result: %d*N*N", result1)
+
+    WRITEF("Running unoptimized version (variable bounds)...*N")
+    LET result2 = demo_unoptimized()
+    WRITEF("Result: %d*N*N", result2)
+
+    TEST result1 = result2 THEN {
+        WRITEF("SUCCESS: Both versions produce same result (correctness verified)*N")
+    } ELSE {
+        WRITEF("ERROR: Results differ! Optimization bug detected.*N")
+    }
+
+    WRITEF("*NTo see optimization details, run with:*N")
+    WRITEF("  --trace-ast     (shows variable creation analysis)*N")
+    WRITEF("  --trace-codegen (shows immediate instruction generation)*N")
+    WRITEF("  --asm           (shows final assembly differences)*N")
+}

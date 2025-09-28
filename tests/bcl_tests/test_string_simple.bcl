@@ -1,0 +1,19 @@
+LET START() BE
+$(
+    WRITES("=== SIMPLE STRING VARIABLE FOREACH TEST ===*N")
+
+    // Test: String variable FOREACH (should trigger register pressure optimization)
+    LET my_string = "abc"
+    WRITES("Testing string variable FOREACH with 'abc'*N")
+    WRITES("Expected: a, b, c*N")
+    WRITES("Actual: ")
+
+    FOREACH char IN my_string DO
+    $(
+        WRITECH(char)
+        WRITES(" ")
+    $)
+
+    WRITES("*N")
+    WRITES("=== TEST COMPLETE ===*N")
+$)

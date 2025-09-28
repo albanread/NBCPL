@@ -1,0 +1,219 @@
+// Test cases for SUPER call parameter validation
+// This file tests the semantic analysis fixes for SUPER method calls
+// to ensure proper parameter count and type validation
+
+// Base class for testing SUPER call validation
+class Vehicle(brand, year) {
+    LET brand_name = brand
+    LET manufacture_year = year
+
+    // Constructor with specific parameter signature
+    LET CREATE(init_brand, init_year) BE {
+        brand_name := init_brand
+        manufacture_year := init_year
+        WRITES("Creating Vehicle: ")
+        WRITES(init_brand)
+        WRITES(" (")
+        WRITEN(init_year)
+        WRITES(")*n")
+    }
+
+    // Method with single parameter
+    LET set_brand(new_brand) BE {
+        brand_name := new_brand
+        WRITES("Brand updated to: ")
+        WRITES(new_brand)
+        WRITES("*n")
+    }
+
+    // Method with multiple parameters of different types
+    LET update_info(new_brand, new_year, is_certified) BE {
+        brand_name := new_brand
+        manufacture_year := new_year
+        WRITES("Updated vehicle info: ")
+        WRITES(new_brand)
+        WRITES(" (")
+        WRITEN(new_year)
+        WRITES(") Certified: ")
+        IF is_certified THEN WRITES("Yes") ELSE WRITES("No")
+        WRITES("*n")
+    }
+
+    // Method with no parameters
+    LET reset() BE {
+        brand_name := "Unknown"
+        manufacture_year := 0
+        WRITES("Vehicle info reset*n")
+    }
+
+    LET get_brand() = brand_name
+    LET get_year() = manufacture_year
+}
+
+// Derived class that tests various SUPER call scenarios
+class Car(brand, year, doors) EXTENDS Vehicle {
+    LET door_count = doors
+
+    // Test Case 1: CORRECT SUPER call - proper parameter count and types
+    LET CREATE(init_brand, init_year, init_doors) BE {
+        // This should PASS validation - correct number and types
+        SUPER.CREATE(init_brand, init_year)
+        door_count := init_doors
+        WRITES("Car created with ")
+        WRITEN(init_doors)
+        WRITES(" doors*n")
+    }
+
+    // Test Case 2: CORRECT SUPER call - single parameter
+    LET update_brand(new_brand) BE {
+        // This should PASS validation
+        SUPER.set_brand(new_brand)
+        WRITES("Car brand updated via SUPER call*n")
+    }
+
+    // Test Case 3: CORRECT SUPER call - no parameters
+    LET reset_vehicle() BE {
+        // This should PASS validation
+        SUPER.reset()
+        door_count := 0
+        WRITES("Car reset via SUPER call*n")
+    }
+
+    LET get_doors() = door_count
+}
+
+// Derived class with INCORRECT SUPER calls (should cause semantic errors)
+class Motorcycle(brand, year, engine_size) EXTENDS Vehicle {
+    LET engine_cc = engine_size
+
+    // Test Case 4: ERROR - Too many arguments
+    LET CREATE_with_too_many_args(init_brand, init_year, init_engine) BE {
+        // This should FAIL validation - CREATE expects 2 args, providing 3
+        SUPER.CREATE(init_brand, init_year, init_engine)  // ERROR!
+        engine_cc := init_engine
+    }
+
+    // Test Case 5: ERROR - Too few arguments
+    LET CREATE_with_too_few_args(init_brand, init_year, init_engine) BE {
+        // This should FAIL validation - CREATE expects 2 args, providing 1
+        SUPER.CREATE(init_brand)  // ERROR!
+        engine_cc := init_engine
+    }
+
+    // Test Case 6: ERROR - Wrong argument count for single parameter method
+    LET update_brand_wrong_args(new_brand, extra_param) BE {
+        // This should FAIL validation - set_brand expects 1 arg, providing 2
+        SUPER.set_brand(new_brand, extra_param)  // ERROR!
+    }
+
+    // Test Case 7: ERROR - Arguments to no-parameter method
+    LET reset_with_args() BE {
+        // This should FAIL validation - reset expects 0 args, providing 1
+        SUPER.reset("invalid_arg")  // ERROR!
+    }
+
+    LET get_engine_size() = engine_cc
+}
+
+// Test class for type mismatch scenarios
+class Truck(brand, year, payload) EXTENDS Vehicle {
+    LET max_payload = payload
+
+    // Test Case 8: WARNING - Type mismatch (if type system is strict)
+    LET CREATE_with_type_mismatch(init_brand, init_year, init_payload) BE {
+        // This might generate warnings if type inference detects mismatches
+        // For example, passing a float where int expected, etc.
+        SUPER.CREATE(init_brand, init_year)
+        max_payload := init_payload
+    }
+
+    // Test Case 9: CORRECT - Complex SUPER call with multiple types
+    LET update_full_info(new_brand, new_year, is_certified) BE {
+        // This should PASS - correct parameter count and types
+        SUPER.update_info(new_brand, new_year, is_certified)
+        WRITES("Truck info updated via SUPER call*n")
+    }
+
+    LET get_payload() = max_payload
+}
+
+// Test functions to demonstrate the validation
+LET test_correct_super_calls() BE {
+    WRITES("=== Testing CORRECT SUPER calls ==*n")
+
+    LET car = NEW Car("Toyota", 2023, 4)
+    car.update_brand("Honda")
+    car.reset_vehicle()
+
+    LET truck = NEW Truck("Ford", 2022, 5000)
+    truck.update_full_info("Chevrolet", 2023, TRUE)
+
+    WRITES("All correct SUPER calls completed successfully*n*n")
+}
+
+LET test_incorrect_super_calls() BE {
+    WRITES("=== Testing INCORRECT SUPER calls (should cause semantic errors) ==*n")
+
+    // These should be caught during semantic analysis and prevent compilation
+    WRITES("Note: The following code should NOT compile due to semantic errors:*n")
+    WRITES("- SUPER.CREATE with wrong argument count*n")
+    WRITES("- SUPER.set_brand with wrong argument count*n")
+    WRITES("- SUPER.reset with unexpected arguments*n")
+    WRITES("*n")
+
+    // Uncomment these lines to test semantic error detection:
+    // LET motorcycle = NEW Motorcycle("Harley", 2023, 1200)
+    // These constructor calls would fail semantic validation
+}
+
+// Nested inheritance test
+class ElectricCar(brand, year, doors, battery_capacity) EXTENDS Car {
+    LET battery_kwh = battery_capacity
+
+    // Test Case 10: SUPER call in deeper inheritance hierarchy
+    LET CREATE(init_brand, init_year, init_doors, init_battery) BE {
+        // This tests SUPER call validation through multiple inheritance levels
+        SUPER.CREATE(init_brand, init_year, init_doors)
+        battery_kwh := init_battery
+        WRITES("Electric car created with ")
+        WRITEN(init_battery)
+        WRITES(" kWh battery*n")
+    }
+
+    // Test Case 11: Chained SUPER calls
+    LET full_reset() BE {
+        // This should work - calling parent's method which calls grandparent's method
+        SUPER.reset_vehicle()
+        battery_kwh := 0
+        WRITES("Electric car fully reset*n")
+    }
+
+    LET get_battery() = battery_kwh
+}
+
+// Main test runner
+LET START() BE {
+    WRITES("SUPER Call Parameter Validation Test Suite*n")
+    WRITES("==========================================*n*n")
+
+    WRITES("This test suite validates the semantic analysis fixes for SUPER calls.*n")
+    WRITES("The analyzer should now properly validate:*n")
+    WRITES("1. Correct parameter count*n")
+    WRITES("2. Parameter type compatibility*n")
+    WRITES("3. Method signature matching*n*n")
+
+    test_correct_super_calls()
+    test_incorrect_super_calls()
+
+    WRITES("=== Testing nested inheritance SUPER calls ==*n")
+    LET electric_car = NEW ElectricCar("Tesla", 2023, 4, 100)
+    electric_car.full_reset()
+
+    WRITES("*nTest Results:*n")
+    WRITES("✓ Correct SUPER calls should compile and run successfully*n")
+    WRITES("✗ Incorrect SUPER calls should be caught during semantic analysis*n")
+    WRITES("⚠  Type mismatches should generate warnings (if type system is strict)*n")
+
+    WRITES("*nValidation Test Complete.*n")
+    WRITES("Check compiler output for semantic errors on invalid SUPER calls.*n")
+}

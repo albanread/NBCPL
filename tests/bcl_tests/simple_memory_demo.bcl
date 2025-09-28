@@ -1,0 +1,119 @@
+// Simple memory management demonstration for NewBCPL
+// This shows basic automatic cleanup functionality
+
+CLASS SimpleClass $(
+    DECL value
+
+    ROUTINE CREATE(initial_value) BE $(
+        value := initial_value
+        WRITES("SimpleClass created with value ")
+        WRITEN(value)
+        WRITES("*N")
+    $)
+
+    ROUTINE setValue(new_value) BE $(
+        value := new_value
+    $)
+
+    FUNCTION getValue() = VALOF RESULTIS value
+
+    ROUTINE RELEASE() BE $(
+        WRITES("SimpleClass with value ")
+        WRITEN(value)
+        WRITES(" is being released*N")
+        // Default object cleanup happens automatically
+    $)
+$)
+
+// Demonstration of automatic cleanup
+LET demo_automatic_cleanup() BE $(
+    WRITES("*N=== Automatic Cleanup Demo ===*N")
+
+    $(  // Inner scope
+        WRITES("Creating objects in inner scope...*N")
+
+        LET obj1 = NEW SimpleClass(100)
+        LET obj2 = NEW SimpleClass(200)
+
+        obj1.setValue(150)
+        obj2.setValue(250)
+
+        WRITES("obj1 value: ")
+        WRITEN(obj1.getValue())
+        WRITES("*N")
+        WRITES("obj2 value: ")
+        WRITEN(obj2.getValue())
+        WRITES("*N")
+
+        WRITES("About to exit inner scope...*N")
+    $)  // Objects automatically cleaned up here
+
+    WRITES("Exited inner scope - objects cleaned up!*N")
+$)
+
+// Demonstration of vector management
+LET demo_vector_management() BE $(
+    WRITES("*N=== Vector Management Demo ===*N")
+
+    LET size = 10
+    WRITES("Allocating vector of size ")
+    WRITEN(size)
+    WRITES("*N")
+
+    LET data = GETVEC(size)
+
+    // Initialize vector
+    FOR i = 0 TO size-1 DO
+        data!i := i * 10
+
+    // Print values
+    WRITES("Vector values: ")
+    FOR i = 0 TO size-1 DO $(
+        WRITEN(data!i)
+        WRITES(" ")
+    $)
+    WRITES("*N")
+
+    WRITES("Manually freeing vector...*N")
+    FREEVEC(data)
+    WRITES("Vector freed*N")
+$)
+
+// Demonstration of nested scopes
+LET demo_nested_scopes() BE $(
+    WRITES("*N=== Nested Scopes Demo ===*N")
+
+    LET outer_obj = NEW SimpleClass(1000)
+    WRITES("Created outer object*N")
+
+    $(  // Inner scope 1
+        LET inner_obj1 = NEW SimpleClass(2000)
+        WRITES("Created inner object 1*N")
+
+        $(  // Inner scope 2
+            LET inner_obj2 = NEW SimpleClass(3000)
+            WRITES("Created inner object 2*N")
+            WRITES("About to exit innermost scope*N")
+        $)  // inner_obj2 cleaned up here
+
+        WRITES("Back in middle scope*N")
+        WRITES("About to exit middle scope*N")
+    $)  // inner_obj1 cleaned up here
+
+    WRITES("Back in outer scope*N")
+    WRITES("About to exit outer scope*N")
+    // outer_obj cleaned up when function exits
+$)
+
+// Main program
+LET START() BE $(
+    WRITES("NewBCPL Simple Memory Management Demo*N")
+    WRITES("===================================*N")
+
+    demo_automatic_cleanup()
+    demo_vector_management()
+    demo_nested_scopes()
+
+    WRITES("*N=== Demo Complete ===*N")
+    WRITES("Check memory metrics - should show 0 active allocations*N")
+$)

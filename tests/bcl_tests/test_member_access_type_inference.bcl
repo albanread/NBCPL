@@ -1,0 +1,52 @@
+// Test file to demonstrate incomplete type inference for member access
+// This shows cases where the current analyzer returns UNKNOWN instead of proper types
+
+class TestClass {
+    int_member : INTEGER;
+    float_member : FLOAT;
+    string_member : POINTER_TO_STRING;
+}
+
+// Helper function that returns an object
+get_test_object() : POINTER_TO_OBJECT {
+    return NEW TestClass();
+}
+
+// Another helper that takes a parameter
+get_object_by_param(obj : POINTER_TO_OBJECT) : POINTER_TO_OBJECT {
+    return obj;
+}
+
+test_member_access_inference() {
+    local obj : POINTER_TO_OBJECT;
+    local result_int : INTEGER;
+    local result_float : FLOAT;
+    local result_string : POINTER_TO_STRING;
+
+    obj := NEW TestClass();
+
+    // Case 1: Direct member access (should work)
+    result_int := obj.int_member;        // This should work
+    result_float := obj.float_member;    // This should work
+    result_string := obj.string_member;  // This should work
+
+    // Case 2: Member access through function call (currently returns UNKNOWN)
+    result_int := (get_test_object()).int_member;        // Currently UNKNOWN
+    result_float := (get_test_object()).float_member;    // Currently UNKNOWN
+    result_string := (get_test_object()).string_member;  // Currently UNKNOWN
+
+    // Case 3: Member access through parameter (currently returns UNKNOWN)
+    result_int := (get_object_by_param(obj)).int_member;        // Currently UNKNOWN
+    result_float := (get_object_by_param(obj)).float_member;    // Currently UNKNOWN
+    result_string := (get_object_by_param(obj)).string_member;  // Currently UNKNOWN
+
+    // Case 4: Nested member access (currently returns UNKNOWN)
+    // Assuming TestClass had an object_member : POINTER_TO_OBJECT
+    // result_int := obj.object_member.int_member;  // Would be UNKNOWN
+
+    writef("Test completed\n");
+}
+
+start() {
+    test_member_access_inference();
+}

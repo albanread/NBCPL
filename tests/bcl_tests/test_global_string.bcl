@@ -1,0 +1,6 @@
+GET "PRINTSTRING.bcl"
+
+LET GREETING = "Hello, Global String!"
+
+WRITES(GREETING)
+FINISH

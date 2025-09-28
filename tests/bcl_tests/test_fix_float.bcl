@@ -1,0 +1,19 @@
+// Test FIX intrinsic with float operands
+// This tests float-to-integer conversion using the new FIX intrinsic
+
+LET START() BE {
+    WRITEF("Testing FIX intrinsic with float operands*N")
+
+    // Test 1: FIX with float variable
+    FLET test_float = FLTOFX(42)
+    LET result = FIX(test_float)
+    WRITEF("FIX(FLTOFX(42)) = %d*N", result)
+
+    // Test 2: FIX with float arithmetic
+    FLET a = FLTOFX(10)
+    FLET b = FLTOFX(3)
+    LET result2 = FIX(a +# b)
+    WRITEF("FIX(FLTOFX(10) +# FLTOFX(3)) = %d*N", result2)
+
+    WRITEF("FIX float conversion tests completed*N")
+}

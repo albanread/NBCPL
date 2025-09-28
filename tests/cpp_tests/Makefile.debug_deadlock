@@ -1,0 +1,53 @@
+# Makefile for debug_deadlock (Deadlock Debug Test)
+# Minimal test to debug potential deadlock issues with SAMM and object lists
+
+CXX = clang++
+CXXFLAGS = -std=c++17 -Wall -Wextra -O2 -g
+INCLUDES = -I. -I../../HeapManager -I../../runtime -I../../include
+LIBS = ../../libbcpl_runtime_sdl2_static.a -lpthread \
+       -framework CoreFoundation -framework CoreAudio -framework AudioToolbox \
+       -framework CoreGraphics -framework AppKit -framework IOKit \
+       -framework ForceFeedback -framework Carbon -framework CoreHaptics \
+       -framework GameController -framework Metal -framework QuartzCore
+
+# Target executable
+TARGET = debug_deadlock
+
+# Source files
+MAIN_SRC = debug_deadlock.cpp
+
+# Default target
+all: $(TARGET)
+
+# Main executable
+$(TARGET): $(TARGET).o
+	@echo "Linking debug_deadlock executable..."
+	$(CXX) $(CXXFLAGS) -o $@ $^ $(LIBS)
+
+# Main test source
+$(TARGET).o: $(MAIN_SRC)
+	@echo "Compiling debug_deadlock.cpp..."
+	$(CXX) $(CXXFLAGS) $(INCLUDES) -c $< -o $@
+
+# Clean up build artifacts
+clean:
+	@echo "Cleaning debug_deadlock build artifacts..."
+	rm -f $(TARGET) $(TARGET).o
+
+# Force rebuild
+rebuild: clean all
+
+# Run the test
+test: $(TARGET)
+	@echo "Running deadlock debug test..."
+	./$(TARGET)
+
+# Run test with timeout to catch deadlocks
+test-timeout: $(TARGET)
+	@echo "Running deadlock debug test with 60 second timeout..."
+	timeout 60s ./$(TARGET) || echo "TEST TIMED OUT - POSSIBLE DEADLOCK"
+
+# Run test with debug output
+test-debug: $(TARGET)
+	@echo "Running deadlock debug test with debug output..."
+	ENABLE_VERBOSE=1 ./$(TARGET)

@@ -1,0 +1,5 @@
+LET START() BE
+$(
+  LET R = 1
+  WRITES("R=") WRITEN(R) WRITES("*N")
+$)

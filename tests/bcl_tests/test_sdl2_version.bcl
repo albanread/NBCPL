@@ -1,0 +1,11 @@
+
+LET START() BE {
+
+    WRITES("Init*N")
+    LET result = SDL2_INIT()
+    WRITES("version:")
+    LET version = SDL2_GET_VERSION()
+    WRITEN(version)
+    
+    WRITES("Test completed.\n")
+}

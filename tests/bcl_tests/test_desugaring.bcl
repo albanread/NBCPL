@@ -1,0 +1,60 @@
+// test_desugaring.bcl - Test file to verify desugaring of LET p = NEW Thing(x,y,z)
+
+CLASS Thing $(
+    DECL x, y, z  // Member variables
+
+    // Constructor
+    ROUTINE CREATE(initialX, initialY, initialZ) BE $(
+        WRITES("Thing::CREATE called with (")
+        WRITEN(initialX)
+        WRITES(", ")
+        WRITEN(initialY)
+        WRITES(", ")
+        WRITEN(initialZ)
+        WRITES(")\n")
+
+        x := initialX
+        y := initialY
+        z := initialZ
+    $)
+
+    // Accessor methods
+    FUNCTION getX() = VALOF $(
+        RESULTIS x
+    $)
+
+    FUNCTION getY() = VALOF $(
+        RESULTIS y
+    $)
+
+    FUNCTION getZ() = VALOF $(
+        RESULTIS z
+    $)
+
+    // Destructor
+    ROUTINE RELEASE() BE $(
+        WRITES("Thing::RELEASE called\n")
+    $)
+$)
+
+LET START() BE $(
+    WRITES("\n=== Testing desugaring of LET p = NEW Thing(x,y,z) ===\n")
+
+    // This statement should be desugared into:
+    // 1. p := NEW Thing()  (memory allocation)
+    // 2. p.CREATE(100, 200, 300)  (constructor call)
+    // 3. DEFER p.RELEASE()  (automatic resource management)
+    LET p = NEW Thing(100, 200, 300)
+
+    WRITES("\nVerifying object state after initialization:\n")
+    WRITES("p.x = ")
+    WRITEN(p.getX())  // Should output 100
+    WRITES("p.y = ")
+    WRITEN(p.getY())  // Should output 200
+    WRITES("p.z = ")
+    WRITEN(p.getZ())  // Should output 300
+    WRITES("\n")
+
+    WRITES("=== End of test ===\n")
+    // The DEFER p.RELEASE() should be called automatically when the function exits
+$)

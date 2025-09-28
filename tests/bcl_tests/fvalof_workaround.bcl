@@ -1,0 +1,45 @@
+// FVALOF issue workaround test
+// Since FVALOF functions return a float in D0 register, but the compiler
+// expects the result to be stored in an integer register when assigning
+// to a variable, we need a workaround.
+
+// The problematic pattern:
+//   LET y = FVALOF_FUNC()  <- This fails because y is typed as INTEGER
+//                            but FVALOF_FUNC returns a FLOAT in D0
+
+// Instead we use a pattern that works with direct assignments:
+LET START() BE
+{
+    // Direct floating point operations work fine
+    WRITES("Testing direct float operations:*N")
+    LET a = 2.0 *# 4.0
+    WRITES("2.0 *# 4.0 = ")
+    WRITEF(a)
+    WRITES("*N")
+
+    // WORKAROUND 1: Make the variable a float first with direct assignment
+    WRITES("*NWorkaround 1 - Initialize as float first:*N")
+    LET result1 = 0.0
+    result1 = SIMPLE_FVALOF() // Direct assignment works!
+    WRITES("SIMPLE_FVALOF() = ")
+    WRITEF(result1)
+    WRITES(" (should be 32.5)*N")
+
+    // WORKAROUND 2: Store directly into a float temp variable
+    WRITES("*NWorkaround 2 - Use intermediate float variable:*N")
+    LET temp = 0.0
+    temp = MULTIPLY_BY_TWO(8)
+    WRITES("MULTIPLY_BY_TWO(8) = ")
+    WRITEF(temp)
+    WRITES(" (should be 16.0)*N")
+}
+
+// Simple FVALOF returning a fixed value
+LET SIMPLE_FVALOF() = FVALOF {
+    RESULTIS 32.5
+}
+
+// FVALOF with multiplication
+LET MULTIPLY_BY_TWO(x) = FVALOF {
+    RESULTIS FLOAT(x) *# 2.0
+}

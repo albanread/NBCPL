@@ -1,0 +1,10 @@
+// Test string FOREACH separately to isolate the register size issue
+LET start() BE {
+    // Test string FOREACH only
+    LET s = "Hello"
+    WRITEF("Testing string FOREACH:\n")
+    FOREACH c IN s DO {
+        WRITEF("Char: %c\n", c)
+    }
+    WRITEF("String FOREACH test completed!\n")
+}

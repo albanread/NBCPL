@@ -1,0 +1,31 @@
+GET "runtime.bcl"
+
+// Define a class to hold X, Y coordinates
+CLASS Point
+$(
+  FLET x
+  FLET y
+
+  ROUTINE CREATE(initialX, initialY) BE $(
+    SELF.x := initialX
+    SELF.y := initialY
+  $)
+$)
+
+LET START() BE $(
+  LET fern_points = LIST()
+  LET x, y = 0.0, 0.0
+  LET i = 0
+  LET r = 50
+
+  // Test the problematic line in isolation
+  LET next_x, next_y = 0.0, 0.0
+
+  // This is line 34 from fernpoints.bcl that's causing the issue
+  next_y := - 0.04 * x + 0.85 * y + 1.6
+
+  // Test APND with NEW Point
+  APND(fern_points, NEW Point(x, y))
+
+  WRITES("Test completed successfully*N")
+$)

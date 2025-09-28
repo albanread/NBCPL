@@ -1,0 +1,38 @@
+// Test operator precedence with type promotion in universal expressions
+// This isolates the specific issue with precedence and type inference
+
+LET START() BE {
+    WRITEF("Testing operator precedence with type promotion*N")
+
+    // Test 1: Verify basic precedence works with integers
+    LET int_test = 1 + 2 * 3
+    WRITEF("1 + 2 * 3 (int) = %d*N", int_test)
+
+    // Test 2: Same expression but with float result
+    FLET float_test = 1.0 + 2 * 3
+    WRITEF("1.0 + 2 * 3 (float) = %f*N", float_test)
+
+    // Test 3: Break down the expression manually
+    LET step1 = 2 * 3
+    WRITEF("Step 1: 2 * 3 = %d*N", step1)
+
+    FLET step2 = 1.0 + step1
+    WRITEF("Step 2: 1.0 + %d = %f*N", step1, step2)
+
+    // Test 4: Different precedence order
+    FLET test4 = 2 * 3 + 1.0
+    WRITEF("2 * 3 + 1.0 = %f*N", test4)
+
+    // Test 5: Force left-to-right with parentheses
+    FLET test5 = (1.0 + 2) * 3
+    WRITEF("(1.0 + 2) * 3 = %f*N", test5)
+
+    // Test 6: Simple two-operand expressions
+    FLET test6a = 1.0 + 6
+    WRITEF("1.0 + 6 = %f*N", test6a)
+
+    FLET test6b = 6 + 1.0
+    WRITEF("6 + 1.0 = %f*N", test6b)
+
+    WRITEF("Precedence tests complete*N")
+}

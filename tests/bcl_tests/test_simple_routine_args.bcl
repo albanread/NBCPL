@@ -1,0 +1,48 @@
+// Test for routine calls with clear parameter usage patterns for type inference
+
+LET IntRoutine(a, b) BE
+{
+    // Clear integer usage - arithmetic with integer result
+    LET result = a + b + 100
+    WRITEN(result)
+}
+
+FLET FloatRoutine(x, y) BE
+{
+    // Clear float usage - arithmetic with float result
+    FLET result = x + y + 1.5
+    WRITEN(42)  // Simplified output to avoid WRITEF issues
+}
+
+LET MixedRoutine(int_param, float_param) BE
+{
+    // Clear usage patterns showing expected types
+    LET int_result = int_param + 10    // int_param used as integer
+    FLET float_result = float_param + 2.5  // float_param used as float
+    WRITEN(int_result)
+    WRITEN(99)  // Simplified output
+}
+
+LET START() BE
+{
+    LET my_int = 42
+    FLET my_float = 3.14
+
+    // Test 1: Integer routine with integer arguments
+    IntRoutine(10, 20)
+
+    // Test 2: Float routine with float arguments
+    FloatRoutine(1.5, 2.5)
+
+    // Test 3: Mixed routine with proper types
+    MixedRoutine(100, 99.9)
+
+    // Test 4: Integer routine with mixed arguments (should convert float to int)
+    IntRoutine(my_int, my_float)
+
+    // Test 5: Float routine with mixed arguments (should convert int to float)
+    FloatRoutine(my_int, my_float)
+
+    // Test 6: Mixed routine with swapped types (should coerce appropriately)
+    MixedRoutine(my_float, my_int)
+}

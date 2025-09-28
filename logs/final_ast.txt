@@ -1,0 +1,2128 @@
+NewBCPL Compiler Version 1.0.1406
+
+--- Initial Abstract Syntax Tree ---
+Program:
+  Declarations:
+    ClassDeclaration: Point
+      Members:
+        LetDeclaration:
+          Name: x
+          Name: y
+        RoutineDeclaration: CREATE
+          Parameters: _this initialX initialY 
+          Body:
+            BlockStatement:
+              Statements:
+                AssignmentStatement:
+                  LHS:
+                    VariableAccess: x
+                  RHS:
+                    VariableAccess: initialX
+                AssignmentStatement:
+                  LHS:
+                    VariableAccess: y
+                  RHS:
+                    VariableAccess: initialY
+                RoutineCallStatement:
+                  Callee:
+                    VariableAccess: WRITES
+                  Arguments:
+                    StringLiteral: "Point created at ("
+                RoutineCallStatement:
+                  Callee:
+                    VariableAccess: WRITEN
+                  Arguments:
+                    VariableAccess: x
+                RoutineCallStatement:
+                  Callee:
+                    VariableAccess: WRITES
+                  Arguments:
+                    StringLiteral: ", "
+                RoutineCallStatement:
+                  Callee:
+                    VariableAccess: WRITEN
+                  Arguments:
+                    VariableAccess: y
+                RoutineCallStatement:
+                  Callee:
+                    VariableAccess: WRITES
+                  Arguments:
+                    StringLiteral: ")
+"
+        FunctionDeclaration: getX
+          Parameters: _this 
+          Body:
+            ValofExpression:
+              BlockStatement:
+                Statements:
+                  ResultisStatement:
+                    VariableAccess: x
+        FunctionDeclaration: getY
+          Parameters: _this 
+          Body:
+            ValofExpression:
+              BlockStatement:
+                Statements:
+                  ResultisStatement:
+                    VariableAccess: y
+        RoutineDeclaration: set
+          Parameters: _this newX newY 
+          Body:
+            BlockStatement:
+              Statements:
+                AssignmentStatement:
+                  LHS:
+                    VariableAccess: x
+                  RHS:
+                    VariableAccess: newX
+                AssignmentStatement:
+                  LHS:
+                    VariableAccess: y
+                  RHS:
+                    VariableAccess: newY
+        RoutineDeclaration: RELEASE
+          Parameters: _this 
+          Body:
+            BlockStatement:
+              Statements:
+                RoutineCallStatement:
+                  Callee:
+                    VariableAccess: WRITES
+                  Arguments:
+                    StringLiteral: "Point destroyed
+"
+    ClassDeclaration: ColorPoint
+      Extends: Point
+      Members:
+        LetDeclaration:
+          Name: color
+        RoutineDeclaration: CREATE
+          Parameters: _this initialX initialY initialColor 
+          Body:
+            BlockStatement:
+              Statements:
+                RoutineCallStatement:
+                  Callee:
+                    SuperMethodAccess: CREATE
+                  Arguments:
+                    VariableAccess: initialX
+                    VariableAccess: initialY
+                AssignmentStatement:
+                  LHS:
+                    VariableAccess: color
+                  RHS:
+                    VariableAccess: initialColor
+                RoutineCallStatement:
+                  Callee:
+                    VariableAccess: WRITES
+                  Arguments:
+                    StringLiteral: "ColorPoint created at ("
+                RoutineCallStatement:
+                  Callee:
+                    VariableAccess: WRITEN
+                  Arguments:
+                    VariableAccess: x
+                RoutineCallStatement:
+                  Callee:
+                    VariableAccess: WRITES
+                  Arguments:
+                    StringLiteral: ", "
+                RoutineCallStatement:
+                  Callee:
+                    VariableAccess: WRITEN
+                  Arguments:
+                    VariableAccess: y
+                RoutineCallStatement:
+                  Callee:
+                    VariableAccess: WRITES
+                  Arguments:
+                    StringLiteral: ") with color "
+                RoutineCallStatement:
+                  Callee:
+                    VariableAccess: WRITEN
+                  Arguments:
+                    VariableAccess: color
+                RoutineCallStatement:
+                  Callee:
+                    VariableAccess: WRITES
+                  Arguments:
+                    StringLiteral: "
+"
+        RoutineDeclaration: setColor
+          Parameters: _this c 
+          Body:
+            BlockStatement:
+              Statements:
+                AssignmentStatement:
+                  LHS:
+                    MemberAccess: color
+                      Object:
+                        VariableAccess: SELF
+                    RHS:
+                      VariableAccess: c
+          FunctionDeclaration: getColor
+            Parameters: _this 
+            Body:
+              ValofExpression:
+                BlockStatement:
+                  Statements:
+                    ResultisStatement:
+                      VariableAccess: color
+      RoutineDeclaration: START
+        Body:
+          BlockStatement:
+            Statements:
+              RoutineCallStatement:
+                Callee:
+                  VariableAccess: WRITES
+                Arguments:
+                  StringLiteral: "Testing class member variable access with correct offsets
+"
+              RoutineCallStatement:
+                Callee:
+                  VariableAccess: WRITES
+                Arguments:
+                  StringLiteral: "=================================================
+
+"
+              RoutineCallStatement:
+                Callee:
+                  VariableAccess: WRITES
+                Arguments:
+                  StringLiteral: "1. Basic Point class test:
+"
+              AssignmentStatement:
+                LHS:
+                  VariableAccess: p
+                RHS:
+                  NewExpression: Point
+              RoutineCallStatement:
+                Callee:
+                  MemberAccess: CREATE
+                    Object:
+                      VariableAccess: p
+                  Arguments:
+                    NumberLiteral: 50
+                    NumberLiteral: 75
+                RoutineCallStatement:
+                  Callee:
+                    VariableAccess: WRITES
+                  Arguments:
+                    StringLiteral: "Reading values: x="
+                RoutineCallStatement:
+                  Callee:
+                    VariableAccess: WRITEN
+                  Arguments:
+                    FunctionCall:
+                      Callee:
+                        MemberAccess: getX
+                          Object:
+                            VariableAccess: p
+                  RoutineCallStatement:
+                    Callee:
+                      VariableAccess: WRITES
+                    Arguments:
+                      StringLiteral: ", y="
+                  RoutineCallStatement:
+                    Callee:
+                      VariableAccess: WRITEN
+                    Arguments:
+                      FunctionCall:
+                        Callee:
+                          MemberAccess: getY
+                            Object:
+                              VariableAccess: p
+                    RoutineCallStatement:
+                      Callee:
+                        VariableAccess: WRITES
+                      Arguments:
+                        StringLiteral: "
+"
+                    RoutineCallStatement:
+                      Callee:
+                        VariableAccess: WRITES
+                      Arguments:
+                        StringLiteral: "Setting new values...
+"
+                    RoutineCallStatement:
+                      Callee:
+                        MemberAccess: set
+                          Object:
+                            VariableAccess: p
+                        Arguments:
+                          NumberLiteral: 100
+                          NumberLiteral: 200
+                      RoutineCallStatement:
+                        Callee:
+                          VariableAccess: WRITES
+                        Arguments:
+                          StringLiteral: "Reading new values: x="
+                      RoutineCallStatement:
+                        Callee:
+                          VariableAccess: WRITEN
+                        Arguments:
+                          FunctionCall:
+                            Callee:
+                              MemberAccess: getX
+                                Object:
+                                  VariableAccess: p
+                        RoutineCallStatement:
+                          Callee:
+                            VariableAccess: WRITES
+                          Arguments:
+                            StringLiteral: ", y="
+                        RoutineCallStatement:
+                          Callee:
+                            VariableAccess: WRITEN
+                          Arguments:
+                            FunctionCall:
+                              Callee:
+                                MemberAccess: getY
+                                  Object:
+                                    VariableAccess: p
+                          RoutineCallStatement:
+                            Callee:
+                              VariableAccess: WRITES
+                            Arguments:
+                              StringLiteral: "
+
+"
+                          RoutineCallStatement:
+                            Callee:
+                              VariableAccess: WRITES
+                            Arguments:
+                              StringLiteral: "2. Inherited ColorPoint class test:
+"
+                          AssignmentStatement:
+                            LHS:
+                              VariableAccess: cp
+                            RHS:
+                              NewExpression: ColorPoint
+                          RoutineCallStatement:
+                            Callee:
+                              MemberAccess: CREATE
+                                Object:
+                                  VariableAccess: cp
+                              Arguments:
+                                NumberLiteral: 130
+                                NumberLiteral: 140
+                                NumberLiteral: 255
+                            RoutineCallStatement:
+                              Callee:
+                                VariableAccess: WRITES
+                              Arguments:
+                                StringLiteral: "Reading values: x="
+                            RoutineCallStatement:
+                              Callee:
+                                VariableAccess: WRITEN
+                              Arguments:
+                                FunctionCall:
+                                  Callee:
+                                    MemberAccess: getX
+                                      Object:
+                                        VariableAccess: cp
+                              RoutineCallStatement:
+                                Callee:
+                                  VariableAccess: WRITES
+                                Arguments:
+                                  StringLiteral: ", y="
+                              RoutineCallStatement:
+                                Callee:
+                                  VariableAccess: WRITEN
+                                Arguments:
+                                  FunctionCall:
+                                    Callee:
+                                      MemberAccess: getY
+                                        Object:
+                                          VariableAccess: cp
+                                RoutineCallStatement:
+                                  Callee:
+                                    VariableAccess: WRITES
+                                  Arguments:
+                                    StringLiteral: ", color="
+                                RoutineCallStatement:
+                                  Callee:
+                                    VariableAccess: WRITEN
+                                  Arguments:
+                                    FunctionCall:
+                                      Callee:
+                                        MemberAccess: getColor
+                                          Object:
+                                            VariableAccess: cp
+                                  RoutineCallStatement:
+                                    Callee:
+                                      VariableAccess: WRITES
+                                    Arguments:
+                                      StringLiteral: "
+"
+                                  RoutineCallStatement:
+                                    Callee:
+                                      VariableAccess: WRITES
+                                    Arguments:
+                                      StringLiteral: "Setting new values...
+"
+                                  RoutineCallStatement:
+                                    Callee:
+                                      MemberAccess: set
+                                        Object:
+                                          VariableAccess: cp
+                                      Arguments:
+                                        NumberLiteral: 60
+                                        NumberLiteral: 80
+                                    RoutineCallStatement:
+                                      Callee:
+                                        MemberAccess: setColor
+                                          Object:
+                                            VariableAccess: cp
+                                        Arguments:
+                                          NumberLiteral: 123
+                                      RoutineCallStatement:
+                                        Callee:
+                                          VariableAccess: WRITES
+                                        Arguments:
+                                          StringLiteral: "Reading new values: x="
+                                      RoutineCallStatement:
+                                        Callee:
+                                          VariableAccess: WRITEN
+                                        Arguments:
+                                          FunctionCall:
+                                            Callee:
+                                              MemberAccess: getX
+                                                Object:
+                                                  VariableAccess: cp
+                                        RoutineCallStatement:
+                                          Callee:
+                                            VariableAccess: WRITES
+                                          Arguments:
+                                            StringLiteral: ", y="
+                                        RoutineCallStatement:
+                                          Callee:
+                                            VariableAccess: WRITEN
+                                          Arguments:
+                                            FunctionCall:
+                                              Callee:
+                                                MemberAccess: getY
+                                                  Object:
+                                                    VariableAccess: cp
+                                          RoutineCallStatement:
+                                            Callee:
+                                              VariableAccess: WRITES
+                                            Arguments:
+                                              StringLiteral: ", color="
+                                          RoutineCallStatement:
+                                            Callee:
+                                              VariableAccess: WRITEN
+                                            Arguments:
+                                              FunctionCall:
+                                                Callee:
+                                                  MemberAccess: getColor
+                                                    Object:
+                                                      VariableAccess: cp
+                                            RoutineCallStatement:
+                                              Callee:
+                                                VariableAccess: WRITES
+                                              Arguments:
+                                                StringLiteral: "
+"
+                                            RoutineCallStatement:
+                                              Callee:
+                                                VariableAccess: WRITES
+                                              Arguments:
+                                                StringLiteral: "
+Test completed successfully
+"
+----------------------------------
+
+
+--- AST After Global Initializer Injection ---
+Program:
+  Declarations:
+    ClassDeclaration: Point
+      Members:
+        LetDeclaration:
+          Name: x
+          Name: y
+        RoutineDeclaration: CREATE
+          Parameters: _this initialX initialY 
+          Body:
+            BlockStatement:
+              Statements:
+                AssignmentStatement:
+                  LHS:
+                    VariableAccess: x
+                  RHS:
+                    VariableAccess: initialX
+                AssignmentStatement:
+                  LHS:
+                    VariableAccess: y
+                  RHS:
+                    VariableAccess: initialY
+                RoutineCallStatement:
+                  Callee:
+                    VariableAccess: WRITES
+                  Arguments:
+                    StringLiteral: "Point created at ("
+                RoutineCallStatement:
+                  Callee:
+                    VariableAccess: WRITEN
+                  Arguments:
+                    VariableAccess: x
+                RoutineCallStatement:
+                  Callee:
+                    VariableAccess: WRITES
+                  Arguments:
+                    StringLiteral: ", "
+                RoutineCallStatement:
+                  Callee:
+                    VariableAccess: WRITEN
+                  Arguments:
+                    VariableAccess: y
+                RoutineCallStatement:
+                  Callee:
+                    VariableAccess: WRITES
+                  Arguments:
+                    StringLiteral: ")
+"
+        FunctionDeclaration: getX
+          Parameters: _this 
+          Body:
+            ValofExpression:
+              BlockStatement:
+                Statements:
+                  ResultisStatement:
+                    VariableAccess: x
+        FunctionDeclaration: getY
+          Parameters: _this 
+          Body:
+            ValofExpression:
+              BlockStatement:
+                Statements:
+                  ResultisStatement:
+                    VariableAccess: y
+        RoutineDeclaration: set
+          Parameters: _this newX newY 
+          Body:
+            BlockStatement:
+              Statements:
+                AssignmentStatement:
+                  LHS:
+                    VariableAccess: x
+                  RHS:
+                    VariableAccess: newX
+                AssignmentStatement:
+                  LHS:
+                    VariableAccess: y
+                  RHS:
+                    VariableAccess: newY
+        RoutineDeclaration: RELEASE
+          Parameters: _this 
+          Body:
+            BlockStatement:
+              Statements:
+                RoutineCallStatement:
+                  Callee:
+                    VariableAccess: WRITES
+                  Arguments:
+                    StringLiteral: "Point destroyed
+"
+    ClassDeclaration: ColorPoint
+      Extends: Point
+      Members:
+        LetDeclaration:
+          Name: color
+        RoutineDeclaration: CREATE
+          Parameters: _this initialX initialY initialColor 
+          Body:
+            BlockStatement:
+              Statements:
+                RoutineCallStatement:
+                  Callee:
+                    SuperMethodAccess: CREATE
+                  Arguments:
+                    VariableAccess: initialX
+                    VariableAccess: initialY
+                AssignmentStatement:
+                  LHS:
+                    VariableAccess: color
+                  RHS:
+                    VariableAccess: initialColor
+                RoutineCallStatement:
+                  Callee:
+                    VariableAccess: WRITES
+                  Arguments:
+                    StringLiteral: "ColorPoint created at ("
+                RoutineCallStatement:
+                  Callee:
+                    VariableAccess: WRITEN
+                  Arguments:
+                    VariableAccess: x
+                RoutineCallStatement:
+                  Callee:
+                    VariableAccess: WRITES
+                  Arguments:
+                    StringLiteral: ", "
+                RoutineCallStatement:
+                  Callee:
+                    VariableAccess: WRITEN
+                  Arguments:
+                    VariableAccess: y
+                RoutineCallStatement:
+                  Callee:
+                    VariableAccess: WRITES
+                  Arguments:
+                    StringLiteral: ") with color "
+                RoutineCallStatement:
+                  Callee:
+                    VariableAccess: WRITEN
+                  Arguments:
+                    VariableAccess: color
+                RoutineCallStatement:
+                  Callee:
+                    VariableAccess: WRITES
+                  Arguments:
+                    StringLiteral: "
+"
+        RoutineDeclaration: setColor
+          Parameters: _this c 
+          Body:
+            BlockStatement:
+              Statements:
+                AssignmentStatement:
+                  LHS:
+                    MemberAccess: color
+                      Object:
+                        VariableAccess: SELF
+                    RHS:
+                      VariableAccess: c
+          FunctionDeclaration: getColor
+            Parameters: _this 
+            Body:
+              ValofExpression:
+                BlockStatement:
+                  Statements:
+                    ResultisStatement:
+                      VariableAccess: color
+      RoutineDeclaration: START
+        Body:
+          BlockStatement:
+            Statements:
+              RoutineCallStatement:
+                Callee:
+                  VariableAccess: WRITES
+                Arguments:
+                  StringLiteral: "Testing class member variable access with correct offsets
+"
+              RoutineCallStatement:
+                Callee:
+                  VariableAccess: WRITES
+                Arguments:
+                  StringLiteral: "=================================================
+
+"
+              RoutineCallStatement:
+                Callee:
+                  VariableAccess: WRITES
+                Arguments:
+                  StringLiteral: "1. Basic Point class test:
+"
+              AssignmentStatement:
+                LHS:
+                  VariableAccess: p
+                RHS:
+                  NewExpression: Point
+              RoutineCallStatement:
+                Callee:
+                  MemberAccess: CREATE
+                    Object:
+                      VariableAccess: p
+                  Arguments:
+                    NumberLiteral: 50
+                    NumberLiteral: 75
+                RoutineCallStatement:
+                  Callee:
+                    VariableAccess: WRITES
+                  Arguments:
+                    StringLiteral: "Reading values: x="
+                RoutineCallStatement:
+                  Callee:
+                    VariableAccess: WRITEN
+                  Arguments:
+                    FunctionCall:
+                      Callee:
+                        MemberAccess: getX
+                          Object:
+                            VariableAccess: p
+                  RoutineCallStatement:
+                    Callee:
+                      VariableAccess: WRITES
+                    Arguments:
+                      StringLiteral: ", y="
+                  RoutineCallStatement:
+                    Callee:
+                      VariableAccess: WRITEN
+                    Arguments:
+                      FunctionCall:
+                        Callee:
+                          MemberAccess: getY
+                            Object:
+                              VariableAccess: p
+                    RoutineCallStatement:
+                      Callee:
+                        VariableAccess: WRITES
+                      Arguments:
+                        StringLiteral: "
+"
+                    RoutineCallStatement:
+                      Callee:
+                        VariableAccess: WRITES
+                      Arguments:
+                        StringLiteral: "Setting new values...
+"
+                    RoutineCallStatement:
+                      Callee:
+                        MemberAccess: set
+                          Object:
+                            VariableAccess: p
+                        Arguments:
+                          NumberLiteral: 100
+                          NumberLiteral: 200
+                      RoutineCallStatement:
+                        Callee:
+                          VariableAccess: WRITES
+                        Arguments:
+                          StringLiteral: "Reading new values: x="
+                      RoutineCallStatement:
+                        Callee:
+                          VariableAccess: WRITEN
+                        Arguments:
+                          FunctionCall:
+                            Callee:
+                              MemberAccess: getX
+                                Object:
+                                  VariableAccess: p
+                        RoutineCallStatement:
+                          Callee:
+                            VariableAccess: WRITES
+                          Arguments:
+                            StringLiteral: ", y="
+                        RoutineCallStatement:
+                          Callee:
+                            VariableAccess: WRITEN
+                          Arguments:
+                            FunctionCall:
+                              Callee:
+                                MemberAccess: getY
+                                  Object:
+                                    VariableAccess: p
+                          RoutineCallStatement:
+                            Callee:
+                              VariableAccess: WRITES
+                            Arguments:
+                              StringLiteral: "
+
+"
+                          RoutineCallStatement:
+                            Callee:
+                              VariableAccess: WRITES
+                            Arguments:
+                              StringLiteral: "2. Inherited ColorPoint class test:
+"
+                          AssignmentStatement:
+                            LHS:
+                              VariableAccess: cp
+                            RHS:
+                              NewExpression: ColorPoint
+                          RoutineCallStatement:
+                            Callee:
+                              MemberAccess: CREATE
+                                Object:
+                                  VariableAccess: cp
+                              Arguments:
+                                NumberLiteral: 130
+                                NumberLiteral: 140
+                                NumberLiteral: 255
+                            RoutineCallStatement:
+                              Callee:
+                                VariableAccess: WRITES
+                              Arguments:
+                                StringLiteral: "Reading values: x="
+                            RoutineCallStatement:
+                              Callee:
+                                VariableAccess: WRITEN
+                              Arguments:
+                                FunctionCall:
+                                  Callee:
+                                    MemberAccess: getX
+                                      Object:
+                                        VariableAccess: cp
+                              RoutineCallStatement:
+                                Callee:
+                                  VariableAccess: WRITES
+                                Arguments:
+                                  StringLiteral: ", y="
+                              RoutineCallStatement:
+                                Callee:
+                                  VariableAccess: WRITEN
+                                Arguments:
+                                  FunctionCall:
+                                    Callee:
+                                      MemberAccess: getY
+                                        Object:
+                                          VariableAccess: cp
+                                RoutineCallStatement:
+                                  Callee:
+                                    VariableAccess: WRITES
+                                  Arguments:
+                                    StringLiteral: ", color="
+                                RoutineCallStatement:
+                                  Callee:
+                                    VariableAccess: WRITEN
+                                  Arguments:
+                                    FunctionCall:
+                                      Callee:
+                                        MemberAccess: getColor
+                                          Object:
+                                            VariableAccess: cp
+                                  RoutineCallStatement:
+                                    Callee:
+                                      VariableAccess: WRITES
+                                    Arguments:
+                                      StringLiteral: "
+"
+                                  RoutineCallStatement:
+                                    Callee:
+                                      VariableAccess: WRITES
+                                    Arguments:
+                                      StringLiteral: "Setting new values...
+"
+                                  RoutineCallStatement:
+                                    Callee:
+                                      MemberAccess: set
+                                        Object:
+                                          VariableAccess: cp
+                                      Arguments:
+                                        NumberLiteral: 60
+                                        NumberLiteral: 80
+                                    RoutineCallStatement:
+                                      Callee:
+                                        MemberAccess: setColor
+                                          Object:
+                                            VariableAccess: cp
+                                        Arguments:
+                                          NumberLiteral: 123
+                                      RoutineCallStatement:
+                                        Callee:
+                                          VariableAccess: WRITES
+                                        Arguments:
+                                          StringLiteral: "Reading new values: x="
+                                      RoutineCallStatement:
+                                        Callee:
+                                          VariableAccess: WRITEN
+                                        Arguments:
+                                          FunctionCall:
+                                            Callee:
+                                              MemberAccess: getX
+                                                Object:
+                                                  VariableAccess: cp
+                                        RoutineCallStatement:
+                                          Callee:
+                                            VariableAccess: WRITES
+                                          Arguments:
+                                            StringLiteral: ", y="
+                                        RoutineCallStatement:
+                                          Callee:
+                                            VariableAccess: WRITEN
+                                          Arguments:
+                                            FunctionCall:
+                                              Callee:
+                                                MemberAccess: getY
+                                                  Object:
+                                                    VariableAccess: cp
+                                          RoutineCallStatement:
+                                            Callee:
+                                              VariableAccess: WRITES
+                                            Arguments:
+                                              StringLiteral: ", color="
+                                          RoutineCallStatement:
+                                            Callee:
+                                              VariableAccess: WRITEN
+                                            Arguments:
+                                              FunctionCall:
+                                                Callee:
+                                                  MemberAccess: getColor
+                                                    Object:
+                                                      VariableAccess: cp
+                                            RoutineCallStatement:
+                                              Callee:
+                                                VariableAccess: WRITES
+                                              Arguments:
+                                                StringLiteral: "
+"
+                                            RoutineCallStatement:
+                                              Callee:
+                                                VariableAccess: WRITES
+                                              Arguments:
+                                                StringLiteral: "
+Test completed successfully
+"
+------------------------------------------
+
+SDL2 runtime functions registered successfully.
+Pass 1: Analyzing function signatures...
+[SignatureAnalysis] Starting signature analysis pass...
+[SignatureAnalysis] Analyzing program signatures...
+[SignatureAnalysis] Analyzing routine signature: START
+[SignatureAnalysis] Processing routine signature: START
+[SignatureAnalysis] Signature analysis complete.
+Debug: Checking function metrics after signature analysis...
+Function: START
+Pass 2: Full AST analysis...
+[FIX] Cleared FOR loop state before analysis to prevent corruption
+[ANALYZER TRACE] Starting analysis...
+[ANALYZER TRACE] Skipping reset - signature analysis already complete.
+[ANALYZER TRACE] --- PASS 1: Discovering all function definitions ---
+[ANALYZER TRACE] Visiting Program.
+[ANALYZER TRACE] Visiting ClassDeclaration: Point
+[ANALYZER TRACE] Visiting class.
+[ANALYZER TRACE] Visiting RoutineDeclaration: CREATE
+[ANALYZER IMPORTANT] Setting _this parameter type to POINTER_TO_OBJECT for Point::CREATE
+[ANALYZER IMPORTANT] Added _this symbol to symbol table with class_name: Point
+[ANALYZER] Set parameter type: initialX in Point::CREATE to 0
+[ANALYZER TRACE] Early parameter type for initialX in Point::CREATE set to 0
+[ANALYZER] Set parameter type: initialY in Point::CREATE to 0
+[ANALYZER TRACE] Early parameter type for initialY in Point::CREATE set to 0
+[ANALYZER] Starting parameter type inference for function: Point::CREATE
+[ANALYZER] Analyzing parameter: initialX
+[ANALYZER] Parameter 'initialX' already has type from Pass 1: 0. Preserving it.
+[ANALYZER] Analyzing parameter: initialY
+[ANALYZER] Parameter 'initialY' already has type from Pass 1: 0. Preserving it.
+[ANALYZER] Set parameter type: _this in Point::CREATE to 1056768
+[ANALYZER TRACE] Updated parameter type for _this in Point::CREATE to 1056768 after inference
+[ANALYZER] Set parameter type: initialX in Point::CREATE to 0
+[ANALYZER TRACE] Updated parameter type for initialX in Point::CREATE to 0 after inference
+[ANALYZER] Set parameter type: initialY in Point::CREATE to 0
+[ANALYZER TRACE] Updated parameter type for initialY in Point::CREATE to 0 after inference
+[ANALYZER TRACE] ASTAnalyzer::visit(RoutineDeclaration&) is traversing body for routine: CREATE
+[ANALYZER TRACE] Entering block scope: Point::CREATE_block_3 (Function scope remains: Point::CREATE)
+[ANALYZER TRACE] BlockStatement: Traversing 7 statements.
+[ANALYZER TRACE] BlockStatement: Calling accept on statement 0 of type 39
+[ASSIGNMENT VISITOR] Processing AssignmentStatement with 1 LHS variables
+[ANALYZER TRACE] Visiting VariableAccess: initialX
+[DEBUG get_effective_variable_name] Called with: 'initialX'
+[DEBUG get_effective_variable_name] Loop context stack size: 0
+[DEBUG get_effective_variable_name] Active FOR loop scopes size: 0
+[DEBUG get_effective_variable_name] FOR variable aliases size: 0
+[DEBUG get_effective_variable_name] In FOR loop context: NO
+[DEBUG get_effective_variable_name] Not in FOR loop context, returning original: 'initialX'
+[ANALYZER TRACE] BlockStatement: Calling accept on statement 1 of type 39
+[ASSIGNMENT VISITOR] Processing AssignmentStatement with 1 LHS variables
+[ANALYZER TRACE] Visiting VariableAccess: initialY
+[DEBUG get_effective_variable_name] Called with: 'initialY'
+[DEBUG get_effective_variable_name] Loop context stack size: 0
+[DEBUG get_effective_variable_name] Active FOR loop scopes size: 0
+[DEBUG get_effective_variable_name] FOR variable aliases size: 0
+[DEBUG get_effective_variable_name] In FOR loop context: NO
+[DEBUG get_effective_variable_name] Not in FOR loop context, returning original: 'initialY'
+[ANALYZER TRACE] BlockStatement: Calling accept on statement 2 of type 40
+[ANALYZER TRACE] Entered ASTAnalyzer::visit(RoutineCallStatement&) for node at 0x600000f61740
+[ANALYZER TRACE]   Detected call to runtime function: WRITES, Type: INTEGER
+[ANALYZER TRACE] BlockStatement: Calling accept on statement 3 of type 40
+[ANALYZER TRACE] Entered ASTAnalyzer::visit(RoutineCallStatement&) for node at 0x600000f61770
+[ANALYZER TRACE]   Detected call to runtime function: WRITEN, Type: INTEGER
+[ANALYZER TRACE] Visiting VariableAccess: x
+[DEBUG get_effective_variable_name] Called with: 'x'
+[DEBUG get_effective_variable_name] Loop context stack size: 0
+[DEBUG get_effective_variable_name] Active FOR loop scopes size: 0
+[DEBUG get_effective_variable_name] FOR variable aliases size: 0
+[DEBUG get_effective_variable_name] In FOR loop context: NO
+[DEBUG get_effective_variable_name] Not in FOR loop context, returning original: 'x'
+[ANALYZER TRACE] Identified 'x' as class member of 'Point'
+[ANALYZER TRACE] BlockStatement: Calling accept on statement 4 of type 40
+[ANALYZER TRACE] Entered ASTAnalyzer::visit(RoutineCallStatement&) for node at 0x600000f617d0
+[ANALYZER TRACE]   Detected call to runtime function: WRITES, Type: INTEGER
+[ANALYZER TRACE] BlockStatement: Calling accept on statement 5 of type 40
+[ANALYZER TRACE] Entered ASTAnalyzer::visit(RoutineCallStatement&) for node at 0x600000f61800
+[ANALYZER TRACE]   Detected call to runtime function: WRITEN, Type: INTEGER
+[ANALYZER TRACE] Visiting VariableAccess: y
+[DEBUG get_effective_variable_name] Called with: 'y'
+[DEBUG get_effective_variable_name] Loop context stack size: 0
+[DEBUG get_effective_variable_name] Active FOR loop scopes size: 0
+[DEBUG get_effective_variable_name] FOR variable aliases size: 0
+[DEBUG get_effective_variable_name] In FOR loop context: NO
+[DEBUG get_effective_variable_name] Not in FOR loop context, returning original: 'y'
+[ANALYZER TRACE] Identified 'y' as class member of 'Point'
+[ANALYZER TRACE] BlockStatement: Calling accept on statement 6 of type 40
+[ANALYZER TRACE] Entered ASTAnalyzer::visit(RoutineCallStatement&) for node at 0x600000f61860
+[ANALYZER TRACE]   Detected call to runtime function: WRITES, Type: INTEGER
+[ANALYZER TRACE] Exiting block scope, returning to: Point::CREATE
+[ANALYZER TRACE] Visiting FunctionDeclaration: getX
+[ANALYZER IMPORTANT] Setting _this parameter type to POINTER_TO_OBJECT for Point::getX
+[ANALYZER IMPORTANT] Added _this symbol to symbol table with class_name: Point
+[ANALYZER] Starting parameter type inference for function: Point::getX
+[ANALYZER] Set parameter type: _this in Point::getX to 1056768
+[ANALYZER TRACE] Updated parameter type for _this in Point::getX to 1056768 after inference
+[ANALYZER TRACE] Entering block scope: Point::getX_block_3 (Function scope remains: Point::getX)
+[ANALYZER TRACE] BlockStatement: Traversing 1 statements.
+[ANALYZER TRACE] BlockStatement: Calling accept on statement 0 of type 56
+[ANALYZER TRACE] Visiting VariableAccess: x
+[DEBUG get_effective_variable_name] Called with: 'x'
+[DEBUG get_effective_variable_name] Loop context stack size: 0
+[DEBUG get_effective_variable_name] Active FOR loop scopes size: 0
+[DEBUG get_effective_variable_name] FOR variable aliases size: 0
+[DEBUG get_effective_variable_name] In FOR loop context: NO
+[DEBUG get_effective_variable_name] Not in FOR loop context, returning original: 'x'
+[ANALYZER TRACE] Identified 'x' as class member of 'Point'
+DEBUG: infer_expression_type called on expression type: 16
+DEBUG: current_function_scope_: 'Point::getX'
+DEBUG: current_class_name_: 'Point'
+DEBUG: infer_variable_access_type for 'x'
+[DEBUG get_variable_type] Looking for 'x' in function 'Point::getX'
+[DEBUG get_variable_type] Found function metrics for 'Point::getX'
+[DEBUG get_variable_type] Parameter types count: 1
+[DEBUG get_variable_type] Variable types count: 1
+[DEBUG get_variable_type] Variable 'x' not found in function metrics
+[DEBUG get_variable_type] Found in symbol table: x -> 1
+DEBUG: Found variable 'x' with type 1
+[ANALYZER TRACE] Exiting block scope, returning to: Point::getX
+DEBUG: infer_expression_type called on expression type: 16
+DEBUG: current_function_scope_: 'Point::getX'
+DEBUG: current_class_name_: 'Point'
+DEBUG: infer_variable_access_type for 'x'
+[DEBUG get_variable_type] Looking for 'x' in function 'Point::getX'
+[DEBUG get_variable_type] Found function metrics for 'Point::getX'
+[DEBUG get_variable_type] Parameter types count: 1
+[DEBUG get_variable_type] Variable types count: 1
+[DEBUG get_variable_type] Variable 'x' not found in function metrics
+[DEBUG get_variable_type] Found in symbol table: x -> 1
+DEBUG: Found variable 'x' with type 1
+[ANALYZER TRACE] Detected trivial accessor method: Point::getX (accesses: x)
+[ANALYZER TRACE] Visiting FunctionDeclaration: getY
+[ANALYZER IMPORTANT] Setting _this parameter type to POINTER_TO_OBJECT for Point::getY
+[ANALYZER IMPORTANT] Added _this symbol to symbol table with class_name: Point
+[ANALYZER] Starting parameter type inference for function: Point::getY
+[ANALYZER] Set parameter type: _this in Point::getY to 1056768
+[ANALYZER TRACE] Updated parameter type for _this in Point::getY to 1056768 after inference
+[ANALYZER TRACE] Entering block scope: Point::getY_block_3 (Function scope remains: Point::getY)
+[ANALYZER TRACE] BlockStatement: Traversing 1 statements.
+[ANALYZER TRACE] BlockStatement: Calling accept on statement 0 of type 56
+[ANALYZER TRACE] Visiting VariableAccess: y
+[DEBUG get_effective_variable_name] Called with: 'y'
+[DEBUG get_effective_variable_name] Loop context stack size: 0
+[DEBUG get_effective_variable_name] Active FOR loop scopes size: 0
+[DEBUG get_effective_variable_name] FOR variable aliases size: 0
+[DEBUG get_effective_variable_name] In FOR loop context: NO
+[DEBUG get_effective_variable_name] Not in FOR loop context, returning original: 'y'
+[ANALYZER TRACE] Identified 'y' as class member of 'Point'
+DEBUG: infer_expression_type called on expression type: 16
+DEBUG: current_function_scope_: 'Point::getY'
+DEBUG: current_class_name_: 'Point'
+DEBUG: infer_variable_access_type for 'y'
+[DEBUG get_variable_type] Looking for 'y' in function 'Point::getY'
+[DEBUG get_variable_type] Found function metrics for 'Point::getY'
+[DEBUG get_variable_type] Parameter types count: 1
+[DEBUG get_variable_type] Variable types count: 1
+[DEBUG get_variable_type] Variable 'y' not found in function metrics
+[DEBUG get_variable_type] Found in symbol table: y -> 1
+DEBUG: Found variable 'y' with type 1
+[ANALYZER TRACE] Exiting block scope, returning to: Point::getY
+DEBUG: infer_expression_type called on expression type: 16
+DEBUG: current_function_scope_: 'Point::getY'
+DEBUG: current_class_name_: 'Point'
+DEBUG: infer_variable_access_type for 'y'
+[DEBUG get_variable_type] Looking for 'y' in function 'Point::getY'
+[DEBUG get_variable_type] Found function metrics for 'Point::getY'
+[DEBUG get_variable_type] Parameter types count: 1
+[DEBUG get_variable_type] Variable types count: 1
+[DEBUG get_variable_type] Variable 'y' not found in function metrics
+[DEBUG get_variable_type] Found in symbol table: y -> 1
+DEBUG: Found variable 'y' with type 1
+[ANALYZER TRACE] Detected trivial accessor method: Point::getY (accesses: y)
+[ANALYZER TRACE] Visiting RoutineDeclaration: set
+[ANALYZER IMPORTANT] Setting _this parameter type to POINTER_TO_OBJECT for Point::set
+[ANALYZER IMPORTANT] Added _this symbol to symbol table with class_name: Point
+[ANALYZER] Set parameter type: newX in Point::set to 0
+[ANALYZER TRACE] Early parameter type for newX in Point::set set to 0
+[ANALYZER] Set parameter type: newY in Point::set to 0
+[ANALYZER TRACE] Early parameter type for newY in Point::set set to 0
+[ANALYZER] Starting parameter type inference for function: Point::set
+[ANALYZER] Analyzing parameter: newX
+[ANALYZER] Parameter 'newX' already has type from Pass 1: 0. Preserving it.
+[ANALYZER] Analyzing parameter: newY
+[ANALYZER] Parameter 'newY' already has type from Pass 1: 0. Preserving it.
+[ANALYZER] Set parameter type: _this in Point::set to 1056768
+[ANALYZER TRACE] Updated parameter type for _this in Point::set to 1056768 after inference
+[ANALYZER] Set parameter type: newX in Point::set to 0
+[ANALYZER TRACE] Updated parameter type for newX in Point::set to 0 after inference
+[ANALYZER] Set parameter type: newY in Point::set to 0
+[ANALYZER TRACE] Updated parameter type for newY in Point::set to 0 after inference
+[ANALYZER TRACE] ASTAnalyzer::visit(RoutineDeclaration&) is traversing body for routine: set
+[ANALYZER TRACE] Entering block scope: Point::set_block_5 (Function scope remains: Point::set)
+[ANALYZER TRACE] BlockStatement: Traversing 2 statements.
+[ANALYZER TRACE] BlockStatement: Calling accept on statement 0 of type 39
+[ASSIGNMENT VISITOR] Processing AssignmentStatement with 1 LHS variables
+[ANALYZER TRACE] Visiting VariableAccess: newX
+[DEBUG get_effective_variable_name] Called with: 'newX'
+[DEBUG get_effective_variable_name] Loop context stack size: 0
+[DEBUG get_effective_variable_name] Active FOR loop scopes size: 0
+[DEBUG get_effective_variable_name] FOR variable aliases size: 0
+[DEBUG get_effective_variable_name] In FOR loop context: NO
+[DEBUG get_effective_variable_name] Not in FOR loop context, returning original: 'newX'
+[ANALYZER TRACE] BlockStatement: Calling accept on statement 1 of type 39
+[ASSIGNMENT VISITOR] Processing AssignmentStatement with 1 LHS variables
+[ANALYZER TRACE] Visiting VariableAccess: newY
+[DEBUG get_effective_variable_name] Called with: 'newY'
+[DEBUG get_effective_variable_name] Loop context stack size: 0
+[DEBUG get_effective_variable_name] Active FOR loop scopes size: 0
+[DEBUG get_effective_variable_name] FOR variable aliases size: 0
+[DEBUG get_effective_variable_name] In FOR loop context: NO
+[DEBUG get_effective_variable_name] Not in FOR loop context, returning original: 'newY'
+[ANALYZER TRACE] Exiting block scope, returning to: Point::set
+[ANALYZER TRACE] Visiting RoutineDeclaration: RELEASE
+[ANALYZER IMPORTANT] Setting _this parameter type to POINTER_TO_OBJECT for Point::RELEASE
+[ANALYZER IMPORTANT] Added _this symbol to symbol table with class_name: Point
+[ANALYZER] Starting parameter type inference for function: Point::RELEASE
+[ANALYZER] Set parameter type: _this in Point::RELEASE to 1056768
+[ANALYZER TRACE] Updated parameter type for _this in Point::RELEASE to 1056768 after inference
+[ANALYZER TRACE] ASTAnalyzer::visit(RoutineDeclaration&) is traversing body for routine: RELEASE
+[ANALYZER TRACE] Entering block scope: Point::RELEASE_block_5 (Function scope remains: Point::RELEASE)
+[ANALYZER TRACE] BlockStatement: Traversing 1 statements.
+[ANALYZER TRACE] BlockStatement: Calling accept on statement 0 of type 40
+[ANALYZER TRACE] Entered ASTAnalyzer::visit(RoutineCallStatement&) for node at 0x600000f618c0
+[ANALYZER TRACE]   Detected call to runtime function: WRITES, Type: INTEGER
+[ANALYZER TRACE] Exiting block scope, returning to: Point::RELEASE
+[ANALYZER TRACE] Visiting ClassDeclaration: ColorPoint
+[ANALYZER TRACE] Visiting class.
+[ANALYZER TRACE] Visiting RoutineDeclaration: CREATE
+[ANALYZER IMPORTANT] Setting _this parameter type to POINTER_TO_OBJECT for ColorPoint::CREATE
+[ANALYZER IMPORTANT] Added _this symbol to symbol table with class_name: ColorPoint
+[ANALYZER] Set parameter type: initialX in ColorPoint::CREATE to 0
+[ANALYZER TRACE] Early parameter type for initialX in ColorPoint::CREATE set to 0
+[ANALYZER] Set parameter type: initialY in ColorPoint::CREATE to 0
+[ANALYZER TRACE] Early parameter type for initialY in ColorPoint::CREATE set to 0
+[ANALYZER] Set parameter type: initialColor in ColorPoint::CREATE to 0
+[ANALYZER TRACE] Early parameter type for initialColor in ColorPoint::CREATE set to 0
+[ANALYZER] Starting parameter type inference for function: ColorPoint::CREATE
+[ANALYZER] Analyzing parameter: initialX
+[ANALYZER] Parameter 'initialX' already has type from Pass 1: 0. Preserving it.
+[ANALYZER] Analyzing parameter: initialY
+[ANALYZER] Parameter 'initialY' already has type from Pass 1: 0. Preserving it.
+[ANALYZER] Analyzing parameter: initialColor
+[ANALYZER] Parameter 'initialColor' already has type from Pass 1: 0. Preserving it.
+[ANALYZER] Set parameter type: _this in ColorPoint::CREATE to 1056768
+[ANALYZER TRACE] Updated parameter type for _this in ColorPoint::CREATE to 1056768 after inference
+[ANALYZER] Set parameter type: initialX in ColorPoint::CREATE to 0
+[ANALYZER TRACE] Updated parameter type for initialX in ColorPoint::CREATE to 0 after inference
+[ANALYZER] Set parameter type: initialY in ColorPoint::CREATE to 0
+[ANALYZER TRACE] Updated parameter type for initialY in ColorPoint::CREATE to 0 after inference
+[ANALYZER] Set parameter type: initialColor in ColorPoint::CREATE to 0
+[ANALYZER TRACE] Updated parameter type for initialColor in ColorPoint::CREATE to 0 after inference
+[ANALYZER TRACE] ASTAnalyzer::visit(RoutineDeclaration&) is traversing body for routine: CREATE
+[ANALYZER TRACE] Entering block scope: ColorPoint::CREATE_block_6 (Function scope remains: ColorPoint::CREATE)
+[ANALYZER TRACE] BlockStatement: Traversing 9 statements.
+[ANALYZER TRACE] BlockStatement: Calling accept on statement 0 of type 40
+[ANALYZER TRACE] Entered ASTAnalyzer::visit(RoutineCallStatement&) for node at 0x600000f61920
+[ANALYZER TRACE] Visiting VariableAccess: initialX
+[DEBUG get_effective_variable_name] Called with: 'initialX'
+[DEBUG get_effective_variable_name] Loop context stack size: 0
+[DEBUG get_effective_variable_name] Active FOR loop scopes size: 0
+[DEBUG get_effective_variable_name] FOR variable aliases size: 0
+[DEBUG get_effective_variable_name] In FOR loop context: NO
+[DEBUG get_effective_variable_name] Not in FOR loop context, returning original: 'initialX'
+[ANALYZER TRACE] Visiting VariableAccess: initialY
+[DEBUG get_effective_variable_name] Called with: 'initialY'
+[DEBUG get_effective_variable_name] Loop context stack size: 0
+[DEBUG get_effective_variable_name] Active FOR loop scopes size: 0
+[DEBUG get_effective_variable_name] FOR variable aliases size: 0
+[DEBUG get_effective_variable_name] In FOR loop context: NO
+[DEBUG get_effective_variable_name] Not in FOR loop context, returning original: 'initialY'
+[ANALYZER TRACE] BlockStatement: Calling accept on statement 1 of type 39
+[ASSIGNMENT VISITOR] Processing AssignmentStatement with 1 LHS variables
+[ANALYZER TRACE] Visiting VariableAccess: initialColor
+[DEBUG get_effective_variable_name] Called with: 'initialColor'
+[DEBUG get_effective_variable_name] Loop context stack size: 0
+[DEBUG get_effective_variable_name] Active FOR loop scopes size: 0
+[DEBUG get_effective_variable_name] FOR variable aliases size: 0
+[DEBUG get_effective_variable_name] In FOR loop context: NO
+[DEBUG get_effective_variable_name] Not in FOR loop context, returning original: 'initialColor'
+[ANALYZER TRACE] BlockStatement: Calling accept on statement 2 of type 40
+[ANALYZER TRACE] Entered ASTAnalyzer::visit(RoutineCallStatement&) for node at 0x600000f61980
+[ANALYZER TRACE]   Detected call to runtime function: WRITES, Type: INTEGER
+[ANALYZER TRACE] BlockStatement: Calling accept on statement 3 of type 40
+[ANALYZER TRACE] Entered ASTAnalyzer::visit(RoutineCallStatement&) for node at 0x600000f619b0
+[ANALYZER TRACE]   Detected call to runtime function: WRITEN, Type: INTEGER
+[ANALYZER TRACE] Visiting VariableAccess: x
+[DEBUG get_effective_variable_name] Called with: 'x'
+[DEBUG get_effective_variable_name] Loop context stack size: 0
+[DEBUG get_effective_variable_name] Active FOR loop scopes size: 0
+[DEBUG get_effective_variable_name] FOR variable aliases size: 0
+[DEBUG get_effective_variable_name] In FOR loop context: NO
+[DEBUG get_effective_variable_name] Not in FOR loop context, returning original: 'x'
+[ANALYZER TRACE] Identified 'x' as class member of 'ColorPoint'
+[ANALYZER TRACE] BlockStatement: Calling accept on statement 4 of type 40
+[ANALYZER TRACE] Entered ASTAnalyzer::visit(RoutineCallStatement&) for node at 0x600000f61a10
+[ANALYZER TRACE]   Detected call to runtime function: WRITES, Type: INTEGER
+[ANALYZER TRACE] BlockStatement: Calling accept on statement 5 of type 40
+[ANALYZER TRACE] Entered ASTAnalyzer::visit(RoutineCallStatement&) for node at 0x600000f61a40
+[ANALYZER TRACE]   Detected call to runtime function: WRITEN, Type: INTEGER
+[ANALYZER TRACE] Visiting VariableAccess: y
+[DEBUG get_effective_variable_name] Called with: 'y'
+[DEBUG get_effective_variable_name] Loop context stack size: 0
+[DEBUG get_effective_variable_name] Active FOR loop scopes size: 0
+[DEBUG get_effective_variable_name] FOR variable aliases size: 0
+[DEBUG get_effective_variable_name] In FOR loop context: NO
+[DEBUG get_effective_variable_name] Not in FOR loop context, returning original: 'y'
+[ANALYZER TRACE] Identified 'y' as class member of 'ColorPoint'
+[ANALYZER TRACE] BlockStatement: Calling accept on statement 6 of type 40
+[ANALYZER TRACE] Entered ASTAnalyzer::visit(RoutineCallStatement&) for node at 0x600000f61aa0
+[ANALYZER TRACE]   Detected call to runtime function: WRITES, Type: INTEGER
+[ANALYZER TRACE] BlockStatement: Calling accept on statement 7 of type 40
+[ANALYZER TRACE] Entered ASTAnalyzer::visit(RoutineCallStatement&) for node at 0x600000f61ad0
+[ANALYZER TRACE]   Detected call to runtime function: WRITEN, Type: INTEGER
+[ANALYZER TRACE] Visiting VariableAccess: color
+[DEBUG get_effective_variable_name] Called with: 'color'
+[DEBUG get_effective_variable_name] Loop context stack size: 0
+[DEBUG get_effective_variable_name] Active FOR loop scopes size: 0
+[DEBUG get_effective_variable_name] FOR variable aliases size: 0
+[DEBUG get_effective_variable_name] In FOR loop context: NO
+[DEBUG get_effective_variable_name] Not in FOR loop context, returning original: 'color'
+[ANALYZER TRACE] Identified 'color' as class member of 'ColorPoint'
+[ANALYZER TRACE] BlockStatement: Calling accept on statement 8 of type 40
+[ANALYZER TRACE] Entered ASTAnalyzer::visit(RoutineCallStatement&) for node at 0x600000f61b30
+[ANALYZER TRACE]   Detected call to runtime function: WRITES, Type: INTEGER
+[ANALYZER TRACE] Exiting block scope, returning to: ColorPoint::CREATE
+[ANALYZER TRACE] Visiting RoutineDeclaration: setColor
+[ANALYZER IMPORTANT] Setting _this parameter type to POINTER_TO_OBJECT for ColorPoint::setColor
+[ANALYZER IMPORTANT] Added _this symbol to symbol table with class_name: ColorPoint
+[ANALYZER] Set parameter type: c in ColorPoint::setColor to 0
+[ANALYZER TRACE] Early parameter type for c in ColorPoint::setColor set to 0
+[ANALYZER] Starting parameter type inference for function: ColorPoint::setColor
+[ANALYZER] Analyzing parameter: c
+[ANALYZER] Parameter 'c' already has type from Pass 1: 0. Preserving it.
+[ANALYZER] Set parameter type: _this in ColorPoint::setColor to 1056768
+[ANALYZER TRACE] Updated parameter type for _this in ColorPoint::setColor to 1056768 after inference
+[ANALYZER] Set parameter type: c in ColorPoint::setColor to 0
+[ANALYZER TRACE] Updated parameter type for c in ColorPoint::setColor to 0 after inference
+[ANALYZER TRACE] ASTAnalyzer::visit(RoutineDeclaration&) is traversing body for routine: setColor
+[ANALYZER TRACE] Entering block scope: ColorPoint::setColor_block_7 (Function scope remains: ColorPoint::setColor)
+[ANALYZER TRACE] BlockStatement: Traversing 1 statements.
+[ANALYZER TRACE] BlockStatement: Calling accept on statement 0 of type 39
+[ASSIGNMENT VISITOR] Processing AssignmentStatement with 1 LHS variables
+[ANALYZER TRACE] Visiting VariableAccess: c
+[DEBUG get_effective_variable_name] Called with: 'c'
+[DEBUG get_effective_variable_name] Loop context stack size: 0
+[DEBUG get_effective_variable_name] Active FOR loop scopes size: 0
+[DEBUG get_effective_variable_name] FOR variable aliases size: 0
+[DEBUG get_effective_variable_name] In FOR loop context: NO
+[DEBUG get_effective_variable_name] Not in FOR loop context, returning original: 'c'
+[ANALYZER TRACE] Visiting VariableAccess: SELF
+[ANALYZER TRACE] Rewriting 'SELF' to '_this' in method of class 'ColorPoint'
+[DEBUG get_effective_variable_name] Called with: '_this'
+[DEBUG get_effective_variable_name] Loop context stack size: 0
+[DEBUG get_effective_variable_name] Active FOR loop scopes size: 0
+[DEBUG get_effective_variable_name] FOR variable aliases size: 0
+[DEBUG get_effective_variable_name] In FOR loop context: NO
+[DEBUG get_effective_variable_name] Not in FOR loop context, returning original: '_this'
+[ANALYZER TRACE] Exiting block scope, returning to: ColorPoint::setColor
+[ANALYZER TRACE] Detected trivial setter routine: ColorPoint::setColor (sets: color)
+[ANALYZER TRACE] Visiting FunctionDeclaration: getColor
+[ANALYZER IMPORTANT] Setting _this parameter type to POINTER_TO_OBJECT for ColorPoint::getColor
+[ANALYZER IMPORTANT] Added _this symbol to symbol table with class_name: ColorPoint
+[ANALYZER] Starting parameter type inference for function: ColorPoint::getColor
+[ANALYZER] Set parameter type: _this in ColorPoint::getColor to 1056768
+[ANALYZER TRACE] Updated parameter type for _this in ColorPoint::getColor to 1056768 after inference
+[ANALYZER TRACE] Entering block scope: ColorPoint::getColor_block_7 (Function scope remains: ColorPoint::getColor)
+[ANALYZER TRACE] BlockStatement: Traversing 1 statements.
+[ANALYZER TRACE] BlockStatement: Calling accept on statement 0 of type 56
+[ANALYZER TRACE] Visiting VariableAccess: color
+[DEBUG get_effective_variable_name] Called with: 'color'
+[DEBUG get_effective_variable_name] Loop context stack size: 0
+[DEBUG get_effective_variable_name] Active FOR loop scopes size: 0
+[DEBUG get_effective_variable_name] FOR variable aliases size: 0
+[DEBUG get_effective_variable_name] In FOR loop context: NO
+[DEBUG get_effective_variable_name] Not in FOR loop context, returning original: 'color'
+[ANALYZER TRACE] Identified 'color' as class member of 'ColorPoint'
+DEBUG: infer_expression_type called on expression type: 16
+DEBUG: current_function_scope_: 'ColorPoint::getColor'
+DEBUG: current_class_name_: 'ColorPoint'
+DEBUG: infer_variable_access_type for 'color'
+[DEBUG get_variable_type] Looking for 'color' in function 'ColorPoint::getColor'
+[DEBUG get_variable_type] Found function metrics for 'ColorPoint::getColor'
+[DEBUG get_variable_type] Parameter types count: 1
+[DEBUG get_variable_type] Variable types count: 1
+[DEBUG get_variable_type] Variable 'color' not found in function metrics
+[DEBUG get_variable_type] Found in symbol table: color -> 1
+DEBUG: Found variable 'color' with type 1
+[ANALYZER TRACE] Exiting block scope, returning to: ColorPoint::getColor
+DEBUG: infer_expression_type called on expression type: 16
+DEBUG: current_function_scope_: 'ColorPoint::getColor'
+DEBUG: current_class_name_: 'ColorPoint'
+DEBUG: infer_variable_access_type for 'color'
+[DEBUG get_variable_type] Looking for 'color' in function 'ColorPoint::getColor'
+[DEBUG get_variable_type] Found function metrics for 'ColorPoint::getColor'
+[DEBUG get_variable_type] Parameter types count: 1
+[DEBUG get_variable_type] Variable types count: 1
+[DEBUG get_variable_type] Variable 'color' not found in function metrics
+[DEBUG get_variable_type] Found in symbol table: color -> 1
+DEBUG: Found variable 'color' with type 1
+[ANALYZER TRACE] Detected trivial accessor method: ColorPoint::getColor (accesses: color)
+[ANALYZER TRACE] Visiting RoutineDeclaration: START
+[ANALYZER] Starting parameter type inference for function: START
+[ANALYZER TRACE] ASTAnalyzer::visit(RoutineDeclaration&) is traversing body for routine: START
+[ANALYZER TRACE] Entering block scope: START_block_7 (Function scope remains: START)
+[ANALYZER TRACE] BlockStatement: Traversing 38 statements.
+DEBUG: ASTAnalyzer::visit(LetDeclaration) called with 1 variables
+DEBUG: LetDeclaration has 0 initializers
+DEBUG: Processing variable 'p' in ASTAnalyzer
+DEBUG: Variable 'p' initializer is null
+DEBUG: Variable 'p' current_function_scope_='START'
+DEBUG: Variable 'p' current_function_scope_='START'
+DEBUG: Variable 'p' has no initializer, using declaration type: 0
+DEBUG: Variable 'p' final determined_type: 1 before symbol table update
+DEBUG: ASTAnalyzer::visit(LetDeclaration) called with 1 variables
+DEBUG: LetDeclaration has 0 initializers
+DEBUG: Processing variable 'cp' in ASTAnalyzer
+DEBUG: Variable 'cp' initializer is null
+DEBUG: Variable 'cp' current_function_scope_='START'
+DEBUG: Variable 'cp' current_function_scope_='START'
+DEBUG: Variable 'cp' has no initializer, using declaration type: 0
+DEBUG: Variable 'cp' final determined_type: 1 before symbol table update
+[ANALYZER TRACE] BlockStatement: Calling accept on statement 0 of type 40
+[ANALYZER TRACE] Entered ASTAnalyzer::visit(RoutineCallStatement&) for node at 0x600000f61bf0
+[ANALYZER TRACE]   Detected call to runtime function: WRITES, Type: INTEGER
+[ANALYZER TRACE] BlockStatement: Calling accept on statement 1 of type 40
+[ANALYZER TRACE] Entered ASTAnalyzer::visit(RoutineCallStatement&) for node at 0x600000f61c50
+[ANALYZER TRACE]   Detected call to runtime function: WRITES, Type: INTEGER
+[ANALYZER TRACE] BlockStatement: Calling accept on statement 2 of type 40
+[ANALYZER TRACE] Entered ASTAnalyzer::visit(RoutineCallStatement&) for node at 0x600000f61cb0
+[ANALYZER TRACE]   Detected call to runtime function: WRITES, Type: INTEGER
+[ANALYZER TRACE] BlockStatement: Calling accept on statement 3 of type 39
+[ASSIGNMENT VISITOR] Processing AssignmentStatement with 1 LHS variables
+[DEBUG] Processing assignment to variable: p
+[DEBUG] Symbol lookup for 'p': FOUND
+[DEBUG] Symbol 'p' owns_heap_memory: FALSE
+DEBUG: infer_expression_type called on expression type: 27
+DEBUG: current_function_scope_: 'START'
+DEBUG: current_class_name_: ''
+DEBUG: Unknown expression type in infer_expression_type: 27
+[ANALYZER TRACE] Visiting VariableAccess: p
+[DEBUG get_effective_variable_name] Called with: 'p'
+[DEBUG get_effective_variable_name] Loop context stack size: 0
+[DEBUG get_effective_variable_name] Active FOR loop scopes size: 0
+[DEBUG get_effective_variable_name] FOR variable aliases size: 0
+[DEBUG get_effective_variable_name] In FOR loop context: NO
+[DEBUG get_effective_variable_name] Not in FOR loop context, returning original: 'p'
+[ANALYZER TRACE] BlockStatement: Calling accept on statement 4 of type 40
+[ANALYZER TRACE] Entered ASTAnalyzer::visit(RoutineCallStatement&) for node at 0x600000f61d10
+[ANALYZER TRACE] BlockStatement: Calling accept on statement 5 of type 40
+[ANALYZER TRACE] Entered ASTAnalyzer::visit(RoutineCallStatement&) for node at 0x600000f61d70
+[ANALYZER TRACE]   Detected call to runtime function: WRITES, Type: INTEGER
+[ANALYZER TRACE] BlockStatement: Calling accept on statement 6 of type 40
+[ANALYZER TRACE] Entered ASTAnalyzer::visit(RoutineCallStatement&) for node at 0x600000f61dd0
+[ANALYZER TRACE]   Detected call to runtime function: WRITEN, Type: INTEGER
+[ANALYZER TRACE] BlockStatement: Calling accept on statement 7 of type 40
+[ANALYZER TRACE] Entered ASTAnalyzer::visit(RoutineCallStatement&) for node at 0x600000f61e30
+[ANALYZER TRACE]   Detected call to runtime function: WRITES, Type: INTEGER
+[ANALYZER TRACE] BlockStatement: Calling accept on statement 8 of type 40
+[ANALYZER TRACE] Entered ASTAnalyzer::visit(RoutineCallStatement&) for node at 0x600000f61e90
+[ANALYZER TRACE]   Detected call to runtime function: WRITEN, Type: INTEGER
+[ANALYZER TRACE] BlockStatement: Calling accept on statement 9 of type 40
+[ANALYZER TRACE] Entered ASTAnalyzer::visit(RoutineCallStatement&) for node at 0x600000f61ef0
+[ANALYZER TRACE]   Detected call to runtime function: WRITES, Type: INTEGER
+[ANALYZER TRACE] BlockStatement: Calling accept on statement 10 of type 40
+[ANALYZER TRACE] Entered ASTAnalyzer::visit(RoutineCallStatement&) for node at 0x600000f61f50
+[ANALYZER TRACE]   Detected call to runtime function: WRITES, Type: INTEGER
+[ANALYZER TRACE] BlockStatement: Calling accept on statement 11 of type 40
+[ANALYZER TRACE] Entered ASTAnalyzer::visit(RoutineCallStatement&) for node at 0x600000f61fb0
+[ANALYZER TRACE] BlockStatement: Calling accept on statement 12 of type 40
+[ANALYZER TRACE] Entered ASTAnalyzer::visit(RoutineCallStatement&) for node at 0x600000f62010
+[ANALYZER TRACE]   Detected call to runtime function: WRITES, Type: INTEGER
+[ANALYZER TRACE] BlockStatement: Calling accept on statement 13 of type 40
+[ANALYZER TRACE] Entered ASTAnalyzer::visit(RoutineCallStatement&) for node at 0x600000f62070
+[ANALYZER TRACE]   Detected call to runtime function: WRITEN, Type: INTEGER
+[ANALYZER TRACE] BlockStatement: Calling accept on statement 14 of type 40
+[ANALYZER TRACE] Entered ASTAnalyzer::visit(RoutineCallStatement&) for node at 0x600000f620d0
+[ANALYZER TRACE]   Detected call to runtime function: WRITES, Type: INTEGER
+[ANALYZER TRACE] BlockStatement: Calling accept on statement 15 of type 40
+[ANALYZER TRACE] Entered ASTAnalyzer::visit(RoutineCallStatement&) for node at 0x600000f62130
+[ANALYZER TRACE]   Detected call to runtime function: WRITEN, Type: INTEGER
+[ANALYZER TRACE] BlockStatement: Calling accept on statement 16 of type 40
+[ANALYZER TRACE] Entered ASTAnalyzer::visit(RoutineCallStatement&) for node at 0x600000f62190
+[ANALYZER TRACE]   Detected call to runtime function: WRITES, Type: INTEGER
+[ANALYZER TRACE] BlockStatement: Calling accept on statement 17 of type 40
+[ANALYZER TRACE] Entered ASTAnalyzer::visit(RoutineCallStatement&) for node at 0x600000f62250
+[ANALYZER TRACE]   Detected call to runtime function: WRITES, Type: INTEGER
+[ANALYZER TRACE] BlockStatement: Calling accept on statement 18 of type 39
+[ASSIGNMENT VISITOR] Processing AssignmentStatement with 1 LHS variables
+[DEBUG] Processing assignment to variable: cp
+[DEBUG] Symbol lookup for 'cp': FOUND
+[DEBUG] Symbol 'cp' owns_heap_memory: FALSE
+DEBUG: infer_expression_type called on expression type: 27
+DEBUG: current_function_scope_: 'START'
+DEBUG: current_class_name_: ''
+DEBUG: Unknown expression type in infer_expression_type: 27
+[ANALYZER TRACE] Visiting VariableAccess: cp
+[DEBUG get_effective_variable_name] Called with: 'cp'
+[DEBUG get_effective_variable_name] Loop context stack size: 0
+[DEBUG get_effective_variable_name] Active FOR loop scopes size: 0
+[DEBUG get_effective_variable_name] FOR variable aliases size: 0
+[DEBUG get_effective_variable_name] In FOR loop context: NO
+[DEBUG get_effective_variable_name] Not in FOR loop context, returning original: 'cp'
+[ANALYZER TRACE] BlockStatement: Calling accept on statement 19 of type 40
+[ANALYZER TRACE] Entered ASTAnalyzer::visit(RoutineCallStatement&) for node at 0x600000f62280
+[ANALYZER TRACE] BlockStatement: Calling accept on statement 20 of type 40
+[ANALYZER TRACE] Entered ASTAnalyzer::visit(RoutineCallStatement&) for node at 0x600000f622e0
+[ANALYZER TRACE]   Detected call to runtime function: WRITES, Type: INTEGER
+[ANALYZER TRACE] BlockStatement: Calling accept on statement 21 of type 40
+[ANALYZER TRACE] Entered ASTAnalyzer::visit(RoutineCallStatement&) for node at 0x600000f62340
+[ANALYZER TRACE]   Detected call to runtime function: WRITEN, Type: INTEGER
+[ANALYZER TRACE] BlockStatement: Calling accept on statement 22 of type 40
+[ANALYZER TRACE] Entered ASTAnalyzer::visit(RoutineCallStatement&) for node at 0x600000f623a0
+[ANALYZER TRACE]   Detected call to runtime function: WRITES, Type: INTEGER
+[ANALYZER TRACE] BlockStatement: Calling accept on statement 23 of type 40
+[ANALYZER TRACE] Entered ASTAnalyzer::visit(RoutineCallStatement&) for node at 0x600000f62400
+[ANALYZER TRACE]   Detected call to runtime function: WRITEN, Type: INTEGER
+[ANALYZER TRACE] BlockStatement: Calling accept on statement 24 of type 40
+[ANALYZER TRACE] Entered ASTAnalyzer::visit(RoutineCallStatement&) for node at 0x600000f62460
+[ANALYZER TRACE]   Detected call to runtime function: WRITES, Type: INTEGER
+[ANALYZER TRACE] BlockStatement: Calling accept on statement 25 of type 40
+[ANALYZER TRACE] Entered ASTAnalyzer::visit(RoutineCallStatement&) for node at 0x600000f624c0
+[ANALYZER TRACE]   Detected call to runtime function: WRITEN, Type: INTEGER
+[ANALYZER TRACE] BlockStatement: Calling accept on statement 26 of type 40
+[ANALYZER TRACE] Entered ASTAnalyzer::visit(RoutineCallStatement&) for node at 0x600000f62520
+[ANALYZER TRACE]   Detected call to runtime function: WRITES, Type: INTEGER
+[ANALYZER TRACE] BlockStatement: Calling accept on statement 27 of type 40
+[ANALYZER TRACE] Entered ASTAnalyzer::visit(RoutineCallStatement&) for node at 0x600000f62580
+[ANALYZER TRACE]   Detected call to runtime function: WRITES, Type: INTEGER
+[ANALYZER TRACE] BlockStatement: Calling accept on statement 28 of type 40
+[ANALYZER TRACE] Entered ASTAnalyzer::visit(RoutineCallStatement&) for node at 0x600000f625e0
+[ANALYZER TRACE] BlockStatement: Calling accept on statement 29 of type 40
+[ANALYZER TRACE] Entered ASTAnalyzer::visit(RoutineCallStatement&) for node at 0x600000f62640
+[ANALYZER TRACE] BlockStatement: Calling accept on statement 30 of type 40
+[ANALYZER TRACE] Entered ASTAnalyzer::visit(RoutineCallStatement&) for node at 0x600000f626a0
+[ANALYZER TRACE]   Detected call to runtime function: WRITES, Type: INTEGER
+[ANALYZER TRACE] BlockStatement: Calling accept on statement 31 of type 40
+[ANALYZER TRACE] Entered ASTAnalyzer::visit(RoutineCallStatement&) for node at 0x600000f62700
+[ANALYZER TRACE]   Detected call to runtime function: WRITEN, Type: INTEGER
+[ANALYZER TRACE] BlockStatement: Calling accept on statement 32 of type 40
+[ANALYZER TRACE] Entered ASTAnalyzer::visit(RoutineCallStatement&) for node at 0x600000f62760
+[ANALYZER TRACE]   Detected call to runtime function: WRITES, Type: INTEGER
+[ANALYZER TRACE] BlockStatement: Calling accept on statement 33 of type 40
+[ANALYZER TRACE] Entered ASTAnalyzer::visit(RoutineCallStatement&) for node at 0x600000f627c0
+[ANALYZER TRACE]   Detected call to runtime function: WRITEN, Type: INTEGER
+[ANALYZER TRACE] BlockStatement: Calling accept on statement 34 of type 40
+[ANALYZER TRACE] Entered ASTAnalyzer::visit(RoutineCallStatement&) for node at 0x600000f62820
+[ANALYZER TRACE]   Detected call to runtime function: WRITES, Type: INTEGER
+[ANALYZER TRACE] BlockStatement: Calling accept on statement 35 of type 40
+[ANALYZER TRACE] Entered ASTAnalyzer::visit(RoutineCallStatement&) for node at 0x600000f62880
+[ANALYZER TRACE]   Detected call to runtime function: WRITEN, Type: INTEGER
+[ANALYZER TRACE] BlockStatement: Calling accept on statement 36 of type 40
+[ANALYZER TRACE] Entered ASTAnalyzer::visit(RoutineCallStatement&) for node at 0x600000f628e0
+[ANALYZER TRACE]   Detected call to runtime function: WRITES, Type: INTEGER
+[ANALYZER TRACE] BlockStatement: Calling accept on statement 37 of type 40
+[ANALYZER TRACE] Entered ASTAnalyzer::visit(RoutineCallStatement&) for node at 0x600000f62940
+[ANALYZER TRACE]   Detected call to runtime function: WRITES, Type: INTEGER
+[ANALYZER TRACE] Exiting block scope, returning to: START
+[SAMM OPTIMIZATION] Starting heap allocation propagation...
+[SAMM OPTIMIZATION] Propagation iteration 1
+[SAMM OPTIMIZATION] Propagation completed after 1 iterations
+[SAMM OPTIMIZATION] Results:
+  Total functions: 9
+  Allocation-free functions: 8
+  Allocation-free leaf functions: 5
+  Allocation-free non-leaf functions: 3
+[ANALYZER TRACE] Analysis complete.
+Initial AST analysis complete.
+==== ASTAnalyzer Function Metrics Report ====
+Function: ColorPoint::CREATE
+  Type: int
+  Parameters: 4
+  Integer Locals: 0
+  Float Locals: 0
+  Runtime Calls: 7
+  Local Function Calls: 0
+  Local Routine Calls: 0
+  Vector Allocations: no
+  Accesses Globals: yes
+  Max Live Variables (Register Pressure): 0
+  Required Callee-Saved Temps: 0
+--------------------------------------------
+Function: ColorPoint::getColor
+  Type: int
+  Parameters: 1
+  Integer Locals: 0
+  Float Locals: 0
+  Runtime Calls: 0
+  Local Function Calls: 0
+  Local Routine Calls: 0
+  Vector Allocations: no
+  Accesses Globals: no
+  Max Live Variables (Register Pressure): 0
+  Required Callee-Saved Temps: 0
+--------------------------------------------
+Function: ColorPoint::setColor
+  Type: int
+  Parameters: 2
+  Integer Locals: 0
+  Float Locals: 0
+  Runtime Calls: 0
+  Local Function Calls: 0
+  Local Routine Calls: 0
+  Vector Allocations: no
+  Accesses Globals: no
+  Max Live Variables (Register Pressure): 0
+  Required Callee-Saved Temps: 0
+--------------------------------------------
+Function: Point::CREATE
+  Type: int
+  Parameters: 3
+  Integer Locals: 0
+  Float Locals: 0
+  Runtime Calls: 5
+  Local Function Calls: 0
+  Local Routine Calls: 0
+  Vector Allocations: no
+  Accesses Globals: yes
+  Max Live Variables (Register Pressure): 0
+  Required Callee-Saved Temps: 0
+--------------------------------------------
+Function: Point::RELEASE
+  Type: int
+  Parameters: 1
+  Integer Locals: 0
+  Float Locals: 0
+  Runtime Calls: 1
+  Local Function Calls: 0
+  Local Routine Calls: 0
+  Vector Allocations: no
+  Accesses Globals: yes
+  Max Live Variables (Register Pressure): 0
+  Required Callee-Saved Temps: 0
+--------------------------------------------
+Function: Point::getX
+  Type: int
+  Parameters: 1
+  Integer Locals: 0
+  Float Locals: 0
+  Runtime Calls: 0
+  Local Function Calls: 0
+  Local Routine Calls: 0
+  Vector Allocations: no
+  Accesses Globals: no
+  Max Live Variables (Register Pressure): 0
+  Required Callee-Saved Temps: 0
+--------------------------------------------
+Function: Point::getY
+  Type: int
+  Parameters: 1
+  Integer Locals: 0
+  Float Locals: 0
+  Runtime Calls: 0
+  Local Function Calls: 0
+  Local Routine Calls: 0
+  Vector Allocations: no
+  Accesses Globals: no
+  Max Live Variables (Register Pressure): 0
+  Required Callee-Saved Temps: 0
+--------------------------------------------
+Function: Point::set
+  Type: int
+  Parameters: 3
+  Integer Locals: 0
+  Float Locals: 0
+  Runtime Calls: 0
+  Local Function Calls: 0
+  Local Routine Calls: 0
+  Vector Allocations: no
+  Accesses Globals: no
+  Max Live Variables (Register Pressure): 0
+  Required Callee-Saved Temps: 0
+--------------------------------------------
+Function: START
+  Type: int
+  Parameters: 0
+  Integer Locals: 4
+  Float Locals: 0
+  Runtime Calls: 31
+  Local Function Calls: 0
+  Local Routine Calls: 0
+  Vector Allocations: no
+  Accesses Globals: yes
+  Max Live Variables (Register Pressure): 0
+  Required Callee-Saved Temps: 0
+--------------------------------------------
+[FIX] Cleared FOR loop state before AST transformation to prevent corruption
+[ANALYZER TRACE] Starting AST transformation...
+[ANALYZER TRACE] AST transformation complete.
+AST transformation complete.
+[ANALYZER DEBUG] Registered call site at instruction 174 for function 'START'
+[ANALYZER DEBUG] Registered call site at instruction 175 for function 'START'
+
+--- AST Dump Immediately Before Code Generation ---
+Program:
+  Declarations:
+    ClassDeclaration: Point
+      Members:
+        LetDeclaration:
+          Name: x
+          Name: y
+        RoutineDeclaration: CREATE
+          Parameters: _this initialX initialY 
+          Body:
+            BlockStatement:
+              Statements:
+                AssignmentStatement:
+                  LHS:
+                    VariableAccess: x
+                  RHS:
+                    VariableAccess: initialX
+                AssignmentStatement:
+                  LHS:
+                    VariableAccess: y
+                  RHS:
+                    VariableAccess: initialY
+                RoutineCallStatement:
+                  Callee:
+                    VariableAccess: WRITES
+                  Arguments:
+                    StringLiteral: "Point created at ("
+                RoutineCallStatement:
+                  Callee:
+                    VariableAccess: WRITEN
+                  Arguments:
+                    VariableAccess: x
+                RoutineCallStatement:
+                  Callee:
+                    VariableAccess: WRITES
+                  Arguments:
+                    StringLiteral: ", "
+                RoutineCallStatement:
+                  Callee:
+                    VariableAccess: WRITEN
+                  Arguments:
+                    VariableAccess: y
+                RoutineCallStatement:
+                  Callee:
+                    VariableAccess: WRITES
+                  Arguments:
+                    StringLiteral: ")
+"
+        FunctionDeclaration: getX
+          Parameters: _this 
+          Body:
+            ValofExpression:
+              BlockStatement:
+                Statements:
+                  ResultisStatement:
+                    VariableAccess: x
+        FunctionDeclaration: getY
+          Parameters: _this 
+          Body:
+            ValofExpression:
+              BlockStatement:
+                Statements:
+                  ResultisStatement:
+                    VariableAccess: y
+        RoutineDeclaration: set
+          Parameters: _this newX newY 
+          Body:
+            BlockStatement:
+              Statements:
+                AssignmentStatement:
+                  LHS:
+                    VariableAccess: x
+                  RHS:
+                    VariableAccess: newX
+                AssignmentStatement:
+                  LHS:
+                    VariableAccess: y
+                  RHS:
+                    VariableAccess: newY
+        RoutineDeclaration: RELEASE
+          Parameters: _this 
+          Body:
+            BlockStatement:
+              Statements:
+                RoutineCallStatement:
+                  Callee:
+                    VariableAccess: WRITES
+                  Arguments:
+                    StringLiteral: "Point destroyed
+"
+    ClassDeclaration: ColorPoint
+      Extends: Point
+      Members:
+        LetDeclaration:
+          Name: color
+        RoutineDeclaration: CREATE
+          Parameters: _this initialX initialY initialColor 
+          Body:
+            BlockStatement:
+              Statements:
+                AssignmentStatement:
+                  LHS:
+                    VariableAccess: color
+                  RHS:
+                    VariableAccess: initialColor
+                RoutineCallStatement:
+                  Callee:
+                    SuperMethodAccess: CREATE
+                  Arguments:
+                    VariableAccess: initialX
+                    VariableAccess: initialY
+                RoutineCallStatement:
+                  Callee:
+                    VariableAccess: WRITES
+                  Arguments:
+                    StringLiteral: "ColorPoint created at ("
+                RoutineCallStatement:
+                  Callee:
+                    VariableAccess: WRITEN
+                  Arguments:
+                    VariableAccess: x
+                RoutineCallStatement:
+                  Callee:
+                    VariableAccess: WRITES
+                  Arguments:
+                    StringLiteral: ", "
+                RoutineCallStatement:
+                  Callee:
+                    VariableAccess: WRITEN
+                  Arguments:
+                    VariableAccess: y
+                RoutineCallStatement:
+                  Callee:
+                    VariableAccess: WRITES
+                  Arguments:
+                    StringLiteral: ") with color "
+                RoutineCallStatement:
+                  Callee:
+                    VariableAccess: WRITEN
+                  Arguments:
+                    VariableAccess: color
+                RoutineCallStatement:
+                  Callee:
+                    VariableAccess: WRITES
+                  Arguments:
+                    StringLiteral: "
+"
+        RoutineDeclaration: setColor
+          Parameters: _this c 
+          Body:
+            BlockStatement:
+              Statements:
+                AssignmentStatement:
+                  LHS:
+                    MemberAccess: color
+                      Object:
+                        VariableAccess: _this
+                    RHS:
+                      VariableAccess: c
+          FunctionDeclaration: getColor
+            Parameters: _this 
+            Body:
+              ValofExpression:
+                BlockStatement:
+                  Statements:
+                    ResultisStatement:
+                      VariableAccess: color
+      RoutineDeclaration: START
+        Body:
+          BlockStatement:
+            Statements:
+              RoutineCallStatement:
+                Callee:
+                  VariableAccess: WRITES
+                Arguments:
+                  StringLiteral: "Testing class member variable access with correct offsets
+"
+              RoutineCallStatement:
+                Callee:
+                  VariableAccess: WRITES
+                Arguments:
+                  StringLiteral: "=================================================
+
+"
+              RoutineCallStatement:
+                Callee:
+                  VariableAccess: WRITES
+                Arguments:
+                  StringLiteral: "1. Basic Point class test:
+"
+              AssignmentStatement:
+                LHS:
+                  VariableAccess: p
+                RHS:
+                  NewExpression: Point
+              RoutineCallStatement:
+                Callee:
+                  MemberAccess: CREATE
+                    Object:
+                      VariableAccess: p
+                  Arguments:
+                    NumberLiteral: 50
+                    NumberLiteral: 75
+                RoutineCallStatement:
+                  Callee:
+                    VariableAccess: WRITES
+                  Arguments:
+                    StringLiteral: "Reading values: x="
+                RoutineCallStatement:
+                  Callee:
+                    VariableAccess: WRITEN
+                  Arguments:
+                    FunctionCall:
+                      Callee:
+                        MemberAccess: getX
+                          Object:
+                            VariableAccess: p
+                  RoutineCallStatement:
+                    Callee:
+                      VariableAccess: WRITES
+                    Arguments:
+                      StringLiteral: ", y="
+                  RoutineCallStatement:
+                    Callee:
+                      VariableAccess: WRITEN
+                    Arguments:
+                      FunctionCall:
+                        Callee:
+                          MemberAccess: getY
+                            Object:
+                              VariableAccess: p
+                    RoutineCallStatement:
+                      Callee:
+                        VariableAccess: WRITES
+                      Arguments:
+                        StringLiteral: "
+"
+                    RoutineCallStatement:
+                      Callee:
+                        VariableAccess: WRITES
+                      Arguments:
+                        StringLiteral: "Setting new values...
+"
+                    RoutineCallStatement:
+                      Callee:
+                        MemberAccess: set
+                          Object:
+                            VariableAccess: p
+                        Arguments:
+                          NumberLiteral: 100
+                          NumberLiteral: 200
+                      RoutineCallStatement:
+                        Callee:
+                          VariableAccess: WRITES
+                        Arguments:
+                          StringLiteral: "Reading new values: x="
+                      RoutineCallStatement:
+                        Callee:
+                          VariableAccess: WRITEN
+                        Arguments:
+                          FunctionCall:
+                            Callee:
+                              MemberAccess: getX
+                                Object:
+                                  VariableAccess: p
+                        RoutineCallStatement:
+                          Callee:
+                            VariableAccess: WRITES
+                          Arguments:
+                            StringLiteral: ", y="
+                        RoutineCallStatement:
+                          Callee:
+                            VariableAccess: WRITEN
+                          Arguments:
+                            FunctionCall:
+                              Callee:
+                                MemberAccess: getY
+                                  Object:
+                                    VariableAccess: p
+                          RoutineCallStatement:
+                            Callee:
+                              VariableAccess: WRITES
+                            Arguments:
+                              StringLiteral: "
+
+"
+                          RoutineCallStatement:
+                            Callee:
+                              VariableAccess: WRITES
+                            Arguments:
+                              StringLiteral: "2. Inherited ColorPoint class test:
+"
+                          AssignmentStatement:
+                            LHS:
+                              VariableAccess: cp
+                            RHS:
+                              NewExpression: ColorPoint
+                          RoutineCallStatement:
+                            Callee:
+                              MemberAccess: CREATE
+                                Object:
+                                  VariableAccess: cp
+                              Arguments:
+                                NumberLiteral: 130
+                                NumberLiteral: 140
+                                NumberLiteral: 255
+                            RoutineCallStatement:
+                              Callee:
+                                VariableAccess: WRITES
+                              Arguments:
+                                StringLiteral: "Reading values: x="
+                            RoutineCallStatement:
+                              Callee:
+                                VariableAccess: WRITEN
+                              Arguments:
+                                FunctionCall:
+                                  Callee:
+                                    MemberAccess: getX
+                                      Object:
+                                        VariableAccess: cp
+                              RoutineCallStatement:
+                                Callee:
+                                  VariableAccess: WRITES
+                                Arguments:
+                                  StringLiteral: ", y="
+                              RoutineCallStatement:
+                                Callee:
+                                  VariableAccess: WRITEN
+                                Arguments:
+                                  FunctionCall:
+                                    Callee:
+                                      MemberAccess: getY
+                                        Object:
+                                          VariableAccess: cp
+                                RoutineCallStatement:
+                                  Callee:
+                                    VariableAccess: WRITES
+                                  Arguments:
+                                    StringLiteral: ", color="
+                                RoutineCallStatement:
+                                  Callee:
+                                    VariableAccess: WRITEN
+                                  Arguments:
+                                    FunctionCall:
+                                      Callee:
+                                        MemberAccess: getColor
+                                          Object:
+                                            VariableAccess: cp
+                                  RoutineCallStatement:
+                                    Callee:
+                                      VariableAccess: WRITES
+                                    Arguments:
+                                      StringLiteral: "
+"
+                                  RoutineCallStatement:
+                                    Callee:
+                                      VariableAccess: WRITES
+                                    Arguments:
+                                      StringLiteral: "Setting new values...
+"
+                                  RoutineCallStatement:
+                                    Callee:
+                                      MemberAccess: set
+                                        Object:
+                                          VariableAccess: cp
+                                      Arguments:
+                                        NumberLiteral: 60
+                                        NumberLiteral: 80
+                                    RoutineCallStatement:
+                                      Callee:
+                                        MemberAccess: setColor
+                                          Object:
+                                            VariableAccess: cp
+                                        Arguments:
+                                          NumberLiteral: 123
+                                      RoutineCallStatement:
+                                        Callee:
+                                          VariableAccess: WRITES
+                                        Arguments:
+                                          StringLiteral: "Reading new values: x="
+                                      RoutineCallStatement:
+                                        Callee:
+                                          VariableAccess: WRITEN
+                                        Arguments:
+                                          FunctionCall:
+                                            Callee:
+                                              MemberAccess: getX
+                                                Object:
+                                                  VariableAccess: cp
+                                        RoutineCallStatement:
+                                          Callee:
+                                            VariableAccess: WRITES
+                                          Arguments:
+                                            StringLiteral: ", y="
+                                        RoutineCallStatement:
+                                          Callee:
+                                            VariableAccess: WRITEN
+                                          Arguments:
+                                            FunctionCall:
+                                              Callee:
+                                                MemberAccess: getY
+                                                  Object:
+                                                    VariableAccess: cp
+                                          RoutineCallStatement:
+                                            Callee:
+                                              VariableAccess: WRITES
+                                            Arguments:
+                                              StringLiteral: ", color="
+                                          RoutineCallStatement:
+                                            Callee:
+                                              VariableAccess: WRITEN
+                                            Arguments:
+                                              FunctionCall:
+                                                Callee:
+                                                  MemberAccess: getColor
+                                                    Object:
+                                                      VariableAccess: cp
+                                            RoutineCallStatement:
+                                              Callee:
+                                                VariableAccess: WRITES
+                                              Arguments:
+                                                StringLiteral: "
+"
+                                            RoutineCallStatement:
+                                              Callee:
+                                                VariableAccess: WRITES
+                                              Arguments:
+                                                StringLiteral: "
+Test completed successfully
+"
+----------------------------------
+
+[COERCE_DEBUG] Input argument registers: arg0=X9 
+[COERCE_DEBUG] Integer: X9 -> X0
+[COERCE_DEBUG] Executed 1 queued operations
+[COERCE_DEBUG] Input argument registers: arg0=X9 
+[COERCE_DEBUG] Integer: X9 -> X0
+[COERCE_DEBUG] Executed 1 queued operations
+[COERCE_DEBUG] Input argument registers: arg0=X9 
+[COERCE_DEBUG] Integer: X9 -> X0
+[COERCE_DEBUG] Executed 1 queued operations
+[COERCE_DEBUG] Input argument registers: arg0=X9 
+[COERCE_DEBUG] Integer: X9 -> X0
+[COERCE_DEBUG] Executed 1 queued operations
+[COERCE_DEBUG] Input argument registers: arg0=X9 
+[COERCE_DEBUG] Integer: X9 -> X0
+[COERCE_DEBUG] Executed 1 queued operations
+[COERCE_DEBUG] Input argument registers: arg0=X9 
+[COERCE_DEBUG] Integer: X9 -> X0
+[COERCE_DEBUG] Executed 1 queued operations
+[COERCE_DEBUG] Input argument registers: arg0=X9 
+[COERCE_DEBUG] Integer: X9 -> X0
+[COERCE_DEBUG] Executed 1 queued operations
+[COERCE_DEBUG] Input argument registers: arg0=X9 
+[COERCE_DEBUG] Integer: X9 -> X0
+[COERCE_DEBUG] Executed 1 queued operations
+[COERCE_DEBUG] Input argument registers: arg0=X9 
+[COERCE_DEBUG] Integer: X9 -> X0
+[COERCE_DEBUG] Executed 1 queued operations
+[COERCE_DEBUG] Input argument registers: arg0=X9 
+[COERCE_DEBUG] Integer: X9 -> X0
+[COERCE_DEBUG] Executed 1 queued operations
+[COERCE_DEBUG] Input argument registers: arg0=X9 
+[COERCE_DEBUG] Integer: X9 -> X0
+[COERCE_DEBUG] Executed 1 queued operations
+[COERCE_DEBUG] Input argument registers: arg0=X9 
+[COERCE_DEBUG] Integer: X9 -> X0
+[COERCE_DEBUG] Executed 1 queued operations
+[COERCE_DEBUG] Input argument registers: arg0=X9 
+[COERCE_DEBUG] Integer: X9 -> X0
+[COERCE_DEBUG] Executed 1 queued operations
+[COERCE_DEBUG] Input argument registers: 
+[COERCE_DEBUG] Executed 0 queued operations
+[COERCE_DEBUG] Input argument registers: arg0=X9 
+[COERCE_DEBUG] Integer: X9 -> X0
+[COERCE_DEBUG] Executed 1 queued operations
+[COERCE_DEBUG] Input argument registers: arg0=X9 
+[COERCE_DEBUG] Integer: X9 -> X0
+[COERCE_DEBUG] Executed 1 queued operations
+[COERCE_DEBUG] Input argument registers: arg0=X9 
+[COERCE_DEBUG] Integer: X9 -> X0
+[COERCE_DEBUG] Executed 1 queued operations
+[COERCE_DEBUG] Input argument registers: arg0=X9 
+[COERCE_DEBUG] Integer: X9 -> X0
+[COERCE_DEBUG] Executed 1 queued operations
+[COERCE_DEBUG] Input argument registers: arg0=X0 
+[COERCE_DEBUG] Integer: X0 -> X0
+[COERCE_DEBUG] Executed 0 queued operations
+[COERCE_DEBUG] Input argument registers: arg0=X9 
+[COERCE_DEBUG] Integer: X9 -> X0
+[COERCE_DEBUG] Executed 1 queued operations
+[COERCE_DEBUG] Input argument registers: arg0=X0 
+[COERCE_DEBUG] Integer: X0 -> X0
+[COERCE_DEBUG] Executed 0 queued operations
+[COERCE_DEBUG] Input argument registers: arg0=X9 
+[COERCE_DEBUG] Integer: X9 -> X0
+[COERCE_DEBUG] Executed 1 queued operations
+[COERCE_DEBUG] Input argument registers: arg0=X9 
+[COERCE_DEBUG] Integer: X9 -> X0
+[COERCE_DEBUG] Executed 1 queued operations
+[COERCE_DEBUG] Input argument registers: arg0=X9 
+[COERCE_DEBUG] Integer: X9 -> X0
+[COERCE_DEBUG] Executed 1 queued operations
+[COERCE_DEBUG] Input argument registers: arg0=X0 
+[COERCE_DEBUG] Integer: X0 -> X0
+[COERCE_DEBUG] Executed 0 queued operations
+[COERCE_DEBUG] Input argument registers: arg0=X9 
+[COERCE_DEBUG] Integer: X9 -> X0
+[COERCE_DEBUG] Executed 1 queued operations
+[COERCE_DEBUG] Input argument registers: arg0=X0 
+[COERCE_DEBUG] Integer: X0 -> X0
+[COERCE_DEBUG] Executed 0 queued operations
+[COERCE_DEBUG] Input argument registers: arg0=X9 
+[COERCE_DEBUG] Integer: X9 -> X0
+[COERCE_DEBUG] Executed 1 queued operations
+[COERCE_DEBUG] Input argument registers: arg0=X9 
+[COERCE_DEBUG] Integer: X9 -> X0
+[COERCE_DEBUG] Executed 1 queued operations
+[COERCE_DEBUG] Input argument registers: arg0=X9 
+[COERCE_DEBUG] Integer: X9 -> X0
+[COERCE_DEBUG] Executed 1 queued operations
+[COERCE_DEBUG] Input argument registers: arg0=X0 
+[COERCE_DEBUG] Integer: X0 -> X0
+[COERCE_DEBUG] Executed 0 queued operations
+[COERCE_DEBUG] Input argument registers: arg0=X9 
+[COERCE_DEBUG] Integer: X9 -> X0
+[COERCE_DEBUG] Executed 1 queued operations
+[COERCE_DEBUG] Input argument registers: arg0=X0 
+[COERCE_DEBUG] Integer: X0 -> X0
+[COERCE_DEBUG] Executed 0 queued operations
+[COERCE_DEBUG] Input argument registers: arg0=X9 
+[COERCE_DEBUG] Integer: X9 -> X0
+[COERCE_DEBUG] Executed 1 queued operations
+[COERCE_DEBUG] Input argument registers: arg0=X0 
+[COERCE_DEBUG] Integer: X0 -> X0
+[COERCE_DEBUG] Executed 0 queued operations
+[COERCE_DEBUG] Input argument registers: arg0=X9 
+[COERCE_DEBUG] Integer: X9 -> X0
+[COERCE_DEBUG] Executed 1 queued operations
+[COERCE_DEBUG] Input argument registers: arg0=X9 
+[COERCE_DEBUG] Integer: X9 -> X0
+[COERCE_DEBUG] Executed 1 queued operations
+[COERCE_DEBUG] Input argument registers: arg0=X9 
+[COERCE_DEBUG] Integer: X9 -> X0
+[COERCE_DEBUG] Executed 1 queued operations
+[COERCE_DEBUG] Input argument registers: arg0=X0 
+[COERCE_DEBUG] Integer: X0 -> X0
+[COERCE_DEBUG] Executed 0 queued operations
+[COERCE_DEBUG] Input argument registers: arg0=X9 
+[COERCE_DEBUG] Integer: X9 -> X0
+[COERCE_DEBUG] Executed 1 queued operations
+[COERCE_DEBUG] Input argument registers: arg0=X0 
+[COERCE_DEBUG] Integer: X0 -> X0
+[COERCE_DEBUG] Executed 0 queued operations
+[COERCE_DEBUG] Input argument registers: arg0=X9 
+[COERCE_DEBUG] Integer: X9 -> X0
+[COERCE_DEBUG] Executed 1 queued operations
+[COERCE_DEBUG] Input argument registers: arg0=X0 
+[COERCE_DEBUG] Integer: X0 -> X0
+[COERCE_DEBUG] Executed 0 queued operations
+[COERCE_DEBUG] Input argument registers: arg0=X9 
+[COERCE_DEBUG] Integer: X9 -> X0
+[COERCE_DEBUG] Executed 1 queued operations
+[COERCE_DEBUG] Input argument registers: arg0=X9 
+[COERCE_DEBUG] Integer: X9 -> X0
+[COERCE_DEBUG] Executed 1 queued operations
+[COERCE_DEBUG] Input argument registers: 
+[COERCE_DEBUG] Executed 0 queued operations

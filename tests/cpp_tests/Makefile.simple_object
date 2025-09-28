@@ -1,0 +1,48 @@
+# Makefile for test_object_lists_simple (Simple Object List Testing)
+# Focused test for object list functionality with proper SAMM integration
+
+CXX = clang++
+CXXFLAGS = -std=c++17 -Wall -Wextra -O2 -g
+INCLUDES = -I. -I../../HeapManager -I../../runtime -I../../include
+LIBS = ../../libbcpl_runtime_sdl2_static.a -lpthread \
+       -framework CoreFoundation -framework CoreAudio -framework AudioToolbox \
+       -framework CoreGraphics -framework AppKit -framework IOKit \
+       -framework ForceFeedback -framework Carbon -framework CoreHaptics \
+       -framework GameController -framework Metal -framework QuartzCore
+
+# Target executable
+TARGET = test_object_lists_simple
+
+# Source files
+MAIN_SRC = test_object_lists_simple.cpp
+
+# Default target
+all: $(TARGET)
+
+# Main executable
+$(TARGET): $(TARGET).o
+	@echo "Linking test_object_lists_simple executable..."
+	$(CXX) $(CXXFLAGS) -o $@ $^ $(LIBS)
+
+# Main test source
+$(TARGET).o: $(MAIN_SRC)
+	@echo "Compiling test_object_lists_simple.cpp..."
+	$(CXX) $(CXXFLAGS) $(INCLUDES) -c $< -o $@
+
+# Clean up build artifacts
+clean:
+	@echo "Cleaning test_object_lists_simple build artifacts..."
+	rm -f $(TARGET) $(TARGET).o
+
+# Force rebuild
+rebuild: clean all
+
+# Run the test
+test: $(TARGET)
+	@echo "Running test_object_lists_simple..."
+	./$(TARGET)
+
+# Run test with timing
+test-timed: $(TARGET)
+	@echo "Running test_object_lists_simple with timing..."
+	time ./$(TARGET)

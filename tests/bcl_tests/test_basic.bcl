@@ -1,0 +1,8 @@
+LET START() BE
+$(
+   WRITES("Basic test starting*N")
+   WRITES("Hello World*N")
+   WRITEN(42)
+   WRITES("*N")
+   WRITES("Basic test completed*N")
+$)

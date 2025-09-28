@@ -1,0 +1,30 @@
+LET START() BE {
+    // Test basic float output
+    WRITEF("Basic float: %f*n", 3.14159)
+
+    // Test multiple float arguments
+    WRITEF("Two floats: %f and %f*n", 2.5, 7.25)
+
+    // Test mixed types
+    WRITEF("Mixed: int=%d, float=%f, string=%s*n", 42, 3.14, "hello")
+
+    // Test with variables
+    LET x = 123
+    FLET y = 456.789
+    LET z = "world"
+    WRITEF("Variables: x=%d, y=%f, z=%s*n", x, y, z)
+
+    // Test edge cases
+    WRITEF("Zero float: %f*n", 0.0)
+    WRITEF("Negative float: %f*n", -123.456)
+    WRITEF("Very small: %f*n", 0.000001)
+    WRITEF("Very large: %f*n", 123456.789)
+
+    // Test format specifier order doesn't matter for types
+    WRITEF("Order test: %s then %f then %d*n", "text", 9.99, 100)
+
+    // Test multiple format specifiers of same type
+    WRITEF("Multiple floats: %f, %f, %f*n", 1.1, 2.2, 3.3)
+
+    WRITES("WRITEF float test completed.*n")
+}

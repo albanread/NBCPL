@@ -1,0 +1,58 @@
+// Test program with more debugging to see what's happening with double-free detection
+
+MANIFEST {
+    HEAP_SIZE = 1000
+}
+
+LET start() BE {
+    writef("Testing double-free detection with debugging...*n")
+
+    // Test 1: Double-free a vector
+    writef("Test 1: Double-free vector*n")
+    LET vec = VEC 10
+    writef("Allocated vector at 0x%p*n", vec)
+
+    writef("About to call first FREEVEC...*n")
+    FREEVEC(vec)
+    writef("First FREEVEC completed*n")
+
+    writef("About to call second FREEVEC (should detect double-free)...*n")
+    FREEVEC(vec)
+    writef("Second FREEVEC completed - ERROR: This should NOT print!*n")
+
+    writef("*n--- Test 1 Complete ---*n*n")
+
+    // Test 2: Double-free a string
+    writef("Test 2: Double-free string*n")
+    LET str = VEC 20  // Using VEC for string allocation
+    writef("Allocated string at 0x%p*n", str)
+
+    writef("About to call first FREEVEC on string...*n")
+    FREEVEC(str)
+    writef("First string FREEVEC completed*n")
+
+    writef("About to call second FREEVEC on string (should detect double-free)...*n")
+    FREEVEC(str)
+    writef("Second string FREEVEC completed - ERROR: This should NOT print!*n")
+
+    writef("*n--- Test 2 Complete ---*n*n")
+
+    // Test 3: Double-free a list
+    writef("Test 3: Double-free list*n")
+    LET list = LIST(1, 2, 3)
+    writef("Allocated list at 0x%p*n", list)
+
+    writef("About to call first BCPL_FREE_LIST...*n")
+    BCPL_FREE_LIST(list)
+    writef("First BCPL_FREE_LIST completed*n")
+
+    writef("About to call second BCPL_FREE_LIST (should detect double-free)...*n")
+    BCPL_FREE_LIST(list)
+    writef("Second BCPL_FREE_LIST completed - ERROR: This should NOT print!*n")
+
+    writef("*n--- Test 3 Complete ---*n*n")
+
+    writef("All tests completed. Checking for errors...*n")
+    BCPL_CHECK_AND_DISPLAY_ERRORS()
+    writef("Error checking completed.*n")
+}

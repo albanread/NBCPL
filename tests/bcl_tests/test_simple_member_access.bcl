@@ -1,0 +1,44 @@
+// Simple test to isolate object member access issue
+// Testing basic dot notation functionality
+
+CLASS Point$(
+    LET x, y
+
+    LET init(newX, newY) BE {
+        x := newX
+        y := newY
+    }
+
+    LET getX() = x
+    LET getY() = y
+$)
+
+LET START() BE {
+    writef("Testing Simple Member Access")
+
+    // Create object
+    LET p = NEW Point()
+
+    // Test method calls first (these should work)
+    writef("Testing method calls...")
+    p.init(10, 20)
+    LET mx = p.getX()
+    LET my = p.getY()
+    writef("Method calls: getX()=%d, getY()=%d", mx, my)
+
+    // Now test direct member access
+    writef("Testing direct member access...")
+
+    // Try reading members
+    LET dx = p.x
+    LET dy = p.y
+    writef("Direct access: p.x=%d, p.y=%d", dx, dy)
+
+    // Try writing members
+    p.x := 30
+    p.y := 40
+    writef("After assignment: p.x=%d, p.y=%d", p.x, p.y)
+
+    writef("Test completed")
+    p.RELEASE()
+}

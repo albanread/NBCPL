@@ -1,0 +1,25 @@
+LET START() BE
+$(
+   WRITES("Testing simple pointer arithmetic*N")
+
+   // Create a list and test that operations don't corrupt the original
+   LET L = LIST("test", "data")
+
+   // Test: Verify list is intact before any operations
+   LET FIRST_BEFORE = HD(L)
+   WRITES("First element before: ")
+   WRITES(FIRST_BEFORE)
+   WRITES("*N")
+
+   // This simulates what FOREACH does internally: create a cursor
+   // The problematic operation that might corrupt L
+   LET TEMP = L + 16  // This addition should not modify L
+
+   // Test: Verify list is still intact after the operation
+   LET FIRST_AFTER = HD(L)
+   WRITES("First element after: ")
+   WRITES(FIRST_AFTER)
+   WRITES("*N")
+
+   WRITES("Test completed*N")
+$)

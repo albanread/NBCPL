@@ -1,0 +1,9 @@
+LET START() BE
+$(
+   // This test demonstrates the exact case that would have failed before the fix
+   // The parser would crash with "Expected an expression" error on the trailing comma
+
+   LET problematic_list = LIST("hello", "world",)
+
+   WRITES("If you see this message, the trailing comma fix works!*N")
+$)

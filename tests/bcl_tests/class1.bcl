@@ -1,0 +1,59 @@
+// class1.bcl - Test for class member variable access
+// This file demonstrates proper class member variable access with fixed offsets
+// to avoid conflicts with the vtable pointer at offset 0.
+
+CLASS Point $(
+    DECL x, y  // These will be placed at offsets 8 and 16, after the vtable pointer
+
+    // Constructor
+    ROUTINE CREATE(initialX, initialY) BE $(
+        x := initialX
+        y := initialY
+        WRITES("Point created at (")
+        WRITEN(x)
+        WRITES(", ")
+        WRITEN(y)
+        WRITES(")*N")
+    $)
+
+    // Accessor methods
+    FUNCTION getX() = VALOF $(
+        RESULTIS x
+    $)
+
+    FUNCTION getY() = VALOF $(
+        RESULTIS y
+    $)
+
+    // Setter method
+    ROUTINE set(newX, newY) BE $(
+        x := newX
+        y := newY
+        WRITES("Point moved to (")
+        WRITEN(x)
+        WRITES(", ")
+        WRITEN(y)
+        WRITES(")*N")
+    $)
+$)
+
+LET START() BE $(
+    WRITES("Creating point...\n")
+    LET p = NEW Point
+    p.CREATE(50, 75)
+
+    WRITES("Reading values: x=")
+    WRITEN(p.getX())
+    WRITES(", y=")
+    WRITEN(p.getY())
+    WRITES("*N*N")
+
+    WRITES("Setting new values...*N")
+    p.set(100, 200)
+
+    WRITES("Reading new values: x=")
+    WRITEN(p.getX())
+    WRITES(", y=")
+    WRITEN(p.getY())
+    WRITES("*N")
+$)

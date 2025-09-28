@@ -1,0 +1,19 @@
+LET START() BE {
+    LET x = 1
+    WRITEF("Outer x = %d*n", x)
+
+    IF TRUE THEN {
+        LET y = 2
+        LET x = 3
+        WRITEF("Inner x = %d, y = %d*n", x, y)
+
+        IF TRUE THEN {
+            LET z = 4
+            WRITEF("Nested x = %d, y = %d, z = %d*n", x, y, z)
+        }
+
+        WRITEF("Back to inner: x = %d, y = %d*n", x, y)
+    }
+
+    WRITEF("Back to outer: x = %d*n", x)
+}

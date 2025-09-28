@@ -1,0 +1,10 @@
+// Simple hello world program
+
+GET "LIBHDR"
+
+LET start() = VALOF
+{
+    WRITES("Hello, world!")
+    NEWLINE()
+    RESULTIS 0
+}

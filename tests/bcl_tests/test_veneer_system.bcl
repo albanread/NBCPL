@@ -1,0 +1,41 @@
+MANIFEST $(
+    SDL_INIT_VIDEO = #X00000020
+    SDL_QUIT = #X100
+$)
+
+LET START() BE
+$(
+    WRITES("Testing single-buffer veneer system...")
+    NEWLINE()
+
+    // Test 1: Simple SDL function call
+    LET result = SDL2_INIT_SUBSYSTEMS(SDL_INIT_VIDEO)
+    IF result = 0 THEN
+    $(
+        WRITES("SDL2 initialized successfully")
+        NEWLINE()
+        SDL2_QUIT()
+        WRITES("SDL2 quit called")
+        NEWLINE()
+    $)
+    ELSE
+    $(
+        WRITES("SDL2 initialization failed")
+        NEWLINE()
+    $)
+
+    // Test 2: Multiple external function calls
+    LET x = RAND(100)
+    LET y = RAND(200)
+    WRITEF("Generated random numbers: %d, %d*N", x, y)
+
+    // Test 3: String operations
+    LET delay_ms = 50
+    WRITEF("Calling SDL2_DELAY with %d ms*N", delay_ms)
+    SDL2_DELAY(delay_ms)
+    WRITES("Delay completed")
+    NEWLINE()
+
+    WRITES("Veneer system test completed successfully!")
+    NEWLINE()
+$)

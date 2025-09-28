@@ -1,0 +1,68 @@
+// Comprehensive test for global variable initialization and WRITEF float handling fixes
+// This test verifies both issues described in the bug report:
+// 1. Global variables are properly initialized (not left as zero)
+// 2. WRITEF correctly handles mixed integer/float arguments per ARM64 ABI
+
+GLOBALS $(
+    // Test different types of global variables
+    LET global_int = 42
+    LET global_str = "world"
+    FLET global_float = 2.718
+
+    // Test expressions in global initialization
+    LET global_calc = 10 * 5 + 7
+    FLET global_pi = 3.14159
+
+    // Test string literals
+    LET global_greeting = "Hello from globals"
+$)
+
+LET START() BE $(
+    WRITEF("=== Global Variable Initialization Test ===%N")
+
+    // Test basic global variable access
+    WRITEF("global_int should be 42: %d%N", global_int)
+    WRITEF("global_str should be 'world': %s%N", global_str)
+    WRITEF("global_float should be 2.718: %f%N", global_float)
+
+    // Test calculated globals
+    WRITEF("global_calc should be 57: %d%N", global_calc)
+    WRITEF("global_pi should be 3.14159: %f%N", global_pi)
+    WRITEF("global_greeting: %s%N", global_greeting)
+
+    WRITEF("%N=== WRITEF Mixed Argument Type Test ===%N")
+
+    // Test mixed integer and float arguments (ARM64 ABI compliance)
+    LET local_int = 100
+    FLET local_float = 1.5
+
+    WRITEF("Mixed args test 1: int=%d, float=%f, int=%d%N", local_int, local_float, global_int)
+    WRITEF("Mixed args test 2: float=%f, str=%s, float=%f%N", global_float, global_str, local_float)
+    WRITEF("Mixed args test 3: str=%s, int=%d, float=%f, int=%d%N", global_greeting, local_int, global_pi, global_calc)
+
+    // Test edge cases
+    WRITEF("All integers: %d %d %d%N", global_int, local_int, global_calc)
+    WRITEF("All floats: %f %f %f%N", global_float, local_float, global_pi)
+    WRITEF("String only: %s%N", global_str)
+    WRITEF("Float only: %f%N", global_float)
+
+    WRITEF("%N=== Verification Messages ===%N")
+
+    // Verification checks
+    TEST global_int = 42
+    THEN
+        WRITEF("✓ global_int correctly initialized%N")
+    ELSE
+        WRITEF("✗ global_int initialization FAILED (got %d)%N", global_int)
+
+    TEST global_calc = 57
+    THEN
+        WRITEF("✓ global_calc correctly computed%N")
+    ELSE
+        WRITEF("✗ global_calc computation FAILED (got %d)%N", global_calc)
+
+    // Note: String and float comparisons are more complex in BCPL
+    // so we rely on visual inspection of the output
+
+    WRITEF("%NTest completed. Check output for correct values.%N")
+$)

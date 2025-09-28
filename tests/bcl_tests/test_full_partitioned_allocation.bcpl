@@ -1,0 +1,84 @@
+// Comprehensive test for full partitioned register allocation
+// This demonstrates the difference between call-crossing and local-only variables
+
+LET helper_function(param) BE
+{
+    writef("Helper function called with: %d*n", param)
+}
+
+LET another_function(x, y) BE
+{
+    writef("Another function: %d + %d = %d*n", x, y, x + y)
+}
+
+LET START() BE
+{
+    writef("=== Full Partitioned Register Allocation Test ===*n")
+
+    // Test 1: Call-crossing variables (should get callee-saved registers)
+    LET persistent_var1 = 100
+    LET persistent_var2 = 200
+    LET persistent_var3 = 300
+
+    writef("Before first call: %d, %d, %d*n", persistent_var1, persistent_var2, persistent_var3)
+
+    // This call crosses the live intervals of persistent_var1, persistent_var2, persistent_var3
+    helper_function(42)
+
+    writef("After first call: %d, %d, %d*n", persistent_var1, persistent_var2, persistent_var3)
+
+    // Test 2: Local-only variables (should get caller-saved registers if available)
+    {
+        LET temp1 = 10
+        LET temp2 = 20
+        LET temp_result = temp1 + temp2
+        writef("Local computation: %d + %d = %d*n", temp1, temp2, temp_result)
+        // These variables die before any function call
+    }
+
+    // Test 3: Mixed scenario - some variables cross calls, others don't
+    LET mixed_persistent = 500  // Will cross the upcoming call
+
+    {
+        LET local_calc = 25
+        LET local_doubled = local_calc * 2
+        writef("Local calculation: %d * 2 = %d*n", local_calc, local_doubled)
+        // local_calc and local_doubled die here, before the call
+    }
+
+    // This call crosses mixed_persistent but not the local variables above
+    another_function(mixed_persistent, 50)
+
+    writef("Mixed persistent variable survived: %d*n", mixed_persistent)
+
+    // Test 4: Multiple call-crossing variables to test register pressure
+    LET long_lived_a = 1000
+    LET long_lived_b = 2000
+    LET long_lived_c = 3000
+    LET long_lived_d = 4000
+    LET long_lived_e = 5000
+
+    writef("Before multiple calls with many variables*n")
+
+    // First call - all variables cross it
+    helper_function(long_lived_a)
+
+    // Second call - all variables cross this one too
+    another_function(long_lived_b, long_lived_c)
+
+    // Use all variables after calls to ensure they were preserved
+    LET final_sum = long_lived_a + long_lived_b + long_lived_c + long_lived_d + long_lived_e
+    writef("Final sum of preserved variables: %d*n", final_sum)
+
+    // Test 5: Local-only after all the call-crossing allocations
+    {
+        LET final_local1 = 77
+        LET final_local2 = 88
+        LET final_local3 = 99
+        writef("Final local variables: %d, %d, %d*n", final_local1, final_local2, final_local3)
+        // These should get caller-saved registers since no more calls follow
+    }
+
+    writef("=== Test Complete - Check Allocation Results ===*n")
+    FINISH
+}

@@ -1,0 +1,163 @@
+// Advanced test for PAIR functionality in NewBCPL
+// Tests complex pair operations with 32-bit halfs of 64-bit words
+
+// Helper function that returns a pair (32-bit halfs combined into 64-bit word)
+LET create_pair(x, y) = PAIR(x, y)
+
+// Function that swaps the halfs of a pair
+LET swap_pair(p) = PAIR(p.second, p.first)
+
+// Function that adds corresponding halfs of two pairs
+LET add_pairs(p1, p2) = PAIR(p1.first + p2.first, p1.second + p2.second)
+
+// Function that multiplies both halfs of a pair by a scalar
+LET scale_pair(p, factor) = PAIR(p.first * factor, p.second * factor)
+
+// Function that checks if two pairs are equal (comparing 64-bit words)
+LET pairs_equal(p1, p2) = (p1.first = p2.first) AND (p1.second = p2.second)
+
+// Function that finds the sum of both halfs in a pair
+LET pair_sum(p) = p.first + p.second
+
+// Function that finds the maximum half in a pair
+LET pair_max(p) = p.first > p.second -> p.first, p.second
+
+// Function that creates a pair from two vector elements
+LET vec_to_pair(v) = PAIR(v!0, v!1)
+
+LET start() BE {
+    writef("Running advanced PAIR tests (32-bit halfs of 64-bit words)...\n\n")
+
+    // Test 1: Function returning pairs
+    writef("Test 1: Functions returning pairs\n")
+    LET p1 = create_pair(10, 20)
+    writef("Created pair via function: first=%d, second=%d\n", p1.first, p1.second)
+
+    TEST pairs_equal(p1, PAIR(10, 20)) THEN
+        writef("✓ Function returning pair test PASSED\n")
+    ELSE
+        writef("✗ Function returning pair test FAILED\n")
+
+    // Test 2: Pair half swapping
+    writef("\nTest 2: Pair half swapping\n")
+    LET original = PAIR(5, 15)
+    LET swapped = swap_pair(original)
+    writef("Original: first=%d, second=%d\n", original.first, original.second)
+    writef("Swapped:  first=%d, second=%d\n", swapped.first, swapped.second)
+
+    TEST swapped.first = 15 AND swapped.second = 5 THEN
+        writef("✓ Pair half swapping test PASSED\n")
+    ELSE
+        writef("✗ Pair half swapping test FAILED\n")
+
+    // Test 3: Pair arithmetic (operating on 32-bit halfs)
+    writef("\nTest 3: Pair arithmetic operations on halfs\n")
+    LET pa = PAIR(3, 7)
+    LET pb = PAIR(2, 5)
+    LET sum_pair = add_pairs(pa, pb)
+    writef("PAIR(%d,%d) + PAIR(%d,%d) = PAIR(%d,%d)\n",
+           pa.first, pa.second, pb.first, pb.second,
+           sum_pair.first, sum_pair.second)
+
+    TEST sum_pair.first = 5 AND sum_pair.second = 12 THEN
+        writef("✓ Pair half addition test PASSED\n")
+    ELSE
+        writef("✗ Pair half addition test FAILED\n")
+
+    // Test 4: Pair scaling (scaling both halfs)
+    writef("\nTest 4: Pair half scaling\n")
+    LET base_pair = PAIR(4, 6)
+    LET scaled = scale_pair(base_pair, 3)
+    writef("PAIR(%d,%d) * 3 = PAIR(%d,%d)\n",
+           base_pair.first, base_pair.second, scaled.first, scaled.second)
+
+    TEST scaled.first = 12 AND scaled.second = 18 THEN
+        writef("✓ Pair half scaling test PASSED\n")
+    ELSE
+        writef("✗ Pair half scaling test FAILED\n")
+
+    // Test 5: Pair comparison (comparing 64-bit words)
+    writef("\nTest 5: Pair comparison\n")
+    LET p_a = PAIR(1, 2)
+    LET p_b = PAIR(1, 2)
+    LET p_c = PAIR(1, 3)
+
+    TEST pairs_equal(p_a, p_b) AND NOT pairs_equal(p_a, p_c) THEN
+        writef("✓ Pair comparison test PASSED\n")
+    ELSE
+        writef("✗ Pair comparison test FAILED\n")
+
+    // Test 6: Pair aggregation functions (operating on halfs)
+    writef("\nTest 6: Pair half aggregation functions\n")
+    LET test_pair = PAIR(8, 12)
+    LET sum_result = pair_sum(test_pair)
+    LET max_result = pair_max(test_pair)
+
+    writef("Pair halfs (%d, %d): sum = %d, max = %d\n",
+           test_pair.first, test_pair.second, sum_result, max_result)
+
+    TEST sum_result = 20 AND max_result = 12 THEN
+        writef("✓ Pair half aggregation test PASSED\n")
+    ELSE
+        writef("✗ Pair half aggregation test FAILED\n")
+
+    // Test 7: Creating pairs from vectors
+    writef("\nTest 7: Pairs from vectors\n")
+    LET coords = VEC 2
+    coords!0 := 100
+    coords!1 := 200
+
+    LET coord_pair = vec_to_pair(coords)
+    writef("Vector [%d, %d] as pair halfs: first=%d, second=%d\n",
+           coords!0, coords!1, coord_pair.first, coord_pair.second)
+
+    TEST coord_pair.first = 100 AND coord_pair.second = 200 THEN
+        writef("✓ Vector to pair test PASSED\n")
+    ELSE
+        writef("✗ Vector to pair test FAILED\n")
+
+    // Test 8: Nested function calls with pairs
+    writef("\nTest 8: Nested function calls with pairs\n")
+    LET nested_result = swap_pair(add_pairs(PAIR(1, 2), PAIR(3, 4)))
+    writef("Nested result: first=%d, second=%d\n", nested_result.first, nested_result.second)
+
+    // add_pairs(PAIR(1,2), PAIR(3,4)) = PAIR(4, 6)
+    // swap_pair(PAIR(4, 6)) = PAIR(6, 4)
+    TEST nested_result.first = 6 AND nested_result.second = 4 THEN
+        writef("✓ Nested function calls test PASSED\n")
+    ELSE
+        writef("✗ Nested function calls test FAILED\n")
+
+    // Test 9: Edge cases with 32-bit boundaries
+    writef("\nTest 9: Edge cases with 32-bit values\n")
+    LET zero_pair = PAIR(0, 0)
+    LET max_16bit = PAIR(65535, 0)  // 2^16 - 1 in first half
+    LET mixed = PAIR(255, 65535)    // 8-bit and 16-bit values
+
+    writef("Zero pair: first=%d, second=%d\n", zero_pair.first, zero_pair.second)
+    writef("Max 16-bit: first=%d, second=%d\n", max_16bit.first, max_16bit.second)
+    writef("Mixed bits: first=%d, second=%d\n", mixed.first, mixed.second)
+
+    TEST zero_pair.first = 0 AND zero_pair.second = 0 AND
+         max_16bit.first = 65535 AND max_16bit.second = 0 AND
+         mixed.first = 255 AND mixed.second = 65535 THEN
+        writef("✓ 32-bit boundary edge cases test PASSED\n")
+    ELSE
+        writef("✗ 32-bit boundary edge cases test FAILED\n")
+
+    // Test 10: Bit manipulation patterns
+    writef("\nTest 10: Bit manipulation with pairs\n")
+    LET all_ones = PAIR(4294967295, 4294967295)  // 0xFFFFFFFF in both halfs
+    LET alternating = PAIR(1431655765, 2863311530)  // 0x55555555, 0xAAAAAAAA
+
+    writef("All ones: first=%d, second=%d\n", all_ones.first, all_ones.second)
+    writef("Alternating: first=%d, second=%d\n", alternating.first, alternating.second)
+
+    TEST all_ones.first = 4294967295 AND all_ones.second = 4294967295 THEN
+        writef("✓ Bit manipulation test PASSED\n")
+    ELSE
+        writef("✗ Bit manipulation test FAILED\n")
+
+    writef("\nAll advanced PAIR tests completed!\n")
+    writef("PAIR represents 32-bit halfs of a 64-bit word for efficient bit manipulation.\n")
+}

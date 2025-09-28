@@ -1,0 +1,19 @@
+LET START() BE
+$(
+   WRITES("Testing FOREACH string iteration fix*N")
+
+   // Create a simple string list
+   LET STRING_LIST = LIST("A", "B", "C")
+
+   WRITES("About to iterate over string list*N")
+
+   // This should work without crashing after the fix
+   FOREACH S IN STRING_LIST DO
+   $(
+      WRITES("String: ")
+      WRITES(S)
+      WRITES("*N")
+   $)
+
+   WRITES("FOREACH completed successfully*N")
+$)

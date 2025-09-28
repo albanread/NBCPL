@@ -1,0 +1,69 @@
+// Test file for SEND and ACCEPT syntactic sugar
+// This tests the new memory ownership transfer keywords
+
+LET makePoint() = VALOF $(
+    LET p = NEW Point
+    p.CREATE(50, 75)
+    SEND p    // Should work like: RETAIN p; RESULTIS p
+$)
+
+LET makeColorPoint() = VALOF $(
+    LET cp = NEW ColorPoint
+    cp.CREATE(100, 150, 255)
+    SEND cp   // Transfer ownership to caller
+$)
+
+LET START() BE $(
+    WRITEF("Testing SEND and ACCEPT keywords*N")
+
+    // Test 1: Basic SEND/ACCEPT with Point
+    LET p1 = makePoint()
+    ACCEPT p1  // Should work like: REMANAGE p1
+    WRITEF("Point created and accepted: x=%d, y=%d*N", p1.getX(), p1.getY())
+
+    // Test 2: SEND/ACCEPT with ColorPoint
+    LET cp1 = makeColorPoint()
+    ACCEPT cp1
+    WRITEF("ColorPoint created and accepted: x=%d, y=%d, color=%d*N",
+           cp1.getX(), cp1.getY(), cp1.getColor())
+
+    // Test 3: Multiple ACCEPT on same variable (should warn but work)
+    ACCEPT p1  // This should give a warning since p1 is already managed
+
+    WRITEF("SEND/ACCEPT test completed successfully*N")
+$)
+
+// Point class definition
+CLASS Point() $(
+    LET x = 0
+    LET y = 0
+
+    LET CREATE(newX, newY) BE $(
+        x := newX
+        y := newY
+    $)
+
+    LET getX() = x
+    LET getY() = y
+
+    LET set(newX, newY) BE $(
+        x := newX
+        y := newY
+    $)
+$)
+
+// ColorPoint class extending Point
+CLASS ColorPoint() EXTENDS Point $(
+    LET color = 0
+
+    LET CREATE(newX, newY, newColor) BE $(
+        SUPER.CREATE(newX, newY)
+        color := newColor
+    $)
+
+    LET getColor() = color
+
+    LET setColor(newColor) BE $(
+        color := newColor
+    $)
+$)

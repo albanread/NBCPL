@@ -1,0 +1,107 @@
+# Makefile for FILE Unified Runtime API Test
+# Tests FILE_ commands against the actual unified runtime used by the compiler
+
+# Compiler settings
+CXX = clang++
+CXXFLAGS = -std=c++17 -Wall -Wextra -O2 -g -DSDL2_RUNTIME_ENABLED
+
+# Directories
+BUILD_DIR = build/file_unified
+TARGET = $(BUILD_DIR)/test_file_unified
+
+# Source files
+TEST_SRC = test_file_unified_runtime.cpp
+
+# Object files
+TEST_OBJ = $(BUILD_DIR)/test_file_unified_runtime.o
+
+# Include directories (matching main compiler build)
+INCLUDES = -I. -Iruntime -IHeapManager -Iinclude -Ianalysis
+
+# Runtime library (unified runtime with static SDL2 - same as main compiler)
+RUNTIME_LIB = ./libbcpl_runtime_sdl2_static.a
+
+# Extra libraries required for static SDL2 linking (matching main compiler)
+EXTRA_LIBS = -lstdc++ -framework Cocoa -framework CoreVideo -framework IOKit -framework Carbon -framework AudioToolbox -framework ForceFeedback -framework CoreAudio -framework CoreFoundation -framework Foundation -framework GameController -framework CoreHaptics -framework Metal -lpthread
+
+# Create build directory
+$(BUILD_DIR):
+	mkdir -p $(BUILD_DIR)
+
+# Check if runtime library exists
+check-runtime:
+	@if [ ! -f "$(RUNTIME_LIB)" ]; then \
+		echo "Error: Runtime library $(RUNTIME_LIB) not found."; \
+		echo "Please run './build.sh' first to build the unified runtime."; \
+		exit 1; \
+	fi
+
+# Main target
+$(TARGET): $(BUILD_DIR) check-runtime $(TEST_OBJ)
+	@echo "Linking with unified runtime library..."
+	$(CXX) $(CXXFLAGS) -o $@ $(TEST_OBJ) $(RUNTIME_LIB) $(EXTRA_LIBS)
+
+# Test source compilation
+$(BUILD_DIR)/test_file_unified_runtime.o: test_file_unified_runtime.cpp
+	$(CXX) $(CXXFLAGS) $(INCLUDES) -c $< -o $@
+
+# Build and run test
+test: $(TARGET)
+	@echo "Running FILE Unified Runtime API Test..."
+	@echo "Testing against: $(RUNTIME_LIB)"
+	@echo ""
+	@./$(TARGET)
+
+# Build only
+build: $(TARGET)
+
+# Clean build artifacts
+clean:
+	rm -rf $(BUILD_DIR)
+	rm -f test_unified_*.txt test_unified_*.dat
+
+# Clean test files only
+clean-tests:
+	rm -f test_unified_*.txt test_unified_*.dat
+
+# Debug build
+debug: CXXFLAGS += -DDEBUG -O0
+debug: $(TARGET)
+
+# Verbose build
+verbose: CXXFLAGS += -v
+verbose: $(TARGET)
+
+# Quick test (build and run without verbose output)
+quick: $(TARGET)
+	@./$(TARGET) | grep -E "(✓|✗|===|🎉|⚠️|❌|Success rate)"
+
+# Check runtime library info
+info:
+	@echo "Runtime library: $(RUNTIME_LIB)"
+	@if [ -f "$(RUNTIME_LIB)" ]; then \
+		echo "Library size: $$(ls -lh $(RUNTIME_LIB) | awk '{print $$5}')"; \
+		echo "Library date: $$(ls -l $(RUNTIME_LIB) | awk '{print $$6, $$7, $$8}')"; \
+	else \
+		echo "Library not found - run './build.sh' first"; \
+	fi
+
+# Show help
+help:
+	@echo "Available targets:"
+	@echo "  build        - Build the unified runtime test executable"
+	@echo "  test         - Build and run comprehensive FILE API tests"
+	@echo "  quick        - Build and run with summary output only"
+	@echo "  debug        - Build with debug symbols and no optimization"
+	@echo "  clean        - Remove all build artifacts and test files"
+	@echo "  clean-tests  - Remove only test files"
+	@echo "  info         - Show runtime library information"
+	@echo "  check-runtime- Verify runtime library exists"
+	@echo "  help         - Show this help message"
+	@echo ""
+	@echo "Runtime: $(RUNTIME_LIB)"
+
+.PHONY: test build clean clean-tests debug verbose quick info check-runtime help
+
+# Default target
+.DEFAULT_GOAL := test

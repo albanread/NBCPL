@@ -1,0 +1,9 @@
+GET "libhdr.h"
+
+LET START() = VALOF
+$(
+  LET X = 10
+  UNLESS X < 5 THEN
+    WRITES("X is not less than 5*N")
+  RESULTIS 0
+$)

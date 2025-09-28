@@ -1,0 +1,27 @@
+//
+// Test case to reproduce FOR loop state leakage into WHILE loops
+// This test should trigger the bug where FOR loop variable renaming
+// state leaks into subsequent WHILE loop processing, causing variable
+// names to be corrupted in the AST.
+//
+
+LET START() BE
+$(
+    // First, create a FOR loop to populate the active_for_loop_scopes_ stack
+    FOR I = 1 TO 5 DO
+    $(
+        WRITEN(I)
+    $)
+
+    // Now create a WHILE loop that should be unaffected by FOR loop state
+    // but due to the bug, variables in this WHILE loop get corrupted
+    LET x = 10
+    WHILE x > 0 DO
+    $(
+        LET Q = x * 2 + 5    // This Q should NOT be renamed by FOR loop logic
+        LET result = Q        // This Q reference should also NOT be renamed
+        WRITES("Value: ")
+        WRITEN(result)
+        x := x - 1
+    $)
+$)

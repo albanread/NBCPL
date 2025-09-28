@@ -1,0 +1,9 @@
+LET START() BE
+$(
+	LET S="hello there world!*N"
+	WRITES(S)
+
+	LET S1 = STRING 25
+	LET L = LEN(S)
+	WRITEN(L)
+$)

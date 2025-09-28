@@ -1,0 +1,11 @@
+LET START() BE
+$(
+    WRITES("Testing VEC [1,2,3] length...*N")
+
+    LET vec = VEC [10, 20, 30]
+
+    WRITES("Length: ") WRITEN(LEN(vec)) WRITES("*N")
+    WRITES("Element 0: ") WRITEN(vec!0) WRITES("*N")
+    WRITES("Element 1: ") WRITEN(vec!1) WRITES("*N")
+    WRITES("Element 2: ") WRITEN(vec!2) WRITES("*N")
+$)

@@ -1,0 +1,27 @@
+// Simple test to debug mixed-type comparison issue
+
+LET main() BE {
+    LET int_var = 5
+
+    // Test 1: Simple comparison with integer result
+    LET result = int_var > 3
+    WRITEF("Test 1: int_var > 3 = %d*N", result)
+
+    // Test 2: Mixed-type comparison
+    IF int_var > 3.14 THEN {
+        WRITEF("Test 2: int_var > 3.14 is true*N")
+    } ELSE {
+        WRITEF("Test 2: int_var > 3.14 is false*N")
+    }
+
+    // Test 3: Simple function call with integer
+    TestFunc(42)
+
+    // Test 4: Simple function call with result of comparison
+    TestFunc(int_var > 2)
+}
+
+LET TestFunc(x) = VALOF {
+    WRITEF("TestFunc received: %d*N", x)
+    RESULTIS x
+}

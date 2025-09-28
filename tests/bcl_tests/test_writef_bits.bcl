@@ -1,0 +1,31 @@
+// Test WRITEF %f support using integer bit patterns
+// This avoids the compiler register bug by using hardcoded bit patterns
+
+LET START() BE $(
+    LET pi_bits = #x400921FB4D12D84A
+    LET e_bits = #x4005BF0A8B145769
+    LET one_bits = #x3FF0000000000000
+
+    WRITES("=== Testing WRITEF %f with bit patterns ===*N*N")
+
+    // Test basic %f formatting
+    WRITES("Testing basic %f formatting:*N")
+    WRITEF1("Pi bits as %%f: %f*N", pi_bits)
+    WRITEF1("E bits as %%f: %f*N", e_bits)
+    WRITEF1("One bits as %%f: %f*N", one_bits)
+
+    // Test mixed formatting
+    WRITES("*NTesting mixed integer and float:*N")
+    WRITEF2("Integer 42: %d, Pi as float: %f*N", 42, pi_bits)
+
+    // Test multiple floats
+    WRITES("*NTesting multiple floats:*N")
+    WRITEF2("Pi: %f, E: %f*N", pi_bits, e_bits)
+
+    // Test what integer formatting shows (raw bits)
+    WRITES("*NTesting same values as integers (raw bits):*N")
+    WRITEF1("Pi as integer: %d*N", pi_bits)
+    WRITEF1("E as integer: %d*N", e_bits)
+
+    WRITES("*N=== Test Complete ===*N")
+$)

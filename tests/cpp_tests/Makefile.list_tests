@@ -1,0 +1,55 @@
+# Makefile for list_tests (List Operations and Performance Test)
+# Matches structure of Makefile.samm_test for consistent runtime linking
+
+CXX = clang++
+CXXFLAGS = -std=c++17 -Wall -Wextra -O2 -g
+INCLUDES = -I. -I../../HeapManager -I../../runtime -I../../include
+LIBS = ../../libbcpl_runtime_sdl2_static.a -lpthread \
+       -framework CoreFoundation -framework CoreAudio -framework AudioToolbox \
+       -framework CoreGraphics -framework AppKit -framework IOKit \
+       -framework ForceFeedback -framework Carbon -framework CoreHaptics \
+       -framework GameController -framework Metal -framework QuartzCore
+
+# Target executable
+TARGET = list_tests
+
+# Source files
+MAIN_SRC = list_tests.cpp
+
+# Only build the test and link against prebuilt runtime library and starter.o
+
+# Default target
+all: $(TARGET)
+
+# Main executable
+$(TARGET): $(TARGET).o
+	@echo "Linking list_tests executable..."
+	$(CXX) $(CXXFLAGS) -o $@ $^ $(LIBS)
+
+# Main test source
+$(TARGET).o: $(MAIN_SRC)
+	@echo "Compiling list_tests.cpp..."
+	$(CXX) $(CXXFLAGS) $(INCLUDES) -c $< -o $@
+
+# Clean up build artifacts
+clean:
+	@echo "Cleaning list_tests build artifacts..."
+	rm -f $(TARGET) $(TARGET).o
+
+# Force rebuild
+rebuild: clean all
+
+# Run the test
+test: $(TARGET)
+	@echo "Running list_tests..."
+	./$(TARGET)
+
+# Run test with verbose output
+test-verbose: $(TARGET)
+	@echo "Running list_tests (verbose)..."
+	ENABLE_VERBOSE=1 ./$(TARGET)
+
+# Run test without verbose output
+test-quiet: $(TARGET)
+	@echo "Running list_tests (quiet)..."
+	ENABLE_VERBOSE=0 ./$(TARGET)

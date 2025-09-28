@@ -1,0 +1,67 @@
+MANIFEST $(
+    SDL_INIT_VIDEO = #X00000020
+    SDL_INIT_EVERYTHING = #X0000FFFF
+    SDL_QUIT = #X100
+$)
+
+LET START() BE
+$(
+    LET counter = 500
+    LET result = SDL2_INIT_SUBSYSTEMS(SDL_INIT_VIDEO)
+    IF result = 0 THEN
+    $(
+        WRITES("SDL2 initialized")
+        NEWLINE()
+
+        LET window = SDL2_CREATE_WINDOW("BCPL Fern")
+        IF window > 0 THEN
+        $(
+            WRITES("Window created")
+            NEWLINE()
+
+
+            LET renderer = SDL2_CREATE_RENDERER(window)
+            IF renderer > 0 THEN
+            $(
+                SDL2_SET_DRAW_COLOR(renderer, 255, 0, 100, 255)
+                WRITES("Renderer created")
+                NEWLINE()
+
+
+                LET running = TRUE
+                LET xx = 0
+                LET yy = 0
+
+
+
+                WHILE running DO
+                $(
+                    counter := counter - 1
+
+                    FOR i = 1 TO 4000 DO
+                    $(
+                       xx := RAND(800)  yy := RAND(480)
+                       SDL2_DRAW_POINT(renderer, xx, yy)
+                    $)
+
+                    SDL2_PRESENT(renderer)
+                    SDL2_DELAY(10)
+
+                    LET Q = SDL2_POLL_EVENT()
+                    IF Q = SDL_QUIT THEN running := 0
+                    IF counter < 1 THEN $(
+                        running := 0
+                        WRITES("out of fuel*N")
+                    $)
+                $)
+            $)
+        $)
+        SDL2_DESTROY_RENDERER(renderer)
+        SDL2_DESTROY_WINDOW(window)
+        SDL2_QUIT()
+    $)
+
+    WRITES("Program complete")
+    NEWLINE()
+    FINISH
+$)

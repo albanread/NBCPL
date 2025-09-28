@@ -1,0 +1,39 @@
+LET START() BE
+$(
+   WRITES("Testing automatic cleanup of lists and objects*N")
+
+   // Test 1: Multiple lists in the same scope
+   LET L1 = LIST("first", "list")
+   LET L2 = LIST(1, 2, 3, 4)
+   LET L3 = LIST("mixed", "content", "here")
+
+   WRITES("Created three lists*N")
+
+   // Test 2: Lists in nested scopes
+   $(
+      LET INNER_LIST = LIST("inner", "scope", "list")
+      WRITES("Created inner scope list*N")
+
+      // Test 3: Foreach over a list (to test loop context)
+      FOREACH ITEM IN INNER_LIST DO
+      $(
+         WRITES("Item: ")
+         WRITES(ITEM)
+         WRITES("*N")
+      $)
+   $)
+
+   WRITES("Inner scope exited - inner list should be cleaned up*N")
+
+   // Test 4: More lists after inner scope
+   LET L4 = LIST("after", "inner", "scope")
+
+   FOREACH ITEM IN L1 DO
+   $(
+      WRITES("L1 Item: ")
+      WRITES(ITEM)
+      WRITES("*N")
+   $)
+
+   WRITES("All tests completed - all lists should be cleaned up at function exit*N")
+$)

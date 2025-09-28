@@ -1,0 +1,65 @@
+# Makefile for modularized peephole optimizer
+
+CXX = g++
+CXXFLAGS = -std=c++17 -Wall -Wextra -g
+
+# Source directories
+PEEPHOLE_DIR = peephole
+SRC_DIR = .
+
+# Object directories
+OBJ_DIR = build/obj
+BIN_DIR = build/bin
+
+# Create directories if they don't exist
+$(shell mkdir -p $(OBJ_DIR) $(BIN_DIR) $(OBJ_DIR)/$(PEEPHOLE_DIR))
+
+# Original PeepholeOptimizer files (just for reference)
+ORIGINAL_SRC = PeepholeOptimizer.cpp
+
+# New modularized files
+PEEPHOLE_SRC = $(wildcard $(PEEPHOLE_DIR)/popt_*.cpp)
+PEEPHOLE_OBJ = $(patsubst $(PEEPHOLE_DIR)/%.cpp,$(OBJ_DIR)/$(PEEPHOLE_DIR)/%.o,$(PEEPHOLE_SRC))
+
+# Test files
+TEST_SRC = peephole_test.cpp
+TEST_OBJ = $(OBJ_DIR)/peephole_test.o
+
+# Other required files
+SUPPORT_SRC = InstructionStream.cpp LabelManager.cpp
+SUPPORT_OBJ = $(patsubst %.cpp,$(OBJ_DIR)/%.o,$(SUPPORT_SRC))
+
+# Main targets
+.PHONY: all clean test
+
+all: $(BIN_DIR)/peephole_test
+
+# Build the test executable
+$(BIN_DIR)/peephole_test: $(TEST_OBJ) $(PEEPHOLE_OBJ) $(SUPPORT_OBJ)
+	$(CXX) $(CXXFLAGS) -o $@ $^
+
+# Compile peephole pattern files
+$(OBJ_DIR)/$(PEEPHOLE_DIR)/%.o: $(PEEPHOLE_DIR)/%.cpp
+	$(CXX) $(CXXFLAGS) -c $< -o $@
+
+# Compile test file
+$(OBJ_DIR)/peephole_test.o: $(TEST_SRC)
+	$(CXX) $(CXXFLAGS) -c $< -o $@
+
+# Compile support files
+$(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp
+	$(CXX) $(CXXFLAGS) -c $< -o $@
+
+# Run the tests
+test: $(BIN_DIR)/peephole_test
+	./$(BIN_DIR)/peephole_test
+
+# Clean up
+clean:
+	rm -rf $(OBJ_DIR) $(BIN_DIR)
+
+# Print source files (for debugging)
+print-sources:
+	@echo "Peephole sources: $(PEEPHOLE_SRC)"
+	@echo "Support sources: $(SUPPORT_SRC)"
+	@echo "Test source: $(TEST_SRC)"

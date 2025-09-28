@@ -1,0 +1,25 @@
+// Test file to verify WRITEF validation handles edge cases correctly
+// This tests string variable type inference and edge cases
+
+LET START() BE {
+    // Test string variable assignment and usage
+    LET str_var = "Format string: %d*n"
+    LET another_str = "Another format: %f*n"
+
+    // These should be valid (string variables)
+    WRITEF(str_var, 42)
+    WRITEF1(another_str, 3.14)
+
+    // Test with string literals
+    WRITEF("Direct string: %d*n", 100)
+    WRITEF2("Two args: %d %s*n", 200, "hello")
+
+    // Test with different WRITEF variants
+    WRITEF3("Three: %d %f %s*n", 1, 2.5, "three")
+    WRITEF4("Four: %d %f %s %d*n", 10, 20.5, "test", 30)
+    WRITEF5("Five: %d %d %d %d %d*n", 1, 2, 3, 4, 5)
+
+    // Test edge case: string assigned from another string
+    LET copied_str = str_var
+    WRITEF(copied_str, 999)
+}

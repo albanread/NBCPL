@@ -1,0 +1,28 @@
+// Simple test program to demonstrate double-free detection and metrics
+
+LET START() BE
+{
+    WRITEF("Testing double-free detection...*N")
+
+    // Allocate a vector
+    LET vec = GETVEC(10)
+    WRITEF("Allocated vector*N")
+
+    // Fill it with some data
+    FOR i = 0 TO 9 DO
+        vec!i := i * 10
+
+    // Print first few values
+    WRITEF("Vector[0] = %d*N", vec!0)
+    WRITEF("Vector[1] = %d*N", vec!1)
+
+    // Free the vector (normal operation)
+    WRITEF("Freeing vector normally...*N")
+    FREEVEC(vec)
+
+    // Attempt to free it again (this should trigger double-free detection)
+    WRITEF("Attempting double-free...*N")
+    FREEVEC(vec)
+
+    WRITEF("Double-free test completed*N")
+}

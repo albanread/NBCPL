@@ -1,0 +1,28 @@
+LET START() BE
+$(
+    WRITES("Testing FOR loop with explicit step*N")
+
+    WRITES("Loop with BY 1 (default):*N")
+    LET K=100
+    FOR I = 1 TO 10 BY 1 DO
+    $(
+       WRITES("In for loop body: ")
+       WRITEN(I)
+       K := K+1
+    $)
+    WRITES("Final K value: ")
+    WRITEN(K)
+
+    WRITES("*N*NLoop with BY 2:*N")
+    LET J=200
+    FOR I = 1 TO 10 BY 2 DO
+    $(
+       WRITES("In for loop body: ")
+       WRITEN(I)
+       J := J+1
+    $)
+    WRITES("Final J value: ")
+    WRITEN(J)
+
+    FINISH
+$)

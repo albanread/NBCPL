@@ -1,0 +1,13 @@
+GET "runtime.bcl"
+
+LET START() BE $(
+  LET x, y = 1.0, 2.0
+  LET next_y = 0.0
+
+  // Test the exact problematic expression from line 34
+  next_y := - 0.04 * x + 0.85 * y + 1.6
+
+  WRITES("Result: ")
+  FWRITE(next_y)
+  WRITES("*N")
+$)

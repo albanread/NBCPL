@@ -1,0 +1,13 @@
+LET START() = VALOF
+$(
+  // Check if SDL2 is available at runtime
+  LET has_sdl2 = SDL2_TEST_BASIC()
+  IF has_sdl2 = 0 THEN
+  $(
+    WRITES("SDL2 not available*N")
+    RESULTIS 1
+  $)
+  
+  WRITES("SDL2 is available*N")
+  RESULTIS 0
+$)

@@ -1,0 +1,11 @@
+
+LET START() BE
+{
+    LET K =65
+    LET S = "👾 👾 👾 👾 👾 👾 👾 👾"
+    S%3 = K
+    WRITES(S)
+    LET X = 7
+    IF X = 8 THEN BRK
+
+}

@@ -1,0 +1,33 @@
+// Test file to verify FWRITE and WRITEF functionality after the fix
+// This tests both the new FWRITE function and the variadic WRITEF handling
+
+LET START() BE {
+    // Test basic WRITEF with just a format string
+    WRITEF("Hello, world!*N")
+
+    // Test WRITEF with one argument (becomes WRITEF1)
+    WRITEF("Integer value: %I4*N", 42)
+
+    // Test WRITEF with two arguments (becomes WRITEF2)
+    WRITEF("Two values: %I4 and %I4*N", 123, 456)
+
+    // Test WRITEF with three arguments (becomes WRITEF3)
+    WRITEF("Three values: %I4, %I4, %I4*N", 10, 20, 30)
+
+    // Test FWRITE for floating-point output
+    LET PI = 3.14159
+    WRITES("Float value using FWRITE: ")
+    FWRITE(PI)
+    NEWLINE()
+
+    LET ANOTHER_FLOAT = 2.718
+    WRITES("Another float: ")
+    FWRITE(ANOTHER_FLOAT)
+    NEWLINE()
+
+    // Test WRITEF with mixed integer arguments that could include converted floats
+    LET FLOAT_VAL = 1.5
+    WRITEF("Mixed values: %I4 and %I4*N", 100, FLOAT_VAL)
+
+    WRITES("All tests completed successfully!*N")
+}

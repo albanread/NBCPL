@@ -1,0 +1,12 @@
+LET START() BE {
+    // Simple test for dynamic format string - no errors expected
+    WRITES("=== Simple Dynamic Format Test ===*n")
+
+    // Create a dynamic format string (not a compile-time literal)
+    LET format = "Hello %s, you are %d years old*n"
+
+    // Test with correct argument count and types
+    WRITEF(format, "Alice", 25)
+
+    WRITES("Dynamic format test completed successfully.*n")
+}

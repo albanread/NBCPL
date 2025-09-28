@@ -1,0 +1,56 @@
+// Final verification test for bounds checking feature
+// This test verifies that compile-time bounds checking is working correctly
+
+LET START() BE $(
+    // Test 1: Vector with VEC n allocation
+    LET v = VEC 5   // Creates vector of size 5 (indices 0, 1, 2, 3, 4)
+
+    // Valid accesses - should compile and run fine
+    v!0 := 100
+    v!1 := 200
+    v!2 := 300
+    v!3 := 400
+    v!4 := 500
+
+    WRITES("Valid accesses to v completed successfully*N")
+
+    // Print the values to verify they work
+    WRITES("v!0 = ")
+    WRITEN(v!0)
+    WRITES("*N")
+    WRITES("v!1 = ")
+    WRITEN(v!1)
+    WRITES("*N")
+    WRITES("v!4 = ")
+    WRITEN(v!4)
+    WRITES("*N")
+
+    // Test 2: Vector with VEC [elements] initialization
+    LET w = VEC [10, 20, 30]  // Size 3 vector (indices 0, 1, 2)
+
+    WRITES("Vector w initialized with [10, 20, 30]*N")
+    WRITES("w!0 = ")
+    WRITEN(w!0)
+    WRITES("*N")
+    WRITES("w!1 = ")
+    WRITEN(w!1)
+    WRITES("*N")
+    WRITES("w!2 = ")
+    WRITEN(w!2)
+    WRITES("*N")
+
+    WRITES("*N=== ALL BOUNDS CHECKS PASSED ===*N")
+    WRITES("This program compiles and runs because all vector*N")
+    WRITES("accesses are within bounds. The bounds checking*N")
+    WRITES("pass successfully prevents out-of-bounds access*N")
+    WRITES("at compile time.*N")
+
+    // NOTE: The following lines are COMMENTED OUT because they would
+    // trigger compile-time bounds checking errors and prevent compilation:
+    //
+    // v!5 := 600     // ERROR: index 5 >= size 5
+    // v!10 := 700    // ERROR: index 10 >= size 5
+    // v!-2 := 800    // ERROR: invalid negative index (only -1 allowed)
+    // w!3 := 40      // ERROR: index 3 >= size 3
+    // w!-5 := 50     // ERROR: invalid negative index
+$)

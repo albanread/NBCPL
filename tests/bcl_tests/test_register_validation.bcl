@@ -1,0 +1,163 @@
+// Comprehensive Register Allocation Validation Test
+// This test validates that our register allocation improvements work correctly
+// Avoids FOR loops to isolate register management from loop desugaring issues
+
+GLOBALS {
+    FLET global_a = 0.0
+    FLET global_b = 0.0
+    FLET global_c = 0.0
+    LET count = 0
+}
+
+// Test 1: Simple arithmetic with multiple temporaries
+LET test_basic_arithmetic() BE $(
+    FLET temp1 = 1.5
+    FLET temp2 = 2.5
+    FLET temp3 = 3.5
+    FLET result = 0.0
+
+    // Basic operations
+    result := temp1 + temp2
+    global_a := result
+
+    result := temp2 * temp3
+    global_b := result
+
+    result := temp1 - temp3
+    global_c := result
+$)
+
+// Test 2: Complex expressions that should trigger register pressure
+LET test_complex_expressions() BE $(
+    FLET x1 = global_a
+    FLET x2 = global_b
+    FLET x3 = global_c
+    FLET y1 = 0.0
+    FLET y2 = 0.0
+    FLET y3 = 0.0
+
+    // Complex expressions requiring multiple scratch registers
+    y1 := x1 * 0.85 + x2 * 0.04 + x3 * 0.02
+    y2 := x1 * (-0.04) + x2 * 0.85 + x3 * 0.15 + 1.6
+    y3 := x1 * 0.20 + x2 * (-0.26) + x3 * 0.33 + 2.1
+
+    global_a := y1
+    global_b := y2
+    global_c := y3
+$)
+
+// Test 3: Nested conditionals with complex arithmetic (like fern)
+LET test_nested_conditionals() BE $(
+    FLET random = FRND()
+    FLET new_a = 0.0
+    FLET new_b = 0.0
+
+    TEST random < 0.25 THEN $(
+        // Branch 1: Simple assignments
+        new_a := 0.0
+        new_b := 0.16 * global_a
+    $) ELSE TEST random < 0.50 THEN $(
+        // Branch 2: Moderately complex (fern-like)
+        new_a := 0.85 * global_a + 0.04 * global_b
+        new_b := -0.04 * global_a + 0.85 * global_b + 1.6
+    $) ELSE TEST random < 0.75 THEN $(
+        // Branch 3: More complex expressions
+        new_a := 0.2 * global_a - 0.26 * global_b + 0.1 * global_c
+        new_b := 0.23 * global_a + 0.22 * global_b - 0.15 * global_c + 1.6
+    $) ELSE $(
+        // Branch 4: Most complex (maximum register pressure)
+        new_a := -0.15 * global_a + 0.28 * global_b + 0.05 * global_c
+        new_b := 0.26 * global_a + 0.24 * global_b + 0.18 * global_c + 0.44
+    $)
+
+    global_a := new_a
+    global_b := new_b
+    count := count + 1
+$)
+
+// Test 4: Function calls with many arguments and temporaries
+LET test_function_calls() BE $(
+    FLET arg1 = global_a * 2.0
+    FLET arg2 = global_b * 3.0
+    FLET arg3 = global_c * 4.0
+
+    // Function call that requires register coordination
+    LET screen_x = FIX(arg1 * 60.0) + 400
+    LET screen_y = FIX(arg2 * 60.0) + 300
+    LET screen_z = FIX(arg3 * 60.0) + 200
+
+    global_a := FLOAT(screen_x)
+    global_b := FLOAT(screen_y)
+    global_c := FLOAT(screen_z)
+$)
+
+// Test 5: Stress test with maximum register pressure
+LET test_register_stress() BE $(
+    FLET v1 = global_a
+    FLET v2 = global_b
+    FLET v3 = global_c
+    FLET v4 = FRND()
+    FLET v5 = FRND()
+    FLET v6 = FRND()
+    FLET v7 = FRND()
+    FLET v8 = FRND()
+
+    // Mega-expression that should stress all register pools
+    FLET result = v1 * v2 + v3 * v4 - v5 * v6 + v7 * v8 +
+                  v1 * v3 + v2 * v4 - v5 * v7 + v6 * v8
+
+    global_a := result
+    global_b := result * 0.5
+    global_c := result * 0.25
+$)
+
+// Main test driver
+LET START() BE $(
+    WRITES("=== NewBCPL Register Allocation Validation ===")
+    NEWLINE()
+
+    // Initialize globals
+    global_a := 1.0
+    global_b := 2.0
+    global_c := 3.0
+    count := 0
+
+    WRITES("Test 1: Basic arithmetic...")
+    NEWLINE()
+    test_basic_arithmetic()
+    WRITES("✓ Basic arithmetic passed")
+    NEWLINE()
+
+    WRITES("Test 2: Complex expressions...")
+    NEWLINE()
+    test_complex_expressions()
+    WRITES("✓ Complex expressions passed")
+    NEWLINE()
+
+    WRITES("Test 3: Nested conditionals...")
+    NEWLINE()
+    test_nested_conditionals()
+    WRITES("✓ Nested conditionals passed")
+    NEWLINE()
+
+    WRITES("Test 4: Function calls...")
+    NEWLINE()
+    test_function_calls()
+    WRITES("✓ Function calls passed")
+    NEWLINE()
+
+    WRITES("Test 5: Register stress test...")
+    NEWLINE()
+    test_register_stress()
+    WRITES("✓ Register stress test passed")
+    NEWLINE()
+
+    WRITES("=== ALL REGISTER TESTS PASSED! ===")
+    NEWLINE()
+    WRITES("Final count: ")
+    WRITEN(count)
+    NEWLINE()
+    WRITES("Final global_a: ")
+    FWRITE(global_a)
+    NEWLINE()
+$)

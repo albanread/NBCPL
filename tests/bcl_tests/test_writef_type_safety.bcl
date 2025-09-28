@@ -1,0 +1,27 @@
+LET START() BE {
+    WRITES("=== WRITEF Type Safety Test ===*n")
+
+    // These should all work (correct types)
+    WRITES("Testing correct type usage:*n")
+    WRITEF("Integer: %d*n", 42)
+    WRITEF("Float: %f*n", 3.14)
+    WRITEF("String: %s*n", "hello")
+    WRITEF("Character: %c*n", 65)  // 'A'
+    WRITEF("Hex: %x*n", 255)
+
+    // Mixed types that should work
+    WRITEF("Mixed: %s has %d items at %f price*n", "Cart", 5, 19.99)
+    WRITEF("Order: %d %f %s*n", 1, 2.5, "test")
+
+    // Variables with correct types
+    LET x = 100
+    FLET y = 2.718
+    LET z = "world"
+    WRITEF("Variables: %d %f %s*n", x, y, z)
+
+    // Implicit conversions that should work (int to float)
+    WRITEF("Int to float: %f*n", 42)
+
+    WRITES("All type-safe tests passed!*n")
+    WRITES("=== End Type Safety Test ===*n")
+}

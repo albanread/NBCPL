@@ -1,0 +1,32 @@
+LET start() BE
+{
+    // Simple test to verify FOREACH symbol discovery works
+    LET my_list = VEC 3
+    my_list!0 := 10
+    my_list!1 := 20
+    my_list!2 := 30
+
+    WRITES("Testing FOREACH symbol discovery fix:*N")
+
+    // Basic FOREACH - should register 'item' in symbol table during discovery
+    FOREACH item IN my_list DO
+    {
+        WRITES("Found item*N")
+    }
+
+    // FOREACH with type variable - should register both 'T' and 'value'
+    FOREACH T, value IN my_list DO
+    {
+        WRITES("Found typed item*N")
+    }
+
+    // Test that WHILE loops still work after FOREACH (no state leakage)
+    LET counter = 0
+    WHILE counter < 2 DO
+    {
+        WRITES("While loop iteration*N")
+        counter := counter + 1
+    }
+
+    WRITES("Test completed successfully*N")
+}

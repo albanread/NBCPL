@@ -1,0 +1,13 @@
+LET START() BE
+$(
+   WRITES("Testing FOREACH fix*N")
+
+   LET STRING_LIST = LIST("A", "B")
+
+   FOREACH S IN STRING_LIST DO
+   $(
+      WRITES(S)
+   $)
+
+   WRITES(" - Success!*N")
+$)

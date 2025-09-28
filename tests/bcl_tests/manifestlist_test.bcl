@@ -1,0 +1,27 @@
+LET START() BE
+$(
+   // Test trailing comma fix with MANIFESTLIST
+   WRITES("Testing MANIFESTLIST parsing with trailing commas*N")
+
+   // Test 1: MANIFESTLIST without trailing comma (should work as before)
+   LET M1 = MANIFESTLIST("first", "second")
+   WRITES("Test 1: MANIFESTLIST without trailing comma - OK*N")
+
+   // Test 2: MANIFESTLIST with trailing comma (new fix)
+   LET M2 = MANIFESTLIST("first", "second",)
+   WRITES("Test 2: MANIFESTLIST with trailing comma - OK*N")
+
+   // Test 3: Single item MANIFESTLIST with trailing comma
+   LET M3 = MANIFESTLIST("single",)
+   WRITES("Test 3: Single item MANIFESTLIST with trailing comma - OK*N")
+
+   // Test 4: Empty MANIFESTLIST (should work as before)
+   LET M4 = MANIFESTLIST()
+   WRITES("Test 4: Empty MANIFESTLIST - OK*N")
+
+   // Test 5: Multiple items with trailing comma
+   LET M5 = MANIFESTLIST("a", "b", "c", "d",)
+   WRITES("Test 5: Multiple items MANIFESTLIST with trailing comma - OK*N")
+
+   WRITES("All MANIFESTLIST trailing comma tests passed!*N")
+$)

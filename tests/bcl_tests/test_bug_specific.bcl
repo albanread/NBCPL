@@ -1,0 +1,12 @@
+// Focused test for the specific type promotion bug
+// This isolates the exact case that's failing
+
+LET START() BE
+$(
+    // This should trigger the bug: float + (integer * integer)
+    // The multiplication 3 * 4 stays as integer, but then needs promotion for the FADD
+    FLET result = 2.0 + 3 * 4
+
+    // Print just to verify it compiles
+    WRITEF("Bug test complete")
+$)

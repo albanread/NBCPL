@@ -1,0 +1,12 @@
+LET START() BE {
+    WRITEF("Hello world*N")
+    WRITEF("Testing basic functionality*N")
+
+    LET x = 42
+    WRITEF("Integer test: %d*N", x)
+
+    FLET y = 3.14
+    WRITEF("Float test: %f*N", y)
+
+    WRITEF("End of test*N")
+}

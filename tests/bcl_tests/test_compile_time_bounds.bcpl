@@ -1,0 +1,49 @@
+GET "libhdr"
+
+// Test compile-time bounds checking for constant vector indices
+// This should demonstrate semantic errors being caught at compile time
+// before any code is even generated.
+
+LET START() BE
+{
+    writef("Testing compile-time bounds checking...*n")
+
+    // Test 1: Normal vector allocation with valid constant access
+    LET v1 = VEC 5  // Vector with 5 elements (indices 0-4)
+
+    // These should all compile fine (within bounds)
+    v1!0 := 100
+    v1!1 := 200
+    v1!2 := 300
+    v1!3 := 400
+    v1!4 := 500  // Last valid index for size 5
+
+    writef("All valid accesses completed*n")
+
+    // Test 2: Vector initializer with known size
+    LET v2 = VEC [10, 20, 30]  // 3 elements (indices 0-2)
+
+    // This should compile fine
+    LET val = v2!1  // Index 1 is valid for 3-element vector
+
+    // Test 3: COMPILE-TIME ERROR CASES
+    // These should all be caught as semantic errors during compilation:
+
+    // Error 1: Index too large for allocated vector
+    LET bad1 = v1!5   // ERROR: Index 5 >= size 5
+
+    // Error 2: Index way too large
+    LET bad2 = v1!10  // ERROR: Index 10 >= size 5
+
+    // Error 3: Negative index
+    LET bad3 = v1!-1  // ERROR: Negative index
+
+    // Error 4: Out of bounds for initializer vector
+    LET bad4 = v2!3   // ERROR: Index 3 >= size 3 (v2 has only 3 elements)
+
+    // Error 5: Zero index on empty vector
+    LET empty_vec = VEC 0
+    LET bad5 = empty_vec!0  // ERROR: Index 0 >= size 0
+
+    writef("If you see this message, compile-time checking failed!*n")
+}

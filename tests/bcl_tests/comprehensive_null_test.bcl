@@ -1,0 +1,80 @@
+// comprehensive_null_test.bcl - Comprehensive test for the ? null literal
+
+LET START() BE $(
+    WRITES("=== Comprehensive Null Literal Test ===*N*N")
+
+    // Test 1: Basic null assignment
+    WRITES("Test 1: Basic null assignment*N")
+    LET ptr1 = ?
+    WRITES("  ptr1 = ? (assigned)*N")
+
+    // Test 2: Null comparison with equals
+    WRITES("*NTest 2: Null comparison (equals)*N")
+    IF ptr1 = ? THEN $(
+        WRITES("  ptr1 = ? is TRUE ✓*N")
+    $) ELSE $(
+        WRITES("  ptr1 = ? is FALSE ✗*N")
+    $)
+
+    // Test 3: Null comparison with not equals
+    WRITES("*NTest 3: Null comparison (not equals)*N")
+    IF ptr1 ~= ? THEN $(
+        WRITES("  ptr1 ~= ? is TRUE ✗*N")
+    $) ELSE $(
+        WRITES("  ptr1 ~= ? is FALSE ✓*N")
+    $)
+
+    // Test 4: Multiple null variables
+    WRITES("*NTest 4: Multiple null variables*N")
+    LET ptr2 = ?
+    LET ptr3 = ?
+    IF ptr1 = ptr2 AND ptr2 = ptr3 THEN $(
+        WRITES("  All null pointers are equal ✓*N")
+    $) ELSE $(
+        WRITES("  Null pointers not equal ✗*N")
+    $)
+
+    // Test 5: Null in arithmetic context (should be 0)
+    WRITES("*NTest 5: Null as numeric value*N")
+    LET num = ? + 42
+    WRITES("  ? + 42 = ")
+    WRITEN(num)
+    IF num = 42 THEN $(
+        WRITES(" ✓*N")
+    $) ELSE $(
+        WRITES(" ✗*N")
+    $)
+
+    // Test 6: Null reassignment
+    WRITES("*NTest 6: Null reassignment*N")
+    LET ptr4 = 123
+    WRITES("  ptr4 = 123, then ptr4 = ?*N")
+    ptr4 := ?
+    IF ptr4 = ? THEN $(
+        WRITES("  ptr4 is now null ✓*N")
+    $) ELSE $(
+        WRITES("  ptr4 reassignment failed ✗*N")
+    $)
+
+    // Test 7: Null in conditional expressions
+    WRITES("*NTest 7: Null in conditional*N")
+    LET result = ptr1 = ? -> 100, 200
+    WRITES("  (? = ? -> 100, 200) = ")
+    WRITEN(result)
+    IF result = 100 THEN $(
+        WRITES(" ✓*N")
+    $) ELSE $(
+        WRITES(" ✗*N")
+    $)
+
+    // Test 8: Null comparison with non-null
+    WRITES("*NTest 8: Null vs non-null*N")
+    LET ptr5 = 42
+    IF ptr5 ~= ? THEN $(
+        WRITES("  42 ~= ? is TRUE ✓*N")
+    $) ELSE $(
+        WRITES("  42 ~= ? is FALSE ✗*N")
+    $)
+
+    WRITES("*N=== All null literal tests complete ===*N")
+$)

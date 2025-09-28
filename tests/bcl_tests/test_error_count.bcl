@@ -1,0 +1,5 @@
+LET START() BE {
+    // Simple test: argument count mismatch
+    // Format string expects 2 arguments but only 1 provided
+    WRITEF("Two args: %d %s*n", 42)
+}

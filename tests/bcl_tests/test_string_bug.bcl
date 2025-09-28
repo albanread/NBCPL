@@ -1,0 +1,10 @@
+// Simple test to demonstrate the %s printing bug in WRITEF
+// This should print a string but instead prints "%s"
+
+LET START() BE {
+    LET greeting = "Hello, World!"
+
+    WRITEF("Testing string output: %s*N", greeting)
+    WRITEF("Expected: Testing string output: Hello, World!*N")
+    WRITEF("But we get: Testing string output: %s*N")
+}

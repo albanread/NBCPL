@@ -1,0 +1,7 @@
+// Test just %N alias with single argument to isolate the issue
+
+LET START() BE $(
+    WRITES("Testing single %N alias...*N")
+    WRITEF("Number: %N*N", 42)
+    WRITES("Done.*N")
+$)

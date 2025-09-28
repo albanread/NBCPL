@@ -1,0 +1,15 @@
+// test_file_tiny.bcpl
+// Ultra-minimal test for the new file API
+
+LET START() BE {
+    WRITES("Testing FILE_OPEN_WRITE...*N")
+    LET handle = FILE_OPEN_WRITE("tiny_test.txt")
+    WRITES("FILE_OPEN_WRITE completed*N")
+    TEST handle = 0 THEN {
+        WRITES("ERROR: Got null handle*N")
+    } ELSE {
+        WRITES("SUCCESS: Got valid handle*N")
+        LET close_result = FILE_CLOSE(handle)
+        WRITES("File closed*N")
+    }
+}

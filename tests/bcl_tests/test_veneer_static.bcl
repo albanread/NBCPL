@@ -1,0 +1,15 @@
+LET START() BE
+{
+    WRITES("Hello from static compilation!")
+    NEWLINE()
+    WRITES("Testing veneer system...")
+    NEWLINE()
+
+    // Test multiple external calls to verify veneer generation
+    LET n = RAND()
+    WRITEF("Random number: %d", n)
+    NEWLINE()
+
+    WRITES("Veneer test complete!")
+    NEWLINE()
+}

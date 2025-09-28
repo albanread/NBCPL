@@ -1,0 +1,107 @@
+// Test class member variable symbol discovery
+CLASS Animal $(
+    DECL name, age, weight
+
+    ROUTINE init(new_name, new_age, new_weight) BE $(
+        name := new_name
+        age := new_age
+        weight := new_weight
+    $)
+
+    FUNCTION get_name() = VALOF $(
+        RESULTIS name
+    $)
+
+    FUNCTION get_age() = VALOF $(
+        RESULTIS age
+    $)
+
+    ROUTINE set_age(new_age) BE $(
+        age := new_age
+    $)
+
+    ROUTINE describe() BE $(
+        WRITES("Animal details:*N")
+        WRITES("Name: ")
+        WRITES(name)
+        WRITES("*N")
+        WRITES("Age: ")
+        WRITEN(age)
+        WRITES("Weight: ")
+        WRITEN(weight)
+    $)
+$)
+
+CLASS Dog EXTENDS Animal $(
+    DECL breed, is_trained
+
+    ROUTINE init_dog(dog_name, dog_age, dog_weight, dog_breed) BE $(
+        // Initialize parent members
+        name := dog_name
+        age := dog_age
+        weight := dog_weight
+
+        // Initialize own members
+        breed := dog_breed
+        is_trained := FALSE
+    $)
+
+    ROUTINE set_trained(trained) BE $(
+        is_trained := trained
+    $)
+
+    ROUTINE bark() BE $(
+        WRITES("Woof! My name is ")
+        WRITES(name)
+        WRITES(" and I am a ")
+        WRITES(breed)
+        WRITES("*N")
+    $)
+$)
+
+LET start() BE
+$(
+    WRITES("Testing class member variable symbol discovery:*N*N")
+
+    // Test basic class instantiation and member access
+    LET my_animal = NEW Animal
+    my_animal.init("Fluffy", 5, 25)
+
+    WRITES("Created animal:*N")
+    my_animal.describe()
+    WRITES("*N")
+
+    // Test member variable access and modification
+    WRITES("Changing age from ")
+    WRITEN(my_animal.get_age())
+    WRITES(" to 6*N")
+    my_animal.set_age(6)
+    WRITES("New age: ")
+    WRITEN(my_animal.get_age())
+    WRITES("*N*N")
+
+    // Test inheritance and member access
+    LET my_dog = NEW Dog
+    my_dog.init_dog("Buddy", 3, 30, "Golden Retriever")
+
+    WRITES("Created dog:*N")
+    my_dog.describe()
+    my_dog.bark()
+    WRITES("*N")
+
+    // Test inherited member access
+    WRITES("Dog's name (inherited member): ")
+    WRITES(my_dog.get_name())
+    WRITES("*N")
+
+    // Test direct member access on derived class
+    WRITES("Training the dog...*N")
+    my_dog.set_trained(TRUE)
+    WRITES("Dog training complete.*N*N")
+
+    // Clean up
+    FREE my_animal
+    FREE my_dog
+
+    WRITES("Class member variable discovery test completed successfully.*N")
+$)

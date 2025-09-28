@@ -1,0 +1,51 @@
+// Test for multiple GLOBALS blocks
+// This test verifies that the compiler can handle multiple GLOBALS declarations
+
+GLOBALS $(
+    LET first_int = 111
+    LET first_str = "first"
+$)
+
+GLOBALS $(
+    LET second_int = 222
+    FLET second_float = 2.5
+$)
+
+GLOBALS $(
+    LET third_int = 333
+    LET third_str = "third"
+    FLET third_float = 3.75
+$)
+
+LET START() BE $(
+    WRITEF("=== Multiple GLOBALS Test ===*N")
+    NEWLINE()
+
+    WRITEF("First block:*N")
+    WRITEF("  first_int = %d*N", first_int)
+    WRITEF("  first_str = %s*N", first_str)
+    NEWLINE()
+
+    WRITEF("Second block:*N")
+    WRITEF("  second_int = %d*N", second_int)
+    WRITEF("  second_float = %f*N", second_float)
+    NEWLINE()
+
+    WRITEF("Third block:*N")
+    WRITEF("  third_int = %d*N", third_int)
+    WRITEF("  third_str = %s*N", third_str)
+    WRITEF("  third_float = %f*N", third_float)
+    NEWLINE()
+
+    WRITEF("=== Testing assignments ===*N")
+    first_int := 999
+    second_float := 9.99
+    third_str := "modified"
+
+    WRITEF("After modifications:*N")
+    WRITEF("  first_int = %d*N", first_int)
+    WRITEF("  second_float = %f*N", second_float)
+    WRITEF("  third_str = %s*N", third_str)
+
+    WRITEF("=== Test Complete ===*N")
+$)

@@ -1,0 +1,5 @@
+LET START() BE {
+    FOR I = 1 TO 3 DO {
+        WRITEF("Number: %d\n", I)
+    }
+}

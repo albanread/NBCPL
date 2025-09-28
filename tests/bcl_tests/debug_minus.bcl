@@ -1,0 +1,20 @@
+GET "runtime.bcl"
+
+LET START() BE $(
+  LET x = 1.0
+  LET result = 0.0
+
+  // Test 1: Simple unary minus
+  result := -1.0
+  WRITES("Test 1 passed*N")
+
+  // Test 2: Unary minus in multiplication
+  result := -0.04 * x
+  WRITES("Test 2 passed*N")
+
+  // Test 3: The exact problematic expression from fernpoints.bcl line 34
+  result := -0.04 * x + 0.85 * x + 1.6
+  WRITES("Test 3 passed*N")
+
+  WRITES("All unary minus tests completed successfully*N")
+$)

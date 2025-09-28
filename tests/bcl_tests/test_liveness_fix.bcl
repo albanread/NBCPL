@@ -1,0 +1,20 @@
+// Simple test to verify liveness analysis fix for SDL2 functions
+
+LET START() BE $(
+    WRITEF("Testing liveness analysis fix*N")
+
+    // These SDL2 function calls should NOT appear in liveness analysis
+    LET result = SDL2_INIT_SUBSYSTEMS(0)
+    LET window = SDL2_CREATE_WINDOW("Test")
+
+    // These variables SHOULD appear in liveness analysis
+    LET x = 10
+    LET y = 20
+    LET sum = x + y
+
+    WRITEF("Sum: %d*N", sum)
+
+    // More SDL2 calls that should be filtered out
+    SDL2_DESTROY_WINDOW(window)
+    SDL2_QUIT()
+$)

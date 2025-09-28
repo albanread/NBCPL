@@ -1,0 +1,17 @@
+// Minimal debug test to check WRITEF argument passing
+// Test the simplest case first
+
+LET START() BE {
+    // Test 1: Just format string (should work)
+    WRITEF("Test 1: Just format*N")
+
+    // Test 2: One integer argument (using correct %d format)
+    WRITEF("Test 2: Number is %d*N", 42)
+
+    // Test 3: Use WRITEN to verify the integer value is correct
+    WRITES("Test 3: Same number with WRITEN: ")
+    WRITEN(42)
+    NEWLINE()
+
+    WRITES("Debug test completed*N")
+}

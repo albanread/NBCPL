@@ -1,0 +1,14 @@
+// test_hello.bcpl
+// Absolute minimal test
+
+LET START() BE {
+    WRITES("Hello world*N")
+    LET handle = FILE_OPEN_WRITE("test.txt")
+    TEST handle = 0 THEN {
+        WRITES("ERROR: Failed to open file*N")
+    } ELSE {
+        WRITES("File opened successfully*N")
+        LET close_result = FILE_CLOSE(handle)
+        WRITES("File closed*N")
+    }
+}

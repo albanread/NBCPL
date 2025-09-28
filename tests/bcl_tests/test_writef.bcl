@@ -1,0 +1,124 @@
+GET "libhdr.h"
+
+// ====================================================================
+// A comprehensive test program for the new WRITEF functions in BCPL.
+//
+// This program tests the functionality of WRITEF, WRITEF1-WRITEF7,
+// and FWRITE functions to ensure they correctly format and print
+// different data types.
+// ====================================================================
+
+LET START() BE
+$(
+    // --- Test Variables ---
+    LET positive_num = 123
+    LET negative_num = -456
+    LET zero_num = 0
+    LET hex_num = 255
+    LET char_a = 'A'
+    LET char_excl = '!'
+
+    // --- Test Header ---
+    WRITES("*n*n--- Starting New WRITEF Test Suite ---*n*n")
+
+    // --- 1. Testing FWRITE (Float Output) ---
+    WRITES("1. Testing FWRITE (Float Output):*n")
+    WRITES("   Float value: ")
+    FWRITE(3.14159)
+    NEWLINE()
+    WRITES("   Another float: ")
+    FWRITE(-2.71828)
+    NEWLINE()
+    NEWLINE()
+
+    // --- 2. Testing WRITEF (Plain Format String) ---
+    WRITES("2. Testing WRITEF (Plain Format String):*n")
+    WRITEF("   This is a plain format string with no arguments*n")
+    WRITEF("   Line with newline at end*n")
+    NEWLINE()
+
+    // --- 3. Testing WRITEF1 (One Argument) ---
+    WRITES("3. Testing WRITEF1 (One Argument):*n")
+    WRITEF1("   Decimal number: %d*n", positive_num)
+    WRITEF1("   Negative number: %d*n", negative_num)
+    WRITEF1("   Zero: %d*n", zero_num)
+    WRITEF1("   Hexadecimal: %x*n", hex_num)
+    WRITEF1("   Character: %c*n", char_a)
+    NEWLINE()
+
+    // --- 4. Testing WRITEF2 (Two Arguments) ---
+    WRITES("4. Testing WRITEF2 (Two Arguments):*n")
+    WRITEF2("   First: %d, Second: %d*n", positive_num, negative_num)
+    WRITEF2("   Hex: %x, Decimal: %d*n", hex_num, hex_num)
+    WRITEF2("   Chars: %c%c*n", char_a, char_excl)
+    NEWLINE()
+
+    // --- 5. Testing WRITEF3 (Three Arguments) ---
+    WRITES("5. Testing WRITEF3 (Three Arguments):*n")
+    WRITEF3("   Numbers: %d, %d, %d*n", 1, 2, 3)
+    WRITEF3("   Mixed: %d = %x = %o*n", 15, 15, 15)
+    NEWLINE()
+
+    // --- 6. Testing WRITEF4 (Four Arguments) ---
+    WRITES("6. Testing WRITEF4 (Four Arguments):*n")
+    WRITEF4("   Counting: %d %d %d %d*n", 1, 2, 3, 4)
+    WRITEF4("   Values: %d, %d, %d, %d*n", 10, 20, 30, 40)
+    NEWLINE()
+
+    // --- 7. Testing WRITEF5 (Five Arguments) ---
+    WRITES("7. Testing WRITEF5 (Five Arguments):*n")
+    WRITEF5("   Five numbers: %d %d %d %d %d*n", 1, 2, 3, 4, 5)
+    NEWLINE()
+
+    // --- 8. Testing WRITEF6 (Six Arguments) ---
+    WRITES("8. Testing WRITEF6 (Six Arguments):*n")
+    WRITEF6("   Six: %d %d %d %d %d %d*n", 10, 20, 30, 40, 50, 60)
+    NEWLINE()
+
+    // --- 9. Testing WRITEF7 (Seven Arguments) ---
+    WRITES("9. Testing WRITEF7 (Seven Arguments):*n")
+    WRITEF7("   Seven: %d %d %d %d %d %d %d*n", 1, 2, 3, 4, 5, 6, 7)
+    NEWLINE()
+
+    // --- 10. Testing Format Specifiers ---
+    WRITES("10. Testing Different Format Specifiers:*n")
+    WRITEF1("   Decimal (%%d): %d*n", 42)
+    WRITEF1("   Decimal (%%i): %i*n", 42)
+    WRITEF1("   Hex lower (%%x): %x*n", 255)
+    WRITEF1("   Hex upper (%%X): %X*n", 255)
+    WRITEF1("   Octal (%%o): %o*n", 64)
+    WRITEF1("   Character (%%c): %c*n", 'Z')
+    NEWLINE()
+
+    // --- 11. Testing Literal Percent Signs ---
+    WRITES("11. Testing Literal Percent Signs:*n")
+    WRITEF1("   This is 100%% complete with value %d*n", 42)
+    WRITEF("   No arguments but 50%% done*n")
+    NEWLINE()
+
+    // --- 12. Testing Edge Cases ---
+    WRITES("12. Testing Edge Cases:*n")
+    WRITEF1("   Large number: %d*n", 999999)
+    WRITEF1("   Small number: %d*n", -999999)
+    WRITEF1("   Zero: %d*n", 0)
+    WRITEF2("   Two zeros: %d %d*n", 0, 0)
+    NEWLINE()
+
+    // --- 13. Testing Mixed Formats ---
+    WRITES("13. Testing Mixed Formats:*n")
+    WRITEF3("   Dec: %d, Hex: %x, Char: %c*n", 65, 65, 65)
+    WRITEF4("   Values: %d/%d = %x (char: %c)*n", 80, 16, 5, '5')
+    NEWLINE()
+
+    // --- Test Footer ---
+    WRITES("--- New WRITEF Test Suite Complete ---*n*n")
+
+    // --- Quick comparison with old-style output ---
+    WRITES("Comparison with traditional functions:*n")
+    WRITES("Using WRITES + WRITEN: ")
+    WRITES("Number is ")
+    WRITEN(42)
+    NEWLINE()
+    WRITEF1("Using WRITEF1: Number is %d*n", 42)
+    NEWLINE()
+$)

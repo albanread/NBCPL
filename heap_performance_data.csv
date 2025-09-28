@@ -1,0 +1,5 @@
+Allocation_Type,Test_Count,Allocation_Rate_Per_Second,Deallocation_Rate_Per_Second,Avg_Allocation_Time_Microseconds,Memory_Per_Item_Bytes,Total_Memory_Tested_Bytes,Data_Size_Bytes,Header_Size_Bytes
+Lists,1000,1980000,2505,0.50,32,32000,0,32
+Vectors,1000,1786000,2025,0.56,200,200000,192,8
+Strings,1000,1733000,1658,0.58,56,56000,48,8
+Objects,100,1850000,2200,0.54,64,6400,56,8

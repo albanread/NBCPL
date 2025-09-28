@@ -1,0 +1,43 @@
+// Test nested TEST statements to isolate the register pressure issue
+// This should help identify if the problem is with nested conditionals
+
+GLOBALS {
+    FLET global_x = 0.0
+    FLET global_y = 0.0
+}
+
+LET test_nested_conditionals() BE $(
+    FLET random = FRND()
+    FLET result1 = 0.0
+    FLET result2 = 0.0
+
+    TEST random < 0.5 THEN $(
+        // First branch with simple math
+        result1 := global_x + 1.0
+        result2 := global_y + 2.0
+    $) ELSE TEST random < 0.8 THEN $(
+        // Second branch with slightly more complex math
+        result1 := global_x * 2.0 + 1.0
+        result2 := global_y * 2.0 + 1.0
+    $) ELSE $(
+        // Third branch with complex math (like fern)
+        result1 := 0.85 * global_x + 0.04 * global_y
+        result2 := -0.04 * global_x + 0.85 * global_y + 1.6
+    $)
+
+    global_x := result1
+    global_y := result2
+$)
+
+LET START() BE $(
+    WRITES("Testing nested TEST statements")
+    NEWLINE()
+
+    global_x := 1.0
+    global_y := 2.0
+
+    test_nested_conditionals()
+
+    WRITES("Nested TEST completed")
+    NEWLINE()
+$)

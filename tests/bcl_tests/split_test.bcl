@@ -1,0 +1,7 @@
+LET START() BE
+$(
+   LET S1 = "This is the age of the train"
+   LET L = SPLIT(S1, " ")
+   LET S2 = JOIN(L, " * ")
+   WRITES(S2)  
+$)

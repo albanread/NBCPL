@@ -1,0 +1,53 @@
+// class_inheritance.bcl
+// Test class inheritance implementation
+
+CLASS Shape $(
+    DECL color
+
+    ROUTINE CREATE(init_color) BE $(
+        color := init_color
+    $)
+
+    FUNCTION getColor() = VALOF $(
+        RESULTIS color
+    $)
+
+    ROUTINE draw() BE $(
+        WRITES("Drawing a generic shape with color: ")
+        WRITEN(color)
+    $)
+$)
+
+CLASS Circle EXTENDS Shape $(
+    DECL radius
+
+    ROUTINE CREATE(init_color, init_radius) BE $(
+        color := init_color
+        radius := init_radius
+    $)
+
+    FUNCTION getRadius() = VALOF $(
+        RESULTIS radius
+    $)
+
+    ROUTINE draw() BE $(
+        WRITES("Drawing a circle with radius: ")
+        WRITEN(radius)
+        WRITES("  and color: ")
+        WRITEN(color)
+    $)
+$)
+
+LET START() BE $(
+    LET s = NEW Shape
+    LET c = NEW Circle
+
+    s.CREATE(1)
+    c.CREATE(2, 5)
+
+    s.draw()
+    c.draw()
+
+    WRITEN(c.getRadius())
+    WRITEN(c.getColor())
+$)

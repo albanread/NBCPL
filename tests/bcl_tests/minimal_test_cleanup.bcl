@@ -1,0 +1,12 @@
+// Minimal test to identify syntax issue
+
+LET TestSimple() BE $(
+    LET x = 42
+    WRITEF("x is %N*N", x)
+$)
+
+LET START() BE $(
+    WRITEF("Starting minimal test*N")
+    TestSimple()
+    WRITEF("Test completed*N")
+$)

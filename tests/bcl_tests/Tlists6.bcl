@@ -1,0 +1,25 @@
+LET START() BE
+$(
+  // Annotate 'S' as a pointer to a string.
+  LET S AS ^STRING = "This is the age of the train"
+  
+  // The SPLIT function returns a list of strings. We can annotate 'L'
+  // as a pointer to a list containing elements of any type.
+  LET L AS ^LIST OF ANY = SPLIT(S, " ")
+
+  // Annotations are not supported for the T, V form of FOREACH.
+  // The compiler implicitly knows T is an INTEGER and V is an ANY pointer.
+  FOREACH T, V IN L DO
+  $( 
+    SWITCHON T INTO $( 
+      CASE TYPE_STRING: $(
+        WRITES("String: ")
+        // The AS_STRING function safely casts the node pointer 'V'
+        // to a string pointer for printing.
+        WRITES(AS_STRING(V))
+        WRITES("*N")
+        ENDCASE
+      $)
+    $)
+  $)
+$)

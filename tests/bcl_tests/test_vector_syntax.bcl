@@ -1,0 +1,25 @@
+// Minimal test to check vector syntax support in BCPL
+
+LET start() BE {
+    WRITEF("Testing vector syntax...\n")
+
+    // Test 1: Basic vector allocation
+    LET vec1 = VEC 3
+    vec1!0 := 10
+    vec1!1 := 20
+    vec1!2 := 30
+
+    WRITEF("Basic vector: %d, %d, %d\n", vec1!0, vec1!1, vec1!2)
+
+    // Test 2: Check if VEC [1,2,3] syntax works
+    LET vec2 = VEC [1, 2, 3]
+    WRITEF("Vector with initializer syntax works!\n")
+
+    FOREACH val2 IN vec2 DO {
+        WRITEF("Bracket syntax value: %d\n", val2)
+    }
+
+    FOREACH val IN vec1 DO {
+        WRITEF("Value: %d\n", val)
+    }
+}

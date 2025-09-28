@@ -1,0 +1,18 @@
+// Simple WHILE loop test with counter and WRITEF
+
+LET START() BE $(
+    LET counter = 10
+
+    WRITEF("Starting WHILE loop test*N")
+    WRITEF("Initial counter value: %d*N", counter)
+
+    WHILE counter > 0 DO $(
+        LET xx = RAND(400)
+        LET yy = RAND(400)
+        WRITEF("Counter: %d, x = %d y = %d*N", counter, xx, yy)
+        counter := counter - 1
+    $)
+
+    WRITEF("Loop finished. Final counter value: %d*N", counter)
+    WRITEF("Test completed successfully*N")
+$)

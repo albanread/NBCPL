@@ -1,0 +1,11 @@
+// Very simple SAMM test - just basic scope operations
+LET START() BE $(
+    WRITES("Simple SAMM test starting...*N")
+
+    // Just test basic block scope
+    $(
+        WRITES("Inside block scope*N")
+    $)
+
+    WRITES("Test complete*N")
+$)

@@ -1,0 +1,38 @@
+GET "libhdr.h"
+
+LET START() = VALOF
+$(
+  WRITES("Testing RAND function*N")
+  WRITES("====================*N*N")
+
+  // Test RAND function with different ranges
+  WRITES("RAND(10) results: ")
+  FOR i = 1 TO 5 DO
+  $(
+    LET r = RAND(10)
+    WRITEN(r)
+    WRITES(" ")
+  $)
+  WRITES("*N")
+
+  WRITES("RAND(5) results: ")
+  FOR i = 1 TO 5 DO
+  $(
+    LET r = RAND(5)
+    WRITEN(r)
+    WRITES(" ")
+  $)
+  WRITES("*N")
+
+  // Test edge cases
+  WRITES("RAND(0) = ")
+  WRITEN(RAND(0))
+  WRITES("*N")
+
+  WRITES("RAND(1) = ")
+  WRITEN(RAND(1))
+  WRITES("*N")
+
+  WRITES("Random number testing complete!*N")
+  RESULTIS 0
+$)

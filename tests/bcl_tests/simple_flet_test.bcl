@@ -1,0 +1,20 @@
+// Simple test for FLET keyword
+
+LET START() BE
+{
+    WRITES("Starting simple FLET test*N")
+
+    // Test FLET with a simple float literal
+    FLET a = 3.14
+    WRITES("FLET a = ")
+    WRITEF(a)
+    WRITES("*N")
+
+    // Test regular LET with float value for comparison
+    LET b = 2.71
+    WRITES("LET b = ")
+    WRITEF(b)
+    WRITES("*N")
+
+    WRITES("Test completed successfully*N")
+}

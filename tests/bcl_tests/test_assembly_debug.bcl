@@ -1,0 +1,12 @@
+// Minimal test to reproduce the exact assembly issue
+// This is the simplest case that shows the problem
+
+LET START() BE {
+    // This should work - simple float + int literal
+    FLET working = 1.0 + 6
+    WRITEF("Working: 1.0 + 6 = %f*N", working)
+
+    // This fails - float + (int * int) with precedence
+    FLET failing = 1.0 + 2 * 3
+    WRITEF("Failing: 1.0 + 2 * 3 = %f*N", failing)
+}

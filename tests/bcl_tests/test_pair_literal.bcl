@@ -1,0 +1,26 @@
+// Minimal test for PAIR literals in rodata
+// This tests that PAIR(10, 20) is stored as a literal in rodata instead of computed at runtime
+
+LET START() BE $(
+    WRITEF("Testing PAIR literals*N")
+
+    // Test 1: Simple PAIR literal - should be loaded from rodata
+    LET p1 = PAIR(10, 20)
+    LET x = p1.FIRST
+    LET y = p1.SECOND
+    WRITEF("PAIR(10, 20): x=%d, y=%d*N", x, y)
+
+    // Test 2: Another PAIR literal with different values
+    LET p2 = PAIR(100, 200)
+    LET a = p2.FIRST
+    LET b = p2.SECOND
+    WRITEF("PAIR(100, 200): a=%d, b=%d*N", a, b)
+
+    // Test 3: Same literal should reuse rodata entry
+    LET p3 = PAIR(10, 20)  // Should reuse same rodata entry as p1
+    LET c = p3.FIRST
+    LET d = p3.SECOND
+    WRITEF("PAIR(10, 20) again: c=%d, d=%d*N", c, d)
+
+    WRITEF("PAIR literal test completed*N")
+$)

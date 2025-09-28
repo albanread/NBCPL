@@ -1,0 +1,12 @@
+// Test file for factorial recursive function to verify the parameter type fix
+// This test was previously causing crashes due to parameter type corruption
+
+LET FACTORIAL_RECURSIVE(N) =
+    (N <= 1) -> 1,
+    N * FACTORIAL_RECURSIVE(N - 1)
+
+AND START() = VALOF
+$(
+    LET result = FACTORIAL_RECURSIVE(5)
+    RESULTIS result
+$)

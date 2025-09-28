@@ -1,0 +1,23 @@
+GET "libhdr.h"
+
+LET FACT(N) = VALOF
+$(
+  LET R = 1
+  FOR I = 1 TO N DO
+  $(
+    R := R * I
+    WRITES(" R = ") WRITEN(R) WRITES("*N")
+  $)
+  RESULTIS R
+$)
+
+LET START() = VALOF
+$(
+	WRITES("BEGIN*N")
+
+	LET X= 12
+
+  	LET U=FACT(5)
+
+	WRITES("END*N")
+$)

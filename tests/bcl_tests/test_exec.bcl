@@ -1,0 +1,4 @@
+LET START() BE $(
+    WRITES("Hello from BCPL!*N")
+    WRITES("This is a test.*N")
+$)

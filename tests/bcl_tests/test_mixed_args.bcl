@@ -1,0 +1,34 @@
+LET START() BE {
+    LET int_var = 5
+    FLET float_var = 3.14
+
+    // Test 1: Mixed-type comparisons (should return integers)
+    LET comp1 = int_var > 3.14
+    LET comp2 = float_var = 0
+    WRITEF("Comparison 1: %d, Comparison 2: %d*N", comp1, comp2)
+
+    // Test 2: Function calls with mixed arguments
+    WRITEF("Calling IntFunc with int and float args...*N")
+    LET result1 = IntFunc(int_var, float_var)
+    WRITEF("IntFunc result: %d*N", result1)
+
+    // Test 3: Float function with mixed arguments
+    WRITEF("Calling FloatFunc with int and float args...*N")
+    FLET result2 = FloatFunc(int_var, float_var)
+    WRITEF("FloatFunc result: %f*N", result2)
+
+    // Test 4: Mixed expressions as arguments
+    WRITEF("Calling with expressions...*N")
+    FLET result3 = FloatFunc(int_var + 1, float_var * 2.0)
+    WRITEF("FloatFunc with expressions result: %f*N", result3)
+}
+
+LET IntFunc(a, b) = VALOF {
+    WRITEF("IntFunc received: a=%d, b=%d*N", a, b)
+    RESULTIS a + b
+}
+
+FLET FloatFunc(x, y) = VALOF {
+    WRITEF("FloatFunc received: x=%f, y=%f*N", x, y)
+    RESULTIS x + y
+}

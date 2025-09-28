@@ -1,0 +1,46 @@
+// Final comprehensive test for universal expressions
+// Tests the two-phase rule: promote to float if any float in expression,
+// then coerce back based on destination variable type
+
+LET START() BE
+$(
+    // Simple cases (baseline verification)
+    LET simple_int = 1 + 2
+    FLET simple_float = 1.0 + 2.0
+    FLET mixed_simple = 1 + 2.5
+
+    // Complex precedence cases that triggered the bug
+    FLET test1 = 1.0 + 2.5 * 2     // Should be 6.0: (2.5*2=5.0) + 1.0 = 6.0
+    FLET test2 = 1 + 2.5 * 2       // Should be 6.0: 1 promoted to 1.0, then 1.0 + 5.0 = 6.0
+    LET test3 = 1 + 2.5 * 2        // Should be 6: 6.0 coerced to integer 6
+    FLET test4 = 1 + 2.0 + 3 * 4   // Should be 15.0: 1+2.0=3.0, 3*4=12, 3.0+12.0=15.0
+    FLET test5 = (1 + 2.0) * 3     // Should be 9.0: (1+2.0=3.0) * 3 = 9.0
+
+    // Additional edge cases
+    LET coercion_test = 1.7 + 2.9  // Should be 4: 4.6 coerced to integer
+    FLET promotion_test = 5 * 3 + 1.1  // Should be 16.1: 15 + 1.1
+
+    WRITEF("=== Universal Expressions Test Results ===*N")
+    WRITEF("*N")
+
+    WRITEF("Simple cases:*N")
+    WRITEF("  simple_int (1+2) = %d*N", simple_int)
+    WRITEF("  simple_float (1.0+2.0) = %f*N", simple_float)
+    WRITEF("  mixed_simple (1+2.5) = %f*N", mixed_simple)
+    WRITEF("*N")
+
+    WRITEF("Complex precedence cases:*N")
+    WRITEF("  test1 (1.0 + 2.5 * 2) = %f (expected 6.0)*N", test1)
+    WRITEF("  test2 (1 + 2.5 * 2) = %f (expected 6.0)*N", test2)
+    WRITEF("  test3 (1 + 2.5 * 2) = %d (expected 6)*N", test3)
+    WRITEF("  test4 (1 + 2.0 + 3 * 4) = %f (expected 15.0)*N", test4)
+    WRITEF("  test5 ((1 + 2.0) * 3) = %f (expected 9.0)*N", test5)
+    WRITEF("*N")
+
+    WRITEF("Additional coercion tests:*N")
+    WRITEF("  coercion_test (1.7 + 2.9) = %d (expected 4)*N", coercion_test)
+    WRITEF("  promotion_test (5 * 3 + 1.1) = %f (expected 16.1)*N", promotion_test)
+    WRITEF("*N")
+
+    WRITEF("=== All tests completed successfully! ===*N")
+$)

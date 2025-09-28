@@ -1,0 +1,30 @@
+!/bin/bash
+
+# A simple script to delete the old trace file and generate a new one
+# for a given BCL source file.
+
+# Check if a filename was provided as an argument.
+if [ -z "$1" ]; then
+  echo "Usage: $0 <bcl_source_file>"
+  exit 1
+fi
+
+SOURCE_FILE=$1
+TRACE_FILE="trace.txt"
+
+# Inform the user what's happening.
+echo "Preparing to trace $SOURCE_FILE..."
+
+# Delete the existing trace.txt file if it exists.
+if [ -f "$TRACE_FILE" ]; then
+  echo "Deleting old trace file: $TRACE_FILE"
+  rm "$TRACE_FILE"
+fi
+
+# Run the BCPL compiler with trace options and redirect the output.
+echo "Running BCPL with tracing and redirecting output to $TRACE_FILE..."
+./NewBCPL "$SOURCE_FILE" --trace --trace-codegen --run > "$TRACE_FILE"
+
+# Confirm completion.
+echo "Trace complete. Output is in $TRACE_FILE"
+

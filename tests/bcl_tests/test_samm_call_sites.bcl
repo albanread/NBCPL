@@ -1,0 +1,49 @@
+// Test program to verify that SAMM call site registration fix works correctly
+// This program uses block statements which should trigger SAMM scope calls
+// The fix ensures that injected HeapManager_enter_scope and HeapManager_exit_scope
+// calls are properly registered with the ASTAnalyzer's function_call_sites_ map
+
+LET START() BE
+{
+    // This block should inject HeapManager_enter_scope at entry
+    // and HeapManager_exit_scope at exit
+    {
+        LET x = 42
+        LET y = x + 10
+
+        // Nested block - should also get SAMM scope calls
+        {
+            LET z = y * 2
+            WRITEF("Inner block: z = %d*N", z)
+        }
+
+        WRITEF("Outer block: y = %d*N", y)
+    }
+
+    // Another block with control flow
+    {
+        LET i = 0
+        WHILE i < 3 DO
+        {
+            WRITEF("Loop iteration: %d*N", i)
+            i := i + 1
+
+            IF i = 2 THEN
+            {
+                WRITEF("Breaking at iteration 2*N")
+                BREAK  // This should trigger HeapManager_exit_scope
+            }
+        }
+    }
+
+    // Block with early return
+    {
+        LET test_value = 100
+        IF test_value > 50 THEN
+        {
+            WRITEF("Value is large: %d*N", test_value)
+            RETURN  // This should trigger HeapManager_exit_scope
+        }
+        WRITEF("This should not be reached*N")
+    }
+}

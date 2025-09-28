@@ -1,0 +1,78 @@
+// Test for SAMM call tree optimization
+// This tests that entire call trees without heap allocation are optimized
+
+// LEVEL 3: Pure arithmetic leaf function (no heap allocation)
+LET multiply(a, b) = a * b
+
+// LEVEL 2: Calls level 3 function (no direct heap allocation)
+LET square_and_multiply(x, y) = multiply(x * x, y)
+
+// LEVEL 1: Calls level 2 function (no direct heap allocation)
+LET complex_calculation(a, b) = VALOF $(
+    LET temp1 = square_and_multiply(a, 2)
+    LET temp2 = square_and_multiply(b, 3)
+    RESULTIS temp1 + temp2
+$)
+
+// ALLOCATION-FREE CALL TREE: All three functions above should be optimized
+// as none of them (or their callees) perform heap allocation
+
+// HEAP-ALLOCATING LEAF FUNCTION
+LET create_list() = LIST(1, 2, 3)
+
+// NON-OPTIMIZABLE FUNCTION: Calls heap-allocating function
+LET process_with_allocation(x) = VALOF $(
+    LET my_list = create_list()
+    LET result = x + my_list!0
+    RESULTIS result
+$)
+
+// NON-OPTIMIZABLE CALL TREE: Any function that calls process_with_allocation
+LET wrapper_function(x) = process_with_allocation(x * 2)
+
+// MIXED CASE: Function that calls both optimizable and non-optimizable functions
+LET mixed_function(x, y) = VALOF $(
+    LET optimized_result = complex_calculation(x, y)  // This part could be optimized
+    LET heap_result = process_with_allocation(x)      // This makes whole function non-optimizable
+    RESULTIS optimized_result + heap_result
+$)
+
+// DEEP CALL TREE: Multiple levels all allocation-free
+LET level4(n) = n + 1
+LET level3(n) = level4(n * 2)
+LET level2(n) = level3(n + 3)
+LET level1(n) = level2(n * 4)
+
+// Main test program
+LET start() BE $(
+    WRITEF("Testing call tree optimization:*N*N")
+
+    // Test optimizable call tree
+    WRITEF("=== OPTIMIZABLE CALL TREE ===*N")
+    LET result1 = complex_calculation(3, 4)
+    WRITEF("complex_calculation(3, 4) = %d*N", result1)
+
+    LET result2 = level1(5)
+    WRITEF("level1(5) = %d*N", result2)
+
+    // Test non-optimizable functions
+    WRITEF("*N=== NON-OPTIMIZABLE (HEAP ALLOCATION) ===*N")
+    LET result3 = process_with_allocation(10)
+    WRITEF("process_with_allocation(10) = %d*N", result3)
+
+    LET result4 = wrapper_function(7)
+    WRITEF("wrapper_function(7) = %d*N", result4)
+
+    // Test mixed case
+    WRITEF("*N=== MIXED CASE ===*N")
+    LET result5 = mixed_function(2, 3)
+    WRITEF("mixed_function(2, 3) = %d*N", result5)
+
+    WRITEF("*NExpected optimization results:*N")
+    WRITEF("- multiply, square_and_multiply, complex_calculation: OPTIMIZED*N")
+    WRITEF("- level1, level2, level3, level4: OPTIMIZED*N")
+    WRITEF("- create_list, process_with_allocation, wrapper_function: NOT OPTIMIZED*N")
+    WRITEF("- mixed_function: NOT OPTIMIZED (calls heap-allocating function)*N")
+
+    WRITEF("*NTest completed!*N")
+$)

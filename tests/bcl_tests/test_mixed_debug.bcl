@@ -1,0 +1,36 @@
+LET START() BE {
+    // Test isolated cases to debug mixed argument issue
+    WRITES("=== WRITEF Mixed Argument Debug Test ===*n")
+
+    // Test 1: Float alone (should work)
+    WRITEF("Float alone: %f*n", 9.99)
+
+    // Test 2: String alone (should work)
+    WRITEF("String alone: %s*n", "hello")
+
+    // Test 3: Int alone (should work)
+    WRITEF("Int alone: %d*n", 42)
+
+    // Test 4: String then int (should work)
+    WRITEF("String then int: %s %d*n", "hello", 42)
+
+    // Test 5: Int then string (should work)
+    WRITEF("Int then string: %d %s*n", 42, "hello")
+
+    // Test 6: Float then int (should work)
+    WRITEF("Float then int: %f %d*n", 9.99, 42)
+
+    // Test 7: Int then float (should work)
+    WRITEF("Int then float: %d %f*n", 42, 9.99)
+
+    // Test 8: String then float (THIS IS THE PROBLEM CASE)
+    WRITEF("String then float: %s %f*n", "hello", 9.99)
+
+    // Test 9: Float then string (test reverse)
+    WRITEF("Float then string: %f %s*n", 9.99, "hello")
+
+    // Test 10: Three args with string first
+    WRITEF("Three: %s %d %f*n", "hello", 42, 9.99)
+
+    WRITES("=== Debug test completed ===*n")
+}

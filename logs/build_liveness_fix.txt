@@ -1,0 +1,1158 @@
+Performing clean build (default)...
+Cleaning previous build artifacts (excluding runtime libraries)...
+Created build directories: build/obj and build/bin
+Incrementing version number...
+Debug: Files to compile:
+./Optimizer.cpp
+./cf_display_frame.cpp
+./rm_acquire_spillable_fp_temp_reg.cpp
+./rm_release_callee_saved_temp_reg.cpp
+./CreateMethodReorderPass.cpp
+./DataGenerator.cpp
+./rm_acquire_fp_scratch_reg.cpp
+./CodeLister.cpp
+./CFGBuilderPass.cpp
+./Symbol.cpp
+./cf_has_local.cpp
+./StrengthReductionPass.cpp
+./Preprocessor.cpp
+./rm_reset_caller_saved_registers.cpp
+./PeepholeOptimizer.cpp
+./BoundsCheckingPass.cpp
+./AST.cpp
+./AST_Cloner.cpp
+./rm_acquire_fp_reg_for_variable.cpp
+./cf_mark_variable_as_float.cpp
+./version.cpp
+./cf_debug_print.cpp
+./DebugPrinter.cpp
+./rm_mark_dirty.cpp
+./RuntimeSymbols.cpp
+./CallFrameManager.cpp
+./lex_scanner.cpp
+./pz_parse_statements.cpp
+./rm_release_register.cpp
+./ExternalFunctionScanner.cpp
+./cf_is_float_variable.cpp
+./SignalHandler.cpp
+./InstructionDecoder.cpp
+./rm_acquire_spillable_temp_reg.cpp
+./rm_acquire_callee_saved_temp_reg.cpp
+./lex_utils.cpp
+./NewCodeGenerator.cpp
+./JITMemoryManager.cpp
+./cf_get_offset.cpp
+./Lexer.cpp
+./Linker.cpp
+./LoopInvariantCodeMotionPass.cpp
+./cf_add.cpp
+./rm_get_dirty_variable_registers.cpp
+./rm_get_in_use_callee_saved_registers.cpp
+./rm_acquire_reg_for_variable.cpp
+./ClassPass.cpp
+./LabelManager.cpp
+./rm_get_in_use_fp_caller_saved_registers.cpp
+./RegisterManager.cpp
+./cf_generate_epilogue.cpp
+./pz_parse_declarations.cpp
+./rm_get_in_use_fp_callee_saved_registers.cpp
+./rm_is_dirty.cpp
+./InstructionComparator.cpp
+./lex_operator.cpp
+./LivenessAnalysisPass.cpp
+./RuntimeManager.cpp
+./SymbolLogger.cpp
+./SymbolTable.cpp
+./destructors.cpp
+./AssemblerData.cpp
+./InstructionStream.cpp
+./rm_get_in_use_caller_saved_registers.cpp
+./cf_generate_prologue.cpp
+./PeepholePatterns.cpp
+./rm_release_fp_register.cpp
+./lex_tokens.cpp
+./AssemblyWriter.cpp
+./JITExecutor.cpp
+./CodeBuffer.cpp
+./rm_release_scratch_reg.cpp
+./cf_align_to_16.cpp
+./BasicBlock.cpp
+./LocalOptimizationPass.cpp
+./SuperCallTransformationPass.cpp
+./ClassTable.cpp
+./SignalSafeUtils.cpp
+./pz_parse_expressions.cpp
+./BitPatcher.cpp
+./ControlFlowGraph.cpp
+./CommonSubexpressionEliminationPass.cpp
+./dg_add_list_literal.cpp
+./ConstantFoldingPass.cpp
+./Parser.cpp
+./Encoder.cpp
+./rm_release_reg_for_variable.cpp
+./cf_get_x29_spill_slot_offset.cpp
+./VeneerManager.cpp
+encoders/enc_create_branch_with_link.cpp
+encoders/opt_create_ubfx.cpp
+encoders/create_movz_imm.cpp
+encoders/enc_create_mul_vector_reg.cpp
+encoders/enc_create_csetm.cpp
+encoders/create_sub_reg.cpp
+encoders/enc_create_add_literal.cpp
+encoders/enc_create_ldp_imm.cpp
+encoders/enc_create_movz_movk_jit_addr.cpp
+encoders/enc_create_brk.cpp
+encoders/enc_get_cond_encoding.cpp
+encoders/enc_create_ld1_vector_reg.cpp
+encoders/enc_create_fmul_vector_reg.cpp
+encoders/enc_create_return.cpp
+encoders/enc_create_str_fp_imm.cpp
+encoders/enc_create_fcvtzs_reg.cpp
+encoders/create_cmp_reg.cpp
+encoders/create_orr_reg.cpp
+encoders/enc_create_add_imm.cpp
+encoders/enc_create_mvn_reg.cpp
+encoders/create_and_reg.cpp
+encoders/create_add_reg.cpp
+encoders/enc_create_csetm_ne.cpp
+encoders/opt_create_and_imm.cpp
+encoders/enc_create_br_reg.cpp
+encoders/enc_create_branch_unconditional.cpp
+encoders/opt_create_orr_imm.cpp
+encoders/enc_create_csetm_eq.cpp
+encoders/enc_create_cset_eq.cpp
+encoders/create_sub_imm.cpp
+encoders/enc_create_ldp_pre_imm.cpp
+encoders/opt_create_sbfx.cpp
+encoders/enc_create_ldr_fp_imm.cpp
+encoders/enc_create_fsub_reg.cpp
+encoders/enc_create_fdiv_reg.cpp
+encoders/enc_create_fsqrt_reg.cpp
+encoders/enc_create_scvtf_reg.cpp
+encoders/enc_create_ldr_imm.cpp
+encoders/enc_create_add_vector_reg.cpp
+encoders/enc_create_fadd_reg.cpp
+encoders/enc_create_movz_movk_abs64.cpp
+encoders/enc_create_fadd_vector_reg.cpp
+encoders/enc_create_fcmp_reg.cpp
+encoders/enc_create_ldr_scaled_reg_64bit.cpp
+encoders/create_cmp_imm.cpp
+encoders/enc_get_reg_encoding.cpp
+encoders/enc_create_stp_imm.cpp
+encoders/enc_get_condition_code.cpp
+encoders/enc_create_ldrb_imm.cpp
+encoders/enc_create_branch_with_link_register.cpp
+encoders/enc_create_ldp_post_imm.cpp
+encoders/opt_create_fmsub.cpp
+encoders/create_lsl_reg.cpp
+encoders/opt_create_asr_imm.cpp
+encoders/enc_create_nop.cpp
+encoders/enc_create_svc_imm.cpp
+encoders/opt_create_encode_bitmask_immediate.cpp
+encoders/enc_create_fneg_reg.cpp
+encoders/enc_create_branch_conditional.cpp
+encoders/enc_create_mov_fp_sp.cpp
+encoders/opt_create_csinv.cpp
+encoders/opt_create_cbz.cpp
+encoders/opt_create_cbnz.cpp
+encoders/enc_create_mov_sp_fp.cpp
+encoders/opt_create_fmadd.cpp
+encoders/enc_create_fmov_reg.cpp
+encoders/opt_create_add_shifted_reg.cpp
+encoders/create_mul_reg.cpp
+encoders/opt_create_eor_imm.cpp
+encoders/enc_create_str_word_imm.cpp
+encoders/create_sdiv_reg.cpp
+encoders/enc_create_stp_pre_imm.cpp
+encoders/enc_create_fcvtms_reg.cpp
+encoders/enc_create_dmb.cpp
+encoders/Encoder_canEncodeAsImmediate.cpp
+encoders/create_movk_imm.cpp
+encoders/create_lsl_imm.cpp
+encoders/opt_create_asr_reg.cpp
+encoders/enc_create_fmla_vector_reg.cpp
+encoders/enc_create_fmov_d_to_x.cpp
+encoders/enc_create_adrp.cpp
+encoders/enc_create_str_imm.cpp
+encoders/create_mov_reg.cpp
+encoders/enc_create_fmul_reg.cpp
+encoders/create_lsr_reg.cpp
+encoders/enc_create_cset.cpp
+encoders/enc_create_directive.cpp
+encoders/enc_create_ldr_word_imm.cpp
+encoders/opt_create_lsl_imm.cpp
+passes/GlobalInitializerPass.cpp
+passes/ManifestResolutionPass.cpp
+passes/MethodInliningPass.cpp
+passes/ShortCircuitPass.cpp
+linker_helpers/linker_apply_movz_movk_relocation.cpp
+linker_helpers/linker_apply_pc_relative_relocation.cpp
+./cf_display_frame.cpp
+./cf_has_local.cpp
+./cf_mark_variable_as_float.cpp
+./cf_debug_print.cpp
+./cf_is_float_variable.cpp
+./cf_get_offset.cpp
+./cf_add.cpp
+./cf_generate_epilogue.cpp
+./cf_generate_prologue.cpp
+./cf_align_to_16.cpp
+./cf_get_x29_spill_slot_offset.cpp
+./rm_acquire_spillable_fp_temp_reg.cpp
+./rm_release_callee_saved_temp_reg.cpp
+./rm_acquire_fp_scratch_reg.cpp
+./rm_reset_caller_saved_registers.cpp
+./rm_acquire_fp_reg_for_variable.cpp
+./rm_mark_dirty.cpp
+./rm_release_register.cpp
+./rm_acquire_spillable_temp_reg.cpp
+./rm_acquire_callee_saved_temp_reg.cpp
+./rm_get_dirty_variable_registers.cpp
+./rm_get_in_use_callee_saved_registers.cpp
+./rm_acquire_reg_for_variable.cpp
+./rm_get_in_use_fp_caller_saved_registers.cpp
+./rm_get_in_use_fp_callee_saved_registers.cpp
+./rm_is_dirty.cpp
+./rm_get_in_use_caller_saved_registers.cpp
+./rm_release_fp_register.cpp
+./rm_release_scratch_reg.cpp
+./rm_release_reg_for_variable.cpp
+./dg_add_list_literal.cpp
+format/CodeFormatter.cpp
+InstructionDecoder.cpp
+main.cpp
+generators/gen_LabelDeclaration.cpp
+generators/gen_get_variable_register.cpp
+generators/gen_BreakStatement.cpp
+generators/gen_ForStatement.cpp
+generators/gen_MemberAccessExpression.cpp
+generators/gen_ConditionalExpression.cpp
+generators/gen_VecAllocationExpression.cpp
+generators/gen_BlockStatement.cpp
+generators/gen_FunctionDeclaration.cpp
+generators/gen_GotoStatement.cpp
+generators/gen_AssignmentStatement.cpp
+generators/gen_UnaryOp.cpp
+generators/gen_store_variable_register.cpp
+generators/gen_StringLiteral.cpp
+generators/gen_ConditionalBranchStatement.cpp
+generators/gen_FVecAllocationExpression.cpp
+generators/gen_FunctionCall.cpp
+generators/gen_NumberLiteral.cpp
+generators/gen_RoutineCallStatement.cpp
+generators/gen_ResultisStatement.cpp
+generators/gen_GlobalDeclaration.cpp
+generators/gen_CharIndirection.cpp
+generators/gen_BooleanLiteral.cpp
+generators/gen_SwitchonStatement.cpp
+generators/gen_StaticDeclaration.cpp
+generators/gen_UnlessStatement.cpp
+generators/gen_ListExpression.cpp
+generators/gen_VectorAccess.cpp
+generators/gen_CharLiteral.cpp
+generators/gen_ManifestDeclaration.cpp
+generators/gen_VariableAccess.cpp
+generators/gen_VecInitializerExpression.cpp
+generators/gen_FloatValofExpression.cpp
+generators/gen_ValofExpression.cpp
+generators/gen_RoutineDeclaration.cpp
+generators/gen_ReturnStatement.cpp
+generators/gen_RepeatStatement.cpp
+generators/gen_Program.cpp
+generators/gen_UntilStatement.cpp
+generators/gen_StringStatement.cpp
+generators/gen_NullLiteral.cpp
+generators/gen_CompoundStatement.cpp
+generators/gen_LabelTargetStatement.cpp
+generators/gen_BrkStatement.cpp
+generators/gen_StringAllocationExpression.cpp
+generators/gen_LoopStatement.cpp
+generators/gen_CaseStatement.cpp
+generators/gen_DefaultStatement.cpp
+generators/gen_FloatVectorIndirection.cpp
+generators/gen_IfStatement.cpp
+generators/gen_FinishStatement.cpp
+generators/helpers/gen_coerce_to_arg.cpp
+generators/gen_TableExpression.cpp
+generators/gen_WhileStatement.cpp
+generators/gen_FreeStatement.cpp
+generators/gen_Syscall.cpp
+generators/gen_TestStatement.cpp
+generators/gen_LetDeclaration.cpp
+generators/gen_EndcaseStatement.cpp
+generators/helpers/gen_coerce_to_arg.cpp
+generators/helpers/is_float_function_call.cpp
+analysis/SymbolDiscoveryPass.cpp
+analysis/SymbolTableBuilder.cpp
+analysis/Visitors/VariableUsageVisitor.cpp
+analysis/SignatureAnalysisVisitor.cpp
+analysis/StatelessTypeInference.cpp
+analysis/TemporaryVariableFactory.cpp
+analysis/az_impl/az_visit_VectorAccess.cpp
+analysis/az_impl/az_visit_DefaultStatement.cpp
+analysis/az_impl/az_print_report.cpp
+analysis/az_impl/az_visit_RoutineCallStatement.cpp
+analysis/az_impl/az_visit_CaseStatement.cpp
+analysis/az_impl/az_visit_RoutineDeclaration.cpp
+analysis/az_impl/az_visit_TestStatement.cpp
+analysis/az_impl/az_first_pass_discover_functions.cpp
+analysis/az_impl/az_visit_FreeStatement.cpp
+analysis/az_impl/az_visit_Program.cpp
+analysis/az_impl/az_visit_VecAllocationExpression.cpp
+analysis/az_impl/az_visit_FloatVectorIndirection.cpp
+analysis/az_impl/az_visit_FunctionDeclaration.cpp
+analysis/az_impl/az_is_local_function.cpp
+analysis/az_impl/az_visit_AssignmentStatement.cpp
+analysis/az_impl/az_visit_NewExpression.cpp
+analysis/az_impl/az_visit_StringAllocationExpression.cpp
+analysis/az_impl/ASTAnalyzer.cpp
+analysis/az_impl/az_visit_ConditionalExpression.cpp
+analysis/az_impl/az_visit_BinaryOp.cpp
+analysis/az_impl/az_visit_FVecAllocationExpression.cpp
+analysis/az_impl/az_visit_CompoundStatement.cpp
+analysis/az_impl/az_is_leaf_function.cpp
+analysis/az_impl/az_visit_UnlessStatement.cpp
+analysis/az_impl/az_visit_BlockStatement.cpp
+analysis/az_impl/az_visit_StringStatement.cpp
+analysis/az_impl/az_get_for_statement.cpp
+analysis/az_impl/az_visit_SysCall.cpp
+analysis/az_impl/az_get_effective_variable_name.cpp
+analysis/az_impl/az_visit_SwitchonStatement.cpp
+analysis/az_impl/az_visit_RepeatStatement.cpp
+analysis/az_impl/az_visit_ValofExpression.cpp
+analysis/az_impl/az_visit_ForStatement.cpp
+analysis/az_impl/az_reset_state.cpp
+analysis/az_impl/az_process_class_methods.cpp
+analysis/az_impl/az_is_local_routine.cpp
+analysis/az_impl/az_transform_let_declarations.cpp
+analysis/az_impl/az_visit_GlobalDeclaration.cpp
+analysis/az_impl/az_transform.cpp
+analysis/az_impl/az_visit_ResultisStatement.cpp
+analysis/az_impl/az_visit_ManifestDeclaration.cpp
+analysis/az_impl/az_visit_CharIndirection.cpp
+analysis/az_impl/az_visit_LetDeclaration.cpp
+analysis/az_impl/az_trivial_accessor.cpp
+analysis/az_impl/az_function_accesses_globals.cpp
+analysis/az_impl/az_visit_ConditionalBranchStatement.cpp
+analysis/az_impl/az_visit_WhileStatement.cpp
+analysis/az_impl/az_visit_LabelTargetStatement.cpp
+analysis/az_impl/az_visit_IfStatement.cpp
+analysis/az_impl/az_visit_FunctionCall.cpp
+analysis/az_impl/az_visit_MemberAccessExpression.cpp
+analysis/az_impl/az_visit_UnaryOp.cpp
+analysis/az_impl/az_visit_UntilStatement.cpp
+analysis/az_impl/az_analyze.cpp
+analysis/az_impl/az_visit_VariableAccess.cpp
+analysis/az_impl/az_visit_class.cpp
+analysis/RetainAnalysisPass.cpp
+analysis/sym_ClassDiscovery.cpp
+analysis/LinearScanAllocator.cpp
+analysis/LiveIntervalPass.cpp
+lex_operator.cpp
+lex_scanner.cpp
+lex_tokens.cpp
+lex_utils.cpp
+HeapManager/Heap_dumpHeapSignalSafe.cpp
+HeapManager/Heap_resizeVec.cpp
+HeapManager/Heap_allocObject.cpp
+HeapManager/HeapManager.cpp
+HeapManager/Heap_allocString.cpp
+HeapManager/heap_c_wrappers.cpp
+HeapManager/Heap_dumpHeap.cpp
+HeapManager/Heap_resizeString.cpp
+HeapManager/Heap_free.cpp
+HeapManager/Heap_allocList.cpp
+HeapManager/Heap_printMetrics.cpp
+HeapManager/heap_manager_globals.cpp
+HeapManager/Heap_allocVec.cpp
+./live_analyze_block.cpp
+./live_get_out_set.cpp
+./live_compute_use_def_sets.cpp
+./live_get_in_set.cpp
+./live_run_data_flow_analysis.cpp
+./live_print_results.cpp
+./live_run.cpp
+./SignalSafeUtils.cpp
+./SignalHandler.cpp
+optimizer/patterns/AddressFusion.cpp
+optimizer/patterns/ConstantFolding.cpp
+optimizer/patterns/ControlFlow.cpp
+optimizer/patterns/MemoryOptimization.cpp
+optimizer/patterns/StrengthReduction.cpp
+Compiling source files (debug enabled, clang++)...
+Debug: Starting compilation for the following files:
+./Optimizer.cpp
+./cf_display_frame.cpp
+./rm_acquire_spillable_fp_temp_reg.cpp
+./rm_release_callee_saved_temp_reg.cpp
+./CreateMethodReorderPass.cpp
+./DataGenerator.cpp
+./rm_acquire_fp_scratch_reg.cpp
+./CodeLister.cpp
+./CFGBuilderPass.cpp
+./Symbol.cpp
+./cf_has_local.cpp
+./StrengthReductionPass.cpp
+./Preprocessor.cpp
+./rm_reset_caller_saved_registers.cpp
+./PeepholeOptimizer.cpp
+./BoundsCheckingPass.cpp
+./AST.cpp
+./AST_Cloner.cpp
+./rm_acquire_fp_reg_for_variable.cpp
+./cf_mark_variable_as_float.cpp
+./version.cpp
+./cf_debug_print.cpp
+./DebugPrinter.cpp
+./rm_mark_dirty.cpp
+./RuntimeSymbols.cpp
+./CallFrameManager.cpp
+./lex_scanner.cpp
+./pz_parse_statements.cpp
+./rm_release_register.cpp
+./ExternalFunctionScanner.cpp
+./cf_is_float_variable.cpp
+./SignalHandler.cpp
+./InstructionDecoder.cpp
+./rm_acquire_spillable_temp_reg.cpp
+./rm_acquire_callee_saved_temp_reg.cpp
+./lex_utils.cpp
+./NewCodeGenerator.cpp
+./JITMemoryManager.cpp
+./cf_get_offset.cpp
+./Lexer.cpp
+./Linker.cpp
+./LoopInvariantCodeMotionPass.cpp
+./cf_add.cpp
+./rm_get_dirty_variable_registers.cpp
+./rm_get_in_use_callee_saved_registers.cpp
+./rm_acquire_reg_for_variable.cpp
+./ClassPass.cpp
+./LabelManager.cpp
+./rm_get_in_use_fp_caller_saved_registers.cpp
+./RegisterManager.cpp
+./cf_generate_epilogue.cpp
+./pz_parse_declarations.cpp
+./rm_get_in_use_fp_callee_saved_registers.cpp
+./rm_is_dirty.cpp
+./InstructionComparator.cpp
+./lex_operator.cpp
+./LivenessAnalysisPass.cpp
+./RuntimeManager.cpp
+./SymbolLogger.cpp
+./SymbolTable.cpp
+./destructors.cpp
+./AssemblerData.cpp
+./InstructionStream.cpp
+./rm_get_in_use_caller_saved_registers.cpp
+./cf_generate_prologue.cpp
+./PeepholePatterns.cpp
+./rm_release_fp_register.cpp
+./lex_tokens.cpp
+./AssemblyWriter.cpp
+./JITExecutor.cpp
+./CodeBuffer.cpp
+./rm_release_scratch_reg.cpp
+./cf_align_to_16.cpp
+./BasicBlock.cpp
+./LocalOptimizationPass.cpp
+./SuperCallTransformationPass.cpp
+./ClassTable.cpp
+./SignalSafeUtils.cpp
+./pz_parse_expressions.cpp
+./BitPatcher.cpp
+./ControlFlowGraph.cpp
+./CommonSubexpressionEliminationPass.cpp
+./dg_add_list_literal.cpp
+./ConstantFoldingPass.cpp
+./Parser.cpp
+./Encoder.cpp
+./rm_release_reg_for_variable.cpp
+./cf_get_x29_spill_slot_offset.cpp
+./VeneerManager.cpp
+encoders/enc_create_branch_with_link.cpp
+encoders/opt_create_ubfx.cpp
+encoders/create_movz_imm.cpp
+encoders/enc_create_mul_vector_reg.cpp
+encoders/enc_create_csetm.cpp
+encoders/create_sub_reg.cpp
+encoders/enc_create_add_literal.cpp
+encoders/enc_create_ldp_imm.cpp
+encoders/enc_create_movz_movk_jit_addr.cpp
+encoders/enc_create_brk.cpp
+encoders/enc_get_cond_encoding.cpp
+encoders/enc_create_ld1_vector_reg.cpp
+encoders/enc_create_fmul_vector_reg.cpp
+encoders/enc_create_return.cpp
+encoders/enc_create_str_fp_imm.cpp
+encoders/enc_create_fcvtzs_reg.cpp
+encoders/create_cmp_reg.cpp
+encoders/create_orr_reg.cpp
+encoders/enc_create_add_imm.cpp
+encoders/enc_create_mvn_reg.cpp
+encoders/create_and_reg.cpp
+encoders/create_add_reg.cpp
+encoders/enc_create_csetm_ne.cpp
+encoders/opt_create_and_imm.cpp
+encoders/enc_create_br_reg.cpp
+encoders/enc_create_branch_unconditional.cpp
+encoders/opt_create_orr_imm.cpp
+encoders/enc_create_csetm_eq.cpp
+encoders/enc_create_cset_eq.cpp
+encoders/create_sub_imm.cpp
+encoders/enc_create_ldp_pre_imm.cpp
+encoders/opt_create_sbfx.cpp
+encoders/enc_create_ldr_fp_imm.cpp
+encoders/enc_create_fsub_reg.cpp
+encoders/enc_create_fdiv_reg.cpp
+encoders/enc_create_fsqrt_reg.cpp
+encoders/enc_create_scvtf_reg.cpp
+encoders/enc_create_ldr_imm.cpp
+encoders/enc_create_add_vector_reg.cpp
+encoders/enc_create_fadd_reg.cpp
+encoders/enc_create_movz_movk_abs64.cpp
+encoders/enc_create_fadd_vector_reg.cpp
+encoders/enc_create_fcmp_reg.cpp
+encoders/enc_create_ldr_scaled_reg_64bit.cpp
+encoders/create_cmp_imm.cpp
+encoders/enc_get_reg_encoding.cpp
+encoders/enc_create_stp_imm.cpp
+encoders/enc_get_condition_code.cpp
+encoders/enc_create_ldrb_imm.cpp
+encoders/enc_create_branch_with_link_register.cpp
+encoders/enc_create_ldp_post_imm.cpp
+encoders/opt_create_fmsub.cpp
+encoders/create_lsl_reg.cpp
+encoders/opt_create_asr_imm.cpp
+encoders/enc_create_nop.cpp
+encoders/enc_create_svc_imm.cpp
+encoders/opt_create_encode_bitmask_immediate.cpp
+encoders/enc_create_fneg_reg.cpp
+encoders/enc_create_branch_conditional.cpp
+encoders/enc_create_mov_fp_sp.cpp
+encoders/opt_create_csinv.cpp
+encoders/opt_create_cbz.cpp
+encoders/opt_create_cbnz.cpp
+encoders/enc_create_mov_sp_fp.cpp
+encoders/opt_create_fmadd.cpp
+encoders/enc_create_fmov_reg.cpp
+encoders/opt_create_add_shifted_reg.cpp
+encoders/create_mul_reg.cpp
+encoders/opt_create_eor_imm.cpp
+encoders/enc_create_str_word_imm.cpp
+encoders/create_sdiv_reg.cpp
+encoders/enc_create_stp_pre_imm.cpp
+encoders/enc_create_fcvtms_reg.cpp
+encoders/enc_create_dmb.cpp
+encoders/Encoder_canEncodeAsImmediate.cpp
+encoders/create_movk_imm.cpp
+encoders/create_lsl_imm.cpp
+encoders/opt_create_asr_reg.cpp
+encoders/enc_create_fmla_vector_reg.cpp
+encoders/enc_create_fmov_d_to_x.cpp
+encoders/enc_create_adrp.cpp
+encoders/enc_create_str_imm.cpp
+encoders/create_mov_reg.cpp
+encoders/enc_create_fmul_reg.cpp
+encoders/create_lsr_reg.cpp
+encoders/enc_create_cset.cpp
+encoders/enc_create_directive.cpp
+encoders/enc_create_ldr_word_imm.cpp
+encoders/opt_create_lsl_imm.cpp
+passes/GlobalInitializerPass.cpp
+passes/ManifestResolutionPass.cpp
+passes/MethodInliningPass.cpp
+passes/ShortCircuitPass.cpp
+linker_helpers/linker_apply_movz_movk_relocation.cpp
+linker_helpers/linker_apply_pc_relative_relocation.cpp
+./cf_display_frame.cpp
+./cf_has_local.cpp
+./cf_mark_variable_as_float.cpp
+./cf_debug_print.cpp
+./cf_is_float_variable.cpp
+./cf_get_offset.cpp
+./cf_add.cpp
+./cf_generate_epilogue.cpp
+./cf_generate_prologue.cpp
+./cf_align_to_16.cpp
+./cf_get_x29_spill_slot_offset.cpp
+./rm_acquire_spillable_fp_temp_reg.cpp
+./rm_release_callee_saved_temp_reg.cpp
+./rm_acquire_fp_scratch_reg.cpp
+./rm_reset_caller_saved_registers.cpp
+./rm_acquire_fp_reg_for_variable.cpp
+./rm_mark_dirty.cpp
+./rm_release_register.cpp
+./rm_acquire_spillable_temp_reg.cpp
+./rm_acquire_callee_saved_temp_reg.cpp
+./rm_get_dirty_variable_registers.cpp
+./rm_get_in_use_callee_saved_registers.cpp
+./rm_acquire_reg_for_variable.cpp
+./rm_get_in_use_fp_caller_saved_registers.cpp
+./rm_get_in_use_fp_callee_saved_registers.cpp
+./rm_is_dirty.cpp
+./rm_get_in_use_caller_saved_registers.cpp
+./rm_release_fp_register.cpp
+./rm_release_scratch_reg.cpp
+./rm_release_reg_for_variable.cpp
+./dg_add_list_literal.cpp
+format/CodeFormatter.cpp
+InstructionDecoder.cpp
+main.cpp
+generators/gen_LabelDeclaration.cpp
+generators/gen_get_variable_register.cpp
+generators/gen_BreakStatement.cpp
+generators/gen_ForStatement.cpp
+generators/gen_MemberAccessExpression.cpp
+generators/gen_ConditionalExpression.cpp
+generators/gen_VecAllocationExpression.cpp
+generators/gen_BlockStatement.cpp
+generators/gen_FunctionDeclaration.cpp
+generators/gen_GotoStatement.cpp
+generators/gen_AssignmentStatement.cpp
+generators/gen_UnaryOp.cpp
+generators/gen_store_variable_register.cpp
+generators/gen_StringLiteral.cpp
+generators/gen_ConditionalBranchStatement.cpp
+generators/gen_FVecAllocationExpression.cpp
+generators/gen_FunctionCall.cpp
+generators/gen_NumberLiteral.cpp
+generators/gen_RoutineCallStatement.cpp
+generators/gen_ResultisStatement.cpp
+generators/gen_GlobalDeclaration.cpp
+generators/gen_CharIndirection.cpp
+generators/gen_BooleanLiteral.cpp
+generators/gen_SwitchonStatement.cpp
+generators/gen_StaticDeclaration.cpp
+generators/gen_UnlessStatement.cpp
+generators/gen_ListExpression.cpp
+generators/gen_VectorAccess.cpp
+generators/gen_CharLiteral.cpp
+generators/gen_ManifestDeclaration.cpp
+generators/gen_VariableAccess.cpp
+generators/gen_VecInitializerExpression.cpp
+generators/gen_FloatValofExpression.cpp
+generators/gen_ValofExpression.cpp
+generators/gen_RoutineDeclaration.cpp
+generators/gen_ReturnStatement.cpp
+generators/gen_RepeatStatement.cpp
+generators/gen_Program.cpp
+generators/gen_UntilStatement.cpp
+generators/gen_StringStatement.cpp
+generators/gen_NullLiteral.cpp
+generators/gen_CompoundStatement.cpp
+generators/gen_LabelTargetStatement.cpp
+generators/gen_BrkStatement.cpp
+generators/gen_StringAllocationExpression.cpp
+generators/gen_LoopStatement.cpp
+generators/gen_CaseStatement.cpp
+generators/gen_DefaultStatement.cpp
+generators/gen_FloatVectorIndirection.cpp
+generators/gen_IfStatement.cpp
+generators/gen_FinishStatement.cpp
+generators/helpers/gen_coerce_to_arg.cpp
+generators/gen_TableExpression.cpp
+generators/gen_WhileStatement.cpp
+generators/gen_FreeStatement.cpp
+generators/gen_Syscall.cpp
+generators/gen_TestStatement.cpp
+generators/gen_LetDeclaration.cpp
+generators/gen_EndcaseStatement.cpp
+generators/helpers/gen_coerce_to_arg.cpp
+generators/helpers/is_float_function_call.cpp
+analysis/SymbolDiscoveryPass.cpp
+analysis/SymbolTableBuilder.cpp
+analysis/Visitors/VariableUsageVisitor.cpp
+analysis/SignatureAnalysisVisitor.cpp
+analysis/StatelessTypeInference.cpp
+analysis/TemporaryVariableFactory.cpp
+analysis/az_impl/az_visit_VectorAccess.cpp
+analysis/az_impl/az_visit_DefaultStatement.cpp
+analysis/az_impl/az_print_report.cpp
+analysis/az_impl/az_visit_RoutineCallStatement.cpp
+analysis/az_impl/az_visit_CaseStatement.cpp
+analysis/az_impl/az_visit_RoutineDeclaration.cpp
+analysis/az_impl/az_visit_TestStatement.cpp
+analysis/az_impl/az_first_pass_discover_functions.cpp
+analysis/az_impl/az_visit_FreeStatement.cpp
+analysis/az_impl/az_visit_Program.cpp
+analysis/az_impl/az_visit_VecAllocationExpression.cpp
+analysis/az_impl/az_visit_FloatVectorIndirection.cpp
+analysis/az_impl/az_visit_FunctionDeclaration.cpp
+analysis/az_impl/az_is_local_function.cpp
+analysis/az_impl/az_visit_AssignmentStatement.cpp
+analysis/az_impl/az_visit_NewExpression.cpp
+analysis/az_impl/az_visit_StringAllocationExpression.cpp
+analysis/az_impl/ASTAnalyzer.cpp
+analysis/az_impl/az_visit_ConditionalExpression.cpp
+analysis/az_impl/az_visit_BinaryOp.cpp
+analysis/az_impl/az_visit_FVecAllocationExpression.cpp
+analysis/az_impl/az_visit_CompoundStatement.cpp
+analysis/az_impl/az_is_leaf_function.cpp
+analysis/az_impl/az_visit_UnlessStatement.cpp
+analysis/az_impl/az_visit_BlockStatement.cpp
+analysis/az_impl/az_visit_StringStatement.cpp
+analysis/az_impl/az_get_for_statement.cpp
+analysis/az_impl/az_visit_SysCall.cpp
+analysis/az_impl/az_get_effective_variable_name.cpp
+analysis/az_impl/az_visit_SwitchonStatement.cpp
+analysis/az_impl/az_visit_RepeatStatement.cpp
+analysis/az_impl/az_visit_ValofExpression.cpp
+analysis/az_impl/az_visit_ForStatement.cpp
+analysis/az_impl/az_reset_state.cpp
+analysis/az_impl/az_process_class_methods.cpp
+analysis/az_impl/az_is_local_routine.cpp
+analysis/az_impl/az_transform_let_declarations.cpp
+analysis/az_impl/az_visit_GlobalDeclaration.cpp
+analysis/az_impl/az_transform.cpp
+analysis/az_impl/az_visit_ResultisStatement.cpp
+analysis/az_impl/az_visit_ManifestDeclaration.cpp
+analysis/az_impl/az_visit_CharIndirection.cpp
+analysis/az_impl/az_visit_LetDeclaration.cpp
+analysis/az_impl/az_trivial_accessor.cpp
+analysis/az_impl/az_function_accesses_globals.cpp
+analysis/az_impl/az_visit_ConditionalBranchStatement.cpp
+analysis/az_impl/az_visit_WhileStatement.cpp
+analysis/az_impl/az_visit_LabelTargetStatement.cpp
+analysis/az_impl/az_visit_IfStatement.cpp
+analysis/az_impl/az_visit_FunctionCall.cpp
+analysis/az_impl/az_visit_MemberAccessExpression.cpp
+analysis/az_impl/az_visit_UnaryOp.cpp
+analysis/az_impl/az_visit_UntilStatement.cpp
+analysis/az_impl/az_analyze.cpp
+analysis/az_impl/az_visit_VariableAccess.cpp
+analysis/az_impl/az_visit_class.cpp
+analysis/RetainAnalysisPass.cpp
+analysis/sym_ClassDiscovery.cpp
+analysis/LinearScanAllocator.cpp
+analysis/LiveIntervalPass.cpp
+lex_operator.cpp
+lex_scanner.cpp
+lex_tokens.cpp
+lex_utils.cpp
+HeapManager/Heap_dumpHeapSignalSafe.cpp
+HeapManager/Heap_resizeVec.cpp
+HeapManager/Heap_allocObject.cpp
+HeapManager/HeapManager.cpp
+HeapManager/Heap_allocString.cpp
+HeapManager/heap_c_wrappers.cpp
+HeapManager/Heap_dumpHeap.cpp
+HeapManager/Heap_resizeString.cpp
+HeapManager/Heap_free.cpp
+HeapManager/Heap_allocList.cpp
+HeapManager/Heap_printMetrics.cpp
+HeapManager/heap_manager_globals.cpp
+HeapManager/Heap_allocVec.cpp
+./live_analyze_block.cpp
+./live_get_out_set.cpp
+./live_compute_use_def_sets.cpp
+./live_get_in_set.cpp
+./live_run_data_flow_analysis.cpp
+./live_print_results.cpp
+./live_run.cpp
+./SignalSafeUtils.cpp
+./SignalHandler.cpp
+optimizer/patterns/AddressFusion.cpp
+optimizer/patterns/ConstantFolding.cpp
+optimizer/patterns/ControlFlow.cpp
+optimizer/patterns/MemoryOptimization.cpp
+optimizer/patterns/StrengthReduction.cpp
+📝 Using unified runtime library with static SDL2
+Linking object files with unified runtime library with static SDL2 (self-contained) (debug enabled, clang++)...
+Codesigning the binary with JIT entitlement...
+Build complete. Executable is at build/bin/NewBCPL
+Executable copied to ./NewBCPL/NewBCPL
+🔎 Searching for .cpp files in '.'...
+Processing: analysis/az_impl/ASTAnalyzer.cpp
+Processing: analysis/az_impl/az_analyze.cpp
+Processing: analysis/az_impl/az_first_pass_discover_functions.cpp
+Processing: analysis/az_impl/az_function_accesses_globals.cpp
+Processing: analysis/az_impl/az_get_effective_variable_name.cpp
+Processing: analysis/az_impl/az_get_for_statement.cpp
+Processing: analysis/az_impl/az_is_leaf_function.cpp
+Processing: analysis/az_impl/az_is_local_function.cpp
+Processing: analysis/az_impl/az_is_local_routine.cpp
+Processing: analysis/az_impl/az_print_report.cpp
+Processing: analysis/az_impl/az_process_class_methods.cpp
+Processing: analysis/az_impl/az_reset_state.cpp
+Processing: analysis/az_impl/az_transform_let_declarations.cpp
+Processing: analysis/az_impl/az_transform.cpp
+Processing: analysis/az_impl/az_trivial_accessor.cpp
+Processing: analysis/az_impl/az_visit_AssignmentStatement.cpp
+Processing: analysis/az_impl/az_visit_BinaryOp.cpp
+Processing: analysis/az_impl/az_visit_BlockStatement.cpp
+Processing: analysis/az_impl/az_visit_CaseStatement.cpp
+Processing: analysis/az_impl/az_visit_CharIndirection.cpp
+Processing: analysis/az_impl/az_visit_class.cpp
+Processing: analysis/az_impl/az_visit_CompoundStatement.cpp
+Processing: analysis/az_impl/az_visit_ConditionalBranchStatement.cpp
+Processing: analysis/az_impl/az_visit_ConditionalExpression.cpp
+Processing: analysis/az_impl/az_visit_DefaultStatement.cpp
+Processing: analysis/az_impl/az_visit_FloatVectorIndirection.cpp
+Processing: analysis/az_impl/az_visit_ForStatement.cpp
+Processing: analysis/az_impl/az_visit_FreeStatement.cpp
+Processing: analysis/az_impl/az_visit_FunctionCall.cpp
+Processing: analysis/az_impl/az_visit_FunctionDeclaration.cpp
+Processing: analysis/az_impl/az_visit_FVecAllocationExpression.cpp
+Processing: analysis/az_impl/az_visit_GlobalDeclaration.cpp
+Processing: analysis/az_impl/az_visit_IfStatement.cpp
+Processing: analysis/az_impl/az_visit_LabelTargetStatement.cpp
+Processing: analysis/az_impl/az_visit_LetDeclaration.cpp
+Processing: analysis/az_impl/az_visit_ManifestDeclaration.cpp
+Processing: analysis/az_impl/az_visit_MemberAccessExpression.cpp
+Processing: analysis/az_impl/az_visit_NewExpression.cpp
+Processing: analysis/az_impl/az_visit_Program.cpp
+Processing: analysis/az_impl/az_visit_RepeatStatement.cpp
+Processing: analysis/az_impl/az_visit_ResultisStatement.cpp
+Processing: analysis/az_impl/az_visit_RoutineCallStatement.cpp
+Processing: analysis/az_impl/az_visit_RoutineDeclaration.cpp
+Processing: analysis/az_impl/az_visit_StringAllocationExpression.cpp
+Processing: analysis/az_impl/az_visit_StringStatement.cpp
+Processing: analysis/az_impl/az_visit_SwitchonStatement.cpp
+Processing: analysis/az_impl/az_visit_SysCall.cpp
+Processing: analysis/az_impl/az_visit_TestStatement.cpp
+Processing: analysis/az_impl/az_visit_UnaryOp.cpp
+Processing: analysis/az_impl/az_visit_UnlessStatement.cpp
+Processing: analysis/az_impl/az_visit_UntilStatement.cpp
+Processing: analysis/az_impl/az_visit_ValofExpression.cpp
+Processing: analysis/az_impl/az_visit_VariableAccess.cpp
+Processing: analysis/az_impl/az_visit_VecAllocationExpression.cpp
+Processing: analysis/az_impl/az_visit_VectorAccess.cpp
+Processing: analysis/az_impl/az_visit_WhileStatement.cpp
+Processing: analysis/LinearScanAllocator.cpp
+Processing: analysis/LiveIntervalPass.cpp
+Processing: analysis/RetainAnalysisPass.cpp
+Processing: analysis/SignatureAnalysisVisitor.cpp
+Processing: analysis/StatelessTypeInference.cpp
+Processing: analysis/sym_ClassDiscovery.cpp
+Processing: analysis/SymbolDiscoveryPass.cpp
+Processing: analysis/SymbolTableBuilder.cpp
+Processing: analysis/TemporaryVariableFactory.cpp
+Processing: analysis/Visitors/VariableUsageVisitor.cpp
+Processing: AssemblerData.cpp
+Processing: AssemblyWriter.cpp
+Processing: AST_Cloner.cpp
+Processing: AST.cpp
+Processing: BasicBlock.cpp
+Processing: BitPatcher.cpp
+Processing: BoundsCheckingPass.cpp
+Processing: CallFrameManager.cpp
+Processing: cf_add.cpp
+Processing: cf_align_to_16.cpp
+Processing: cf_debug_print.cpp
+Processing: cf_display_frame.cpp
+Processing: cf_generate_epilogue.cpp
+Processing: cf_generate_prologue.cpp
+Processing: cf_get_offset.cpp
+Processing: cf_get_x29_spill_slot_offset.cpp
+Processing: cf_has_local.cpp
+Processing: cf_is_float_variable.cpp
+Processing: cf_mark_variable_as_float.cpp
+Processing: CFGBuilderPass.cpp
+Processing: ClassPass.cpp
+Processing: ClassTable.cpp
+Processing: CodeBuffer.cpp
+Processing: CodeLister.cpp
+Processing: CommonSubexpressionEliminationPass.cpp
+Processing: ConstantFoldingPass.cpp
+Processing: ControlFlowGraph.cpp
+Processing: CreateMethodReorderPass.cpp
+Processing: DataGenerator.cpp
+Processing: debug_samm_simple.cpp
+Processing: DebugPrinter.cpp
+Processing: destructors.cpp
+Processing: dg_add_list_literal.cpp
+Processing: Encoder.cpp
+Processing: encoders/create_add_reg.cpp
+Processing: encoders/create_and_reg.cpp
+Processing: encoders/create_cmp_imm.cpp
+Processing: encoders/create_cmp_reg.cpp
+Processing: encoders/create_lsl_imm.cpp
+Processing: encoders/create_lsl_reg.cpp
+Processing: encoders/create_lsr_reg.cpp
+Processing: encoders/create_mov_reg.cpp
+Processing: encoders/create_movk_imm.cpp
+Processing: encoders/create_movz_imm.cpp
+Processing: encoders/create_mul_reg.cpp
+Processing: encoders/create_orr_reg.cpp
+Processing: encoders/create_sdiv_reg.cpp
+Processing: encoders/create_sub_imm.cpp
+Processing: encoders/create_sub_reg.cpp
+Processing: encoders/enc_create_add_imm.cpp
+Processing: encoders/enc_create_add_literal.cpp
+Processing: encoders/enc_create_add_vector_reg.cpp
+Processing: encoders/enc_create_adrp.cpp
+Processing: encoders/enc_create_br_reg.cpp
+Processing: encoders/enc_create_branch_conditional.cpp
+Processing: encoders/enc_create_branch_unconditional.cpp
+Processing: encoders/enc_create_branch_with_link_register.cpp
+Processing: encoders/enc_create_branch_with_link.cpp
+Processing: encoders/enc_create_brk.cpp
+Processing: encoders/enc_create_cset_eq.cpp
+Processing: encoders/enc_create_cset.cpp
+Processing: encoders/enc_create_csetm_eq.cpp
+Processing: encoders/enc_create_csetm_ne.cpp
+Processing: encoders/enc_create_csetm.cpp
+Processing: encoders/enc_create_directive.cpp
+Processing: encoders/enc_create_dmb.cpp
+Processing: encoders/enc_create_fadd_reg.cpp
+Processing: encoders/enc_create_fadd_vector_reg.cpp
+Processing: encoders/enc_create_fcmp_reg.cpp
+Processing: encoders/enc_create_fcvtms_reg.cpp
+Processing: encoders/enc_create_fcvtzs_reg.cpp
+Processing: encoders/enc_create_fdiv_reg.cpp
+Processing: encoders/enc_create_fmla_vector_reg.cpp
+Processing: encoders/enc_create_fmov_d_to_x.cpp
+Processing: encoders/enc_create_fmov_reg.cpp
+Processing: encoders/enc_create_fmul_reg.cpp
+Processing: encoders/enc_create_fmul_vector_reg.cpp
+Processing: encoders/enc_create_fneg_reg.cpp
+Processing: encoders/enc_create_fsqrt_reg.cpp
+Processing: encoders/enc_create_fsub_reg.cpp
+Processing: encoders/enc_create_ld1_vector_reg.cpp
+Processing: encoders/enc_create_ldp_imm.cpp
+Processing: encoders/enc_create_ldp_post_imm.cpp
+Processing: encoders/enc_create_ldp_pre_imm.cpp
+Processing: encoders/enc_create_ldr_fp_imm.cpp
+Processing: encoders/enc_create_ldr_imm.cpp
+Processing: encoders/enc_create_ldr_scaled_reg_64bit.cpp
+Processing: encoders/enc_create_ldr_word_imm.cpp
+Processing: encoders/enc_create_ldrb_imm.cpp
+Processing: encoders/enc_create_mov_fp_sp.cpp
+Processing: encoders/enc_create_mov_sp_fp.cpp
+Processing: encoders/enc_create_movz_movk_abs64.cpp
+Processing: encoders/enc_create_movz_movk_jit_addr.cpp
+Processing: encoders/enc_create_mul_vector_reg.cpp
+Processing: encoders/enc_create_mvn_reg.cpp
+Processing: encoders/enc_create_nop.cpp
+Processing: encoders/enc_create_return.cpp
+Processing: encoders/enc_create_scvtf_reg.cpp
+Processing: encoders/enc_create_stp_imm.cpp
+Processing: encoders/enc_create_stp_pre_imm.cpp
+Processing: encoders/enc_create_str_fp_imm.cpp
+Processing: encoders/enc_create_str_imm.cpp
+Processing: encoders/enc_create_str_word_imm.cpp
+Processing: encoders/enc_create_svc_imm.cpp
+Processing: encoders/enc_get_cond_encoding.cpp
+Processing: encoders/enc_get_condition_code.cpp
+Processing: encoders/enc_get_reg_encoding.cpp
+Processing: encoders/Encoder_canEncodeAsImmediate.cpp
+Processing: encoders/opt_create_add_shifted_reg.cpp
+Processing: encoders/opt_create_and_imm.cpp
+Processing: encoders/opt_create_asr_imm.cpp
+Processing: encoders/opt_create_asr_reg.cpp
+Processing: encoders/opt_create_cbnz.cpp
+Processing: encoders/opt_create_cbz.cpp
+Processing: encoders/opt_create_csinv.cpp
+Processing: encoders/opt_create_encode_bitmask_immediate.cpp
+Processing: encoders/opt_create_eor_imm.cpp
+Processing: encoders/opt_create_fmadd.cpp
+Processing: encoders/opt_create_fmsub.cpp
+Processing: encoders/opt_create_lsl_imm.cpp
+Processing: encoders/opt_create_orr_imm.cpp
+Processing: encoders/opt_create_sbfx.cpp
+Processing: encoders/opt_create_ubfx.cpp
+Processing: excluded_tests/quick_samm_test.cpp
+Processing: excluded_tests/simple_samm_test.cpp
+Processing: excluded_tests/test_address_optimization.cpp
+Processing: excluded_tests/test_IfStatement.cpp
+Processing: excluded_tests/test_peephole_optimizer.cpp
+Processing: excluded_tests/test_redundant_load_elimination.cpp
+Processing: excluded_tests/test_samm.cpp
+Processing: ExternalFunctionScanner.cpp
+Processing: format/CodeFormatter.cpp
+Processing: generators/gen_AssignmentStatement.cpp
+Processing: generators/gen_BlockStatement.cpp
+Processing: generators/gen_BooleanLiteral.cpp
+Processing: generators/gen_BreakStatement.cpp
+Processing: generators/gen_BrkStatement.cpp
+Processing: generators/gen_CaseStatement.cpp
+Processing: generators/gen_CharIndirection.cpp
+Processing: generators/gen_CharLiteral.cpp
+Processing: generators/gen_CompoundStatement.cpp
+Processing: generators/gen_ConditionalBranchStatement.cpp
+Processing: generators/gen_ConditionalExpression.cpp
+Processing: generators/gen_DefaultStatement.cpp
+Processing: generators/gen_EndcaseStatement.cpp
+Processing: generators/gen_FinishStatement.cpp
+Processing: generators/gen_FloatValofExpression.cpp
+Processing: generators/gen_FloatVectorIndirection.cpp
+Processing: generators/gen_ForStatement.cpp
+Processing: generators/gen_FreeStatement.cpp
+Processing: generators/gen_FunctionCall.cpp
+Processing: generators/gen_FunctionDeclaration.cpp
+Processing: generators/gen_FVecAllocationExpression.cpp
+Processing: generators/gen_get_variable_register.cpp
+Processing: generators/gen_GlobalDeclaration.cpp
+Processing: generators/gen_GotoStatement.cpp
+Processing: generators/gen_IfStatement.cpp
+Processing: generators/gen_LabelDeclaration.cpp
+Processing: generators/gen_LabelTargetStatement.cpp
+Processing: generators/gen_LetDeclaration.cpp
+Processing: generators/gen_ListExpression.cpp
+Processing: generators/gen_LoopStatement.cpp
+Processing: generators/gen_ManifestDeclaration.cpp
+Processing: generators/gen_MemberAccessExpression.cpp
+Processing: generators/gen_NullLiteral.cpp
+Processing: generators/gen_NumberLiteral.cpp
+Processing: generators/gen_Program.cpp
+Processing: generators/gen_RepeatStatement.cpp
+Processing: generators/gen_ResultisStatement.cpp
+Processing: generators/gen_ReturnStatement.cpp
+Processing: generators/gen_RoutineCallStatement.cpp
+Processing: generators/gen_RoutineDeclaration.cpp
+Processing: generators/gen_StaticDeclaration.cpp
+Processing: generators/gen_store_variable_register.cpp
+Processing: generators/gen_StringAllocationExpression.cpp
+Processing: generators/gen_StringLiteral.cpp
+Processing: generators/gen_StringStatement.cpp
+Processing: generators/gen_SwitchonStatement.cpp
+Processing: generators/gen_Syscall.cpp
+Processing: generators/gen_TableExpression.cpp
+Processing: generators/gen_TestStatement.cpp
+Processing: generators/gen_UnaryOp.cpp
+Processing: generators/gen_UnlessStatement.cpp
+Processing: generators/gen_UntilStatement.cpp
+Processing: generators/gen_ValofExpression.cpp
+Processing: generators/gen_VariableAccess.cpp
+Processing: generators/gen_VecAllocationExpression.cpp
+Processing: generators/gen_VecInitializerExpression.cpp
+Processing: generators/gen_VectorAccess.cpp
+Processing: generators/gen_WhileStatement.cpp
+Processing: generators/helpers/gen_coerce_to_arg.cpp
+Processing: generators/helpers/is_float_function_call.cpp
+Processing: HeapManager/Heap_allocList.cpp
+Processing: HeapManager/Heap_allocObject.cpp
+Processing: HeapManager/Heap_allocString.cpp
+Processing: HeapManager/Heap_allocVec.cpp
+Processing: HeapManager/heap_c_wrappers.cpp
+Processing: HeapManager/Heap_dumpHeap.cpp
+Processing: HeapManager/Heap_dumpHeapSignalSafe.cpp
+Processing: HeapManager/Heap_free.cpp
+Processing: HeapManager/heap_manager_globals.cpp
+Processing: HeapManager/Heap_printMetrics.cpp
+Processing: HeapManager/Heap_resizeString.cpp
+Processing: HeapManager/Heap_resizeVec.cpp
+Processing: HeapManager/HeapManager.cpp
+Processing: InstructionComparator.cpp
+Processing: InstructionDecoder.cpp
+Processing: InstructionStream.cpp
+Processing: JITExecutor.cpp
+Processing: JITMemoryManager.cpp
+Processing: LabelManager.cpp
+Processing: lex_operator.cpp
+Processing: lex_scanner.cpp
+Processing: lex_tokens.cpp
+Processing: lex_utils.cpp
+Processing: Lexer.cpp
+Processing: linker_helpers/linker_apply_movz_movk_relocation.cpp
+Processing: linker_helpers/linker_apply_pc_relative_relocation.cpp
+Processing: Linker.cpp
+Processing: live_analyze_block.cpp
+Processing: live_compute_use_def_sets.cpp
+Processing: live_get_in_set.cpp
+Processing: live_get_out_set.cpp
+Processing: live_print_results.cpp
+Processing: live_run_data_flow_analysis.cpp
+Processing: live_run.cpp
+Processing: LivenessAnalysisPass.cpp
+Processing: LocalOptimizationPass.cpp
+Processing: LoopInvariantCodeMotionPass.cpp
+Processing: main.cpp
+Processing: NewCodeGenerator.cpp
+Processing: Optimizer.cpp
+Processing: optimizer/patterns/AddressFusion.cpp
+Processing: optimizer/patterns/ConstantFolding.cpp
+Processing: optimizer/patterns/ControlFlow.cpp
+Processing: optimizer/patterns/MemoryOptimization.cpp
+Processing: optimizer/patterns/StrengthReduction.cpp
+Processing: Parser.cpp
+Processing: passes/GlobalInitializerPass.cpp
+Processing: passes/ManifestResolutionPass.cpp
+Processing: passes/MethodInliningPass.cpp
+Processing: passes/ShortCircuitPass.cpp
+Processing: peephole_test.cpp
+Processing: PeepholeOptimizer.cpp
+Processing: PeepholePatterns.cpp
+Processing: Preprocessor.cpp
+Processing: pz_parse_declarations.cpp
+Processing: pz_parse_expressions.cpp
+Processing: pz_parse_statements.cpp
+Processing: RegisterManager.cpp
+Processing: rm_acquire_callee_saved_temp_reg.cpp
+Processing: rm_acquire_fp_reg_for_variable.cpp
+Processing: rm_acquire_fp_scratch_reg.cpp
+Processing: rm_acquire_reg_for_variable.cpp
+Processing: rm_acquire_spillable_fp_temp_reg.cpp
+Processing: rm_acquire_spillable_temp_reg.cpp
+Processing: rm_get_dirty_variable_registers.cpp
+Processing: rm_get_in_use_callee_saved_registers.cpp
+Processing: rm_get_in_use_caller_saved_registers.cpp
+Processing: rm_get_in_use_fp_callee_saved_registers.cpp
+Processing: rm_get_in_use_fp_caller_saved_registers.cpp
+Processing: rm_is_dirty.cpp
+Processing: rm_mark_dirty.cpp
+Processing: rm_release_callee_saved_temp_reg.cpp
+Processing: rm_release_fp_register.cpp
+Processing: rm_release_reg_for_variable.cpp
+Processing: rm_release_register.cpp
+Processing: rm_release_scratch_reg.cpp
+Processing: rm_reset_caller_saved_registers.cpp
+Processing: runtime/build/CMakeFiles/4.0.3/CompilerIdCXX/apple-sdk.cpp
+Processing: runtime/build/CMakeFiles/4.0.3/CompilerIdCXX/CMakeCXXCompilerId.cpp
+Processing: runtime/heap_interface.cpp
+Processing: runtime/jit_heap_bridge.cpp
+Processing: runtime/jit_runtime.cpp
+Processing: runtime/runtime_bridge.cpp
+Processing: runtime/runtime_c_globals.cpp
+Processing: runtime/runtime_string_ops.cpp
+Processing: runtime/RuntimeBridge.cpp
+Processing: runtime/runtimetester.cpp
+Processing: runtime/SDL2_mixer/sdl2_mixer_registration.cpp
+Processing: runtime/SDL2_mixer/sdl2_mixer_runtime.cpp
+Processing: runtime/SDL2/sdl2_registration.cpp
+Processing: runtime/SDL2/sdl2_runtime.cpp
+Processing: RuntimeManager.cpp
+Processing: RuntimeSymbols.cpp
+Processing: SignalHandler.cpp
+Processing: SignalSafeUtils.cpp
+Processing: StrengthReductionPass.cpp
+Processing: SuperCallTransformationPass.cpp
+Processing: Symbol.cpp
+Processing: SymbolLogger.cpp
+Processing: SymbolTable.cpp
+Processing: test_file_runtime_standalone.cpp
+Processing: test_file_runtime.cpp
+Processing: test_file_simple.cpp
+Processing: test_file_unified_runtime.cpp
+Processing: test_heap_manager.cpp
+Processing: test_samm_compatibility.cpp
+Processing: test_samm_robustness.cpp
+Processing: test/test_identity_elimination.cpp
+Processing: test/test_load_store_forwarding.cpp
+Processing: test/test_mov_alu_fusion.cpp
+Processing: testing/debug_bloom.cpp
+Processing: testing/test_bloom_filter.cpp
+Processing: testing/test_bloom_simple.cpp
+Processing: tests/cpp_tests/test_address_optimization.cpp
+Processing: tests/cpp_tests/test_compile.cpp
+Processing: tests/cpp_tests/test_heap_manager.cpp
+Processing: tests/cpp_tests/test_IfStatement.cpp
+Processing: tests/cpp_tests/test_peephole_optimizer.cpp
+Processing: tests/cpp_tests/test_redundant_load_elimination.cpp
+Processing: tests/cpp_tests/test_sdl2_minimal.cpp
+Processing: tests/file_tests/test_file_performance.cpp
+Processing: tests/file_tests/test_file_runtime.cpp
+Processing: tests/file_tests/test_slurp_spit.cpp
+Processing: tests/samm_tests/debug_samm_simple.cpp
+Processing: tests/samm_tests/test_samm_compatibility.cpp
+Processing: tests/samm_tests/test_samm_robustness.cpp
+Processing: tests/sdl_tests/test_sdl2_fern.cpp
+Processing: VeneerManager.cpp
+Processing: version.cpp
+
+✅ Success! All .cpp files have been combined into 'combined.txt'.
+----------------------------------------
+Build process finished successfully.
+Runtime mode: jit
+Runtime library: ./libbcpl_runtime_sdl2_static.a

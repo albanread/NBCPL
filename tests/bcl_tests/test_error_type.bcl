@@ -1,0 +1,5 @@
+LET START() BE {
+    // Simple test: type mismatch error
+    // Format string expects INTEGER for %d but gets FLOAT
+    WRITEF("Integer: %d*n", 3.14)
+}

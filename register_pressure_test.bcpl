@@ -1,0 +1,57 @@
+LET START() BE {
+    // High register pressure test - force LinearScanAllocator to spill
+    // This test creates many live variables simultaneously to exhaust
+    // the callee-saved register pool and trigger spilling scenarios
+
+    WRITEF("Starting high register pressure test...*n")
+
+    // Phase 1: Create many integer variables that are all live simultaneously
+    // With only 9 callee-saved registers (X19-X27), this should force spilling
+    LET a1 = 1000
+    LET a2 = 2000
+    LET a3 = 3000
+    LET a4 = 4000
+    LET a5 = 5000
+    LET a6 = 6000
+    LET a7 = 7000
+    LET a8 = 8000
+    LET a9 = 9000
+    LET a10 = 10000  // Should force spilling
+    LET a11 = 11000  // Should force spilling
+    LET a12 = 12000  // Should force spilling
+
+    // Phase 2: Mix in float variables to test type-based register pools
+    LET f1 = 1.1
+    LET f2 = 2.2
+    LET f3 = 3.3
+    LET f4 = 4.4
+
+    // Phase 3: Function calls while many variables are live
+    // This tests call-crossing variable allocation vs spilling decisions
+    WRITEF("Variables before call: a1=%n a5=%n a10=%n*n", a1, a5, a10)
+
+    // Phase 4: Complex expressions using many variables simultaneously
+    // This creates high register pressure during expression evaluation
+    LET result1 = a1 + a2 + a3 + a4 + a5 + a6 + a7 + a8
+    LET result2 = a9 + a10 + a11 + a12 + (a1 * a2)
+    LET result3 = f1 + f2 + f3 + f4 + (f1 * f2)
+
+    // Phase 5: Nested function calls with many live variables
+    WRITEF("Mid-test: r1=%n r2=%n r3=%n*n", result1, result2, result3)
+
+    // Phase 6: More variables to push pressure even higher
+    LET b1 = a1 + 100
+    LET b2 = a2 + 200
+    LET b3 = a3 + 300
+    LET b4 = a4 + 400
+    LET b5 = a5 + 500
+
+    // Phase 7: Use all variables in final computation to ensure they stay live
+    LET final = (a1 + a2 + a3 + a4 + a5 + a6 + a7 + a8 + a9 + a10 + a11 + a12) +
+                (b1 + b2 + b3 + b4 + b5) +
+                (result1 + result2) +
+                FLOAT_TO_INT(result3)
+
+    WRITEF("Final result: %n*n", final)
+    WRITEF("Register pressure test completed successfully*n")
+}

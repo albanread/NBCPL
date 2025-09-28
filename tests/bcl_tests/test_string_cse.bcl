@@ -1,0 +1,17 @@
+// Test case to demonstrate string literal CSE issues
+// This should generate redundant ADRP/ADD sequences for the same string literal
+
+LET START() BE
+$(
+    // Use the same string literal multiple times
+    WRITEF("Hello World*N")
+    WRITEF("Hello World*N")  // This should reuse the address from first use
+    WRITEF("Hello World*N")  // This should also reuse the address
+
+    // Different string - should get its own address calculation
+    WRITEF("Different String*N")
+    WRITEF("Different String*N")  // This should reuse the "Different String" address
+
+    // Back to first string - should reuse original address
+    WRITEF("Hello World*N")
+$)

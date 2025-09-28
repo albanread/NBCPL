@@ -1,0 +1,57 @@
+// Simple test for FOREACH optimization with direct allocation expressions
+// This tests the enhanced is_constant_size_collection function directly
+
+MANIFEST {
+    VEC_SIZE = 5;
+    FVEC_SIZE = 3;
+    TABLE_SIZE = 4
+}
+
+LET test_direct_foreach() = VALOF {
+    LET sum = 0
+
+    // Test 1: Direct FOREACH over VEC with manifest constant - SHOULD BE OPTIMIZED
+    // Expected: Enhanced optimization detects VEC VEC_SIZE as constant size 5
+    FOREACH item IN VEC VEC_SIZE DO {
+        sum := sum + 1
+    }
+
+    // Test 2: Direct FOREACH over FVEC with manifest constant - SHOULD BE OPTIMIZED
+    // Expected: Enhanced optimization detects FVEC FVEC_SIZE as constant size 3
+    FOREACH item IN FVEC FVEC_SIZE DO {
+        sum := sum + 1
+    }
+
+    // Test 3: Direct FOREACH over VEC with literal constant - SHOULD BE OPTIMIZED
+    // Expected: Enhanced optimization detects VEC 7 as constant size 7
+    FOREACH item IN VEC 7 DO {
+        sum := sum + 1
+    }
+
+    // Test 4: Direct FOREACH over FVEC with literal constant - SHOULD BE OPTIMIZED
+    // Expected: Enhanced optimization detects FVEC 4 as constant size 4
+    FOREACH item IN FVEC 4 DO {
+        sum := sum + 1
+    }
+
+    // Test 5: Direct FOREACH over VEC initializer - SHOULD BE OPTIMIZED
+    // Expected: Standard optimization detects 4 elements
+    FOREACH item IN VEC [1, 2, 3, 4] DO {
+        sum := sum + item
+    }
+
+    // Test 6: Direct FOREACH over TABLE - SHOULD BE OPTIMIZED
+    // Expected: Standard optimization detects 3 elements
+    FOREACH item IN TABLE(10, 20, 30) DO {
+        sum := sum + item
+    }
+
+    RESULTIS sum
+}
+
+LET START() BE {
+    WRITEF("Testing direct FOREACH optimizations...*N")
+    LET result = test_direct_foreach()
+    WRITEF("Result: %d*N", result)
+    WRITEF("Run with --trace-cfg to see optimization details*N")
+}

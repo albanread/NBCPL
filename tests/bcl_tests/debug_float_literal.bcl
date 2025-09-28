@@ -1,0 +1,26 @@
+// Test to debug float literal parsing and type inference
+// This will help us understand how float literals are being parsed
+
+LET START() BE {
+    // Test 1: Simple float literal assignment
+    LET test1 = 3.14
+    WRITEF("Test 1 - LET test1 = 3.14: %d (should be 3 if truncated)*n", test1)
+
+    // Test 2: Explicit FLET assignment
+    FLET test2 = 3.14
+    WRITEF("Test 2 - FLET test2 = 3.14: %f (should be 3.140000)*n", test2)
+
+    // Test 3: Integer literal assignment
+    LET test3 = 42
+    WRITEF("Test 3 - LET test3 = 42: %d (should be 42)*n", test3)
+
+    // Test 4: Mixed operations
+    LET test4 = 3.14 + 1
+    WRITEF("Test 4 - LET test4 = 3.14 + 1: %d (should be 4 if truncated)*n", test4)
+
+    // Test 5: Float operation with FLET
+    FLET test5 = 3.14 + 1.0
+    WRITEF("Test 5 - FLET test5 = 3.14 + 1.0: %f (should be 4.140000)*n", test5)
+
+    WRITEF("Float literal parsing test completed.*n")
+}

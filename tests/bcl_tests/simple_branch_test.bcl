@@ -1,0 +1,24 @@
+// Simple test to demonstrate CFG branch chaining elimination
+// This creates a pattern where intermediate blocks contain only jumps
+
+LET start() BE {
+    LET x = 5
+
+    // Simple chain: if -> goto -> label -> goto -> final
+    IF x > 0 THEN {
+        GOTO positive
+    }
+
+    GOTO negative
+
+    positive:
+        writef("Positive number*N")
+        GOTO done
+
+    negative:
+        writef("Not positive*N")
+        GOTO done
+
+    done:
+        writef("Finished*N")
+}

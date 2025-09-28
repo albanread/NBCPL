@@ -1,0 +1,25 @@
+GET "libhdr.h"
+
+LET START() = VALOF
+$(
+  LET I = 0
+
+  // Simple test of LOOP - just prints 1, 2, 4, 5
+  REPEAT
+  $(
+    I := I + 1
+
+    // Skip printing 3
+    IF I = 3 THEN
+    $(
+      WRITES("LOOP at 3*N")
+      LOOP  // This should skip to the next iteration
+    $)
+
+    WRITEN(I)
+    WRITES("*N")
+
+  $) UNTIL I >= 5
+
+  RESULTIS 0
+$)

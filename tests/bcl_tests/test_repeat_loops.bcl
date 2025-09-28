@@ -1,0 +1,37 @@
+GET "libhdr.h"
+
+LET START() = VALOF
+$(
+  // Test REPEAT (infinite loop - requires BREAK to exit)
+  LET I = 0
+  REPEAT
+  $(
+    I := I + 1
+    WRITEN(I)
+    WRITES(" ")
+    IF I = 3 DO BREAK
+  $)
+  WRITES("*N") // Should print 1 2 3
+
+  // Test REPEAT WHILE
+  LET J = 0
+  REPEAT
+  $(
+    J := J + 1
+    WRITEN(J)
+    WRITES(" ")
+  $) WHILE J < 3
+  WRITES("*N") // Should print 1 2 3
+
+  // Test REPEAT UNTIL
+  LET K = 0
+  REPEAT
+  $(
+    K := K + 1
+    WRITEN(K)
+    WRITES(" ")
+  $) UNTIL K = 3
+  WRITES("*N") // Should print 1 2 3
+
+  RESULTIS 0
+$)

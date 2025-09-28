@@ -1,0 +1,18 @@
+LET START() BE
+$(
+    // Initialize a read-only vector directly using the TABLE keyword.
+    // This replaces the VEC allocation and the FOR loop.
+    LET V = TABLE( 0, 5, 10, 15, 20, 25, 30, 35, 40, 45)
+
+    WRITES("Foreach test on a TABLE vector*N")
+
+
+    FOREACH e IN V DO
+    $(
+        WRITEN(e)
+        WRITEC(32)
+    $)
+    WRITEC('*N')
+
+    // Note: No FREEVEC is needed because TABLE creates static, read-only data.
+$)

@@ -1,0 +1,20 @@
+// Define a simple class for the example.
+CLASS MyClass $(
+  // No members are needed for this demonstration.
+$)
+
+LET START() BE $(
+  // This inner block creates a new, limited scope.
+  $(
+    // 1. A heap allocation occurs here using NEW.
+    // The compiler's analyzer marks the symbol 'p'
+    // with 'owns_heap_memory = true'.
+    LET p = NEW MyClass()
+
+    // ... code that uses 'p' could go here ...
+
+  $) // 2. The scope ends here.
+     // Because 'p' was not RETAINed and its 'owns_heap_memory'
+     // flag is true, the code generator will automatically
+     // insert the code for 'p.RELEASE()' at this point.
+$)

@@ -1,0 +1,21 @@
+// Simple test for GLOBALS block feature
+// Tests basic integer global variable declarations
+
+GLOBALS $(
+    LET global_int = 123
+    LET another_int = 456
+$)
+
+LET START() BE $(
+    WRITEF("Simple GLOBALS Test*N")
+    WRITEF("===================*N*N")
+
+    WRITEF("global_int = %d*N", global_int)
+    WRITEF("another_int = %d*N", another_int)
+
+    // Test modification
+    global_int := global_int + 100
+    WRITEF("After adding 100: global_int = %d*N", global_int)
+
+    WRITEF("*N✅ Simple GLOBALS test completed!*N")
+$)

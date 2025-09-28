@@ -1,0 +1,51 @@
+// Test mixed argument types in routine calls to verify ARM64 ABI compliance
+
+LET IntRoutine(a, b) BE
+{
+    WRITEN(a + b)
+}
+
+FLET FloatRoutine(x, y) BE
+{
+    WRITEF("Result: %f*N", x + y)
+}
+
+LET MixedRoutine(int_param, float_param) BE
+{
+    WRITEN(int_param)
+    WRITEF("Float: %f*N", float_param)
+}
+
+LET START() BE
+{
+    LET my_int = 42
+    FLET my_float = 3.14
+
+    WRITEF("Testing routine calls with mixed arguments*N")
+
+    // Test 1: Integer routine with integer arguments
+    WRITEF("Test 1: IntRoutine(10, 20)*N")
+    IntRoutine(10, 20)
+
+    // Test 2: Float routine with float arguments
+    WRITEF("Test 2: FloatRoutine(1.5, 2.5)*N")
+    FloatRoutine(1.5, 2.5)
+
+    // Test 3: Mixed routine with proper types
+    WRITEF("Test 3: MixedRoutine(100, 99.9)*N")
+    MixedRoutine(100, 99.9)
+
+    // Test 4: Integer routine with mixed arguments (should convert float to int)
+    WRITEF("Test 4: IntRoutine with mixed args*N")
+    IntRoutine(my_int, my_float)
+
+    // Test 5: Float routine with mixed arguments (should convert int to float)
+    WRITEF("Test 5: FloatRoutine with mixed args*N")
+    FloatRoutine(my_int, my_float)
+
+    // Test 6: Mixed routine with swapped types (should coerce appropriately)
+    WRITEF("Test 6: MixedRoutine with swapped types*N")
+    MixedRoutine(my_float, my_int)
+
+    WRITEF("All routine call tests completed*N")
+}

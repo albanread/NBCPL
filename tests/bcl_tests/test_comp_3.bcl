@@ -1,0 +1,28 @@
+GET "libhdr.h"
+
+LET START() = VALOF
+$(
+  LET A = 5
+  LET B = 10
+  LET D = 5
+
+  // Test <=
+  C := A <= B  // 5 <= 10 -> 1 (true)
+  WRITEN(C)
+
+  C := A <= D  // 5 <= 5 -> 1 (true)
+  WRITEN(C)
+
+  C := B <= A  // 10 <= 5 -> 0 (false)
+  WRITEN(C)
+
+  // Test >=
+  C := B >= A  // 10 >= 5 -> 1 (true)
+  WRITEN(C)
+
+  C := A >= D  // 5 >= 5 -> 1 (true)
+  WRITEN(C)
+
+  C := A >= B  // 5 >= 10 -> 0 (false)
+  WRITEN(C)
+$)

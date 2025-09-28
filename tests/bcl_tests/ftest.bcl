@@ -1,0 +1,4 @@
+LET START() BE {
+ FLET x = 10.0
+ WRITEF(x)
+}

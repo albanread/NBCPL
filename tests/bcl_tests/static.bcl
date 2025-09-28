@@ -1,0 +1,8 @@
+LET START() BE 
+{
+
+STATIC test
+test := 100
+WRITEN(test)
+
+}

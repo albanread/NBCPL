@@ -1,0 +1,60 @@
+LET START() BE {
+    WRITES("Testing MULTIPLY_BY_TWO function with integer input...*N")
+
+    // First, test direct floating point operation
+    LET a = 2.0
+    LET b = 4.0
+    LET c = a *# b
+    WRITES("Direct float multiplication: 2.0 *# 4.0 = ")
+    WRITEF(c)
+    WRITES("*N")
+
+    // Test the original function with integer input
+    LET result1 = MULTIPLY_BY_TWO(8)
+    WRITES("Original MULTIPLY_BY_TWO(8) = ")
+    WRITEF(result1)
+    WRITES(" (should be 16.0)*N")
+
+    // Test workaround 1: Store result in a variable before returning
+    LET result2 = MULTIPLY_BY_TWO_VAR(8)
+    WRITES("Workaround 1: MULTIPLY_BY_TWO_VAR(8) = ")
+    WRITEF(result2)
+    WRITES(" (should be 16.0)*N")
+
+    // Test workaround 2: Use direct float literal
+    LET result3 = MULTIPLY_BY_TWO_ALT(8)
+    WRITES("Workaround 2: MULTIPLY_BY_TWO_ALT(8) = ")
+    WRITEF(result3)
+    WRITES(" (should be 16.0)*N")
+
+    // Test direct float argument version
+    LET result4 = MULTIPLY_FLOAT(8.0)
+    WRITES("Direct float: MULTIPLY_FLOAT(8.0) = ")
+    WRITEF(result4)
+    WRITES(" (should be 16.0)*N")
+
+    WRITES("*NTest complete.*N")
+}
+
+// Original function with the bug
+LET MULTIPLY_BY_TWO(x) = FVALOF {
+    RESULTIS FLOAT(x) *# 2.0
+}
+
+// Workaround 1: Store intermediate results
+LET MULTIPLY_BY_TWO_VAR(x) = FVALOF {
+    LET fx = FLOAT(x)
+    LET result = fx *# 2.0
+    RESULTIS result
+}
+
+// Workaround 2: Use direct multiplication with float literal
+LET MULTIPLY_BY_TWO_ALT(x) = FVALOF {
+    LET fx = FLOAT(x)
+    RESULTIS 2.0 *# fx  // Try reverse order of operands
+}
+
+// Function that takes float directly
+LET MULTIPLY_FLOAT(x) = FVALOF {
+    RESULTIS x *# 2.0
+}

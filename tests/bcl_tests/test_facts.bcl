@@ -1,0 +1,40 @@
+
+
+LET FACTORIAL_RECURSIVE(N) = VALOF
+$(
+  IF N = 0 THEN RESULTIS 1
+  RESULTIS N * FACTORIAL_RECURSIVE(N - 1)
+$)
+
+LET FACTORIAL_ITERATIVE(N) = VALOF
+$(
+  LET F = 1
+  FOR I = 1 TO N DO F := F * I
+  RESULTIS F
+$)
+
+LET START()  BE
+$(
+
+
+  WRITES("Hello*N")
+  LET N = 18
+
+  LET R = FACTORIAL_RECURSIVE(N)
+
+  LET I = FACTORIAL_ITERATIVE(N)
+
+
+  WRITES("Calculating recursive Factorial of ")
+
+  WRITEN(N)
+
+  WRITES(" = ") WRITEN(R)   WRITES(" AND = ") WRITEN(I)
+
+
+
+  WRITES("BYE")
+
+  FINISH
+
+$)

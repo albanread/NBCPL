@@ -1,0 +1,15 @@
+// Test both RETAIN and REMANAGE to isolate the issue
+LET START() BE $(
+    WRITES("Testing RETAIN and REMANAGE...*N")
+
+    LET x = VEC 10
+    WRITES("Vector allocated*N")
+
+    RETAIN x
+    WRITES("Vector RETAINed*N")
+
+    REMANAGE x
+    WRITES("Vector REMANAGEd*N")
+
+    WRITES("Test complete*N")
+$)

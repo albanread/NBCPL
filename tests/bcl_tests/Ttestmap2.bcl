@@ -1,0 +1,28 @@
+// The SQUARE function can be annotated to explicitly return an INTEGER.
+LET SQUARE(N) = VALOF AS INTEGER $(
+    RESULTIS N * N
+$)
+
+LET START() BE $(
+    // Annotate 'Numbers' as a pointer to a list of integers.
+    LET Numbers AS ^LIST OF INTEGER = LIST(1, 2, 3, 4, 5)
+
+    // Replace SETTYPE by directly annotating the type in the LET declaration.
+    // This declares 'SquaredNumbers' as an empty list that is known to hold integers.
+    LET SquaredNumbers AS ^LIST OF INTEGER = LIST()
+
+    // Populate the new list with the squared numbers.
+    // 'N' can be annotated as an INTEGER for clarity.
+    FOREACH N AS INTEGER IN Numbers DO $(
+        APND(SquaredNumbers, SQUARE(N))
+    $)
+
+    // Print the new list to verify its contents.
+    WRITES("Squared list: ")
+    // 'S' can also be annotated as an INTEGER.
+    FOREACH S AS INTEGER IN SquaredNumbers DO $(
+        WRITEN(S)
+        WRITES(" ")
+    $)
+    WRITES("*N") // Expected output: Squared list: 1 4 9 16 25
+$)

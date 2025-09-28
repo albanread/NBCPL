@@ -1,0 +1,30 @@
+LET START() BE {
+    WRITES("Starting simple float test...*N")
+
+    // Direct float operations
+    FLET a = 2.0
+    FLET b = 4.0
+    FLET c = a *# b
+    WRITES("Direct float multiplication: 2.0 *# 4.0 = ")
+    WRITEF(c)
+    WRITES("*N")
+
+    // Test with a simple floating-point function call
+    WRITES("Testing simple float function...*N")
+    FLET result = DOUBLE(3.0)
+    WRITES("DOUBLE(3.0) = ")
+    WRITEF(result)
+    WRITES(" (should be 6.0)*N")
+
+    WRITES("Test complete.*N")
+}
+
+// Simple function that just doubles a float input
+LET DOUBLE(x) = FVALOF {
+    WRITES("Inside DOUBLE function, input value: ")
+    WRITEF(x)
+    WRITES("*N")
+
+    // Simply double the input
+    RESULTIS x *# 2.0
+}

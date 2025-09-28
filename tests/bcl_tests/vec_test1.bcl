@@ -1,0 +1,63 @@
+
+GLOBALS $(
+LET G = 256
+LET H = 2
+$)
+
+LET START() BE
+$(
+
+    MANIFEST { VECSIZE = 10 }
+    
+    WRITES("G*H=") WRITEN(G*H) WRITES("*N")
+    WRITEC(10)
+
+
+    G := 256
+    H := 2
+
+    WRITES("G*H=") WRITEN(G*H) WRITES("*N")	
+
+    WRITES("test*N")
+    LET V = VEC VECSIZE
+    LET S = STRING 10
+    LET S2 = "Hello!*N"
+    WRITES(S2)
+
+    IF V = 0 THEN
+    $(
+        WRITES("FAIL*N")
+        FINISH
+    $)
+
+    FOR I = 0 TO LEN(V)-1 DO
+    $(
+        V!I := I * 5
+    $)
+
+    WRITES("I=") WRITEN(I) WRITES("*N")
+
+    FOR I = 0 TO LEN(V)-1 DO
+    $(
+           WRITES("I=") WRITEN(I) WRITES("*N")
+           WRITEN(V!I)
+    $)
+
+    FOR I = 0 TO LEN(V)-1 DO
+    $(
+           V!I := (I * 120/4) + (I*3)-7
+           WRITES("I=") WRITEN(I) WRITES("*N")
+           WRITEN(V!I)
+    $)
+
+    WRITES("Foreach test*N")	
+
+    FOREACH e IN V DO
+    $(
+
+	WRITEN(e) WRITEC(32)
+    $)
+    
+
+    
+$)

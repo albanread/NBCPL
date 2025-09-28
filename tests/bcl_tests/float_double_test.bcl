@@ -1,0 +1,33 @@
+LET START() BE {
+    WRITES("Testing floating point conversion and multiplication...*N")
+
+    // Test case 1: Simple float multiplication with literal values
+    FLET a = 2.0
+    FLET b = 4.0
+    FLET c = a *# b
+    WRITES("Direct float multiplication: 2.0 *# 4.0 = ")
+    WRITEF(c)
+    WRITES(" (should be 8.0)*N")
+
+    // Test case 2: The FLOAT(x) *# 2.0 case - directly in START
+    LET x = 8
+    FLET y = FLOAT(x) *# 2.0
+    WRITES("Inline operation: FLOAT(8) *# 2.0 = ")
+    WRITEF(y)
+    WRITES(" (should be 16.0)*N")
+
+    // Test case 3: Using a dedicated function that returns FLOAT(x) *# 2.0
+    FLET result = DOUBLE_AS_FLOAT(8)
+    WRITES("Function DOUBLE_AS_FLOAT(8) = ")
+    WRITEF(result)
+    WRITES(" (should be 16.0)*N")
+
+    WRITES("Test complete.*N")
+}
+
+// Function that returns FLOAT(x) *# 2.0
+LET DOUBLE_AS_FLOAT(x) = FVALOF {
+    // Convert to float and multiply by 2.0
+    LET result = x *# 2.0
+    RESULTIS result
+}

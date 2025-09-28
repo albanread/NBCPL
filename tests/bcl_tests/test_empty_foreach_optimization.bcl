@@ -1,0 +1,36 @@
+// Test to verify the empty collection FOREACH optimization
+// This test should demonstrate that empty collections generate no loop code
+
+LET START() BE {
+    WRITEF("Testing empty collection FOREACH optimization\n")
+
+    // Test 1: Empty LIST() - should be optimized away
+    WRITEF("Test 1: Empty LIST() FOREACH (should be eliminated)\n")
+    FOREACH item IN LIST() DO {
+        WRITEF("This should never execute\n")
+    }
+    WRITEF("Empty LIST() FOREACH completed (no iterations)\n")
+
+    // Test 2: Empty VEC() - should be optimized away
+    WRITEF("Test 2: Empty VEC() FOREACH (should be eliminated)\n")
+    FOREACH item IN VEC() DO {
+        WRITEF("This should never execute\n")
+    }
+    WRITEF("Empty VEC() FOREACH completed (no iterations)\n")
+
+    // Test 3: Empty TABLE() - should be optimized away
+    WRITEF("Test 3: Empty TABLE() FOREACH (should be eliminated)\n")
+    FOREACH item IN TABLE() DO {
+        WRITEF("This should never execute\n")
+    }
+    WRITEF("Empty TABLE() FOREACH completed (no iterations)\n")
+
+    // Test 4: Non-empty LIST() - should NOT be optimized
+    WRITEF("Test 4: Non-empty LIST() FOREACH (normal execution)\n")
+    FOREACH item IN LIST("hello") DO {
+        WRITEF("This should execute: %s\n", item)
+    }
+    WRITEF("Non-empty LIST() FOREACH completed\n")
+
+    WRITEF("All empty collection FOREACH optimization tests completed!\n")
+}

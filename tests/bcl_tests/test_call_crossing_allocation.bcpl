@@ -1,0 +1,137 @@
+// Test program to validate call-site aware register allocation
+// This demonstrates the difference between variables that cross function calls
+// and those that are local-only
+
+LET helper_function(param1, param2) BE
+{
+    writef("Helper called with: %d, %d*n", param1, param2)
+}
+
+LET another_helper(value) BE
+{
+    writef("Another helper: %d*n", value)
+}
+
+LET test_call_crossing_allocation() BE
+{
+    // Variables that will cross function calls (should get callee-saved registers)
+    LET long_lived_var1 = 100
+    LET long_lived_var2 = 200
+    LET long_lived_var3 = 300
+
+    writef("Before first call: %d, %d, %d*n", long_lived_var1, long_lived_var2, long_lived_var3)
+
+    // Call that these variables cross
+    helper_function(42, 43)
+
+    // Variables are still needed after the call
+    writef("After first call: %d, %d, %d*n", long_lived_var1, long_lived_var2, long_lived_var3)
+
+    // Another call that the same variables cross
+    another_helper(99)
+
+    // Still using the same variables
+    long_lived_var1 := long_lived_var1 + 10
+    long_lived_var2 := long_lived_var2 + 20
+    long_lived_var3 := long_lived_var3 + 30
+
+    writef("After modifications: %d, %d, %d*n", long_lived_var1, long_lived_var2, long_lived_var3)
+
+    // Final call with the updated values
+    helper_function(long_lived_var1, long_lived_var2)
+
+    writef("Final values: %d, %d, %d*n", long_lived_var1, long_lived_var2, long_lived_var3)
+}
+
+LET test_local_only_allocation() BE
+{
+    // These variables have short lifespans and don't cross calls
+    // They should get caller-saved (scratch) registers
+
+    LET temp1 = 10
+    LET temp2 = 20
+    LET result = temp1 + temp2
+    writef("Local computation: %d + %d = %d*n", temp1, temp2, result)
+
+    // New scope with different local variables
+    {
+        LET local_a = 5
+        LET local_b = 15
+        LET local_sum = local_a * local_b
+        writef("Local scope: %d * %d = %d*n", local_a, local_b, local_sum)
+    }
+
+    // More local-only variables after the scope
+    LET final_temp = result * 2
+    writef("Final temp: %d*n", final_temp)
+
+    // Now make a call - but none of the above variables cross it
+    helper_function(final_temp, 0)
+
+    // New variables after the call (also local-only)
+    LET post_call_var = 777
+    writef("Post call: %d*n", post_call_var)
+}
+
+LET test_mixed_allocation() BE
+{
+    // Mix of call-crossing and local-only variables
+    LET persistent1 = 1000  // Will cross calls
+    LET persistent2 = 2000  // Will cross calls
+
+    // Local-only computation
+    LET temp_calc = 42
+    LET temp_result = temp_calc * 2
+    writef("Temp calculation: %d*n", temp_result)
+
+    // First call - persistent vars cross, temp vars are dead
+    helper_function(persistent1, persistent2)
+
+    // Persistent vars still alive, new temp vars
+    LET new_temp1 = persistent1 / 10
+    LET new_temp2 = persistent2 / 20
+    writef("New temps: %d, %d*n", new_temp1, new_temp2)
+
+    // Second call - persistent vars cross again
+    another_helper(persistent1 + persistent2)
+
+    // Final use of persistent vars
+    writef("Persistent vars survived: %d, %d*n", persistent1, persistent2)
+}
+
+LET test_register_pressure() BE
+{
+    // Create many variables to test spilling behavior
+    LET v1 = 1, v2 = 2, v3 = 3, v4 = 4, v5 = 5
+    LET v6 = 6, v7 = 7, v8 = 8, v9 = 9, v10 = 10
+    LET v11 = 11, v12 = 12, v13 = 13, v14 = 14, v15 = 15
+
+    writef("Many variables before call*n")
+
+    // Call that all these variables cross
+    helper_function(v1 + v5 + v10, v15)
+
+    // Use all variables after the call to ensure they're live across it
+    LET sum = v1 + v2 + v3 + v4 + v5 + v6 + v7 + v8 + v9 + v10 + v11 + v12 + v13 + v14 + v15
+    writef("Sum of all variables: %d*n", sum)
+}
+
+LET START() BE
+{
+    writef("=== Call-Site Aware Register Allocation Test ===*n")
+
+    writef("*n--- Test 1: Call-crossing variables ---*n")
+    test_call_crossing_allocation()
+
+    writef("*n--- Test 2: Local-only variables ---*n")
+    test_local_only_allocation()
+
+    writef("*n--- Test 3: Mixed allocation patterns ---*n")
+    test_mixed_allocation()
+
+    writef("*n--- Test 4: Register pressure test ---*n")
+    test_register_pressure()
+
+    writef("*n=== Test Complete ===*n")
+    FINISH
+}

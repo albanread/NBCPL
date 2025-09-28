@@ -1,0 +1,50 @@
+// Minimal test for object member access - no writef to avoid runtime issues
+// Testing basic dot notation functionality
+
+CLASS Point$(
+    LET x, y
+
+    LET init(newX, newY) BE {
+        x := newX
+        y := newY
+    }
+
+    LET getX() = x
+    LET getY() = y
+$)
+
+LET START() BE {
+    // Create object
+    LET p = NEW Point()
+
+    // Test method calls
+    p.init(10, 20)
+    LET mx = p.getX()
+    LET my = p.getY()
+
+    // Test direct member access reading
+    LET dx = p.x
+    LET dy = p.y
+
+    // Test direct member access writing
+    p.x := 30
+    p.y := 40
+
+    // Read again to verify assignment worked
+    LET newX = p.x
+    LET newY = p.y
+
+    // Test member access in expressions
+    LET sum = p.x + p.y
+    LET product = newX * newY
+
+    // Test conditional with member access
+    TEST p.x > 25 THEN {
+        LET result = p.x + 5
+    } ELSE {
+        LET result = p.x - 5
+    }
+
+    // Cleanup
+    p.RELEASE()
+}

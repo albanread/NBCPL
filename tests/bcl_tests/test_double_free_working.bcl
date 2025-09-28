@@ -1,0 +1,41 @@
+// Test program to demonstrate double-free detection and metrics tracking
+// This program tests the double-free detection feature in the BCPL runtime
+
+LET START() BE
+{
+    WRITEF("=== Double-Free Detection Test ===*N")
+
+    // Test 1: Basic vector allocation and double-free
+    WRITEF("Test 1: Vector double-free detection*N")
+    LET vec = VEC 10
+
+    // Fill the vector with some data
+    FOR i = 0 TO 9 DO
+        vec!i := i * 5
+
+    // Show that the vector works
+    WRITEF("Vector[0] = %d, Vector[9] = %d*N", vec!0, vec!9)
+
+    // Free the vector normally (first time)
+    WRITEF("Freeing vector (first time - should succeed)...*N")
+    FREEVEC(vec)
+    WRITEF("First free completed*N")
+
+    // Attempt to free again (this should trigger double-free detection)
+    WRITEF("Attempting to free vector again (should detect double-free)...*N")
+    FREEVEC(vec)
+    WRITEF("ERROR: Second free completed - this should NOT happen!*N")
+
+    WRITEF("*N--- Test 1 Complete ---*N*N")
+
+    // Test 2: Second allocation to verify system still works
+    WRITEF("Test 2: New allocation after double-free*N")
+    LET vec2 = VEC 5
+    vec2!0 := 99
+    WRITEF("New vector allocated and working: vec2[0] = %d*N", vec2!0)
+    FREEVEC(vec2)
+    WRITEF("New vector freed normally*N")
+
+    WRITEF("*N=== All Tests Complete ===*N")
+    WRITEF("Check runtime metrics for double-free count*N")
+}

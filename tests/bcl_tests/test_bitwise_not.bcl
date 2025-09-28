@@ -1,0 +1,48 @@
+// test_bitwise_not.bcl - Test to verify ~ operator behavior
+
+LET START() BE $(
+    WRITES("Testing ~ operator behavior*N")
+    WRITES("=================================*N")
+
+    // Test 1: Basic bitwise NOT operation
+    LET value1 = 5    // Binary: 0101
+    LET result1 = ~value1
+    WRITES("Test 1: ~5 = ")
+    WRITEN(result1)
+    WRITES(" (expected: bitwise NOT of 5)*N")
+
+    // Test 2: Zero case
+    LET value2 = 0
+    LET result2 = ~value2
+    WRITES("Test 2: ~0 = ")
+    WRITEN(result2)
+    WRITES(" (expected: all 1s/-1)*N")
+
+    // Test 3: All 1s case (assuming 32-bit)
+    LET value3 = -1
+    LET result3 = ~value3
+    WRITES("Test 3: ~(-1) = ")
+    WRITEN(result3)
+    WRITES(" (expected: 0)*N")
+
+    // Test 4: Power of 2
+    LET value4 = 8    // Binary: 1000
+    LET result4 = ~value4
+    WRITES("Test 4: ~8 = ")
+    WRITEN(result4)
+    WRITES(" (expected: bitwise NOT of 8)*N")
+
+    // Test 5: Check if it's behaving as logical NOT instead
+    WRITES("*NLogical NOT behavior check:*N")
+    TEST ~5 = 0 THEN
+        WRITES("ERROR: ~ is behaving as logical NOT (5 -> 0)*N")
+    ELSE
+        WRITES("OK: ~ is NOT behaving as logical NOT*N")
+
+    TEST ~0 ~= 0 THEN
+        WRITES("OK: ~0 is not 0 (bitwise behavior)*N")
+    ELSE
+        WRITES("ERROR: ~0 = 0 (logical NOT behavior)*N")
+
+    WRITES("*NTest completed*N")
+$)

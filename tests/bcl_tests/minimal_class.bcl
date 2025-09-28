@@ -1,0 +1,20 @@
+// minimal_class.bcl - A minimalist class test
+
+CLASS Simple $(
+    DECL x
+
+    ROUTINE set(val) BE $(
+        x := val
+    $)
+
+    FUNCTION get() = VALOF $(
+        RESULTIS x
+    $)
+$)
+
+LET START() BE $(
+    LET s = NEW Simple
+    WRITEN(s)          // Print the object address
+    s.set(42)
+    WRITEN(s.get())    // Should print 42
+$)

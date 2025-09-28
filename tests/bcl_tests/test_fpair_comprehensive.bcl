@@ -1,0 +1,116 @@
+// Comprehensive FPAIR test demonstrating all operations and features
+// This test covers FPAIR creation, arithmetic, access, and call-crossing scenarios
+
+LET START() BE $(
+
+    // Test 1: Basic FPAIR creation and access
+    WRITEF("=== Test 1: Basic FPAIR Operations ===%N")
+
+    LET fp1 = FPAIR(3.14, 2.71)
+    LET fp2 = FPAIR(1.41, 1.73)
+
+    WRITEF("fp1 = FPAIR(3.14, 2.71)%N")
+    WRITEF("fp1.first = %f, fp1.second = %f%N", fp1.first, fp1.second)
+
+    WRITEF("fp2 = FPAIR(1.41, 1.73)%N")
+    WRITEF("fp2.first = %f, fp2.second = %f%N", fp2.first, fp2.second)
+
+    // Test 2: FPAIR arithmetic operations
+    WRITEF("%N=== Test 2: FPAIR Arithmetic ===%N")
+
+    // Addition
+    LET fp_add = fp1 + fp2
+    WRITEF("Addition: fp1 + fp2 = FPAIR(%f, %f)%N", fp_add.first, fp_add.second)
+
+    // Subtraction
+    LET fp_sub = fp1 - fp2
+    WRITEF("Subtraction: fp1 - fp2 = FPAIR(%f, %f)%N", fp_sub.first, fp_sub.second)
+
+    // Multiplication
+    LET fp_mul = fp1 * fp2
+    WRITEF("Multiplication: fp1 * fp2 = FPAIR(%f, %f)%N", fp_mul.first, fp_mul.second)
+
+    // Division
+    LET fp_div = fp1 / fp2
+    WRITEF("Division: fp1 / fp2 = FPAIR(%f, %f)%N", fp_div.first, fp_div.second)
+
+    // Test 3: Nested FPAIR operations
+    WRITEF("%N=== Test 3: Nested Operations ===%N")
+
+    LET fp_complex = (fp1 + fp2) * (fp1 - fp2)
+    WRITEF("Complex: (fp1 + fp2) * (fp1 - fp2) = FPAIR(%f, %f)%N",
+           fp_complex.first, fp_complex.second)
+
+    // Test 4: FPAIR with constants
+    WRITEF("%N=== Test 4: Constants and Literals ===%N")
+
+    LET fp_zero = FPAIR(0.0, 0.0)
+    LET fp_one = FPAIR(1.0, 1.0)
+    LET fp_neg = FPAIR(-1.5, -2.5)
+
+    WRITEF("Zero FPAIR: (%f, %f)%N", fp_zero.first, fp_zero.second)
+    WRITEF("One FPAIR: (%f, %f)%N", fp_one.first, fp_one.second)
+    WRITEF("Negative FPAIR: (%f, %f)%N", fp_neg.first, fp_neg.second)
+
+    // Test 5: Call-crossing scenario (liveness analysis test)
+    WRITEF("%N=== Test 5: Call-Crossing Test ===%N")
+
+    LET fp_before_call = FPAIR(10.5, 20.5)
+    WRITEF("Before call: FPAIR(%f, %f)%N", fp_before_call.first, fp_before_call.second)
+
+    // Function call that should preserve fp_before_call
+    NEWLINE()
+
+    // Access after call - should work correctly with proper liveness analysis
+    WRITEF("After call: FPAIR(%f, %f)%N", fp_before_call.first, fp_before_call.second)
+
+    // Test 6: Mixed precision operations
+    WRITEF("%N=== Test 6: Mixed Precision ===%N")
+
+    LET small_fp = FPAIR(0.001, 0.002)
+    LET large_fp = FPAIR(1000.0, 2000.0)
+    LET mixed_result = small_fp + large_fp
+
+    WRITEF("Small + Large = FPAIR(%f, %f)%N", mixed_result.first, mixed_result.second)
+
+    // Test 7: Chained operations
+    WRITEF("%N=== Test 7: Chained Operations ===%N")
+
+    LET chain_start = FPAIR(1.0, 2.0)
+    LET chain_result = chain_start + FPAIR(1.0, 1.0) * FPAIR(2.0, 3.0) - FPAIR(0.5, 0.5)
+
+    WRITEF("Chained result: FPAIR(%f, %f)%N", chain_result.first, chain_result.second)
+
+    // Test 8: Edge cases
+    WRITEF("%N=== Test 8: Edge Cases ===%N")
+
+    LET fp_very_small = FPAIR(1e-6, 2e-6)
+    LET fp_very_large = FPAIR(1e6, 2e6)
+
+    WRITEF("Very small: FPAIR(%f, %f)%N", fp_very_small.first, fp_very_small.second)
+    WRITEF("Very large: FPAIR(%f, %f)%N", fp_very_large.first, fp_very_large.second)
+
+    // Test 9: Assignment chains
+    WRITEF("%N=== Test 9: Assignment Chains ===%N")
+
+    LET fp_a = FPAIR(1.1, 2.2)
+    LET fp_b = fp_a
+    LET fp_c = fp_b + FPAIR(0.1, 0.2)
+
+    WRITEF("Assignment chain: A=(%f,%f), B=(%f,%f), C=(%f,%f)%N",
+           fp_a.first, fp_a.second,
+           fp_b.first, fp_b.second,
+           fp_c.first, fp_c.second)
+
+    // Test 10: Conditional expressions with FPAIR
+    WRITEF("%N=== Test 10: Conditional Expressions ===%N")
+
+    LET condition_fp = FPAIR(3.0, 4.0)
+    LET alt_fp = FPAIR(5.0, 6.0)
+    LET cond_result = (condition_fp.first > 2.0) -> condition_fp, alt_fp
+
+    WRITEF("Conditional result: FPAIR(%f, %f)%N", cond_result.first, cond_result.second)
+
+    WRITEF("%N=== FPAIR Test Complete ===%N")
+
+$)

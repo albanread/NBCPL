@@ -1,0 +1,28 @@
+LET START() BE
+$(
+   // Test both VEC() and TABLE() syntax
+   WRITES("Testing VEC() and TABLE() syntax*N")
+
+   // Test 1: Traditional VEC syntax (we know this works)
+   LET vec_traditional = VEC 3
+   vec_traditional!0 := 10
+   WRITES("Traditional VEC n: OK*N")
+
+   // Test 2: VEC() with parentheses
+   LET vec_paren = VEC("a", "b", "c")
+   WRITES("VEC() with parentheses: OK*N")
+
+   // Test 3: VEC() with trailing comma
+   LET vec_paren_trailing = VEC("x", "y",)
+   WRITES("VEC() with trailing comma: OK*N")
+
+   // Test 4: TABLE() syntax
+   LET table_normal = TABLE("i", "j")
+   WRITES("TABLE() normal: OK*N")
+
+   // Test 5: TABLE() with trailing comma
+   LET table_trailing = TABLE("p", "q",)
+   WRITES("TABLE() with trailing comma: OK*N")
+
+   WRITES("All syntax tests completed*N")
+$)

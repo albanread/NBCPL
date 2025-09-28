@@ -1,0 +1,97 @@
+// Test program to compare VEC allocation expressions vs GETVEC function calls
+// This verifies that both allocation methods use the same HeapManager path
+// and that both can be freed correctly with FREEVEC
+
+LET START() BE
+{
+    WRITEF("=== VEC vs GETVEC Allocation Comparison ===*N")
+
+    WRITEF("*NTest 1: VEC allocation expression*N")
+    test_vec_allocation()
+
+    WRITEF("*NTest 2: GETVEC function call*N")
+    test_getvec_allocation()
+
+    WRITEF("*NTest 3: VEC allocation with double-free attempt*N")
+    test_vec_double_free()
+
+    WRITEF("*NTest 4: GETVEC allocation with double-free attempt*N")
+    test_getvec_double_free()
+
+    WRITEF("*N=== All Tests Complete ===*N")
+    WRITEF("Check runtime metrics to verify both paths work identically*N")
+}
+
+// Test VEC allocation expression
+LET test_vec_allocation() BE
+{
+    WRITEF("  Allocating with VEC expression...*N")
+    LET vec_var = VEC 5
+
+    // Fill and verify
+    vec_var!0 := 100
+    vec_var!4 := 500
+    WRITEF("  VEC allocated: vec_var[0]=%d, vec_var[4]=%d*N", vec_var!0, vec_var!4)
+
+    // Free normally
+    WRITEF("  Freeing VEC with FREEVEC...*N")
+    FREEVEC(vec_var)
+    WRITEF("  VEC freed successfully*N")
+}
+
+// Test GETVEC function call
+LET test_getvec_allocation() BE
+{
+    WRITEF("  Allocating with GETVEC function...*N")
+    LET getvec_var = GETVEC(5)
+
+    // Fill and verify
+    getvec_var!0 := 200
+    getvec_var!4 := 600
+    WRITEF("  GETVEC allocated: getvec_var[0]=%d, getvec_var[4]=%d*N", getvec_var!0, getvec_var!4)
+
+    // Free normally
+    WRITEF("  Freeing GETVEC with FREEVEC...*N")
+    FREEVEC(getvec_var)
+    WRITEF("  GETVEC freed successfully*N")
+}
+
+// Test VEC allocation with double-free attempt
+LET test_vec_double_free() BE
+{
+    WRITEF("  Allocating VEC for double-free test...*N")
+    LET vec_df = VEC 3
+
+    vec_df!0 := 300
+    WRITEF("  VEC allocated: vec_df[0]=%d*N", vec_df!0)
+
+    // First free (should succeed)
+    WRITEF("  First FREEVEC call...*N")
+    FREEVEC(vec_df)
+    WRITEF("  First free completed*N")
+
+    // Second free (should be detected as double-free)
+    WRITEF("  Second FREEVEC call (should detect double-free)...*N")
+    FREEVEC(vec_df)
+    WRITEF("  ERROR: Second free succeeded - double-free not detected!*N")
+}
+
+// Test GETVEC allocation with double-free attempt
+LET test_getvec_double_free() BE
+{
+    WRITEF("  Allocating GETVEC for double-free test...*N")
+    LET getvec_df = GETVEC(3)
+
+    getvec_df!0 := 400
+    WRITEF("  GETVEC allocated: getvec_df[0]=%d*N", getvec_df!0)
+
+    // First free (should succeed)
+    WRITEF("  First FREEVEC call...*N")
+    FREEVEC(getvec_df)
+    WRITEF("  First free completed*N")
+
+    // Second free (should be detected as double-free)
+    WRITEF("  Second FREEVEC call (should detect double-free)...*N")
+    FREEVEC(getvec_df)
+    WRITEF("  ERROR: Second free succeeded - double-free not detected!*N")
+}

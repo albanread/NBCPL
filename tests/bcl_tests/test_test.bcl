@@ -1,0 +1,9 @@
+LET START() BE
+$(
+  LET X = 1
+  LET Y = 2
+  TEST X = 1 THEN WRITES("TEST X = 1 THEN branch*N")
+  TEST X = 2 THEN WRITES("TEST X = 2 THEN branch*N") ELSE WRITES("TEST X = 2 ELSE branch*N")
+  TEST Y = 2 THEN WRITES("TEST Y = 2 THEN branch*N") ELSE WRITES("TEST Y = 2 ELSE branch*N")
+  TEST Y = 3 THEN WRITES("TEST Y = 3 THEN branch*N") ELSE WRITES("TEST Y = 3 ELSE branch*N")
+$)

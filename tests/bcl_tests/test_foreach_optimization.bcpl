@@ -1,0 +1,173 @@
+// Test case for FOREACH loop optimization with manifest constants
+// This verifies that FOREACH loops over collections with constant sizes
+// are properly optimized using manifest constants and constant folding
+
+MANIFEST {
+    BUFFER_SIZE = 10;
+    ARRAY_SIZE = 8;
+    SMALL_SIZE = 3;
+    LARGE_SIZE = 100;
+    STEP_SIZE = 2
+}
+
+LET test_foreach_manifest_vec() = VALOF {
+    LET sum = 0
+
+    // Test 1: FOREACH over VEC with manifest constant size - SHOULD BE OPTIMIZED
+    // Expected: Constant size collection detected, optimized loop bounds
+    LET vec = VEC BUFFER_SIZE
+    FOR i = 0 TO BUFFER_SIZE - 1 DO {
+        vec!i := i * 2
+    }
+
+    FOREACH item IN vec DO {
+        sum := sum + item
+    }
+
+    RESULTIS sum
+}
+
+LET test_foreach_manifest_fvec() = VALOF {
+    LET sum = 0
+
+    // Test 2: FOREACH over FVEC with manifest constant size - SHOULD BE OPTIMIZED
+    // Expected: Constant size collection detected, optimized loop bounds
+    LET fvec = FVEC ARRAY_SIZE
+    FOR i = 0 TO ARRAY_SIZE - 1 DO {
+        fvec!i := FLOAT(i * 3)
+    }
+
+    FOREACH item IN fvec DO {
+        sum := sum + FIX(item)
+    }
+
+    RESULTIS sum
+}
+
+LET test_foreach_manifest_table() = VALOF {
+    LET sum = 0
+
+    // Test 3: FOREACH over TABLE with manifest constants - SHOULD BE OPTIMIZED
+    // Expected: Constant size collection detected from initializer count
+    LET table = TABLE(1, 2, SMALL_SIZE, 4, BUFFER_SIZE)
+
+    FOREACH item IN table DO {
+        sum := sum + item
+    }
+
+    RESULTIS sum
+}
+
+LET test_foreach_manifest_vec_initializer() = VALOF {
+    LET sum = 0
+
+    // Test 4: FOREACH over VEC initializer with manifest values - SHOULD BE OPTIMIZED
+    // Expected: Constant size collection detected from element count
+    LET vec = VEC [BUFFER_SIZE, ARRAY_SIZE, SMALL_SIZE]
+
+    FOREACH item IN vec DO {
+        sum := sum + item
+    }
+
+    RESULTIS sum
+}
+
+LET test_foreach_arithmetic_manifest() = VALOF {
+    LET sum = 0
+
+    // Test 5: FOREACH over VEC with arithmetic manifest expression - SHOULD BE OPTIMIZED
+    // Expected: (BUFFER_SIZE + SMALL_SIZE) should constant-fold to 13
+    LET vec = VEC (BUFFER_SIZE + SMALL_SIZE)
+    FOR i = 0 TO (BUFFER_SIZE + SMALL_SIZE) - 1 DO {
+        vec!i := i + 1
+    }
+
+    FOREACH item IN vec DO {
+        sum := sum + item
+    }
+
+    RESULTIS sum
+}
+
+LET test_foreach_variable_size() = VALOF {
+    LET sum = 0
+    LET dynamic_size = 5
+
+    // Test 6: FOREACH over VEC with variable size - SHOULD NOT BE OPTIMIZED
+    // Expected: Variable size collection, no constant optimization
+    LET vec = VEC dynamic_size
+    FOR i = 0 TO dynamic_size - 1 DO {
+        vec!i := i * i
+    }
+
+    FOREACH item IN vec DO {
+        sum := sum + item
+    }
+
+    RESULTIS sum
+}
+
+LET test_nested_foreach_manifest() = VALOF {
+    LET sum = 0
+
+    // Test 7: Nested FOREACH with manifest constants - BOTH SHOULD BE OPTIMIZED
+    // Expected: Both outer and inner collections have constant sizes
+    LET outer_vec = VEC SMALL_SIZE
+    FOR i = 0 TO SMALL_SIZE - 1 DO {
+        outer_vec!i := VEC SMALL_SIZE
+        LET inner_vec = outer_vec!i
+        FOR j = 0 TO SMALL_SIZE - 1 DO {
+            inner_vec!j := i + j
+        }
+    }
+
+    FOREACH outer_item IN outer_vec DO {
+        FOREACH inner_item IN outer_item DO {
+            sum := sum + inner_item
+        }
+    }
+
+    RESULTIS sum
+}
+
+LET START() BE {
+    WRITEF("=== FOREACH Loop Optimization Test ===*N*N")
+
+    WRITEF("Test 1: FOREACH over VEC with manifest size*N")
+    LET result1 = test_foreach_manifest_vec()
+    WRITEF("Result: %d*N*N", result1)
+
+    WRITEF("Test 2: FOREACH over FVEC with manifest size*N")
+    LET result2 = test_foreach_manifest_fvec()
+    WRITEF("Result: %d*N*N", result2)
+
+    WRITEF("Test 3: FOREACH over TABLE with manifest values*N")
+    LET result3 = test_foreach_manifest_table()
+    WRITEF("Result: %d*N*N", result3)
+
+    WRITEF("Test 4: FOREACH over VEC initializer*N")
+    LET result4 = test_foreach_manifest_vec_initializer()
+    WRITEF("Result: %d*N*N", result4)
+
+    WRITEF("Test 5: FOREACH with arithmetic manifest expression*N")
+    LET result5 = test_foreach_arithmetic_manifest()
+    WRITEF("Result: %d*N*N", result5)
+
+    WRITEF("Test 6: FOREACH with variable size (unoptimized)*N")
+    LET result6 = test_foreach_variable_size()
+    WRITEF("Result: %d*N*N", result6)
+
+    WRITEF("Test 7: Nested FOREACH with manifest constants*N")
+    LET result7 = test_nested_foreach_manifest()
+    WRITEF("Result: %d*N*N", result7)
+
+    WRITEF("*N=== Expected Optimizations ===*N")
+    WRITEF("Tests 1-5 and 7 should detect constant-size collections:*N")
+    WRITEF("- VEC BUFFER_SIZE should be recognized as size 10*N")
+    WRITEF("- FVEC ARRAY_SIZE should be recognized as size 8*N")
+    WRITEF("- TABLE with 5 elements should be recognized as size 5*N")
+    WRITEF("- VEC [a,b,c] should be recognized as size 3*N")
+    WRITEF("- VEC (BUFFER_SIZE + SMALL_SIZE) should be size 13*N")
+    WRITEF("Test 6 should NOT be optimized (variable size)*N")
+    WRITEF("*NRun with --trace-cfg to see collection size analysis*N")
+}

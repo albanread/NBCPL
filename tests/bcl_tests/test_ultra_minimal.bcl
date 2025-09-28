@@ -1,0 +1,6 @@
+// Ultra-minimal test to pinpoint register allocation issue
+
+LET START() BE $(
+    WRITES("Hello")
+    NEWLINE()
+$)

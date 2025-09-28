@@ -1,0 +1,28 @@
+// Simple test for vector bracket initialization syntax VEC [1,2,3]
+
+LET START() BE
+$(
+    WRITES("Testing VEC [1,2,3] syntax...*N")
+
+    // Test basic bracket initialization
+    LET vec = VEC [10, 20, 30]
+
+    WRITES("Vector created successfully*N")
+    WRITES("Length: ") WRITEN(LEN(vec)) WRITES("*N")
+
+    // Test accessing elements
+    WRITES("Elements: ")
+    WRITEN(vec!0) WRITES(" ")
+    WRITEN(vec!1) WRITES(" ")
+    WRITEN(vec!2) WRITES("*N")
+
+    // Test FOREACH with bracket syntax
+    WRITES("FOREACH test: ")
+    FOREACH val IN vec DO
+    $(
+        WRITEN(val) WRITES(" ")
+    $)
+    WRITES("*N")
+
+    WRITES("Test completed successfully*N")
+$)

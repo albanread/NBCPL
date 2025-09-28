@@ -1,0 +1,13 @@
+// test_no_escapes.bcpl
+// Test without escape sequences to verify basic functionality
+
+LET START() BE {
+    WRITES("Testing basic functionality without escape sequences")
+    NEWLINE()
+    WRITES("Line 1")
+    NEWLINE()
+    WRITES("Line 2")
+    NEWLINE()
+    WRITES("Test complete")
+    NEWLINE()
+}

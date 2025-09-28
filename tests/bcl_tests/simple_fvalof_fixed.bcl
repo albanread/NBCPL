@@ -1,0 +1,53 @@
+// Test 1: Simple FVALOF with literal float result
+LET FTEST1() = FVALOF {
+    RESULTIS 32.5
+}
+
+// Test 2: FVALOF with calculation
+LET FTEST2() = FVALOF {
+    LET temp = 30.0 +# 2.5
+    RESULTIS temp
+}
+
+// Test 3: FVALOF with conversion
+LET FTEST3() = FVALOF {
+    RESULTIS FLOAT(32)
+}
+
+// Test 4: Return a float directly without FVALOF
+LET FLOAT_FUNC() = 32.5
+
+LET START() BE
+{
+    // Test for direct assignment - this isn't working
+    WRITES("------ FVALOF tests ------*N")
+
+    WRITES("Test 1 - Direct assignment from FVALOF with literal:*N")
+    LET Y1 = FTEST1()
+    WRITES("Y1 = ")
+    WRITEF(Y1)
+    WRITES("*N")
+
+    WRITES("Test 2 - Direct assignment from FVALOF with calculation:*N")
+    LET Y2 = FTEST2()
+    WRITES("Y2 = ")
+    WRITEF(Y2)
+    WRITES("*N")
+
+    WRITES("Test 3 - Direct assignment from FVALOF with conversion:*N")
+    LET Y3 = FTEST3()
+    WRITES("Y3 = ")
+    WRITEF(Y3)
+    WRITES("*N")
+
+    WRITES("Test 4 - Direct assignment from float function:*N")
+    LET Y4 = FLOAT_FUNC()
+    WRITES("Y4 = ")
+    WRITEF(Y4)
+    WRITES("*N")
+
+    WRITES("Reference - Direct literal:*N")
+    WRITES("32.5 = ")
+    WRITEF(32.5)
+    WRITES("*N")
+}

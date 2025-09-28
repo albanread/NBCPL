@@ -1,0 +1,22 @@
+GET "libhdr"
+
+// Minimal test to isolate hanging issue
+LET START() BE
+{
+    writef("Starting minimal test...*n")
+
+    // Just basic vector allocation
+    LET v = VEC 3
+
+    writef("Vector allocated*n")
+
+    // Simple valid access
+    v!0 := 42
+
+    writef("Value set*n")
+
+    // Simple valid read
+    LET x = v!1
+
+    writef("Test completed*n")
+}

@@ -1,0 +1,21 @@
+// Test file to verify WRITEF functionality after the fix
+// This tests the variadic WRITEF handling without FWRITE
+
+LET START() BE {
+    // Test basic WRITEF with just a format string
+    WRITEF("Hello, world!*N")
+
+    // Test WRITEF with one argument (becomes WRITEF1)
+    WRITEF("Integer value: %I4*N", 42)
+
+    // Test WRITEF with two arguments (becomes WRITEF2)
+    WRITEF("Two values: %I4 and %I4*N", 123, 456)
+
+    // Test WRITEF with three arguments (becomes WRITEF3)
+    WRITEF("Three values: %I4, %I4, %I4*N", 10, 20, 30)
+
+    // Test WRITEF with four arguments (becomes WRITEF4)
+    WRITEF("Four values: %I4, %I4, %I4, %I4*N", 100, 200, 300, 400)
+
+    WRITES("All WRITEF tests completed successfully!*N")
+}

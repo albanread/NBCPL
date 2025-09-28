@@ -1,0 +1,21 @@
+// Simple PAIR arithmetic test to verify basic functionality
+LET START() BE {
+    writef("Simple PAIR Math Test\n")
+
+    // Basic PAIR creation
+    LET a = PAIR(3, 4)
+    writef("Created PAIR a = PAIR(3, 4)\n")
+    writef("a.first = %d, a.second = %d\n", a.first, a.second)
+
+    LET b = PAIR(1, 2)
+    writef("Created PAIR b = PAIR(1, 2)\n")
+    writef("b.first = %d, b.second = %d\n", b.first, b.second)
+
+    // Test addition
+    writef("Testing addition: a + b\n")
+    LET sum = a + b
+    writef("sum.first = %d, sum.second = %d\n", sum.first, sum.second)
+    writef("Expected: 4, 6\n")
+
+    writef("Test complete\n")
+}

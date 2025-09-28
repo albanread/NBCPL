@@ -1,0 +1,9 @@
+LET START() BE {
+    WRITES("Testing basic integer...*N")
+
+    // Just test a simple integer literal assignment
+    LET I = 42
+    WRITES("Integer assigned successfully.*N")
+
+    WRITES("Basic int test complete.*N")
+}

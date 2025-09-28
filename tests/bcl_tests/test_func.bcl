@@ -1,0 +1,6 @@
+LET START() BE $(
+
+ LET X=100
+ LET Y = BADFUNCTION(X)
+ WRITES("This should not run")
+$)

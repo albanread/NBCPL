@@ -1,0 +1,34 @@
+LET START() BE
+$(
+   // Edge cases test for trailing comma fix in LIST parsing
+   WRITES("Testing edge cases for trailing comma fix*N")
+
+   // Edge case 1: Empty list (should work as before)
+   LET empty = LIST()
+   WRITES("Edge case 1: Empty list - OK*N")
+
+   // Edge case 2: Single element with trailing comma
+   LET single_trailing = LIST("only",)
+   WRITES("Edge case 2: Single element with trailing comma - OK*N")
+
+   // Edge case 3: Multiple trailing commas should still fail (this is correct behavior)
+   // LET bad = LIST("a", "b",,)  // This should still be a syntax error
+
+   // Edge case 4: Nested lists with trailing commas
+   LET nested = LIST(LIST("inner1", "inner2",), LIST("inner3",))
+   WRITES("Edge case 4: Nested lists with trailing commas - OK*N")
+
+   // Edge case 5: Mixed types with trailing comma
+   LET mixed = LIST("string", 42, "another",)
+   WRITES("Edge case 5: Mixed types with trailing comma - OK*N")
+
+   // Edge case 6: Long list with trailing comma
+   LET long_list = LIST("a", "b", "c", "d", "e", "f",)
+   WRITES("Edge case 6: Long list with trailing comma - OK*N")
+
+   // Edge case 7: List with expressions and trailing comma
+   LET expr_list = LIST("first", "second" + "third", "fourth",)
+   WRITES("Edge case 7: List with expressions and trailing comma - OK*N")
+
+   WRITES("All edge cases passed! Trailing comma fix is robust.*N")
+$)

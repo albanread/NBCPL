@@ -1,0 +1,6 @@
+LET START() BE
+{
+	LET A = 5 = 5      // Should be true (-1)
+	LET B = 5 = 3      // Should be false (0)
+	WRITEF(" TRUE=%d FALSE=%d*N", A, B)
+}

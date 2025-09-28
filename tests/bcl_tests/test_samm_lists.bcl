@@ -1,0 +1,43 @@
+// Test SAMM with list allocations
+LET START() BE $(
+    WRITES("Testing SAMM with list allocations...*N")
+
+    // Test basic list allocation
+    $(
+        WRITES("Allocating lists in scope...*N")
+        LET list1 = LIST(1, 2, 3, 4, 5)
+        LET list2 = LIST("hello", "world")
+        WRITES("Lists allocated*N")
+        // Scope exit should trigger SAMM cleanup
+    $)
+
+    WRITES("First scope exited*N")
+
+    // Test nested scopes with list allocations
+    $(
+        LET list3 = LIST(10, 20, 30)
+        WRITES("Outer list allocated*N")
+
+        $(
+            LET list4 = LIST("a", "b", "c")
+            LET list5 = LIST(100, 200)
+            WRITES("Inner lists allocated*N")
+            // Inner scope exit should clean up list4, list5
+        $)
+
+        WRITES("Inner scope exited*N")
+        // Outer scope exit should clean up list3
+    $)
+
+    // Test list operations
+    $(
+        WRITES("Testing list operations...*N")
+        LET mylist = LIST(1, 2, 3)
+        LET head = HD(mylist)
+        WRITES("List created and accessed*N")
+        WRITEF("Head value: %D*N", head)
+        WRITES("List operations completed*N")
+    $)
+
+    WRITES("All scopes exited - list test complete*N")
+$)

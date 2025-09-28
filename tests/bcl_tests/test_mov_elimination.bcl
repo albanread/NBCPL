@@ -1,0 +1,53 @@
+// Test program to verify elimination of redundant MOV instructions
+// This program creates a class with methods that should trigger
+// parameter handling code to verify the fix works correctly
+
+CLASS Point BE {
+    LET x = 0
+    LET y = 0
+
+    // CREATE method with multiple parameters - should show parameter handling
+    LET CREATE(initialX, initialY) BE {
+        x := initialX
+        y := initialY
+    }
+
+    // Setter method with parameter - should show single parameter handling
+    LET setX(newX) BE {
+        x := newX
+    }
+
+    // Method with multiple parameters - should show parameter register allocation
+    LET setPosition(newX, newY) BE {
+        x := newX
+        y := newY
+    }
+
+    // Getter method - should show simple return
+    LET getX() = x
+
+    // Method with computation using parameters
+    LET distanceFrom(otherX, otherY) = {
+        LET dx = x - otherX
+        LET dy = y - otherY
+        RESULTIS dx * dx + dy * dy
+    }
+}
+
+// Test function that creates and uses Point objects
+LET start() BE {
+    // Create a Point object - this should trigger CREATE method
+    LET p = NEW Point(10, 20)
+
+    // Call methods with parameters
+    p.setX(15)
+    p.setPosition(25, 30)
+
+    // Call getter
+    LET currentX = p.getX()
+
+    // Call method with multiple parameters
+    LET distance = p.distanceFrom(0, 0)
+
+    writef("Point x: %d, distance: %d*N", currentX, distance)
+}

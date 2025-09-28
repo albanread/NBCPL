@@ -1,0 +1,20 @@
+// Simple test for universal expressions
+// Test one operation at a time to debug issues
+
+LET START() BE {
+    // Test 1: Simple float + int
+    LET x = 1.5 + 2
+    WRITEF("1.5 + 2 = %f*N", x)
+
+    // Test 2: Simple int + float
+    LET y = 3 + 2.0
+    WRITEF("3 + 2.0 = %f*N", y)
+
+    // Test 3: Pure integer operation
+    LET z = 10 + 5
+    WRITEF("10 + 5 = %d*N", z)
+
+    // Test 4: Pure float operation
+    LET w = 1.5 + 2.5
+    WRITEF("1.5 + 2.5 = %f*N", w)
+}

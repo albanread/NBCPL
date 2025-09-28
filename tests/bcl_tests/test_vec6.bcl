@@ -1,0 +1,17 @@
+LET START() BE
+$(
+    // Directly initialize a mutable, heap-allocated vector
+    LET V = VEC(0, 5, 10, 15, 20, 25, 30, 35, 40, 45)
+
+    WRITES("Foreach test on a VEC initializer*N")
+
+    FOREACH e IN V DO
+    $(
+        WRITEN(e)
+        WRITEC(32)
+    $)
+    WRITEC('*N')
+
+    // FREEVEC is still needed, as this is heap memory
+    FREEVEC V
+$)

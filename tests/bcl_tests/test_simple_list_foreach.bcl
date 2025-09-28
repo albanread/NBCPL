@@ -1,0 +1,16 @@
+// Simple list FOREACH test to verify the list temporary variable fix
+LET START() BE {
+    WRITEF("Testing list FOREACH with temporary variable fix\n")
+
+    // Create a simple list
+    LET my_list = LIST("first", "second", "third")
+
+    WRITEF("Created list with 3 items\n")
+
+    // Test list FOREACH - this should work without crashing
+    FOREACH item IN my_list DO {
+        WRITEF("List item: %s\n", item)
+    }
+
+    WRITEF("List FOREACH completed successfully!\n")
+}

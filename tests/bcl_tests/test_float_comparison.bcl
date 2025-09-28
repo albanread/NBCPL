@@ -1,0 +1,25 @@
+// Minimal test to check float comparison syntax in NewBCPL
+// This tests if the #< operator works correctly with floats
+
+LET START() BE {
+    WRITEF("Testing float comparison operators\n")
+
+    FLET x = 5.5
+    FLET y = 10.0
+
+    // Test basic float comparison
+    IF x #< y THEN {
+        WRITEF("5.5 < 10.0: TRUE (correct)\n")
+    } ELSE {
+        WRITEF("5.5 < 10.0: FALSE (incorrect!)\n")
+    }
+
+    // Test with constants
+    IF 3.14 #< 6.28 THEN {
+        WRITEF("3.14 < 6.28: TRUE (correct)\n")
+    } ELSE {
+        WRITEF("3.14 < 6.28: FALSE (incorrect!)\n")
+    }
+
+    WRITEF("Float comparison test completed\n")
+}

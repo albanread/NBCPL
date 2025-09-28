@@ -1,0 +1,51 @@
+// Debug test to trace FOREACH condition logic and identify off-by-one bug
+LET START() BE {
+    WRITEF("=== FOREACH Debug Test ===\n")
+
+    // Test 1: String with known length
+    WRITEF("Test 1: String 'abc' (length 3)\n")
+    WRITEF("Expected: a, b, c (3 characters)\n")
+    WRITEF("Actual output:\n")
+    FOREACH char IN "abc" DO {
+        WRITEF("  Character: %c\n", char)
+    }
+    WRITEF("End of string test\n\n")
+
+    // Test 2: Vector with known size
+    WRITEF("Test 2: Vector VEC(1, 2, 3) (size 3)\n")
+    WRITEF("Expected: 1, 2, 3 (3 elements)\n")
+    WRITEF("Actual output:\n")
+    FOREACH num IN VEC(1, 2, 3) DO {
+        WRITEF("  Number: %d\n", num)
+    }
+    WRITEF("End of vector test\n\n")
+
+    // Test 3: Single element collections
+    WRITEF("Test 3: Single character string 'x' (length 1)\n")
+    WRITEF("Expected: x (1 character)\n")
+    WRITEF("Actual output:\n")
+    FOREACH char IN "x" DO {
+        WRITEF("  Character: %c\n", char)
+    }
+    WRITEF("End of single char test\n\n")
+
+    WRITEF("Test 4: Single element vector VEC(99) (size 1)\n")
+    WRITEF("Expected: 99 (1 element)\n")
+    WRITEF("Actual output:\n")
+    FOREACH num IN VEC(99) DO {
+        WRITEF("  Number: %d\n", num)
+    }
+    WRITEF("End of single element test\n\n")
+
+    // Test 5: Two element collections to see the pattern
+    WRITEF("Test 5: Two character string 'hi' (length 2)\n")
+    WRITEF("Expected: h, i (2 characters)\n")
+    WRITEF("Actual output:\n")
+    FOREACH char IN "hi" DO {
+        WRITEF("  Character: %c\n", char)
+    }
+    WRITEF("End of two char test\n\n")
+
+    WRITEF("=== Debug Test Complete ===\n")
+    WRITEF("If last elements are missing, there's an off-by-one bug in the loop condition!\n")
+}

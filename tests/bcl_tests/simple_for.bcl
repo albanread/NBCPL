@@ -1,0 +1,15 @@
+GET "libhdr"
+
+LET start() = VALOF
+{
+    LET i = 0
+
+    FOR i = 1 TO 5 DO
+    {
+        WRITEF("Loop iteration: %N*N", i)
+    }
+
+    WRITEF("Loop finished. Final i value: %N*N", i)
+
+    FINISH
+}

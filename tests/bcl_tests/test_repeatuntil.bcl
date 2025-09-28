@@ -1,0 +1,18 @@
+
+LET START() BE
+$(
+
+
+  LET I = 0
+  $(
+
+    WRITES("hello world*N")
+
+    I := I + 1
+
+  $) REPEAT UNTIL I = 3
+
+
+  WRITES("*N--------------------------------------------*N")
+
+$)

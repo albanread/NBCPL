@@ -1,0 +1,5 @@
+// Minimal test to check basic functionality
+
+LET start() BE {
+    WRITEF("Hello from minimal test\n")
+}

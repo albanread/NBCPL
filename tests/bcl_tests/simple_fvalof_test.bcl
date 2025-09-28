@@ -1,0 +1,10 @@
+LET START() BE {
+    WRITES("Testing simple FVALOF...*N")
+
+    // Simple direct floating point arithmetic first
+    LET F1 = 3.5 +# 2.5
+    WRITEF(F1)
+    WRITES("Expected: 6.0*N")
+
+    WRITES("Simple FVALOF test complete.*N")
+}

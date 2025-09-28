@@ -1,0 +1,31 @@
+// Minimal test program to verify unified runtime functionality
+
+LET START() BE
+{
+    WRITEF("=== Minimal Unified Runtime Test ===*N")
+    WRITEF("Testing basic functionality...*N")
+
+    // Test basic arithmetic
+    LET a = 10
+    LET b = 20
+    LET c = a + b
+    WRITEF("10 + 20 = %d*N", c)
+
+    // Test memory allocation
+    LET vec = GETVEC(5)
+    IF vec ~= 0 THEN
+    {
+        WRITEF("Memory allocation successful*N")
+        vec!0 := 42
+        WRITEF("Stored value: %d*N", vec!0)
+        FREEVEC(vec)
+        WRITEF("Memory freed*N")
+    }
+
+    UNLESS vec ~= 0 THEN
+    {
+        WRITEF("Memory allocation failed*N")
+    }
+
+    WRITEF("*N=== Test Complete ===*N")
+}

@@ -1,0 +1,23 @@
+LET START() BE
+$(
+   // Simple edge cases test for trailing comma fix in LIST parsing
+   WRITES("Testing edge cases for trailing comma fix*N")
+
+   // Edge case 1: Empty list (should work as before)
+   LET empty = LIST()
+   WRITES("Edge case 1: Empty list - OK*N")
+
+   // Edge case 2: Single element with trailing comma
+   LET single_trailing = LIST("only",)
+   WRITES("Edge case 2: Single element with trailing comma - OK*N")
+
+   // Edge case 3: Two elements with trailing comma
+   LET two_trailing = LIST("first", "second",)
+   WRITES("Edge case 3: Two elements with trailing comma - OK*N")
+
+   // Edge case 4: Three elements with trailing comma
+   LET three_trailing = LIST("a", "b", "c",)
+   WRITES("Edge case 4: Three elements with trailing comma - OK*N")
+
+   WRITES("All simple edge cases passed! Trailing comma fix works.*N")
+$)

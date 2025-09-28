@@ -1,0 +1,14 @@
+LET TESTFUNC() = VALOF
+$(
+  LET R = 1
+  WRITES("Initial R=") WRITEN(R) WRITES("*N")
+  R := 5
+  WRITES("After R=") WRITEN(R) WRITES("*N")
+  RESULTIS R
+$)
+
+LET START() BE
+$(
+  LET X = TESTFUNC()
+  WRITES("Returned X=") WRITEN(X) WRITES("*N")
+$)

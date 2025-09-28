@@ -1,0 +1,42 @@
+// Simple object test to isolate SAMM double-free issue
+CLASS TestObj $(
+    DECL value
+
+    ROUTINE CREATE(val) BE $(
+        value := val
+        WRITES("TestObj created with value: ")
+        WRITEN(value)
+        WRITES("*N")
+    $)
+
+    FUNCTION getValue() = VALOF $(
+        RESULTIS value
+    $)
+
+    ROUTINE RELEASE() BE $(
+        WRITES("TestObj RELEASE called*N")
+        // Manual cleanup if needed
+    $)
+$)
+
+LET START() BE $(
+    WRITES("Testing simple object with SAMM...*N")
+
+    // Test basic object allocation in scope
+    $(
+        WRITES("Creating object in scope...*N")
+        LET obj = NEW TestObj
+        obj.CREATE(42)
+
+        LET val = obj.getValue()
+        WRITES("Object value: ")
+        WRITEN(val)
+        WRITES("*N")
+
+        WRITES("Exiting scope - SAMM should handle cleanup*N")
+        // Scope exit should trigger SAMM cleanup, not legacy .RELEASE()
+    $)
+
+    WRITES("Object scope exited*N")
+    WRITES("Test completed*N")
+$)

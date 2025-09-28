@@ -1,0 +1,11 @@
+LET START() BE 
+$(
+   LET L = LIST( 10, 20, 30, 40, 50)
+  
+   LET H = HD(REST(L))
+   WRITEN(H) WRITEC(10)
+  
+   LET K = HD L
+   WRITEN(K)
+
+$)

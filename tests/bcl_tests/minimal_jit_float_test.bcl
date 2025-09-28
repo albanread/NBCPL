@@ -1,0 +1,38 @@
+LET START() BE {
+    WRITES("Starting minimal JIT float test...*N")
+
+    // Test 1: Direct floating point operation
+    LET f1 = 2.0
+    LET f2 = 4.0
+    LET result1 = f1 *# f2
+    WRITES("Direct float multiply: 2.0 *# 4.0 = ")
+    WRITEF(result1)
+    WRITES(" (should be 8.0)*N")
+
+    // Test 2: Single function call with floating point operation
+    LET result2 = FLOAT(8)
+    WRITES("Direct FLOAT conversion: FLOAT(8) = ")
+    WRITEF(result2)
+    WRITES(" (should be 8.0)*N")
+
+    // Test 3: Float conversion with multiplication
+    LET result3 = FLOAT(8) *# 2.0
+    WRITES("Combined operation: FLOAT(8) *# 2.0 = ")
+    WRITEF(result3)
+    WRITES(" (should be 16.0)*N")
+
+    // Test 4: Function that returns a float from multiplication
+    LET result4 = MULTIPLY_BY_TWO(8)
+    WRITES("Function call: MULTIPLY_BY_TWO(8) = ")
+    WRITEF(result4)
+    WRITES(" (should be 16.0)*N")
+
+    WRITES("Test complete.*N")
+}
+
+// Simple function that doubles its input
+LET MULTIPLY_BY_TWO(x) = VALOF {
+    // Convert to float and multiply by 2.0
+    LET result = FLOAT(x) *# 2.0
+    RESULTIS result
+}

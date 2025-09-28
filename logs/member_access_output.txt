@@ -1,0 +1,32 @@
+SDL2 runtime functions registered successfully.
+[COERCE_DEBUG] Input argument registers: 
+[COERCE_DEBUG] Executed 0 queued operations
+[COERCE_DEBUG] Input argument registers: arg0=X9 
+[COERCE_DEBUG] Integer: X9 -> X0
+[COERCE_DEBUG] Executed 1 queued operations
+[COERCE_DEBUG] Input argument registers: arg0=X9 
+[COERCE_DEBUG] Integer: X9 -> X0
+[COERCE_DEBUG] Executed 1 queued operations
+[COERCE_DEBUG] Input argument registers: arg0=X9 arg1=X25 arg2=X24 
+[COERCE_DEBUG] Integer: X9 -> X0
+[COERCE_DEBUG] Integer: X25 -> X1
+[COERCE_DEBUG] Integer: X24 -> X2
+[COERCE_DEBUG] Executed 3 queued operations
+[COERCE_DEBUG] Input argument registers: arg0=X9 
+[COERCE_DEBUG] Integer: X9 -> X0
+[COERCE_DEBUG] Executed 1 queued operations
+[COERCE_DEBUG] Input argument registers: arg0=X9 arg1=X27 arg2=X26 
+[COERCE_DEBUG] Integer: X9 -> X0
+[COERCE_DEBUG] Integer: X27 -> X1
+[COERCE_DEBUG] Integer: X26 -> X2
+[COERCE_DEBUG] Executed 3 queued operations
+[COERCE_DEBUG] Input argument registers: arg0=X9 arg1=X10 arg2=X11 
+[COERCE_DEBUG] Integer: X9 -> X0
+[COERCE_DEBUG] Integer: X10 -> X1
+[COERCE_DEBUG] Integer: X11 -> X2
+[COERCE_DEBUG] Executed 3 queued operations
+[COERCE_DEBUG] Input argument registers: arg0=X9 
+[COERCE_DEBUG] Integer: X9 -> X0
+[COERCE_DEBUG] Executed 1 queued operations
+[COERCE_DEBUG] Input argument registers: 
+[COERCE_DEBUG] Executed 0 queued operations

@@ -1,0 +1,7 @@
+GET "libhdr.h"
+LET START() BE
+$(
+    WRITES("Testing FWRITE: ")
+    FWRITE(3.14)
+    WRITES("*n")
+$)

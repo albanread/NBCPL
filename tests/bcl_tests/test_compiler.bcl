@@ -1,0 +1,37 @@
+// test_compiler.bcl
+// Simple test program to verify the NewBCPL compiler works correctly
+
+LET start() BE
+{
+    // Test basic arithmetic
+    LET a = 10;
+    LET b = 5;
+    LET sum = a + b;
+    LET diff = a - b;
+    LET product = a * b;
+    LET quotient = a / b;
+
+    writef("Basic arithmetic tests:\n");
+    writef("a = %d, b = %d\n", a, b);
+    writef("sum = %d\n", sum);
+    writef("diff = %d\n", diff);
+    writef("product = %d\n", product);
+    writef("quotient = %d\n", quotient);
+
+    // Test string operations
+    writef("\nString test:\n");
+    writef("Hello, NewBCPL compiler!\n");
+
+    // Test conditionals
+    IF sum = 15 THEN
+        writef("Conditional test: PASS\n")
+    ELSE
+        writef("Conditional test: FAIL\n");
+
+    // Test loop
+    writef("\nLoop test:\n");
+    FOR i = 1 TO 3 DO
+        writef("Loop iteration %d\n", i);
+
+    writef("\nCompiler test completed successfully!\n");
+}

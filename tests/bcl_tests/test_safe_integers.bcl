@@ -1,0 +1,45 @@
+// Test file for safe integer parsing utilities
+// Tests various number formats including edge cases
+
+MANIFEST $(
+    DECIMAL_TEST = 42
+    HEX_TEST = #X2A
+    LARGE_HEX = #XFFFFFFFF
+    ZERO_HEX = #X0
+    SINGLE_DIGIT = 5
+    LARGE_DECIMAL = 1000000
+$)
+
+LET START() BE {
+    // Test basic decimal numbers
+    LET small_num = 10
+    LET medium_num = 12345
+    LET zero = 0
+
+    // Test BCPL hex numbers
+    LET hex_value = #X10    // Should be 16 in decimal
+    LET hex_alpha = #XAB    // Should be 171 in decimal
+    LET hex_mixed = #X1F2E  // Should be 7982 in decimal
+
+    // Test manifest constants
+    WRITEF("Decimal test: %d*n", DECIMAL_TEST)
+    WRITEF("Hex test: %d*n", HEX_TEST)
+    WRITEF("Large hex: %d*n", LARGE_HEX)
+    WRITEF("Zero hex: %d*n", ZERO_HEX)
+
+    // Test runtime values
+    WRITEF("Small number: %d*n", small_num)
+    WRITEF("Medium number: %d*n", medium_num)
+    WRITEF("Zero: %d*n", zero)
+    WRITEF("Hex 10: %d*n", hex_value)
+    WRITEF("Hex AB: %d*n", hex_alpha)
+    WRITEF("Hex 1F2E: %d*n", hex_mixed)
+
+    // Test in expressions
+    LET sum = DECIMAL_TEST + HEX_TEST
+    WRITEF("Sum of decimal and hex: %d*n", sum)
+
+    // Test negative numbers
+    LET negative = -100
+    WRITEF("Negative number: %d*n", negative)
+}

@@ -1,0 +1,68 @@
+LET START() BE {
+    WRITES("Testing MULTIPLY_BY_TWO function with integer input...*N")
+
+    // First, test direct floating point operations
+    WRITES("Direct floating point operations:*N")
+    LET a = 2.0
+    LET b = 4.0
+    LET c = a *# b
+    WRITES("2.0 *# 4.0 = ")
+    WRITEF(c)
+    WRITES("*N")
+
+    // Test FLOAT conversion
+    LET x = 8
+    LET y = FLOAT(x)
+    WRITES("FLOAT(8) = ")
+    WRITEF(y)
+    WRITES("*N")
+
+    // Test direct FLOAT + multiplication
+    LET z = FLOAT(8) *# 2.0
+    WRITES("FLOAT(8) *# 2.0 = ")
+    WRITEF(z)
+    WRITES("*N")
+
+    WRITES("*NTesting functions:*N")
+
+    // Test original function
+    LET result = MULTIPLY_BY_TWO(8)
+    WRITES("MULTIPLY_BY_TWO(8) = ")
+    WRITEF(result)
+    WRITES(" (should be 16.0)*N")
+
+    // Test a version that stores the float first
+    LET result2 = MULTIPLY_BY_TWO_ALT1(8)
+    WRITES("MULTIPLY_BY_TWO_ALT1(8) = ")
+    WRITEF(result2)
+    WRITES(" (should be 16.0)*N")
+
+    // Test with direct floating point input
+    LET result3 = MULTIPLY_FLOAT_BY_TWO(8.0)
+    WRITES("MULTIPLY_FLOAT_BY_TWO(8.0) = ")
+    WRITEF(result3)
+    WRITES(" (should be 16.0)*N")
+
+    WRITES("*NTest complete.*N")
+}
+
+// Original function with FLOAT conversion and multiplication
+LET MULTIPLY_BY_TWO(x) = FVALOF {
+    // Convert to float and multiply by 2.0
+    LET result = FLOAT(x) *# 2.0
+    RESULTIS result
+}
+
+// Alternative with intermediate variable
+LET MULTIPLY_BY_TWO_ALT1(x) = FVALOF {
+    LET float_x = FLOAT(x)
+    LET result = float_x *# 2.0
+    RESULTIS result
+}
+
+// Function that takes float input directly
+LET MULTIPLY_FLOAT_BY_TWO(x) = FVALOF {
+    // Already float, just multiply
+    LET result = x *# 2.0
+    RESULTIS result
+}

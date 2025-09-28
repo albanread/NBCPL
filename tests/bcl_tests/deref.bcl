@@ -1,0 +1,21 @@
+// Corrected deref.bcl
+
+LET START() BE $(
+  // 1. Allocate a vector with one word of memory.
+  LET MEM = VEC 1
+
+  // 2. Get the address of the first element (@MEM!0) and store it in P.
+  LET P = MEM
+
+  // 3. Now, P holds a valid address, and this operation will succeed.
+  !P := 11
+
+  // The rest of your original test
+  LET V = VEC 10
+  V!1 := 10
+
+  WRITES("Test results")
+  WRITEC(10)
+  WRITEN(!P)
+
+$)

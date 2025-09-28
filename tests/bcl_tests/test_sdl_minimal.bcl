@@ -1,0 +1,59 @@
+// Minimal SDL test to check basic SDL functionality
+// This avoids complex MANIFEST declarations to isolate parsing issues
+
+LET START() BE {
+    WRITEF("Testing minimal SDL functionality*N")
+
+    // Test SDL2 initialization
+    LET result = SDL2_INIT()
+    TEST result = 0 THEN {
+        WRITEF("✅ SDL2 initialized successfully*N")
+
+        // Test window creation with hardcoded values
+        LET window = SDL2_CREATE_WINDOW_EX("BCPL Test Window", 0x2FFF0000, 0x2FFF0000, 640, 480, 0x00000004)
+        TEST window > 0 THEN {
+            WRITEF("✅ Window created successfully*N")
+
+            // Create simple renderer
+            LET renderer = SDL2_CREATE_RENDERER_EX(window, 0x00000002)
+            TEST renderer > 0 THEN {
+                WRITEF("✅ Renderer created successfully*N")
+
+                // Set background color (dark blue)
+                SDL2_SET_DRAW_COLOR(renderer, 20, 30, 50, 255)
+                SDL2_CLEAR(renderer)
+
+                // Draw a simple green point in center
+                SDL2_SET_DRAW_COLOR(renderer, 0, 255, 0, 255)
+                SDL2_DRAW_POINT(renderer, 320, 240)
+
+                // Present the frame
+                SDL2_PRESENT(renderer)
+
+                WRITEF("✅ Drew test graphics - window should show green dot*N")
+                WRITEF("Waiting 3 seconds...*N")
+
+                // Wait briefly so user can see the window
+                SDL2_DELAY(3000)
+
+                // Cleanup
+                SDL2_DESTROY_RENDERER(renderer)
+                WRITEF("✅ Renderer destroyed*N")
+            } ELSE {
+                WRITEF("❌ Failed to create renderer*N")
+            }
+
+            SDL2_DESTROY_WINDOW(window)
+            WRITEF("✅ Window destroyed*N")
+        } ELSE {
+            WRITEF("❌ Failed to create window*N")
+        }
+
+        SDL2_QUIT()
+        WRITEF("✅ SDL2 shutdown complete*N")
+    } ELSE {
+        WRITEF("❌ SDL2 initialization failed with code: %N*N", result)
+    }
+
+    WRITEF("Minimal SDL test completed*N")
+}

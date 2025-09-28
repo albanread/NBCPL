@@ -1,0 +1,85 @@
+// Test comparing FOR and FOREACH manifest constant handling timing
+// This investigates why FOR loops recognize manifest constants but FOREACH doesn't
+
+MANIFEST {
+    MAX_SIZE = 8;
+    STEP_SIZE = 2;
+    VEC_SIZE = 5;
+    ARRAY_SIZE = 10
+}
+
+LET test_for_manifest() = VALOF {
+    LET sum = 0
+
+    // FOR loop with manifest constants - SHOULD BE OPTIMIZED
+    // This works: generates CMP with immediate #8
+    FOR i = 1 TO MAX_SIZE BY STEP_SIZE DO {
+        sum := sum + i
+    }
+
+    RESULTIS sum
+}
+
+LET test_foreach_manifest() = VALOF {
+    LET sum = 0
+
+    // FOREACH over VEC with manifest constant - TIMING ISSUE?
+    // This doesn't work: manifest not resolved at CFG build time
+    FOREACH item IN VEC VEC_SIZE DO {
+        sum := sum + 1
+    }
+
+    RESULTIS sum
+}
+
+LET test_foreach_literal() = VALOF {
+    LET sum = 0
+
+    // FOREACH over VEC with literal constant - WORKS
+    // This works: literal constants are resolved immediately
+    FOREACH item IN VEC 5 DO {
+        sum := sum + 1
+    }
+
+    RESULTIS sum
+}
+
+LET test_variable_assignment() = VALOF {
+    LET sum = 0
+
+    // Store manifest in variable, then use in FOREACH
+    LET vec_size = VEC_SIZE
+    LET my_vec = VEC vec_size
+
+    FOREACH item IN my_vec DO {
+        sum := sum + 1
+    }
+
+    RESULTIS sum
+}
+
+LET START() BE {
+    WRITEF("=== Manifest Constant Timing Investigation ===*N*N")
+
+    WRITEF("Test 1: FOR loop with manifest constants*N")
+    LET result1 = test_for_manifest()
+    WRITEF("Result: %d*N*N", result1)
+
+    WRITEF("Test 2: FOREACH with manifest constants*N")
+    LET result2 = test_foreach_manifest()
+    WRITEF("Result: %d*N*N", result2)
+
+    WRITEF("Test 3: FOREACH with literal constants*N")
+    LET result3 = test_foreach_literal()
+    WRITEF("Result: %d*N*N", result3)
+
+    WRITEF("Test 4: FOREACH with variable assignment*N")
+    LET result4 = test_variable_assignment()
+    WRITEF("Result: %d*N*N", result4)
+
+    WRITEF("*N=== Analysis ===*N")
+    WRITEF("If Test 1 shows optimization but Test 2 doesn't,*N")
+    WRITEF("then manifest constants are resolved between*N")
+    WRITEF("ASTAnalyzer pass and CFGBuilder pass.*N")
+    WRITEF("*NRun with --trace-ast and --trace-cfg to compare*N")
+}

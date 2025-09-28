@@ -1,0 +1,11 @@
+LET test() =  FVALOF
+{ 
+  FLET x = 3.14
+  FLET y = 2.718
+  RESULTIS x+y 
+}
+
+LET START() = VALOF 
+{
+    RESULTIS test() 
+}

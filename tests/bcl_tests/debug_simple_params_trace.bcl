@@ -1,0 +1,25 @@
+// Minimal test to isolate parameter passing issue with analyzer tracing
+// Test if the problem is in parameter passing or in parameter type inference
+
+// Function that just returns its first parameter (should be integer)
+LET ReturnInt(x, y) = VALOF {
+    WRITES("LET function*N")
+    RESULTIS x }
+
+// Function that just returns its first parameter (should be float)
+FLET ReturnFloat(x, y) = VALOF {
+ WRITES("FLET function*N")
+ RESULTIS x
+ }
+
+LET START() BE {
+    FLET my_float = 3.14  // Explicit FLET declaration
+
+    WRITEF("Testing parameter type inference with tracing...*n")
+
+    // Test: Pass float to float function - should preserve float value
+    FLET result = ReturnFloat(my_float, 42)
+    WRITEF("ReturnFloat(3.14, 42) = %f*n", result)
+
+    WRITEF("Parameter inference test completed.*n")
+}

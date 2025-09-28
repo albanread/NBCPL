@@ -1,0 +1,76 @@
+// Test program for unnecessary jump elimination optimization
+// This program creates patterns where GOTO statements target
+// the immediately following block (fallthrough cases)
+
+LET start() BE {
+    LET x = 10
+
+    // Test 1: Simple sequential flow with unnecessary GOTO
+    writef("Starting test*N")
+    GOTO next_step
+
+    next_step:
+        writef("Step 1 completed*N")
+        GOTO final_step
+
+    final_step:
+        writef("Final step*N")
+
+    // Test 2: IF statement with unnecessary GOTOs in fallthrough cases
+    IF x > 5 THEN {
+        writef("x is greater than 5*N")
+        GOTO after_if
+    }
+
+    writef("This should never execute*N")
+
+    after_if:
+        writef("After IF block*N")
+        GOTO continue_test
+
+    continue_test:
+        writef("Continuing test*N")
+
+    // Test 3: Sequential labels with unnecessary jumps between them
+    writef("Before label sequence*N")
+    GOTO label1
+
+    label1:
+        writef("At label1*N")
+        GOTO label2
+
+    label2:
+        writef("At label2*N")
+        GOTO label3
+
+    label3:
+        writef("At label3*N")
+        GOTO end_sequence
+
+    end_sequence:
+        writef("End of label sequence*N")
+
+    // Test 4: Nested structure with unnecessary jumps
+    TEST x = 10 THEN {
+        writef("x equals 10*N")
+        GOTO success_block
+    } ELSE {
+        writef("x does not equal 10*N")
+        GOTO failure_block
+    }
+
+    success_block:
+        writef("Success path*N")
+        GOTO merge_point
+
+    failure_block:
+        writef("Failure path*N")
+        GOTO merge_point
+
+    merge_point:
+        writef("Merged execution*N")
+        GOTO program_end
+
+    program_end:
+        writef("Program completed*N")
+}

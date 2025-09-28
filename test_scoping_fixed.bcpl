@@ -1,0 +1,18 @@
+LET START() BE {
+    WRITEF("Testing scoping fix...*n")
+
+    IF TRUE THEN {
+        LET x = 42
+        LET y = 100
+        WRITEF("Inside IF: x = %d, y = %d*n", x, y)
+
+        IF TRUE THEN {
+            LET z = 999
+            WRITEF("Inside nested IF: x = %d, y = %d, z = %d*n", x, y, z)
+        }
+
+        WRITEF("Back to outer IF: x = %d, y = %d*n", x, y)
+    }
+
+    WRITEF("Scoping test complete.*n")
+}

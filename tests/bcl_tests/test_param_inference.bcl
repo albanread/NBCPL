@@ -1,0 +1,20 @@
+LET START() BE {
+    LET int_result = TestIntFunc(5, 10)
+    FLET float_result = TestFloatFunc(3.14, 2.71)
+    LET unused_result = TestUnusedParam(42, 99)
+}
+
+// Function that uses both parameters in integer arithmetic
+LET TestIntFunc(a, b) = VALOF {
+    RESULTIS a + b
+}
+
+// Function that uses both parameters in float arithmetic
+FLET TestFloatFunc(x, y) = VALOF {
+    RESULTIS x * y
+}
+
+// Function that only uses first parameter
+LET TestUnusedParam(used, unused) = VALOF {
+    RESULTIS used * 2
+}

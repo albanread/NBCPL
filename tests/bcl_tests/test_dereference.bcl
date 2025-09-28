@@ -1,0 +1,51 @@
+GET "libhdr.h"
+
+LET START() = VALOF
+$(
+  LET X = 0
+  LET P = 0
+  LET Y = 0
+  LET Z = 0
+
+  // 1. Basic dereferencing
+  P := &X
+  P -> := 100
+  WRITEN(X) // Expected: 100
+
+  // 2. Dereferencing with arithmetic operations (array-like access)
+  LET V = VEC 3
+  P := V
+  P -> := 10
+  (P + 1) -> := 20
+  (P + 2) -> := 30
+  WRITEN(V!0) // Expected: 10
+  WRITEN(V!1) // Expected: 20
+  WRITEN(V!2) // Expected: 30
+
+  // 3. Dereferencing in expressions with other operators
+  X := 5
+  P := &X
+  Y := 10 + P -> // Expected: 10 + 5 = 15
+  WRITEN(Y)
+
+  Z := P -> + 20 // Expected: 5 + 20 = 25
+  WRITEN(Z)
+
+  // 4. Chained dereferencing
+  LET Q = 0
+  P := &Q
+  Q := &X
+  P -> -> := 500 // X should become 500
+  WRITEN(X) // Expected: 500
+
+  // 5. Potential infinite loop case (pointer points to itself)
+  // This is more of a runtime issue, but we'll see how the compiler handles it.
+  // P := &P // This line would cause a compile error in BCPL due to type mismatch
+  // Instead, we'll simulate a self-referencing pointer with a simple loop
+  // that might expose issues if dereferencing doesn't advance the pointer.
+  // This is not a direct test of '->' causing infinite loop, but a general
+  // test of runtime stability with unusual pointer assignments.
+  // For now, I'll skip a direct infinite loop test as it's hard to control
+  // within a simple BCPL script without more advanced features.
+
+$)

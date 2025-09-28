@@ -1,0 +1,10 @@
+LET START() BE 
+$(
+   LET I=1
+   REPEAT
+   $(
+    WRITES("I =") WRITEN(I) WRITEC(10)
+    I := I + 1
+   $)
+   UNTIL I>10
+$)

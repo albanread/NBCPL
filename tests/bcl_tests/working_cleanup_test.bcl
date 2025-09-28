@@ -1,0 +1,55 @@
+// Working test to verify cleanup on control flow exit paths
+
+CLASS Point $(
+    LET x = 0
+    LET y = 0
+$)
+
+// Test early return with cleanup
+LET TestEarlyReturn(condition) BE $(
+    WRITES("Testing early return*N")
+
+    {
+        LET p = NEW Point()
+        LET v = VEC 10
+
+        p.x := 42
+
+        IF condition THEN {
+            WRITES("Taking early return - cleanup should happen*N")
+            RETURN
+        }
+
+        p.y := 84
+        WRITES("Normal path - cleanup at block end*N")
+    }
+$)
+
+// Test break with cleanup
+LET TestBreakCleanup() BE $(
+    WRITES("Testing break with cleanup*N")
+
+    FOR i = 1 TO 5 DO {
+        {
+            LET temp = NEW Point()
+            temp.x := i
+
+            IF i = 3 THEN {
+                WRITES("Breaking at i=3 - cleanup should happen*N")
+                BREAK
+            }
+
+            WRITES("Normal iteration*N")
+        }
+    } REPEAT
+$)
+
+LET START() BE $(
+    WRITES("Starting control flow cleanup test*N")
+
+    TestEarlyReturn(TRUE)
+    TestEarlyReturn(FALSE)
+    TestBreakCleanup()
+
+    WRITES("Test completed*N")
+$)

@@ -1,0 +1,15 @@
+LET START() BE
+$(
+   WRITES("Testing runtime error tracking system*N")
+
+   // Test 1: Try to allocate an invalid amount of memory
+   WRITES("Test 1: Attempting invalid memory allocation*N")
+   LET BAD_VEC = VEC(-5)  // This should trigger an error
+
+   // Test 2: Try to access a null pointer (if we get this far)
+   WRITES("Test 2: Attempting null pointer access*N")
+   LET NULL_PTR = 0
+   LET BAD_VALUE = !NULL_PTR  // This should cause a segfault and show errors in crash report
+
+   WRITES("If you see this, error tracking might not be working*N")
+$)

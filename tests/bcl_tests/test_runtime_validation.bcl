@@ -1,0 +1,25 @@
+LET START() BE {
+    // Test runtime validation for dynamic format strings
+    WRITES("=== Runtime Validation Test ===*n")
+
+    // Create a dynamic format string (not a compile-time literal)
+    LET format1 = "Hello %s, you have %d messages*n"
+    LET format2 = "Value: %f*n"
+    LET format3 = "Wrong count: %d %s*n"
+
+    // Test 1: Correct usage with dynamic format string
+    WRITES("Test 1: Correct dynamic format string*n")
+    WRITEF(format1, "Alice", 5)
+
+    // Test 2: Another correct usage
+    WRITES("Test 2: Another correct usage*n")
+    WRITEF(format2, 3.14159)
+
+    // Test 3: This should trigger runtime error (wrong argument count)
+    // Format expects 2 args (%d %s) but only 1 provided
+    WRITES("Test 3: About to test runtime validation error...*n")
+    WRITEF(format3, 42)
+
+    // This line should never be reached due to runtime error above
+    WRITES("ERROR: Runtime validation failed to catch the error!*n")
+}

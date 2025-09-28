@@ -1,0 +1,22 @@
+GET "runtime.bcl"
+
+CLASS Point
+$(
+  FLET x
+  FLET y
+
+  ROUTINE CREATE(initialX, initialY) BE $(
+    SELF.x := initialX
+    SELF.y := initialY
+  $)
+$)
+
+LET START() BE $(
+  LET x, y = 0.0, 0.0
+  LET next_y = 0.0
+
+  // Test just the problematic assignment from line 34
+  next_y := -0.04 * x + 0.85 * y + 1.6
+
+  WRITES("Assignment completed successfully*N")
+$)

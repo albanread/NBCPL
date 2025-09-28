@@ -1,0 +1,142 @@
+// SDL2 Example BCPL Program
+// This demonstrates basic SDL2 functionality through the runtime module
+
+LET START() BE
+$(
+    LET window_id = 0
+    LET renderer_id = 0
+    LET running = TRUE
+    LET event_type = 0
+    LET x = 0
+    LET y = 0
+    LET color_r = 255
+    LET color_g = 0
+    LET color_b = 0
+
+    WRITES("Initializing SDL2...")
+    SDL2_INIT()
+
+    // Check for SDL2 errors
+    LET error_msg = SDL2_GET_ERROR()
+    IF LENGTH(error_msg) > 0 THEN
+    $(
+        WRITES("SDL2 Error: ")
+        WRITES(error_msg)
+        NEWLINE()
+        RETURN
+    $)
+
+    WRITES("Creating window...")
+    NEWLINE()
+
+    // Create a window
+    window_id := SDL2_CREATE_WINDOW("BCPL SDL2 Example")
+    IF window_id = 0 THEN
+    $(
+        WRITES("Failed to create window")
+        NEWLINE()
+        SDL2_QUIT()
+        RETURN
+    $)
+
+    // Create a renderer
+    renderer_id := SDL2_CREATE_RENDERER(window_id)
+    IF renderer_id = 0 THEN
+    $(
+        WRITES("Failed to create renderer")
+        NEWLINE()
+        SDL2_DESTROY_WINDOW(window_id)
+        SDL2_QUIT()
+        RETURN
+    $)
+
+    WRITES("SDL2 initialized successfully!")
+    NEWLINE()
+    WRITES("Window ID: ")
+    WRITEN(window_id)
+    NEWLINE()
+    WRITES("Renderer ID: ")
+    WRITEN(renderer_id)
+    NEWLINE()
+    WRITES("Press any key to quit...")
+    NEWLINE()
+
+    // Main event loop
+    WHILE running DO
+    $(
+        // Poll for events
+        event_type := SDL2_POLL_EVENT()
+
+        // Handle events
+        SWITCHON event_type INTO
+        $(
+            CASE 0x100:  // SDL2_EVENT_QUIT
+                WRITES("Quit event received")
+                NEWLINE()
+                running := FALSE
+                ENDCASE
+
+            CASE 0x300:  // SDL2_KEYDOWN
+                LET key = SDL2_GET_EVENT_KEY()
+                WRITES("Key pressed: ")
+                WRITEN(key)
+                NEWLINE()
+                running := FALSE
+                ENDCASE
+
+            CASE 0x401:  // SDL2_MOUSEBUTTONDOWN
+                SDL2_GET_EVENT_MOUSE(@x, @y)
+                WRITES("Mouse clicked at: ")
+                WRITEN(x)
+                WRITES(", ")
+                WRITEN(y)
+                NEWLINE()
+                // Change colors on mouse click
+                color_r := color_r = 0 -> 255, 0
+                color_g := color_g = 0 -> 255, 0
+                color_b := color_b = 0 -> 255, 0
+                ENDCASE
+
+            DEFAULT:
+                // Ignore other events
+                ENDCASE
+        $)
+
+        // Clear screen with current color
+        SDL2_SET_DRAW_COLOR(renderer_id, color_r, color_g, color_b, 255)
+        SDL2_CLEAR(renderer_id)
+
+        // Draw some shapes
+        SDL2_SET_DRAW_COLOR(renderer_id, 255, 255, 255, 255)  // White
+        SDL2_DRAW_RECT(renderer_id, 50, 50, 100, 100)
+
+        SDL2_SET_DRAW_COLOR(renderer_id, 0, 255, 0, 255)     // Green
+        SDL2_FILL_RECT(renderer_id, 200, 100, 80, 60)
+
+        SDL2_SET_DRAW_COLOR(renderer_id, 255, 255, 0, 255)   // Yellow
+        SDL2_DRAW_LINE(renderer_id, 0, 0, 300, 200)
+
+        // Draw some points
+        FOR i = 0 TO 20 DO
+        $(
+            SDL2_SET_DRAW_COLOR(renderer_id, i*12, 255-i*10, i*8, 255)
+            SDL2_DRAW_POINT(renderer_id, 400 + i*2, 150 + i)
+        $)
+
+        // Present the frame
+        SDL2_PRESENT(renderer_id)
+
+        // Small delay to prevent consuming too much CPU
+        SDL2_DELAY(16)  // ~60 FPS
+    $)
+
+    // Cleanup
+    WRITES("Cleaning up...")
+    NEWLINE()
+    SDL2_DESTROY_RENDERER(renderer_id)
+    SDL2_DESTROY_WINDOW(window_id)
+    SDL2_QUIT()
+
+    WRITES("SDL2 example completed successfully!")
+    NEWLINE()
+$)

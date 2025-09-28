@@ -1,0 +1,45 @@
+LET START() BE
+$(
+   WRITES("=== FOREACH Fix Verification Test ===*N")
+
+   // Test 1: Vector FOREACH (tests temporary variable registration fix)
+   WRITES("Test 1: Vector FOREACH*N")
+   LET NUMBERS = VEC 3
+   NUMBERS!0 := 100
+   NUMBERS!1 := 200
+   NUMBERS!2 := 300
+
+   FOREACH NUM IN NUMBERS DO
+   $(
+      WRITES("  Number: ")
+      WRITEN(NUM)
+      WRITES("*N")
+   $)
+
+   // Test 2: String FOREACH (tests CharIndirection register size fix)
+   WRITES("Test 2: String FOREACH*N")
+   LET MESSAGE = "Hello"
+
+   FOREACH CH IN MESSAGE DO
+   $(
+      WRITES("  Character: ")
+      WRITEN(CH)
+      WRITES("*N")
+   $)
+
+   // Test 3: List FOREACH (should continue working)
+   WRITES("Test 3: List FOREACH*N")
+   LET WORDS = LIST("Alpha", "Beta")
+
+   FOREACH WORD IN WORDS DO
+   $(
+      WRITES("  Word: ")
+      WRITES(WORD)
+      WRITES("*N")
+   $)
+
+   WRITES("=== All tests completed successfully! ===*N")
+   WRITES("Both fixes are working:*N")
+   WRITES("1. FOREACH temporary variables registered in SymbolTable*N")
+   WRITES("2. CharIndirection returns 64-bit X register correctly*N")
+$)

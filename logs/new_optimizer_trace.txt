@@ -1,0 +1,250 @@
+NewBCPL Compiler Version 1.0.1406
+Applying Manifest Resolution Pass...
+Applying Global Initializer Pass...
+SDL2 runtime functions registered successfully.
+Optimization enabled. Applying passes...
+[FIX] Cleared FOR loop state before StrengthReductionPass to prevent corruption
+SKIPPED: Boolean Short-Circuiting Pass (startup crash)...
+Applying CREATE Method Reordering Pass...
+[CreateMethodReorderPass] Starting CREATE method reordering pass
+[CreateMethodReorderPass] Visiting Program node
+[CreateMethodReorderPass] Visiting ClassDeclaration: Point
+[CreateMethodReorderPass] Visiting RoutineDeclaration: CREATE
+[CreateMethodReorderPass] Found CREATE method in class Point
+[CreateMethodReorderPass] Analyzing CREATE method body (BlockStatement)...
+[CreateMethodReorderPass] Analyzing BlockStatement body with 7 statements
+[CreateMethodReorderPass] Checking if statement is _this member assignment...
+[CreateMethodReorderPass] Found AssignmentStatement
+[CreateMethodReorderPass] Found VariableAccess: x
+[CreateMethodReorderPass] Variable x is a member variable - treating as _this member assignment
+[CreateMethodReorderPass] Found _this assignment at index 0
+[CreateMethodReorderPass] Checking if statement is _this member assignment...
+[CreateMethodReorderPass] Found AssignmentStatement
+[CreateMethodReorderPass] Found VariableAccess: y
+[CreateMethodReorderPass] Variable y is a member variable - treating as _this member assignment
+[CreateMethodReorderPass] Found _this assignment at index 1
+[CreateMethodReorderPass] Checking if statement is _this member assignment...
+[CreateMethodReorderPass] Statement is not an AssignmentStatement
+[CreateMethodReorderPass] Checking if statement is SUPER.CREATE call...
+[CreateMethodReorderPass] Found RoutineCallStatement
+[CreateMethodReorderPass] RoutineCall is not a SUPER call
+[CreateMethodReorderPass] Checking if statement is _this member assignment...
+[CreateMethodReorderPass] Statement is not an AssignmentStatement
+[CreateMethodReorderPass] Checking if statement is SUPER.CREATE call...
+[CreateMethodReorderPass] Found RoutineCallStatement
+[CreateMethodReorderPass] RoutineCall is not a SUPER call
+[CreateMethodReorderPass] Checking if statement is _this member assignment...
+[CreateMethodReorderPass] Statement is not an AssignmentStatement
+[CreateMethodReorderPass] Checking if statement is SUPER.CREATE call...
+[CreateMethodReorderPass] Found RoutineCallStatement
+[CreateMethodReorderPass] RoutineCall is not a SUPER call
+[CreateMethodReorderPass] Checking if statement is _this member assignment...
+[CreateMethodReorderPass] Statement is not an AssignmentStatement
+[CreateMethodReorderPass] Checking if statement is SUPER.CREATE call...
+[CreateMethodReorderPass] Found RoutineCallStatement
+[CreateMethodReorderPass] RoutineCall is not a SUPER call
+[CreateMethodReorderPass] Checking if statement is _this member assignment...
+[CreateMethodReorderPass] Statement is not an AssignmentStatement
+[CreateMethodReorderPass] Checking if statement is SUPER.CREATE call...
+[CreateMethodReorderPass] Found RoutineCallStatement
+[CreateMethodReorderPass] RoutineCall is not a SUPER call
+[CreateMethodReorderPass] No reordering needed - missing _this assignments or SUPER.CREATE calls
+[CreateMethodReorderPass] No reordering needed for CREATE method in class Point
+[CreateMethodReorderPass] Visiting RoutineDeclaration: set
+[CreateMethodReorderPass] Visiting RoutineDeclaration: RELEASE
+[CreateMethodReorderPass] Visiting ClassDeclaration: ColorPoint
+[CreateMethodReorderPass] Visiting RoutineDeclaration: CREATE
+[CreateMethodReorderPass] Found CREATE method in class ColorPoint
+[CreateMethodReorderPass] Analyzing CREATE method body (BlockStatement)...
+[CreateMethodReorderPass] Analyzing BlockStatement body with 9 statements
+[CreateMethodReorderPass] Checking if statement is _this member assignment...
+[CreateMethodReorderPass] Statement is not an AssignmentStatement
+[CreateMethodReorderPass] Checking if statement is SUPER.CREATE call...
+[CreateMethodReorderPass] Found RoutineCallStatement
+[CreateMethodReorderPass] Found SuperMethodAccessExpression: CREATE
+[CreateMethodReorderPass] This is a SUPER.CREATE call!
+[CreateMethodReorderPass] Found SUPER.CREATE call at index 0
+[CreateMethodReorderPass] Checking if statement is _this member assignment...
+[CreateMethodReorderPass] Found AssignmentStatement
+[CreateMethodReorderPass] Found VariableAccess: color
+[CreateMethodReorderPass] Variable color is a member variable - treating as _this member assignment
+[CreateMethodReorderPass] Found _this assignment at index 1
+[CreateMethodReorderPass] Checking if statement is _this member assignment...
+[CreateMethodReorderPass] Statement is not an AssignmentStatement
+[CreateMethodReorderPass] Checking if statement is SUPER.CREATE call...
+[CreateMethodReorderPass] Found RoutineCallStatement
+[CreateMethodReorderPass] RoutineCall is not a SUPER call
+[CreateMethodReorderPass] Checking if statement is _this member assignment...
+[CreateMethodReorderPass] Statement is not an AssignmentStatement
+[CreateMethodReorderPass] Checking if statement is SUPER.CREATE call...
+[CreateMethodReorderPass] Found RoutineCallStatement
+[CreateMethodReorderPass] RoutineCall is not a SUPER call
+[CreateMethodReorderPass] Checking if statement is _this member assignment...
+[CreateMethodReorderPass] Statement is not an AssignmentStatement
+[CreateMethodReorderPass] Checking if statement is SUPER.CREATE call...
+[CreateMethodReorderPass] Found RoutineCallStatement
+[CreateMethodReorderPass] RoutineCall is not a SUPER call
+[CreateMethodReorderPass] Checking if statement is _this member assignment...
+[CreateMethodReorderPass] Statement is not an AssignmentStatement
+[CreateMethodReorderPass] Checking if statement is SUPER.CREATE call...
+[CreateMethodReorderPass] Found RoutineCallStatement
+[CreateMethodReorderPass] RoutineCall is not a SUPER call
+[CreateMethodReorderPass] Checking if statement is _this member assignment...
+[CreateMethodReorderPass] Statement is not an AssignmentStatement
+[CreateMethodReorderPass] Checking if statement is SUPER.CREATE call...
+[CreateMethodReorderPass] Found RoutineCallStatement
+[CreateMethodReorderPass] RoutineCall is not a SUPER call
+[CreateMethodReorderPass] Checking if statement is _this member assignment...
+[CreateMethodReorderPass] Statement is not an AssignmentStatement
+[CreateMethodReorderPass] Checking if statement is SUPER.CREATE call...
+[CreateMethodReorderPass] Found RoutineCallStatement
+[CreateMethodReorderPass] RoutineCall is not a SUPER call
+[CreateMethodReorderPass] Checking if statement is _this member assignment...
+[CreateMethodReorderPass] Statement is not an AssignmentStatement
+[CreateMethodReorderPass] Checking if statement is SUPER.CREATE call...
+[CreateMethodReorderPass] Found RoutineCallStatement
+[CreateMethodReorderPass] RoutineCall is not a SUPER call
+[CreateMethodReorderPass] Reordering needed - moving SUPER.CREATE after _this assignments
+[CreateMethodReorderPass] Successfully reordered BlockStatement statements
+[CreateMethodReorderPass] Reordered CREATE method in class ColorPoint
+[CreateMethodReorderPass] Visiting RoutineDeclaration: setColor
+[CreateMethodReorderPass] Visiting RoutineDeclaration: START
+[CreateMethodReorderPass] CREATE method reordering transformations applied
+CREATE Method Reordering Pass complete.
+Applying Local Optimization Pass (CSE/LVN)...
+[COERCE_DEBUG] Input argument registers: arg0=X9 
+[COERCE_DEBUG] Integer: X9 -> X0
+[COERCE_DEBUG] Executed 1 queued operations
+[COERCE_DEBUG] Input argument registers: arg0=X9 
+[COERCE_DEBUG] Integer: X9 -> X0
+[COERCE_DEBUG] Executed 1 queued operations
+[COERCE_DEBUG] Input argument registers: arg0=X9 
+[COERCE_DEBUG] Integer: X9 -> X0
+[COERCE_DEBUG] Executed 1 queued operations
+[COERCE_DEBUG] Input argument registers: arg0=X9 
+[COERCE_DEBUG] Integer: X9 -> X0
+[COERCE_DEBUG] Executed 1 queued operations
+[COERCE_DEBUG] Input argument registers: arg0=X9 
+[COERCE_DEBUG] Integer: X9 -> X0
+[COERCE_DEBUG] Executed 1 queued operations
+[COERCE_DEBUG] Input argument registers: arg0=X9 
+[COERCE_DEBUG] Integer: X9 -> X0
+[COERCE_DEBUG] Executed 1 queued operations
+[COERCE_DEBUG] Input argument registers: arg0=X9 
+[COERCE_DEBUG] Integer: X9 -> X0
+[COERCE_DEBUG] Executed 1 queued operations
+[COERCE_DEBUG] Input argument registers: arg0=X9 
+[COERCE_DEBUG] Integer: X9 -> X0
+[COERCE_DEBUG] Executed 1 queued operations
+[COERCE_DEBUG] Input argument registers: arg0=X9 
+[COERCE_DEBUG] Integer: X9 -> X0
+[COERCE_DEBUG] Executed 1 queued operations
+[COERCE_DEBUG] Input argument registers: arg0=X9 
+[COERCE_DEBUG] Integer: X9 -> X0
+[COERCE_DEBUG] Executed 1 queued operations
+[COERCE_DEBUG] Input argument registers: arg0=X9 
+[COERCE_DEBUG] Integer: X9 -> X0
+[COERCE_DEBUG] Executed 1 queued operations
+[COERCE_DEBUG] Input argument registers: arg0=X9 
+[COERCE_DEBUG] Integer: X9 -> X0
+[COERCE_DEBUG] Executed 1 queued operations
+[COERCE_DEBUG] Input argument registers: arg0=X9 
+[COERCE_DEBUG] Integer: X9 -> X0
+[COERCE_DEBUG] Executed 1 queued operations
+[COERCE_DEBUG] Input argument registers: 
+[COERCE_DEBUG] Executed 0 queued operations
+[COERCE_DEBUG] Input argument registers: arg0=X9 
+[COERCE_DEBUG] Integer: X9 -> X0
+[COERCE_DEBUG] Executed 1 queued operations
+[COERCE_DEBUG] Input argument registers: arg0=X9 
+[COERCE_DEBUG] Integer: X9 -> X0
+[COERCE_DEBUG] Executed 1 queued operations
+[COERCE_DEBUG] Input argument registers: arg0=X9 
+[COERCE_DEBUG] Integer: X9 -> X0
+[COERCE_DEBUG] Executed 1 queued operations
+[COERCE_DEBUG] Input argument registers: arg0=X9 
+[COERCE_DEBUG] Integer: X9 -> X0
+[COERCE_DEBUG] Executed 1 queued operations
+[COERCE_DEBUG] Input argument registers: arg0=X0 
+[COERCE_DEBUG] Integer: X0 -> X0
+[COERCE_DEBUG] Executed 0 queued operations
+[COERCE_DEBUG] Input argument registers: arg0=X9 
+[COERCE_DEBUG] Integer: X9 -> X0
+[COERCE_DEBUG] Executed 1 queued operations
+[COERCE_DEBUG] Input argument registers: arg0=X0 
+[COERCE_DEBUG] Integer: X0 -> X0
+[COERCE_DEBUG] Executed 0 queued operations
+[COERCE_DEBUG] Input argument registers: arg0=X9 
+[COERCE_DEBUG] Integer: X9 -> X0
+[COERCE_DEBUG] Executed 1 queued operations
+[COERCE_DEBUG] Input argument registers: arg0=X9 
+[COERCE_DEBUG] Integer: X9 -> X0
+[COERCE_DEBUG] Executed 1 queued operations
+[COERCE_DEBUG] Input argument registers: arg0=X9 
+[COERCE_DEBUG] Integer: X9 -> X0
+[COERCE_DEBUG] Executed 1 queued operations
+[COERCE_DEBUG] Input argument registers: arg0=X0 
+[COERCE_DEBUG] Integer: X0 -> X0
+[COERCE_DEBUG] Executed 0 queued operations
+[COERCE_DEBUG] Input argument registers: arg0=X9 
+[COERCE_DEBUG] Integer: X9 -> X0
+[COERCE_DEBUG] Executed 1 queued operations
+[COERCE_DEBUG] Input argument registers: arg0=X0 
+[COERCE_DEBUG] Integer: X0 -> X0
+[COERCE_DEBUG] Executed 0 queued operations
+[COERCE_DEBUG] Input argument registers: arg0=X9 
+[COERCE_DEBUG] Integer: X9 -> X0
+[COERCE_DEBUG] Executed 1 queued operations
+[COERCE_DEBUG] Input argument registers: arg0=X9 
+[COERCE_DEBUG] Integer: X9 -> X0
+[COERCE_DEBUG] Executed 1 queued operations
+[COERCE_DEBUG] Input argument registers: arg0=X9 
+[COERCE_DEBUG] Integer: X9 -> X0
+[COERCE_DEBUG] Executed 1 queued operations
+[COERCE_DEBUG] Input argument registers: arg0=X0 
+[COERCE_DEBUG] Integer: X0 -> X0
+[COERCE_DEBUG] Executed 0 queued operations
+[COERCE_DEBUG] Input argument registers: arg0=X9 
+[COERCE_DEBUG] Integer: X9 -> X0
+[COERCE_DEBUG] Executed 1 queued operations
+[COERCE_DEBUG] Input argument registers: arg0=X0 
+[COERCE_DEBUG] Integer: X0 -> X0
+[COERCE_DEBUG] Executed 0 queued operations
+[COERCE_DEBUG] Input argument registers: arg0=X9 
+[COERCE_DEBUG] Integer: X9 -> X0
+[COERCE_DEBUG] Executed 1 queued operations
+[COERCE_DEBUG] Input argument registers: arg0=X0 
+[COERCE_DEBUG] Integer: X0 -> X0
+[COERCE_DEBUG] Executed 0 queued operations
+[COERCE_DEBUG] Input argument registers: arg0=X9 
+[COERCE_DEBUG] Integer: X9 -> X0
+[COERCE_DEBUG] Executed 1 queued operations
+[COERCE_DEBUG] Input argument registers: arg0=X9 
+[COERCE_DEBUG] Integer: X9 -> X0
+[COERCE_DEBUG] Executed 1 queued operations
+[COERCE_DEBUG] Input argument registers: arg0=X9 
+[COERCE_DEBUG] Integer: X9 -> X0
+[COERCE_DEBUG] Executed 1 queued operations
+[COERCE_DEBUG] Input argument registers: arg0=X0 
+[COERCE_DEBUG] Integer: X0 -> X0
+[COERCE_DEBUG] Executed 0 queued operations
+[COERCE_DEBUG] Input argument registers: arg0=X9 
+[COERCE_DEBUG] Integer: X9 -> X0
+[COERCE_DEBUG] Executed 1 queued operations
+[COERCE_DEBUG] Input argument registers: arg0=X0 
+[COERCE_DEBUG] Integer: X0 -> X0
+[COERCE_DEBUG] Executed 0 queued operations
+[COERCE_DEBUG] Input argument registers: arg0=X9 
+[COERCE_DEBUG] Integer: X9 -> X0
+[COERCE_DEBUG] Executed 1 queued operations
+[COERCE_DEBUG] Input argument registers: arg0=X0 
+[COERCE_DEBUG] Integer: X0 -> X0
+[COERCE_DEBUG] Executed 0 queued operations
+[COERCE_DEBUG] Input argument registers: arg0=X9 
+[COERCE_DEBUG] Integer: X9 -> X0
+[COERCE_DEBUG] Executed 1 queued operations
+[COERCE_DEBUG] Input argument registers: arg0=X9 
+[COERCE_DEBUG] Integer: X9 -> X0
+[COERCE_DEBUG] Executed 1 queued operations
+[COERCE_DEBUG] Input argument registers: 
+[COERCE_DEBUG] Executed 0 queued operations

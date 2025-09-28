@@ -1,0 +1,3173 @@
+// Combined generator files for code review
+
+// File: generators/gen_AssignmentStatement.cpp
+
+#include "../NewCodeGenerator.h"
+#include "../LabelManager.h"
+#include "../analysis/ASTAnalyzer.h"
+
+// In NewCodeGenerator.cpp or gen_AssignmentStatement.cpp
+
+void NewCodeGenerator::visit(AssignmentStatement& node) {
+    debug_print("Visiting AssignmentStatement node.");
+
+    if (node.lhs.size() != node.rhs.size()) {
+        throw std::runtime_error("AssignmentStatement: Mismatch in number of LHS and RHS expressions.");
+    }
+
+    // Evaluate all RHS expressions first, storing results in temporary registers.
+    std::vector<std::string> rhs_result_regs;
+    for (const auto& rhs_expr : node.rhs) {
+        generate_expression_code(*rhs_expr);
+        rhs_result_regs.push_back(expression_result_reg_);
+        // Do NOT release expression_result_reg_ yet.
+    }
+
+    // Now perform the assignments from RHS result registers to LHS locations.
+    for (size_t i = 0; i < node.lhs.size(); ++i) {
+        const auto& lhs_expr = node.lhs[i];
+        const std::string& value_to_store_reg = rhs_result_regs[i];
+
+        if (auto* bitfield_lhs = dynamic_cast<BitfieldAccessExpression*>(lhs_expr.get())) {
+            auto* start_lit = dynamic_cast<NumberLiteral*>(bitfield_lhs->start_bit_expr.get());
+            auto* width_lit = dynamic_cast<NumberLiteral*>(bitfield_lhs->width_expr.get());
+
+            // Optimized Path: Use BFI if start and width are constants.
+            if (start_lit && width_lit) {
+                debug_print("Handling value-based bitfield assignment (BFI optimized path).");
+
+                // 1. Get the CURRENT VALUE of the base variable (e.g., 'm').
+                generate_expression_code(*bitfield_lhs->base_expr);
+                std::string dest_reg = expression_result_reg_; // This is Xd.
+
+                // 2. The value to store is already in 'value_to_store_reg'. This is Xn.
+
+                // 3. Emit the BFI instruction.
+                emit(Encoder::opt_create_bfi(dest_reg, value_to_store_reg,
+                                             start_lit->int_value, width_lit->int_value));
+
+                // 4. Store the modified value back into the original variable.
+                if (auto* base_var = dynamic_cast<VariableAccess*>(bitfield_lhs->base_expr.get())) {
+                    handle_variable_assignment(base_var, dest_reg);
+                } else {
+                    throw std::runtime_error("Bitfield base must be a simple variable.");
+                }
+
+                // Release the registers.
+                register_manager_.release_register(dest_reg);
+                register_manager_.release_register(value_to_store_reg);
+
+            } else {
+                // Fallback Path: For variable start/width, use the manual read-modify-write.
+                debug_print("Handling value-based bitfield assignment (Fallback path).");
+
+                generate_expression_code(*bitfield_lhs->base_expr);
+                std::string word_reg = expression_result_reg_; // Holds current value of 'm'
+
+                generate_expression_code(*bitfield_lhs->start_bit_expr);
+                std::string start_reg = expression_result_reg_;
+
+                generate_expression_code(*bitfield_lhs->width_expr);
+                std::string width_reg = expression_result_reg_;
+                
+                // Allocate registers for the masks
+                std::string mask_reg = register_manager_.acquire_scratch_reg(*this);
+                std::string one_reg = register_manager_.acquire_scratch_reg(*this);
+                std::string write_mask_reg = register_manager_.acquire_scratch_reg(*this);
+
+                // 1. Create mask for the given width: mask = (1 << width) - 1
+                emit(Encoder::create_movz_imm(one_reg, 1));
+                emit(Encoder::create_lsl_reg(mask_reg, one_reg, width_reg));
+                emit(Encoder::create_sub_imm(mask_reg, mask_reg, 1));
+
+                // 2. Shift the mask to the start position: write_mask = mask << start
+                emit(Encoder::create_lsl_reg(write_mask_reg, mask_reg, start_reg));
+
+                // 3. Clear the target bits in the word's value (destructive)
+                emit(Encoder::create_bic_reg(word_reg, word_reg, write_mask_reg));
+
+                // 4. Truncate and shift the new value to insert it (destructive)
+                emit(Encoder::create_and_reg(value_to_store_reg, value_to_store_reg, mask_reg));
+                emit(Encoder::create_lsl_reg(value_to_store_reg, value_to_store_reg, start_reg));
+
+                // 5. Combine the cleared word with the new value (destructive)
+                emit(Encoder::create_orr_reg(word_reg, word_reg, value_to_store_reg));
+
+                // 6. Store the final result from word_reg back into the variable
+                if (auto* base_var = dynamic_cast<VariableAccess*>(bitfield_lhs->base_expr.get())) {
+                    handle_variable_assignment(base_var, word_reg);
+                } else {
+                    throw std::runtime_error("Bitfield base must be a simple variable.");
+                }
+                
+                // 7. Release all registers
+                register_manager_.release_register(word_reg);
+                register_manager_.release_register(start_reg);
+                register_manager_.release_register(width_reg);
+                register_manager_.release_register(mask_reg);
+                register_manager_.release_register(one_reg);
+                register_manager_.release_register(write_mask_reg);
+                register_manager_.release_register(value_to_store_reg);
+            }
+        } else if (auto* var_access = dynamic_cast<VariableAccess*>(lhs_expr.get())) {
+            handle_variable_assignment(var_access, value_to_store_reg);
+        } else if (auto* member_access = dynamic_cast<MemberAccessExpression*>(lhs_expr.get())) {
+            handle_member_access_assignment(member_access, value_to_store_reg);
+        } else if (auto* vec_access = dynamic_cast<VectorAccess*>(lhs_expr.get())) {
+            // --- FVEC/FTABLE support: check type and emit correct store ---
+            VarType vec_type = ASTAnalyzer::getInstance().infer_expression_type(vec_access->vector_expr.get());
+            if (vec_type == VarType::POINTER_TO_FLOAT_VEC) {
+                // Ensure value is in a float register; if not, convert
+                std::string store_reg = value_to_store_reg;
+                if (!register_manager_.is_fp_register(store_reg)) {
+                    // Move to a float register (SCVTF if needed)
+                    std::string fp_reg = register_manager_.acquire_fp_scratch_reg();
+                    emit(Encoder::create_scvtf_reg(fp_reg, store_reg));
+                    register_manager_.release_register(store_reg);
+                    store_reg = fp_reg;
+                }
+                // Evaluate base and index
+                generate_expression_code(*vec_access->vector_expr);
+                std::string base_reg = expression_result_reg_;
+                generate_expression_code(*vec_access->index_expr);
+                std::string index_reg = expression_result_reg_;
+                emit(Encoder::create_lsl_imm(index_reg, index_reg, 3));
+                std::string effective_addr_reg = register_manager_.get_free_register(*this);
+                emit(Encoder::create_add_reg(effective_addr_reg, base_reg, index_reg));
+                register_manager_.release_register(base_reg);
+                register_manager_.release_register(index_reg);
+                emit(Encoder::create_str_fp_imm(store_reg, effective_addr_reg, 0)); // FTABLE: floating-point store
+                register_manager_.release_register(effective_addr_reg);
+                register_manager_.release_register(store_reg);
+            } else {
+                handle_vector_assignment(vec_access, value_to_store_reg);
+            }
+        } else if (auto* char_indirection = dynamic_cast<CharIndirection*>(lhs_expr.get())) {
+            handle_char_indirection_assignment(char_indirection, value_to_store_reg);
+        } else if (auto* float_vec_indirection = dynamic_cast<FloatVectorIndirection*>(lhs_expr.get())) {
+            handle_float_vector_indirection_assignment(float_vec_indirection, value_to_store_reg);
+        } else if (auto* unary_op = dynamic_cast<UnaryOp*>(lhs_expr.get())) {
+            handle_indirection_assignment(unary_op, value_to_store_reg);
+        } else {
+            throw std::runtime_error("Unsupported LHS type for assignment.");
+        }
+    }
+
+    debug_print("Finished visiting AssignmentStatement node.");
+}
+
+// Implementation for pointer indirection assignment (!P := ...)
+void NewCodeGenerator::handle_indirection_assignment(UnaryOp* unary_op, const std::string& value_to_store_reg) {
+    // Ensure this is an indirection operation ('!')
+    if (unary_op->op != UnaryOp::Operator::Indirection) {
+        throw std::runtime_error("Unsupported unary operator on the LHS of an assignment.");
+    }
+
+    debug_print("Handling indirection assignment (pointer dereference).");
+
+    // 1. Evaluate the operand of the unary op (e.g., 'P' in '!P').
+    //    This gives us the register holding the memory address to write to.
+    generate_expression_code(*unary_op->operand);
+    std::string pointer_addr_reg = expression_result_reg_;
+
+    // 2. Emit a STRore instruction to store the value into the memory
+    //    location pointed to by the address register.
+    emit(Encoder::create_str_imm(value_to_store_reg, pointer_addr_reg, 0));
+
+    // 3. Release the register that held the pointer address.
+    register_manager_.release_register(pointer_addr_reg);
+}
+
+// Implementation for float vector indirection assignment
+void NewCodeGenerator::handle_float_vector_indirection_assignment(FloatVectorIndirection* float_vec_indirection, const std::string& value_to_store_reg) {
+    // Evaluate the vector base address
+    generate_expression_code(*float_vec_indirection->vector_expr);
+    std::string base_reg = expression_result_reg_;
+    // Evaluate the index
+    generate_expression_code(*float_vec_indirection->index_expr);
+    std::string index_reg = expression_result_reg_;
+
+    // Multiply index by 3 (since double is 8 bytes, float is 4 bytes so use 2 if float, 3 if double)
+    emit(Encoder::create_lsl_imm(index_reg, index_reg, 3)); // LSL by 3 (multiply by 8 for double)
+
+    // Add the offset to the base address to get the effective memory address
+    std::string effective_addr_reg = register_manager_.get_free_register(*this);
+    emit(Encoder::create_add_reg(effective_addr_reg, base_reg, index_reg));
+    register_manager_.release_register(base_reg);
+    register_manager_.release_register(index_reg);
+
+    // Store the 64-bit floating-point value from value_to_store_reg into the effective address
+    emit(Encoder::create_str_fp_imm(value_to_store_reg, effective_addr_reg, 0));
+    register_manager_.release_register(effective_addr_reg);
+}
+
+// File: generators/gen_BlockStatement.cpp
+
+#include "NewCodeGenerator.h"
+#include "LabelManager.h"
+#include "analysis/ASTAnalyzer.h"
+#include <iostream>
+#include <stdexcept>
+#include <sstream>
+
+void NewCodeGenerator::visit(BlockStatement& node) {
+    debug_print("Visiting BlockStatement node.");
+
+    // --- FIX START: Synchronize SymbolTable scope ---
+    if (symbol_table_) {
+        symbol_table_->enterScope();
+    }
+    // --- FIX END ---
+
+    std::string previous_scope = current_scope_name_;
+    std::ostringstream block_name_ss;
+    block_name_ss << previous_scope << "_block_" << block_id_counter_++;
+    current_scope_name_ = block_name_ss.str();
+    debug_print("Entering codegen block scope: " + current_scope_name_);
+
+    // 1. Enter a new scope (for the generator's internal state).
+    enter_scope();
+
+    // 2. Process declarations within this block.
+    process_declarations(node.declarations);
+
+    // 3. Generate code for statements within this block.
+    for (const auto& stmt : node.statements) {
+        if (stmt) {
+            generate_statement_code(*stmt);
+        }
+    }
+
+    // --- Emit cleanup code for heap-owning locals before exiting scope ---
+    if (symbol_table_) {
+        // Get all symbols for the current scope level
+        auto symbols_in_scope = symbol_table_->getSymbolsInScope(symbol_table_->currentScopeLevel());
+        // Iterate in reverse to clean up in the opposite order of declaration
+        for (auto it = symbols_in_scope.rbegin(); it != symbols_in_scope.rend(); ++it) {
+            const Symbol& symbol = *it;
+            if (symbol.owns_heap_memory) {
+                // Generate code to call the appropriate free function for this symbol.
+                generate_cleanup_code_for_symbol(symbol);
+            }
+        }
+    }
+
+    // 4. Exit the scope (for the generator's internal state).
+    exit_scope();
+    
+    // --- FIX START: Synchronize SymbolTable scope ---
+    if (symbol_table_) {
+        symbol_table_->exitScope();
+    }
+    // --- FIX END ---
+
+    debug_print("Finished visiting BlockStatement node.");
+}
+
+// File: generators/gen_BooleanLiteral.cpp
+
+#include "NewCodeGenerator.h"
+#include "LabelManager.h"
+#include "analysis/ASTAnalyzer.h"
+#include "NewCodeGenerator.h"
+#include <iostream>
+#include <stdexcept>
+
+void NewCodeGenerator::visit(BooleanLiteral& node) {
+    debug_print("Visiting BooleanLiteral node.");
+    auto& register_manager = register_manager_;
+    std::string dest_reg = register_manager.get_free_register(*this); // Get a free temporary register
+
+    // BCPL booleans are typically 0 for FALSE and 1 for TRUE.
+    int64_t bool_val = node.value ? 1 : 0;
+    emit(Encoder::create_movz_imm(dest_reg, static_cast<int>(bool_val), 0));
+    expression_result_reg_ = dest_reg;
+    debug_print("Loaded boolean literal " + std::string(node.value ? "TRUE" : "FALSE") + " into " + dest_reg + ".");
+}
+
+// File: generators/gen_BreakStatement.cpp
+
+#include "../NewCodeGenerator.h"
+
+void NewCodeGenerator::visit(BreakStatement& node) {
+    debug_print("Visiting BreakStatement node (NOTE: branching is handled by block epilogue).");
+    // This visitor is now intentionally empty.
+    // The presence of the BreakStatement in the AST has already been used by the
+    // CFGBuilderPass to correctly terminate the current basic block and add an
+    // edge to the loop exit. The actual branch instruction is generated by
+    // `generate_block_epilogue` based on the CFG.
+}
+
+// File: generators/gen_BrkStatement.cpp
+
+#include "NewCodeGenerator.h"
+#include "LabelManager.h"
+#include "RegisterManager.h"
+#include "analysis/ASTAnalyzer.h"
+#include <iostream>
+#include <stdexcept>
+
+void NewCodeGenerator::visit(BrkStatement& node) {
+    debug_print("Visiting BrkStatement node.");
+    // `BRK` instruction for debugging/software breakpoints.
+    emit(Encoder::create_brk(0)); // Emit a BRK instruction with immediate 0
+    debug_print("Emitted BRK instruction.");
+}
+
+// File: generators/gen_CaseStatement.cpp
+
+#include "NewCodeGenerator.h"
+#include "LabelManager.h"
+#include "RegisterManager.h"
+#include "analysis/ASTAnalyzer.h"
+#include <iostream>
+#include <stdexcept>
+
+void NewCodeGenerator::visit(CaseStatement& node) {
+    debug_print("Visiting CaseStatement node (Constant: " + std::to_string(static_cast<NumberLiteral*>(node.constant_expr.get())->int_value) + ").");
+    auto& register_manager = RegisterManager::getInstance();
+    // CaseStatement is handled as part of SwitchonStatement.
+    // Its `command` is visited when its condition matches.
+    // No direct code generation here.
+}
+
+// File: generators/gen_CharIndirection.cpp
+
+#include "NewCodeGenerator.h"
+#include "NewCodeGenerator.h"
+#include "LabelManager.h"
+#include "analysis/ASTAnalyzer.h"
+
+
+void NewCodeGenerator::visit(CharIndirection& node) {
+    debug_print("Visiting CharIndirection node.");
+    auto& register_manager = register_manager_;
+    // Char indirection like `string_expr % index_expr` or `string_expr ! index_expr` for characters.
+    // This typically means `*(string_base + index_in_bytes)`.
+    // Assuming `string_expr` evaluates to the base address (X register),
+    // and `index_expr` evaluates to an integer index (X register).
+
+    generate_expression_code(*node.string_expr);
+    std::string string_base_reg = expression_result_reg_; // Holds the base address of the string
+
+    generate_expression_code(*node.index_expr);
+    std::string index_reg = expression_result_reg_; // Holds the index (in bytes)
+
+    // Scale index by 4 for 32-bit character access
+    emit(Encoder::create_lsl_imm(index_reg, index_reg, 2)); // index_reg <<= 2
+
+    // Add the offset to the base address to get the effective memory address
+    std::string effective_addr_reg = register_manager.get_free_register(*this);
+    emit(Encoder::create_add_reg(effective_addr_reg, string_base_reg, index_reg));
+    register_manager.release_register(string_base_reg);
+    register_manager.release_register(index_reg);
+
+    // Load the 32-bit character value from the effective address into a W register
+    std::string x_dest_reg = register_manager.get_free_register(*this); // Get X register
+    std::string w_dest_reg = "W" + x_dest_reg.substr(1); // Convert "Xn" to "Wn"
+    emit(Encoder::create_ldr_word_imm(w_dest_reg, effective_addr_reg, 0)); // Load 32-bit value
+    register_manager.release_register(effective_addr_reg);
+
+    expression_result_reg_ = w_dest_reg;
+    debug_print("Finished visiting CharIndirection node.");
+}
+
+// File: generators/gen_CharLiteral.cpp
+
+#include "NewCodeGenerator.h"
+#include "LabelManager.h"
+#include "analysis/ASTAnalyzer.h"
+#include <iostream>
+#include <stdexcept>
+
+void NewCodeGenerator::visit(CharLiteral& node) {
+    debug_print("Visiting CharLiteral node.");
+    auto& register_manager = register_manager_;
+    std::string x_dest_reg = register_manager.get_free_register(*this); // Get a free X register
+    std::string w_dest_reg = "W" + x_dest_reg.substr(1); // Convert "Xn" to "Wn"
+
+    // Load the character's value into a 32-bit register (Wn)
+    emit(Encoder::create_movz_imm(w_dest_reg, static_cast<int>(node.value), 0));
+    
+    // --- START OF FIX ---
+    // Return the 64-bit X register. Writing to the W register automatically
+    // zero-extends the upper 32 bits of the corresponding X register.
+    expression_result_reg_ = x_dest_reg; 
+    // --- END OF FIX ---
+
+    debug_print("Loaded char literal '" + std::string(1, node.value) + "' (ASCII: " + std::to_string(static_cast<int>(node.value)) + ") into " + w_dest_reg + ", result in " + x_dest_reg + ".");
+}
+
+// File: generators/gen_CompoundStatement.cpp
+
+#include "NewCodeGenerator.h"
+#include "LabelManager.h"
+#include "analysis/ASTAnalyzer.h"
+#include <iostream>
+#include <stdexcept>
+
+void NewCodeGenerator::visit(CompoundStatement& node) {
+    debug_print("Visiting CompoundStatement node.");
+    // A sequence of statements, often enclosed in `$( ... $)` or implicitly.
+    // Simply visit each statement in order.
+    for (const auto& stmt : node.statements) {
+        if (stmt) {
+            generate_statement_code(*stmt);
+        }
+    }
+    debug_print("Finished visiting CompoundStatement node.");
+}
+
+// File: generators/gen_ConditionalBranchStatement.cpp
+
+#include "NewCodeGenerator.h"
+#include "AST.h"
+
+void NewCodeGenerator::visit(ConditionalBranchStatement& node) {
+    // --- START OF FIX ---
+    // This visitor is now intentionally left empty.
+    // The actual branch instruction is now generated exclusively by the
+    // generate_block_epilogue function, which correctly interprets the
+    // block's successors from the CFG. This avoids generating redundant
+    // and conflicting branch instructions.
+    debug_print("Visiting ConditionalBranchStatement (codegen is handled by block epilogue).");
+    // --- END OF FIX ---
+}
+
+// File: generators/gen_ConditionalExpression.cpp
+
+#include "NewCodeGenerator.h"
+#include "NewCodeGenerator.h"
+#include "LabelManager.h"
+#include "analysis/ASTAnalyzer.h"
+#include <iostream>
+#include <stdexcept>
+
+void NewCodeGenerator::visit(ConditionalExpression& node) {
+    debug_print("Visiting ConditionalExpression node.");
+    // `condition ? true_expr : false_expr`
+    // Generate code for condition.
+    generate_expression_code(*node.condition);
+    std::string cond_reg = expression_result_reg_; // Result of condition (0 for false, 1 for true)
+
+    // Generate labels for the branches.
+    std::string else_label = label_manager_.create_label();
+    std::string end_if_label = label_manager_.create_label();
+
+    // If condition is 0 (false), branch to else_label.
+    // CMP cond_reg, #0
+    // B.EQ else_label
+    emit(Encoder::create_cmp_reg(cond_reg, "XZR"));
+    emit(Encoder::create_branch_conditional("EQ", else_label));
+    register_manager_.release_register(cond_reg); // Release condition register *after* CMP/branch
+
+    // Generate code for the true_expr.
+    generate_expression_code(*node.true_expr);
+    std::string true_result_reg = expression_result_reg_; // Register with true_expr result
+
+    // Allocate a register for the final result of the conditional expression.
+    std::string final_result_reg = register_manager_.get_free_register(*this);
+    if (final_result_reg.empty()) {
+        throw std::runtime_error("Failed to acquire a free register for conditional expression result");
+    }
+
+    // Move the result of the true_expr into the final_result_reg.
+    emit(Encoder::create_mov_reg(final_result_reg, true_result_reg));
+    register_manager_.release_register(true_result_reg);
+
+    // Unconditional branch to else_label after true_expr.
+    emit(Encoder::create_branch_unconditional(end_if_label));
+
+    // Define else_label.
+    instruction_stream_.define_label(else_label);
+
+    // Generate code for the false_expr.
+    generate_expression_code(*node.false_expr);
+    std::string false_result_reg = expression_result_reg_; // Register with false_expr result
+
+    // Move the result of the false_expr into the final_result_reg.
+    emit(Encoder::create_mov_reg(final_result_reg, false_result_reg));
+    register_manager_.release_register(false_result_reg);
+
+    // Define end_if_label.
+    instruction_stream_.define_label(end_if_label);
+
+    expression_result_reg_ = final_result_reg;
+    debug_print("Finished visiting ConditionalExpression node.");
+}
+
+// File: generators/gen_DefaultStatement.cpp
+
+#include "NewCodeGenerator.h"
+#include "LabelManager.h"
+#include "RegisterManager.h"
+#include "analysis/ASTAnalyzer.h"
+#include <iostream>
+#include <stdexcept>
+
+void NewCodeGenerator::visit(DefaultStatement& node) {
+    debug_print("Visiting DefaultStatement node.");
+    auto& register_manager = RegisterManager::getInstance();
+    // DefaultStatement is handled as part of SwitchonStatement.
+    // Its `command` is visited if no preceding cases match.
+    // No direct code generation here.
+}
+
+// File: generators/gen_EndcaseStatement.cpp
+
+#include "NewCodeGenerator.h"
+#include "LabelManager.h"
+#include "analysis/ASTAnalyzer.h"
+#include <iostream>
+#include <stdexcept>
+
+void NewCodeGenerator::visit(EndcaseStatement& node) {
+    debug_print("Visiting EndcaseStatement node.");
+    // `ENDCASE` terminates a `SWITCHON` block. It usually doesn't generate code itself,
+    // but marks the end of the `SWITCHON` structure.
+    // Its functionality is typically integrated into the `SwitchonStatement` visitor.
+    debug_print("EndcaseStatement node. No direct code emitted (handled by SwitchonStatement).");
+}
+
+// File: generators/gen_FinishStatement.cpp
+
+#include "NewCodeGenerator.h"
+#include "AST.h"
+#include <vector>
+#include <memory>
+
+void NewCodeGenerator::visit(FinishStatement& node) {
+    debug_print("Visiting FinishStatement node.");
+
+    // The FINISH statement is equivalent to an exit(0) syscall.
+    // We will construct a SysCall AST node on the fly and then visit it.
+
+    // 1. Define the syscall number for exit() on macOS (0x2000001).
+    //    FIX: Use NumberLiteral and cast to int64_t to resolve ambiguity.
+    ExprPtr syscall_number = std::make_unique<NumberLiteral>(static_cast<int64_t>(0x2000001));
+
+    // 2. Define the argument for the syscall (the exit code, 0).
+    //    FIX: Use NumberLiteral and cast to int64_t.
+    ExprPtr exit_code = std::make_unique<NumberLiteral>(static_cast<int64_t>(0));
+
+    // 3. Place the argument(s) into a vector.
+    std::vector<ExprPtr> arguments;
+    arguments.push_back(std::move(exit_code));
+
+    // 4. Instantiate the SysCall node with the required three arguments.
+    //    FIX: Add a string name like "exit" as the first argument.
+    SysCall exit_syscall("exit", std::move(syscall_number), std::move(arguments));
+
+    // 5. Visit the SysCall node to trigger its code generation.
+    visit(exit_syscall);
+}
+
+// File: generators/gen_FloatValofExpression.cpp
+
+#include "AST.h"
+#include "NewCodeGenerator.h"
+#include "LabelManager.h"
+#include "analysis/ASTAnalyzer.h"
+#include <iostream>
+#include <stdexcept>
+
+void NewCodeGenerator::visit(FloatValofExpression& node) {
+    debug_print("Visiting FloatValofExpression node.");
+    // `FVALOF <stmt> RESULTIS expr`
+    // This creates a block that evaluates to a floating point value.
+
+    // Enter a new scope for the FVALOF block.
+    // A FVALOF block is part of the parent function's scope.
+
+    // The result of the FloatValofExpression will be determined by the `RESULTIS` statement.
+    // The `RESULTIS` statement will set `expression_result_reg_` to a floating point register.
+
+    // Mark that we're processing a floating-point expression for ResultisStatement
+    current_function_return_type_ = VarType::FLOAT;
+    
+    generate_statement_code(*node.body);
+
+    // Exit the scope of the FVALOF block.
+    // Exiting FVALOF block processing.
+
+    // Ensure we are using a floating-point register (D0) for the result
+    if (!register_manager_.is_fp_register(expression_result_reg_)) {
+        debug_print("WARNING: Expression result register is not a floating-point register. Converting to D0.");
+        std::string fp_reg = register_manager_.acquire_fp_scratch_reg();
+        emit(Encoder::create_scvtf_reg(fp_reg, expression_result_reg_));
+        register_manager_.release_register(expression_result_reg_);
+        expression_result_reg_ = fp_reg;
+    }
+
+    // `expression_result_reg_` should now contain the floating point value from the `RESULTIS` statement.
+    debug_print("Finished visiting FloatValofExpression node. Result in register: " + expression_result_reg_);
+}
+
+// File: generators/gen_FloatVectorIndirection.cpp
+
+#include "NewCodeGenerator.h"
+#include "LabelManager.h"
+#include "analysis/ASTAnalyzer.h"
+#include <iostream>
+#include <stdexcept>
+
+void NewCodeGenerator::visit(FloatVectorIndirection& node) {
+    debug_print("Visiting FloatVectorIndirection node.");
+    // Similar to VectorAccess, but loads a floating-point value (e.g., double).
+    // Assumes `vector_expr` is base address (X register) and `index_expr` is index (X register).
+
+    generate_expression_code(*node.vector_expr);
+    std::string vector_base_reg = expression_result_reg_;
+
+    generate_expression_code(*node.index_expr);
+    std::string index_reg = expression_result_reg_;
+
+    auto& register_manager = register_manager_;
+    std::string dest_d_reg = register_manager.get_free_float_register(); // Destination is a float register
+
+    // Calculate the byte offset: index * 8 (since double is 8 bytes)
+    emit(Encoder::create_lsl_imm(index_reg, index_reg, 3)); // LSL by 3 (multiply by 8 for double)
+
+    // Add the offset to the base address to get the effective memory address
+    std::string effective_addr_reg = register_manager_.get_free_register(*this);
+    emit(Encoder::create_add_reg(effective_addr_reg, vector_base_reg, index_reg));
+    register_manager_.release_register(vector_base_reg);
+    register_manager_.release_register(index_reg);
+
+    // Load the 64-bit floating-point value from the effective address into a D register
+    emit(Encoder::create_ldr_fp_imm(dest_d_reg, effective_addr_reg, 0));
+    register_manager_.release_register(effective_addr_reg);
+
+    expression_result_reg_ = dest_d_reg; // Result is in a float register
+    debug_print("Finished visiting FloatVectorIndirection node.");
+}
+
+// File: generators/gen_ForStatement.cpp
+
+#include "NewCodeGenerator.h"
+#include "analysis/ASTAnalyzer.h"
+#include "CallFrameManager.h"
+#include "RegisterManager.h"
+#include "LabelManager.h"
+#include "Encoder.h"
+#include "AST.h" // Correct include for AST node definitions
+#include <stdexcept>
+#include <sstream>
+
+void NewCodeGenerator::visit(ForStatement& node) {
+    debug_print("Visiting ForStatement node (NOTE: branching is handled by block epilogue).");
+    // No branching logic here; only evaluate constituent expressions/statements if needed elsewhere.
+}
+
+// File: generators/gen_FreeStatement.cpp
+
+#include "../NewCodeGenerator.h"
+#include "../AST.h" // Defines FreeStatement and other AST nodes
+#include "../RuntimeManager.h"
+#include "../Encoder.h"
+
+
+void NewCodeGenerator::visit(FreeStatement& node) {
+    debug_print("Visiting FreeStatement node.");
+
+    // Special case: FREE CELLS statement
+    if (auto* var = dynamic_cast<VariableAccess*>(node.list_expr.get())) {
+        std::string var_name = var->name;
+        std::transform(var_name.begin(), var_name.end(), var_name.begin(), ::toupper);
+        if (var_name == "CELLS") {
+            debug_print("Generating code to free the global 'cells' list.");
+            emit(Encoder::create_branch_with_link("BCPL_FREE_CELLS"));
+            return;
+        }
+    }
+
+    // 1. Evaluate the expression to get its pointer.
+    generate_expression_code(*node.list_expr);
+    std::string ptr_reg = expression_result_reg_;
+
+    // 2. Move the pointer to X0 for the runtime call.
+    if (ptr_reg != "X0") {
+        emit(Encoder::create_mov_reg("X0", ptr_reg));
+        register_manager_.release_register(ptr_reg);
+    }
+
+    // 3. Determine the type and call the appropriate runtime function.
+    std::string runtime_func;
+    switch (node.list_expr->getType()) {
+        case ASTNode::NodeType::ListExpr:
+            runtime_func = "BCPL_FREE_LIST";
+            break;
+        case ASTNode::NodeType::VecAllocationExpr:
+        case ASTNode::NodeType::FVecAllocationExpr:
+            runtime_func = "FREEVEC";
+            break;
+        default:
+            throw std::runtime_error("FreeStatement: Can only free a list or vector.");
+    }
+
+    size_t offset = RuntimeManager::instance().get_function_offset(runtime_func);
+    std::string addr_reg = register_manager_.acquire_scratch_reg(*this);
+
+    Instruction ldr_instr = Encoder::create_ldr_imm(addr_reg, "X19", offset);
+    ldr_instr.jit_attribute = JITAttribute::JitAddress;
+    emit(ldr_instr);
+
+    Instruction blr_instr = Encoder::create_branch_with_link_register(addr_reg);
+    blr_instr.jit_attribute = JITAttribute::JitCall;
+    blr_instr.target_label = runtime_func;
+    emit(blr_instr);
+
+    register_manager_.release_register(addr_reg);
+}
+
+// File: generators/gen_FunctionCall.cpp
+
+#include "../NewCodeGenerator.h"
+#include "../LabelManager.h"
+#include "../analysis/ASTAnalyzer.h"
+#include <stdexcept>
+#include "CodeGenUtils.h"
+#include "runtime/ListDataTypes.h"
+
+// In generators/gen_FunctionCall.cpp
+
+// emit_push_reg and emit_pop_reg are now defined in CodeGenUtils.h for shared use.
+
+void NewCodeGenerator::visit(FunctionCall& node) {
+    debug_print("Visiting FunctionCall node (Refactored Dispatcher).");
+
+    // ====================== START OF FIX ======================
+    // Spill any live variables that are in caller-saved registers before the call.
+    std::vector<std::string> spilled_gp, spilled_fp;
+    spillLiveScratchRegisters(spilled_gp, spilled_fp);
+    // ======================= END OF FIX =======================
+
+    // --- STEP 1: Evaluate All Arguments FIRST ---
+    std::vector<std::string> arg_result_regs;
+    for (const auto& arg_expr : node.arguments) {
+        generate_expression_code(*arg_expr);
+        std::string temp_reg;
+        if (register_manager_.is_fp_register(expression_result_reg_)) {
+            temp_reg = register_manager_.acquire_spillable_fp_temp_reg(*this);
+            emit(Encoder::create_fmov_reg(temp_reg, expression_result_reg_));
+        } else {
+            temp_reg = register_manager_.acquire_spillable_temp_reg(*this);
+            emit(Encoder::create_mov_reg(temp_reg, expression_result_reg_));
+        }
+        arg_result_regs.push_back(temp_reg);
+    }
+
+    // --- STEP 2: Dispatch to the Correct Handler ---
+    if (auto* var_access = dynamic_cast<VariableAccess*>(node.function_expr.get())) {
+        const std::string& func_name = var_access->name;
+        if (is_special_built_in(func_name)) {
+            handle_special_built_in_call(node, arg_result_regs);
+        } else {
+            handle_regular_call(node, arg_result_regs);
+        }
+    } else if (node.function_expr->getType() == ASTNode::NodeType::MemberAccessExpr) {
+        handle_method_call(node, arg_result_regs);
+    } else if (node.function_expr->getType() == ASTNode::NodeType::SuperMethodAccessExpr) {
+        handle_super_call(node, arg_result_regs);
+    } else {
+        // Fallback for complex expressions that resolve to a function pointer
+        handle_regular_call(node, arg_result_regs);
+    }
+
+    // ====================== START OF FIX ======================
+    // Restore the caller-saved registers that were spilled before the call.
+    restoreLiveScratchRegisters(spilled_gp, spilled_fp);
+    // ======================= END OF FIX =======================
+}
+
+// ============================================================================
+// Helper Function Implementations
+// ============================================================================
+
+bool NewCodeGenerator::is_special_built_in(const std::string& func_name) {
+    static const std::unordered_set<std::string> built_ins = {
+        "AS_INT", "AS_FLOAT", "AS_STRING", "AS_LIST",
+        "FIND", "MAP", "FILTER"
+    };
+    return built_ins.count(func_name);
+}
+
+void NewCodeGenerator::handle_special_built_in_call(FunctionCall& node, const std::vector<std::string>& arg_result_regs) {
+    auto* var_access = static_cast<VariableAccess*>(node.function_expr.get());
+    const std::string& function_name = var_access->name;
+
+    if (function_name == "AS_INT" || function_name == "AS_FLOAT" || function_name == "AS_STRING" || function_name == "AS_LIST") {
+        if (node.arguments.size() != 1) {
+            throw std::runtime_error(function_name + " expects exactly one argument.");
+        }
+        generate_expression_code(*node.arguments[0]);
+        std::string ptr_reg = expression_result_reg_;
+        std::string tag_reg = register_manager_.acquire_scratch_reg(*this);
+        std::string good_type_label = label_manager_.create_label();
+        int64_t expected_tag = 0;
+        if (function_name == "AS_INT") expected_tag = ATOM_INT;
+        if (function_name == "AS_FLOAT") expected_tag = ATOM_FLOAT;
+        if (function_name == "AS_STRING") expected_tag = ATOM_STRING;
+        if (function_name == "AS_LIST") expected_tag = ATOM_LIST_POINTER;
+        emit(Encoder::create_ldr_imm(tag_reg, ptr_reg, 0, "Load runtime type tag"));
+        emit(Encoder::create_cmp_imm(tag_reg, expected_tag));
+        register_manager_.release_register(tag_reg);
+        emit(Encoder::create_branch_conditional("EQ", good_type_label));
+        emit(Encoder::create_brk(1));
+        instruction_stream_.define_label(good_type_label);
+        if (function_name == "AS_LIST" || function_name == "AS_STRING") {
+            std::string dest_x_reg = register_manager_.acquire_scratch_reg(*this);
+            emit(Encoder::create_ldr_imm(dest_x_reg, ptr_reg, 8));
+            if (function_name == "AS_STRING") {
+                emit(Encoder::create_add_imm(dest_x_reg, dest_x_reg, 8));
+            }
+            expression_result_reg_ = dest_x_reg;
+        } else if (function_name == "AS_FLOAT") {
+            std::string dest_d_reg = register_manager_.acquire_fp_scratch_reg();
+            emit(Encoder::create_ldr_fp_imm(dest_d_reg, ptr_reg, 8));
+            expression_result_reg_ = dest_d_reg;
+        } else {
+            std::string dest_x_reg = register_manager_.acquire_scratch_reg(*this);
+            emit(Encoder::create_ldr_imm(dest_x_reg, ptr_reg, 8));
+            expression_result_reg_ = dest_x_reg;
+        }
+        register_manager_.release_register(ptr_reg);
+        return;
+    }
+
+    if (function_name == "FIND" && node.arguments.size() == 2) {
+        generate_expression_code(*node.arguments[0]);
+        emit(Encoder::create_mov_reg("X0", expression_result_reg_));
+        register_manager_.release_register(expression_result_reg_);
+        generate_expression_code(*node.arguments[1]);
+        std::string value_reg = expression_result_reg_;
+        VarType value_type = ASTAnalyzer::getInstance().infer_expression_type(node.arguments[1].get());
+        int64_t type_tag = (value_type == VarType::FLOAT) ? ATOM_FLOAT : ATOM_INT;
+        if (register_manager_.is_fp_register(value_reg)) {
+            emit(Encoder::create_fmov_reg("X1", value_reg));
+        } else {
+            emit(Encoder::create_mov_reg("X1", value_reg));
+        }
+        register_manager_.release_register(value_reg);
+        emit(Encoder::create_movz_movk_abs64("X2", type_tag, ""));
+        emit(Encoder::create_branch_with_link("FIND"));
+        expression_result_reg_ = "X0";
+        return;
+    }
+
+    if (function_name == "MAP" && node.arguments.size() == 2) {
+        generate_expression_code(*node.arguments[0]);
+        emit(Encoder::create_mov_reg("X0", expression_result_reg_));
+        register_manager_.release_register(expression_result_reg_);
+        if (auto* map_var = dynamic_cast<VariableAccess*>(node.arguments[1].get())) {
+            std::string map_name = map_var->name;
+            emit(Encoder::create_adrp("X1", map_name));
+            emit(Encoder::create_add_literal("X1", "X1", map_name));
+        } else {
+            throw std::runtime_error("Mapping function for MAP must be a function name.");
+        }
+        emit(Encoder::create_branch_with_link("MAP"));
+        expression_result_reg_ = "X0";
+        return;
+    }
+
+    if (function_name == "FILTER" && node.arguments.size() == 2) {
+        generate_expression_code(*node.arguments[0]);
+        emit(Encoder::create_mov_reg("X0", expression_result_reg_));
+        register_manager_.release_register(expression_result_reg_);
+        if (auto* predicate_var = dynamic_cast<VariableAccess*>(node.arguments[1].get())) {
+            std::string predicate_name = predicate_var->name;
+            emit(Encoder::create_adrp("X1", predicate_name));
+            emit(Encoder::create_add_literal("X1", "X1", predicate_name));
+        } else {
+            throw std::runtime_error("Predicate for FILTER must be a function name.");
+        }
+        emit(Encoder::create_branch_with_link("FILTER"));
+        expression_result_reg_ = "X0";
+        return;
+    }
+
+    throw std::runtime_error("Unknown special built-in: " + function_name);
+}
+
+void NewCodeGenerator::handle_method_call(FunctionCall& node, const std::vector<std::string>& arg_result_regs) {
+    auto* member_access = static_cast<MemberAccessExpression*>(node.function_expr.get());
+    std::string this_ptr_reg;
+    std::string class_name;
+    std::string method_name;
+    generate_expression_code(*member_access->object_expr);
+    this_ptr_reg = expression_result_reg_;
+    class_name = get_class_name_for_expression(member_access->object_expr.get());
+    method_name = member_access->member_name;
+    ClassMethodInfo* method_info = class_table_->lookup_class_method(class_name, method_name);
+    if (!method_info) {
+        throw std::runtime_error("Method '" + method_name + "' not found in class '" + class_name + "'.");
+    }
+    size_t vtable_offset = method_info->vtable_slot * 8;
+    std::string vtable_ptr_reg = register_manager_.acquire_scratch_reg(*this);
+    emit(Encoder::create_ldr_imm(vtable_ptr_reg, this_ptr_reg, 0, "Load vtable pointer"));
+    std::string method_addr_reg = register_manager_.acquire_scratch_reg(*this);
+    emit(Encoder::create_ldr_imm(method_addr_reg, vtable_ptr_reg, vtable_offset, "Load method address"));
+    register_manager_.release_register(vtable_ptr_reg);
+    emit(Encoder::create_mov_reg("X0", this_ptr_reg));
+    for (size_t i = 0; i < arg_result_regs.size(); ++i) {
+        std::string target_reg = "X" + std::to_string(i + 1);
+        emit(Encoder::create_mov_reg(target_reg, arg_result_regs[i]));
+        register_manager_.release_register(arg_result_regs[i]);
+    }
+    register_manager_.release_register(this_ptr_reg);
+    emit(Encoder::create_branch_with_link_register(method_addr_reg));
+    register_manager_.invalidate_caller_saved_registers();
+    register_manager_.release_register(method_addr_reg);
+    expression_result_reg_ = "X0";
+}
+
+void NewCodeGenerator::handle_super_call(FunctionCall& node, const std::vector<std::string>& arg_result_regs) {
+    auto* super_access = static_cast<SuperMethodAccessExpression*>(node.function_expr.get());
+    std::string this_ptr_reg = get_variable_register("_this");
+    const ClassTableEntry* class_entry = class_table_->get_class(current_class_name_);
+    if (!class_entry || class_entry->parent_name.empty()) {
+        throw std::runtime_error("SUPER call in class with no parent: " + current_class_name_);
+    }
+    const ClassTableEntry* parent_entry = class_table_->get_class(class_entry->parent_name);
+    if (!parent_entry) {
+        throw std::runtime_error("Parent class not found: " + class_entry->parent_name);
+    }
+    ClassMethodInfo* method_info = parent_entry->findMethod(super_access->member_name, false);
+    if (!method_info) {
+        throw std::runtime_error("SUPER: Parent method '" + super_access->member_name + "' not found.");
+    }
+    emit(Encoder::create_mov_reg("X0", this_ptr_reg));
+    for (size_t i = 0; i < arg_result_regs.size(); ++i) {
+        std::string target_reg = "X" + std::to_string(i + 1);
+        emit(Encoder::create_mov_reg(target_reg, arg_result_regs[i]));
+        register_manager_.release_register(arg_result_regs[i]);
+    }
+    register_manager_.release_register(this_ptr_reg);
+    emit(Encoder::create_branch_with_link(method_info->qualified_name));
+    register_manager_.invalidate_caller_saved_registers();
+    expression_result_reg_ = "X0";
+}
+
+void NewCodeGenerator::handle_regular_call(FunctionCall& node, const std::vector<std::string>& arg_result_regs) {
+    std::string function_name;
+    if (auto* var_access = dynamic_cast<VariableAccess*>(node.function_expr.get())) {
+        function_name = var_access->name;
+    }
+    bool is_float_call = is_float_function_call(node);
+    for (size_t i = 0; i < arg_result_regs.size(); ++i) {
+        std::string src_reg = arg_result_regs[i];
+        if (is_float_call) {
+            std::string dest_d_reg = "D" + std::to_string(i);
+            if (register_manager_.is_fp_register(src_reg)) {
+                if (src_reg != dest_d_reg) emit(Encoder::create_fmov_reg(dest_d_reg, src_reg));
+            } else {
+                emit(Encoder::create_scvtf_reg(dest_d_reg, src_reg));
+            }
+        } else {
+            std::string dest_x_reg = "X" + std::to_string(i);
+            if (register_manager_.is_fp_register(src_reg)) {
+                generate_float_to_int_truncation(dest_x_reg, src_reg);
+            } else {
+                if (src_reg != dest_x_reg) emit(Encoder::create_mov_reg(dest_x_reg, src_reg));
+            }
+        }
+    }
+    if (auto* var_access = dynamic_cast<VariableAccess*>(node.function_expr.get())) {
+        if (ASTAnalyzer::getInstance().get_function_metrics().count(var_access->name) > 0) {
+            emit(Encoder::create_branch_with_link(var_access->name));
+        } else if (RuntimeManager::instance().is_function_registered(var_access->name)) {
+            size_t offset = RuntimeManager::instance().get_function_offset(var_access->name);
+            std::string addr_reg = register_manager_.acquire_scratch_reg(*this);
+            emit(Encoder::create_ldr_imm(addr_reg, "X19", offset));
+            emit(Encoder::create_branch_with_link_register(addr_reg));
+            register_manager_.release_register(addr_reg);
+        } else {
+            generate_expression_code(*var_access);
+            emit(Encoder::create_branch_with_link_register(expression_result_reg_));
+            register_manager_.release_register(expression_result_reg_);
+        }
+    } else {
+        generate_expression_code(*node.function_expr);
+        emit(Encoder::create_branch_with_link_register(expression_result_reg_));
+        register_manager_.release_register(expression_result_reg_);
+    }
+    if (is_float_call) {
+        expression_result_reg_ = "D0";
+    } else {
+        expression_result_reg_ = "X0";
+    }
+}
+
+// File: generators/gen_FunctionDeclaration.cpp
+
+#include "../NewCodeGenerator.h"
+
+#include "../analysis/ASTAnalyzer.h" // Needed for analyzer_
+
+
+
+// IMPORTANT: This file should ONLY contain the implementation of
+// NewCodeGenerator::visit(FunctionDeclaration& node)
+// The implementation of generate_function_like_code will go into NewCodeGenerator.cpp
+// This file will now delegate to that common helper.
+
+void NewCodeGenerator::visit(FunctionDeclaration& node) {
+    debug_print("Visiting FunctionDeclaration node (Name: " + node.name + ")."); //
+    if (ASTAnalyzer::getInstance().get_function_metrics().count(node.name) > 0) {
+        debug_print("Function metrics for " + node.name + ": runtime_calls=" + std::to_string(ASTAnalyzer::getInstance().get_function_metrics().at(node.name).num_runtime_calls) + //
+                    ", local_function_calls=" + std::to_string(ASTAnalyzer::getInstance().get_function_metrics().at(node.name).num_local_function_calls) + //
+                    ", local_routine_calls=" + std::to_string(ASTAnalyzer::getInstance().get_function_metrics().at(node.name).num_local_routine_calls)); //
+    } else {
+        debug_print("Function metrics for " + node.name + " not found.");
+    }
+
+    // Delegate to the common helper method for all function-like code generation.
+    // The body of a FunctionDeclaration is an Expression.
+    if (node.body) {
+        // Check if we're in a class context to use the qualified name
+        std::string function_name = node.name;
+        // Only qualify if we're in a class context AND the name isn't already qualified
+        if (!current_class_name_.empty() && node.name.find("::") == std::string::npos) {
+            function_name = current_class_name_ + "::" + node.name;
+            debug_print("Using qualified name for method: " + function_name);
+        }
+        generate_function_like_code(function_name, node.parameters, *node.body, true); // The 'true' indicates it's a value-returning function.
+    } else {
+        throw std::runtime_error("FunctionDeclaration: Body is null for function " + node.name);
+    }
+
+    debug_print("Finished visiting FunctionDeclaration node."); //
+}
+
+// File: generators/gen_FVecAllocationExpression.cpp
+
+#include "../NewCodeGenerator.h"
+
+#include <stdexcept>
+
+void NewCodeGenerator::visit(FVecAllocationExpression& node) {
+    debug_print("Visiting FVecAllocationExpression node.");
+    // `FVEC size_expr`
+    // This allocates a vector (array) of float words on the heap and returns its address.
+    // This typically translates to a call to a runtime memory allocation routine,
+    // identical to VecAllocationExpression, but tracked as a float vector.
+
+    // 1. Evaluate the size_expr (number of words).
+    generate_expression_code(*node.size_expr);
+    std::string size_words_reg = expression_result_reg_; // Register holding the number of words
+
+    // 2. Move the number of words directly to X0 (BCPL_ALLOC_WORDS expects words, not bytes).
+    auto& register_manager = register_manager_;
+    emit(Encoder::create_mov_reg("X0", size_words_reg));
+    register_manager.release_register(size_words_reg);
+
+    // 3. Load the ADDRESS of the function name string into X1.
+    std::string func_name_label = data_generator_.add_string_literal(current_frame_manager_->get_function_name());
+    emit(Encoder::create_adrp("X1", func_name_label));
+    emit(Encoder::create_add_literal("X1", "X1", func_name_label));
+    // Do NOT release X1, it's an argument for the upcoming call.
+
+    // 4. Load the ADDRESS of the variable name string into X2.
+    std::string var_name_label = data_generator_.add_string_literal(node.get_variable_name());
+    emit(Encoder::create_adrp("X2", var_name_label));
+    emit(Encoder::create_add_literal("X2", "X2", var_name_label));
+    // Do NOT release X2, it's an argument for the upcoming call.
+
+    // 5. Call the runtime `BCPL_ALLOC_WORDS` function using the X28-relative pointer table.
+    size_t offset = RuntimeManager::instance().get_function_offset("BCPL_ALLOC_WORDS");
+    std::string addr_reg = register_manager_.acquire_scratch_reg(*this);
+    Instruction ldr_instr = Encoder::create_ldr_imm(addr_reg, "X19", offset);
+    ldr_instr.jit_attribute = JITAttribute::JitAddress;
+    emit(ldr_instr);
+    Instruction blr_instr = Encoder::create_branch_with_link_register(addr_reg);
+    blr_instr.jit_attribute = JITAttribute::JitCall;
+    emit(blr_instr);
+    register_manager.release_register(addr_reg);
+
+    // 6. The result (pointer to float vector) is now in X0.
+    expression_result_reg_ = "X0";
+}
+
+// File: generators/gen_get_variable_register.cpp
+
+#include "../NewCodeGenerator.h"
+#include "../AST.h"
+#include "../RuntimeManager.h"
+#include "../Encoder.h"
+
+// This is the definitive, corrected implementation.
+std::string NewCodeGenerator::get_variable_register(const std::string& var_name) {
+    debug_print("get_variable_register for: '" + var_name + "' in function '" + current_function_name_ + "'");
+
+
+
+    // --- PRIORITY 1: Check the Linear Scan Allocator's final decision ---
+    auto func_alloc_it = all_allocations_.find(current_function_name_);
+    if (func_alloc_it != all_allocations_.end()) {
+        const auto& current_function_allocs = func_alloc_it->second;
+        auto var_alloc_it = current_function_allocs.find(var_name);
+
+        if (var_alloc_it != current_function_allocs.end()) {
+            const LiveInterval& allocation = var_alloc_it->second;
+            std::string assigned_reg = allocation.assigned_register;
+
+            // Check if register is initialized
+            if (!register_manager_.is_initialized(assigned_reg)) {
+                if (allocation.is_spilled) {
+                    int offset = current_frame_manager_->get_offset(var_name);
+                    VarType var_type = current_frame_manager_->get_variable_type(var_name);
+                    if (var_type == VarType::FLOAT) {
+                        emit(Encoder::create_ldr_fp_imm(assigned_reg, "X29", offset));
+                    } else {
+                        emit(Encoder::create_ldr_imm(assigned_reg, "X29", offset, var_name));
+                    }
+                    register_manager_.set_initialized(assigned_reg, true);
+                } else if (!current_class_name_.empty()) {
+                    const ClassTableEntry* class_entry = class_table_->get_class(current_class_name_);
+                    if (class_entry && class_entry->member_variables.count(var_name)) {
+                        const auto& member_info = class_entry->member_variables.at(var_name);
+                        // Get the register assigned to _this using this SAME function recursively.
+                        std::string this_ptr_reg = get_variable_register("_this");
+                        if (member_info.type == VarType::FLOAT) {
+                            emit(Encoder::create_ldr_fp_imm(assigned_reg, this_ptr_reg, member_info.offset));
+                        } else {
+                            emit(Encoder::create_ldr_imm(assigned_reg, this_ptr_reg, member_info.offset, "Load member " + var_name));
+                        }
+                        register_manager_.set_initialized(assigned_reg, true);
+                    }
+                }
+            }
+            return assigned_reg;
+        }
+    }
+
+    // --- FALLBACK LOGIC for globals, class members, etc. ---
+    if (!current_class_name_.empty()) {
+        const ClassTableEntry* class_entry = class_table_->get_class(current_class_name_);
+        if (class_entry && class_entry->member_variables.count(var_name)) {
+            const auto& member_info = class_entry->member_variables.at(var_name);
+            // Get the register assigned to _this using this SAME function recursively.
+            std::string this_ptr_reg = get_variable_register("_this");
+            std::string temp_reg;
+            if (member_info.type == VarType::FLOAT) {
+                temp_reg = register_manager_.acquire_fp_scratch_reg();
+                emit(Encoder::create_ldr_fp_imm(temp_reg, this_ptr_reg, member_info.offset));
+            } else {
+                temp_reg = register_manager_.acquire_scratch_reg(*this);
+                emit(Encoder::create_ldr_imm(temp_reg, this_ptr_reg, member_info.offset, "Load member " + var_name));
+            }
+            register_manager_.set_initialized(temp_reg, true);
+            return temp_reg;
+        }
+    }
+    
+    Symbol symbol;
+    if (lookup_symbol(var_name, symbol) && symbol.is_global()) {
+        size_t offset = symbol.location.data_offset * 8;
+        std::string reg = register_manager_.acquire_scratch_reg(*this);
+        emit(Encoder::create_ldr_imm(reg, "X28", offset, var_name));
+        register_manager_.set_initialized(reg, true);
+        return reg;
+    }
+
+    throw std::runtime_error("Variable '" + var_name + "' not found by allocator or fallback lookup.");
+}
+// File: generators/gen_GlobalDeclaration.cpp
+
+#include "NewCodeGenerator.h"
+#include "LabelManager.h"
+#include "analysis/ASTAnalyzer.h"
+#include <iostream>
+#include <stdexcept>
+
+void NewCodeGenerator::visit(GlobalDeclaration& node) {
+    debug_print("Visiting GlobalDeclaration node.");
+    for (const auto& global_pair : node.globals) {
+        const std::string& name = global_pair.first;
+        debug_print("  Processing global vector: " + name);
+
+        // Instruct the DataGenerator to allocate space for this global variable.
+        // Since GLOBAL declares a vector (pointer), its initial value is 0 (nullptr).
+        data_generator_.add_global_variable(name, nullptr); 
+        debug_print("  Registered global variable '" + name + "' with the DataGenerator.");
+    }
+}
+
+// File: generators/gen_GotoStatement.cpp
+
+#include "LabelManager.h"
+#include "NewCodeGenerator.h"
+#include "analysis/ASTAnalyzer.h"
+#include <iostream>
+#include <stdexcept>
+
+void NewCodeGenerator::visit(GotoStatement &node) {
+  debug_print("Visiting GotoStatement node (NOTE: branching is handled by "
+              "block epilogue).");
+  // This visitor is now intentionally empty.
+  // The presence of the GotoStatement in the AST has already been used by the
+  // CFGBuilderPass to correctly terminate the current basic block.
+  // The actual branch instruction is generated by `generate_block_epilogue`
+  // based on the successor edges in the CFG.
+}
+
+// File: generators/gen_IfStatement.cpp
+
+#include "NewCodeGenerator.h"
+#include "LabelManager.h"
+#include "RegisterManager.h"
+#include "Encoder.h"
+#include "AST.h"
+
+
+// Removed: visit(IfStatement&) is now handled in NewCodeGenerator.cpp for CFG-driven codegen.
+
+// File: generators/gen_LabelDeclaration.cpp
+
+#include "NewCodeGenerator.h"
+#include "LabelManager.h"
+#include "analysis/ASTAnalyzer.h"
+#include <iostream>
+#include <stdexcept>
+
+void NewCodeGenerator::visit(LabelDeclaration& node) {
+
+    debug_print("Visiting LabelDeclaration node (Name: " + node.name + ").");
+
+     // The label itself (e.g., "MyLabel:") has already been processed by the
+     // CFGBuilderPass, which created a dedicated BasicBlock with a unique ID.
+     // The NewCodeGenerator's main loop will emit that unique block ID as a label.
+     // This visitor's only job is to generate the code for the statement
+     // attached to the label declaration.
+
+     if (node.command) {
+         generate_statement_code(*node.command);
+     }
+
+    debug_print("Defined label '" + node.name + "'.");
+}
+
+// File: generators/gen_LabelTargetStatement.cpp
+
+#include "NewCodeGenerator.h"
+#include "AST.h"
+
+void NewCodeGenerator::visit(LabelTargetStatement& node) {
+    debug_print("Visiting LabelTargetStatement (Name: " + node.labelName + "). No code emitted.");
+    // This visitor is now intentionally empty.
+    // The label's position in the code has already been handled by the CFGBuilderPass,
+    // which created a dedicated BasicBlock. The NewCodeGenerator's main loop
+    // emits the unique label for that block (e.g., "START_Label_MyLabel2").
+    // This visitor must not generate any additional instructions or labels.
+}
+
+// File: generators/gen_LetDeclaration.cpp
+
+#include "../NewCodeGenerator.h"
+#include "../AST.h"
+#include <stdexcept>
+
+// Helper function to clone a unique_ptr, assuming it's available from AST_Cloner.cpp
+template <typename T>
+std::unique_ptr<T> clone_unique_ptr(const std::unique_ptr<T>& original_ptr) {
+    if (original_ptr) {
+        return std::unique_ptr<T>(static_cast<T*>(original_ptr->clone().release()));
+    }
+    return nullptr;
+}
+
+void NewCodeGenerator::visit(LetDeclaration& node) {
+    debug_print("Visiting LetDeclaration node (transforming to Assignment).");
+
+    // This visitor handles LET statements created dynamically by compiler passes
+    // like the CFGBuilderPass. It transforms the LET into an AssignmentStatement
+    // on the fly and then calls the visitor for AssignmentStatement.
+
+    if (node.names.size() != node.initializers.size()) {
+        throw std::runtime_error("LetDeclaration: Mismatch in number of names and initializers.");
+    }
+
+    std::vector<ExprPtr> lhs_vec;
+    std::vector<ExprPtr> rhs_vec;
+
+    for (const auto& name : node.names) {
+        lhs_vec.push_back(std::make_unique<VariableAccess>(name));
+    }
+
+    for (const auto& initializer : node.initializers) {
+        // We must clone the initializer expression to pass it to the new node.
+        rhs_vec.push_back(clone_unique_ptr(initializer));
+    }
+
+    // 1. Create the equivalent AssignmentStatement.
+    auto assignment_stmt = std::make_unique<AssignmentStatement>(
+        std::move(lhs_vec),
+        std::move(rhs_vec)
+    );
+
+    // 2. Immediately delegate to the correct visitor.
+    visit(*assignment_stmt);
+}
+
+// File: generators/gen_ListExpression.cpp
+
+#include "../NewCodeGenerator.h"
+#include "../RuntimeManager.h"
+#include "../Encoder.h"
+#include <vector>
+
+namespace {
+    // Helper to check if all expressions in a list are compile-time constants.
+    bool are_all_initializers_constant(const std::vector<ExprPtr>& initializers) {
+        for (const auto& expr : initializers) {
+            if (!expr->is_literal()) {
+                return false;
+            }
+        }
+        return true;
+    }
+}
+
+void NewCodeGenerator::visit(ListExpression& node) {
+    debug_print("Visiting ListExpression node.");
+
+    // First, check if we can use the efficient static template method.
+    if (are_all_initializers_constant(node.initializers)) {
+        debug_print("List is constant. Using static template generation.");
+        // --- STATIC PATH (existing logic) ---
+        std::string list_label = data_generator_.add_list_literal(&node);
+
+        if (node.is_manifest) {
+            std::string reg = register_manager_.get_free_register(*this);
+            emit(Encoder::create_adrp(reg, list_label));
+            emit(Encoder::create_add_literal(reg, reg, list_label));
+            expression_result_reg_ = reg;
+            register_manager_.mark_register_as_used(reg);
+            debug_print("Emitted direct pointer load for MANIFESTLIST.");
+        } else {
+            emit(Encoder::create_adrp("X0", list_label));
+            emit(Encoder::create_add_literal("X0", "X0", list_label));
+            emit(Encoder::create_branch_with_link("DEEPCOPYLITERALLIST"));
+            expression_result_reg_ = "X0";
+            register_manager_.mark_register_as_used("X0");
+            debug_print("Emitted deep copy logic for LIST.");
+        }
+    } else {
+        debug_print("List contains live expressions. Using dynamic runtime construction.");
+        // --- DYNAMIC PATH (new logic) ---
+
+        // 1. Call the runtime to create a new, empty list header.
+        emit(Encoder::create_branch_with_link("BCPL_LIST_CREATE_EMPTY"));
+        // The pointer to the new header is now in X0.
+
+        // 2. Store this pointer in a safe, persistent register.
+        std::string list_header_reg = register_manager_.acquire_callee_saved_temp_reg(*current_frame_manager_);
+        emit(Encoder::create_mov_reg(list_header_reg, "X0"));
+
+        // 3. Iterate through each initializer expression and append it.
+        for (const auto& expr : node.initializers) {
+            // Evaluate the expression. Result is in expression_result_reg_
+            generate_expression_code(*expr);
+            std::string value_reg = expression_result_reg_;
+
+            // Determine the type to call the correct append function.
+            VarType expr_type = ASTAnalyzer::getInstance().infer_expression_type(expr.get());
+
+            // Set up arguments for the append call.
+            emit(Encoder::create_mov_reg("X0", list_header_reg)); // Arg 1: List header
+
+            if (register_manager_.is_fp_register(value_reg)) {
+                // Arg 2 for floats is in D1
+                emit(Encoder::create_fmov_reg("D1", value_reg));
+                emit(Encoder::create_branch_with_link("BCPL_LIST_APPEND_FLOAT"));
+            } else {
+                // Arg 2 for integers/pointers is in X1
+                emit(Encoder::create_mov_reg("X1", value_reg));
+                if (expr_type == VarType::POINTER_TO_STRING) {
+                    emit(Encoder::create_branch_with_link("BCPL_LIST_APPEND_STRING"));
+                } else if (expr_type == VarType::POINTER_TO_ANY_LIST ||
+                           expr_type == VarType::POINTER_TO_INT_LIST ||
+                           expr_type == VarType::POINTER_TO_FLOAT_LIST ||
+                           expr_type == VarType::POINTER_TO_STRING_LIST) {
+                    emit(Encoder::create_branch_with_link("BCPL_LIST_APPEND_LIST"));
+                }
+                else {
+                    emit(Encoder::create_branch_with_link("BCPL_LIST_APPEND_INT"));
+                }
+            }
+            register_manager_.release_register(value_reg);
+        }
+
+        // 4. The final result is the pointer to the list header.
+        expression_result_reg_ = list_header_reg;
+    }
+}
+
+// File: generators/gen_LoopStatement.cpp
+
+#include "../NewCodeGenerator.h"
+
+void NewCodeGenerator::visit(LoopStatement& node) {
+    debug_print("Visiting LoopStatement node (NOTE: branching is handled by block epilogue).");
+    // This visitor is now intentionally empty.
+    // The presence of the LoopStatement in the AST has already been used by the
+    // CFGBuilderPass to correctly terminate the current basic block and add an
+    // edge to the loop header. The actual branch instruction is generated by
+    // `generate_block_epilogue` based on the CFG.
+}
+
+// File: generators/gen_ManifestDeclaration.cpp
+
+#include "NewCodeGenerator.h"
+#include "LabelManager.h"
+#include "analysis/ASTAnalyzer.h"
+#include <iostream>
+#include <stdexcept>
+
+void NewCodeGenerator::visit(ManifestDeclaration& node) {
+    debug_print("Visiting ManifestDeclaration node (Name: " + node.name + ", Value: " + std::to_string(node.value) + ").");
+    // Manifests are compile-time constants. They don't generate code or allocate memory.
+    // Their values are substituted during semantic analysis or by the code generator directly.
+    // No code emission is typically needed here.
+    // They should ideally be resolved in a symbol table lookup before code generation.
+    debug_print("Manifest '" + node.name + "' resolved to value " + std::to_string(node.value) + ". No code emitted.");
+}
+
+// File: generators/gen_MemberAccessExpression.cpp
+
+#include "NewCodeGenerator.h"
+#include "AST.h"
+#include "analysis/ASTAnalyzer.h"
+#include "ClassTable.h"
+#include "Encoder.h"
+#include <stdexcept>
+#include <iostream>
+
+// Emergency debug function for vtable validation
+static void debug_validate_vtable_ptr(void* vtable_ptr, int slot_index, void* method_ptr) {
+    if (vtable_ptr == method_ptr) {
+        std::cerr << "\n!!! CRITICAL VTABLE ERROR DETECTED !!!" << std::endl;
+        std::cerr << "Vtable at " << vtable_ptr << " has a self-reference at slot " << slot_index << std::endl;
+        std::cerr << "This will cause a crash when calling methods" << std::endl;
+    }
+}
+
+void NewCodeGenerator::visit(MemberAccessExpression& node) {
+    debug_print("Visiting MemberAccessExpression for member: " + node.member_name);
+
+    // STEP 1: Get type information for the object.
+    ASTAnalyzer& analyzer = ASTAnalyzer::getInstance();
+    Symbol object_symbol;
+    std::string class_name;
+
+    if (auto* var_access = dynamic_cast<VariableAccess*>(node.object_expr.get())) {
+        debug_print("  Object is VariableAccess: " + var_access->name);
+        if (symbol_table_ && symbol_table_->lookup(var_access->name, object_symbol)) {
+            class_name = object_symbol.class_name;
+            debug_print("  Found symbol with class name: " + class_name);
+        } else {
+            debug_print("  WARNING: Symbol lookup failed for: " + var_access->name);
+        }
+    } else {
+        debug_print("  Object is not a VariableAccess, using get_class_name_for_expression");
+        class_name = get_class_name_for_expression(node.object_expr.get());
+    }
+    if (class_name.empty()) {
+        throw std::runtime_error("Could not determine class for member access on '" + node.member_name + "'.");
+    }
+
+    const ClassTableEntry* class_entry = class_table_ ? class_table_->get_class(class_name) : nullptr;
+    if (!class_entry) {
+        debug_print("  ERROR: Class '" + class_name + "' not found in ClassTable");
+        throw std::runtime_error("Class '" + class_name + "' not found in ClassTable.");
+    }
+    debug_print("  Successfully found class entry for: " + class_name);
+
+    // STEP 2: Decide if this is a data member or a method.
+    auto member_it = class_entry->member_variables.find(node.member_name);
+    
+    // Use the helper method to lookup the method (handles both simple and qualified names)
+    debug_print("  Looking up class method '" + node.member_name + "' in class '" + class_name + "'");
+    ClassMethodInfo* method_info_ptr = class_table_->lookup_class_method(class_name, node.member_name);
+    
+    debug_print("  Method lookup result: " + std::string(method_info_ptr != nullptr ? "FOUND" : "NOT FOUND"));
+    
+    // Print available methods for debugging
+    debug_print("  Available member methods in class " + class_name + ":");
+    for (const auto& method_pair : class_entry->member_methods) {
+        debug_print("    - " + method_pair.first);
+    }
+    
+    debug_print("  Available member variables in class " + class_name + ":");
+    for (const auto& var_pair : class_entry->member_variables) {
+        debug_print("    - " + var_pair.first + " (offset: " + std::to_string(var_pair.second.offset) + ")");
+    }
+
+    if (member_it != class_entry->member_variables.end()) {
+        // --- PATH A: DATA MEMBER (e.g., p.x) ---
+        debug_print("Member '" + node.member_name + "' is a data member.");
+        generate_expression_code(*node.object_expr);
+        std::string object_ptr_reg = expression_result_reg_;
+        size_t offset = member_it->second.offset;
+        
+        // Check if the member is a float type
+        if (member_it->second.type == VarType::FLOAT) {
+            debug_print("Member '" + node.member_name + "' is a FLOAT type.");
+            std::string dest_reg = register_manager_.get_free_float_register();
+            emit(Instruction(0, "// Load float member " + node.member_name + " with offset " + std::to_string(offset)));
+            emit(Encoder::create_ldr_fp_imm(dest_reg, object_ptr_reg, offset));
+            expression_result_reg_ = dest_reg;
+        } else {
+            std::string dest_reg = register_manager_.acquire_scratch_reg(*this);
+            emit(Encoder::create_ldr_imm(dest_reg, object_ptr_reg, offset, "Load member " + node.member_name));
+            expression_result_reg_ = dest_reg;
+        }
+        register_manager_.release_register(object_ptr_reg);
+
+    } else if (method_info_ptr != nullptr) {
+        // --- PATH B: METHOD (e.g., p.set) --- (NEW LOGIC)
+        debug_print("Member '" + node.member_name + "' is a method. Performing vtable lookup.");
+
+        // 1. Get the object's base address (the 'this' pointer).
+        generate_expression_code(*node.object_expr);
+        std::string object_ptr_reg = expression_result_reg_;
+
+        // 2. The 'this' pointer must be passed as the first argument (X0).
+        emit(Encoder::create_mov_reg("X0", object_ptr_reg));
+        register_manager_.release_register(object_ptr_reg);
+        // register_manager_.reserve_register("X0"); // Prevent it from being used before the call
+
+        // 3. Get the method's vtable slot
+        const auto& method_info = *method_info_ptr;
+        size_t vtable_slot = method_info.vtable_slot;
+        size_t vtable_offset = vtable_slot * 8; // Each entry is an 8-byte pointer.
+
+        debug_print("Method '" + node.member_name + "' found with vtable slot " + std::to_string(vtable_slot));
+        debug_print("Method vtable offset: " + std::to_string(vtable_offset) + " bytes");
+        debug_print("Full method info: name=" + method_info.name + ", qualified_name=" + method_info.qualified_name);
+        
+        // DETAILED VTABLE DIAGNOSTICS
+        debug_print("VTABLE DEBUGGING INFO FOR: " + node.member_name);
+        debug_print("  - Class: " + class_name);
+        debug_print("  - Vtable blueprint size: " + std::to_string(class_entry->vtable_blueprint.size()));
+        debug_print("  - Method's expected location in vtable: slot " + std::to_string(vtable_slot));
+        
+        // Print the entire vtable blueprint for this class
+        debug_print("  - Vtable blueprint contents:");
+        for (size_t i = 0; i < class_entry->vtable_blueprint.size(); i++) {
+            debug_print("    [" + std::to_string(i) + "]: " + 
+                      (class_entry->vtable_blueprint[i].empty() ? "<empty>" : class_entry->vtable_blueprint[i]));
+        }
+
+        // 4. Generate code to load the method address from the vtable.
+        std::string vtable_ptr_reg = register_manager_.acquire_scratch_reg(*this);
+        std::string method_addr_reg = register_manager_.acquire_scratch_reg(*this);
+
+        // LDR vtable_ptr_reg, [X0, #0]  (Load address of vtable)
+        emit(Encoder::create_ldr_imm(vtable_ptr_reg, "X0", 0, "Load vtable pointer"));
+        // LDR method_addr_reg, [vtable_ptr_reg, #offset] (Load method address from vtable at specified slot)
+        emit(Encoder::create_ldr_imm(method_addr_reg, vtable_ptr_reg, vtable_offset, "Load method address for " + node.member_name));
+
+        register_manager_.release_register(vtable_ptr_reg);
+
+        // The result of this expression is the callable address of the method.
+        expression_result_reg_ = method_addr_reg;
+    } else {
+        throw std::runtime_error("Member '" + node.member_name + "' not found in class '" + class_name + 
+                               "'. (Neither as a member variable nor as a method)");
+    }
+}
+
+// File: generators/gen_NullLiteral.cpp
+
+#include "NewCodeGenerator.h"
+#include "LabelManager.h"
+#include "analysis/ASTAnalyzer.h"
+#include "NewCodeGenerator.h"
+#include <iostream>
+#include <stdexcept>
+
+void NewCodeGenerator::visit(NullLiteral& node) {
+    debug_print("Visiting NullLiteral node.");
+    auto& register_manager = register_manager_;
+    std::string dest_reg = register_manager.get_free_register(*this); // Get a free temporary register
+
+    // Null literal compiles to 0 (null pointer)
+    emit(Encoder::create_movz_imm(dest_reg, 0, 0));
+    expression_result_reg_ = dest_reg;
+    debug_print("Loaded null literal (?) into " + dest_reg + ".");
+}
+// File: generators/gen_NumberLiteral.cpp
+
+#include "NewCodeGenerator.h"
+#include "LabelManager.h"
+#include "analysis/ASTAnalyzer.h"
+#include <iostream>
+#include <stdexcept>
+
+void NewCodeGenerator::visit(NumberLiteral& node) {
+    debug_print("Visiting NumberLiteral node.");
+    auto& register_manager = RegisterManager::getInstance();
+    std::string dest_reg = register_manager.get_free_register(*this); // Get a free temporary register
+
+    if (node.literal_type == NumberLiteral::LiteralType::Integer) {
+        // Load the integer literal value into the destination register.
+        // For small integers, use MOVZ directly.
+        if (node.int_value >= 0 && node.int_value <= 0xFFFF) { // Fits in 16 bits
+            emit(Encoder::create_movz_imm(dest_reg, static_cast<uint16_t>(node.int_value)));
+            debug_print("Loaded integer literal " + std::to_string(node.int_value) + " into " + dest_reg + " using MOVZ.");
+        } else {
+            // For larger 64-bit integers, this might require multiple MOVZ/MOVK instructions.
+            // The create_movz_movk_abs64 function handles this, but it should not set a target_label for literals.
+            // The target_label argument should be empty for literal values.
+            emit(Encoder::create_movz_movk_abs64(dest_reg, node.int_value, ""));
+            debug_print("Loaded large integer literal " + std::to_string(node.int_value) + " into " + dest_reg + " using MOVZ/MOVK.");
+        }
+    } else { // Float literal
+        // Use DataGenerator to register the float literal and get its label
+        std::string float_label = data_generator_.add_float_literal(node.float_value);
+
+        std::string temp_x_reg = register_manager.get_free_register(*this); // Need an X register for ADRP/ADD
+        std::string dest_d_reg = register_manager.get_free_float_register(); // Get a free float register
+
+        emit(Encoder::create_adrp(temp_x_reg, float_label));
+        emit(Encoder::create_add_literal(temp_x_reg, temp_x_reg, float_label));
+        emit(Encoder::create_ldr_fp_imm(dest_d_reg, temp_x_reg, 0)); // Load the double value
+
+        register_manager.release_register(temp_x_reg); // Release the temporary X register
+        dest_reg = dest_d_reg; // Set the result register to the float register
+        debug_print("Loaded float literal " + std::to_string(node.float_value) + " into " + dest_d_reg + ".");
+    }
+
+    expression_result_reg_ = dest_reg; // Store the register holding the result
+}
+
+// File: generators/gen_Program.cpp
+
+#include "NewCodeGenerator.h"
+#include "AST.h"
+#include <algorithm>
+#include <string>
+
+void NewCodeGenerator::visit(Program& node) {
+    debug_print("Visiting Program node.");
+
+    // Separate declarations into functions/routines and other types.
+    std::vector<Declaration*> function_decls;
+    std::vector<Declaration*> other_decls;
+
+    for (const auto& decl : node.declarations) {
+        if (dynamic_cast<FunctionDeclaration*>(decl.get()) || dynamic_cast<RoutineDeclaration*>(decl.get())) {
+            function_decls.push_back(decl.get());
+        } else {
+            other_decls.push_back(decl.get());
+        }
+    }
+
+    // --- JIT FIX: Move the 'START' routine to the end of the processing queue ---
+    // The JIT requires that functions be defined before they are called. By ensuring
+    // 'START' is generated last, we guarantee all other functions are defined first.
+    auto start_it = std::find_if(function_decls.begin(), function_decls.end(), [](Declaration* d) {
+        if (auto* r = dynamic_cast<RoutineDeclaration*>(d)) {
+            return r->name == "START";
+        }
+        return false;
+    });
+
+    if (start_it != function_decls.end()) {
+        debug_print("Moving 'START' routine to the end of the generation queue for JIT compatibility.");
+        std::rotate(start_it, start_it + 1, function_decls.end());
+    }
+
+    // --- STEP 1: Register all global data declarations ---
+    debug_print("Code Generator: Registering global data declarations.");
+    for (auto* decl : other_decls) {
+        process_declaration(*decl);
+    }
+
+    // --- STEP 2: Calculate data offsets NOW ---
+    // At this point, DataGenerator knows about all global variables and their initializers.
+    data_generator_.calculate_global_offsets();
+    debug_print("Code Generator: Global data offsets calculated.");
+
+    // --- STEP 3: Now generate code for functions and routines ---
+    debug_print("Code Generator: Generating code for functions and routines.");
+    for (auto* decl : function_decls) {
+        process_declaration(*decl);
+    }
+
+    // ====================== START OF FIX ======================
+    // Add this loop to process any top-level executable statements.
+    debug_print("Code Generator: Generating code for top-level statements.");
+    for (auto& stmt : node.statements) {
+        if (stmt) {
+            generate_statement_code(*stmt);
+        }
+    }
+    // ======================= END OF FIX =======================
+
+    debug_print("Finished visiting Program node.");
+}
+
+// File: generators/gen_RepeatStatement.cpp
+
+#include "../NewCodeGenerator.h"
+#include "../LabelManager.h"
+#include "../analysis/ASTAnalyzer.h"
+#include <iostream>
+#include <stdexcept>
+
+// This helper function correctly determines the branch condition.
+static std::string get_branch_condition_for_repeat(RepeatStatement::LoopType loop_type, BinaryOp::Operator op) {
+    // REPEAT WHILE loops as long as the condition is TRUE.
+    // REPEAT UNTIL loops as long as the condition is FALSE.
+    bool loop_while_true = (loop_type == RepeatStatement::LoopType::RepeatWhile);
+
+    switch (op) {
+        case BinaryOp::Operator::Equal:        return loop_while_true ? "EQ" : "NE";
+        case BinaryOp::Operator::NotEqual:     return loop_while_true ? "NE" : "EQ";
+        case BinaryOp::Operator::Less:         return loop_while_true ? "LT" : "GE";
+        case BinaryOp::Operator::LessEqual:    return loop_while_true ? "LE" : "GT";
+        case BinaryOp::Operator::Greater:      return loop_while_true ? "GT" : "LE";
+        case BinaryOp::Operator::GreaterEqual: return loop_while_true ? "GE" : "LT";
+        default: return ""; // Not a direct comparison
+    }
+}
+
+void NewCodeGenerator::visit(RepeatStatement& node) {
+    debug_print("Visiting RepeatStatement node (NOTE: branching is handled by block epilogue).");
+    // This visitor is now intentionally empty.
+    // The CFGBuilderPass has already separated the body and condition into
+    // distinct basic blocks, which are handled by the main codegen loop
+    // and the generate_block_epilogue function.
+}
+
+// File: generators/gen_ResultisStatement.cpp
+
+#include "NewCodeGenerator.h"
+#include "LabelManager.h"
+#include "analysis/ASTAnalyzer.h"
+#include "NewCodeGenerator.h"
+#include <iostream>
+#include <stdexcept>
+
+void NewCodeGenerator::visit(ResultisStatement& node) {
+    debug_print("Visiting ResultisStatement node.");
+
+    // 1. Evaluate the expression. The result is now live in expression_result_reg_.
+    generate_expression_code(*node.expression);
+    std::string result_reg = expression_result_reg_;
+
+    // 2. The ABI requires the return value to be in X0 for integers or D0 for floats.
+    // First, check if we're expecting a floating-point result from the analyzer
+    bool should_be_float = false;
+    
+    // If we're in a FloatValofExpression, the return type is float
+    if (current_function_return_type_ == VarType::FLOAT) {
+        should_be_float = true;
+    } else {
+        // Otherwise, check the expression type
+        if (auto* num_lit = dynamic_cast<NumberLiteral*>(node.expression.get())) {
+            if (num_lit->literal_type == NumberLiteral::LiteralType::Float) {
+                should_be_float = true;
+            }
+        }
+    }
+    
+    if (should_be_float || register_manager_.is_fp_register(result_reg)) {
+        // --- Float Result ---
+        // If the result isn't in a float register but should be, convert it
+        if (!register_manager_.is_fp_register(result_reg) && should_be_float) {
+            std::string fp_reg = register_manager_.acquire_fp_scratch_reg();
+            emit(Encoder::create_scvtf_reg(fp_reg, result_reg));
+            register_manager_.release_register(result_reg);
+            result_reg = fp_reg;
+        }
+        
+        // Now move to D0 if not already there
+        if (result_reg != "D0") {
+            emit(Encoder::create_fmov_reg("D0", result_reg));
+            register_manager_.release_register(result_reg);
+        }
+        // The final result is now in D0.
+        expression_result_reg_ = "D0";
+    } else {
+        // --- Integer Result ---
+        // If the result is in a float register but shouldn't be, convert it
+        if (register_manager_.is_fp_register(result_reg) && !should_be_float) {
+            std::string int_reg = register_manager_.acquire_scratch_reg(*this);
+            emit(Encoder::create_fcvtzs_reg(int_reg, result_reg));
+            register_manager_.release_register(result_reg);
+            result_reg = int_reg;
+        }
+        
+        // Now move to X0 if not already there
+        if (result_reg != "X0") {
+            emit(Encoder::create_mov_reg("X0", result_reg));
+            register_manager_.release_register(result_reg);
+        }
+        // The final result is now in X0.
+        expression_result_reg_ = "X0";
+    }
+
+    // 3. Branch to the function's single, shared epilogue.
+    emit(Encoder::create_branch_unconditional(current_function_epilogue_label_));
+    debug_print("RESULTIS: Branching to function epilogue label " + current_function_epilogue_label_);
+}
+
+// File: generators/gen_ReturnStatement.cpp
+
+#include "NewCodeGenerator.h"
+#include "LabelManager.h"
+#include "analysis/ASTAnalyzer.h"
+#include <iostream>
+#include <stdexcept>
+
+void NewCodeGenerator::visit(ReturnStatement& node) {
+    debug_print("Visiting ReturnStatement node.");
+    // `RETURN` (implicitly returns current value of X0/D0 or undefined)
+    // Or it might be for a `ROUTINE` (which doesn't return a value).
+
+    if (current_frame_manager_) {
+        // Branch to the function's shared epilogue label.
+        emit(Encoder::create_branch_unconditional(current_function_epilogue_label_));
+        debug_print("RETURN: Branching to function epilogue label " + current_function_epilogue_label_);
+    } else {
+        // This RETURN is not within a function/routine (e.g., top-level).
+        // This is an error or implies exiting the program.
+        // For BCPL, top-level might just implicitly `FINISH`.
+        throw std::runtime_error("RETURN statement outside of a function or routine context.");
+    }
+}
+
+// File: generators/gen_RoutineCallStatement.cpp
+
+#include "../NewCodeGenerator.h"
+#include "../analysis/ASTAnalyzer.h"
+#include "../RuntimeManager.h"
+#include "../Symbol.h"
+#include "NameMangler.h"
+#include <stdexcept>
+#include <vector>
+#include <sstream>
+#include <cstdint>
+#include <iostream>
+#include "CodeGenUtils.h"
+
+// Implements robust two-stage argument evaluation for routine/method/SUPER calls.
+void NewCodeGenerator::visit(RoutineCallStatement& node) {
+    debug_print("--- Entering NewCodeGenerator::visit(RoutineCallStatement& node) [REVISED LOGIC] ---");
+
+    std::vector<std::string> spilled_gp, spilled_fp;
+
+    // Skip codegen for the SETTYPE intrinsic, as it's a compile-time directive.
+    if (auto* var_access = dynamic_cast<VariableAccess*>(node.routine_expr.get())) {
+        if (var_access->name == "SETTYPE") {
+            debug_print("Skipping code generation for SETTYPE intrinsic.");
+            return;
+        }
+    }
+
+    // --- UNIFIED LOGIC FOR ALL METHOD AND SUPER CALLS ---
+    if (auto* member_access = dynamic_cast<MemberAccessExpression*>(node.routine_expr.get())) {
+        debug_print("Detected a method call to: " + member_access->member_name);
+
+        // --- Stage 1: Evaluate all arguments into a temporary, safe list of registers. ---
+        std::vector<std::string> arg_value_regs;
+        for (const auto& arg_expr : node.arguments) {
+            generate_expression_code(*arg_expr);
+            std::string temp_reg = register_manager_.acquire_scratch_reg(*this);
+            emit(Encoder::create_mov_reg(temp_reg, expression_result_reg_));
+            register_manager_.release_register(expression_result_reg_);
+            arg_value_regs.push_back(temp_reg);
+        }
+
+        // --- Stage 1.5: Spill any live caller-saved registers to the stack ---
+        // This protects their values from being overwritten by the upcoming call.
+        std::vector<std::string> spilled_gp, spilled_fp;
+        spillLiveScratchRegisters(spilled_gp, spilled_fp);
+
+        // --- Stage 2: Evaluate the object pointer ('this'). ---
+        generate_expression_code(*member_access->object_expr);
+        std::string this_ptr_reg = expression_result_reg_;
+
+        // --- Stage 3: Move the safe values into final ABI argument registers. ---
+        emit(Encoder::create_mov_reg("X0", this_ptr_reg)); // Arg 0: _this
+        register_manager_.release_register(this_ptr_reg);
+
+        for (size_t i = 0; i < arg_value_regs.size(); ++i) {
+            std::string dest_reg = "X" + std::to_string(i + 1); // Args 1, 2, ...
+            emit(Encoder::create_mov_reg(dest_reg, arg_value_regs[i]));
+            register_manager_.release_register(arg_value_regs[i]);
+        }
+
+        // --- FIX: Direct call for constructors ---
+        if (member_access->member_name == "CREATE") {
+            debug_print("Detected a direct constructor call. Performing non-virtual call.");
+
+            std::string class_name = get_class_name_for_expression(member_access->object_expr.get());
+            if (class_name.empty()) {
+                throw std::runtime_error("Constructor call without a known class type.");
+            }
+            std::string mangled_name = NameMangler::mangleMethod(class_name, member_access->member_name);
+
+            emit(Encoder::create_branch_with_link(mangled_name));
+            register_manager_.invalidate_caller_saved_registers();
+        } else {
+            // --- Stage 4: Decide between direct and virtual call based on method_info ---
+            std::string class_name = get_class_name_for_expression(member_access->object_expr.get());
+            ClassMethodInfo* method_info = class_table_->lookup_class_method(class_name, member_access->member_name);
+            if (!method_info) {
+                 throw std::runtime_error("Method '" + member_access->member_name + "' not found in class '" + class_name + "' or its parents.");
+            }
+            if (method_info->is_virtual && !method_info->is_final) {
+                // Virtual call: vtable lookup
+                size_t vtable_offset = method_info->vtable_slot * 8;
+
+                std::string vtable_ptr_reg = register_manager_.acquire_scratch_reg(*this);
+                std::string method_addr_reg = register_manager_.acquire_scratch_reg(*this);
+
+                emit(Encoder::create_ldr_imm(vtable_ptr_reg, "X0", 0, "Load vtable pointer for method call"));
+                emit(Encoder::create_ldr_imm(method_addr_reg, vtable_ptr_reg, vtable_offset, "Load method address for " + member_access->member_name));
+                register_manager_.release_register(vtable_ptr_reg);
+
+                emit(Encoder::create_branch_with_link_register(method_addr_reg));
+                register_manager_.release_register(method_addr_reg);
+                register_manager_.invalidate_caller_saved_registers();
+                register_manager_.invalidate_caller_saved_registers();
+            } else {
+                // Direct call for non-virtual or final methods
+                emit(Encoder::create_branch_with_link(method_info->qualified_name));
+                register_manager_.invalidate_caller_saved_registers();
+            }
+        }
+
+    } else if (auto* super_access = dynamic_cast<SuperMethodAccessExpression*>(node.routine_expr.get())) {
+        // --- THIS IS A SUPER CALL (e.g., SUPER.CREATE(...)) ---
+        debug_print("Detected a SUPER method call.");
+
+        // --- Stage 1: Evaluate all arguments into a temporary, safe list of registers. ---
+        std::vector<std::string> arg_value_regs;
+        for (const auto& arg_expr : node.arguments) {
+            generate_expression_code(*arg_expr);
+            std::string temp_reg = register_manager_.acquire_scratch_reg(*this);
+            emit(Encoder::create_mov_reg(temp_reg, expression_result_reg_));
+            register_manager_.release_register(expression_result_reg_);
+            arg_value_regs.push_back(temp_reg);
+        }
+
+        // --- Stage 2: Get the '_this' pointer from its home register (not stack slot!) ---
+        std::string this_ptr_reg = get_variable_register("_this");
+        emit(Encoder::create_mov_reg_comment("X0", this_ptr_reg, "Move _this from home register to ABI register for SUPER call"));
+
+        // --- Stage 3: Move the safe values into final ABI argument registers. ---
+        emit(Encoder::create_mov_reg_comment("X0", this_ptr_reg, "Move _this for SUPER call")); // Arg 0: _this
+        register_manager_.release_register(this_ptr_reg);
+
+        for (size_t i = 0; i < arg_value_regs.size(); ++i) {
+            std::string dest_reg = "X" + std::to_string(i + 1); // Args 1, 2, ...
+            std::string comment = "Move argument " + std::to_string(i) + " for SUPER call";
+            emit(Encoder::create_mov_reg_comment(dest_reg, arg_value_regs[i], comment));
+            register_manager_.release_register(arg_value_regs[i]);
+        }
+
+        // --- Stage 4: Find the parent method and make a direct call. ---
+        const ClassTableEntry* class_entry = class_table_->get_class(current_class_name_);
+        if (!class_entry || class_entry->parent_name.empty())
+            throw std::runtime_error("SUPER call in class with no parent: " + current_class_name_);
+        const ClassTableEntry* parent_entry = class_table_->get_class(class_entry->parent_name);
+        if (!parent_entry)
+            throw std::runtime_error("Parent class not found: " + class_entry->parent_name);
+
+        ClassMethodInfo* method_info = parent_entry->findMethod(super_access->member_name, false);
+        if (!method_info)
+            throw std::runtime_error("SUPER: Parent method '" + super_access->member_name + "' not found.");
+
+        emit(Encoder::create_branch_with_link(method_info->qualified_name));
+        register_manager_.invalidate_caller_saved_registers();
+
+    } else {
+        // --- THIS IS A REGULAR FUNCTION/ROUTINE CALL (e.g., WRITEN(x)) ---
+        debug_print("Detected a regular function/routine call.");
+
+        // Evaluate and move arguments one by one directly into ABI registers.
+        for (size_t i = 0; i < node.arguments.size(); ++i) {
+             generate_expression_code(*node.arguments[i]);
+             std::string arg_reg = expression_result_reg_;
+             std::string dest_reg = "X" + std::to_string(i);
+             if (arg_reg != dest_reg) {
+                 emit(Encoder::create_mov_reg(dest_reg, arg_reg));
+                 register_manager_.release_register(arg_reg);
+             }
+        }
+
+        // Perform the routine call (BL or BLR).
+        if (auto* var_access = dynamic_cast<VariableAccess*>(node.routine_expr.get())) {
+            if (RuntimeManager::instance().is_function_registered(var_access->name)) {
+                size_t offset = RuntimeManager::instance().get_function_offset(var_access->name);
+                std::string addr_reg = register_manager_.acquire_scratch_reg(*this);
+
+                Instruction ldr_instr = Encoder::create_ldr_imm(addr_reg, "X19", offset);
+                ldr_instr.jit_attribute = JITAttribute::JitAddress;
+                emit(ldr_instr);
+
+                Instruction blr_instr = Encoder::create_branch_with_link_register(addr_reg);
+                blr_instr.jit_attribute = JITAttribute::JitCall;
+                blr_instr.target_label = var_access->name;
+                emit(blr_instr);
+
+                register_manager_.release_register(addr_reg);
+            } else if (ASTAnalyzer::getInstance().get_function_metrics().count(var_access->name)) {
+                emit(Encoder::create_branch_with_link(var_access->name));
+            } else {
+                 generate_expression_code(*node.routine_expr);
+                 emit(Encoder::create_branch_with_link_register(expression_result_reg_));
+                 register_manager_.release_register(expression_result_reg_);
+            }
+        } else {
+            generate_expression_code(*node.routine_expr);
+            emit(Encoder::create_branch_with_link_register(expression_result_reg_));
+            register_manager_.release_register(expression_result_reg_);
+        }
+        register_manager_.invalidate_caller_saved_registers();
+    }
+
+    // --- STEP 5: Restore any registers that were spilled. ---
+    restoreLiveScratchRegisters(spilled_gp, spilled_fp);
+
+    // Routines don't have a return value, but the call clobbers X0.
+    register_manager_.mark_register_as_used("X0");
+
+    debug_print("--- Exiting NewCodeGenerator::visit(RoutineCallStatement& node) ---");
+}
+// File: generators/gen_RoutineDeclaration.cpp
+
+#include "../NewCodeGenerator.h"
+#include "../LabelManager.h"
+#include "../analysis/ASTAnalyzer.h" // Needed for analyzer_
+#include <iostream>
+#include <stdexcept>
+
+// IMPORTANT: This file should ONLY contain the implementation of
+// NewCodeGenerator::visit(RoutineDeclaration& node)
+// The implementation of generate_function_like_code will go into NewCodeGenerator.cpp
+// This file will now delegate to that common helper.
+
+void NewCodeGenerator::visit(RoutineDeclaration& node) {
+    debug_print("DEBUG: Visiting RoutineDeclaration node (Name: " + node.name + ").");
+
+
+    // Delegate to the common helper method for all function-like code generation.
+    // The body of a RoutineDeclaration is a Statement.
+    
+    // Check if we're in a class context to use the qualified name
+    std::string function_name = node.name;
+    // Only qualify if we're in a class context AND the name isn't already qualified
+    if (!current_class_name_.empty() && node.name.find("::") == std::string::npos) {
+        function_name = current_class_name_ + "::" + node.name;
+        debug_print("Using qualified name for method: " + function_name);
+    }
+    generate_function_like_code(function_name, node.parameters, *node.body, false); // The 'false' indicates it's a non-value-returning routine.
+
+    debug_print("Finished visiting RoutineDeclaration node."); //
+}
+
+// File: generators/gen_StaticDeclaration.cpp
+
+#include "NewCodeGenerator.h"
+#include "LabelManager.h"
+#include "analysis/ASTAnalyzer.h"
+#include <iostream>
+#include <stdexcept>
+
+void NewCodeGenerator::visit(StaticDeclaration& node) {
+    debug_print("Visiting StaticDeclaration node (Name: " + node.name + ").");
+    // Static declarations are similar to global declarations in terms of memory allocation,
+    // but their scope is typically limited to the compilation unit or function.
+    // In terms of code generation, they generally result in data being emitted to the .data/.bss section.
+
+    // Define a label for the static variable. Static variables are often
+    // internal to the object file, not exposed externally by default.
+    std::string static_label = label_manager_.create_label();
+    instruction_stream_.define_label(static_label);
+
+    if (node.initializer) {
+        // Similar to global initializers, static initializers need to be handled
+        // as data emission. For now, only simple literals.
+        if (node.initializer->is_literal()) {
+            if (NumberLiteral* num_lit = dynamic_cast<NumberLiteral*>(node.initializer.get())) {
+                if (num_lit->literal_type == NumberLiteral::LiteralType::Integer) {
+                    instruction_stream_.add_data64(num_lit->int_value, static_label);
+                    debug_print("Emitted static integer variable '" + node.name + "' with value " + std::to_string(num_lit->int_value) + ".");
+                } else {
+                    throw std::runtime_error("StaticDeclaration: Float initializers not yet supported.");
+                }
+            } else {
+                throw std::runtime_error("StaticDeclaration: Non-numeric literal initializers not yet supported.");
+            }
+        } else {
+            // For non-literal static initializers, typically zero-initialized
+            instruction_stream_.add_data64(0, static_label);
+            debug_print("Emitted static variable '" + node.name + "' with zero initializer (non-literal not supported yet).");
+        }
+    } else {
+        // No initializer, default to zero or a BSS entry.
+        instruction_stream_.add_data64(0, static_label); // Emit a 64-bit zero word for BSS-like behavior
+        debug_print("Emitted static variable '" + node.name + "' with default zero initializer.");
+    }
+
+    // Static variables also need to be accessible. They might be added to the current
+    // scope if they're function-local statics, or a global symbol table if they're file-scope.
+    // For now, we'll assume file-scope and they'll be looked up by their label.
+    // They are not "local" to a call frame, so `is_local_variable` should return false.
+    // A separate map for static variable labels/addresses would be ideal.
+    debug_print("Finished visiting StaticDeclaration node.");
+}
+
+// File: generators/gen_store_variable_register.cpp
+
+#include "../NewCodeGenerator.h"
+
+void NewCodeGenerator::store_variable_register(const std::string& var_name, const std::string& value_reg) {
+    debug_print("store_variable_register for '" + var_name + "' from register '" + value_reg + "'");
+
+    // --- PRIORITY 1: Check the Linear Scan Allocator's final decision ---
+    auto func_alloc_it = all_allocations_.find(current_function_name_);
+    if (func_alloc_it != all_allocations_.end()) {
+        const auto& current_function_allocs = func_alloc_it->second;
+        auto var_alloc_it = current_function_allocs.find(var_name);
+
+        if (var_alloc_it != current_function_allocs.end()) {
+            const LiveInterval& allocation = var_alloc_it->second;
+
+            if (!allocation.is_spilled && !allocation.assigned_register.empty()) {
+                // The variable lives in a register. Move the value there.
+                const std::string& home_reg = allocation.assigned_register;
+                debug_print("  [ALLOCATOR HIT] Variable '" + var_name + "' lives in " + home_reg + ". Emitting MOV.");
+                if (value_reg != home_reg) {
+                     if (register_manager_.is_fp_register(value_reg)) {
+                        emit(Encoder::create_fmov_reg(home_reg, value_reg));
+                    } else {
+                        emit(Encoder::create_mov_reg(home_reg, value_reg));
+                    }
+                }
+                // Mark the home register as dirty since it now holds a new value.
+                register_manager_.mark_dirty(home_reg, true);
+                // Mark the home register as initialized since it now holds a valid value.
+                register_manager_.set_initialized(home_reg, true);
+
+            } else {
+                // SPILLED: The variable lives on the stack. Store the value there.
+                debug_print("  [ALLOCATOR SPILLED] Variable '" + var_name + "' lives on the stack. Emitting STR.");
+                int offset = current_frame_manager_->get_offset(var_name);
+                if (register_manager_.is_fp_register(value_reg)) {
+                    emit(Encoder::create_str_fp_imm(value_reg, "X29", offset));
+                } else {
+                    emit(Encoder::create_str_imm(value_reg, "X29", offset, var_name));
+                }
+            }
+            return;
+        }
+    }
+    
+    // Fallback for globals
+    Symbol symbol;
+    if (lookup_symbol(var_name, symbol) && symbol.is_global()) {
+         debug_print("  [FALLBACK] Storing to global variable '" + var_name + "'.");
+         size_t offset = symbol.location.data_offset * 8;
+         emit(Encoder::create_str_imm(value_reg, "X28", offset, var_name));
+         return;
+    }
+
+    throw std::runtime_error("Cannot store to variable '" + var_name + "': not found in allocation map or as global.");
+}
+// File: generators/gen_StringAllocationExpression.cpp
+
+#include "NewCodeGenerator.h"
+#include "LabelManager.h"
+#include "analysis/ASTAnalyzer.h"
+#include <iostream>
+#include <stdexcept>
+
+void NewCodeGenerator::visit(StringAllocationExpression& node) {
+    debug_print("Visiting StringAllocationExpression node.");
+    // `STRING size_expr`
+    // Allocates a string (array of bytes) on the heap and returns its address.
+    // Similar to `VEC`, but `size_expr` is already in bytes.
+
+    // 1. Evaluate the size_expr (number of bytes).
+    generate_expression_code(*node.size_expr);
+    std::string size_bytes_reg = expression_result_reg_; // Register holding the number of bytes
+
+    // 2. Move the size in bytes to X0 (first argument for `malloc`).
+    emit(Encoder::create_mov_reg("X0", size_bytes_reg));
+    auto& register_manager = register_manager_;
+    register_manager.release_register(size_bytes_reg);
+
+    // 3. Call the runtime `BCPL_ALLOC_CHARS` function.
+    emit(Encoder::create_branch_with_link("BCPL_ALLOC_CHARS"));
+    // `BCPL_ALLOC_CHARS` returns the allocated address in X0.
+
+    // 4. The result of the allocation is the address in X0.
+    expression_result_reg_ = "X0";
+    register_manager_.mark_register_as_used("X0");
+
+    debug_print("Finished visiting StringAllocationExpression node.");
+}
+
+// File: generators/gen_StringLiteral.cpp
+
+#include "NewCodeGenerator.h"
+#include "AST.h"
+#include "Encoder.h"
+#include "LabelManager.h"
+#include "RegisterManager.h"
+
+void NewCodeGenerator::visit(StringLiteral& node) {
+    debug_print("Generating code for StringLiteral.");
+
+    // 1. Register the string literal with the DataGenerator.
+    std::string string_label = data_generator_.add_string_literal(node.value);
+
+    // 2. Allocate a register to hold the address of the string.
+    expression_result_reg_ = register_manager_.get_free_register(*this);
+    debug_print("Allocated register " + expression_result_reg_ + " for the string address.");
+
+    // 3. Emit instructions to load the base address of the string data block.
+    emit(Encoder::create_adrp(expression_result_reg_, string_label));
+    emit(Encoder::create_add_literal(expression_result_reg_, expression_result_reg_, string_label));
+
+    // 4. *** THE FIX ***
+    //    Add 8 to the pointer to skip the 64-bit length prefix and point to the character payload.
+    emit(Encoder::create_add_imm(expression_result_reg_, expression_result_reg_, 8));
+
+    debug_print("Emitted ADRP/ADD sequence and offset adjustment for string literal '" + node.value + "'.");
+}
+
+// File: generators/gen_StringStatement.cpp
+
+#include "NewCodeGenerator.h"
+#include "LabelManager.h"
+#include "RegisterManager.h"
+#include "analysis/ASTAnalyzer.h"
+#include <iostream>
+#include <stdexcept>
+
+void NewCodeGenerator::visit(StringStatement& node) {
+    debug_print("Visiting StringStatement node.");
+    // `STRING size_expr` as a statement.
+    // In BCPL, `STRING` can be an expression or a statement.
+    // As a statement, it usually implies allocating and perhaps initializing a string
+    // but not necessarily using its return value immediately.
+    // For simplicity, we'll treat it similar to the expression version, but the
+    // result register might not be explicitly kept.
+
+    // 1. Evaluate the size_expr (number of bytes).
+    generate_expression_code(*node.size_expr);
+    std::string size_bytes_reg = expression_result_reg_;
+
+    // 2. Move size to X0.
+    emit(Encoder::create_mov_reg("X0", size_bytes_reg));
+    auto& register_manager = register_manager_;
+    register_manager.release_register(size_bytes_reg);
+
+    // 3. Call BCPL_ALLOC_CHARS.
+    emit(Encoder::create_branch_with_link("BCPL_ALLOC_CHARS"));
+
+    // The allocated address is in X0, but since it's a statement, it might not be used.
+    // X0 is implicitly clobbered by the call, so no explicit release needed unless we want to preserve it.
+    debug_print("Generated code for StringStatement (allocating string memory).");
+}
+
+// File: generators/gen_SwitchonStatement.cpp
+
+#include "NewCodeGenerator.h"
+#include "LabelManager.h"
+#include "analysis/ASTAnalyzer.h"
+#include <iostream>
+#include <stdexcept>
+
+void NewCodeGenerator::visit(SwitchonStatement& node) {
+    debug_print("Visiting SwitchonStatement node (NOTE: branching is handled by block epilogue).");
+    // All branching logic has been moved to generate_block_epilogue to align with the
+    // CFG-driven code generation strategy. This visitor is now intentionally left empty
+    // to prevent the generation of duplicate comparison and branch instructions, which
+    // was causing CASE blocks to execute multiple times.
+}
+
+// File: generators/gen_Syscall.cpp
+
+#include "NewCodeGenerator.h"
+#include "LabelManager.h"
+#include <iostream>
+#include <stdexcept>
+
+/**
+ * @brief Generates ARM64 assembly code for a system call on macOS.
+ *
+ * This function follows the Apple ARM64 ABI for system calls:
+ * 1. The syscall number is placed in register X16.
+ * 2. Arguments are placed in registers X0, X1, X2, and so on.
+ * 3. The syscall is invoked with the `SVC #0x80` instruction.
+ * 4. The return value is placed in register X0.
+ *
+ * @param node The SysCall AST node to visit.
+ */
+void NewCodeGenerator::visit(SysCall& node) {
+    debug_print("Visiting SysCall node for macOS.");
+
+    // --- STEP 1: Evaluate and Place Syscall Arguments (X0, X1, ...) ---
+    int arg_count = 0;
+    for (const auto& arg_expr : node.arguments) {
+        // Generate code to evaluate the argument expression. The result will be in expression_result_reg_.
+        generate_expression_code(*arg_expr);
+        std::string arg_val_reg = expression_result_reg_;
+
+        // Argument registers on ARM64 are X0, X1, X2, ...
+        if (arg_count < 6) { // A common limit before stack usage.
+            std::string dest_arg_reg = "X" + std::to_string(arg_count);
+            // If the argument's value is not already in the correct register, move it.
+            if (arg_val_reg != dest_arg_reg) {
+                emit(Encoder::create_mov_reg(dest_arg_reg, arg_val_reg));
+                // If the source was a temporary register, release it.
+                if (register_manager_.is_scratch_register(arg_val_reg)) {
+                    register_manager_.release_scratch_reg(arg_val_reg);
+                }
+            }
+        } else {
+            // Stack-based arguments for syscalls are complex and not implemented here.
+            throw std::runtime_error("SysCall: More than 6 arguments are not yet implemented.");
+        }
+        arg_count++;
+    }
+
+    // --- STEP 2: Place the Syscall Number in X16 ---
+    // The syscall number itself is an expression that needs to be evaluated.
+    debug_print("Evaluating syscall number expression.");
+    generate_expression_code(*node.syscall_number);
+    std::string syscall_num_reg = expression_result_reg_;
+
+    // The syscall number must be in X16 for the `SVC` instruction on macOS.
+    debug_print("Moving syscall number to X16.");
+    emit(Encoder::create_mov_reg("X16", syscall_num_reg));
+
+    // Release the register used for the syscall number if it was a temporary one.
+    if (register_manager_.is_scratch_register(syscall_num_reg)) {
+        register_manager_.release_scratch_reg(syscall_num_reg);
+    }
+
+    // --- STEP 3: Emit the Syscall Instruction ---
+    // The `SVC #0x80` instruction triggers the system call on XNU-based kernels (like macOS).
+    debug_print("Emitting SVC #0x80 instruction.");
+    emit(Encoder::create_svc_imm(0x80));
+
+    // --- STEP 4: Handle the Return Value ---
+    // The result of a system call is returned in X0 by convention.
+    debug_print("Syscall result is in X0.");
+    expression_result_reg_ = "X0";
+    register_manager_.mark_register_as_used("X0");
+}
+
+// File: generators/gen_TableExpression.cpp
+
+#include "../NewCodeGenerator.h"
+#include "../DataGenerator.h"
+#include "../Encoder.h"
+#include "../RegisterManager.h"
+#include "../AST.h"
+#include <stdexcept>
+
+void NewCodeGenerator::visit(TableExpression& node) {
+    debug_print("Visiting TableExpression node.");
+
+    // 1. Register the table literal with the DataGenerator.
+    // This will create the data in the .rodata section and return a label for it.
+    std::string table_label;
+    if (node.is_float_table) {
+        table_label = data_generator_.add_float_table_literal(node.initializers);
+    } else {
+        table_label = data_generator_.add_table_literal(node.initializers);
+    }
+
+    // 2. Acquire a register to hold the address of the table.
+    std::string dest_reg = register_manager_.get_free_register(*this);
+
+    // 3. Emit the standard ADRP + ADD sequence to load the address of the label
+    // into the destination register.
+    emit(Encoder::create_adrp(dest_reg, table_label));
+    emit(Encoder::create_add_literal(dest_reg, dest_reg, table_label));
+
+    // 4. Add 8 to the pointer to skip the 64-bit length prefix.
+    //    The register now points to the payload, matching the VEC convention.
+    emit(Encoder::create_add_imm(dest_reg, dest_reg, 8));
+
+    // 5. The result of this expression is the register holding the address of the table's payload.
+    expression_result_reg_ = dest_reg;
+
+    debug_print("Finished visiting TableExpression. Address for '" + table_label + "' is in " + dest_reg);
+}
+
+// File: generators/gen_TestStatement.cpp
+
+#include "NewCodeGenerator.h"
+#include "LabelManager.h"
+#include "analysis/ASTAnalyzer.h"
+#include <iostream>
+#include <stdexcept>
+
+void NewCodeGenerator::visit(TestStatement& node) {
+    debug_print("Visiting TestStatement node (NOTE: branching is handled by block epilogue).");
+    // No branching logic here; only evaluate condition if needed elsewhere.
+}
+
+// File: generators/gen_UnaryOp.cpp
+
+#include "../NewCodeGenerator.h"
+#include "../LabelManager.h"
+#include <stdexcept>
+#include <cctype>
+#include "../analysis/ASTAnalyzer.h" // For infer_expression_type
+
+void NewCodeGenerator::visit(UnaryOp& node) {
+    debug_print("Visiting UnaryOp node.");
+
+    using Op = UnaryOp::Operator;
+
+    // --- HD and HDf (HeadOf / HeadOfAsFloat) Operations ---
+    if (node.op == Op::HeadOf || node.op == Op::HeadOfAsFloat) {
+        debug_print("Generating INLINE code for hybrid static/runtime HD operation.");
+        bool is_float_op = (node.op == Op::HeadOfAsFloat);
+
+        // At COMPILE TIME, we ask the analyzer for the best type information it has.
+        VarType operand_type = ASTAnalyzer::getInstance().infer_expression_type(node.operand.get());
+        
+        generate_expression_code(*node.operand);
+        std::string ptr_reg = expression_result_reg_;
+        std::string result_reg = is_float_op ? register_manager_.acquire_fp_scratch_reg() : register_manager_.acquire_scratch_reg(*this);
+
+        // This path is taken for FOREACH cursors, where we know the type is a node.
+        if (operand_type == VarType::POINTER_TO_LIST_NODE) {
+            // --- STATIC FAST PATH ---
+            debug_print("HD operand is statically known as a List Node. Generating direct load.");
+            
+            std::string end_label = label_manager_.create_label();
+            std::string is_null_label = label_manager_.create_label();
+
+            // Check if the node pointer itself is null before dereferencing
+            emit(Encoder::create_cmp_imm(ptr_reg, 0));
+            emit(Encoder::create_branch_conditional("EQ", is_null_label));
+
+            // Not null: Load value from node->value (offset 8)
+            if (is_float_op) {
+                emit(Encoder::create_ldr_fp_imm(result_reg, ptr_reg, 8));
+            } else {
+                emit(Encoder::create_ldr_imm(result_reg, ptr_reg, 8));
+            }
+            emit(Encoder::create_branch_unconditional(end_label));
+
+            // Is null: produce a zero value
+            instruction_stream_.define_label(is_null_label);
+             if (is_float_op) {
+                std::string temp_zero = register_manager_.acquire_scratch_reg(*this);
+                emit(Encoder::create_mov_reg(temp_zero, "XZR"));
+                emit(Encoder::create_scvtf_reg(result_reg, temp_zero));
+                register_manager_.release_register(temp_zero);
+            } else {
+                emit(Encoder::create_mov_reg(result_reg, "XZR"));
+            }
+            
+            instruction_stream_.define_label(end_label);
+
+        } else {
+            // --- DYNAMIC SAFE PATH ---
+            // The type is ambiguous (e.g., HD(ANY_LIST)). Generate a runtime check on the type tag.
+            debug_print("HD operand type is a list header. Generating runtime check logic.");
+
+            std::string node_ptr_reg = register_manager_.acquire_scratch_reg(*this);
+            std::string end_label = label_manager_.create_label();
+            std::string is_empty_label = label_manager_.create_label();
+            
+            // 1. Load the head node pointer from the list header (offset 16).
+            emit(Encoder::create_ldr_imm(node_ptr_reg, ptr_reg, 16, "Load head pointer"));
+
+            // 2. Check if the head pointer is null (empty list).
+            emit(Encoder::create_cmp_imm(node_ptr_reg, 0));
+            emit(Encoder::create_branch_conditional("EQ", is_empty_label));
+
+            // 3. List is not empty: Load value from the node's value field (offset 8).
+            if (is_float_op) {
+                emit(Encoder::create_ldr_fp_imm(result_reg, node_ptr_reg, 8));
+            } else {
+                emit(Encoder::create_ldr_imm(result_reg, node_ptr_reg, 8));
+                if (operand_type == VarType::POINTER_TO_STRING_LIST || operand_type == VarType::CONST_POINTER_TO_STRING_LIST) {
+                    emit(Encoder::create_add_imm(result_reg, result_reg, 8));
+                }
+            }
+            emit(Encoder::create_branch_unconditional(end_label));
+
+            // 4. List is empty: produce a zero value.
+            instruction_stream_.define_label(is_empty_label);
+            if (is_float_op) {
+                std::string temp_zero = register_manager_.acquire_scratch_reg(*this);
+                emit(Encoder::create_mov_reg(temp_zero, "XZR"));
+                emit(Encoder::create_scvtf_reg(result_reg, temp_zero));
+                register_manager_.release_register(temp_zero);
+            } else {
+                emit(Encoder::create_mov_reg(result_reg, "XZR"));
+            }
+            
+            // 5. Join point.
+            instruction_stream_.define_label(end_label);
+            register_manager_.release_register(node_ptr_reg);
+        }
+
+        expression_result_reg_ = result_reg;
+        register_manager_.release_register(ptr_reg);
+        return;
+    }
+
+    // --- TL (TailOf) destructive operation ---
+    if (node.op == Op::TailOf) {
+        debug_print("Generating INLINE code for destructive TL operation.");
+        generate_expression_code(*node.operand);
+        std::string header_reg = expression_result_reg_;
+
+        std::string end_tl_label = label_manager_.create_label();
+        std::string not_tail_label = label_manager_.create_label();
+
+        std::string old_head_reg = register_manager_.acquire_scratch_reg(*this);
+        std::string new_head_reg = register_manager_.acquire_scratch_reg(*this);
+        std::string tail_ptr_reg = register_manager_.acquire_scratch_reg(*this);
+
+        // Load the current head node pointer (from header->head at offset 16).
+        emit(Encoder::create_ldr_imm(old_head_reg, header_reg, 16, "Load old head pointer"));
+
+        // If the list is empty (old head is null), there's nothing to do.
+        emit(Encoder::create_cmp_imm(old_head_reg, 0));
+        emit(Encoder::create_branch_conditional("EQ", end_tl_label));
+
+        // Load the pointer to the *new* head (from old_head->next at offset 16).
+        emit(Encoder::create_ldr_imm(new_head_reg, old_head_reg, 16, "Load new head pointer"));
+
+        // Update the list header to point to the new head.
+        emit(Encoder::create_str_imm(new_head_reg, header_reg, 16, "Update header->head"));
+
+        // Check if we removed the tail. If so, update the header's tail pointer to NULL.
+        emit(Encoder::create_ldr_imm(tail_ptr_reg, header_reg, 8, "Load tail pointer"));
+        emit(Encoder::create_cmp_reg(tail_ptr_reg, old_head_reg));
+        emit(Encoder::create_branch_conditional("NE", not_tail_label));
+        emit(Encoder::create_str_imm("XZR", header_reg, 8, "Clear tail pointer if it was the removed node")); // Store NULL
+        instruction_stream_.define_label(not_tail_label);
+
+        // Move the old head pointer to X0 and call the fast freelist return function.
+        emit(Encoder::create_mov_reg("X0", old_head_reg));
+        emit(Encoder::create_branch_with_link("returnNodeToFreelist"));
+
+        instruction_stream_.define_label(end_tl_label);
+
+        // The result of a destructive TL is the original list pointer, which is still in header_reg.
+        expression_result_reg_ = header_reg;
+
+        register_manager_.release_register(old_head_reg);
+        register_manager_.release_register(new_head_reg);
+        register_manager_.release_register(tail_ptr_reg);
+        return;
+    }
+
+    // --- REST (TailOfNonDestructive) operation ---
+    if (node.op == Op::TailOfNonDestructive) {
+        //
+        // CRITICAL EXPLANATION: This logic is intentionally designed with two paths and
+        // must NOT be simplified. The 'REST' operator can be applied to two different
+        // kinds of pointers, and the generated code must handle both cases correctly.
+        //
+        // 1. A List Header (e.g., REST(myList)): This requires a "Safe Path" that
+        //    dereferences the header to get the first node, and then dereferences that
+        //    first node to get the pointer to the second node (header->head->next).
+        //
+        // 2. A Node Pointer (e.g., REST(cursor) in a loop): This requires a "Fast Path"
+        //    that directly dereferences the node to get its 'next' pointer (node->next).
+        //
+        // Simplifying this to a single path will break one of these two essential use cases.
+        //
+        debug_print("Generating INLINE code for hybrid static/runtime REST operation.");
+        VarType operand_type = ASTAnalyzer::getInstance().infer_expression_type(node.operand.get());
+
+        generate_expression_code(*node.operand);
+        std::string ptr_reg = expression_result_reg_;
+        std::string result_reg = register_manager_.acquire_scratch_reg(*this);
+
+        if (operand_type == VarType::POINTER_TO_LIST_NODE) {
+            // --- FAST PATH (Operand is a Node Pointer) ---
+            debug_print("REST operand is statically known as a List Node. Generating direct next-ptr load.");
+            std::string end_label = label_manager_.create_label();
+            std::string is_null_label = label_manager_.create_label();
+
+            // Check if the node pointer itself is null before dereferencing.
+            emit(Encoder::create_cmp_imm(ptr_reg, 0));
+            emit(Encoder::create_branch_conditional("EQ", is_null_label));
+
+            // Not null: Load the next pointer from node->next (offset 16).
+            emit(Encoder::create_ldr_imm(result_reg, ptr_reg, 16));
+            emit(Encoder::create_branch_unconditional(end_label));
+
+            // Is null: The result is also null.
+            instruction_stream_.define_label(is_null_label);
+            emit(Encoder::create_mov_reg(result_reg, "XZR"));
+
+            instruction_stream_.define_label(end_label);
+
+        } else {
+            // --- SAFE PATH (Operand is a List Header) ---
+            debug_print("REST operand type is a list header. Generating safe, double-dereference logic.");
+            std::string head_node_reg = register_manager_.acquire_scratch_reg(*this);
+            std::string end_label = label_manager_.create_label();
+            std::string is_null_label = label_manager_.create_label();
+
+            // 1. Load the head node pointer from the list header (offset 16).
+            emit(Encoder::create_ldr_imm(head_node_reg, ptr_reg, 16, "Load head pointer"));
+
+            // 2. Check if the head pointer is null (empty list).
+            emit(Encoder::create_cmp_imm(head_node_reg, 0));
+            emit(Encoder::create_branch_conditional("EQ", is_null_label));
+
+            // 3. List is not empty: Load the 'next' pointer from the head node (offset 16).
+            // This is the pointer to the second node, which is our result.
+            emit(Encoder::create_ldr_imm(result_reg, head_node_reg, 16, "Load next pointer (the 'rest')"));
+            emit(Encoder::create_branch_unconditional(end_label));
+
+            // 4. List was empty or head was null: the 'rest' is null.
+            instruction_stream_.define_label(is_null_label);
+            emit(Encoder::create_mov_reg(result_reg, "XZR"));
+
+            // 5. Join point.
+            instruction_stream_.define_label(end_label);
+            register_manager_.release_register(head_node_reg);
+        }
+
+        expression_result_reg_ = result_reg;
+        register_manager_.release_register(ptr_reg);
+        return;
+    }
+
+    // --- TYPEOF intrinsic ---
+    if (node.op == Op::TypeOf) {
+        debug_print("Generating code for TYPEOF operator.");
+        generate_expression_code(*node.operand);
+        std::string ptr_reg = expression_result_reg_;
+        std::string dest_reg = register_manager_.acquire_scratch_reg(*this);
+        // Load the 32-bit integer type tag from offset 0 of the ListAtom struct.
+        emit(Encoder::create_ldr_word_imm("W" + dest_reg.substr(1), ptr_reg, 0));
+        register_manager_.release_register(ptr_reg);
+        expression_result_reg_ = dest_reg;
+        return;
+    }
+
+    // --- LEN (LengthOf) operator for vectors AND lists ---
+    if (node.op == Op::LengthOf) {
+        debug_print("Generating code for LEN operator.");
+        VarType operand_type = ASTAnalyzer::getInstance().infer_expression_type(node.operand.get());
+        generate_expression_code(*node.operand);
+        std::string payload_ptr_reg = expression_result_reg_;
+        std::string dest_reg = register_manager_.acquire_scratch_reg(*this);
+
+        if (
+            operand_type == VarType::POINTER_TO_INT_VEC ||
+            operand_type == VarType::POINTER_TO_FLOAT_VEC ||
+            operand_type == VarType::POINTER_TO_STRING
+        ) {
+            // This logic is now correct for both VEC and TABLE.
+            std::string base_addr_reg = register_manager_.acquire_scratch_reg(*this);
+            emit(Encoder::create_sub_imm(base_addr_reg, payload_ptr_reg, 8));
+            emit(Encoder::create_ldr_imm(dest_reg, base_addr_reg, 0, "Load vector/table/string length"));
+            register_manager_.release_register(base_addr_reg);
+
+        } else if (
+            operand_type == VarType::POINTER_TO_ANY_LIST ||
+            operand_type == VarType::POINTER_TO_INT_LIST ||
+            operand_type == VarType::POINTER_TO_FLOAT_LIST ||
+            operand_type == VarType::CONST_POINTER_TO_ANY_LIST ||
+            operand_type == VarType::CONST_POINTER_TO_INT_LIST ||
+            operand_type == VarType::CONST_POINTER_TO_FLOAT_LIST
+        ) {
+            // It's a list. The length is at offset 24 in the ListHeader struct.
+            emit(Encoder::create_ldr_imm(dest_reg, payload_ptr_reg, 24, "Load list length"));
+        } else {
+            throw std::runtime_error("Code generation for LEN operator failed: operand was not a vector or list.");
+        }
+
+        register_manager_.release_register(payload_ptr_reg);
+        expression_result_reg_ = dest_reg;
+        debug_print("Finished LEN operator. Result in " + expression_result_reg_);
+        return;
+    }
+
+    // --- Standard Unary Operations (Float and Integer) ---
+
+    generate_expression_code(*node.operand);
+    std::string operand_reg = expression_result_reg_;
+    
+    // Determine if we need floating-point instructions
+    bool operand_is_float_reg = register_manager_.is_fp_register(operand_reg);
+    bool op_is_float_specific = (node.op == Op::FloatConvert || node.op == Op::FloatSqrt ||
+                                 node.op == Op::FloatFloor || node.op == Op::FloatTruncate);
+
+    if (operand_is_float_reg || op_is_float_specific) {
+        // --- Floating-Point Path ---
+        std::string result_reg;
+        std::string source_fp_reg = operand_reg;
+        bool created_temp_fp_source = false;
+
+        // If the operand is an integer but the operation is float-specific, convert it first.
+        if (!operand_is_float_reg && op_is_float_specific) {
+            source_fp_reg = register_manager_.acquire_fp_scratch_reg();
+            emit(Encoder::create_scvtf_reg(source_fp_reg, operand_reg));
+            created_temp_fp_source = true;
+        }
+
+        switch (node.op) {
+            case Op::FloatConvert:
+                expression_result_reg_ = source_fp_reg; // It's already a float or has been converted.
+                if (created_temp_fp_source) register_manager_.release_register(operand_reg);
+                register_manager_.release_fp_register(source_fp_reg); // Release the temp FP register
+                return;
+            case Op::FloatSqrt:
+                result_reg = register_manager_.acquire_fp_scratch_reg();
+                emit(Encoder::create_fsqrt_reg(result_reg, source_fp_reg));
+                expression_result_reg_ = result_reg;
+                break;
+            case Op::FloatFloor: // ENTIER
+            case Op::FloatTruncate:
+                result_reg = register_manager_.acquire_scratch_reg(*this); // Integer result
+                if (node.op == Op::FloatFloor) {
+                    emit(Encoder::create_fcvtms_reg(result_reg, source_fp_reg));
+                } else { // TRUNC
+                    emit(Encoder::create_fcvtzs_reg(result_reg, source_fp_reg));
+                }
+                expression_result_reg_ = result_reg;
+                break;
+            case Op::Negate:
+                result_reg = register_manager_.acquire_fp_scratch_reg();
+                emit(Encoder::create_fneg_reg(result_reg, source_fp_reg));
+                expression_result_reg_ = result_reg;
+                break;
+            default:
+                throw std::runtime_error("Unsupported unary operation on a floating-point operand.");
+        }
+
+        // Cleanup intermediate registers
+        if (created_temp_fp_source) {
+            register_manager_.release_register(operand_reg);
+            register_manager_.release_fp_register(source_fp_reg);
+        } else {
+            register_manager_.release_fp_register(operand_reg);
+        }
+
+    } else {
+        // --- Integer Path ---
+        std::string dest_reg = register_manager_.acquire_scratch_reg(*this);
+        switch (node.op) {
+            case Op::AddressOf:
+                if (auto* var_access = dynamic_cast<VariableAccess*>(node.operand.get())) {
+                    if (current_frame_manager_ && current_frame_manager_->has_local(var_access->name)) {
+                        int offset = current_frame_manager_->get_offset(var_access->name);
+                        emit(Encoder::create_add_imm(dest_reg, "X29", offset));
+                    } else {
+                        // Assume global/static
+                        emit(Encoder::create_adrp(dest_reg, var_access->name));
+                        emit(Encoder::create_add_literal(dest_reg, dest_reg, var_access->name));
+                    }
+                } else {
+                    throw std::runtime_error("AddressOf operator must be applied to a variable.");
+                }
+                break;
+            case Op::Indirection:
+                emit(Encoder::create_ldr_imm(dest_reg, operand_reg, 0));
+                break;
+            case Op::BitwiseNot:
+                // Emits MVN (Move with NOT), which is the ARM64 instruction for bitwise NOT.
+                emit(Encoder::create_mvn_reg(dest_reg, operand_reg));
+                break;
+            case Op::LogicalNot:
+                emit(Encoder::create_cmp_reg(operand_reg, "XZR"));
+                emit(Encoder::create_cset(dest_reg, "EQ")); // Set to 1 if equal to zero, else 0
+                break;
+            case Op::Negate:
+                emit(Encoder::create_sub_reg(dest_reg, "XZR", operand_reg));
+                break;
+            default:
+                 throw std::runtime_error("Unhandled integer unary operator.");
+        }
+        register_manager_.release_register(operand_reg);
+        expression_result_reg_ = dest_reg;
+    }
+}
+
+// File: generators/gen_UnlessStatement.cpp
+
+#include "../NewCodeGenerator.h"
+#include "../LabelManager.h"
+#include "../analysis/ASTAnalyzer.h"
+#include <iostream>
+#include <stdexcept>
+
+void NewCodeGenerator::visit(UnlessStatement& node) {
+    debug_print("Visiting UnlessStatement node (NOTE: branching is handled by block epilogue).");
+    // No branching logic here; only evaluate condition if needed elsewhere.
+}
+
+// File: generators/gen_UntilStatement.cpp
+
+#include "../NewCodeGenerator.h"
+#include "../LabelManager.h"
+#include "../analysis/ASTAnalyzer.h"
+#include <iostream>
+#include <stdexcept>
+
+void NewCodeGenerator::visit(UntilStatement& node) {
+    debug_print("Visiting UntilStatement node.");
+    // `UNTIL condition DO body`
+    // This executes the body *until* the condition becomes true.
+    // Equivalent to `WHILE NOT condition DO body`.
+
+    std::string loop_label = label_manager_.create_label();
+    std::string check_label = label_manager_.create_label(); // Label to jump to for condition check
+
+    // Define loop_label (start of the loop).
+    instruction_stream_.define_label(loop_label);
+
+    // Generate code for loop body.
+    generate_statement_code(*node.body);
+
+    // Define check_label (where condition is evaluated).
+    instruction_stream_.define_label(check_label); // This is where we loop back to.
+
+    // Evaluate condition.
+    generate_expression_code(*node.condition);
+    std::string cond_reg = expression_result_reg_;
+
+    // Optimization: If the condition is a comparison, use the flags directly and branch if false
+    bool used_flags = false;
+    if (auto binop = dynamic_cast<BinaryOp*>(node.condition.get())) {
+        switch (binop->op) {
+            case BinaryOp::Operator::Equal:
+                emit(Encoder::create_branch_conditional("NE", loop_label));
+                used_flags = true;
+                break;
+            case BinaryOp::Operator::NotEqual:
+                emit(Encoder::create_branch_conditional("EQ", loop_label));
+                used_flags = true;
+                break;
+            case BinaryOp::Operator::Less:
+                emit(Encoder::create_branch_conditional("GE", loop_label));
+                used_flags = true;
+                break;
+            case BinaryOp::Operator::LessEqual:
+                emit(Encoder::create_branch_conditional("GT", loop_label));
+                used_flags = true;
+                break;
+            case BinaryOp::Operator::Greater:
+                emit(Encoder::create_branch_conditional("LE", loop_label));
+                used_flags = true;
+                break;
+            case BinaryOp::Operator::GreaterEqual:
+                emit(Encoder::create_branch_conditional("LT", loop_label));
+                used_flags = true;
+                break;
+            default:
+                break;
+        }
+    }
+
+    if (!used_flags) {
+        // Fallback: treat cond_reg as boolean (0/1)
+        auto& register_manager = register_manager_;
+        emit(Encoder::create_cmp_reg(cond_reg, "XZR"));
+        emit(Encoder::create_branch_conditional("EQ", loop_label));
+        register_manager.release_register(cond_reg);
+    }
+
+    // If condition is true, fall through (loop ends).
+    debug_print("Finished visiting UntilStatement node.");
+}
+
+// File: generators/gen_ValofExpression.cpp
+
+#include "../NewCodeGenerator.h"
+#include "LabelManager.h"
+#include "analysis/ASTAnalyzer.h"
+
+
+
+void NewCodeGenerator::visit(ValofExpression& node) {
+    debug_print("Visiting ValofExpression node.");
+    // `VALOF <stmt> RESULTIS expr`
+    // This creates a block that evaluates to a value.
+
+    // Enter a new scope for the VALOF block.
+    // A VALOF block is part of the parent function's scope.
+
+    // The result of the ValofExpression will be determined by the `RESULTIS` statement.
+    // The `RESULTIS` statement will set `expression_result_reg_`.
+
+    // Variables declared in the VALOF block are already registered by the pre-scan.
+
+    // Traverse and evaluate all statements or expressions in the VALOF body
+    if (node.body) {
+        generate_statement_code(*node.body);
+    }
+
+    // Exit the scope of the VALOF block.
+    // Exiting VALOF block processing.
+
+    // `expression_result_reg_` should now contain the value from the `RESULTIS` statement.
+    debug_print("Finished visiting ValofExpression node.");
+}
+
+// File: generators/gen_VariableAccess.cpp
+
+#include "NewCodeGenerator.h"
+#include "LabelManager.h"
+#include "analysis/ASTAnalyzer.h"
+#include "RuntimeManager.h"
+#include <iostream>
+#include <stdexcept>
+
+void NewCodeGenerator::visit(VariableAccess& node) {
+    debug_print("Visiting VariableAccess node for '" + node.name + "'.");
+
+    // Manifest constants are not needed here; removed erroneous call.
+    // Manifest lookup is not implemented in this generator.
+
+    // Manifest constant lookup and literal generation removed.
+
+    // 4. If not a manifest constant, proceed with variable lookup
+    expression_result_reg_ = get_variable_register(node.name);
+
+    debug_print("Variable '" + node.name + "' value loaded into " + expression_result_reg_);
+}
+
+// File: generators/gen_VecAllocationExpression.cpp
+
+#include "../NewCodeGenerator.h"
+
+
+
+#include <stdexcept>
+
+void NewCodeGenerator::visit(VecAllocationExpression& node) {
+    debug_print("Visiting VecAllocationExpression node.");
+    // `VEC size_expr`
+    // This allocates a vector (array) of words on the heap and returns its address.
+    // This typically translates to a call to a runtime memory allocation routine.
+
+    // 1. Evaluate the size_expr (number of words).
+    generate_expression_code(*node.size_expr);
+    std::string size_words_reg = expression_result_reg_; // Register holding the number of words
+
+    // 2. Move the number of words directly to X0 (BCPL_ALLOC_WORDS expects words, not bytes).
+    auto& register_manager = register_manager_;
+    emit(Encoder::create_mov_reg("X0", size_words_reg));
+    register_manager.release_register(size_words_reg);
+
+    // 3. Load the ADDRESS of the function name string into X1.
+    std::string func_name_label = data_generator_.add_string_literal(current_frame_manager_->get_function_name());
+    emit(Encoder::create_adrp("X1", func_name_label));
+    emit(Encoder::create_add_literal("X1", "X1", func_name_label));
+    // Do NOT release X1, it's an argument for the upcoming call.
+
+    // 4. Load the ADDRESS of the variable name string into X2.
+    std::string var_name_label = data_generator_.add_string_literal(node.get_variable_name());
+    emit(Encoder::create_adrp("X2", var_name_label));
+    emit(Encoder::create_add_literal("X2", "X2", var_name_label));
+    // Do NOT release X2, it's an argument for the upcoming call.
+
+    // 5. Call the runtime `BCPL_ALLOC_WORDS` function using the X28-relative pointer table.
+    size_t offset = RuntimeManager::instance().get_function_offset("BCPL_ALLOC_WORDS");
+    std::string addr_reg = register_manager_.acquire_scratch_reg(*this);
+    Instruction ldr_instr = Encoder::create_ldr_imm(addr_reg, "X19", offset);
+    ldr_instr.jit_attribute = JITAttribute::JitAddress;
+    emit(ldr_instr);
+    Instruction blr_instr = Encoder::create_branch_with_link_register(addr_reg);
+    blr_instr.jit_attribute = JITAttribute::JitCall;
+    blr_instr.target_label = "BCPL_ALLOC_WORDS";
+    emit(blr_instr);
+    register_manager_.release_register(addr_reg);
+
+    // The result of the allocation is the address in X0.
+    expression_result_reg_ = "X0"; // X0 now holds the vector's base address
+    register_manager_.mark_register_as_used("X0"); // X0 is used for the result
+
+    debug_print("Finished visiting VecAllocationExpression node.");
+}
+
+// File: generators/gen_VecInitializerExpression.cpp
+
+#include "NewCodeGenerator.h"
+#include "AST.h"
+#include "Encoder.h"
+#include <iostream>
+
+void NewCodeGenerator::visit(VecInitializerExpression& node) {
+    debug_print("Visiting VecInitializerExpression node.");
+    size_t num_initializers = node.initializers.size();
+
+    // 1. Allocate the vector on the heap by calling the runtime.
+    // The size goes in X0.
+    emit(Encoder::create_movz_movk_abs64("X0", num_initializers, ""));
+    emit(Encoder::create_branch_with_link("BCPL_ALLOC_WORDS"));
+    // The pointer to the new vector is now in X0.
+
+    // 2. Acquire a scratch register to preserve the vector pointer.
+    std::string vec_ptr_reg = register_manager_.acquire_scratch_reg(*this);
+    emit(Encoder::create_mov_reg(vec_ptr_reg, "X0"));
+
+    // If there's nothing to initialize, we're done.
+    if (num_initializers == 0) {
+        expression_result_reg_ = vec_ptr_reg;
+        return;
+    }
+
+    // 3. Evaluate each expression and store its result in the vector.
+    for (size_t i = 0; i < num_initializers; ++i) {
+        // Evaluate the initializer expression.
+        generate_expression_code(*node.initializers[i]);
+        std::string value_reg = expression_result_reg_;
+
+        // Calculate the address of the vector element: vec_ptr + (i * 8)
+        std::string offset_reg = register_manager_.acquire_scratch_reg(*this);
+        std::string element_addr_reg = register_manager_.acquire_scratch_reg(*this);
+
+        emit(Encoder::create_movz_movk_abs64(offset_reg, i * 8, ""));
+        emit(Encoder::create_add_reg(element_addr_reg, vec_ptr_reg, offset_reg));
+        
+        // Store the value. Check if it's a float or integer.
+        if (register_manager_.is_fp_register(value_reg)) {
+            emit(Encoder::create_str_fp_imm(value_reg, element_addr_reg, 0));
+        } else {
+            emit(Encoder::create_str_imm(value_reg, element_addr_reg, 0));
+        }
+
+        // Clean up registers for the next iteration.
+        register_manager_.release_register(value_reg);
+        register_manager_.release_register(offset_reg);
+        register_manager_.release_register(element_addr_reg);
+    }
+
+    // 4. The final result of this expression is the preserved pointer register.
+    expression_result_reg_ = vec_ptr_reg;
+}
+
+// File: generators/gen_VectorAccess.cpp
+
+#include "NewCodeGenerator.h"
+#include "NewCodeGenerator.h"
+#include "LabelManager.h"
+#include "analysis/ASTAnalyzer.h"
+#include <iostream>
+#include <stdexcept>
+
+void NewCodeGenerator::visit(VectorAccess& node) {
+    debug_print("Visiting VectorAccess node.");
+
+    // First, check the type of the base expression
+    VarType base_type = ASTAnalyzer::getInstance().infer_expression_type(node.vector_expr.get());
+
+    if (
+        base_type == VarType::POINTER_TO_ANY_LIST ||
+        base_type == VarType::POINTER_TO_INT_LIST ||
+        base_type == VarType::POINTER_TO_FLOAT_LIST
+    ) {
+        // --- NEW LOGIC FOR LISTS ---
+        debug_print("Handling VectorAccess as List Element Access.");
+
+        // 1. Evaluate the list expression to get the header pointer in a register
+        generate_expression_code(*node.vector_expr);
+        std::string list_header_reg = expression_result_reg_;
+
+        // 2. Evaluate the index expression
+        generate_expression_code(*node.index_expr);
+        std::string index_reg = expression_result_reg_;
+
+        // 3. Set up arguments for the runtime call: list in X0, index in X1
+        emit(Encoder::create_mov_reg("X0", list_header_reg));
+        emit(Encoder::create_mov_reg("X1", index_reg));
+        register_manager_.release_register(list_header_reg);
+        register_manager_.release_register(index_reg);
+
+        // 4. Call the runtime function
+        emit(Encoder::create_branch_with_link("BCPL_LIST_GET_NTH"));
+
+        // 5. The result (pointer to the sublist or NULL) is in X0.
+        expression_result_reg_ = "X0";
+        register_manager_.mark_register_as_used("X0");
+        debug_print("Finished visiting VectorAccess node (list case).");
+        return;
+    }
+
+    // --- EXISTING LOGIC FOR VECTORS ---
+    generate_expression_code(*node.vector_expr);
+    std::string vector_base_reg = expression_result_reg_; // Holds the base address of the vector
+
+    generate_expression_code(*node.index_expr);
+    std::string index_reg = expression_result_reg_; // Holds the index
+
+    auto& register_manager = register_manager_;
+
+    // Calculate the byte offset: index * 8 (since BCPL words are 8 bytes)
+    emit(Encoder::create_lsl_imm(index_reg, index_reg, 3)); // LSL by 3 (left shift by 3 is multiply by 8)
+    debug_print("Calculated byte offset for vector access.");
+
+    // Add the offset to the base address to get the effective memory address
+    // ADD Xeff_addr, vector_base_reg, index_reg
+    std::string effective_addr_reg = register_manager.get_free_register(*this);
+    emit(Encoder::create_add_reg(effective_addr_reg, vector_base_reg, index_reg));
+    register_manager.release_register(vector_base_reg);
+    register_manager.release_register(index_reg);
+    bool use_float_load = false;
+
+    // 1. First, try the authoritative check using the AST Analyzer.
+    VarType vec_type = ASTAnalyzer::getInstance().infer_expression_type(node.vector_expr.get());
+    if (vec_type == VarType::POINTER_TO_FLOAT_VEC) {
+        use_float_load = true;
+        debug_print("VectorAccess type determined as POINTER_TO_FLOAT_VEC by ASTAnalyzer.");
+    } else {
+        // 2. If the analyzer fails, fall back to checking the CallFrameManager.
+        if (auto* var_access = dynamic_cast<VariableAccess*>(node.vector_expr.get())) {
+            const std::string& var_name = var_access->name;
+            if (current_frame_manager_ && current_frame_manager_->is_float_variable(var_name)) {
+                use_float_load = true;
+                debug_print("VectorAccess type determined as 'float' by CallFrameManager for variable '" + var_name + "'.");
+            }
+        }
+    }
+
+    if (use_float_load) {
+        // It's a float vector, so use a floating-point load into a D register.
+        std::string dest_reg = register_manager_.acquire_fp_scratch_reg();
+        emit(Encoder::create_ldr_fp_imm(dest_reg, effective_addr_reg, 0));
+        expression_result_reg_ = dest_reg;
+    } else {
+        // It's an integer vector, so use the existing general-purpose load into an X register.
+        std::string dest_reg = register_manager_.get_free_register(*this);
+        emit(Encoder::create_ldr_imm(dest_reg, effective_addr_reg, 0));
+        expression_result_reg_ = dest_reg;
+    }
+    
+    register_manager_.release_register(effective_addr_reg);
+    debug_print("Finished visiting VectorAccess node.");
+}
+
+// File: generators/gen_WhileStatement.cpp
+
+#include "../NewCodeGenerator.h"
+#include "../LabelManager.h"
+#include "../analysis/ASTAnalyzer.h"
+#include <iostream>
+#include <stdexcept>
+
+void NewCodeGenerator::visit(WhileStatement& node) {
+    debug_print("Visiting WhileStatement node (NOTE: branching is handled by block epilogue).");
+    // No branching logic here; only evaluate condition if needed elsewhere.
+}

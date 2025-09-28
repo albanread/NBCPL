@@ -1,0 +1,26 @@
+// Ultra-simple test to verify basic type promotion in universal expressions
+// Test the most basic cases to isolate the issue
+
+LET START() BE {
+    WRITEF("Testing basic type promotion*N")
+
+    // Test 1: Most basic float + int
+    FLET test1 = 1.0 + 1
+    WRITEF("1.0 + 1 = %f*N", test1)
+
+    // Test 2: Most basic int + float
+    FLET test2 = 1 + 1.0
+    WRITEF("1 + 1.0 = %f*N", test2)
+
+    // Test 3: Float variable + int literal
+    FLET f = 2.5
+    FLET test3 = f + 1
+    WRITEF("2.5 + 1 = %f*N", test3)
+
+    // Test 4: Int variable + float literal
+    LET i = 3
+    FLET test4 = i + 1.0
+    WRITEF("3 + 1.0 = %f*N", test4)
+
+    WRITEF("Basic promotion tests complete*N")
+}

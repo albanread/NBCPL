@@ -1,0 +1,11 @@
+GET "libhdr.h"
+
+LET START() = VALOF
+$(
+  FOR I = 1 TO 5 DO
+  $(
+    WRITEN(I)
+    WRITES("*N")
+  $)
+  RESULTIS 0
+$)

@@ -1,0 +1,14 @@
+LET START() BE
+$(
+  LET I = 0
+  $(
+    WRITES("Enter repeat while test*N")
+    I := I + 1
+    WRITES("I=") WRITEN(I) WRITES(" I<9 ?: ") WRITEN(I<9 ) WRITES("*N")
+
+    WRITES("Leaverepeat while test*N")
+  $) REPEAT WHILE I < 9
+
+   WRITES("BYE!*N")
+
+$)

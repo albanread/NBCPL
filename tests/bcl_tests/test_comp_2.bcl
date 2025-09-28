@@ -1,0 +1,17 @@
+GET "libhdr.h"
+
+LET START() = VALOF
+$(
+  LET A = 5
+  LET B = 10
+  LET D = 5
+
+  LET C = A < B
+  WRITEN(C)
+
+  C := A = B
+  WRITEN(C)
+
+  C := A = D
+  WRITEN(C)
+$)

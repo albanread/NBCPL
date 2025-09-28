@@ -1,0 +1,40 @@
+// Minimal test for float comparison syntax in NewBCPL
+// This tests the basic TEST...THEN syntax with float operations
+
+LET START() BE $(
+    WRITES("Testing float TEST syntax")
+    NEWLINE()
+
+    FLET x = 5.5
+    FLET y = 10.0
+
+    // Test 1: Simple float comparison with parentheses
+    TEST (x < y) THEN $(
+        WRITES("Test 1 PASSED: 5.5 < 10.0")
+        NEWLINE()
+    $) ELSE $(
+        WRITES("Test 1 FAILED")
+        NEWLINE()
+    $)
+
+    // Test 2: Float literal comparison
+    TEST (3.14 < 6.28) THEN $(
+        WRITES("Test 2 PASSED: 3.14 < 6.28")
+        NEWLINE()
+    $) ELSE $(
+        WRITES("Test 2 FAILED")
+        NEWLINE()
+    $)
+
+    // Test 3: Using IF instead of TEST
+    IF x < y THEN $(
+        WRITES("Test 3 PASSED: IF syntax works")
+        NEWLINE()
+    $) ELSE $(
+        WRITES("Test 3 FAILED")
+        NEWLINE()
+    $)
+
+    WRITES("Float TEST syntax test completed")
+    NEWLINE()
+$)

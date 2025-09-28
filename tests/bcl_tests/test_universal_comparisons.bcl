@@ -1,0 +1,44 @@
+// Test universal expression comparisons and function argument handling
+
+LET main() BE {
+    LET int_var = 5
+    FLET float_var = 3.14
+
+    // Test 1: Integer variable compared to float literal
+    WRITEF("Test 1: int_var > 3.14 = %d*N", int_var > 3.14)
+
+    // Test 2: Float variable compared to integer literal
+    WRITEF("Test 2: float_var = 0 = %d*N", float_var = 0)
+
+    // Test 3: Mixed arithmetic in comparison
+    WRITEF("Test 3: int_var + 1.5 > 6.0 = %d*N", int_var + 1.5 > 6.0)
+
+    // Test 4: Complex mixed expressions
+    WRITEF("Test 4: (int_var * 2) < (float_var + 3.86) = %d*N", (int_var * 2) < (float_var + 3.86))
+
+    // Test 5: Function calls with mixed arguments
+    TestFunction(int_var, float_var)
+    TestFunction(int_var + 1, float_var * 2.0)
+    TestFunction(42, 3.14159)
+
+    // Test 6: Routine calls with mixed arguments
+    TestRoutine(int_var > 3.0, float_var + int_var)
+
+    // Test 7: Complex expression as function argument
+    LET result = MixedMath(int_var + float_var * 2.5)
+    WRITEF("Test 7: MixedMath result = %f*N", result)
+}
+
+LET TestFunction(x, y) = VALOF {
+    WRITEF("TestFunction called with x=%d, y=%f*N", x, y)
+    RESULTIS x + y
+}
+
+LET TestRoutine(condition, value) BE {
+    WRITEF("TestRoutine called with condition=%d, value=%f*N", condition, value)
+}
+
+FLET MixedMath(expr) = VALOF {
+    WRITEF("MixedMath received: %f*N", expr)
+    RESULTIS expr * 1.5
+}

@@ -1,0 +1,18 @@
+// Ultra minimal SDL test to isolate parsing/compilation issues
+// This test only calls SDL2_INIT to see if basic SDL functions work
+
+LET START() BE {
+    WRITEF("Testing ultra-minimal SDL functionality*N")
+
+    // Test SDL2 initialization only
+    LET result = SDL2_INIT()
+    TEST result = 0 THEN {
+        WRITEF("✅ SDL2 initialized successfully*N")
+        SDL2_QUIT()
+        WRITEF("✅ SDL2 shutdown complete*N")
+    } ELSE {
+        WRITEF("❌ SDL2 initialization failed with code: %d*N", result)
+    }
+
+    WRITEF("Ultra-minimal SDL test completed*N")
+}

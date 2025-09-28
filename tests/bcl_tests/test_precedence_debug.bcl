@@ -1,0 +1,52 @@
+// Test case to debug the complex expression precedence bug
+// The rule: promote to float if any operand is float, then coerce back based on destination type
+
+LET START() BE
+$(
+    // Simple cases that should work (already tested)
+    LET simple_int = 1 + 2
+    FLET simple_float = 1.0 + 2.0
+    FLET mixed_simple = 1 + 2.5
+
+    // Complex cases that might trigger the bug
+    // These involve operator precedence where one sub-expression is integer, another is float
+
+    // Test 1: Float literal + integer multiplication (should be 6.0)
+    // Expected: 2.5 * 2 = 5.0, then 1.0 + 5.0 = 6.0
+    FLET test1 = 1.0 + 2.5 * 2
+
+    // Test 2: Integer literal + float multiplication (should be 6.0)
+    // Expected: 2.5 * 2 = 5.0, then 1 + 5.0 = 6.0 (promoted to float)
+    FLET test2 = 1 + 2.5 * 2
+
+    // Test 3: Integer assignment with float expression (should be 6, truncated)
+    // Expected: 2.5 * 2 = 5.0, then 1 + 5.0 = 6.0, then coerce to int = 6
+    LET test3 = 1 + 2.5 * 2
+
+    // Test 4: More complex precedence
+    // Expected: 3 * 4 = 12, then 2.0 + 12 = 14.0, then 1 + 14.0 = 15.0
+    FLET test4 = 1 + 2.0 + 3 * 4
+
+    // Test 5: Parentheses to force different precedence
+    // Expected: 1 + 2.0 = 3.0, then 3.0 * 3 = 9.0
+    FLET test5 = (1 + 2.0) * 3
+
+    WRITEF("=== Universal Expressions Test Results ===*N")
+    WRITEF("*N")
+
+    WRITEF("Simple cases:*N")
+    WRITEF("  simple_int (1+2) = %d*N", simple_int)
+    WRITEF("  simple_float (1.0+2.0) = %f*N", simple_float)
+    WRITEF("  mixed_simple (1+2.5) = %f*N", mixed_simple)
+    WRITEF("*N")
+
+    WRITEF("Complex precedence cases (bug fix verification):*N")
+    WRITEF("  test1 (1.0 + 2.5 * 2) = %f (expected 6.0)*N", test1)
+    WRITEF("  test2 (1 + 2.5 * 2) = %f (expected 6.0)*N", test2)
+    WRITEF("  test3 (1 + 2.5 * 2) = %d (expected 6)*N", test3)
+    WRITEF("  test4 (1 + 2.0 + 3 * 4) = %f (expected 15.0)*N", test4)
+    WRITEF("  test5 ((1 + 2.0) * 3) = %f (expected 9.0)*N", test5)
+    WRITEF("*N")
+
+    WRITEF("=== All tests completed successfully! ===*N")
+$)

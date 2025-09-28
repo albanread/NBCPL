@@ -1,0 +1,46 @@
+// Simple test for SAMM leaf function optimization
+
+// LEAF FUNCTION - NO HEAP ALLOCATION (should be optimized)
+LET simple_add(a, b) = a + b
+
+// LEAF FUNCTION - NO HEAP ALLOCATION (should be optimized)
+LET square(n) = n * n
+
+// COMPLEX LEAF FUNCTION - NO HEAP ALLOCATION (should be optimized)
+LET complex_calculation(a, b, c) = VALOF $(
+    LET temp1 = a * b
+    LET temp2 = temp1 + c
+    LET result = temp2 * 2
+    RESULTIS result
+$)
+
+// NON-LEAF FUNCTION - calls another function (should NOT be optimized)
+LET calculate_sum(a, b, c) = simple_add(simple_add(a, b), c)
+
+// LEAF FUNCTION WITH HEAP ALLOCATION - creates a list (should NOT be optimized)
+LET create_small_list() = LIST(1, 2, 3)
+
+// Main program
+LET start() BE $(
+    WRITEF("Testing leaf function optimization:*N")
+
+    // Test simple leaf functions
+    LET result1 = simple_add(10, 20)
+    WRITEF("simple_add(10, 20) = %d*N", result1)
+
+    LET result2 = square(7)
+    WRITEF("square(7) = %d*N", result2)
+
+    LET result3 = complex_calculation(2, 3, 4)
+    WRITEF("complex_calculation(2, 3, 4) = %d*N", result3)
+
+    // Test non-leaf function
+    LET result4 = calculate_sum(1, 2, 3)
+    WRITEF("calculate_sum(1, 2, 3) = %d*N", result4)
+
+    // Test heap allocating function
+    LET my_list = create_small_list()
+    WRITEF("Created list with first element: %d*N", my_list!0)
+
+    WRITEF("All tests completed!*N")
+$)

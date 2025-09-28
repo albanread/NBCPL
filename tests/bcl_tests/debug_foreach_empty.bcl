@@ -1,0 +1,10 @@
+LET START() BE
+$(
+   LET L = LIST("a", "string", "list")
+   WRITES("List created successfully*N")
+   FOREACH S IN L DO
+   $(
+       // Empty loop body - no operations
+   $)
+   WRITES("FOREACH completed successfully*N")
+$)

@@ -1,0 +1,46 @@
+// Test FOR loop to see if that triggers the register issue
+// This should help identify if the problem is with for-loop desugaring
+
+GLOBALS {
+    FLET global_x = 0.0
+    FLET global_y = 0.0
+}
+
+LET test_for_loop() BE $(
+    FLET temp = 0.0
+
+    FOR i = 1 TO 5 DO $(
+        temp := global_x + FLOAT(i)
+        global_x := temp
+    $)
+$)
+
+LET test_for_loop_complex() BE $(
+    FLET result = 0.0
+
+    FOR j = 1 TO 3 DO $(
+        // Complex expression inside FOR loop
+        result := global_x * 0.5 + global_y * 0.3
+        global_x := result
+        global_y := result * 2.0
+    $)
+$)
+
+LET START() BE $(
+    WRITES("Testing FOR loop register allocation")
+    NEWLINE()
+
+    global_x := 1.0
+    global_y := 2.0
+
+    test_for_loop()
+    WRITES("Simple FOR loop passed")
+    NEWLINE()
+
+    test_for_loop_complex()
+    WRITES("Complex FOR loop passed")
+    NEWLINE()
+
+    WRITES("All FOR loop tests completed")
+    NEWLINE()
+$)

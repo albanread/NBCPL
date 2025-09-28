@@ -1,0 +1,14 @@
+GET "libhdr"
+
+LET START() BE $(
+    LET S = "HELLO"
+    LET SUM = 0
+
+    FOREACH C IN S DO $(
+        SUM := SUM + C
+    $)
+
+    // Expected sum: 72(H)+69(E)+76(L)+76(L)+79(O) = 372
+    WRITEN(SUM) // Should print 372
+    WRITES("*N")
+$)

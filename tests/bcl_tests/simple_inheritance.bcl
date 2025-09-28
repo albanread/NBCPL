@@ -1,0 +1,43 @@
+// simple_inheritance.bcl
+// A very simple class inheritance test
+
+CLASS Parent $(
+    DECL value
+
+    FUNCTION getValue() = VALOF $(
+        RESULTIS value
+    $)
+
+    ROUTINE setValue(new_value) BE $(
+        value := new_value
+    $)
+$)
+
+CLASS Child EXTENDS Parent $(
+    DECL extra
+
+    FUNCTION getValue() = VALOF $(
+        // Override parent's getValue
+        LET parent_value = value
+        RESULTIS parent_value + extra
+    $)
+
+    ROUTINE setExtra(e) BE $(
+        extra := e
+    $)
+$)
+
+LET START() BE $(
+    LET p = NEW Parent
+    LET c = NEW Child
+
+    p.setValue(10)
+    c.setValue(20)
+    c.setExtra(5)
+
+    WRITES("Parent value: ")
+    WRITEN(p.getValue())
+
+    WRITES("Child value: ")
+    WRITEN(c.getValue())
+$)

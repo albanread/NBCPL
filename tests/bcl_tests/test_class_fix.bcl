@@ -1,0 +1,46 @@
+// test_class_fix.bcl - Test to verify hardcoded Point class fix
+
+CLASS Point $(
+    DECL x, y
+
+    ROUTINE CREATE(initialX, initialY) BE $(
+        x := initialX
+        y := initialY
+        WRITES("Point created*N")
+    $)
+
+    FUNCTION getX() = VALOF $(
+        RESULTIS x
+    $)
+$)
+
+CLASS Circle $(
+    DECL radius
+
+    ROUTINE CREATE(r) BE $(
+        radius := r
+        WRITES("Circle created*N")
+    $)
+
+    FUNCTION getRadius() = VALOF $(
+        RESULTIS radius
+    $)
+$)
+
+LET START() BE $(
+    WRITES("Testing class name extraction fix*N")
+
+    // This should extract "Point" as the class name
+    LET myPoint = NEW Point
+    myPoint.CREATE(10, 20)
+    WRITEN(myPoint.getX())
+    WRITES("*N")
+
+    // This should extract "Circle" as the class name
+    LET myCircle = NEW Circle
+    myCircle.CREATE(5)
+    WRITEN(myCircle.getRadius())
+    WRITES("*N")
+
+    WRITES("Test completed*N")
+$)

@@ -1,0 +1,27 @@
+LET START() BE
+$(
+   WRITES("Testing type validation for list operations*N")
+
+   // Valid list operations - should work
+   LET L = LIST("hello", "world")
+   LET H = HD(L)
+   LET T = TL(L)
+   LET R = REST(L)
+
+   WRITES("Valid operations completed successfully*N")
+   WRITES("Head: ")
+   WRITES(H)
+   WRITES("*N")
+
+   // Invalid operations - should trigger type errors
+   LET X = 42
+   LET Y = "string"
+   LET Z = 3.14
+
+   // These should cause semantic errors during compilation:
+   // LET BAD1 = HD(X)    // HD on integer
+   // LET BAD2 = TL(Y)    // TL on string
+   // LET BAD3 = REST(Z)  // REST on float
+
+   WRITES("Type validation test complete*N")
+$)

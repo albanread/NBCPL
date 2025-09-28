@@ -1,0 +1,86 @@
+// Basic test for PAIR functionality in NewBCPL
+// Tests pair creation and access (32-bit halfs of 64-bit word)
+
+LET start() BE {
+    // Test 1: Basic pair creation and access
+    writef("Testing basic pair creation and access (32-bit halfs)...\n")
+
+    LET p = PAIR(42, 100)
+    LET first_val = p.first
+    LET second_val = p.second
+
+    writef("Created PAIR(42, 100) - combines into 64-bit word\n")
+    writef("First half (lower 32 bits): %d\n", first_val)
+    writef("Second half (upper 32 bits): %d\n", second_val)
+
+    TEST first_val = 42 AND second_val = 100 THEN
+        writef("✓ Basic pair test PASSED\n")
+    ELSE
+        writef("✗ Basic pair test FAILED\n")
+
+    // Test 2: Pair with small values (fits in 32 bits)
+    writef("\nTesting pair with small expressions...\n")
+
+    LET x = 10
+    LET y = 20
+    LET p2 = PAIR(x + 5, y * 2)
+
+    writef("Created PAIR(x+5, y*2) where x=10, y=20\n")
+    writef("First half: %d (should be 15)\n", p2.first)
+    writef("Second half: %d (should be 40)\n", p2.second)
+
+    TEST p2.first = 15 AND p2.second = 40 THEN
+        writef("✓ Expression pair test PASSED\n")
+    ELSE
+        writef("✗ Expression pair test FAILED\n")
+
+    // Test 3: Pairs with bit patterns
+    writef("\nTesting pairs with bit patterns...\n")
+
+    LET bit_pair = PAIR(255, 65535)  // 0xFF and 0xFFFF
+    writef("Bit pattern pair: first=%d, second=%d\n", bit_pair.first, bit_pair.second)
+
+    TEST bit_pair.first = 255 AND bit_pair.second = 65535 THEN
+        writef("✓ Bit pattern pair test PASSED\n")
+    ELSE
+        writef("✗ Bit pattern pair test FAILED\n")
+
+    // Test 4: Pair assignment
+    writef("\nTesting pair assignment...\n")
+
+    LET p3 = PAIR(0, 0)
+    p3 := PAIR(123, 456)
+
+    writef("Assigned new values to pair: (%d, %d)\n", p3.first, p3.second)
+
+    TEST p3.first = 123 AND p3.second = 456 THEN
+        writef("✓ Pair assignment test PASSED\n")
+    ELSE
+        writef("✗ Pair assignment test FAILED\n")
+
+    // Test 5: Testing 32-bit boundary values
+    writef("\nTesting 32-bit boundary values...\n")
+
+    // Test with values that are exactly 32-bit limits
+    LET max_32bit = PAIR(65535, 4294967295)  // 2^16-1, 2^32-1
+    writef("32-bit boundary pair: (%d, %d)\n", max_32bit.first, max_32bit.second)
+
+    TEST max_32bit.first = 65535 THEN
+        writef("✓ 32-bit boundary test PASSED\n")
+    ELSE
+        writef("✗ 32-bit boundary test FAILED\n")
+
+    // Test 6: Zero values (edge case)
+    writef("\nTesting zero values...\n")
+
+    LET zero_pair = PAIR(0, 0)
+    writef("Zero pair: (%d, %d)\n", zero_pair.first, zero_pair.second)
+
+    TEST zero_pair.first = 0 AND zero_pair.second = 0 THEN
+        writef("✓ Zero values test PASSED\n")
+    ELSE
+        writef("✗ Zero values test FAILED\n")
+
+    writef("\nAll PAIR tests completed!\n")
+    writef("Note: PAIR combines two 32-bit values into one 64-bit word\n")
+}

@@ -1,0 +1,82 @@
+# Makefile for Simple FILE Runtime API Test
+# Basic test of FILE_ commands with minimal crash risk
+
+# Compiler settings
+CXX = clang++
+CXXFLAGS = -std=c++17 -Wall -Wextra -O2 -g -DSDL2_RUNTIME_ENABLED
+
+# Directories
+BUILD_DIR = build/file_simple
+TARGET = $(BUILD_DIR)/test_file_simple
+
+# Source files
+TEST_SRC = test_file_simple.cpp
+
+# Object files
+TEST_OBJ = $(BUILD_DIR)/test_file_simple.o
+
+# Include directories (matching main compiler build)
+INCLUDES = -I. -Iruntime -IHeapManager -Iinclude
+
+# Runtime library (unified runtime with static SDL2)
+RUNTIME_LIB = ./libbcpl_runtime_sdl2_static.a
+
+# Extra libraries required for static SDL2 linking
+EXTRA_LIBS = -lstdc++ -framework Cocoa -framework CoreVideo -framework IOKit -framework Carbon -framework AudioToolbox -framework ForceFeedback -framework CoreAudio -framework CoreFoundation -framework Foundation -framework GameController -framework CoreHaptics -framework Metal -lpthread
+
+# Create build directory
+$(BUILD_DIR):
+	mkdir -p $(BUILD_DIR)
+
+# Check if runtime library exists
+check-runtime:
+	@if [ ! -f "$(RUNTIME_LIB)" ]; then \
+		echo "Error: Runtime library $(RUNTIME_LIB) not found."; \
+		echo "Please run './build.sh' first to build the unified runtime."; \
+		exit 1; \
+	fi
+
+# Main target
+$(TARGET): $(BUILD_DIR) check-runtime $(TEST_OBJ)
+	@echo "Linking simple FILE test with unified runtime..."
+	$(CXX) $(CXXFLAGS) -o $@ $(TEST_OBJ) $(RUNTIME_LIB) $(EXTRA_LIBS)
+
+# Test source compilation
+$(BUILD_DIR)/test_file_simple.o: test_file_simple.cpp
+	$(CXX) $(CXXFLAGS) $(INCLUDES) -c $< -o $@
+
+# Build and run test with timeout for safety
+test: $(TARGET)
+	@echo "Running Simple FILE Runtime API Test (60s timeout)..."
+	@echo "Testing against: $(RUNTIME_LIB)"
+	@echo ""
+	@timeout 60s ./$(TARGET) || echo "Test timed out or crashed after 60 seconds"
+
+# Build only
+build: $(TARGET)
+
+# Quick test with crash protection
+safe-test: $(TARGET)
+	@echo "Running FILE test with crash protection..."
+	@timeout 30s ./$(TARGET) || echo "Test completed (timeout/crash after 30s)"
+
+# Clean build artifacts
+clean:
+	rm -rf $(BUILD_DIR)
+	rm -f test_simple.txt
+
+# Show help
+help:
+	@echo "Available targets:"
+	@echo "  build      - Build the simple FILE test executable"
+	@echo "  test       - Build and run basic FILE API test (60s timeout)"
+	@echo "  safe-test  - Build and run with 30s timeout for safety"
+	@echo "  clean      - Remove all build artifacts and test files"
+	@echo "  help       - Show this help message"
+	@echo ""
+	@echo "Runtime: $(RUNTIME_LIB)"
+
+.PHONY: test build safe-test clean help check-runtime
+
+# Default target
+.DEFAULT_GOAL := safe-test

@@ -1,0 +1,34 @@
+// Test chained operations in universal expressions
+// This tests complex expressions that might involve precedence issues
+
+LET START() BE {
+    // Test 1: Simple chained integer operations
+    LET a = 2 * 3
+    WRITEF("2 * 3 = %d*N", a)
+
+    LET b = 1 + a
+    WRITEF("1 + (2 * 3) = %d*N", b)
+
+    // Test 2: Step by step build up to the problematic expression
+    LET c = 2 * 3
+    WRITEF("Step 1: 2 * 3 = %d*N", c)
+
+    FLET d = 1.0
+    WRITEF("Step 2: 1.0 = %f*N", d)
+
+    FLET e = d + c  // This should convert c to float and add
+    WRITEF("Step 3: 1.0 + (2 * 3) = %f*N", e)
+
+    // Test 3: The actual problematic expression broken down
+    WRITEF("Testing: 1.0 + 2 * 3*N")
+    FLET result1 = 1.0 + 2 * 3
+    WRITEF("Result: %f*N", result1)
+
+    // Test 4: With explicit parentheses
+    FLET result2 = 1.0 + (2 * 3)
+    WRITEF("With parentheses: 1.0 + (2 * 3) = %f*N", result2)
+
+    // Test 5: Different order
+    FLET result3 = 2 * 3 + 1.0
+    WRITEF("Different order: 2 * 3 + 1.0 = %f*N", result3)
+}

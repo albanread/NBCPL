@@ -1,0 +1,29 @@
+LET START() BE
+$(
+   WRITES("Testing direct HD operations on string lists*N")
+
+   // Test 1: Direct HD on a list created with LIST()
+   LET L1 = LIST("first", "second", "third")
+   LET S1 = HD(L1)
+   WRITES("HD(LIST(...)) = '")
+   WRITES(S1)
+   WRITES("'*N")
+
+   // Test 2: Direct HD on a list created with SPLIT()
+   LET S = "hello world test"
+   LET L2 = SPLIT(S, " ")
+   LET S2 = HD(L2)
+   WRITES("HD(SPLIT(...)) = '")
+   WRITES(S2)
+   WRITES("'*N")
+
+   // Test 3: HD after TL (tail operation)
+   LET L3 = LIST("alpha", "beta", "gamma")
+   LET TL_L3 = TL(L3)
+   LET S3 = HD(TL_L3)
+   WRITES("HD(TL(LIST(...))) = '")
+   WRITES(S3)
+   WRITES("'*N")
+
+   WRITES("Direct HD test completed*N")
+$)

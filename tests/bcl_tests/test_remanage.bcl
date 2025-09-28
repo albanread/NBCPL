@@ -1,0 +1,28 @@
+// Test file for REMANAGE keyword functionality
+// This demonstrates the RETAIN/REMANAGE lifecycle
+
+LET pass_vector(v) = v  // Simple function that returns its parameter
+
+LET START() BE $(
+    WRITES("REMANAGE test starting...*N")
+
+    // Allocate a vector and assign it to a variable
+    LET vec = VEC 10
+
+    // The variable 'vec' normally has automatic cleanup enabled
+    // Let's disable it with RETAIN
+    RETAIN vec
+    WRITES("Vector RETAINed*N")
+
+    // Now call a function that returns the vector
+    LET result = pass_vector(vec)
+
+    // Re-enable automatic cleanup for the result
+    REMANAGE result
+    WRITES("Result REMANAGEd*N")
+
+    // At the end of this scope, 'result' should be automatically cleaned up
+    // but 'vec' should not be (since it was RETAINed)
+
+    WRITES("Test complete*N")
+$)

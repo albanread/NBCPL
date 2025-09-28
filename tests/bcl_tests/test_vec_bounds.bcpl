@@ -1,0 +1,38 @@
+GET "libhdr"
+
+// Test VEC allocation with bounds checking
+// This should demonstrate both fixes:
+// 1. VEC allocation works without RELEASE method error
+// 2. Bounds checking triggers runtime error on out-of-bounds access
+
+LET START() BE
+{
+    writef("Starting VEC bounds checking test...*n")
+
+    // Test 1: Normal VEC allocation and access (should work)
+    LET v = VEC 5  // Allocate vector with 5 elements (indices 0-4)
+
+    // Set values within bounds
+    v!0 := 10
+    v!1 := 20
+    v!2 := 30
+    v!3 := 40
+    v!4 := 50
+
+    writef("Values set successfully:*n")
+    writef("v!0 = %n*n", v!0)
+    writef("v!1 = %n*n", v!1)
+    writef("v!2 = %n*n", v!2)
+    writef("v!3 = %n*n", v!3)
+    writef("v!4 = %n*n", v!4)
+
+    // Test 2: Bounds checking - this should trigger runtime error
+    writef("Now attempting out-of-bounds access (should trigger error)...*n")
+
+    // This access should trigger BCPL_BOUNDS_ERROR since index 5 is out of bounds
+    // for a vector of size 5 (valid indices are 0-4)
+    LET bad_value = v!5  // Out of bounds access!
+
+    // This line should never execute due to bounds error above
+    writef("ERROR: This message should not appear! bad_value = %n*n", bad_value)
+}

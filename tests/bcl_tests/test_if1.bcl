@@ -1,0 +1,8 @@
+LET START() BE {
+
+LET N = 1
+
+TEST N = 1 THEN WRITES("ONE")
+
+
+}

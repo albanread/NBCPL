@@ -1,0 +1,48 @@
+// Test for the new FLET keyword
+// FLET declares a variable as a floating-point type, ensuring it can receive
+// values from FVALOF expressions correctly.
+
+LET START() BE
+{
+    // First, test regular LET with direct float initialization
+    // This already works fine because the type is inferred from the right side
+    WRITES("Test 1: Direct initialization with float literal*N")
+    LET a = 2.5
+    WRITES("a = ")
+    WRITEF(a)
+    WRITES("*N")
+
+    // Test the proposed FLET keyword for declaring float variables
+    // This would explicitly declare the variable as float type
+    WRITES("*NTest 2: Using FVALOF function with LET workaround*N")
+    LET b = 0.0
+    b := SIMPLE_FVALOF()
+    WRITES("b = ")
+    WRITEF(b)
+    WRITES(" (should be 32.5)*N")
+
+    // Test FLET with multiplication in FVALOF
+    WRITES("*NTest 3: FLET with float calculation in FVALOF*N")
+    FLET c = MULTIPLY_BY_TWO(8)
+    WRITES("c = ")
+    WRITEF(c)
+    WRITES(" (should be 16.0)*N")
+
+    // Compare with the current workaround (for reference)
+    WRITES("*NTest 4: Current workaround (manual float initialization)*N")
+    LET d = 0.0
+    d := MULTIPLY_BY_TWO(8)
+    WRITES("d = ")
+    WRITEF(d)
+    WRITES(" (should be 16.0)*N")
+}
+
+// Simple FVALOF returning a fixed value
+LET SIMPLE_FVALOF() = FVALOF {
+    RESULTIS 32.5
+}
+
+// FVALOF with multiplication
+LET MULTIPLY_BY_TWO(x) = FVALOF {
+    RESULTIS FLOAT(x) *# 2.0
+}

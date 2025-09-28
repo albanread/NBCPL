@@ -1,0 +1,23 @@
+// Simple test to verify SAMM double-free fix
+LET START() BE $(
+    WRITES("Testing SAMM double-free fix...*N")
+
+    // Test with a simple vector allocation
+    $(
+        LET vec = GETVEC(10)
+        WRITES("Vector allocated*N")
+        // Scope exit - should use SAMM cleanup only, not legacy
+    $)
+
+    WRITES("Vector scope exited*N")
+
+    // Test with a simple list
+    $(
+        LET mylist = LIST(1, 2, 3)
+        WRITES("List allocated*N")
+        // Scope exit - should use SAMM cleanup only, not legacy
+    $)
+
+    WRITES("List scope exited*N")
+    WRITES("Test completed successfully*N")
+$)

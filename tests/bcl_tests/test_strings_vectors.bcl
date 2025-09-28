@@ -1,0 +1,15 @@
+
+GET "libhdr"
+
+LET START() BE
+$(
+    // Test vector operations
+    LET V = VEC 5
+    V!0 := 102
+
+    WRITES("V[0] = ")
+    WRITEN(V!0)
+    WRITEC(10) // Newline
+
+    FREEVEC V
+$)

@@ -1,0 +1,60 @@
+Core runtime registered. SDL2 registration will follow...
+SDL2 runtime functions registered immediately
+SDL2 runtime functions registered in unified runtime
+DEBUG SymbolDiscovery: Variable 'X' is_float_declaration=false
+DEBUG SymbolDiscovery: Variable 'X' determined_type=1 (default INTEGER)
+SDL2 runtime functions registered immediately
+SDL2 runtime functions registered successfully.
+DEBUG: ASTAnalyzer::visit(LetDeclaration) called with 1 variables
+DEBUG: LetDeclaration has 0 initializers
+DEBUG: Processing variable 'X' in ASTAnalyzer
+DEBUG: Variable 'X' initializer is null
+DEBUG: Variable 'X' current_function_scope_='START'
+DEBUG: Variable 'X' has no initializer, using declaration type: 1
+DEBUG: Variable 'X' final determined_type: 1 before symbol table update
+[ASSIGNMENT VISITOR] Processing AssignmentStatement with 1 LHS variables
+[DEBUG] Processing assignment to variable: X
+[DEBUG] Symbol lookup for 'X': FOUND
+[DEBUG] Symbol 'X' owns_heap_memory: FALSE
+DEBUG: infer_expression_type called on expression type: 17
+DEBUG: current_function_scope_: 'START'
+DEBUG: current_class_name_: ''
+DEBUG: Entered try block for expr type 17
+DEBUG: About to check StringLiteral
+DEBUG: About to check NullLiteral
+DEBUG: About to check BinaryOp dynamic_cast
+DEBUG: [BINARY OP] BinaryOp dynamic_cast succeeded
+DEBUG: About to infer left operand type for binary operation
+DEBUG: infer_expression_type called on expression type: 11
+DEBUG: current_function_scope_: 'START'
+DEBUG: current_class_name_: ''
+DEBUG: [TYPE 11] About to process binary operation...
+DEBUG: Entered try block for expr type 11
+DEBUG: NumberLiteral dynamic_cast succeeded
+DEBUG: About to access lit->literal_type
+DEBUG: literal_type = 0
+DEBUG: About to compare with Float type
+DEBUG: is_float = 0
+DEBUG: About to return from NumberLiteral case
+DEBUG: Return value computed, about to return result=1
+DEBUG: Left operand type: 1
+DEBUG: About to infer right operand type for binary operation
+DEBUG: infer_expression_type called on expression type: 11
+DEBUG: current_function_scope_: 'START'
+DEBUG: current_class_name_: ''
+DEBUG: [TYPE 11] About to process binary operation...
+DEBUG: Entered try block for expr type 11
+DEBUG: NumberLiteral dynamic_cast succeeded
+DEBUG: About to access lit->literal_type
+DEBUG: literal_type = 0
+DEBUG: About to compare with Float type
+DEBUG: is_float = 0
+DEBUG: About to return from NumberLiteral case
+DEBUG: Return value computed, about to return result=1
+DEBUG: Right operand type: 1
+DEBUG: Binary operation result is INTEGER
+[DEBUG generate_short_circuit_and] false_label='.L1'
+[DEBUG generate_short_circuit_and] end_label='.L2'
+[DEBUG generate_short_circuit_and] Emitting false label: '.L1:'
+[DEBUG generate_short_circuit_and] Emitting end label: '.L2:'
+NewBCPL Compiler Error: Error: Undefined label '.L1' encountered during linking.

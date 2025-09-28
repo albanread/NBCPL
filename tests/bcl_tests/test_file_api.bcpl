@@ -1,0 +1,158 @@
+// test_file_api.bcpl
+// Test program for the new comprehensive file API
+
+LET main() BE {
+    WRITES("=== File API Test Program ===\n")
+
+    // Test 1: Basic file writing and reading
+    WRITES("Test 1: Basic file write/read operations\n")
+
+    LET write_handle = FILE_OPEN_WRITE("test_output.txt")
+    IF write_handle = 0 THEN {
+        WRITES("ERROR: Failed to open file for writing\n")
+        RETURN
+    }
+
+    // Test FILE_WRITES function
+    LET bytes_written1 = FILE_WRITES(write_handle, "Hello, World!\n")
+    LET bytes_written2 = FILE_WRITES(write_handle, "This is a test of the new file API.\n")
+    LET bytes_written3 = FILE_WRITES(write_handle, "Line 3: Unicode test: café, naïve, résumé\n")
+
+    WRITEF("Bytes written: %n, %n, %n\n", bytes_written1, bytes_written2, bytes_written3)
+
+    LET close_result = FILE_CLOSE(write_handle)
+    IF close_result ~= 0 THEN {
+        WRITES("WARNING: Error closing write file\n")
+    }
+
+    // Test 2: Read the entire file back
+    WRITES("\nTest 2: Reading entire file content\n")
+
+    LET read_handle = FILE_OPEN_READ("test_output.txt")
+    IF read_handle = 0 THEN {
+        WRITES("ERROR: Failed to open file for reading\n")
+        RETURN
+    }
+
+    LET file_contents = FILE_READS(read_handle)
+    IF file_contents = 0 THEN {
+        WRITES("ERROR: Failed to read file contents\n")
+    } ELSE {
+        WRITES("File contents:\n")
+        WRITES(file_contents)
+    }
+
+    FILE_CLOSE(read_handle)
+
+    // Test 3: File append functionality
+    WRITES("\nTest 3: File append operations\n")
+
+    LET append_handle = FILE_OPEN_APPEND("test_output.txt")
+    IF append_handle = 0 THEN {
+        WRITES("ERROR: Failed to open file for appending\n")
+        RETURN
+    }
+
+    FILE_WRITES(append_handle, "Appended line 1\n")
+    FILE_WRITES(append_handle, "Appended line 2 with special chars: ñ, ü, ç\n")
+    FILE_CLOSE(append_handle)
+
+    // Test 4: File positioning and status
+    WRITES("\nTest 4: File positioning and status functions\n")
+
+    LET pos_handle = FILE_OPEN_READ("test_output.txt")
+    IF pos_handle = 0 THEN {
+        WRITES("ERROR: Failed to open file for positioning test\n")
+        RETURN
+    }
+
+    // Test FILE_TELL (should be at beginning)
+    LET initial_pos = FILE_TELL(pos_handle)
+    WRITEF("Initial position: %n\n", initial_pos)
+
+    // Read some content to advance position
+    LET partial_content = FILE_READS(pos_handle)
+    LET final_pos = FILE_TELL(pos_handle)
+    WRITEF("Final position: %n\n", final_pos)
+
+    // Test EOF function
+    LET eof_status = FILE_EOF(pos_handle)
+    WRITEF("EOF status: %n\n", eof_status)
+
+    // Test seeking back to beginning
+    LET seek_result = FILE_SEEK(pos_handle, 0, 0) // SEEK_SET = 0
+    WRITEF("Seek to beginning result: %n\n", seek_result)
+
+    LET new_pos = FILE_TELL(pos_handle)
+    WRITEF("Position after seek: %n\n", new_pos)
+
+    FILE_CLOSE(pos_handle)
+
+    // Test 5: Low-level byte I/O
+    WRITES("\nTest 5: Low-level byte read/write operations\n")
+
+    LET byte_write_handle = FILE_OPEN_WRITE("test_bytes.bin")
+    IF byte_write_handle = 0 THEN {
+        WRITES("ERROR: Failed to open binary file for writing\n")
+        RETURN
+    }
+
+    // Create a buffer with some test bytes
+    LET byte_buffer = BCPL_ALLOC_WORDS(1, 10, "byte_buffer")
+    byte_buffer[0] := 65  // 'A'
+    byte_buffer[1] := 66  // 'B'
+    byte_buffer[2] := 67  // 'C'
+    byte_buffer[3] := 68  // 'D'
+    byte_buffer[4] := 10  // newline
+
+    LET bytes_written_low = FILE_WRITE(byte_write_handle, byte_buffer, 5)
+    WRITEF("Low-level bytes written: %n\n", bytes_written_low)
+
+    FILE_CLOSE(byte_write_handle)
+
+    // Read bytes back
+    LET byte_read_handle = FILE_OPEN_READ("test_bytes.bin")
+    IF byte_read_handle = 0 THEN {
+        WRITES("ERROR: Failed to open binary file for reading\n")
+        RETURN
+    }
+
+    LET read_buffer = BCPL_ALLOC_WORDS(1, 10, "read_buffer")
+    LET bytes_read_low = FILE_READ(byte_read_handle, read_buffer, 5)
+    WRITEF("Low-level bytes read: %n\n", bytes_read_low)
+
+    WRITES("Read bytes: ")
+    FOR i = 0 TO bytes_read_low-1 DO {
+        WRITEF("%n ", read_buffer[i])
+    }
+    NEWLINE()
+
+    FILE_CLOSE(byte_read_handle)
+
+    // Test 6: Error handling
+    WRITES("\nTest 6: Error handling tests\n")
+
+    // Try to open non-existent file
+    LET bad_handle = FILE_OPEN_READ("nonexistent_file.txt")
+    IF bad_handle = 0 THEN {
+        WRITES("GOOD: Correctly failed to open non-existent file\n")
+    } ELSE {
+        WRITES("ERROR: Should have failed to open non-existent file\n")
+        FILE_CLOSE(bad_handle)
+    }
+
+    // Try to write to invalid handle
+    LET bad_write_result = FILE_WRITES(0, "test")
+    IF bad_write_result = 0 THEN {
+        WRITES("GOOD: Correctly rejected write to invalid handle\n")
+    } ELSE {
+        WRITES("ERROR: Should have rejected write to invalid handle\n")
+    }
+
+    WRITES("\n=== File API Test Complete ===\n")
+
+    // Print runtime metrics to see file I/O statistics
+    // Note: This function might not be available directly in BCPL,
+    // but the metrics will be tracked internally
+    WRITES("Check runtime metrics for file I/O statistics.\n")
+}

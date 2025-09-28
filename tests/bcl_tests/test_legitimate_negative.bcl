@@ -1,0 +1,37 @@
+// Test for legitimate negative index usage in BCPL
+// Shows that v!-1 (vector length access) should be allowed
+
+LET START() BE $(
+    // Create a vector with known size
+    LET v = VEC 3
+
+    // Fill the vector
+    v!0 := 100
+    v!1 := 200
+    v!2 := 300
+
+    WRITES("Vector filled with values*N")
+
+    // Legitimate access: v!-1 gets the vector length
+    // This should NOT trigger a bounds violation
+    LET length = v!-1
+    WRITES("Vector length is: ")
+    WRITEN(length)
+    WRITES("*N")
+
+    // Valid positive indices
+    WRITES("v!0 = ")
+    WRITEN(v!0)
+    WRITES("*N")
+
+    WRITES("v!1 = ")
+    WRITEN(v!1)
+    WRITES("*N")
+
+    WRITES("v!2 = ")
+    WRITEN(v!2)
+    WRITES("*N")
+
+    // This should work fine and not generate compile-time errors
+    WRITES("All accesses completed successfully*N")
+$)

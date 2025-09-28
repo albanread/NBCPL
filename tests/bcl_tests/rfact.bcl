@@ -1,0 +1,25 @@
+GET "libhdr"
+
+LET rfact(n, a) = VALOF $(
+    IF n = 0 THEN RESULTIS a
+    RESULTIS rfact(n - 1, n * a)
+$)
+
+// The main routine to test the rfact function.
+LET START() BE $(
+
+    WRITES("Calculating factorials ")
+    NEWLINE()
+
+    // Loop from 1 to MAX_FACT and print the factorial of each number.
+    // The initial call to rfact starts the accumulator at 1.
+    FOR I = 1 TO 10 DO $(
+        WRITES("Factorial of ")
+        WRITEN(I)
+        WRITES(": ")
+        LET R = rfact(I, 1)
+        WRITEN(R)
+        NEWLINE()
+    $)
+
+$)

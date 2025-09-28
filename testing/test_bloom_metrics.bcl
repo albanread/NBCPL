@@ -1,0 +1,10 @@
+LET START() BE
+{
+    WRITEF("Bloom filter metrics test*N")
+
+    // Simple allocation and free
+    LET v = VEC 5
+    FREEVEC(v)
+
+    WRITEF("Test complete*N")
+}

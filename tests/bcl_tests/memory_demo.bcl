@@ -1,0 +1,239 @@
+// memory_demo.bcl - Comprehensive demonstration of NewBCPL memory management features
+// This program showcases automatic cleanup, manual management, and the RETAIN keyword
+
+// Example class with custom cleanup
+CLASS ResourceManager $(
+    DECL file_id, buffer, buffer_size
+
+    ROUTINE CREATE(id, size) BE $(
+        file_id := id
+        buffer_size := size
+        buffer := GETVEC(buffer_size)
+        WRITES("ResourceManager ")
+        WRITEN(file_id)
+        WRITES(" created with buffer size ")
+        WRITEN(buffer_size)
+        WRITEC('*N')
+    $)
+
+    ROUTINE process_data(value) BE $(
+        WRITES("Processing data ")
+        WRITEN(value)
+        WRITES(" in ResourceManager ")
+        WRITEN(file_id)
+        WRITEC('*N')
+
+        // Use the buffer
+        FOR i = 0 TO buffer_size-1 DO
+            buffer!i := value + i
+    $)
+
+    FUNCTION get_result() = VALOF $(
+        LET sum = 0
+        FOR i = 0 TO buffer_size-1 DO
+            sum := sum + buffer!i
+        RESULTIS sum
+    $)
+
+    ROUTINE RELEASE() BE $(
+        WRITES("ResourceManager ")
+        WRITEN(file_id)
+        WRITES(" cleanup: freeing buffer*N")
+        IF buffer ~= 0 THEN $(
+            FREEVEC(buffer)
+            buffer := 0
+        $)
+        // Object itself will be freed by default OBJECT_HEAP_FREE
+    $)
+$)
+
+// Simple class for basic demonstrations
+CLASS SimpleCounter $(
+    DECL count
+
+    ROUTINE CREATE(initial_value) BE $(
+        count := initial_value
+        WRITES("SimpleCounter created with value ")
+        WRITEN(count)
+        WRITEC('*N')
+    $)
+
+    ROUTINE increment() BE $(
+        count := count + 1
+    $)
+
+    FUNCTION get_value() = VALOF RESULTIS count
+
+    ROUTINE RELEASE() BE $(
+        WRITES("SimpleCounter with value ")
+        WRITEN(count)
+        WRITES(" is being released*N")
+        // Default cleanup handles the object memory
+    $)
+$)
+
+// Factory function demonstrating RETAIN usage
+LET create_persistent_counter(initial_value) = VALOF $(
+    WRITES("Factory: Creating persistent counter*N")
+    LET counter = NEW SimpleCounter(initial_value)
+    RETAIN counter  // Disable automatic cleanup - caller owns it
+    WRITES("Factory: Counter retained and ready to return*N")
+    RESULTIS counter
+$)
+
+// Demonstration of automatic scope-based cleanup
+LET demo_automatic_cleanup() BE $(
+    WRITES("*N=== DEMO 1: Automatic Cleanup ===*N")
+
+    $(  // Inner scope for demonstration
+        WRITES("Creating objects in inner scope...*N")
+
+        LET mgr1 = NEW ResourceManager(1, 100)
+        LET mgr2 = NEW ResourceManager(2, 200)
+        LET counter = NEW SimpleCounter(10)
+
+        // Use the objects
+        mgr1.process_data(42)
+        mgr2.process_data(99)
+        counter.increment()
+        counter.increment()
+
+        WRITES("Objects created and used. About to exit scope...*N")
+    $)  // All objects automatically cleaned up here in reverse order
+
+    WRITES("Exited inner scope - all objects cleaned up automatically!*N")
+$)
+
+// Demonstration of manual vector management
+LET demo_vector_management() BE $(
+    WRITES("*N=== DEMO 2: Manual Vector Management ===*N")
+
+    LET size = 50
+    WRITES("Allocating vector of size ")
+    WRITEN(size)
+    WRITEC('*N')
+
+    LET data = GETVEC(size)
+
+    // Initialize the vector
+    FOR i = 0 TO size-1 DO
+        data!i := i * i
+
+    // Print first 10 values
+    WRITES("First 10 values: ")
+    FOR i = 0 TO 9 DO $(
+        WRITEN(data!i)
+        WRITEC(' ')
+    $)
+    WRITEC('*N')
+
+    WRITES("Manually freeing vector...*N")
+    FREEVEC(data)
+    WRITES("Vector freed successfully*N")
+$)
+
+// Demonstration of RETAIN keyword
+LET demo_retain_usage() BE $(
+    WRITES("*N=== DEMO 3: RETAIN Keyword Usage ===*N")
+
+    // Create a retained object using factory
+    WRITES("Creating retained counter via factory...*N")
+    LET persistent = create_persistent_counter(100)
+
+    // Use the retained object
+    persistent.increment()
+    persistent.increment()
+    WRITES("Persistent counter value: ")
+    WRITEN(persistent.get_value())
+    WRITEC('*N')
+
+    WRITES("Manually releasing retained object...*N")
+    persistent.RELEASE()
+    WRITES("Retained object released*N")
+$)
+
+// Demonstration of mixed memory types
+LET demo_mixed_memory() BE $(
+    WRITES("*N=== DEMO 4: Mixed Memory Management ===*N")
+
+    // Static data (no cleanup needed)
+    LET constants = TABLE(10, 20, 30, 40, 50)
+
+    // Automatic object (cleanup handled by compiler)
+    LET processor = NEW ResourceManager(99, 10)
+
+    // Manual vector (must call FREEVEC)
+    LET workspace = GETVEC(100)
+
+    // Use all three types together
+    WRITES("Using static constants: ")
+    FOR i = 0 TO 4 DO $(
+        WRITEN(constants!i)
+        WRITEC(' ')
+        processor.process_data(constants!i)
+        workspace!i := constants!i * 2
+    $)
+    WRITEC('*N')
+
+    WRITES("Workspace first 5 values: ")
+    FOR i = 0 TO 4 DO $(
+        WRITEN(workspace!i)
+        WRITEC(' ')
+    $)
+    WRITEC('*N')
+
+    // Manual cleanup for vector
+    WRITES("Cleaning up workspace vector...*N")
+    FREEVEC(workspace)
+
+    // processor will be cleaned up automatically
+    // constants need no cleanup (static data)
+    WRITES("Mixed memory demo complete*N")
+$)
+
+// Demonstration of scope-based resource management
+LET demo_scoped_resources() BE $(
+    WRITES("*N=== DEMO 5: Scoped Resource Management ===*N")
+
+    // Process multiple items, each in its own scope
+    LET items = TABLE(1, 2, 3)
+
+    FOR item_id = 0 TO 2 DO $(
+        WRITES("Processing item ")
+        WRITEN(items!item_id)
+        WRITES(":*N")
+
+        $(  // New scope for each item
+            LET item_processor = NEW ResourceManager(items!item_id, 50)
+            item_processor.process_data(items!item_id * 10)
+
+            LET result = item_processor.get_result()
+            WRITES("  Item ")
+            WRITEN(items!item_id)
+            WRITES(" result: ")
+            WRITEN(result)
+            WRITEC('*N')
+        $)  // item_processor cleaned up here
+
+        WRITES("  Item ")
+        WRITEN(items!item_id)
+        WRITES(" processing complete*N")
+    $)
+$)
+
+// Main program
+LET START() BE $(
+    WRITES("NewBCPL Memory Management Demonstration*N")
+    WRITES("=====================================*N")
+
+    // Run all demonstrations
+    demo_automatic_cleanup()
+    demo_vector_management()
+    demo_retain_usage()
+    demo_mixed_memory()
+    demo_scoped_resources()
+
+    WRITES("*N=== ALL DEMONSTRATIONS COMPLETE ===*N")
+    WRITES("Check the memory metrics below - should show 0 active allocations*N")
+    WRITES("Run with --trace-heap to see detailed allocation/deallocation info*N")
+$)

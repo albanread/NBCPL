@@ -1,0 +1,35 @@
+// Test using only old BCPL vector syntax to verify basic functionality
+
+LET start() BE {
+    WRITEF("=== Basic FOREACH Test (Old Syntax) ===\n")
+
+    // Test 1: Basic vector allocation and FOREACH
+    LET vec1 = VEC 3
+    vec1!0 := 10
+    vec1!1 := 20
+    vec1!2 := 30
+
+    WRITEF("Vector values:\n")
+    FOREACH val IN vec1 DO {
+        WRITEF("Value: %d\n", val)
+    }
+
+    // Test 2: Simple computation
+    LET sum = 0
+    FOREACH val IN vec1 DO {
+        sum := sum + val
+    }
+    WRITEF("Sum: %d (should be 60)\n", sum)
+
+    // Test 3: Float vector
+    LET fvec = FVEC 2
+    fvec!0 := 1.5
+    fvec!1 := 2.5
+
+    WRITEF("Float values:\n")
+    FOREACH f IN fvec DO {
+        WRITEF("Float: %.1f\n", f)
+    }
+
+    WRITEF("=== Test Complete ===\n")
+}

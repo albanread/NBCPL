@@ -1,0 +1,17 @@
+GET "libhdr"
+
+LET START() BE
+$(
+    WRITES("--- BCPL Comparison Operator Test ---*N")
+
+    WRITES("*N--- Test Case 1: A = 1, B = 10 ---*N")
+    LET A = 1
+    LET B = 10
+
+    TEST A = B THEN WRITES("A = B is TRUE (FAIL)*N") ELSE WRITES("A = B is FALSE (PASS)*N")
+    TEST A < B THEN WRITES("A < B is TRUE (PASS)*N") ELSE WRITES("A < B is FALSE (FAIL)*N")
+    TEST A > B THEN WRITES("A > B is TRUE (FAIL)*N") ELSE WRITES("A > B is FALSE (PASS)*N")
+    TEST A ~= B THEN WRITES("A != B is TRUE (PASS)*N") ELSE WRITES("A != B is FALSE (FAIL)*N")
+
+
+$)

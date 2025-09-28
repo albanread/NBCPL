@@ -1,0 +1,7 @@
+// Minimal test for veneer system - single external function call
+// This is the simplest possible test to debug veneer generation
+
+LET START() BE $(
+    WRITES("Testing single WRITES call...")
+    NEWLINE()
+$)

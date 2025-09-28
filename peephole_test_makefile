@@ -1,0 +1,21 @@
+# Makefile for testing peephole optimizations
+
+CXX = g++
+CXXFLAGS = -std=c++17 -Wall -Wextra -g
+
+# Main build targets
+all: peephole_test
+
+# Build the peephole test executable
+peephole_test: peephole_test.cpp PeepholeOptimizer.cpp PeepholePatterns.cpp EncoderExtended.h InstructionStream.cpp LabelManager.cpp
+	$(CXX) $(CXXFLAGS) -o $@ peephole_test.cpp PeepholeOptimizer.cpp PeepholePatterns.cpp InstructionStream.cpp LabelManager.cpp
+
+# Run the tests
+test: peephole_test
+	./peephole_test
+
+# Clean up
+clean:
+	rm -f peephole_test *.o
+
+.PHONY: all test clean

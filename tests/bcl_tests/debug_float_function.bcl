@@ -1,0 +1,18 @@
+// Minimal test to debug float function detection
+// This isolates the FLET vs LET issue
+
+FLET SimpleFloatFunc(x) = x + 1.0
+
+LET SimpleIntFunc(x) = x + 1
+
+LET START() BE {
+    WRITEF("Testing float function detection...*n")
+
+    LET int_result = SimpleIntFunc(5)
+    WRITEF("SimpleIntFunc(5) = %d*n", int_result)
+
+    LET float_result = SimpleFloatFunc(5)
+    WRITEF("SimpleFloatFunc(5) = %f*n", float_result)
+
+    WRITEF("Test completed.*n")
+}

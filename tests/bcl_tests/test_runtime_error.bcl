@@ -1,0 +1,14 @@
+LET START() BE {
+    // Test runtime validation error with dynamic format string
+    WRITES("=== Runtime Validation Error Test ===*n")
+
+    // Create a dynamic format string with 2 format specifiers
+    LET format = "Two args: %d %s*n"
+
+    // This should trigger runtime error: format expects 2 args but only 1 provided
+    WRITES("About to test runtime validation...*n")
+    WRITEF(format, 42)
+
+    // This line should not be reached if validation works
+    WRITES("ERROR: Validation failed!*n")
+}

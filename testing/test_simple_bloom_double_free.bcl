@@ -1,0 +1,15 @@
+LET START() BE
+{
+    WRITEF("Testing Bloom filter double-free detection*N")
+
+    // Test 1: Simple allocation and free
+    LET v1 = VEC 10
+    WRITEF("Allocated vector*N")
+    FREEVEC(v1)
+    WRITEF("Freed vector*N")
+
+    // Test 2: Try double-free (should be caught)
+    WRITEF("Trying double-free...*N")
+    FREEVEC(v1)
+    WRITEF("Done*N")
+}

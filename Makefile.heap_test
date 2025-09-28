@@ -1,0 +1,134 @@
+# Makefile for HeapManager test program
+# Links to the unified runtime like the main compiler does
+
+CC = clang++
+CXXFLAGS = -std=c++17 -Wall -Wextra -O2 -g
+LDFLAGS =
+
+# Include paths
+INCLUDES = -I. -I./HeapManager -I./runtime -I./include
+
+# Source files for the test
+TEST_SOURCES = test_heap_manager.cpp
+
+# HeapManager source files (needed for compilation)
+HEAP_SOURCES = \
+	HeapManager/HeapManager.cpp \
+	HeapManager/Heap_allocVec.cpp \
+	HeapManager/Heap_allocString.cpp \
+	HeapManager/Heap_allocObject.cpp \
+	HeapManager/Heap_allocList.cpp \
+	HeapManager/Heap_free.cpp \
+	HeapManager/Heap_printMetrics.cpp \
+	HeapManager/Heap_dumpHeap.cpp \
+	HeapManager/Heap_dumpHeapSignalSafe.cpp \
+	HeapManager/heap_c_wrappers.cpp \
+	HeapManager/heap_manager_globals.cpp
+
+# Additional required source files
+SUPPORT_SOURCES = \
+	SignalSafeUtils.cpp \
+	version.cpp
+
+# Object files
+TEST_OBJECTS = $(TEST_SOURCES:.cpp=.o)
+HEAP_OBJECTS = $(HEAP_SOURCES:.cpp=.o)
+SUPPORT_OBJECTS = $(SUPPORT_SOURCES:.cpp=.o)
+
+# All objects
+ALL_OBJECTS = $(TEST_OBJECTS) $(HEAP_OBJECTS) $(SUPPORT_OBJECTS)
+
+# Unified runtime library (should exist after building main project)
+RUNTIME_LIB = ./libbcpl_runtime_sdl2_static.a
+
+# Target executable
+TARGET = test_heap_manager
+
+# Default target
+all: $(TARGET)
+
+# Link the test executable
+$(TARGET): $(ALL_OBJECTS) $(RUNTIME_LIB)
+	@echo "Linking HeapManager test executable..."
+	$(CC) $(LDFLAGS) -o $@ $(ALL_OBJECTS) $(RUNTIME_LIB) -lpthread
+
+# Compile test source
+test_heap_manager.o: test_heap_manager.cpp
+	@echo "Compiling test program..."
+	$(CC) $(CXXFLAGS) $(INCLUDES) -c $< -o $@
+
+# Compile HeapManager sources
+HeapManager/%.o: HeapManager/%.cpp
+	@echo "Compiling $<..."
+	$(CC) $(CXXFLAGS) $(INCLUDES) -c $< -o $@
+
+# Compile support sources
+%.o: %.cpp
+	@echo "Compiling $<..."
+	$(CC) $(CXXFLAGS) $(INCLUDES) -c $< -o $@
+
+# Check if runtime library exists
+check-runtime:
+	@if [ ! -f $(RUNTIME_LIB) ]; then \
+		echo "ERROR: Runtime library $(RUNTIME_LIB) not found!"; \
+		echo "Please build the main project first with: ./build.sh"; \
+		exit 1; \
+	fi
+
+# Run the test
+test: $(TARGET)
+	@echo "Running HeapManager tests..."
+	./$(TARGET)
+
+# Run with verbose output
+test-verbose: $(TARGET)
+	@echo "Running HeapManager tests (verbose)..."
+	./$(TARGET) 2>&1 | tee heap_test_output.txt
+
+# Clean build artifacts
+clean:
+	@echo "Cleaning HeapManager test build..."
+	rm -f $(ALL_OBJECTS)
+	rm -f $(TARGET)
+	rm -f heap_test_output.txt
+	rm -f *.o
+
+# Clean and rebuild
+rebuild: clean all
+
+# Debug build
+debug: CXXFLAGS += -DDEBUG -O0
+debug: clean all
+
+# Help target
+help:
+	@echo "HeapManager Test Makefile"
+	@echo "========================"
+	@echo ""
+	@echo "Targets:"
+	@echo "  all           - Build the test executable (default)"
+	@echo "  test          - Build and run tests"
+	@echo "  test-verbose  - Build and run tests with output capture"
+	@echo "  debug         - Build debug version"
+	@echo "  clean         - Remove build artifacts"
+	@echo "  rebuild       - Clean and rebuild"
+	@echo "  check-runtime - Verify runtime library exists"
+	@echo "  help          - Show this help"
+	@echo ""
+	@echo "Prerequisites:"
+	@echo "  - Build main project first: ./build.sh"
+	@echo "  - Runtime library: $(RUNTIME_LIB)"
+	@echo ""
+	@echo "Usage:"
+	@echo "  make test              # Quick test run"
+	@echo "  make test-verbose      # Detailed test run with logs"
+	@echo "  make debug && make test # Debug build and test"
+
+# Dependencies
+$(TARGET): check-runtime
+
+# Phony targets
+.PHONY: all test test-verbose clean rebuild debug help check-runtime
+
+# Make sure we rebuild if headers change
+$(ALL_OBJECTS): HeapManager/HeapManager.h HeapManager/heap_manager_defs.h

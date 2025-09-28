@@ -1,0 +1,62 @@
+GET "libhdr.h"
+
+LET START() = VALOF
+$(
+  // Declare many variables to force register pressure and spilling
+  LET a = 1
+  LET b = 2
+  LET c = 3
+  LET d = 4
+  LET e = 5
+  LET f = 6
+  LET g = 7
+  LET h = 8
+  LET i = 9
+  LET j = 10
+  LET k = 11
+  LET l = 12
+  LET m = 13
+  LET n = 14
+  LET o = 15
+  LET p = 16
+  LET q = 17
+  LET r = 18
+  LET s = 19
+  LET t = 20
+
+  // The running variable that controls the loop - likely to be spilled
+  LET running = TRUE
+  LET counter = 0
+
+  WRITES("Starting spill test with many variables*N")
+
+  // This while loop should test spilled variable reload
+  WHILE running DO
+  $(
+    counter := counter + 1
+    WRITES("Loop iteration: ")
+    WRITEN(counter)
+    WRITES("*N")
+
+    // Use many variables to maintain register pressure
+    LET sum = a + b + c + d + e + f + g + h + i + j
+    WRITES("Sum of first 10: ")
+    WRITEN(sum)
+    WRITES("*N")
+
+    LET sum2 = k + l + m + n + o + p + q + r + s + t
+    WRITES("Sum of next 10: ")
+    WRITEN(sum2)
+    WRITES("*N")
+
+    // Exit condition - this access to 'running' should test spilled reload
+    IF counter >= 3 THEN
+      running := FALSE
+  $)
+
+  WRITES("Loop completed. Final counter: ")
+  WRITEN(counter)
+  WRITES("*N")
+
+  RESULTIS counter
+$)

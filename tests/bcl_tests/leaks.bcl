@@ -1,0 +1,27 @@
+CLASS MyClass $(
+$)
+
+LET START() BE $(
+// LEAK 1: Early Exit via RETURN
+// The object allocated for 'p1' will leak because the RETURN statement
+// exits the function before the block's automatic cleanup is reached.
+$(
+LET p1 = NEW MyClass()
+IF 1=1 THEN RETURN // This bypasses the automatic p1.RELEASE() at the block's end.
+$)
+
+// LEAK 2: Overwriting a Pointer (Reassignment)
+// The first object assigned to 'p2' becomes unreachable and leaks
+// when 'p2' is immediately reassigned to a new object.
+LET p2 = NEW MyClass()
+p2 := NEW MyClass() // The pointer to the first MyClass object is now lost forever.
+
+// LEAK 3: Misusing RETAIN
+// RETAIN explicitly disables automatic cleanup. Since p3.RELEASE() is
+// never manually called, the object leaks when 'p3' goes out of scope.
+$(
+RETAIN p3 = NEW MyClass()
+$)
+
+WRITES("Execution finished, but with memory leaks.*N")
+$)

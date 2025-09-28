@@ -1,0 +1,35 @@
+// Test case to demonstrate PAIR liveness analysis fix
+// This test specifically checks that PAIR variables are correctly
+// marked as live when accessed via .first and .second accessors
+
+LET START() BE {
+    LET pair_var = PAIR(42, 84)
+
+    // Before the fix, interval analysis would not detect that
+    // pair_var is still live when accessed by .first and .second
+    LET first_value = pair_var.first
+    LET second_value = pair_var.second
+
+    WRITEF("First value: %d, Second value: %d*N", first_value, second_value)
+
+    // Test with nested PAIR access
+    LET nested_pair = PAIR(PAIR(1, 2).first, PAIR(3, 4).second)
+    WRITEF("Nested pair: first=%d, second=%d*N", nested_pair.first, nested_pair.second)
+
+    // Test with PAIR arithmetic and subsequent access
+    LET pair1 = PAIR(10, 20)
+    LET pair2 = PAIR(5, 15)
+    LET result_pair = pair1 + pair2
+
+    // This should mark result_pair as live
+    LET sum_first = result_pair.first
+    LET sum_second = result_pair.second
+
+    WRITEF("Sum: %d + %d = %d*N", pair1.first + pair1.second,
+           pair2.first + pair2.second, sum_first + sum_second)
+
+    // Test conditional access
+    LET test_pair = PAIR(100, 200)
+    LET value = (test_pair.first > 50) -> test_pair.second, test_pair.first
+    WRITEF("Conditional result: %d*N", value)
+}

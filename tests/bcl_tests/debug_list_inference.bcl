@@ -1,0 +1,34 @@
+// Test to verify list type inference fix
+// This should demonstrate that LIST expressions are correctly inferred as POINTER_TO_LIST
+// instead of being overridden by premature INTEGER typing from SymbolDiscoveryPass
+
+LET START() BE {
+    // Test 1: Simple list assignment - should infer POINTER_TO_LIST type
+    LET simple_list = LIST(1, 2, 3)
+    WRITEF("Test 1 - LET simple_list = LIST(1, 2, 3) created*n")
+
+    // Test 2: Mixed list assignment - should still infer POINTER_TO_LIST type
+    LET mixed_list = LIST(42, 100, 200)
+    WRITEF("Test 2 - LET mixed_list = LIST(42, 100, 200) created*n")
+
+    // Test 3: Empty list - should infer POINTER_TO_LIST type
+    LET empty_list = LIST()
+    WRITEF("Test 3 - LET empty_list = LIST() created*n")
+
+    // Test 4: List operations to verify the type is preserved
+    LET first_item = HD(simple_list)
+    WRITEF("Test 4 - HD(simple_list) = %d*n", first_item)
+
+    LET second_item = HD(TL(simple_list))
+    WRITEF("Test 5 - HD(TL(simple_list)) = %d*n", second_item)
+
+    // Test 6: Explicit integer assignment for comparison
+    LET regular_int = 42
+    WRITEF("Test 6 - LET regular_int = 42: %d*n", regular_int)
+
+    // Test 7: Explicit float assignment for comparison
+    FLET regular_float = 3.14
+    WRITEF("Test 7 - FLET regular_float = 3.14: %f*n", regular_float)
+
+    WRITEF("List type inference test completed.*n")
+}

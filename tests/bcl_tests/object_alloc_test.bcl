@@ -1,0 +1,36 @@
+GET "libhdr"
+
+CLASS TestClass HAS
+    x: INTEGER
+    y: INTEGER
+
+MANIFEST {
+    SUCCESS = 0
+    FAILURE = 1
+}
+
+LET START() =
+    FORMS("Running object_alloc_test...%N")
+
+    LET obj = NEW TestClass()
+
+    IF obj = 0 THEN
+        FORMS("ERROR: Object allocation failed!%N")
+        RESULTIS FAILURE
+    ELSE
+        FORMS("Object allocated successfully. Setting members...%N")
+        obj.x := 123
+        obj.y := 456
+
+        FORMS("obj.x = %D%N", obj.x)
+        FORMS("obj.y = %D%N", obj.y)
+
+        IF obj.x = 123 AND obj.y = 456 THEN
+            FORMS("Object members set and retrieved correctly. Test PASSED.%N")
+            RESULTIS SUCCESS
+        ELSE
+            FORMS("ERROR: Object members mismatch. Test FAILED.%N")
+            RESULTIS FAILURE
+    ENDIF
+
+END

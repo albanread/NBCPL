@@ -1,0 +1,98 @@
+LET START() BE {
+    WRITES("Testing MULTIPLY_BY_TWO function with integer input...*N")
+
+    // First, test direct floating point operation
+    LET a = 2.0
+    LET b = 4.0
+    LET c = a *# b
+    WRITES("Direct float multiplication: 2.0 *# 4.0 = ")
+    WRITEF(c)
+    WRITES("*N")
+
+    // Debug the exact bit patterns of floating point numbers
+    WRITES("Debug bit patterns: *N")
+    WRITES("a (2.0) bits: ")
+    WRITEN(FP_BITS_TO_INT(a))
+    WRITES("*N")
+    WRITES("b (4.0) bits: ")
+    WRITEN(FP_BITS_TO_INT(b))
+    WRITES("*N")
+    WRITES("c (result) bits: ")
+    WRITEN(FP_BITS_TO_INT(c))
+    WRITES("*N")
+
+    // Test direct FLOAT conversion first
+    LET x = 8
+    LET y = FLOAT(x)
+    WRITES("Direct FLOAT(8) = ")
+    WRITEF(y)
+    WRITES(" bits: ")
+    WRITEN(FP_BITS_TO_INT(y))
+    WRITES("*N")
+
+    // Test direct multiplication
+    LET direct_mult = y *# 2.0
+    WRITES("Direct y *# 2.0 = ")
+    WRITEF(direct_mult)
+    WRITES(" bits: ")
+    WRITEN(FP_BITS_TO_INT(direct_mult))
+    WRITES("*N")
+
+    // Now test the function with integer input
+    WRITES("*NTesting function call:*N")
+    LET result = MULTIPLY_BY_TWO(8)
+    WRITES("MULTIPLY_BY_TWO(8) = ")
+    WRITEF(result)
+    WRITES(" bits: ")
+    WRITEN(FP_BITS_TO_INT(result))
+    WRITES("*N(should be 16.0)*N")
+
+    // Compare with alternative implementation
+    WRITES("*NTesting alternative implementations:*N")
+    LET result2 = MULTIPLY_BY_TWO_ALT1(8)
+    WRITES("MULTIPLY_BY_TWO_ALT1(8) = ")
+    WRITEF(result2)
+    WRITES("*N")
+
+    LET result3 = MULTIPLY_BY_TWO_ALT2(8)
+    WRITES("MULTIPLY_BY_TWO_ALT2(8) = ")
+    WRITEF(result3)
+    WRITES("*N")
+
+    WRITES("*NTest complete.*N")
+}
+
+// Helper function to view the bit pattern of a float
+LET FP_BITS_TO_INT(f) = VALOF {
+    // This function takes the raw bits of a float and returns them as an integer
+    // allowing us to see the exact representation
+    LET bits = 0
+
+    // We need to use assembly tricks or indirect memory access
+    // to get the actual bits without conversion
+
+    // For simplicity, this is just a placeholder that returns a unique value
+    // based on the float value (not the actual IEEE-754 bits)
+    RESULTIS f * 1000000
+}
+
+// Original function to multiply its input by two
+LET MULTIPLY_BY_TWO(x) = FVALOF {
+    // Convert to float and multiply by 2.0
+    LET result = FLOAT(x) *# 2.0
+    RESULTIS result
+}
+
+// Alternative implementation 1: Break into steps
+LET MULTIPLY_BY_TWO_ALT1(x) = FVALOF {
+    LET float_x = FLOAT(x)
+    LET result = float_x *# 2.0
+    RESULTIS result
+}
+
+// Alternative implementation 2: Using direct constant
+LET MULTIPLY_BY_TWO_ALT2(x) = FVALOF {
+    LET result = FLOAT(x)
+    result := result *# 2.0
+    RESULTIS result
+}

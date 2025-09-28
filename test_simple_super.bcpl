@@ -1,0 +1,53 @@
+// Simple SUPER call test to verify argument handling fix
+
+class Point(x, y) {
+    LET x_coord = x
+    LET y_coord = y
+
+    LET CREATE(init_x, init_y) BE {
+        x_coord := init_x
+        y_coord := init_y
+        WRITES("Point created*n")
+    }
+
+    LET get_x() = x_coord
+    LET get_y() = y_coord
+}
+
+class ColorPoint(x, y, color) EXTENDS Point {
+    LET color_value = color
+
+    LET CREATE(init_x, init_y, init_color) BE {
+        // This SUPER call should pass all 4 arguments correctly:
+        // X0 = _this, X1 = init_x, X2 = init_y, X3 = init_color
+        SUPER.CREATE(init_x, init_y)
+
+        color_value := init_color
+        WRITES("ColorPoint created with color: ")
+        WRITEN(init_color)
+        WRITES("*n")
+    }
+
+    LET get_color() = color_value
+}
+
+LET START() BE {
+    WRITES("Testing SUPER call argument handling...*n")
+
+    LET cp = NEW ColorPoint(10, 20, 255)
+
+    WRITES("Expected: x=10, y=20, color=255*n")
+    WRITES("Actual: x=")
+    WRITEN(cp.get_x())
+    WRITES(", y=")
+    WRITEN(cp.get_y())
+    WRITES(", color=")
+    WRITEN(cp.get_color())
+    WRITES("*n")
+
+    IF cp.get_color() = 255 THEN {
+        WRITES("SUCCESS: Color preserved correctly*n")
+    } ELSE {
+        WRITES("FAILURE: Color corrupted*n")
+    }
+}

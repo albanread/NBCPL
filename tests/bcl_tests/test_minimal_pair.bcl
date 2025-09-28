@@ -1,0 +1,29 @@
+// Minimal PAIR test - just test the most basic functionality
+LET START() BE {
+    writef("Minimal PAIR test starting...\n")
+
+    // Test 1: Simple PAIR creation and access
+    LET p = PAIR(5, 10)
+    writef("Created PAIR(5, 10)\n")
+
+    // Test 2: Access first element
+    LET first = p.first
+    writef("First: %d\n", first)
+
+    // Test 3: Access second element
+    LET second = p.second
+    writef("Second: %d\n", second)
+
+    // Test 4: Simple validation
+    TEST first = 5 THEN
+        writef("First value correct\n")
+    ELSE
+        writef("First value WRONG\n")
+
+    TEST second = 10 THEN
+        writef("Second value correct\n")
+    ELSE
+        writef("Second value WRONG\n")
+
+    writef("Minimal PAIR test completed.\n")
+}

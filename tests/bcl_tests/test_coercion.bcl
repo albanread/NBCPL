@@ -1,0 +1,48 @@
+// Test for assignment-level coercion
+// This tests the rule: LET variables are INTEGER, FLET variables are FLOAT
+// When assigning a float expression to a LET variable, it should be coerced to integer
+
+LET START() BE
+$(
+    // Test 1: Integer variable with float expression (should coerce)
+    // Expression evaluates to 6.0, should be coerced to integer 6
+    LET int_var = 1 + 2.5 * 2
+
+    // Test 2: Float variable with same expression (no coercion)
+    // Expression evaluates to 6.0, stored as 6.0
+    FLET float_var = 1 + 2.5 * 2
+
+    // Test 3: Integer variable with pure integer expression (no promotion or coercion)
+    LET pure_int = 3 * 4
+
+    // Test 4: Float variable with pure integer expression (should promote at assignment)
+    FLET promoted_float = 3 * 4
+
+    // Test 5: Coercion with truncation
+    LET truncated = 3.7 + 2.9  // Should be 6.6 -> 6
+
+    WRITEF("=== Assignment-Level Coercion Test ===*N")
+    WRITEF("*N")
+
+    WRITEF("Test 1 - LET int_var = 1 + 2.5 * 2:*N")
+    WRITEF("  Result: %d (expected: 6)*N", int_var)
+    WRITEF("*N")
+
+    WRITEF("Test 2 - FLET float_var = 1 + 2.5 * 2:*N")
+    WRITEF("  Result: %f (expected: 6.0)*N", float_var)
+    WRITEF("*N")
+
+    WRITEF("Test 3 - LET pure_int = 3 * 4:*N")
+    WRITEF("  Result: %d (expected: 12)*N", pure_int)
+    WRITEF("*N")
+
+    WRITEF("Test 4 - FLET promoted_float = 3 * 4:*N")
+    WRITEF("  Result: %f (expected: 12.0)*N", promoted_float)
+    WRITEF("*N")
+
+    WRITEF("Test 5 - LET truncated = 3.7 + 2.9:*N")
+    WRITEF("  Result: %d (expected: 6)*N", truncated)
+    WRITEF("*N")
+
+    WRITEF("=== Coercion test completed ===*N")
+$)

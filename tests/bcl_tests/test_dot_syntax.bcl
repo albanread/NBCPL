@@ -1,0 +1,17 @@
+CLASS Point$(
+    LET x, y
+$)
+
+LET START() BE {
+    LET p = NEW Point()
+
+    // Test: object.x := 100
+    p.x := 100
+    WRITEF("Set p.x = 100*N")
+
+    // Test: LET K = object.x
+    LET readX = p.x
+    WRITEF("Read back: x = %d *N", readX)
+
+    p.RELEASE()
+}

@@ -1,0 +1,66 @@
+// Simple test for SUPER call bug fix
+// This test creates a scenario where parameter values could be corrupted
+// if caller-saved registers are improperly used during SUPER calls
+
+CLASS Point $(
+    DECL x_coord, y_coord
+
+    ROUTINE CREATE(init_x, init_y) BE $(
+        x_coord := init_x
+        y_coord := init_y
+        WRITES("Created Point at (")
+        WRITEN(init_x)
+        WRITES(", ")
+        WRITEN(init_y)
+        WRITES(")*N")
+    $)
+
+    FUNCTION get_x() = VALOF $(
+        RESULTIS x_coord
+    $)
+
+    FUNCTION get_y() = VALOF $(
+        RESULTIS y_coord
+    $)
+$)
+
+CLASS ColorPoint EXTENDS Point $(
+    DECL color_value
+
+    // This constructor tests the call interval bug fix
+    ROUTINE CREATE(init_x, init_y, init_color) BE $(
+        // BUG SCENARIO: init_color might be stored in caller-saved register
+        // SUPER.CREATE call could overwrite it without the fix
+        SUPER.CREATE(init_x, init_y)
+        color_value := init_color
+
+        WRITES("Created ColorPoint with color: ")
+        WRITEN(init_color)
+        WRITES("*N")
+    $)
+
+    FUNCTION get_color() = VALOF $(
+        RESULTIS color_value
+    $)
+$)
+
+LET START() BE $(
+    WRITES("=== SUPER Call Bug Fix Test ===*N")
+
+    // Create a ColorPoint - this will test the bug fix
+    LET cp = NEW ColorPoint
+    cp.CREATE(100, 200, 255)
+
+    WRITES("Expected color: 255*N")
+    WRITES("Actual color: ")
+    WRITEN(cp.get_color())
+    WRITES("*N")
+
+    IF cp.get_color() = 255 THEN $(
+        WRITES("✓ PASS: Color preserved correctly*N")
+    $) ELSE $(
+        WRITES("✗ FAIL: Color corrupted - bug still present*N")
+    $)
+
+    WRITES("Test complete.*N")
+$)

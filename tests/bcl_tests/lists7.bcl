@@ -1,0 +1,11 @@
+LET START() BE
+$(
+   LET S = "This is the age of the train"
+   LET L = SPLIT(S," ")
+   FOREACH S IN L DO
+   $( 
+            WRITES("String: ")
+            WRITES(S)
+            WRITES("*N")
+    $)
+$)

@@ -1,0 +1,45 @@
+LET START() BE
+$(
+   WRITES("Testing comprehensive type validation*N")
+
+   // Valid list operations - should work
+   LET L = LIST("hello", "world")
+   LET H = HD(L)
+   LET T = TL(L)
+   LET R = REST(L)
+
+   WRITES("Valid operations completed successfully*N")
+   WRITES("Head: ")
+   WRITES(H)
+   WRITES("*N")
+
+   // Variables of different types for testing
+   LET X = 42              // INTEGER
+   LET Y = "string"        // STRING
+   LET Z = 3.14            // FLOAT
+   LET V = VEC(10)         // VECTOR
+
+   WRITES("Testing invalid operations (should show semantic errors):*N")
+
+   // These should all cause semantic errors during compilation:
+
+   // HD on non-list types
+   // LET BAD1 = HD(X)     // HD on integer
+   // LET BAD2 = HD(Y)     // HD on string
+   // LET BAD3 = HD(Z)     // HD on float
+   // LET BAD4 = HD(V)     // HD on vector
+
+   // TL on non-list types
+   // LET BAD5 = TL(X)     // TL on integer
+   // LET BAD6 = TL(Y)     // TL on string
+   // LET BAD7 = TL(Z)     // TL on float
+   // LET BAD8 = TL(V)     // TL on vector
+
+   // REST on non-list types
+   // LET BAD9 = REST(X)   // REST on integer
+   // LET BAD10 = REST(Y)  // REST on string
+   // LET BAD11 = REST(Z)  // REST on float
+   // LET BAD12 = REST(V)  // REST on vector
+
+   WRITES("Type validation test complete (errors should be shown above)*N")
+$)

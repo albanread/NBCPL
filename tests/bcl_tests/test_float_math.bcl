@@ -1,0 +1,66 @@
+GET "libhdr.h"
+
+LET START() = VALOF
+$(
+  WRITES("Testing FRND and float math functions*N")
+  WRITES("=========================================*N*N")
+
+  // Test FRND function
+  WRITES("Testing FRND() function:*N")
+  WRITES("FRND() results: ")
+  FOR i = 1 TO 5 DO
+  $(
+    LET f = FRND()
+    FWRITE(f)
+    WRITES(" ")
+  $)
+  WRITES("*N*N")
+
+  // Test FSIN function
+  WRITES("Testing FSIN() function:*N")
+  WRITES("FSIN(0.0) = ")
+  FWRITE(FSIN(0.0))
+  WRITES("*N")
+  WRITES("FSIN(1.57) = ")
+  FWRITE(FSIN(1.57))
+  WRITES(" (pi/2, should be ~1.0)*N*N")
+
+  // Test FCOS function
+  WRITES("Testing FCOS() function:*N")
+  WRITES("FCOS(0.0) = ")
+  FWRITE(FCOS(0.0))
+  WRITES(" (should be 1.0)*N")
+  WRITES("FCOS(1.57) = ")
+  FWRITE(FCOS(1.57))
+  WRITES(" (pi/2, should be ~0.0)*N*N")
+
+  // Test FEXP and FLOG functions
+  WRITES("Testing FEXP() and FLOG() functions:*N")
+  WRITES("FEXP(1.0) = ")
+  FWRITE(FEXP(1.0))
+  WRITES(" (should be ~2.718)*N")
+  WRITES("FLOG(2.718) = ")
+  FWRITE(FLOG(2.718))
+  WRITES(" (should be ~1.0)*N*N")
+
+  // Test FABS function
+  WRITES("Testing FABS() function:*N")
+  WRITES("FABS(-3.14) = ")
+  FWRITE(FABS(-3.14))
+  WRITES("*N")
+  WRITES("FABS(3.14) = ")
+  FWRITE(FABS(3.14))
+  WRITES("*N*N")
+
+  // Test FTAN function
+  WRITES("Testing FTAN() function:*N")
+  WRITES("FTAN(0.0) = ")
+  FWRITE(FTAN(0.0))
+  WRITES("*N")
+  WRITES("FTAN(0.785) = ")
+  FWRITE(FTAN(0.785))
+  WRITES(" (pi/4, should be ~1.0)*N*N")
+
+  WRITES("Float math function testing complete!*N")
+  RESULTIS 0
+$)

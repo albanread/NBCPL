@@ -1,0 +1,90 @@
+GET "libhdr.h"
+
+LET START() = VALOF
+$(
+  WRITES("Testing RAND and FRND functions*N")
+  WRITES("================================*N*N")
+
+  // Test RAND function with different ranges
+  WRITES("Testing RAND(x) function:*N")
+
+  WRITES("RAND(10) results: ")
+  FOR i = 1 TO 10 DO
+  $(
+    LET r = RAND(10)
+    WRITEN(r)
+    WRITES(" ")
+  $)
+  WRITES("*N*N")
+
+  WRITES("RAND(5) results: ")
+  FOR i = 1 TO 10 DO
+  $(
+    LET r = RAND(5)
+    WRITEN(r)
+    WRITES(" ")
+  $)
+  WRITES("*N*N")
+
+  WRITES("RAND(100) results: ")
+  FOR i = 1 TO 5 DO
+  $(
+    LET r = RAND(100)
+    WRITEN(r)
+    WRITES(" ")
+  $)
+  WRITES("*N*N")
+
+  // Test FRND function
+  WRITES("Testing FRND() function:*N")
+  WRITES("FRND() results: ")
+  FOR i = 1 TO 10 DO
+  $(
+    LET f = FRND()
+    FWRITE(f)
+    WRITES(" ")
+  $)
+  WRITES("*N*N")
+
+  // Test edge cases
+  WRITES("Testing edge cases:*N")
+  WRITES("RAND(0) = ")
+  WRITEN(RAND(0))
+  WRITES("*N")
+
+  WRITES("RAND(1) = ")
+  WRITEN(RAND(1))
+  WRITES("*N")
+
+  // Test using random numbers in calculations
+  WRITES("*NUsing random numbers in a simple simulation:*N")
+  LET total = 0
+  FOR i = 1 TO 100 DO
+  $(
+    LET r = RAND(10)
+    total := total + r
+  $)
+  WRITES("Sum of 100 RAND(10) calls: ")
+  WRITEN(total)
+  WRITES("*N")
+  WRITES("Average: ")
+  FWRITE(total / 100.0)
+  WRITES(" (should be around 5.0)*N*N")
+
+  // Test FRND in calculations
+  LET ftotal = 0.0
+  FOR i = 1 TO 100 DO
+  $(
+    LET f = FRND()
+    ftotal := ftotal + f
+  $)
+  WRITES("Sum of 100 FRND() calls: ")
+  FWRITE(ftotal)
+  WRITES("*N")
+  WRITES("Average: ")
+  FWRITE(ftotal / 100.0)
+  WRITES(" (should be around 0.5)*N*N")
+
+  WRITES("Random number testing complete!*N")
+  RESULTIS 0
+$)

@@ -1,0 +1,42 @@
+// Test file for universal expressions
+// This tests the new universal expression system where the compiler
+// automatically infers whether to use integer or float operations
+// based on operand types, without requiring special # operators.
+
+LET START() BE {
+    // Test basic arithmetic with mixed types
+    FLET x = 1.5 + 2        // Should use FADD (float + int -> float)
+    FLET y = 3 * 2.0        // Should use FMUL (int * float -> float)
+    LET z = 10 / 2         // Should use SDIV (int / int -> int)
+    FLET w = 10.0 / 3       // Should use FDIV (float / int -> float)
+
+    WRITEF("Mixed arithmetic: x=%f, y=%f, z=%d, w=%f*N", x, y, z, w)
+
+    // Test comparisons with mixed types
+    IF 1.5 > 1 THEN WRITEF("1.5 > 1 is true*N")
+    IF 2.0 = 2 THEN WRITEF("2.0 = 2 is true*N")
+    IF 3.14 < 4 THEN WRITEF("3.14 < 4 is true*N")
+
+    // Test chained operations
+    FLET result1 = 1.0 + 2 * 3     // Should be 1.0 + 6.0 = 7.0 (all float)
+    LET result2 = 1 + 2 * 3       // Should be 1 + 6 = 7 (all int)
+    FLET result3 = 1.5 * 2 + 3     // Should be 3.0 + 3.0 = 6.0 (all float)
+
+    WRITEF("Chained: result1=%f, result2=%d, result3=%f*N", result1, result2, result3)
+
+    // Test with variables
+    LET int_var = 5
+    LET float_var = 2.5
+
+    FLET sum = int_var + float_var      // Should use FADD
+    FLET product = int_var * float_var  // Should use FMUL
+    LET comparison = float_var > int_var // Should use FCMP
+
+    WRITEF("Variable ops: sum=%f, product=%f, comparison=%d*N", sum, product, comparison)
+
+    // Test subtraction and division
+    FLET diff = 10.0 - 3        // Should use FSUB
+    FLET quotient = 15 / 2.0    // Should use FDIV
+
+    WRITEF("More ops: diff=%f, quotient=%f*N", diff, quotient)
+}

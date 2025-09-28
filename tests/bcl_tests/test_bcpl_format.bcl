@@ -1,0 +1,10 @@
+LET START() BE {
+    LET number = 42
+    FLET pi = 3.14159
+
+    // Test BCPL-style format specifiers
+    WRITEF("Integer: *I*N", number)
+    WRITEF("Float: *F*N", pi)
+    WRITEF("Just newline*N")
+    WRITEF("Mixed: *I and *F*N", number, pi)
+}

@@ -1,0 +1,42 @@
+// Test program to verify visibility modifiers are parsed correctly
+
+CLASS TestClass $(
+    // Default visibility should be public
+    LET public_var = 42
+
+    PRIVATE:
+    LET private_var = 10
+    FUNCTION private_method() = private_var + 1
+
+    PROTECTED:
+    LET protected_var = 20
+    ROUTINE protected_method() = protected_var * 2
+
+    PUBLIC:
+    LET another_public_var = 30
+    FUNCTION get_public_var() = public_var
+    ROUTINE set_public_var(val) $(
+        public_var := val
+    $)
+$)
+
+CLASS DerivedClass EXTENDS TestClass $(
+    PUBLIC:
+    FUNCTION test_access() $(
+        // Should be able to access public and protected from parent
+        LET pub = get_public_var()
+        LET prot = protected_var
+
+        // This should fail in semantic analysis if implemented:
+        // LET priv = private_var  // Should be a semantic error
+
+        RESULTIS pub + prot
+    $)
+$)
+
+// Test instantiation and access
+LET obj = NEW TestClass()
+LET value = obj.get_public_var()  // Should work - public method
+// LET bad = obj.private_method()  // Should fail - private method
+
+WRITEF("Test visibility compiled successfully!*N")

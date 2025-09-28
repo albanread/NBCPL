@@ -1,0 +1,107 @@
+# Makefile for FILE Runtime API Test
+# Tests all FILE_ commands against the BCPL runtime
+
+# Compiler settings
+CXX = clang++
+CC = clang
+CXXFLAGS = -std=c++17 -Wall -Wextra -O2 -g
+CFLAGS = -std=c99 -Wall -Wextra -O2 -g
+
+# Directories
+RUNTIME_DIR = runtime
+HEAP_DIR = HeapManager
+BUILD_DIR = build/file_test
+
+# Target executable
+TARGET = $(BUILD_DIR)/test_file_runtime
+
+# Source files
+TEST_SRC = test_file_runtime.cpp
+RUNTIME_SRCS = $(RUNTIME_DIR)/RuntimeBridge.cpp \
+               $(HEAP_DIR)/HeapManager.cpp \
+               $(HEAP_DIR)/heap_c_wrappers.cpp \
+               $(HEAP_DIR)/heap_manager_globals.cpp \
+               $(HEAP_DIR)/Heap_allocString.cpp \
+               $(HEAP_DIR)/Heap_allocList.cpp \
+               $(HEAP_DIR)/Heap_allocVec.cpp \
+               $(HEAP_DIR)/Heap_allocObject.cpp \
+               $(HEAP_DIR)/Heap_free.cpp \
+               $(HEAP_DIR)/Heap_printMetrics.cpp \
+               $(HEAP_DIR)/Heap_dumpHeap.cpp \
+               $(HEAP_DIR)/Heap_dumpHeapSignalSafe.cpp \
+               $(HEAP_DIR)/Heap_resizeString.cpp \
+               $(HEAP_DIR)/Heap_resizeVec.cpp
+
+# Object files
+TEST_OBJ = $(BUILD_DIR)/test_file_runtime.o
+RUNTIME_OBJS = $(RUNTIME_SRCS:%.cpp=$(BUILD_DIR)/%.o)
+
+# Include directories
+INCLUDES = -I. -I$(RUNTIME_DIR) -I$(HEAP_DIR)
+
+# Libraries
+LIBS = -pthread
+
+# Create build directory
+$(BUILD_DIR):
+	mkdir -p $(BUILD_DIR)
+	mkdir -p $(BUILD_DIR)/$(RUNTIME_DIR)
+	mkdir -p $(BUILD_DIR)/$(HEAP_DIR)
+
+# Main target
+$(TARGET): $(BUILD_DIR) $(TEST_OBJ) $(RUNTIME_OBJS)
+	$(CXX) $(CXXFLAGS) -o $@ $(TEST_OBJ) $(RUNTIME_OBJS) $(LIBS)
+
+# Test source compilation
+$(BUILD_DIR)/test_file_runtime.o: test_file_runtime.cpp
+	$(CXX) $(CXXFLAGS) $(INCLUDES) -c $< -o $@
+
+# Runtime C++ source compilation
+$(BUILD_DIR)/%.o: %.cpp
+	$(CXX) $(CXXFLAGS) $(INCLUDES) -c $< -o $@
+
+# Runtime C source compilation
+$(BUILD_DIR)/%.o: %.c
+	$(CC) $(CFLAGS) $(INCLUDES) -c $< -o $@
+
+# Build and run test
+test: $(TARGET)
+	@echo "Running FILE Runtime API Test..."
+	@./$(TARGET)
+
+# Build only
+build: $(TARGET)
+
+# Clean build artifacts
+clean:
+	rm -rf $(BUILD_DIR)
+	rm -f test_*.txt test_*.dat
+
+# Clean test files only
+clean-tests:
+	rm -f test_*.txt test_*.dat *.txt *.dat
+
+# Debug build
+debug: CXXFLAGS += -DDEBUG -O0
+debug: CFLAGS += -DDEBUG -O0
+debug: $(TARGET)
+
+# Verbose build
+verbose: CXXFLAGS += -v
+verbose: CFLAGS += -v
+verbose: $(TARGET)
+
+# Show help
+help:
+	@echo "Available targets:"
+	@echo "  build       - Build the test executable"
+	@echo "  test        - Build and run the FILE API tests"
+	@echo "  debug       - Build with debug symbols and no optimization"
+	@echo "  clean       - Remove all build artifacts and test files"
+	@echo "  clean-tests - Remove only test files"
+	@echo "  help        - Show this help message"
+
+.PHONY: test build clean clean-tests debug verbose help
+
+# Default target
+.DEFAULT_GOAL := test

@@ -1,0 +1,27 @@
+LET START() BE
+$(
+   // Simple test for trailing comma fixes
+   WRITES("Testing trailing comma fixes*N")
+
+   // Test LIST with trailing comma
+   LET list_normal = LIST("a", "b")
+   LET list_trailing = LIST("a", "b",)
+   WRITES("LIST trailing comma: OK*N")
+
+   // Test VEC() with trailing comma
+   LET vec_normal = VEC("x", "y")
+   LET vec_trailing = VEC("x", "y",)
+   WRITES("VEC() trailing comma: OK*N")
+
+   // Test VEC[] with trailing comma
+   LET vecb_normal = VEC["p", "q"]
+   LET vecb_trailing = VEC["p", "q",]
+   WRITES("VEC[] trailing comma: OK*N")
+
+   // Test TABLE with trailing comma
+   LET table_normal = TABLE("i", "j")
+   LET table_trailing = TABLE("i", "j",)
+   WRITES("TABLE trailing comma: OK*N")
+
+   WRITES("All trailing comma tests passed!*N")
+$)

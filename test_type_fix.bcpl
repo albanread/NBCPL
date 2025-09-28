@@ -1,0 +1,1 @@
+LET START() BE { LET x = 1.5; LET y = 2; LET z = 3.7; WRITEF("%n %n %n*n", x, y, z) }

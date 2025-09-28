@@ -1,0 +1,12 @@
+// Minimal test to check PAIR token recognition
+// This should help debug the parsing issue
+
+LET start() BE {
+    writef("Testing PAIR token recognition...\n")
+
+    // Try the simplest possible PAIR expression
+    // If this fails, the issue is in lexing/parsing
+    LET simple = PAIR(1, 2)
+
+    writef("PAIR token test completed\n")
+}

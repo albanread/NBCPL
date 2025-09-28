@@ -1,0 +1,32 @@
+LET START() BE
+$(
+    
+
+    // 1. Allocate a floating-point vector
+    LET V = FVEC 5
+
+    IF V = 0 THEN
+    $(
+        WRITES("FAIL: FVEC allocation failed*N")
+        FINISH
+    $)
+
+    // 2. Populate it with float values using the float indirection operator '#'
+    FOR I = 0 TO 5 - 1 DO
+    $(
+        V!I := FLOAT(I) *# 2.5
+    $)
+
+    WRITES("Foreach float test:*N")
+
+    // 3. Iterate over the float vector and print each element
+    FOREACH e IN V DO
+    $(
+        WRITEF(e)
+        WRITEC(32) // Space
+    $)
+    WRITEC('*N') // Newline
+
+    // 4. Clean up
+    FREEVEC V
+$)

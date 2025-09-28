@@ -1,0 +1,30 @@
+// Debug test for WRITEF float formatting issue
+// Tests if WRITEF can properly format floating-point values
+
+LET START() BE $(
+    WRITEF("=== WRITEF Float Debug Test ===*N*N")
+
+    // Test 1: Simple float literal
+    WRITEF("Test 1 - Float literal: %f*N", 3.14159)
+
+    // Test 2: Float variable
+    LET pi = 3.14159
+    WRITEF("Test 2 - Float variable: %f*N", pi)
+
+    // Test 3: Float calculation
+    LET radius = 5.0
+    LET area = pi * radius * radius
+    WRITEF("Test 3 - Float calculation: %f*N", area)
+
+    // Test 4: Multiple float args
+    WRITEF("Test 4 - Multiple floats: %f and %f*N", pi, radius)
+
+    // Test 5: Mixed int and float
+    LET base_int = 42
+    WRITEF("Test 5 - Mixed: int=%d, float=%f*N", base_int, pi)
+
+    // Test 6: Simple integer (control test)
+    WRITEF("Test 6 - Integer: %d*N", base_int)
+
+    WRITEF("*N=== End Debug Test ===*N")
+$)

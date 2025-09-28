@@ -1,0 +1,27 @@
+LET START() BE $(
+
+
+LET P4 = PAIR(100, 200)
+LET x, y = P4
+WRITEF("x=%d, y=%d*N", x, y)
+
+LET P1 = PAIR(100,100)
+LET P2 = PAIR(10,5)
+LET P3 = P1+P2
+P3 := P3 * 2
+P3 := P3 + 1
+
+
+NEWLINE()
+WRITEN(P3.first)
+NEWLINE()
+WRITEN(P3.second)
+
+LET points = LIST(PAIR(10, 20), PAIR(30, 40))
+FOREACH x, y IN points DO $(
+        WRITEF("Point: (%d, %d)*N", x, y)
+$)
+
+
+
+$)

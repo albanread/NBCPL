@@ -1,0 +1,35 @@
+// Test for GLOBALS block feature with floating-point expressions referencing earlier globals
+// Tests that global float initializers can reference previously declared globals
+
+GLOBALS $(
+    FLET pi = 3.14159
+    FLET radius = 5.0
+    FLET area = pi * radius * radius
+    FLET circumference = 2.0 * pi * radius
+    LET base_int = 10
+    FLET mixed_calc = radius + base_int
+$)
+
+LET START() BE $(
+    WRITEF("Float Global Expression Test*N")
+    WRITEF("============================*N*N")
+
+    WRITEF("pi = %f*N", pi)
+    WRITEF("radius = %f*N", radius)
+    WRITEF("area = %f (should be ~78.54)*N", area)
+    WRITEF("circumference = %f (should be ~31.42)*N", circumference)
+    WRITEF("base_int = %d*N", base_int)
+    WRITEF("mixed_calc = %f (should be 15.0)*N", mixed_calc)
+
+    // Test that we can still modify float globals that were computed from expressions
+    LET old_area = area
+    area := area * 2.0
+    WRITEF("*NAfter doubling area:*N")
+    WRITEF("area changed from %f to %f*N", old_area, area)
+
+    // Test arithmetic with computed float globals
+    LET new_perimeter = circumference + 10.5
+    WRITEF("new_perimeter = %f*N", new_perimeter)
+
+    WRITEF("*N✅ Float global expression test completed!*N")
+$)

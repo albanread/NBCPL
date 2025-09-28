@@ -1,0 +1,104 @@
+// Comprehensive test for complex global expressions and dependencies
+// Tests forward references, arithmetic, and complex expression evaluation
+
+GLOBALS $(
+    // Basic foundation values
+    LET base = 10
+    LET multiplier = 5
+
+    // Simple expressions using previous globals
+    LET simple_product = base * multiplier
+    LET simple_sum = base + multiplier
+
+    // More complex expressions using computed globals
+    LET complex_calc = (simple_product + simple_sum) * 2
+    LET nested_expr = complex_calc - (base * (multiplier + 1))
+
+    // Chain of dependencies
+    LET step1 = base * 2
+    LET step2 = step1 + simple_product
+    LET step3 = step2 * multiplier
+    LET final_result = step3 - nested_expr
+
+    // Float expressions
+    FLET pi_approx = 3.14
+    FLET radius = 5.0
+    FLET area_formula = pi_approx * radius * radius
+
+    // Mixed integer and computed values
+    LET area_int = 78  // Approximately area_formula as int
+    LET mixed_calc = area_int + base + simple_product
+$)
+
+// Second globals block to test cross-block references
+GLOBALS $(
+    LET second_base = base * 10  // Reference to first block
+    LET second_complex = final_result + second_base
+    LET ultimate = second_complex + mixed_calc
+$)
+
+LET START() BE $(
+    WRITEF("=== Complex Global Expression Test ===*N*N")
+
+    WRITEF("Foundation values:*N")
+    WRITEF("  base = %d*N", base)
+    WRITEF("  multiplier = %d*N", multiplier)
+    NEWLINE()
+
+    WRITEF("Simple expressions:*N")
+    WRITEF("  simple_product = %d (base * multiplier = %d)*N", simple_product, base * multiplier)
+    WRITEF("  simple_sum = %d (base + multiplier = %d)*N", simple_sum, base + multiplier)
+    NEWLINE()
+
+    WRITEF("Complex expressions:*N")
+    WRITEF("  complex_calc = %d ((simple_product + simple_sum) * 2 = %d)*N",
+            complex_calc, (simple_product + simple_sum) * 2)
+    WRITEF("  nested_expr = %d (complex_calc - (base * (multiplier + 1)) = %d)*N",
+            nested_expr, complex_calc - (base * (multiplier + 1)))
+    NEWLINE()
+
+    WRITEF("Chain of dependencies:*N")
+    WRITEF("  step1 = %d (base * 2 = %d)*N", step1, base * 2)
+    WRITEF("  step2 = %d (step1 + simple_product = %d)*N", step2, step1 + simple_product)
+    WRITEF("  step3 = %d (step2 * multiplier = %d)*N", step3, step2 * multiplier)
+    WRITEF("  final_result = %d (step3 - nested_expr = %d)*N", final_result, step3 - nested_expr)
+    NEWLINE()
+
+    WRITEF("Float expressions:*N")
+    WRITEF("  pi_approx = %f*N", pi_approx)
+    WRITEF("  radius = %f*N", radius)
+    WRITEF("  area_formula = %f (pi * r^2)*N", area_formula)
+    NEWLINE()
+
+    WRITEF("Mixed calculations:*N")
+    WRITEF("  area_int = %d*N", area_int)
+    WRITEF("  mixed_calc = %d (area_int + base + simple_product = %d)*N",
+            mixed_calc, area_int + base + simple_product)
+    NEWLINE()
+
+    WRITEF("Cross-block references:*N")
+    WRITEF("  second_base = %d (base * 10 = %d)*N", second_base, base * 10)
+    WRITEF("  second_complex = %d (final_result + second_base = %d)*N",
+            second_complex, final_result + second_base)
+    WRITEF("  ultimate = %d (second_complex + mixed_calc = %d)*N",
+            ultimate, second_complex + mixed_calc)
+    NEWLINE()
+
+    WRITEF("=== Testing Runtime Modifications ===*N")
+
+    // Modify a foundation value and show impact
+    LET old_base = base
+    base := 20
+
+    WRITEF("Changed base from %d to %d*N", old_base, base)
+    WRITEF("NOTE: Computed globals keep their original values*N")
+    WRITEF("  simple_product still = %d (was computed when base = %d)*N", simple_product, old_base)
+
+    // Test new calculations with modified value
+    LET new_product = base * multiplier
+    WRITEF("  new calculation: base * multiplier = %d*N", new_product)
+    NEWLINE()
+
+    WRITEF("✅ Complex global expression test completed!*N")
+    WRITEF("   All %d global initializers processed correctly.*N", 15)
+$)

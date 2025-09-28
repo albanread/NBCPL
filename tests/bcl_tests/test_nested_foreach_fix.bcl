@@ -1,0 +1,44 @@
+LET START() BE {
+    LET list = LIST(1, 2, 3);
+    LET result = 0;
+
+    // This test specifically targets the bug where FOREACH loops
+    // inside FOR loops would inherit the FOR loop context incorrectly
+    FOR i = 1 TO 3 DO {
+        WRITEF("Starting FOR loop iteration %n*n", i);
+
+        // This FOREACH should have its own context and not interfere
+        // with the FOR loop's variable renaming logic
+        FOREACH item IN list DO {
+            LET temp = item + i;  // This should work correctly
+            result := result + temp;
+            WRITEF("  FOREACH item=%n, i=%n, temp=%n*n", item, i, temp);
+        }
+    }
+
+    WRITEF("Final result: %n*n", result);
+
+    // Test nested FOREACH loops to ensure they work correctly
+    LET list2 = LIST(10, 20);
+
+    FOREACH outer_item IN list DO {
+        WRITEF("Outer FOREACH item: %n*n", outer_item);
+
+        FOREACH inner_item IN list2 DO {
+            LET combined = outer_item + inner_item;
+            WRITEF("  Inner FOREACH: %n + %n = %n*n", outer_item, inner_item, combined);
+        }
+    }
+
+    // Test FOREACH inside function-like LET to verify the secondary fix
+    LET process_list(lst) = VALOF {
+        LET sum = 0;
+        FOREACH element IN lst DO {
+            sum := sum + element;
+        }
+        RESULTIS sum;
+    }
+
+    LET total = process_list(list);
+    WRITEF("Function result: %n*n", total);
+}

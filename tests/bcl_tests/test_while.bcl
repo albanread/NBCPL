@@ -1,0 +1,20 @@
+
+GET "libhdr.h"
+
+LET START() = VALOF
+$(
+
+  LET I = 0
+
+  WRITES("Initial I= ") WRITEN(I) WRITES("*N")
+
+  WHILE I ~= 10 DO
+  $(
+    I := I + 1
+    WRITES(" I = ") 
+    WRITEN(I) WRITEC(10)    
+  $)
+
+  WRITEN(I)
+  RESULTIS I
+$)

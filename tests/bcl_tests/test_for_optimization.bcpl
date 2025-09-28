@@ -1,0 +1,20 @@
+// Test case for FOR loop constant optimization
+// This file tests the new optimization that uses immediate values
+// for constant end and step expressions in FOR loops
+
+LET test_simple_for() = VALOF {
+    LET sum = 0
+
+    // Simple constant FOR loop - should be optimized
+    FOR i = 1 TO 10 DO {
+        sum := sum + i
+    }
+
+    RESULTIS sum
+}
+
+LET START() BE {
+    WRITEF("Testing simple FOR loop...*N")
+    LET result = test_simple_for()
+    WRITEF("Result: %d*N", result)
+}

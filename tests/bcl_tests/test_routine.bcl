@@ -1,0 +1,46 @@
+GET "libhdr.bcl"
+
+// Use GLOBAL to forward-declare a function name. This tells the compiler
+// that "FORWARD_DECLARED_FUNC" is a function before it sees the definition.
+GLOBAL $(
+    FORWARD_DECLARED_FUNC: 0
+$)
+
+// This function is defined in the standard way.
+LET SQUARE(x) = x * x
+
+// The main entry point for the program.
+ROUTINE START() BE $(
+    WRITES("--- Function Test Suite ---*N")
+
+    // Test 1: A standard function with parameters, defined in the typical way.
+    // This should work with or without our fix and serves as a control.
+    LET val1 = SQUARE(8)
+    WRITES("Test 1 (Standard): SQUARE(8) = ")
+    WRITEN(val1)
+    WRITES("*N")
+
+    // Test 2: The critical test case.
+    // This calls the function that was forward-declared. Without our fix,
+    // the compiler would fail here because it would misinterpret the
+    // function's definition as a variable assignment.
+    LET val2 = FORWARD_DECLARED_FUNC()
+    WRITES("Test 2 (Transformed): FORWARD_DECLARED_FUNC() = ")
+    WRITEN(val2)
+    WRITES("*N")
+
+    FINISH
+$)
+
+// --- Function Definitions ---
+
+
+
+// This is the function definition that tests our fix.
+// The parser sees `LET FORWARD_DECLARED_FUNC = ...` and creates a LetDeclaration.
+// The analyzer knows "FORWARD_DECLARED_FUNC" is a function from the GLOBAL block.
+// The new transform pass will convert this LetDeclaration into a FunctionDeclaration,
+// allowing the code generator to produce the correct code.
+LET FORWARD_DECLARED_FUNC = VALOF $(
+    RESULTIS 123
+$)

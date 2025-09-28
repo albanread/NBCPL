@@ -1,0 +1,26 @@
+LET START() BE {
+    // Test argument counting and order
+    WRITES("Testing argument order and counting:*n")
+
+    // Simple cases first
+    WRITEF("One arg: %d*n", 100)
+    WRITEF("Two args: %d %d*n", 100, 200)
+    WRITEF("Three args: %d %d %d*n", 100, 200, 300)
+
+    // Mixed types
+    WRITEF("Mixed 3 args: %s %f %d*n", "text", 9.99, 100)
+
+    // Different order
+    WRITEF("Different order: %d %s %f*n", 100, "text", 9.99)
+
+    // Test the failing case specifically
+    WRITEF("Order test: %s then %f then %d*n", "text", 9.99, 100)
+
+    // Test with variables
+    LET x = 100
+    FLET y = 9.99
+    LET z = "text"
+    WRITEF("With variables: %s then %f then %d*n", z, y, x)
+
+    WRITES("Debug test completed.*n")
+}

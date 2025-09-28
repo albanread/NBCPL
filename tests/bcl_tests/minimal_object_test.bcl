@@ -1,0 +1,65 @@
+// minimal_object_test.bcl - The most basic test for object creation and method calls
+
+CLASS SimpleObj $(
+    DECL value  // Single member variable
+
+    // Constructor - intentionally verbose for debugging
+    ROUTINE CREATE(initial_value) BE $(
+        WRITES("SimpleObj::CREATE called with value: ")
+        WRITEN(initial_value)
+        WRITES("\n")
+
+        value := initial_value
+
+        WRITES("Value assigned: ")
+        WRITEN(value)
+        WRITES("\n")
+    $)
+
+    // Simple getter method
+    FUNCTION getValue() = VALOF $(
+        WRITES("SimpleObj::getValue called, returning: ")
+        WRITEN(value)
+        WRITES("\n")
+        RESULTIS value
+    $)
+
+    // Simple setter method
+    ROUTINE setValue(new_value) BE $(
+        WRITES("SimpleObj::setValue called with: ")
+        WRITEN(new_value)
+        WRITES("\n")
+
+        value := new_value
+    $)
+
+    // Destructor
+    ROUTINE RELEASE() BE $(
+        WRITES("SimpleObj::RELEASE called - object being destroyed\n")
+    $)
+$)
+
+// Main function
+LET START() BE $(
+    WRITES("=== TEST BEGIN ===\n\n")
+
+    // Test regular object creation (manual CREATE call)
+    WRITES("Test 1: Manual object creation & initialization\n")
+    LET obj1 = NEW SimpleObj
+    WRITES("Object allocated\n")
+    obj1.CREATE(123)
+    WRITES("Object initialized\n")
+    WRITES("obj1.getValue() = ")
+    WRITEN(obj1.getValue())
+    WRITES("\n\n")
+
+    // Test the desugaring feature
+    WRITES("Test 2: Using the desugaring feature\n")
+    LET obj2 = NEW SimpleObj(456)
+    WRITES("obj2.getValue() = ")
+    WRITEN(obj2.getValue())
+    WRITES("\n")
+
+    // Test that destructor is called
+    WRITES("\n=== TEST END ===\n")
+$)

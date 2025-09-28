@@ -1,0 +1,46 @@
+// test_file_simple.bcpl
+// Simple test for the new file API
+
+LET START() BE {
+    WRITES("=== Simple File API Test ===\n")
+
+    // Test 1: Basic file write
+    WRITES("Test 1: Writing to file\n")
+
+    LET write_handle = FILE_OPEN_WRITE("simple_test.txt")
+    UNLESS write_handle DO {
+        WRITES("ERROR: Failed to open file for writing\n")
+        RETURN
+    }
+
+    LET bytes_written = FILE_WRITES(write_handle, "Hello File API!*N")
+    WRITEF("Wrote %n bytes\n", bytes_written)
+
+    LET close_result = FILE_CLOSE(write_handle)
+    TEST close_result = 0 THEN {
+        WRITES("File closed successfully\n")
+    } ELSE {
+        WRITES("Error closing file\n")
+    }
+
+    // Test 2: Basic file read
+    WRITES("Test 2: Reading from file\n")
+
+    LET read_handle = FILE_OPEN_READ("simple_test.txt")
+    UNLESS read_handle DO {
+        WRITES("ERROR: Failed to open file for reading\n")
+        RETURN
+    }
+
+    LET content = FILE_READS(read_handle)
+    TEST content = 0 THEN {
+        WRITES("ERROR: Failed to read file\n")
+    } ELSE {
+        WRITES("File content: ")
+        WRITES(content)
+    }
+
+    LET close_result2 = FILE_CLOSE(read_handle)
+
+    WRITES("=== Simple File API Test Complete ===\n")
+}

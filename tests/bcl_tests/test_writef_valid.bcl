@@ -1,0 +1,30 @@
+// Test file to verify valid WRITEF calls compile successfully
+// This file should NOT trigger any semantic errors
+
+LET START() BE {
+    LET format = "Number: %d*n"
+    LET float_format = "Float: %f*n"
+
+    // These should all be valid and not trigger errors:
+
+    // 1. WRITEF with string literal
+    WRITEF("Hello world*n")
+
+    // 2. WRITEF with string variable
+    WRITEF(format, 42)
+
+    // 3. WRITEF1 with string literal and one argument
+    WRITEF1("Value: %d*n", 123)
+
+    // 4. WRITEF2 with string literal and two arguments
+    WRITEF2("Values: %d %d*n", 10, 20)
+
+    // 5. WRITEF3 with string literal and three arguments including float
+    WRITEF3("Int: %d, Float: %f, String: %s*n", 42, 3.14, "test")
+
+    // 6. WRITEF with string variable for float formatting
+    WRITEF(float_format, 2.718)
+
+    // 7. WRITEF4 with mixed types
+    WRITEF4("Complex: %d %f %s %d*n", 1, 1.5, "middle", 999)
+}

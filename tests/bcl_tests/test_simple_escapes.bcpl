@@ -1,0 +1,11 @@
+// test_simple_escapes.bcpl
+// Simple test for escape sequence support
+
+LET START() BE {
+    WRITES("Testing basic escape sequences:\n")
+    WRITES("This is line 1\nThis is line 2\n")
+    WRITES("Tab test:\tIndented text\n")
+    WRITES("Quote test: \"Hello\"\n")
+    WRITES("Backslash test: \\\n")
+    WRITES("Test complete\n")
+}

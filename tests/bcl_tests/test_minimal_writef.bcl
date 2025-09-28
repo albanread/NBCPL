@@ -1,0 +1,12 @@
+GET "libhdr.h"
+
+// Minimal test for WRITEF debugging
+LET START() BE
+$(
+    WRITES("About to test WRITEF*n")
+
+    // Test just basic WRITEF with no arguments
+    WRITEF("Hello*n")
+
+    WRITES("WRITEF test complete*n")
+$)

@@ -1,0 +1,23 @@
+LET SQUARE(N) = VALOF $( RESULTIS N * N $)
+
+LET START() BE $(
+    LET Numbers = LIST(1, 2, 3, 4, 5)
+
+
+    LET SquaredNumbers = LIST() // Create a new, empty list
+
+
+    SETTYPE(SquaredNumbers, TYPE_POINTER | TYPE_LIST | TYPE_INT)
+    // Populate the new list with the squared numbers
+    FOREACH N IN Numbers DO $(
+        APND(SquaredNumbers, SQUARE(N))
+    $)
+
+    // Print the new list to verify its contents
+    WRITES("Squared list: ")
+    FOREACH S IN SquaredNumbers DO $(
+        WRITEN(S)
+        WRITES(" ")
+    $)
+    WRITES("*N") // Expected output: Squared list: 1 4 9 16 25
+$)

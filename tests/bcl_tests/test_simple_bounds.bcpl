@@ -1,0 +1,18 @@
+GET "libhdr"
+
+// Very simple test for compile-time bounds checking
+// Just one vector allocation and one out-of-bounds access
+
+LET START() BE
+{
+    // Simple vector with known size
+    LET v = VEC 3  // 3 elements: indices 0, 1, 2
+
+    // Valid access (should work)
+    v!0 := 42
+
+    // Invalid access (should trigger compile-time error)
+    LET bad = v!5  // Index 5 is out of bounds for size 3
+
+    writef("Test completed*n")
+}

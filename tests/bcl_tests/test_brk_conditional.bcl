@@ -1,0 +1,8 @@
+
+LET START() BE
+$(
+  LET Y = 9
+  Y := Y * 2
+  IF Y = 18 DO BRK
+  WRITEN(Y)
+$)

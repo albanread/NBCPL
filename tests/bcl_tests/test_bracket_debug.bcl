@@ -1,0 +1,79 @@
+// Detailed diagnostic test for VEC [1,2,3] bracket initialization
+
+LET START() BE
+$(
+    WRITES("=== DETAILED BRACKET VECTOR DIAGNOSTIC ==*N")
+
+    // Test 1: Basic bracket initialization with different sizes
+    WRITES("Test 1: Different vector sizes*N")
+
+    LET v1 = VEC [42]
+    WRITES("Single element - Length: ") WRITEN(LEN(v1)) WRITES(", Value: ") WRITEN(v1!0) WRITES("*N")
+
+    LET v2 = VEC [1, 2]
+    WRITES("Two elements - Length: ") WRITEN(LEN(v2)) WRITES(", Values: ")
+    WRITEN(v2!0) WRITES(" ") WRITEN(v2!1) WRITES("*N")
+
+    LET v3 = VEC [100, 200, 300]
+    WRITES("Three elements - Length: ") WRITEN(LEN(v3)) WRITES("*N")
+    WRITES("Values by index: ")
+    FOR i = 0 TO LEN(v3)-1 DO
+    $(
+        WRITES("v3!") WRITEN(i) WRITES("=") WRITEN(v3!i) WRITES(" ")
+    $)
+    WRITES("*N")
+
+    // Test 2: Compare with traditional VEC allocation
+    WRITES("*NTest 2: Compare with traditional syntax*N")
+    LET v_trad = VEC 3
+    v_trad!0 := 100
+    v_trad!1 := 200
+    v_trad!2 := 300
+
+    WRITES("Traditional VEC 3 - Length: ") WRITEN(LEN(v_trad)) WRITES("*N")
+    WRITES("Traditional values: ")
+    FOR i = 0 TO LEN(v_trad)-1 DO
+    $(
+        WRITEN(v_trad!i) WRITES(" ")
+    $)
+    WRITES("*N")
+
+    // Test 3: FOREACH behavior analysis
+    WRITES("*NTest 3: FOREACH detailed analysis*N")
+    WRITES("Bracket vector FOREACH: ")
+    LET count = 0
+    FOREACH x IN v3 DO
+    $(
+        count := count + 1
+        WRITES("[") WRITEN(count) WRITES(":") WRITEN(x) WRITES("] ")
+    $)
+    WRITES("*N")
+    WRITES("FOREACH iterated ") WRITEN(count) WRITES(" times*N")
+
+    WRITES("Traditional vector FOREACH: ")
+    count := 0
+    FOREACH x IN v_trad DO
+    $(
+        count := count + 1
+        WRITES("[") WRITEN(count) WRITES(":") WRITEN(x) WRITES("] ")
+    $)
+    WRITES("*N")
+    WRITES("FOREACH iterated ") WRITEN(count) WRITES(" times*N")
+
+    // Test 4: Edge cases
+    WRITES("*NTest 4: Edge cases*N")
+    LET v_empty = VEC []
+    WRITES("Empty vector - Length: ") WRITEN(LEN(v_empty)) WRITES("*N")
+
+    LET v_large = VEC [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+    WRITES("Large vector - Length: ") WRITEN(LEN(v_large)) WRITES("*N")
+    WRITES("Large vector FOREACH count: ")
+    count := 0
+    FOREACH x IN v_large DO
+    $(
+        count := count + 1
+    $)
+    WRITEN(count) WRITES("*N")
+
+    WRITES("*N=== DIAGNOSTIC COMPLETE ==*N")
+$)

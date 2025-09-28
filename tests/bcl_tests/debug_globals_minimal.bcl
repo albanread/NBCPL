@@ -1,0 +1,26 @@
+// Minimal debug test for GLOBALS feature
+// Single global variable to isolate the issue
+
+GLOBALS $(
+    LET test_global = 42
+$)
+
+LET START() BE $(
+    WRITES("=== Minimal Globals Debug ===")
+    NEWLINE()
+
+    WRITES("Reading test_global: ")
+    WRITEN(test_global)
+    NEWLINE()
+
+    WRITES("Setting test_global to 100...")
+    NEWLINE()
+    test_global := 100
+
+    WRITES("Reading test_global again: ")
+    WRITEN(test_global)
+    NEWLINE()
+
+    WRITES("=== End Debug ===")
+    NEWLINE()
+$)

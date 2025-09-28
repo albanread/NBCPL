@@ -1,0 +1,6 @@
+LET START() BE
+$(
+   LET L = LIST("a", "string", "list")
+   WRITES("List created successfully*N")
+   // No FOREACH - just create and let it go out of scope
+$)

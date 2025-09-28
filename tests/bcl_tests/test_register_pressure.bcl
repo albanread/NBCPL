@@ -1,0 +1,117 @@
+// Test to demonstrate register pressure issues in nested FOREACH loops
+// This test creates multiple levels of nesting to show how temporary variables
+// accumulate and cause register pressure.
+
+LET START() BE {
+    WRITEF("=== Register Pressure Test ===*N")
+
+    // Create vectors that will be used in nested loops
+    LET vec1 = VEC [1, 2, 3]
+    LET vec2 = VEC [10, 20]
+    LET vec3 = VEC [100]
+
+    WRITEF("Starting nested FOREACH loops...*N")
+
+    // Triple nested FOREACH - this should stress the register allocator
+    // Each loop creates 3 temporaries: _forEach_vec_*, _forEach_len_*, _forEach_idx_*
+    // With 3 nested loops, we have 9 temporary variables plus user variables
+    FOREACH outer IN vec1 DO {
+        WRITEF("Outer: %d", outer)
+        WRITEF("*N")
+
+        FOREACH middle IN vec2 DO {
+            WRITEF("  Middle: %d", middle)
+            WRITEF("*N")
+
+            FOREACH inner IN vec3 DO {
+                WRITEF("    Inner: %d", inner)
+                WRITEF("*N")
+
+                // EXTREME register pressure: create many live variables simultaneously
+                // This should force spilling with 10+ variables all live at once
+                LET a1 = outer + middle
+                LET a2 = middle + inner
+                LET a3 = outer * inner
+                LET a4 = a1 + a2
+                LET a5 = a2 * a3
+                LET a6 = a3 + a4
+                LET a7 = a4 * a5
+                LET a8 = a5 + a6
+                LET a9 = a6 * a7
+                LET a10 = a7 + a8
+                LET a11 = a8 * a9      // 11th variable - should force spilling
+                LET a12 = a9 + a10     // 12th variable - more spilling
+                LET a13 = a10 * a11    // 13th variable - even more spilling
+
+                // Function call while all variables are live (call-crossing pressure)
+                WRITEF("    Pressure test: %d", a1)
+                WRITEF("*N")
+
+                // More calculations using all live variables to keep them active
+                LET result1 = a1 + a2 + a3 + a4 + a5
+                LET result2 = a6 + a7 + a8 + a9 + a10
+                LET result3 = a11 + a12 + a13
+                LET final_result = result1 + result2 + result3
+
+                WRITEF("    Final: %d", final_result)
+                WRITEF("*N")
+            }
+        }
+    }
+
+    WRITEF("Nested loops completed.*N")
+
+    // Sequential FOREACH loops - these could reuse temporaries
+    WRITEF("Starting sequential FOREACH loops...*N")
+
+    // Additional pressure test: many sequential calculations
+    LET base1 = 100
+    LET base2 = 200
+    LET base3 = 300
+
+    LET seq1 = VEC [5, 6, 7]
+    FOREACH val1 IN seq1 DO {
+        // Create register pressure in sequential loops too
+        LET calc1 = val1 + base1
+        LET calc2 = val1 * base2
+        LET calc3 = val1 + base3
+        LET calc4 = calc1 + calc2
+        LET calc5 = calc2 * calc3
+        LET calc6 = calc3 + calc4
+        LET calc7 = calc4 * calc5
+        LET calc8 = calc5 + calc6
+        LET calc9 = calc6 * calc7
+        LET calc10 = calc7 + calc8
+        LET calc11 = calc8 * calc9    // Force spilling here too
+
+        WRITEF("Seq1 result: %d", calc11)
+        WRITEF("*N")
+    }
+
+    LET seq2 = VEC [8, 9, 10]
+    FOREACH val2 IN seq2 DO {
+        // More pressure with overlapping live ranges
+        LET p1 = val2 + base1 + base2
+        LET p2 = val2 * base2 + base3
+        LET p3 = val2 + base3 * base1
+        LET p4 = p1 + p2 + p3
+        LET p5 = p2 * p3 + p1
+        LET p6 = p3 + p4 * p2
+        LET p7 = p4 * p5 + p3
+        LET p8 = p5 + p6 * p4
+        LET p9 = p6 * p7 + p5
+        LET p10 = p7 + p8 * p6
+
+        WRITEF("Seq2 result: %d", p10)
+        WRITEF("*N")
+    }
+
+    LET seq3 = VEC [11, 12, 13]
+    FOREACH val3 IN seq3 DO {
+        WRITEF("Seq3: %d", val3)
+        WRITEF("*N")
+    }
+
+    WRITEF("Sequential loops completed.*N")
+    WRITEF("=== Test Complete ===*N")
+}

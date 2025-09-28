@@ -1,0 +1,7 @@
+LET START() BE
+$(
+   WRITES("Testing invalid HD operation on integer*N")
+   LET X = 42
+   LET INVALID = HD(X)  // This should cause a type error
+   WRITES("This should not print if validation works*N")
+$)

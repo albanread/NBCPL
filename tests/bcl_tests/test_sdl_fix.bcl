@@ -1,0 +1,80 @@
+// Test program to verify SDL2_DRAW_POINT register allocation fix
+// This should now display actual random points instead of nothing
+
+GET "sdlmanifest.bcl"
+
+LET START() BE
+$(
+    LET counter = 100
+    LET result = SDL2_INIT_SUBSYSTEMS(SDL2_INIT_VIDEO)
+
+    IF result = 0 THEN
+    $(
+        WRITES("SDL2 initialized successfully")
+        NEWLINE()
+
+        LET window = SDL2_CREATE_WINDOW("BCPL Test Fix")
+        IF window > 0 THEN
+        $(
+            WRITES("Window created")
+            NEWLINE()
+
+            LET renderer = SDL2_CREATE_RENDERER(window)
+            IF renderer > 0 THEN
+            $(
+                WRITES("Renderer created")
+                NEWLINE()
+
+                // Set background color (dark)
+                SDL2_SET_DRAW_COLOR(renderer, 10, 15, 25, 255)
+                SDL2_CLEAR(renderer)
+
+                // Set point color (bright green)
+                SDL2_SET_DRAW_COLOR(renderer, 0, 255, 100, 255)
+
+                LET running = TRUE
+                WHILE running DO
+                $(
+                    counter := counter - 1
+
+                    WRITES("Drawing test points...")
+                    NEWLINE()
+
+                    // Draw 50 random points
+                    FOR i = 1 TO 50 DO
+                    $(
+                       LET xx = RAND(400)
+                       LET yy = RAND(400)
+                       WRITEF("Point %N: x=%N y=%N*N", i, xx, yy)
+                       SDL2_DRAW_POINT(renderer, xx, yy)
+                    $)
+
+                    SDL2_PRESENT(renderer)
+                    SDL2_DELAY(200)
+
+                    LET event = SDL2_POLL_EVENT()
+                    IF event = SDL2_QUIT THEN running := FALSE
+                    IF counter < 1 THEN running := FALSE
+                $)
+
+                SDL2_DESTROY_RENDERER(renderer)
+            $) ELSE $(
+                WRITES("Failed to create renderer")
+                NEWLINE()
+            $)
+
+            SDL2_DESTROY_WINDOW(window)
+        $) ELSE $(
+            WRITES("Failed to create window")
+            NEWLINE()
+        $)
+
+        SDL2_QUIT()
+    $) ELSE $(
+        WRITES("SDL2 initialization failed")
+        NEWLINE()
+    $)
+
+    WRITES("Test complete")
+    NEWLINE()
+$)

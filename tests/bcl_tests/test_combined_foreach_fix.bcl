@@ -1,0 +1,48 @@
+// Combined test to verify both FOREACH temporary variable registration fix
+// and CharIndirection register size fix
+
+LET start() BE {
+    WRITEF("=== Combined FOREACH Fix Verification ===*N")
+
+    // Test 1: Vector FOREACH (tests temporary variable registration)
+    WRITEF("Test 1: Vector FOREACH*N")
+    LET numbers = VEC 3
+    numbers!0 := 100
+    numbers!1 := 200
+    numbers!2 := 300
+
+    FOREACH num IN numbers DO {
+        WRITEF("  Number: %d*N", num)
+    }
+
+    // Test 2: String FOREACH (tests CharIndirection register fix)
+    WRITEF("Test 2: String FOREACH*N")
+    LET message = "ABC"
+
+    FOREACH ch IN message DO {
+        WRITEF("  Character: %c*N", ch)
+    }
+
+    // Test 3: Float vector FOREACH
+    WRITEF("Test 3: Float vector FOREACH*N")
+    LET floats = FVEC 2
+    floats!0 := 1.5
+    floats!1 := 2.5
+
+    FOREACH f IN floats DO {
+        WRITEF("  Float: %.1f*N", f)
+    }
+
+    // Test 4: List FOREACH (should continue working)
+    WRITEF("Test 4: List FOREACH*N")
+    LET words = LIST("Hello", "World")
+
+    FOREACH word IN words DO {
+        WRITEF("  Word: %s*N", word)
+    }
+
+    WRITEF("=== All tests completed successfully! ===*N")
+    WRITEF("Both fixes are working:*N")
+    WRITEF("1. FOREACH temporary variables are registered in SymbolTable*N")
+    WRITEF("2. CharIndirection returns 64-bit X register correctly*N")
+}

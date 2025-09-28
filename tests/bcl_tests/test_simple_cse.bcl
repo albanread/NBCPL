@@ -1,0 +1,9 @@
+// Very simple CSE test to isolate the issue
+// This should create one assignment and one variable access
+
+LET START() BE
+$(
+    // Use the same string literal twice in a simple context
+    WRITEF("Test")
+    WRITEF("Test")
+$)

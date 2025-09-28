@@ -1,0 +1,11 @@
+LET START() BE
+$(
+  LET L = LIST("item", 100, 99.5)
+  FOREACH T,X IN L DO $(
+    SWITCHON T INTO $(
+        CASE TYPE_STRING: $( WRITES(AS_STRING(X)) ENDCASE $)
+        CASE TYPE_INT:    $( WRITEN(AS_INT(X))    ENDCASE $)
+        CASE TYPE_FLOAT:   $( WRITEF(AS_FLOAT(X))   ENDCASE $)
+    $)
+  $)
+$)

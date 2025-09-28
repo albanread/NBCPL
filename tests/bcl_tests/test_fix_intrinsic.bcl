@@ -1,0 +1,61 @@
+// Test file for FIX intrinsic functionality
+// This tests the new FIX compiler intrinsic that converts floats to integers
+
+LET START() BE {
+    WRITEF("Testing FIX intrinsic functionality*N")
+    WRITEF("==================================*N")
+
+    // Test 1: FIX with positive float
+    WRITEF("Test 1: FIX(3.14159)*N")
+    LET result1 = FIX(3.14159)
+    WRITEF("Result: %d (expected: 3)*N", result1)
+
+    // Test 2: FIX with negative float
+    WRITEF("*NTest 2: FIX(-2.718)*N")
+    LET result2 = FIX(-2.718)
+    WRITEF("Result: %d (expected: -2)*N", result2)
+
+    // Test 3: FIX with zero
+    WRITEF("*NTest 3: FIX(0.0)*N")
+    LET result3 = FIX(0.0)
+    WRITEF("Result: %d (expected: 0)*N", result3)
+
+    // Test 4: FIX with large positive float
+    WRITEF("*NTest 4: FIX(1234.56789)*N")
+    LET result4 = FIX(1234.56789)
+    WRITEF("Result: %d (expected: 1234)*N", result4)
+
+    // Test 5: FIX with float variable
+    WRITEF("*NTest 5: FIX with float variable*N")
+    FLET test_value = 42.999
+    LET result5 = FIX(test_value)
+    WRITEF("FIX(42.999) = %d (expected: 42)*N", result5)
+
+    // Test 6: FIX with float expression
+    WRITEF("*NTest 6: FIX with float expression*N")
+    FLET a = 10.7
+    FLET b = 3.2
+    LET result6 = FIX(a +# b)
+    WRITEF("FIX(10.7 +# 3.2) = %d (expected: 13)*N", result6)
+
+    // Test 7: FIX with integer (should pass through)
+    WRITEF("*NTest 7: FIX with integer operand*N")
+    LET int_val = 99
+    LET result7 = FIX(int_val)
+    WRITEF("FIX(99) = %d (expected: 99)*N", result7)
+
+    // Test 8: FIX in arithmetic expression
+    WRITEF("*NTest 8: FIX in arithmetic context*N")
+    FLET float_val = 5.8
+    LET result8 = FIX(float_val) + 10
+    WRITEF("FIX(5.8) + 10 = %d (expected: 15)*N", result8)
+
+    // Test 9: Nested FIX calls (should be no-op for integer)
+    WRITEF("*NTest 9: Nested FIX calls*N")
+    FLET nested_val = 7.3
+    LET result9 = FIX(FIX(nested_val))
+    WRITEF("FIX(FIX(7.3)) = %d (expected: 7)*N", result9)
+
+    WRITEF("*N==================================*N")
+    WRITEF("FIX intrinsic tests completed*N")
+}

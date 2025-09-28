@@ -1,0 +1,42 @@
+// Focused test to trace exactly what happens with double-free attempts
+// This test will help identify where the second FREEVEC call gets blocked
+
+LET START() BE
+{
+    WRITEF("=== Focused Double-Free Test ===*N")
+
+    // Single vector allocation
+    WRITEF("Step 1: Allocating vector*N")
+    LET test_vec = VEC 3
+
+    // Initialize vector
+    test_vec!0 := 42
+    test_vec!1 := 84
+    test_vec!2 := 126
+
+    WRITEF("Step 2: Vector allocated and initialized*N")
+    WRITEF("  test_vec[0] = %d*N", test_vec!0)
+    WRITEF("  test_vec[1] = %d*N", test_vec!1)
+    WRITEF("  test_vec[2] = %d*N", test_vec!2)
+
+    // First FREEVEC call
+    WRITEF("*NStep 3: First FREEVEC call (should succeed)*N")
+    WRITEF("About to call FREEVEC(test_vec) - first time*N")
+    FREEVEC(test_vec)
+    WRITEF("First FREEVEC call completed*N")
+
+    // Second FREEVEC call
+    WRITEF("*NStep 4: Second FREEVEC call (should be detected as double-free)*N")
+    WRITEF("About to call FREEVEC(test_vec) - second time*N")
+    FREEVEC(test_vec)
+    WRITEF("Second FREEVEC call completed*N")
+
+    // Third FREEVEC call (just to be thorough)
+    WRITEF("*NStep 5: Third FREEVEC call (also should be detected)*N")
+    WRITEF("About to call FREEVEC(test_vec) - third time*N")
+    FREEVEC(test_vec)
+    WRITEF("Third FREEVEC call completed*N")
+
+    WRITEF("*N=== Test Complete ===*N")
+    WRITEF("If you see all completion messages, double-free detection is not working*N")
+}

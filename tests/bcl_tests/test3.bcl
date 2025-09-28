@@ -1,0 +1,6 @@
+LET START() BE $(
+
+LET p1 = PAIR(100,200)
+WRITEF("Pair1 = %P", p1)
+
+$)

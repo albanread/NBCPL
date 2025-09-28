@@ -1,0 +1,18 @@
+// minimal_file_test.bcl
+// Minimal test to verify basic BCPL compilation and FILE_ API availability
+
+LET START() = VALOF {
+    WRITEF("Minimal FILE_ API Test*N")
+
+    // Test basic FILE_ function compilation
+    LET handle = FILE_OPEN_WRITE("minimal_test.txt")
+
+    TEST handle = 0 THEN {
+        WRITEF("ERROR: Cannot open file*N")
+        RESULTIS 1
+    } ELSE {
+        WRITEF("SUCCESS: File opened*N")
+        FILE_CLOSE(handle)
+        RESULTIS 0
+    }
+}

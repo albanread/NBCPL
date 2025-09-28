@@ -1,0 +1,1 @@
+Error: Multiple input files specified or unknown argument: --debug

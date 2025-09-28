@@ -1,0 +1,52 @@
+// test_object_vtable_fix.bcl
+// Minimal test to verify object allocation and vtable setup works correctly
+
+CLASS TestClass $(
+    DECL value
+
+    ROUTINE setValue(newValue) BE $(
+        value := newValue
+    $)
+
+    FUNCTION getValue() = VALOF $(
+        RESULTIS value
+    $)
+$)
+
+LET START() BE $(
+    WRITES("=== Object Vtable Fix Test ===*N")
+
+    // Test 1: Basic object allocation
+    WRITES("Test 1: Allocating object...*N")
+    LET obj = NEW TestClass
+
+    IF obj = 0 THEN $(
+        WRITES("ERROR: Object allocation failed!*N")
+        RETURN
+    $)
+
+    WRITES("SUCCESS: Object allocated at address ")
+    WRITEN(obj)
+    WRITES("*N")
+
+    // Test 2: Method call (vtable dispatch)
+    WRITES("Test 2: Testing method calls...*N")
+
+    obj.setValue(42)
+    WRITES("Called setValue(42)*N")
+
+    LET result = obj.getValue()
+    WRITES("Called getValue(), result = ")
+    WRITEN(result)
+    WRITES("*N")
+
+    IF result = 42 THEN $(
+        WRITES("SUCCESS: Method calls work correctly!*N")
+    $) ELSE $(
+        WRITES("ERROR: Method calls failed! Expected 42, got ")
+        WRITEN(result)
+        WRITES("*N")
+    $)
+
+    WRITES("=== Test Complete ===*N")
+$)

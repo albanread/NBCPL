@@ -1,0 +1,16 @@
+LET START() BE
+$(
+  LET a = 1
+  LET b = 2
+  LET c = 3
+  LET d = 4
+  LET e = 5
+  LET f = 6
+  LET g = 7
+  LET h = 8
+  LET i = 9
+  LET j = 10
+
+  WRITES("Values: ")
+  WRITEN(a+b+c+d+e+f+g+h+i+j)
+$)

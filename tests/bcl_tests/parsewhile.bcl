@@ -1,0 +1,12 @@
+LET START() BE
+$(
+    LET x = 10
+    WHILE x > 0 DO
+    $(
+        LET temp = x * 2
+        LET result = temp + 5
+        WRITES("Value: ")
+        WRITEN(result)
+        x := x - 1
+    $)
+$)

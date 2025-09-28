@@ -1,0 +1,4 @@
+LET START() BE {
+    LET number = 42
+    WRITEF("%d", number)
+}

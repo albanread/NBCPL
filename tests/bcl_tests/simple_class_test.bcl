@@ -1,0 +1,46 @@
+// simple_class_test.bcl - Test for class member variable initialization
+
+CLASS TestClass $(
+    LET x = 123
+    LET y = 456
+    FLET z = 3.14
+
+    ROUTINE CREATE() BE $(
+        WRITES("TestClass created with initialized members:*N")
+        WRITES("x = ")
+        WRITEN(x)
+        WRITES("y = ")
+        WRITEN(y)
+        WRITES("z = ")
+        WRITEN(z)
+        WRITES("*N")
+    $)
+
+    ROUTINE modifyValues(newX, newY) BE $(
+        x := newX
+        y := newY
+        z := 9.99
+
+        WRITES("Modified values:*N")
+        WRITES("x = ")
+        WRITEN(x)
+        WRITES("y = ")
+        WRITEN(y)
+        WRITES("z = ")
+        WRITEN(z)
+        WRITES("*N")
+    $)
+$)
+
+LET START() BE $(
+    WRITES("Testing class member initialization*N")
+    WRITES("===================================*N*N")
+
+    // Create a new instance - this should automatically initialize x, y, z
+    LET obj = NEW TestClass
+
+    // Now modify values
+    obj.modifyValues(789, 999)
+
+    WRITES("*NTest completed*N")
+$)

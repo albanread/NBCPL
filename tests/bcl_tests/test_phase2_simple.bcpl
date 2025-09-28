@@ -1,0 +1,25 @@
+// Minimal test to validate Phase 2 call-site aware register allocation
+
+LET helper(x) BE
+{
+    writef("Helper: %d*n", x)
+}
+
+LET START() BE
+{
+    // Variable that crosses a function call
+    LET cross_call_var = 100
+
+    writef("Before call: %d*n", cross_call_var)
+
+    // Function call - cross_call_var should get callee-saved register
+    helper(42)
+
+    writef("After call: %d*n", cross_call_var)
+
+    // Local-only variable (doesn't cross calls)
+    LET local_var = 200
+    writef("Local only: %d*n", local_var)
+
+    FINISH
+}

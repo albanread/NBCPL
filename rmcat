@@ -1,0 +1,26 @@
+#!/bin/bash
+
+# This script finds all .cpp and .h files in the current directory and its
+# subdirectories whose names contain "register" or start with "rm_",
+# and concatenates them into a single file, rmcombined.txt.
+
+OUTPUT_FILE="rmcombined.txt"
+
+# Clear the output file to start fresh
+> "$OUTPUT_FILE"
+
+# Find all relevant files
+# The find command uses -o for OR and groups conditions with parentheses.
+FILES=$(find . -type f \( -name "*register*.cpp" -o -name "*register*.h" -o -name "rm_*.cpp" -o -name "rm_*.h" \))
+
+# Loop through the found files and concatenate them with comments
+for FILE in $FILES; do
+    # Strip the leading './' from the filename for a cleaner look
+    CLEAN_NAME="${FILE#./}"
+    
+    echo "// -- start of file: $CLEAN_NAME" >> "$OUTPUT_FILE"
+    cat "$FILE" >> "$OUTPUT_FILE"
+    echo -e "\n// -- end of file\n" >> "$OUTPUT_FILE"
+done
+
+echo "Concatenated register manager files into $OUTPUT_FILE"

@@ -1,0 +1,33 @@
+GET "runtime.bcl"
+
+LET START() BE $(
+  LET x = 5
+  LET y = 10
+
+  // Test 1: Missing semicolon/statement separator
+  WRITES("Test 1*N")
+  WRITES("Missing separator*N"
+
+  // Test 2: Invalid token sequence
+  LET z = + * 5
+
+  // Test 3: Unclosed parentheses
+  IF (x > y THEN $(
+    WRITES("Unclosed paren*N")
+  $)
+
+  // Test 4: Missing THEN/DO after IF
+  IF x > 5 $(
+    WRITES("Missing THEN*N")
+  $)
+
+  // Test 5: Invalid assignment target
+  5 := x
+
+  // Test 6: Missing closing brace
+  IF x > 0 THEN $(
+    WRITES("Missing brace*N")
+  // Missing $)
+
+  WRITES("Should never reach here*N")
+$)

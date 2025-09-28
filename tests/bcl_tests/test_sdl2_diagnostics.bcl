@@ -1,0 +1,121 @@
+// test_sdl2_diagnostics.bcl
+// SDL2 diagnostic test program to verify library functionality without GUI
+
+LET start() BE {
+    WRITEF("SDL2 Diagnostic Test\n")
+    WRITEF("====================\n")
+
+    // Test 1: Get SDL2 version
+    WRITEF("Test 1: SDL2 Version\n")
+    LET version = SDL2_GET_VERSION()
+    WRITEF("SDL2 version code: %d\n", version)
+
+    IF version > 0 THEN {
+        LET major = version / 1000
+        LET remainder = version REM 1000
+        LET minor = remainder / 100
+        LET patch = remainder REM 100
+        WRITEF("SDL2 version: %d.%d.%d\n", major, minor, patch)
+        WRITEF("✅ SDL2 version detection: PASS\n")
+    } ELSE {
+        WRITEF("❌ SDL2 version detection: FAIL\n")
+    }
+
+    // Test 2: Get number of video drivers
+    WRITEF("\nTest 2: Video Drivers\n")
+    LET num_drivers = SDL2_GET_VIDEO_DRIVERS()
+    WRITEF("Number of video drivers: %d\n", num_drivers)
+
+    IF num_drivers > 0 THEN {
+        WRITEF("✅ Video drivers available: PASS\n")
+    } ELSE {
+        WRITEF("❌ No video drivers found: FAIL\n")
+    }
+
+    // Test 3: Get current video driver (might be empty before init)
+    WRITEF("\nTest 3: Current Video Driver\n")
+    LET driver = SDL2_GET_CURRENT_VIDEO_DRIVER()
+    WRITEF("Current video driver: ")
+    IF driver = 0 THEN {
+        WRITEF("(none - not initialized)\n")
+    } ELSE {
+        WRITES(driver)
+        WRITEF("\n")
+    }
+
+    // Test 4: Basic SDL2 functionality test
+    WRITEF("\nTest 4: Basic SDL2 Functionality\n")
+    LET basic_test = SDL2_TEST_BASIC()
+    WRITEF("Basic test result: %d\n", basic_test)
+
+    SWITCHON basic_test INTO {
+        CASE 0:
+            WRITEF("✅ Basic SDL2 functionality: PASS\n")
+            ENDCASE
+
+        CASE -1:
+            WRITEF("❌ SDL2 version too old: FAIL\n")
+            ENDCASE
+
+        CASE -2:
+            WRITEF("❌ No video drivers available: FAIL\n")
+            ENDCASE
+
+        CASE -3:
+            WRITEF("❌ Failed to initialize timer subsystem: FAIL\n")
+            ENDCASE
+
+        CASE -4:
+            WRITEF("❌ Failed to get platform info: FAIL\n")
+            ENDCASE
+
+        DEFAULT:
+            WRITEF("❌ Unknown error code: FAIL\n")
+            ENDCASE
+    }
+
+    // Test 5: Try minimal SDL2 initialization
+    WRITEF("\nTest 5: SDL2 Initialization\n")
+    LET init_result = SDL2_INIT()
+    WRITEF("SDL2_INIT result: %d\n", init_result)
+
+    IF init_result = 0 THEN {
+        WRITEF("✅ SDL2 video initialization: PASS\n")
+
+        // Now test current video driver after init
+        WRITEF("\nCurrent video driver after init: ")
+        LET driver_after = SDL2_GET_CURRENT_VIDEO_DRIVER()
+        IF driver_after = 0 THEN {
+            WRITEF("(still none)\n")
+        } ELSE {
+            WRITES(driver_after)
+            WRITEF("\n")
+        }
+
+        // Test display modes
+        LET display_modes = SDL2_GET_DISPLAY_MODES()
+        WRITEF("Display modes available: %d\n", display_modes)
+
+        IF display_modes > 0 THEN {
+            WRITEF("✅ Display modes available: PASS\n")
+        } ELSE {
+            WRITEF("❌ No display modes or error: %d\n", display_modes)
+        }
+
+        // Clean up
+        SDL2_QUIT()
+        WRITEF("SDL2 cleanup completed\n")
+    } ELSE {
+        WRITEF("❌ SDL2 video initialization: FAIL\n")
+
+        // Check for SDL2 error
+        LET error_msg = SDL2_GET_ERROR()
+        IF error_msg ~= 0 THEN {
+            WRITEF("SDL2 Error: ")
+            WRITES(error_msg)
+            WRITEF("\n")
+        }
+    }
+
+    WRITEF("\n=== SDL2 Diagnostic Test Complete ===\n")
+}

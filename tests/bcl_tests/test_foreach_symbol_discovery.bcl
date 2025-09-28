@@ -1,0 +1,63 @@
+LET start() BE
+{
+    // Test basic FOREACH loop to verify symbol discovery
+    LET my_list = VEC 5
+    my_list!0 := 10
+    my_list!1 := 20
+    my_list!2 := 30
+    my_list!3 := 40
+    my_list!4 := 50
+
+    WRITES("Testing FOREACH loop with symbol discovery fix:*N")
+
+    // Basic FOREACH - should register 'item' in symbol table during discovery
+    FOREACH item IN my_list DO
+    {
+        WRITEF("Item: %D*N", item)
+    }
+
+    // FOREACH with type variable - should register both 'T' and 'value'
+    FOREACH T, value IN my_list DO
+    {
+        WRITEF("Type: %D, Value: %D*N", T, value)
+    }
+
+    // Test nested FOREACH loops to verify proper scoping
+    LET nested_list = VEC 3
+    nested_list!0 := 100
+    nested_list!1 := 200
+    nested_list!2 := 300
+
+    WRITES("Testing nested FOREACH loops:*N")
+    FOREACH outer_item IN my_list DO
+    {
+        WRITEF("Outer item: %D*N", outer_item)
+        FOREACH inner_item IN nested_list DO
+        {
+            WRITEF("  Inner item: %D*N", inner_item)
+        }
+    }
+
+    // Test FOREACH followed by other loop types to check state isolation
+    WRITES("Testing FOREACH followed by WHILE loop:*N")
+    FOREACH x IN my_list DO
+    {
+        WRITEF("FOREACH x: %D*N", x)
+    }
+
+    LET counter = 0
+    WHILE counter < 3 DO
+    {
+        WRITEF("WHILE counter: %D*N", counter)
+        counter := counter + 1
+    }
+
+    // Test FOREACH with complex expressions
+    WRITES("Testing FOREACH with complex collection expression:*N")
+    FOREACH element IN (my_list) DO
+    {
+        WRITEF("Complex element: %D*N", element)
+    }
+
+    WRITES("All FOREACH symbol discovery tests completed.*N")
+}

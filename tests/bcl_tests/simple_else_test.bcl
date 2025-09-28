@@ -1,0 +1,11 @@
+GET "runtime.bcl"
+
+LET START() BE $(
+  LET x = 5
+
+  TEST x > 10 THEN $(
+    WRITES("Big*N")
+  $) ELSE $(
+    WRITES("Small*N")
+  $)
+$)

@@ -1,0 +1,21 @@
+GET "libhdr"
+
+// Simple test to verify VEC allocation works without RELEASE method error
+LET START() BE
+{
+    LET v = VEC 10  // This should now work without trying to call v.RELEASE()
+
+    // Set some values
+    v!0 := 42
+    v!1 := 13
+    v!2 := 99
+
+    // Print the values to verify it works
+    writef("v!0 = %n*n", v!0)
+    writef("v!1 = %n*n", v!1)
+    writef("v!2 = %n*n", v!2)
+
+    writef("VEC allocation test completed successfully*n")
+
+    // Variable should be automatically cleaned up with FREEVEC when leaving scope
+}

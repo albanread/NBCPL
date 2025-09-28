@@ -1,0 +1,34 @@
+// Simple test for the new veneer system using basic runtime functions
+// This test uses only WRITES, WRITEF, RAND, and NEWLINE to debug veneer generation
+
+LET START() BE $(
+    WRITES("=== Simple Veneer System Test ===")
+    NEWLINE()
+    NEWLINE()
+
+    WRITES("Testing WRITES function...")
+    NEWLINE()
+
+    WRITES("Testing WRITEF function with integer:")
+    NEWLINE()
+    WRITEF("Number: %d*N", 42)
+
+    WRITES("Testing RAND function:")
+    NEWLINE()
+    LET random_num = RAND(100)
+    WRITEF("RAND(100) = %d*N", random_num)
+
+    WRITES("Testing multiple RAND calls:")
+    NEWLINE()
+    FOR i = 1 TO 5000 DO $(
+        LET r = RAND(10)
+        WRITEF("  RAND(10) = %d*N", r)
+    $)
+
+    NEWLINE()
+    WRITES("Testing NEWLINE function (should see blank line above)")
+    NEWLINE()
+
+    WRITES("All basic external function tests completed!")
+    NEWLINE()
+$)

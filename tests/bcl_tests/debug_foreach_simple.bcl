@@ -1,0 +1,14 @@
+LET START() BE
+$(
+   WRITES("Starting test*N")
+   LET L = LIST("hello", "world")
+   WRITES("Created list*N")
+   WRITES("About to enter FOREACH*N")
+   FOREACH S IN L DO
+   $(
+            WRITES("In loop with: ")
+            WRITES(S)
+            WRITES("*N")
+    $)
+   WRITES("FOREACH complete*N")
+$)

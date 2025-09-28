@@ -1,0 +1,34 @@
+// Test file for PAIR destructuring assignment
+// This tests the new LET x,y = somePair syntax
+
+LET p = PAIR(100, 200)
+WRITEF("Original pair: first=%d, second=%d*N", p.first, p.second)
+
+// Test basic destructuring
+LET x, y = p
+WRITEF("After destructuring: x=%d, y=%d*N", x, y)
+
+// Test with computed PAIR
+LET a, b = PAIR(x + 10, y - 50)
+WRITEF("Computed destructuring: a=%d, b=%d*N", a, b)
+
+// Test with PAIR expression
+LET p2 = PAIR(5, 7)
+LET sum_pair = p + p2
+LET c, d = sum_pair
+WRITEF("Expression destructuring: c=%d, d=%d*N", c, d)
+
+// Test FPAIR destructuring
+FLET fp = FPAIR(3.14, 2.71)
+WRITEF("Original FPAIR: first=%.2f, second=%.2f*N", fp.first, fp.second)
+
+FLET fx, fy = fp
+WRITEF("FPAIR destructuring: fx=%.2f, fy=%.2f*N", fx, fy)
+
+// Test mixed operations after destructuring
+LET result_x = x * 2
+LET result_y = y + 100
+WRITEF("Mixed operations: result_x=%d, result_y=%d*N", result_x, result_y)
+
+NEWLINE()
+WRITEF("All destructuring tests completed successfully!*N")

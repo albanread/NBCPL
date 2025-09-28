@@ -1,0 +1,17 @@
+CLASS Point$(
+    LET x, y
+$)
+
+LET START() BE {
+    LET p = NEW Point()
+
+    // Test write: object.x := 100
+    p.x := 10
+    p.y := 20
+
+    // Test read: LET K = object.x
+    LET a = p.x
+    LET b = p.y
+
+    p.RELEASE()
+}

@@ -1,0 +1,4 @@
+// Minimal test to verify basic compilation
+LET start() BE $(
+    WRITEF("Hello, World!*N")
+$)

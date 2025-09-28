@@ -1,0 +1,13 @@
+// symbol_test.bcl
+// Extremely simple test to verify FILE_ symbols are available during compilation
+
+LET START() = VALOF {
+    WRITEF("Testing symbol availability...*N")
+
+    // This should compile if FILE_ symbols are registered
+    // We're not calling them, just referencing them
+    LET func_ptr = FILE_OPEN_READ
+
+    WRITEF("FILE_OPEN_READ symbol found: %d*N", func_ptr)
+    RESULTIS 0
+}

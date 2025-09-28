@@ -1,0 +1,15 @@
+LET FACTORIAL_SIMPLE(N) = VALOF
+$(
+  RESULTIS N * 5
+$)
+
+LET START() BE
+$(
+  WRITES("Testing simple factorial*N")
+  LET N = 5
+  LET R = FACTORIAL_SIMPLE(N)
+  WRITES("Result: ")
+  WRITEN(R)
+  WRITES("*N")
+  FINISH
+$)

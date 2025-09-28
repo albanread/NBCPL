@@ -1,0 +1,43 @@
+// minimal_inheritance.bcl
+// A minimal class inheritance example
+
+CLASS Parent $(
+    DECL value
+
+    ROUTINE CREATE(v) BE $(
+        value := v
+    $)
+
+    FUNCTION getValue() = VALOF $(
+        RESULTIS value
+    $)
+$)
+
+CLASS Child EXTENDS Parent $(
+    DECL extra
+
+    ROUTINE CREATE(v, e) BE $(
+        value := v
+        extra := e
+    $)
+
+    FUNCTION getExtra() = VALOF $(
+        RESULTIS extra
+    $)
+$)
+
+LET START() BE $(
+    LET p = NEW Parent
+    LET c = NEW Child
+
+    p.CREATE(10)
+    c.CREATE(20, 5)
+
+    WRITES("Parent value: ")
+    WRITEN(p.getValue())
+
+    WRITES("Child value: ")
+    WRITEN(c.getValue())
+    WRITES("Child extra: ")
+    WRITEN(c.getExtra())
+$)

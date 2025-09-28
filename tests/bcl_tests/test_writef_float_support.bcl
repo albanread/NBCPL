@@ -1,0 +1,29 @@
+// Test floating-point support in WRITEF
+// This tests the %f format specifier
+
+LET START() BE $(
+    FLET float_val = 3.14159
+    FLET another_float = 2.71828
+    LET int_val = 42
+
+    WRITES("Testing WRITEF with floating-point values:*N")
+
+    // Test basic %f formatting
+    WRITES("Float value: ")
+    WRITEF1("%f*N", float_val)
+
+    // Test mixed integer and float formatting
+    WRITES("Mixed: ")
+    WRITEF2("Integer: %d, Float: %f*N", int_val, another_float)
+
+    // Test multiple floats
+    WRITES("Multiple floats: ")
+    WRITEF2("Pi: %f, E: %f*N", float_val, another_float)
+
+    // Test what happens with current implementation
+    WRITES("Current behavior: ")
+    WRITEF1("Float as %%f: %f*N", float_val)
+    WRITEF1("Float as %%d: %d*N", float_val)
+
+    WRITES("Test complete.*N")
+$)

@@ -1,0 +1,6 @@
+LET START() BE
+$(
+   LET L = LIST("This", "is", "the", "age", "of", "the", "train")
+   LET S = JOIN(L, "_")
+   WRITES(S)
+$)

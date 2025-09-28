@@ -1,0 +1,34 @@
+LET START() BE
+$(
+  LET L = LIST(12, "item", 100, 99.5, "satumas")
+  WRITES("Processing list*N")
+
+  // Use the Type-Tag-Switch idiom
+  FOREACH T, X IN L DO $(
+    SWITCHON T INTO $(
+        CASE TYPE_STRING: $(
+            WRITES("String: ")
+            WRITES(AS_STRING(X))
+            WRITES("*N")
+            ENDCASE
+        $)
+        CASE TYPE_INT: $(
+            WRITES("Integer: ")
+            WRITEN(AS_INT(X))
+            WRITES("*N")
+            ENDCASE
+        $)
+        CASE TYPE_FLOAT: $(
+            WRITES("Float: ")
+            WRITEF(AS_FLOAT(X))
+            WRITES("*N")
+            ENDCASE
+        $)
+        DEFAULT: $(
+            WRITES("Unknown Type*N")
+            ENDCASE
+        $)
+    $)
+  $)
+  WRITES("Done*N")
+$)

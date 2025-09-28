@@ -1,0 +1,30 @@
+GET "runtime.bcl"
+
+LET START() BE $(
+  LET x, y = 1.0, 2.0
+  LET result = 0.0
+
+  // Test simple unary minus
+  result := -1.0
+  WRITES("Simple unary minus: ")
+  FWRITE(result)
+  WRITES("*N")
+
+  // Test unary minus in multiplication (the problematic case)
+  result := -0.04 * x
+  WRITES("Unary minus in multiplication: ")
+  FWRITE(result)
+  WRITES("*N")
+
+  // Test with space (like in fernpoints.bcl line 34)
+  result := - 0.04 * x + 0.85 * y + 1.6
+  WRITES("Complex expression with unary minus: ")
+  FWRITE(result)
+  WRITES("*N")
+
+  // Test without space
+  result := -0.04 * x + 0.85 * y + 1.6
+  WRITES("Same expression without space: ")
+  FWRITE(result)
+  WRITES("*N")
+$)

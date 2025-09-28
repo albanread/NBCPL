@@ -1,0 +1,95 @@
+LET START() BE
+{
+    // Test the enhanced Bloom filter-based double-free detection
+    WRITEF("=== Testing Bloom Filter Double-Free Detection ===*N")
+
+    // Test 1: Basic vector allocation and free
+    WRITEF("Test 1: Basic vector allocation and free*N")
+    LET vec1 = VEC 10
+    WRITEF("Allocated vector at %P*N", vec1)
+    FREEVEC(vec1)
+    WRITEF("Freed vector successfully*N")
+
+    // Test 2: Attempt double-free (should be caught by Bloom filter)
+    WRITEF("*NTest 2: Attempting double-free (should be detected)*N")
+    LET vec2 = VEC 20
+    WRITEF("Allocated vector at %P*N", vec2)
+    FREEVEC(vec2)
+    WRITEF("First free successful*N")
+
+    // This should trigger the Bloom filter double-free detection
+    WRITEF("Attempting second free (should be caught)...*N")
+    FREEVEC(vec2)  // This should be detected as potential double-free
+    WRITEF("Second free attempted*N")
+
+    // Test 3: Multiple allocations to test Bloom filter capacity
+    WRITEF("*NTest 3: Testing Bloom filter with multiple allocations*N")
+    LET vectors[100]
+
+    FOR i = 0 TO 99 DO
+    {
+        vectors[i] := VEC (i + 1)
+        IF i MOD 20 = 0 THEN
+            WRITEF("Allocated vector %N at %P*N", i, vectors[i])
+    }
+
+    // Free half of them
+    FOR i = 0 TO 49 DO
+    {
+        FREEVEC(vectors[i])
+        IF i MOD 20 = 0 THEN
+            WRITEF("Freed vector %N*N", i)
+    }
+
+    // Test 4: Try to free one of the already freed vectors
+    WRITEF("*NTest 4: Attempting to free already freed vector*N")
+    FREEVEC(vectors[25])  // Should be caught by Bloom filter
+
+    // Test 5: Free the remaining vectors normally
+    WRITEF("*NTest 5: Freeing remaining vectors*N")
+    FOR i = 50 TO 99 DO
+    {
+        FREEVEC(vectors[i])
+        IF i MOD 20 = 0 THEN
+            WRITEF("Freed vector %N*N", i)
+    }
+
+    // Test 6: Test with strings
+    WRITEF("*NTest 6: Testing with string allocations*N")
+    LET str1 = GETVEC(50)  // Allocate string space
+    WRITEF("Allocated string space at %P*N", str1)
+    FREEVEC(str1)
+    WRITEF("Freed string space*N")
+
+    // Try double-free of string
+    WRITEF("Attempting double-free of string (should be detected)*N")
+    FREEVEC(str1)
+
+    // Test 7: Test false positive scenario
+    WRITEF("*NTest 7: Testing for potential false positives*N")
+    LET many_vecs[200]
+
+    // Allocate and free many vectors to increase Bloom filter saturation
+    FOR i = 0 TO 199 DO
+    {
+        many_vecs[i] := VEC (i MOD 50 + 1)
+        FREEVEC(many_vecs[i])
+        IF i MOD 50 = 0 THEN
+            WRITEF("Processed %N vectors*N", i + 1)
+    }
+
+    // Now allocate a new vector - this might trigger a false positive
+    // if the Bloom filter is saturated
+    WRITEF("Allocating new vector after many frees...*N")
+    LET new_vec = VEC 75
+    WRITEF("New vector allocated at %P*N", new_vec)
+
+    // Try to free it - if Bloom filter has false positive, it might
+    // incorrectly think this was already freed
+    WRITEF("Freeing new vector...*N")
+    FREEVEC(new_vec)
+    WRITEF("New vector freed successfully*N")
+
+    WRITEF("*N=== Bloom Filter Double-Free Detection Test Complete ===*N")
+    WRITEF("Check the runtime metrics for Bloom filter statistics*N")
+}

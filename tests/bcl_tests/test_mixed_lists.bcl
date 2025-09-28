@@ -1,0 +1,29 @@
+// test_mixed_lists.bcl - Simple test for memory management
+
+LET START() BE $(
+    WRITES("Testing memory management...*N")
+
+    // Test 1: Pure literal list
+    LET literal_list = LIST("hello", "world")
+    WRITES("Created literal list*N")
+
+    // Test 2: Number literal list
+    LET num_list = LIST(1, 2, 3)
+    WRITES("Created number list*N")
+
+    // Test 3: Nested scope for cleanup testing
+    $(
+        LET temp_list = LIST("temp1", "temp2")
+        WRITES("Created temp list in nested scope*N")
+        // Should be cleaned up when exiting scope
+    $)
+
+    WRITES("Exited nested scope*N")
+
+    // Test 4: Multiple lists in same scope
+    LET list_a = LIST("a", "b")
+    LET list_b = LIST(10, 20)
+    WRITES("Created multiple lists*N")
+
+    WRITES("Test completed successfully!*N")
+$)

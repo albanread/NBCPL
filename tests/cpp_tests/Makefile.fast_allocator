@@ -1,0 +1,70 @@
+# Makefile for fast_object_allocator (High-Performance Object Allocator Test)
+# Tests size-class based object allocation with 16-byte alignment and freelists
+
+CXX = clang++
+CXXFLAGS = -std=c++17 -Wall -Wextra -O3 -g -march=native
+INCLUDES = -I. -I../../HeapManager -I../../runtime -I../../include
+LIBS = ../../libbcpl_runtime_sdl2_static.a -lpthread \
+       -framework CoreFoundation -framework CoreAudio -framework AudioToolbox \
+       -framework CoreGraphics -framework AppKit -framework IOKit \
+       -framework ForceFeedback -framework Carbon -framework CoreHaptics \
+       -framework GameController -framework Metal -framework QuartzCore
+
+# Target executable
+TARGET = fast_object_allocator
+
+# Source files
+MAIN_SRC = fast_object_allocator.cpp
+
+# Default target
+all: $(TARGET)
+
+# Main executable
+$(TARGET): $(TARGET).o
+	@echo "Linking fast_object_allocator executable..."
+	$(CXX) $(CXXFLAGS) -o $@ $^ $(LIBS)
+
+# Main test source
+$(TARGET).o: $(MAIN_SRC)
+	@echo "Compiling fast_object_allocator.cpp..."
+	$(CXX) $(CXXFLAGS) $(INCLUDES) -c $< -o $@
+
+# Clean up build artifacts
+clean:
+	@echo "Cleaning fast_object_allocator build artifacts..."
+	rm -f $(TARGET) $(TARGET).o
+
+# Force rebuild
+rebuild: clean all
+
+# Run the test
+test: $(TARGET)
+	@echo "Running fast object allocator test..."
+	./$(TARGET)
+
+# Run test with timing
+test-timed: $(TARGET)
+	@echo "Running fast object allocator test with timing..."
+	time ./$(TARGET)
+
+# Run performance benchmark
+test-perf: $(TARGET)
+	@echo "Running performance benchmark..."
+	@echo "Note: This uses -O3 optimization for maximum performance"
+	./$(TARGET)
+
+# Run test with memory usage monitoring
+test-memory: $(TARGET)
+	@echo "Running test with memory monitoring..."
+	@if command -v /usr/bin/time >/dev/null 2>&1; then \
+		/usr/bin/time -l ./$(TARGET); \
+	else \
+		echo "GNU time not available, running normal test..."; \
+		./$(TARGET); \
+	fi
+
+# Quick development test (reduced scale)
+test-quick: $(TARGET)
+	@echo "Running quick development test..."
+	@echo "Note: Modify source to reduce iteration counts for faster testing"
+	./$(TARGET)

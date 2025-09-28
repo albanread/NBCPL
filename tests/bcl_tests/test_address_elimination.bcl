@@ -1,0 +1,75 @@
+// Test program to demonstrate address calculation elimination optimization
+// This program should generate redundant ADRP/ADD sequences that can be optimized
+
+GET "libhdr"
+
+// Global strings that will require address calculations
+STATIC $( str1 = "Hello World" $)
+STATIC $( str2 = "Testing Address Optimization" $)
+STATIC $( str3 = "BCPL Compiler" $)
+
+// Function that uses multiple string literals
+// This should generate multiple ADRP/ADD sequences for string addresses
+LET test_string_usage() BE
+$(
+    // Multiple references to the same strings within the same basic block
+    // This should create redundant address calculations
+    writef("First message: %S*N", str1)
+    writef("Second message: %S*N", str1)  // Redundant address calc for str1
+    writef("Third message: %S*N", str2)
+    writef("Fourth message: %S*N", str2)   // Redundant address calc for str2
+    writef("Fifth message: %S*N", str1)    // Another redundant calc for str1
+$)
+
+// Function with conditional branches that still have redundant calculations
+AND test_conditional_usage(x) BE
+$(
+    IF x > 10 THEN
+    $(
+        writef("Large number: %N, Message: %S*N", x, str3)
+        writef("Confirmation: %S*N", str3)  // Redundant in same block
+    $)
+    ELSE
+    $(
+        writef("Small number: %N, Message: %S*N", x, str2)
+        writef("Alternative: %S*N", str2)   // Redundant in same block
+    $)
+$)
+
+// Function that demonstrates address calculation in loops
+AND test_loop_usage() BE
+$(
+    FOR i = 1 TO 3 DO
+    $(
+        // Each iteration will recalculate addresses
+        writef("Iteration %N: %S*N", i, str1)
+        writef("Also: %S*N", str1)  // Redundant within loop body
+    $)
+$)
+
+// Main function to test the optimization
+LET START() BE
+$(
+    writef("=== Testing Address Calculation Elimination ===%N")
+
+    // Test basic redundant calculations
+    test_string_usage()
+
+    writef("%N=== Testing Conditional Usage ===%N")
+    test_conditional_usage(15)
+    test_conditional_usage(5)
+
+    writef("%N=== Testing Loop Usage ===%N")
+    test_loop_usage()
+
+    writef("%N=== Direct Multiple References ===%N")
+    // Direct multiple references in the same function
+    writef("Direct ref 1: %S*N", str1)
+    writef("Direct ref 2: %S*N", str1)  // Should be optimized
+    writef("Direct ref 3: %S*N", str2)
+    writef("Direct ref 4: %S*N", str2)  // Should be optimized
+    writef("Direct ref 5: %S*N", str3)
+    writef("Direct ref 6: %S*N", str3)  // Should be optimized
+
+    writef("Address elimination test completed.%N")
+$)

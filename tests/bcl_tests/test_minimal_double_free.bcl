@@ -1,0 +1,5 @@
+// Minimal test to check if compilation works
+LET START() BE
+{
+    WRITEF("Hello World*N")
+}

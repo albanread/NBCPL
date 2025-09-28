@@ -1,0 +1,18 @@
+// Test for string address tracking optimization
+// This should demonstrate CSE working with local value tracking in code generation
+
+LET start() = VALOF {
+    // This should create one ADRP/ADD sequence and reuse it
+    LET message = "Hello World"
+    writef("%s\n", message)
+    writef("%s again\n", message)
+
+    // Different string should get its own calculation
+    LET other = "Different message"
+    writef("%s\n", other)
+
+    // Reuse the first string again
+    writef("Final: %s\n", message)
+
+    RESULTIS 0
+}

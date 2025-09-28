@@ -1,0 +1,14 @@
+LET START() BE
+$(
+   // Minimal test to see what actually works
+   WRITES("Testing basic trailing comma*N")
+
+   // Test just LIST first - we know this should work
+   LET list_normal = LIST("a", "b")
+   WRITES("Normal LIST: OK*N")
+
+   LET list_trailing = LIST("a", "b",)
+   WRITES("LIST with trailing comma: OK*N")
+
+   WRITES("Basic test complete*N")
+$)

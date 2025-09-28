@@ -1,0 +1,4 @@
+LET START() BE {
+    LET result = FIX(5)
+    WRITEF("FIX(5) = %d*N", result)
+}

@@ -1,0 +1,11 @@
+LET START() BE
+$(
+   // Simple test to isolate the crash issue
+   LET L = LIST("one", "two")
+   FOREACH S IN L DO
+   $(
+      WRITES(S)
+      WRITES(" ")
+   $)
+   WRITES("done*N")
+$)

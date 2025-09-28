@@ -1,0 +1,29 @@
+
+LET MULL2(N) = VALOF
+$(
+        LET X = 4
+        RESULTIS X
+$)
+
+LET START() BE {
+
+    WRITES("Testing FVALOF function...*N")
+
+    // Test 2: Call the function and print result
+    LET F = ADD_FLOATS()
+    WRITEF(F)
+    WRITES("Expected: 6.0*N")
+
+
+
+    LET F2 = MULL2(0.0)
+    WRITEF(F2)
+    WRITES("Expected: 8.5*N")
+
+    // Test 4: Direct floating point arithmetic
+    LET F3 = 1.5 +# 2.5 *# 3.0
+    WRITEF(F3)
+    WRITES("Expected: 9.0*N")
+
+    WRITES("FVALOF tests complete.*N")
+}

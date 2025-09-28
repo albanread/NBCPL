@@ -1,0 +1,22 @@
+LET START() BE
+$(
+   // Test if VEC parentheses syntax even exists
+   WRITES("Testing if VEC() syntax is valid*N")
+
+   // Test 1: Traditional VEC syntax (we know this works)
+   LET vec_traditional = VEC 3
+   vec_traditional!0 := 10
+   vec_traditional!1 := 20
+   vec_traditional!2 := 30
+   WRITES("Traditional VEC n syntax: OK*N")
+
+   // Test 2: Try VEC() syntax (might not exist)
+   LET vec_paren = VEC("a", "b", "c")
+   WRITES("VEC() syntax: OK*N")
+
+   // Test 3: Try VEC[] syntax (might not exist)
+   // LET vec_bracket = VEC["x", "y", "z"]
+   // WRITES("VEC[] syntax: OK*N")
+
+   WRITES("Traditional VEC syntax confirmed working*N")
+$)

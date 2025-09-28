@@ -1,0 +1,12 @@
+LET G = 1234567
+
+LET START() BE
+$(
+
+	WRITES("hello world!!!!*N")
+	WRITEN(G) WRITEC(10)
+
+	G := 711
+	WRITEN(G) WRITEC(10)
+	
+$)

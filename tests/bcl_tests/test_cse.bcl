@@ -1,0 +1,6 @@
+LET START() BE $(
+  LET a = 5
+  LET b = 10
+  LET c = (a + b) * 2
+  LET d = (a + b) / 3
+$)

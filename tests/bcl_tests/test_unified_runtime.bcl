@@ -1,0 +1,73 @@
+// Test program to verify unified runtime functionality
+// This tests basic runtime functions that should work in all modes
+
+GLOBAL
+{
+    TESTLIST : TESTMEMORY : TESTSTRINGS
+}
+
+AND TESTLIST() BE
+{
+    LET list = LIST(1, 2, 3)
+
+    WRITEF("Testing list operations:%N")
+    WRITEF("List created with elements 1, 2, 3%N")
+
+    LET head = BCPL_LIST_GET_HEAD_AS_INT(list)
+    WRITEF("Head of list: %N%N", head)
+
+    IF head = 1 THEN
+        WRITEF("✓ List head test passed%N")
+    ELSE
+        WRITEF("✗ List head test failed - expected 1, got %N%N", head)
+}
+
+AND TESTMEMORY() BE
+{
+    WRITEF("Testing memory allocation:%N")
+
+    LET vec = GETVEC(10)
+    IF vec ~= 0 THEN
+    {
+        WRITEF("✓ GETVEC allocation succeeded%N")
+        vec!0 := 42
+        vec!1 := 100
+
+        IF vec!0 = 42 AND vec!1 = 100 THEN
+            WRITEF("✓ Memory write/read test passed%N")
+        ELSE
+            WRITEF("✗ Memory write/read test failed%N")
+
+        FREEVEC(vec)
+        WRITEF("✓ FREEVEC completed%N")
+    }
+    ELSE
+    {
+        WRITEF("✗ GETVEC allocation failed%N")
+    }
+}
+
+AND TESTSTRINGS() BE
+{
+    WRITEF("Testing string operations:%N")
+
+    LET str = "Hello, World!"
+    WRITEF("Test string: %S%N", str)
+    WRITEF("✓ String output test passed%N")
+}
+
+AND START() BE
+{
+    WRITEF("=== Unified Runtime Test ===%N%N")
+
+    TESTLIST()
+    WRITEF("%N")
+
+    TESTMEMORY()
+    WRITEF("%N")
+
+    TESTSTRINGS()
+    WRITEF("%N")
+
+    WRITEF("=== Test Complete ===%N")
+}

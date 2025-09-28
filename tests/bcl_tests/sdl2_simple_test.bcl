@@ -1,0 +1,89 @@
+// Simple SDL2 Test Program
+// This is a minimal test to verify SDL2 runtime integration
+
+LET START() BE
+$(
+    WRITES("Testing SDL2 Runtime Integration...")
+    NEWLINE()
+
+    // Test 1: Initialize SDL2
+    WRITES("1. Initializing SDL2...")
+    SDL2_INIT()
+
+    LET error_msg = SDL2_GET_ERROR()
+    IF LENGTH(error_msg) > 0 THEN
+    $(
+        WRITES("FAILED - SDL2 Error: ")
+        WRITES(error_msg)
+        NEWLINE()
+        RETURN
+    $)
+    WRITES("OK")
+    NEWLINE()
+
+    // Test 2: Create a window
+    WRITES("2. Creating window...")
+    LET window_id = SDL2_CREATE_WINDOW("SDL2 Test Window")
+    IF window_id = 0 THEN
+    $(
+        WRITES("FAILED - Could not create window")
+        NEWLINE()
+        SDL2_QUIT()
+        RETURN
+    $)
+    WRITES("OK (Window ID: ")
+    WRITEN(window_id)
+    WRITES(")")
+    NEWLINE()
+
+    // Test 3: Create a renderer
+    WRITES("3. Creating renderer...")
+    LET renderer_id = SDL2_CREATE_RENDERER(window_id)
+    IF renderer_id = 0 THEN
+    $(
+        WRITES("FAILED - Could not create renderer")
+        NEWLINE()
+        SDL2_DESTROY_WINDOW(window_id)
+        SDL2_QUIT()
+        RETURN
+    $)
+    WRITES("OK (Renderer ID: ")
+    WRITEN(renderer_id)
+    WRITES(")")
+    NEWLINE()
+
+    // Test 4: Set window title
+    WRITES("4. Setting window title...")
+    SDL2_SET_WINDOW_TITLE(window_id, "BCPL SDL2 Success!")
+    WRITES("OK")
+    NEWLINE()
+
+    // Test 5: Draw something simple
+    WRITES("5. Testing basic drawing...")
+    SDL2_SET_DRAW_COLOR(renderer_id, 255, 0, 0, 255)  // Red
+    SDL2_CLEAR(renderer_id)
+
+    SDL2_SET_DRAW_COLOR(renderer_id, 0, 255, 0, 255)  // Green
+    SDL2_FILL_RECT(renderer_id, 100, 100, 200, 150)
+
+    SDL2_PRESENT(renderer_id)
+    WRITES("OK")
+    NEWLINE()
+
+    // Test 6: Wait a moment
+    WRITES("6. Displaying for 2 seconds...")
+    SDL2_DELAY(2000)
+    WRITES("OK")
+    NEWLINE()
+
+    // Test 7: Cleanup
+    WRITES("7. Cleaning up...")
+    SDL2_DESTROY_RENDERER(renderer_id)
+    SDL2_DESTROY_WINDOW(window_id)
+    SDL2_QUIT()
+    WRITES("OK")
+    NEWLINE()
+
+    WRITES("✅ All SDL2 tests passed successfully!")
+    NEWLINE()
+$)

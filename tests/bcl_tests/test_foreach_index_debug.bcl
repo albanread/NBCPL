@@ -1,0 +1,28 @@
+// Simple debug test to identify the FOREACH off-by-one bug
+LET START() BE {
+    WRITEF("=== FOREACH DEBUG TEST ===\n")
+
+    // Test 1: String with 3 characters
+    WRITEF("Test 1: FOREACH on 'abc' (should show a, b, c)\n")
+    FOREACH char IN "abc" DO {
+        WRITEF("  %c\n", char)
+    }
+    WRITEF("String test done\n\n")
+
+    // Test 2: Vector with 3 elements
+    WRITEF("Test 2: FOREACH on VEC(1, 2, 3) (should show 1, 2, 3)\n")
+    FOREACH num IN VEC(1, 2, 3) DO {
+        WRITEF("  %d\n", num)
+    }
+    WRITEF("Vector test done\n\n")
+
+    // Test 3: Two elements to see pattern
+    WRITEF("Test 3: FOREACH on 'hi' (should show h, i)\n")
+    FOREACH char IN "hi" DO {
+        WRITEF("  %c\n", char)
+    }
+    WRITEF("Two char test done\n\n")
+
+    WRITEF("=== END DEBUG TEST ===\n")
+    WRITEF("If last elements are missing, there's a bug in the loop condition!\n")
+}

@@ -1,0 +1,76 @@
+// Comprehensive demonstration of RETAIN/REMANAGE functionality
+// This test shows the complete lifecycle of memory management control
+
+LET START() BE $(
+    WRITES("=== REMANAGE Functionality Demonstration ===$N")
+    WRITES("$N")
+
+    // Test 1: Basic REMANAGE usage
+    WRITES("Test 1: Basic RETAIN/REMANAGE cycle$N")
+    WRITES("--------------------------------------$N")
+    $(
+        LET vec1 = VEC 50
+        WRITES("  1. Vector allocated (automatic cleanup enabled)$N")
+
+        RETAIN vec1
+        WRITES("  2. Vector RETAINed (automatic cleanup disabled)$N")
+
+        REMANAGE vec1
+        WRITES("  3. Vector REMANAGEd (automatic cleanup re-enabled)$N")
+        WRITES("  4. Exiting scope - vec1 should be automatically cleaned up$N")
+    $)
+    WRITES("  5. Scope exited successfully$N")
+    WRITES("$N")
+
+    // Test 2: Multiple variables
+    WRITES("Test 2: Multiple variables with mixed management$N")
+    WRITES("-----------------------------------------------$N")
+    $(
+        LET vec2 = VEC 30
+        LET vec3 = VEC 40
+        LET vec4 = VEC 60
+
+        WRITES("  1. Three vectors allocated$N")
+
+        RETAIN vec2, vec3, vec4
+        WRITES("  2. All vectors RETAINed$N")
+
+        REMANAGE vec2, vec4
+        WRITES("  3. vec2 and vec4 REMANAGEd (vec3 still retained)$N")
+        WRITES("  4. Exiting scope - vec2 and vec4 cleaned up, vec3 leaked$N")
+    $)
+    WRITES("  5. Scope exited$N")
+    WRITES("$N")
+
+    // Test 3: Nested scopes
+    WRITES("Test 3: REMANAGE in nested scopes$N")
+    WRITES("----------------------------------$N")
+    $(
+        LET outer_vec = VEC 100
+        WRITES("  1. Outer vector allocated$N")
+
+        RETAIN outer_vec
+        WRITES("  2. Outer vector RETAINed$N")
+
+        $(
+            LET inner_vec = VEC 25
+            WRITES("    3. Inner vector allocated$N")
+
+            RETAIN inner_vec
+            WRITES("    4. Inner vector RETAINed$N")
+
+            REMANAGE outer_vec
+            WRITES("    5. Outer vector REMANAGEd from inner scope$N")
+
+            REMANAGE inner_vec
+            WRITES("    6. Inner vector REMANAGEd$N")
+            WRITES("    7. Exiting inner scope - inner_vec cleaned up$N")
+        $)
+        WRITES("  8. Inner scope exited$N")
+        WRITES("  9. Exiting outer scope - outer_vec cleaned up$N")
+    $)
+    WRITES("  10. Outer scope exited$N")
+    WRITES("$N")
+
+    WRITES("=== All REMANAGE tests completed successfully! ===$N")
+$)

@@ -1,0 +1,9 @@
+// Simple test to verify parameter type preservation between analysis passes
+// This should compile without triggering the allocation issue
+
+LET SIMPLE_ADD(X, Y) = X + Y
+
+AND START() = VALOF
+$(
+    RESULTIS SIMPLE_ADD(3, 4)
+$)

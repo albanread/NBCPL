@@ -1,0 +1,14 @@
+LET START() BE
+{
+  FLET X = FSQRT(120.5)
+  WRITEF(X)
+  WRITEC(10)
+
+  LET Y=X
+  WRITEN(Y)
+  WRITEC(10)
+
+  WRITES("*N")
+
+
+}

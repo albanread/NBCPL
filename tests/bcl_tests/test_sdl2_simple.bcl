@@ -1,0 +1,28 @@
+
+LET START() BE {
+
+    WRITEF("Simple SDL2 Runtime Test*N")
+    WRITEF("========================*N")
+
+    WRITEF("Testing SDL2_INIT...*N")
+    LET result = SDL2_INIT()
+    WRITEF("SDL2_INIT returned: %d*N", result)
+
+    TEST result = 0 THEN {
+        WRITEF("✅ SDL2 initialized successfully!*N")
+
+        // Test SDL2_GET_TICKS (simple function that should always work)
+        WRITEF("Testing SDL2_GET_TICKS...*N")
+        LET ticks = SDL2_GET_TICKS()
+        WRITEF("SDL2_GET_TICKS returned: %d ms*N", ticks)
+
+        // Clean up
+        WRITEF("Calling SDL2_QUIT...*N")
+        SDL2_QUIT()
+        WRITEF("✅ SDL2 cleanup completed*N")
+    } ELSE {
+        WRITEF("❌ SDL2 initialization failed with code: %d*N", result)
+    }
+
+    WRITEF("SDL2 simple test completed!*N")
+}

@@ -1,0 +1,21 @@
+// test_class.bcl
+
+CLASS Point $(
+
+    DECL x, y
+
+    ROUTINE set(newX, newY) BE $(
+        x := newX
+        y := newY
+    $)
+
+    FUNCTION getX() = VALOF $(
+        RESULTIS x
+    $)
+$)
+
+LET START() BE $(
+    LET p = NEW Point
+    p.set(100, 200)
+    WRITEN(p.getX())
+$)

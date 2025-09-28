@@ -1,0 +1,54 @@
+// test_memory.bcl - Test list memory management
+
+LET START() BE $(
+    WRITES("Testing list memory management...*N")
+
+    // Test 1: Simple list creation and iteration
+    WRITES("Test 1: Creating and using a simple list*N")
+    LET my_list = LIST("hello", "world", "test")
+
+    WRITES("List contents: ")
+    FOREACH item IN my_list DO $(
+        WRITES(item)
+        WRITES(" ")
+    $)
+    WRITES("*N")
+
+    // Test 2: Nested scope to trigger cleanup
+    WRITES("Test 2: Nested scope for cleanup testing*N")
+    $(
+        LET temp_list = LIST(1, 2, 3, 4, 5)
+        WRITES("Created temporary list with 5 items*N")
+
+        LET sum = 0
+        FOREACH num IN temp_list DO $(
+            sum := sum + num
+        $)
+        WRITES("Sum of list items: ")
+        WRITEN(sum)
+        WRITES("*N")
+
+        // temp_list should be automatically cleaned up when exiting this scope
+    $)
+
+    // Test 3: Multiple lists
+    WRITES("Test 3: Multiple lists*N")
+    LET list1 = LIST("a", "b", "c")
+    LET list2 = LIST("x", "y", "z")
+
+    WRITES("First list: ")
+    FOREACH item IN list1 DO $(
+        WRITES(item)
+        WRITES(" ")
+    $)
+    WRITES("*N")
+
+    WRITES("Second list: ")
+    FOREACH item IN list2 DO $(
+        WRITES(item)
+        WRITES(" ")
+    $)
+    WRITES("*N")
+
+    WRITES("Memory management test completed successfully!*N")
+$)

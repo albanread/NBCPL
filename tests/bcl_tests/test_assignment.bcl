@@ -1,0 +1,41 @@
+// Test file to check multiple assignment parsing
+// Testing if the issue is with multiple assignments on one line
+
+LET START() BE $(
+    WRITES("Testing assignment parsing...*N")
+
+    // Test 1: Separate lines (should work)
+    WRITES("Test 1: Separate assignments*N")
+    LET x1 = RAND(10)
+    LET y1 = RAND(10)
+    WRITEF("x1 = %d, y1 = %d*N", x1, y1)
+
+    // Test 2: Multiple assignments on one line (might be the issue)
+    WRITES("Test 2: Multiple assignments on one line*N")
+    LET x2 = RAND(10) LET y2 = RAND(10)
+    WRITEF("x2 = %d, y2 = %d*N", x2, y2)
+
+    // Test 3: Assignment statements (like in fern_basic)
+    WRITES("Test 3: Assignment statements like fern_basic*N")
+    LET x3 = 0
+    LET y3 = 0
+    x3 := RAND(10) y3 := RAND(10)
+    WRITEF("x3 = %d, y3 = %d*N", x3, y3)
+
+    // Test 4: Proper semicolon separation
+    WRITES("Test 4: With semicolon separation*N")
+    LET x4 = 0
+    LET y4 = 0
+    x4 := RAND(10); y4 := RAND(10)
+    WRITEF("x4 = %d, y4 = %d*N", x4, y4)
+
+    // Test 5: Multiple calls in sequence
+    WRITES("Test 5: Multiple RAND calls in sequence*N")
+    FOR i = 1 TO 3 DO $(
+        LET a = RAND(5)
+        LET b = RAND(5)
+        WRITEF("Call %d: a = %d, b = %d*N", i, a, b)
+    $)
+
+    WRITES("Assignment test complete.*N")
+$)

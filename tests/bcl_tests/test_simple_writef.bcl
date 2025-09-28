@@ -1,0 +1,17 @@
+// Simple WRITEF test using standard %d and %f specifiers
+// This will help us verify the basic WRITEF functionality works
+
+LET START() BE $(
+    WRITES("=== Testing standard WRITEF specifiers ===*N")
+
+    // Test %d for integers
+    WRITEF("Integer: %d*N", 42)
+
+    // Test %f for floats
+    WRITEF("Float: %f*N", 3.14159)
+
+    // Test both together
+    WRITEF("Both: %d and %f*N", 100, 2.718)
+
+    WRITES("=== Standard test complete ===*N")
+$)

@@ -1,0 +1,56 @@
+// Test program to verify that automatic cleanup calls the same FREEVEC function
+// as manual FREEVEC calls, ensuring double-free detection works for both paths
+
+LET START() BE
+{
+    WRITEF("=== Automatic Cleanup Test ===*N")
+
+    // Test function that allocates a vector and returns without manual cleanup
+    // This should trigger automatic cleanup at function end
+    test_auto_cleanup()
+
+    WRITEF("*N=== Manual Cleanup Test ===*N")
+
+    // Test manual cleanup for comparison
+    test_manual_cleanup()
+
+    WRITEF("*N=== Test Complete ===*N")
+}
+
+// Function that allocates but doesn't manually free - should auto-cleanup
+LET test_auto_cleanup() BE
+{
+    WRITEF("Entering test_auto_cleanup function*N")
+
+    // Allocate a vector - this should be marked as owns_heap_memory=true
+    LET auto_vec = VEC 8
+
+    // Use the vector to prove it works
+    auto_vec!0 := 100
+    auto_vec!1 := 200
+    WRITEF("Auto vector: auto_vec[0]=%d, auto_vec[1]=%d*N", auto_vec!0, auto_vec!1)
+
+    WRITEF("Exiting test_auto_cleanup function (should trigger automatic cleanup)*N")
+    // When this function exits, auto_vec should be automatically freed
+}
+
+// Function that manually frees - for comparison
+LET test_manual_cleanup() BE
+{
+    WRITEF("Entering test_manual_cleanup function*N")
+
+    // Allocate a vector
+    LET manual_vec = VEC 6
+
+    // Use the vector
+    manual_vec!0 := 300
+    manual_vec!1 := 400
+    WRITEF("Manual vector: manual_vec[0]=%d, manual_vec[1]=%d*N", manual_vec!0, manual_vec!1)
+
+    // Manually free it
+    WRITEF("Manually freeing vector*N")
+    FREEVEC(manual_vec)
+
+    WRITEF("Exiting test_manual_cleanup function*N")
+    // No automatic cleanup should happen since we already freed it
+}

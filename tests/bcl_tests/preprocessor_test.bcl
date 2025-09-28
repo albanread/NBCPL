@@ -1,0 +1,58 @@
+// Preprocessor Test File
+// This test demonstrates inclusion of files with the GET directive
+
+// Include the standard library header
+GET "libhdr.h"
+
+// Test routine that uses functions from the included files
+LET START() = VALOF
+$(
+    // Print header
+    WRITES("Preprocessor Test*N")
+    WRITES("================*N")
+
+    // Test some utility functions from utils.h
+    WRITES("Testing utility functions:*N")
+
+    // Test MAX function
+    WRITES("MAX(5, 10) = ")
+    WRITEN(MAX(5, 10))
+    NEWLINE()
+
+    // Test MIN function
+    WRITES("MIN(5, 10) = ")
+    WRITEN(MIN(5, 10))
+    NEWLINE()
+
+    // Test GCD function
+    WRITES("GCD(48, 18) = ")
+    WRITEN(GCD(48, 18))
+    NEWLINE()
+
+    // Test LENGTH function
+    LET str = "Hello, world!"
+    WRITES("LENGTH(")
+    WRITES(str)
+    WRITES(") = ")
+    WRITEN(LENGTH(str))
+    NEWLINE()
+
+    // Test WRITEREP function
+    WRITES("WRITEREP example: ")
+    WRITEREP("*", 10)
+    NEWLINE()
+
+    WRITES("*NPreprocessor test completed successfully!*N")
+
+    // Return success
+    RESULTIS 0
+$)
+
+// Test direct inclusion at different points in the file
+GET "PRINTSTRING.bcl"
+
+// Define another simple function to show multiple GET directives work
+LET GOODBYE() BE
+$(
+    WRITES("Goodbye from preprocessor test!*N")
+$)

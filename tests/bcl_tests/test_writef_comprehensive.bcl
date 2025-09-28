@@ -1,0 +1,59 @@
+LET START() = VALOF
+$(
+    // Comprehensive WRITEF Validation Test
+    // This test demonstrates all the validation features we implemented
+
+    WRITEF("=== WRITEF Validation Test Suite ===*N")
+
+    // Test 1: Valid WRITEF calls (should compile without warnings)
+    WRITEF("*N1. Valid cases:*N")
+    WRITEF("  Integer: %d*N", 42)
+    WRITEF("  Float: %f*N", 3.14)
+    WRITEF("  String: %s*N", "hello")
+    WRITEF("  Multiple: %d %f %s*N", 123, 45.67, "world")
+
+    // Test 2: Argument count mismatches (should produce ERROR messages)
+    WRITEF("*N2. Argument count errors:*N")
+    // These will fail compilation with helpful error messages:
+    // WRITEF("Too many specifiers: %d %d*N", 42)        // 2 specifiers, 1 arg
+    // WRITEF("Too few specifiers: %d*N", 42, 99)       // 1 specifier, 2 args
+    // WRITEF("No arguments at all*N")                  // 0 specifiers, 0 args (valid)
+
+    // Test 3: Type mismatches (should produce WARNING messages)
+    WRITEF("*N3. Type mismatch warnings:*N")
+    LET int_var = 100
+    LET float_var = 2.718
+    LET string_var = "test"
+
+    // These will produce warnings but allow compilation:
+    // WRITEF("Integer as float: %f*N", int_var)        // OK: int can promote to float
+    // WRITEF("Float as integer: %d*N", float_var)      // WARNING: potential data loss
+    // WRITEF("Integer as string: %s*N", int_var)       // WARNING: type mismatch
+
+    // Test 4: Common mistake detection (should produce helpful warnings)
+    WRITEF("*N4. Common mistake detection:*N")
+    // These will produce specific helpful warnings:
+    // WRITEF("Wrong specifier: %N instead of %d*N", 42)    // %N -> %d suggestion
+    // WRITEF("Wrong newline: hello\n instead of *N")       // \n -> *N suggestion
+
+    // Test 5: Edge cases that work correctly
+    WRITEF("*N5. Edge cases:*N")
+    LET dynamic_format = "Dynamic format: %d*N"
+    WRITEF(dynamic_format, 789)  // Non-literal format string - validation skipped
+
+    WRITEF("No format specifiers here*N")  // No % specifiers - should work fine
+    WRITEF("Escaped percent: %%d is not a specifier*N")  // %% should be ignored
+
+    // Test 6: Variable types properly inferred
+    WRITEF("*N6. Variable type inference:*N")
+    LET x = 42          // INTEGER
+    FLET y = 3.14        // FLOAT
+    LET msg = "hello"   // STRING
+    WRITEF("Variables: %d %f %s*N", x, y, msg)  // Should work perfectly
+
+    WRITEF("*N=== Test Complete ===*N")
+    WRITEF("Note: Some tests are commented out to allow compilation*N")
+    WRITEF("Uncomment individual lines to see specific error messages*N")
+
+    RESULTIS 0
+$)

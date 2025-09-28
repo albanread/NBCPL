@@ -1,0 +1,13 @@
+
+LET START() BE
+$(
+  LET LS1 = LIST( "this", "is", "a", "test")
+  LET LS2 = LIST( "the", "quick", "brown", "fox")
+  LET LS3 = CONCAT(LS2, LS1)
+
+  FOREACH S IN LS2 DO $(
+       WRITES("String: ")
+       WRITES(S)
+       WRITES("*N")
+  $)  
+$)

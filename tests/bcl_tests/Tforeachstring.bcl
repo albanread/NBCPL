@@ -1,0 +1,13 @@
+LET START() BE $(
+
+    LET SUM = 0
+    LET S AS ^STRING = "abcdefg"
+
+    FOREACH C AS INTEGER IN S DO $(
+        SUM := SUM + C
+        WRITEC(C)
+    $)
+
+    WRITEF("*NSUM should be 700 (%d)*N", SUM)
+  
+$)

@@ -1,0 +1,26 @@
+LET START() BE
+$(
+   WRITES("Testing nested scope cleanup*N")
+
+   // Test 1: Outer scope list
+   LET OUTER_LIST = LIST("outer", "scope")
+   WRITES("Created outer list*N")
+
+   // Test 2: Inner scope with its own list
+   $(
+      LET INNER_LIST = LIST("inner", "scope")
+      WRITES("Created inner list*N")
+      WRITES("Inner scope about to exit*N")
+   $)
+
+   WRITES("Inner scope exited - inner list should be freed*N")
+
+   // Test 3: Another inner scope
+   $(
+      LET ANOTHER_LIST = LIST("another", "inner", "list")
+      WRITES("Created another inner list*N")
+   $)
+
+   WRITES("Second inner scope exited*N")
+   WRITES("Outer scope about to exit - outer list should be freed*N")
+$)

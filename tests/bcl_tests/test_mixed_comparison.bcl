@@ -1,0 +1,22 @@
+LET START() BE {
+    LET int_var = 5
+    FLET float_var = 3.14
+
+    // Test mixed-type comparisons - results should be integers
+    LET test1 = int_var > 3.14
+    LET test2 = float_var = 0
+    LET test3 = int_var + 1.5 > 6.0
+
+    WRITEF("Test 1: int_var > 3.14 = %d*N", test1)
+    WRITEF("Test 2: float_var = 0 = %d*N", test2)
+    WRITEF("Test 3: int_var + 1.5 > 6.0 = %d*N", test3)
+
+    // Test function calls with mixed arguments
+    TestFunc(int_var, float_var)
+    TestFunc(42, 3.14)
+}
+
+LET TestFunc(x, y) = VALOF {
+    WRITEF("TestFunc: x=%d, y=%f*N", x, y)
+    RESULTIS x
+}

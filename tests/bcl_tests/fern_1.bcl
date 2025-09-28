@@ -1,0 +1,56 @@
+// Simple Barnsley Fern - SDL2 fractal renderer
+// This version uses hardcoded constants to avoid manifest parsing issues
+
+// Main program
+LET START() BE $(
+    init_fern()
+    FOR I=1 TO 10000 DO
+        iterate_fern()
+
+$)
+
+
+// Global variables for fern state
+GLOBALS {
+    FLET current_x = 0.0
+    FLET current_y = 0.0
+    LET point_count = 0
+}
+
+// Initialize the fern starting position
+LET init_fern() BE {
+    current_x := 0.0
+    current_y := 0.0
+    point_count := 0
+}
+
+// Apply one iteration of the IFS transformation
+LET iterate_fern() BE $(
+    FLET new_x = 0.0
+    FLET new_y = 0.0
+    FLET random = FRND()  // Get random number between 0.0 and 1.0
+
+
+    TEST random < 0.01 THEN $(
+        // f1: Stem (1% probability)
+        new_x := 0.0
+        new_y := 0.16 * current_y
+    $) ELSE TEST random < 0.86 THEN $(
+        // f2: Main frond (85% probability)
+        new_x := 0.85 * current_x + 0.04 * current_y
+        new_y := -0.04 * current_x + 0.85 * current_y + 1.6
+    $) ELSE TEST random < 0.93 THEN $(
+        // f3: Left leaflet (7% probability)
+        new_x := 0.2 * current_x - 0.26 * current_y
+        new_y := 0.23 * current_x + 0.22 * current_y + 1.6
+    $) ELSE $(
+        // f4: Right leaflet (7% probability)
+        new_x := -0.15 * current_x + 0.28 * current_y
+        new_y := 0.26 * current_x + 0.24 * current_y + 0.44
+    $)
+    WRITEF("x = %f y = %f c = %d *N", new_x, new_y, point_count)
+
+    current_x := new_x
+    current_y := new_y
+    point_count := point_count + 1
+$)

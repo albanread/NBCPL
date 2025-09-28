@@ -1,0 +1,9 @@
+LET START() BE
+$(
+    WRITES("Hello from NewBCPL with runtime announcement test!")
+    WRITES("Testing runtime announcement feature...")
+    NEWLINE()
+    WRITES("This should trigger the runtime system initialization.")
+    WRITES("This should show the runtime capabilities banner.")
+    NEWLINE()
+$)

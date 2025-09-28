@@ -1,0 +1,21 @@
+// Test to debug WRITEF dispatch mechanism
+// This will help us see if the special built-in dispatch is working
+
+LET START() BE
+{
+    WRITES("Starting WRITEF dispatch debug test*N")
+
+    // Test 1: WRITEF with just format string (should work)
+    WRITES("Test 1: Basic WRITEF*N")
+    WRITEF("Hello World*N")
+
+    // Test 2: WRITEF with one argument (this is where it fails)
+    WRITES("Test 2: WRITEF with one argument*N")
+    WRITEF("Number: %d*N", 42)
+
+    // Test 3: WRITEF with two arguments
+    WRITES("Test 3: WRITEF with two arguments*N")
+    WRITEF("Two numbers: %d and %d*N", 123, 456)
+
+    WRITES("End of WRITEF dispatch debug test*N")
+}

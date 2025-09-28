@@ -1,0 +1,19 @@
+LET START() = VALOF
+$(
+    // Test type validation specifically
+    LET int_val = 42
+    LET float_val = 3.14
+    LET str_val = "hello"
+
+    // These should NOT trigger warnings (correct types)
+    WRITEF("Integer: %d*N", int_val)
+    WRITEF("Float: %f*N", float_val)
+    WRITEF("String: %s*N", str_val)
+
+    // These SHOULD trigger type mismatch warnings
+    WRITEF("Wrong: %f for int*N", int_val)    // integer where float expected
+    WRITEF("Wrong: %d for float*N", float_val)  // float where integer expected
+    WRITEF("Wrong: %s for int*N", int_val)     // integer where string expected
+
+    RESULTIS 0
+$)

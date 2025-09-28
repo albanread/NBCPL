@@ -1,0 +1,12 @@
+LET SIMPLE_FUNC() = VALOF
+$(
+  LET R = 42
+  WRITES("R=") WRITEN(R) WRITES("*N")
+  RESULTIS R
+$)
+
+LET START() BE
+$(
+  LET X = SIMPLE_FUNC()
+  WRITES("Returned: ") WRITEN(X) WRITES("*N")
+$)

@@ -1,0 +1,34 @@
+// Test for compile-time bounds checking
+// This should trigger compile-time errors for out-of-bounds accesses
+
+LET START() BE $(
+    // Test 1: Vector with known size - should catch out of bounds at compile time
+    LET v = VEC 3   // Creates vector of size 3 (indices 0, 1, 2)
+
+    // Valid accesses - should be fine
+    v!0 := 10
+    v!1 := 20
+    v!2 := 30
+
+    WRITES("Valid accesses completed*N")
+
+    // Invalid access - index 3 is out of bounds for size 3 vector
+    // This should be caught at compile time
+    v!3 := 40  // ERROR: should trigger compile-time bounds violation
+
+    // Invalid access - very negative index (less than -1)
+    // This should be caught at compile time (-1 is valid for length, but -2 is not)
+    v!(-2) := 50  // ERROR: should trigger compile-time bounds violation
+
+    // Test 2: Vector initializer with known size
+    LET w = VEC [100, 200, 300]  // Size 3 vector
+
+    // Valid access
+    WRITEN(w!1)  // Should print 200
+    WRITES("*N")
+
+    // Invalid access - should be caught at compile time
+    WRITEN(w!5)  // ERROR: index 5 out of bounds for size 3
+
+    WRITES("Test completed*N")
+$)

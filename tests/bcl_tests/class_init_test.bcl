@@ -1,0 +1,110 @@
+// class_init_test.bcl - Test for class member variable initialization
+// This file tests that initialized LET/FLET declarations within a class are
+// properly processed and assigned their values during object creation.
+
+CLASS Counter $(
+
+    LET count = 100   // Initialize count to 100
+    FLET rate = 1.5   // Initialize rate to 1.5
+    LET name = 0      // Uninitialized member (should be 0)
+
+    // Constructor - should see the initialized values
+    ROUTINE CREATE() BE $(
+        WRITES("Counter created with initialized values:*N")
+        WRITES("  count = ")
+        WRITEN(count)  // Should print 100
+        WRITES("  rate = ")
+        WRITEN(rate)   // Should print 1.5
+        WRITES("  name = ")
+        WRITEN(name)   // Should print 0
+        WRITES("*N")
+    $)
+
+    // Method to increment the counter by the rate
+    ROUTINE increment() BE $(
+        LET old_count = count
+        count := count + rate
+
+        WRITES("Counter incremented from ")
+        WRITEN(old_count)
+        WRITES(" to ")
+        WRITEN(count)
+        WRITES(" (rate = ")
+        WRITEN(rate)
+        WRITES(")*N")
+    $)
+
+    // Method to set the name of the counter
+    ROUTINE setName(new_name) BE $(
+        name := new_name
+        WRITES("Counter name set to: ")
+        WRITEN(name)
+        WRITES("*N")
+    $)
+$)
+
+CLASS AdvancedCounter EXTENDS Counter $(
+
+    LET max_value = 1000  // Initialize max_value to 1000
+
+    // Override the CREATE routine
+    ROUTINE CREATE() BE $(
+        WRITES("AdvancedCounter created with:*N")
+        WRITES("  count = ")
+        WRITEN(count)      // Should print 100 (inherited and initialized)
+        WRITES("  rate = ")
+        WRITEN(rate)       // Should print 1.5 (inherited and initialized)
+        WRITES("  max_value = ")
+        WRITEN(max_value)  // Should print 1000
+        WRITES("*N")
+    $)
+
+    // Method to safely increment ensuring we don't exceed max_value
+    ROUTINE safeIncrement() BE $(
+
+        LET next_value = count + rate
+
+        TEST next_value > max_value THEN
+            WRITES("Cannot increment: would exceed max_value*N")
+        ELSE $(
+            count := next_value
+            WRITES("Safely incremented to: ")
+            WRITEN(count)
+            WRITES("*N")
+        $)
+    $)
+$)
+
+LET START() BE $(
+    WRITES("Testing class member initialization*N")
+    WRITES("==============================*N*N")
+
+    // Create a Counter instance
+    WRITES("1. Creating a basic Counter:*N")
+    LET c = NEW Counter
+
+    // Test the counter operations
+    c.increment()
+    c.increment()
+    c.setName(42)
+
+    // Create an AdvancedCounter instance
+    WRITES("*N2. Creating an AdvancedCounter:*N")
+    LET ac = NEW AdvancedCounter
+
+    // Test the advanced counter operations
+    ac.increment()
+    ac.safeIncrement()
+
+    // Test inheritance of member variables
+    WRITES("*N3. Testing inherited member variables:*N")
+    WRITES("Original count = ")
+    WRITEN(ac.count)
+
+    // Try to exceed max value
+    WRITES("*N4. Attempting to exceed max value:*N")
+    ac.count := 999
+    ac.safeIncrement()
+
+    WRITES("*NTest completed*N")
+$)

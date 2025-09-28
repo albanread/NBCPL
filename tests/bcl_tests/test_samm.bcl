@@ -1,0 +1,46 @@
+// Test SAMM (Scope Aware Memory Management) functionality
+// This program tests basic scope-based memory management
+
+LET START() BE {
+    WRITES("Starting SAMM test...*N");
+
+    // Test basic scope management with heap allocations
+    $(
+        LET vec1 = GETVEC(100);
+        LET vec2 = GETVEC(200);
+
+        WRITES("Allocated vectors in outer scope*N");
+
+        // Nested scope - should trigger scope enter/exit
+        $(
+            LET vec3 = GETVEC(50);
+            LET vec4 = GETVEC(75);
+
+            WRITES("Allocated vectors in inner scope*N");
+
+            // Inner scope ends here - SAMM should clean up vec3, vec4
+        $)
+
+        WRITES("Returned to outer scope*N");
+
+        // Another nested scope
+        $(
+            LET vec5 = GETVEC(150);
+            WRITES("Allocated vector in second inner scope*N");
+
+            // Test early exit from scope
+            IF TRUE THEN {
+                WRITES("Exiting scope early*N");
+                BREAK;
+            }
+
+            WRITES("This should not print*N");
+        $)
+
+        WRITES("After second inner scope*N");
+
+        // Outer scope ends here - SAMM should clean up vec1, vec2
+    $)
+
+    WRITES("All scopes exited - test complete*N");
+}

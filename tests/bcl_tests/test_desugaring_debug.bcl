@@ -1,0 +1,62 @@
+// test_desugaring_debug.bcl - Minimal test file to debug desugaring of NEW expressions
+
+// Simple class with just enough to test the feature
+CLASS Thing $(
+    DECL x, y  // Member variables
+
+    // Constructor with debug prints
+    ROUTINE CREATE(initialX, initialY) BE $(
+        WRITES("Thing::CREATE called with parameters: ")
+        WRITEN(initialX)
+        WRITES(", ")
+        WRITEN(initialY)
+        WRITES("\n")
+
+        x := initialX
+        y := initialY
+        WRITES("Values assigned: x=")
+        WRITEN(x)
+        WRITES(", y=")
+        WRITEN(y)
+        WRITES("\n")
+    $)
+
+    // Accessor methods
+    FUNCTION getX() = VALOF $(
+        WRITES("Thing::getX called, returning: ")
+        WRITEN(x)
+        WRITES("\n")
+        RESULTIS x
+    $)
+
+    FUNCTION getY() = VALOF $(
+        WRITES("Thing::getY called, returning: ")
+        WRITEN(y)
+        WRITES("\n")
+        RESULTIS y
+    $)
+
+    // Destructor
+    ROUTINE RELEASE() BE $(
+        WRITES("Thing::RELEASE called - object being destroyed\n")
+    $)
+$)
+
+// Minimal test function that only tests the NEW desugaring
+LET START() BE $(
+    WRITES("=== Starting NEW expression desugaring test ===\n")
+
+    WRITES("Creating object with NEW...\n")
+    // This is the line that should be desugared
+    LET p = NEW Thing(42, 99)
+
+    WRITES("Object created, checking values...\n")
+    WRITES("x = ")
+    WRITEN(p.getX())
+    WRITES("\ny = ")
+    WRITEN(p.getY())
+    WRITES("\n")
+
+    WRITES("=== Test complete ===\n")
+    // DEFER p.RELEASE() should be automatically generated
+$)

@@ -1,0 +1,48 @@
+// Test FIX intrinsic using FLTOFX to create float values
+// This avoids float literal parsing issues while testing FIX functionality
+
+LET START() BE {
+    WRITEF("Testing FIX intrinsic with FLTOFX conversions*N")
+    WRITEF("============================================*N")
+
+    // Test 1: FIX with positive float from FLTOFX
+    WRITEF("Test 1: FIX(FLTOFX(42))*N")
+    FLET float_val1 = FLTOFX(42)
+    LET result1 = FIX(float_val1)
+    WRITEF("Result: %d (expected: 42)*N", result1)
+
+    // Test 2: FIX with negative float from FLTOFX
+    WRITEF("*NTest 2: FIX(FLTOFX(-17))*N")
+    FLET float_val2 = FLTOFX(-17)
+    LET result2 = FIX(float_val2)
+    WRITEF("Result: %d (expected: -17)*N", result2)
+
+    // Test 3: FIX with zero float
+    WRITEF("*NTest 3: FIX(FLTOFX(0))*N")
+    FLET float_val3 = FLTOFX(0)
+    LET result3 = FIX(float_val3)
+    WRITEF("Result: %d (expected: 0)*N", result3)
+
+    // Test 4: FIX with large float
+    WRITEF("*NTest 4: FIX(FLTOFX(1000))*N")
+    FLET float_val4 = FLTOFX(1000)
+    LET result4 = FIX(float_val4)
+    WRITEF("Result: %d (expected: 1000)*N", result4)
+
+    // Test 5: FIX with float arithmetic
+    WRITEF("*NTest 5: FIX with float addition*N")
+    FLET a = FLTOFX(50)
+    FLET b = FLTOFX(25)
+    FLET sum = a +# b
+    LET result5 = FIX(sum)
+    WRITEF("FIX(FLTOFX(50) +# FLTOFX(25)) = %d (expected: 75)*N", result5)
+
+    // Test 6: FIX with integer (identity test)
+    WRITEF("*NTest 6: FIX with integer operand*N")
+    LET int_val = 99
+    LET result6 = FIX(int_val)
+    WRITEF("FIX(99) = %d (expected: 99)*N", result6)
+
+    WRITEF("*N============================================*N")
+    WRITEF("FIX intrinsic tests completed successfully*N")
+}

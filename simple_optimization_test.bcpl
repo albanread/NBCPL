@@ -1,0 +1,35 @@
+// Simple test for SAMM call tree optimization
+// This test focuses on optimization without complex formatting
+
+// LEVEL 3: Pure arithmetic leaf function (no heap allocation)
+LET get_five() = 5
+
+// LEVEL 2: Calls level 3 function (no direct heap allocation)
+LET get_ten() = get_five() + get_five()
+
+// LEVEL 1: Calls level 2 function (no direct heap allocation)
+LET get_twenty() = get_ten() + get_ten()
+
+// HEAP-ALLOCATING LEAF FUNCTION
+LET make_list() = LIST(1, 2, 3)
+
+// NON-OPTIMIZABLE FUNCTION: Calls heap-allocating function
+LET use_heap() = VALOF $(
+    LET my_list = make_list()
+    RESULTIS 42
+$)
+
+// Main test program
+LET start() BE $(
+    WRITEF("Simple optimization test*N")
+
+    // Test optimizable call tree
+    get_twenty()
+    get_ten()
+    get_five()
+
+    // Test non-optimizable function
+    use_heap()
+
+    WRITEF("Test completed*N")
+$)

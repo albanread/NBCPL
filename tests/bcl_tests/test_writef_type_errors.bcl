@@ -1,0 +1,30 @@
+LET START() BE {
+    // This file contains WRITEF calls that should fail type checking
+    // Each line represents a different type error case
+
+    WRITES("=== Testing Type Error Cases ===*n")
+
+    // Test 1: Wrong argument count (too few)
+    WRITEF("Need two: %d %s*n", 42)
+
+    // Test 2: Wrong argument count (too many)
+    WRITEF("Need one: %d*n", 42, "extra")
+
+    // Test 3: Wrong type - float where int expected
+    WRITEF("Integer: %d*n", 3.14)
+
+    // Test 4: Wrong type - int where string expected
+    WRITEF("String: %s*n", 42)
+
+    // Test 5: Wrong type - string where float expected
+    WRITEF("Float: %f*n", "hello")
+
+    // Test 6: Mixed wrong types
+    WRITEF("Mixed: %d %f %s*n", "wrong", 42, 3.14)
+
+    // Test 7: Non-string as format string
+    LET bad_format = 12345
+    WRITEF(bad_format, "arg")
+
+    WRITES("If you see this, type checking failed!*n")
+}

@@ -1,0 +1,4 @@
+LET START() BE {
+    // Simple test to debug type inference
+    WRITEF("Hello %s*n", "world")
+}

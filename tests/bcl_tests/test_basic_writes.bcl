@@ -1,0 +1,2 @@
+GET "libhdr.h"
+LET START() BE WRITES("Hello World*n")

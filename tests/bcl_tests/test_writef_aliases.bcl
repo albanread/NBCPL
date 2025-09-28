@@ -1,0 +1,27 @@
+// Test file to verify %N and %F aliases work in WRITEF
+// This tests the new QOL improvement where %N is an alias for %d and %F is an alias for %f
+
+LET START() BE $(
+    WRITES("=== Testing WRITEF %N and %F aliases ===*N")
+
+    // Test %N (integer alias for %d)
+    WRITES("Testing %N for integers:*N")
+    WRITEF("Using %%N: %N*N", 42)
+    WRITEF("Using %%d: %d*N", 42)
+
+    // Test %F (float alias for %f)
+    WRITES("Testing %F for floats:*N")
+    WRITEF("Using %%F: %F*N", 3.14159)
+    WRITEF("Using %%f: %f*N", 3.14159)
+
+    // Test mixed usage
+    WRITES("Testing mixed usage:*N")
+    WRITEF("Mixed: %N + %F = %f*N", 10, 2.5, 12.5)
+    WRITEF("Same as: %d + %f = %F*N", 10, 2.5, 12.5)
+
+    // Test multiple arguments
+    WRITES("Testing multiple arguments:*N")
+    WRITEF("Numbers: %N, %N, %F, %F*N", 1, 2, 1.1, 2.2)
+
+    WRITES("=== Test complete ===*N")
+$)

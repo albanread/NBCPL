@@ -1,0 +1,28 @@
+// test_mixer_minimal.bcl
+// Minimal SDL_mixer test to verify function registration
+
+LET START() BE $(
+    WRITEF("Testing SDL_mixer function registration...%N")
+
+    // Test basic SDL2 initialization
+    LET result = SDL2_INIT_SUBSYSTEMS(16)  // SDL_INIT_AUDIO = 16
+    WRITEF("SDL2_INIT_SUBSYSTEMS result: %d%N", result)
+
+    // Test SDL_mixer initialization
+    LET mixer_result = SDL2_MIXER_OPEN_AUDIO(44100, -32784, 2, 2048)
+    WRITEF("SDL2_MIXER_OPEN_AUDIO result: %d%N", mixer_result)
+
+    // Test volume query
+    LET volume = SDL2_MIXER_VOLUME(-1, -1)
+    WRITEF("Current volume: %d%N", volume)
+
+    // Test channel allocation query
+    LET channels = SDL2_MIXER_ALLOCATE_CHANNELS(-1)
+    WRITEF("Available channels: %d%N", channels)
+
+    // Cleanup
+    SDL2_MIXER_CLOSE_AUDIO()
+    SDL2_QUIT()
+
+    WRITEF("SDL_mixer test completed successfully!%N")
+$)

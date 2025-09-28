@@ -1,0 +1,43 @@
+// Minimal test for parameter type inference and ARM64 ABI compliance
+// Focus only on parameter passing without complex local variable issues
+
+LET IntRoutine(a, b) BE
+{
+    // Parameters used in integer arithmetic - should infer INTEGER types
+    WRITEN(a + b)
+}
+
+FLET FloatRoutine(x, y) = VALOF
+{
+    // Parameters used in float arithmetic - should infer FLOAT types
+    RESULTIS x + y + 1.5
+}
+
+LET MixedRoutine(int_param, float_param) BE
+{
+    // int_param used as integer, float_param unused
+    WRITEN(int_param + 10)
+}
+
+LET START() BE
+{
+    LET my_int = 42
+    FLET my_float = 3.14
+
+    // Test calls that should demonstrate ARM64 ABI compliance
+
+    // Both args should go to X0, X1 (integer registers)
+    IntRoutine(10, 20)
+
+    // Both args should go to D0, D1 (float registers)
+    FloatRoutine(1.5, 2.5)
+
+    // First arg to X0 (int), second arg to D0 (float) - mixed ABI
+    MixedRoutine(100, 99.9)
+
+    // Key test: my_float should be converted to int and placed in X1
+    IntRoutine(my_int, my_float)
+
+    // Key test: my_int should be converted to float and placed in D1
+    FloatRoutine(my_int, my_float)
+}

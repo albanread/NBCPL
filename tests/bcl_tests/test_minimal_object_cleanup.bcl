@@ -1,0 +1,63 @@
+// Minimal test to isolate object cleanup segfault issue
+// This test creates the simplest possible object lifecycle to identify the root cause
+
+CLASS TestClass $(
+    DECL id
+
+    ROUTINE CREATE(obj_id) BE $(
+        id := obj_id
+        WRITES("TestClass ")
+        WRITEN(id)
+        WRITES(" created*N")
+    $)
+
+    ROUTINE RELEASE() BE $(
+        WRITES("TestClass ")
+        WRITEN(id)
+        WRITES(" being released*N")
+    $)
+$)
+
+// Test 1: Single object in main scope
+LET test_single_object() BE $(
+    WRITES("=== Test 1: Single Object ===*N")
+    LET obj = NEW TestClass(1)
+    WRITES("Object created, about to return*N")
+    // obj should be cleaned up automatically when function exits
+$)
+
+// Test 2: Single object in inner scope
+LET test_inner_scope() BE $(
+    WRITES("*N=== Test 2: Inner Scope ===*N")
+    $(
+        LET obj = NEW TestClass(2)
+        WRITES("Object created in inner scope*N")
+    $)
+    WRITES("Exited inner scope*N")
+$)
+
+// Test 3: Manual free (to isolate from automatic cleanup)
+LET test_manual_free() BE $(
+    WRITES("*N=== Test 3: Manual Free ===*N")
+    LET obj = NEW TestClass(3)
+    WRITES("About to manually free object*N")
+    // Note: We would call FREE(obj) here if we had that function available
+    WRITES("Manual test complete (no actual free called)*N")
+$)
+
+// Main program - run tests sequentially
+LET START() BE $(
+    WRITES("Minimal Object Cleanup Test*N")
+    WRITES("==========================*N")
+
+    test_single_object()
+    WRITES("Test 1 completed*N")
+
+    test_inner_scope()
+    WRITES("Test 2 completed*N")
+
+    test_manual_free()
+    WRITES("Test 3 completed*N")
+
+    WRITES("*NAll tests completed successfully*N")
+$)

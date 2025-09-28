@@ -1,0 +1,11 @@
+LET START() BE
+{
+	// Test NOT with complex expressions
+	LET A = NOT (1 AND 0)   // Should be NOT 0 = 1
+	LET B = NOT (1 OR 0)    // Should be NOT -1 = 0  
+	LET C = NOT (NOT 1)     // Should be NOT (NOT 1) = NOT 0 = 1
+	
+	WRITEF(" NOT(1 AND 0)=%d*N", A)
+	WRITEF(" NOT(1 OR 0)=%d*N", B)  
+	WRITEF(" NOT(NOT 1)=%d*N", C)
+}

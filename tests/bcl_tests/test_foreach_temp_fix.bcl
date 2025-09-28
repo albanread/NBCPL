@@ -1,0 +1,26 @@
+// Test file to verify the FOREACH temporary variable registration fix
+// This should compile without crashing due to unregistered temporary variables
+
+LET start() BE {
+    // Test vector FOREACH
+    LET v = VEC 5
+    v!0 := 10
+    v!1 := 20
+    v!2 := 30
+    v!3 := 40
+    v!4 := 50
+
+    WRITEF("Testing vector FOREACH:\n")
+    FOREACH x IN v DO {
+        WRITEF("Value: %d\n", x)
+    }
+
+    // Test string FOREACH
+    LET s = "Hello"
+    WRITEF("Testing string FOREACH:\n")
+    FOREACH c IN s DO {
+        WRITEF("Char: %c\n", c)
+    }
+
+    WRITEF("FOREACH test completed successfully!\n")
+}

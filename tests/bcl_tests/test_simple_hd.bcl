@@ -1,0 +1,8 @@
+LET START() BE
+$(
+   LET L = LIST("test")
+   LET H = HD(L)
+   WRITES("Head is: ")
+   WRITES(H)
+   WRITES("*N")
+$)

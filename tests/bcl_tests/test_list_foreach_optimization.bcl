@@ -1,0 +1,29 @@
+// Test to verify the list FOREACH header optimization
+// This test should demonstrate that simple variable collections
+// use the variable directly instead of creating temporary headers
+
+LET START() BE {
+    WRITEF("Testing list FOREACH header optimization\n")
+
+    // Test 1: Simple variable - should use optimization
+    LET simple_list = LIST("1", "2", "3", "4", "5")
+    WRITEF("Test 1: Simple variable list FOREACH\n")
+    FOREACH item IN simple_list DO {
+        WRITEF("Item: %s\n", item)
+    }
+
+    // Test 2: Complex expression - should create temporary
+    WRITEF("Test 2: Complex expression list FOREACH\n")
+    FOREACH item IN LIST("a", "b", "c") DO {
+        WRITEF("Item: %s\n", item)
+    }
+
+    // Test 3: Another simple variable with strings
+    LET string_list = LIST("hello", "world", "test")
+    WRITEF("Test 3: Simple string list FOREACH\n")
+    FOREACH str IN string_list DO {
+        WRITEF("String: %s\n", str)
+    }
+
+    WRITEF("All list FOREACH optimization tests completed!\n")
+}

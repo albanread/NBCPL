@@ -1,0 +1,23 @@
+GET "libhdr.h"
+
+LET MYROUTINE(X) BE
+$(
+  IF X = 1 THEN RETURN
+  WRITES("Inside MyRoutine, X is not 1*N")
+$)
+
+LET START() = VALOF
+$(
+  MYROUTINE(1)
+  WRITES("After MYROUTINE(1) (should be seen)*N")
+
+  SWITCHON 1 DO
+  $(
+    CASE 1: WRITES("Case 1*N")
+    ENDCASE
+    CASE 2: WRITES("Case 2 (should not be seen)*N")
+  $)
+
+  FINISH
+  RESULTIS 0
+$)

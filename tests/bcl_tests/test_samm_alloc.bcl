@@ -1,0 +1,33 @@
+// Test SAMM with actual heap allocations
+LET START() BE $(
+    WRITES("Testing SAMM with heap allocations...*N")
+
+    // Test basic vector allocation
+    $(
+        WRITES("Allocating vectors in scope...*N")
+        LET vec1 = GETVEC(100)
+        LET vec2 = GETVEC(50)
+        WRITES("Vectors allocated*N")
+        // Scope exit should trigger SAMM cleanup
+    $)
+
+    WRITES("First scope exited*N")
+
+    // Test nested scopes with allocations
+    $(
+        LET vec3 = GETVEC(200)
+        WRITES("Outer vector allocated*N")
+
+        $(
+            LET vec4 = GETVEC(75)
+            LET vec5 = GETVEC(25)
+            WRITES("Inner vectors allocated*N")
+            // Inner scope exit should clean up vec4, vec5
+        $)
+
+        WRITES("Inner scope exited*N")
+        // Outer scope exit should clean up vec3
+    $)
+
+    WRITES("All scopes exited - test complete*N")
+$)

@@ -1,0 +1,14 @@
+LET START() BE
+$(
+   WRITES("Testing empty list FOREACH*N")
+   LET L = LIST()
+   WRITES("Created empty list*N")
+   WRITES("About to enter FOREACH on empty list*N")
+   FOREACH S IN L DO
+   $(
+            WRITES("This should never print: ")
+            WRITES(S)
+            WRITES("*N")
+    $)
+   WRITES("FOREACH on empty list complete - no iterations*N")
+$)

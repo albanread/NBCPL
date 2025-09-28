@@ -1,0 +1,104 @@
+// class_inheritance_test.bcl - Test for class inheritance and method overriding
+// This file tests proper inheritance, especially overriding the CREATE method.
+
+CLASS Point $(
+    DECL x, y  // Member variables at offsets 8 and 16
+
+    // Constructor
+    ROUTINE CREATE(initialX, initialY) BE $(
+        x := initialX
+        y := initialY
+        WRITES("Point::CREATE called with (")
+        WRITEN(x)
+        WRITES(", ")
+        WRITEN(y)
+        WRITES(")\n")
+    $)
+
+    // Accessor methods
+    FUNCTION getX() = VALOF $(
+        RESULTIS x
+    $)
+
+    FUNCTION getY() = VALOF $(
+        RESULTIS y
+    $)
+
+    // Setter method
+    ROUTINE set(newX, newY) BE $(
+        x := newX
+        y := newY
+        WRITES("Point::set called with (")
+        WRITEN(x)
+        WRITES(", ")
+        WRITEN(y)
+        WRITES(")\n")
+    $)
+
+    // Destructor
+    ROUTINE RELEASE() BE $(
+        WRITES("Point::RELEASE called\n")
+    $)
+$)
+
+CLASS ColorPoint EXTENDS Point $(
+    DECL color  // Should be at offset 24 (after inherited x, y)
+
+    // Override the constructor
+    ROUTINE CREATE(initialX, initialY, initialColor) BE $(
+        // Call parent constructor first
+        x := initialX
+        y := initialY
+        color := initialColor
+
+        WRITES("ColorPoint::CREATE called with (")
+        WRITEN(x)
+        WRITES(", ")
+        WRITEN(y)
+        WRITES(", ")
+        WRITEN(color)
+        WRITES(")\n")
+    $)
+
+    // Add a new method
+    FUNCTION getColor() = VALOF $(
+        RESULTIS color
+    $)
+
+    // Override the destructor
+    ROUTINE RELEASE() BE $(
+        WRITES("ColorPoint::RELEASE called\n")
+    $)
+$)
+
+LET START() BE $(
+    WRITES("\n=== Testing Point class ===\n")
+    LET p = NEW Point
+    p.CREATE(10, 20)
+    WRITES("Point values: x=")
+    WRITEN(p.getX())
+    WRITES(", y=")
+    WRITEN(p.getY())
+    WRITES("\n")
+
+    WRITES("\n=== Testing ColorPoint class ===\n")
+    LET cp = NEW ColorPoint
+    cp.CREATE(30, 40, 50)
+    WRITES("ColorPoint values: x=")
+    WRITEN(cp.getX())
+    WRITES(", y=")
+    WRITEN(cp.getY())
+    WRITES(", color=")
+    WRITEN(cp.getColor())
+    WRITES("\n")
+
+    WRITES("\n=== Testing inherited method ===\n")
+    cp.set(60, 70)
+    WRITES("After set: x=")
+    WRITEN(cp.getX())
+    WRITES(", y=")
+    WRITEN(cp.getY())
+    WRITES(", color=")
+    WRITEN(cp.getColor())
+    WRITES("\n")
+$)

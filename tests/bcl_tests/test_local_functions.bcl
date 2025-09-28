@@ -1,0 +1,47 @@
+// test_local_functions.bcl
+// Test to verify that local function names are properly handled by liveness analysis
+// and don't appear incorrectly as live variables
+
+// Local helper function
+LET MyHelperFunction(x) = x * 2
+
+// Local routine
+LET MyHelperRoutine(a, b) BE $(
+    WRITEF("Helper: %d + %d = %d*N", a, b, a + b)
+$)
+
+LET START() BE $(
+    WRITEF("=== Testing Local Functions and Routines ===%N")
+
+    // These local function/routine names should NOT appear in liveness analysis:
+    // - MyHelperFunction
+    // - MyHelperRoutine
+
+    // These variables SHOULD appear in liveness analysis:
+    LET value1 = 10
+    LET value2 = 20
+
+    // Call local function - function name should be filtered out
+    LET doubled = MyHelperFunction(value1)
+
+    // Call local routine - routine name should be filtered out
+    MyHelperRoutine(value1, value2)
+
+    // More variables that should be tracked
+    LET result = doubled + value2
+    LET final_answer = result * 3
+
+    // SDL2 calls should also be filtered out
+    LET sdl_result = SDL2_INIT_SUBSYSTEMS(0)
+    SDL2_QUIT()
+
+    WRITEF("Final answer: %d*N", final_answer)
+
+    WRITEF("%N=== Expected Results ===%N")
+    WRITEF("Should appear in live intervals:%N")
+    WRITEF("- value1, value2, doubled, result, final_answer, sdl_result%N")
+    WRITEF("%N")
+    WRITEF("Should NOT appear in live intervals:%N")
+    WRITEF("- MyHelperFunction, MyHelperRoutine%N")
+    WRITEF("- SDL2_INIT_SUBSYSTEMS, SDL2_QUIT%N")
+$)

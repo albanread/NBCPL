@@ -1,0 +1,9 @@
+LET START() BE {
+    WRITES("Testing basic floating point...*N")
+
+    // Just test a simple float literal assignment
+    LET F = 3.5
+    WRITES("Float assigned successfully.*N")
+    WRITEF(F)
+    WRITES("Basic float test complete.*N")
+}

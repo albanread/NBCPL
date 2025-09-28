@@ -1,0 +1,62 @@
+// Test file for FOREACH destructuring assignment with PAIR lists
+// This tests the new FOREACH (X, Y) IN ListOfPairs DO... syntax
+
+LET START() BE $(
+    WRITEF("Testing FOREACH destructuring with PAIR lists*N")
+
+    // Test 1: Simple destructuring with a list of pairs
+    LET points = LIST(PAIR(10, 20), PAIR(30, 40), PAIR(50, 60))
+
+    WRITEF("Test 1: Basic destructuring*N")
+    FOREACH (x, y) IN points DO $(
+        WRITEF("Point: (%d, %d)*N", x, y)
+    $)
+
+    // Test 2: Destructuring with computed pairs
+    LET computed_pairs = LIST(PAIR(1, 2), PAIR(3*4, 5+6), PAIR(100, 200))
+
+    WRITEF("*NTest 2: Destructuring with computed pairs*N")
+    FOREACH (a, b) IN computed_pairs DO $(
+        LET sum = a + b
+        LET product = a * b
+        WRITEF("(%d, %d) -> sum=%d, product=%d*N", a, b, sum, product)
+    $)
+
+    // Test 3: Empty list (should not execute loop body)
+    LET empty_list = LIST()
+
+    WRITEF("*NTest 3: Empty list (should print nothing in loop)*N")
+    FOREACH (i, j) IN empty_list DO $(
+        WRITEF("This should not print!*N")
+    $)
+    WRITEF("Empty list test completed*N")
+
+    // Test 4: Single element list
+    LET single_pair = LIST(PAIR(99, 88))
+
+    WRITEF("*NTest 4: Single element list*N")
+    FOREACH (p, q) IN single_pair DO $(
+        WRITEF("Single pair: p=%d, q=%d*N", p, q)
+    $)
+
+    // Test 5: Using destructured values in calculations
+    LET coordinates = LIST(PAIR(0, 0), PAIR(3, 4), PAIR(5, 12))
+
+    WRITEF("*NTest 5: Distance calculations*N")
+    FOREACH (x, y) IN coordinates DO $(
+        LET distance_squared = x*x + y*y
+        WRITEF("Point (%d, %d): distance² = %d*N", x, y, distance_squared)
+    $)
+
+    // Test 6: Nested operations with destructured pairs
+    LET rectangles = LIST(PAIR(10, 5), PAIR(20, 8), PAIR(15, 12))
+
+    WRITEF("*NTest 6: Rectangle areas and perimeters*N")
+    FOREACH (width, height) IN rectangles DO $(
+        LET area = width * height
+        LET perimeter = 2 * (width + height)
+        WRITEF("Rectangle %dx%d: area=%d, perimeter=%d*N", width, height, area, perimeter)
+    $)
+
+    WRITEF("*NAll FOREACH destructuring tests completed successfully!*N")
+$)

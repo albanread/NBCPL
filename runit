@@ -1,0 +1,9 @@
+!/bin/bash
+
+SOURCE_FILE=$1
+
+
+# Run the BCPL compiler with trace options and redirect the output.
+echo "Running BCPL."
+./NewBCPL "$SOURCE_FILE"  --trace-codegen --run"
+

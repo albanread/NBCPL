@@ -1,0 +1,12 @@
+LET START() BE
+$(
+   LET L = LIST( 10, 20, 30, 40, 50)
+   LET SubList = REST L // SubList is now a pointer to (20, 30, 40, 50)
+   
+   // This will now work correctly
+   FOREACH X IN SubList DO 
+   $(
+       WRITEN(X) 
+       WRITEC(10) 
+   $)
+$)

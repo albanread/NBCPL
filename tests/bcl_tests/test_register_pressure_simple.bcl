@@ -1,0 +1,40 @@
+// Simplified test to isolate register pressure issue
+// This should trigger the same register allocation problem as fern_simple.bcl
+
+GLOBALS {
+    FLET current_x = 0.0
+    FLET current_y = 0.0
+}
+
+// Simple function with nested TEST statements and complex float expressions
+LET test_register_pressure() BE $(
+    FLET new_x = 0.0
+    FLET new_y = 0.0
+    FLET random = FRND()
+
+    TEST random < 0.5 THEN $(
+        // Complex expression with multiple operations
+        new_x := 0.85 * current_x + 0.04 * current_y
+        new_y := -0.04 * current_x + 0.85 * current_y + 1.6
+    $) ELSE $(
+        // Another complex expression
+        new_x := 0.2 * current_x - 0.26 * current_y
+        new_y := 0.23 * current_x + 0.22 * current_y + 1.6
+    $)
+
+    current_x := new_x
+    current_y := new_y
+$)
+
+LET START() BE $(
+    WRITES("Testing register pressure")
+    NEWLINE()
+
+    current_x := 1.0
+    current_y := 2.0
+
+    test_register_pressure()
+
+    WRITES("Test completed")
+    NEWLINE()
+$)

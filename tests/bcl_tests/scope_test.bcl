@@ -1,0 +1,10 @@
+LET START() BE
+$(
+  LET R = 99
+  WRITES("Before loop: R=") WRITEN(R) WRITES("*N")
+  FOR I = 1 TO 2 DO
+  $(
+    WRITES("In loop: R=") WRITEN(R) WRITES("*N")
+  $)
+  WRITES("After loop: R=") WRITEN(R) WRITES("*N")
+$)

@@ -1,0 +1,26 @@
+LET START() BE $(
+  LET L = LIST("item", 100, 99.5)
+
+  // 1. Get a pointer to the FIRST list node using the OPTIMIZED L!0 expression.
+  LET FirstNodePtr = L!0 
+
+  IF FirstNodePtr = 0 THEN FINISH
+
+  // 2. Get the type from the node pointer. This now works correctly.
+  LET T = TYPEOF(FirstNodePtr)
+
+  SWITCHON T INTO $(
+    CASE TYPE_STRING: $(
+      // 3. Get the value from the node pointer.
+      LET S = AS_STRING(FirstNodePtr) // Or HD(FirstNodePtr)
+      WRITES("The first item is a string: ")
+      WRITES(S)
+      WRITES("*N")
+      ENDCASE
+    $)
+    DEFAULT: $(
+      WRITES("The first item is NOT a string.*N")
+      ENDCASE
+    $)
+  $)
+$)

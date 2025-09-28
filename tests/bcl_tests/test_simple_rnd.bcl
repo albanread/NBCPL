@@ -1,0 +1,23 @@
+// Simple test to check RND, RAND, and FRND functions
+
+LET START() BE $(
+    WRITES("Testing basic random functions:*N")
+
+    // Test RAND (should return integer)
+    LET int_result = RAND(10)
+    WRITEF("RAND(10) = %d*N", int_result)
+
+    // Test FRND (should return float between 0.0 and 1.0)
+    FLET float_result = FRND()
+    WRITES("FRND() = ")
+    FWRITE(float_result)
+    WRITES("*N")
+
+    // Test RND (should return float between 0.0 and max_val)
+    FLET rnd_result = RND(5)
+    WRITES("RND(5) = ")
+    FWRITE(rnd_result)
+    WRITES("*N")
+
+    WRITES("Test complete.*N")
+$)

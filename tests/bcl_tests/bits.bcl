@@ -1,0 +1,9 @@
+LET START() BE
+$(
+
+  LET m = 0
+  m %% (0,8) := 212	
+  LET x = m %% (0,8)
+  WRITEN(x)
+
+$)

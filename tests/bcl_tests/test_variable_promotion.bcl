@@ -1,0 +1,33 @@
+// Test specific variable type promotion issue
+// This isolates the exact problem with variable promotion
+
+LET START() BE {
+    WRITEF("Testing variable type promotion issue*N")
+
+    // First establish that literals work
+    FLET literal_test = 1.0 + 6
+    WRITEF("Literal: 1.0 + 6 = %f*N", literal_test)
+
+    // Now test with integer variable
+    LET int_var = 6
+    WRITEF("Integer variable: int_var = %d*N", int_var)
+
+    // This is the failing case - adding float literal to int variable
+    FLET var_test = 1.0 + int_var
+    WRITEF("Variable: 1.0 + int_var = %f*N", var_test)
+
+    // Test the reverse order
+    FLET reverse_test = int_var + 1.0
+    WRITEF("Reverse: int_var + 1.0 = %f*N", reverse_test)
+
+    // Test with float variable
+    FLET float_var = 1.0
+    FLET float_var_test = float_var + 6
+    WRITEF("Float var: float_var + 6 = %f*N", float_var_test)
+
+    // Test with both variables
+    FLET both_vars = float_var + int_var
+    WRITEF("Both vars: float_var + int_var = %f*N", both_vars)
+
+    WRITEF("Variable promotion tests complete*N")
+}

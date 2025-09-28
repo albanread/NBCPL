@@ -1,0 +1,14 @@
+GET "libhdr.h"
+
+LET START() = VALOF
+$(
+  LET I = 0
+  $(
+    I := I + 1
+    IF I = 3 THEN LOOP // Skip printing when I is 3
+    WRITEN(I)
+    WRITEC(10)
+  $) REPEAT UNTIL I = 5
+  WRITEC(10) // Should print 1 2 4 5
+  RESULTIS 0
+$)

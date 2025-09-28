@@ -1,0 +1,49 @@
+// Test FOREACH on string variables to check if bug exists in non-optimized path
+// This will help determine if the off-by-one bug is related to the optimization or general FOREACH logic
+
+LET START() BE {
+    WRITEF("=== FOREACH VARIABLE DEBUG TEST ===\n")
+
+    // Test 1: String variable (should NOT use immediate length optimization)
+    WRITEF("Test 1: String variable 'abc' (should call LEN)\n")
+    LET my_string = "abc"
+    WRITEF("Expected: a, b, c (3 characters)\n")
+    WRITEF("Actual output:\n")
+    FOREACH char IN my_string DO {
+        WRITEF("  %c\n", char)
+    }
+    WRITEF("String variable test done\n\n")
+
+    // Test 2: Vector variable (should NOT use immediate length optimization)
+    WRITEF("Test 2: Vector variable VEC(1, 2, 3) (should call LEN)\n")
+    LET my_vector = VEC(1, 2, 3)
+    WRITEF("Expected: 1, 2, 3 (3 elements)\n")
+    WRITEF("Actual output:\n")
+    FOREACH num IN my_vector DO {
+        WRITEF("  %d\n", num)
+    }
+    WRITEF("Vector variable test done\n\n")
+
+    // Test 3: Two-element string variable
+    WRITEF("Test 3: Two-element string variable 'hi'\n")
+    LET short_string = "hi"
+    WRITEF("Expected: h, i (2 characters)\n")
+    WRITEF("Actual output:\n")
+    FOREACH char IN short_string DO {
+        WRITEF("  %c\n", char)
+    }
+    WRITEF("Short string test done\n\n")
+
+    // Test 4: Single-element string variable
+    WRITEF("Test 4: Single-element string variable 'x'\n")
+    LET single_char = "x"
+    WRITEF("Expected: x (1 character)\n")
+    WRITEF("Actual output:\n")
+    FOREACH char IN single_char DO {
+        WRITEF("  %c\n", char)
+    }
+    WRITEF("Single char test done\n\n")
+
+    WRITEF("=== VARIABLE DEBUG TEST COMPLETE ===\n")
+    WRITEF("This tests the non-optimized path to isolate the bug!\n")
+}

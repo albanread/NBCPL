@@ -1,0 +1,15 @@
+// Minimal FOREACH test to isolate allocation issues
+LET start() BE {
+    WRITEF("Testing minimal FOREACH...\n")
+
+    // Simple vector test
+    LET v = VEC 2
+    v!0 := 42
+    v!1 := 84
+
+    FOREACH x IN v DO {
+        WRITEF("Value: %d\n", x)
+    }
+
+    WRITEF("Done.\n")
+}

@@ -1,0 +1,34 @@
+// MINIMAL test for FVALOF bug
+LET START() BE
+{
+    // Direct floating point operations work fine
+    WRITES("Testing direct float operations:*N")
+    LET a = 2.0 *# 4.0
+    WRITES("2.0 *# 4.0 = ")
+    WRITEF(a)
+    WRITES("*N")
+
+    // Testing FVALOF with a simple fixed value
+    WRITES("*NTesting FVALOF with fixed value:*N")
+    LET result1 = SIMPLE_FVALOF()
+    WRITES("SIMPLE_FVALOF() = ")
+    WRITEF(result1)
+    WRITES(" (should be 32.5)*N")
+
+    // Testing FVALOF with multiplication
+    WRITES("*NTesting FVALOF with multiplication:*N")
+    LET result2 = MULTIPLY_BY_TWO(8)
+    WRITES("MULTIPLY_BY_TWO(8) = ")
+    WRITEF(result2)
+    WRITES(" (should be 16.0)*N")
+}
+
+// Simple FVALOF returning a fixed value
+LET SIMPLE_FVALOF() = FVALOF {
+    RESULTIS 32.5
+}
+
+// FVALOF with multiplication
+LET MULTIPLY_BY_TWO(x) = FVALOF {
+    RESULTIS FLOAT(x) *# 2.0
+}

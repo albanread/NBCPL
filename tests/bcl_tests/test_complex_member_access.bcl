@@ -1,0 +1,43 @@
+// test_complex_member_access.bcl - Test for member access type inference through complex expressions
+
+CLASS Point $(
+    DECL x, y
+
+    ROUTINE set(newX, newY) BE $(
+        x := newX
+        y := newY
+    $)
+
+    FUNCTION getX() = VALOF $(
+        RESULTIS x
+    $)
+$)
+
+// Helper function that returns a Point object
+LET getPoint() = VALOF $(
+    LET p = NEW Point
+    p.set(42, 84)
+    RESULTIS p
+$)
+
+LET START() BE $(
+    WRITES("Testing member access type inference...*N")
+
+    // Case 1: Direct member access (should work)
+    LET p = NEW Point
+    p.set(10, 20)
+    LET direct_x = p.x
+    WRITES("Direct access: x = ")
+    WRITEN(direct_x)
+    WRITES("*N")
+
+    // Case 2: Member access through function call (currently fails with UNKNOWN)
+    // This should infer that getPoint() returns POINTER_TO_OBJECT
+    // and therefore (getPoint()).x should be INTEGER
+    LET func_call_x = (getPoint()).x
+    WRITES("Function call access: x = ")
+    WRITEN(func_call_x)
+    WRITES("*N")
+
+    WRITES("Test completed*N")
+$)

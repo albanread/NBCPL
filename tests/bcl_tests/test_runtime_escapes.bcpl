@@ -1,0 +1,42 @@
+// test_runtime_escapes.bcpl
+// Demonstration of runtime escape sequence support
+// Note: This shows the runtime capability, but full escape support requires lexer updates
+
+LET START() BE {
+    WRITES("=== Runtime Escape Sequence Support Demo ===*N")
+
+    // The runtime now supports escape sequences like \n, \t, \", \\, etc.
+    // However, the BCPL lexer currently only accepts *N for newlines in string literals
+
+    WRITES("Current working escape sequences:*N")
+    WRITES("  - *N for newlines (lexer supported)*N")
+    WRITES("  - Tab characters need lexer update for \\t*N")
+    WRITES("  - Quote escaping needs lexer update for \\\"*N")
+    WRITES("  - Backslash escaping needs lexer update for \\\\*N")
+
+    WRITES("*NThe runtime escape processing includes:*N")
+    WRITES("  \\n - newline*N")
+    WRITES("  \\t - tab*N")
+    WRITES("  \\r - carriage return*N")
+    WRITES("  \\b - backspace*N")
+    WRITES("  \\f - form feed*N")
+    WRITES("  \\v - vertical tab*N")
+    WRITES("  \\a - bell/alert*N")
+    WRITES("  \\\\ - literal backslash*N")
+    WRITES("  \\\" - literal quote*N")
+    WRITES("  \\' - literal apostrophe*N")
+    WRITES("  \\0 - null character*N")
+
+    WRITES("*NTesting WRITEF with basic functionality:*N")
+    LET test_value = 123
+    WRITEF1("Test value: %n*N", test_value)
+    WRITEF1("Hex value: %x*N", test_value)
+
+    WRITES("*NTo enable full escape sequence support:*N")
+    WRITES("1. Update BCPL lexer to recognize \\ escape sequences*N")
+    WRITES("2. Pass escape sequences through to runtime*N")
+    WRITES("3. Runtime processing (already implemented)*N")
+
+    WRITES("*N=== Demo Complete ===*N")
+    WRITES("The escape processing infrastructure is ready!*N")
+}

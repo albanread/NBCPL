@@ -1,0 +1,15 @@
+GET "libhdr.h"
+
+LET START() = VALOF
+$(
+  LET V = 9
+  LET X = 10
+ TEST X > 5 THEN
+   $(
+      V := 10
+      WRITES("hey")
+   $)
+   ELSE
+   V := 11
+  RESULTIS V 
+$)

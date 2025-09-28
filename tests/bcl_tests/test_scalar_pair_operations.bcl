@@ -1,0 +1,188 @@
+// Comprehensive test for scalar-PAIR and scalar-FPAIR operations
+// This test demonstrates scalar broadcasting with PAIR and FPAIR types
+
+LET START() BE $(
+
+    // Test 1: Basic scalar-PAIR operations
+    WRITEF("=== Test 1: Scalar-PAIR Operations ===%N")
+
+    LET p1 = PAIR(8, 20)
+    LET scalar_int = 4
+
+    WRITEF("p1 = PAIR(8, 20), scalar = 4%N")
+
+    // Addition: (8, 20) + 4 = (12, 24)
+    LET p_add = p1 + scalar_int
+    WRITEF("p1 + scalar = PAIR(%d, %d)%N", p_add.first, p_add.second)
+
+    // Subtraction: (8, 20) - 4 = (4, 16)
+    LET p_sub = p1 - scalar_int
+    WRITEF("p1 - scalar = PAIR(%d, %d)%N", p_sub.first, p_sub.second)
+
+    // Multiplication: (8, 20) * 4 = (32, 80)
+    LET p_mul = p1 * scalar_int
+    WRITEF("p1 * scalar = PAIR(%d, %d)%N", p_mul.first, p_mul.second)
+
+    // Test reverse operations (scalar op PAIR)
+    WRITEF("%NReverse operations (scalar op PAIR):%N")
+
+    LET p_add_rev = scalar_int + p1
+    WRITEF("scalar + p1 = PAIR(%d, %d)%N", p_add_rev.first, p_add_rev.second)
+
+    LET p_mul_rev = scalar_int * p1
+    WRITEF("scalar * p1 = PAIR(%d, %d)%N", p_mul_rev.first, p_mul_rev.second)
+
+    // Test 2: Basic scalar-FPAIR operations
+    WRITEF("%N=== Test 2: Scalar-FPAIR Operations ===%N")
+
+    LET fp1 = FPAIR(3.5, 7.2)
+    LET scalar_float = 2.0
+
+    WRITEF("fp1 = FPAIR(3.5, 7.2), scalar = 2.0%N")
+
+    // Addition: (3.5, 7.2) + 2.0 = (5.5, 9.2)
+    LET fp_add = fp1 + scalar_float
+    WRITEF("fp1 + scalar = FPAIR(%f, %f)%N", fp_add.first, fp_add.second)
+
+    // Subtraction: (3.5, 7.2) - 2.0 = (1.5, 5.2)
+    LET fp_sub = fp1 - scalar_float
+    WRITEF("fp1 - scalar = FPAIR(%f, %f)%N", fp_sub.first, fp_sub.second)
+
+    // Multiplication: (3.5, 7.2) * 2.0 = (7.0, 14.4)
+    LET fp_mul = fp1 * scalar_float
+    WRITEF("fp1 * scalar = FPAIR(%f, %f)%N", fp_mul.first, fp_mul.second)
+
+    // Division: (3.5, 7.2) / 2.0 = (1.75, 3.6)
+    LET fp_div = fp1 / scalar_float
+    WRITEF("fp1 / scalar = FPAIR(%f, %f)%N", fp_div.first, fp_div.second)
+
+    // Test reverse operations (scalar op FPAIR)
+    WRITEF("%NReverse operations (scalar op FPAIR):%N")
+
+    LET fp_add_rev = scalar_float + fp1
+    WRITEF("scalar + fp1 = FPAIR(%f, %f)%N", fp_add_rev.first, fp_add_rev.second)
+
+    LET fp_sub_rev = scalar_float - fp1
+    WRITEF("scalar - fp1 = FPAIR(%f, %f)%N", fp_sub_rev.first, fp_sub_rev.second)
+
+    LET fp_mul_rev = scalar_float * fp1
+    WRITEF("scalar * fp1 = FPAIR(%f, %f)%N", fp_mul_rev.first, fp_mul_rev.second)
+
+    LET fp_div_rev = scalar_float / fp1
+    WRITEF("scalar / fp1 = FPAIR(%f, %f)%N", fp_div_rev.first, fp_div_rev.second)
+
+    // Test 3: Mixed type operations (FPAIR with integer, PAIR with float)
+    WRITEF("%N=== Test 3: Mixed Type Operations ===%N")
+
+    LET fp2 = FPAIR(4.0, 6.0)
+    LET int_scalar = 3
+
+    WRITEF("fp2 = FPAIR(4.0, 6.0), int_scalar = 3%N")
+
+    // FPAIR + INTEGER should work (integer converted to float)
+    LET fp_int_add = fp2 + int_scalar
+    WRITEF("fp2 + int_scalar = FPAIR(%f, %f)%N", fp_int_add.first, fp_int_add.second)
+
+    LET fp_int_mul = fp2 * int_scalar
+    WRITEF("fp2 * int_scalar = FPAIR(%f, %f)%N", fp_int_mul.first, fp_int_mul.second)
+
+    // Test 4: Chained scalar operations
+    WRITEF("%N=== Test 4: Chained Scalar Operations ===%N")
+
+    LET p_base = PAIR(10, 20)
+    LET p_chained = (p_base + 5) * 2 - 3
+    WRITEF("(PAIR(10,20) + 5) * 2 - 3 = PAIR(%d, %d)%N", p_chained.first, p_chained.second)
+
+    LET fp_base = FPAIR(1.0, 2.0)
+    LET fp_chained = (fp_base * 2.0) + 1.5
+    WRITEF("(FPAIR(1.0,2.0) * 2.0) + 1.5 = FPAIR(%f, %f)%N", fp_chained.first, fp_chained.second)
+
+    // Test 5: Complex expressions with scalar operations
+    WRITEF("%N=== Test 5: Complex Expressions ===%N")
+
+    LET p1_complex = PAIR(5, 10)
+    LET p2_complex = PAIR(2, 4)
+    LET scalar_complex = 3
+
+    // (p1 + scalar) * (p2 - scalar)
+    LET p_result_complex = (p1_complex + scalar_complex) * (p2_complex - scalar_complex)
+    WRITEF("(PAIR(5,10) + 3) * (PAIR(2,4) - 3) = PAIR(%d, %d)%N",
+           p_result_complex.first, p_result_complex.second)
+
+    // Test 6: Edge cases with zero and one
+    WRITEF("%N=== Test 6: Edge Cases ===%N")
+
+    LET p_edge = PAIR(12, 24)
+    LET fp_edge = FPAIR(3.6, 7.2)
+
+    // Multiplication by zero
+    LET p_zero = p_edge * 0
+    WRITEF("PAIR(12,24) * 0 = PAIR(%d, %d)%N", p_zero.first, p_zero.second)
+
+    LET fp_zero = fp_edge * 0.0
+    WRITEF("FPAIR(3.6,7.2) * 0.0 = FPAIR(%f, %f)%N", fp_zero.first, fp_zero.second)
+
+    // Multiplication by one
+    LET p_one = p_edge * 1
+    WRITEF("PAIR(12,24) * 1 = PAIR(%d, %d)%N", p_one.first, p_one.second)
+
+    LET fp_one = fp_edge * 1.0
+    WRITEF("FPAIR(3.6,7.2) * 1.0 = FPAIR(%f, %f)%N", fp_one.first, fp_one.second)
+
+    // Addition with zero
+    LET p_add_zero = p_edge + 0
+    WRITEF("PAIR(12,24) + 0 = PAIR(%d, %d)%N", p_add_zero.first, p_add_zero.second)
+
+    // Test 7: Call-crossing with scalar operations
+    WRITEF("%N=== Test 7: Call-Crossing Test ===%N")
+
+    LET p_before = PAIR(100, 200)
+    LET scalar_before = 50
+    LET result_before = p_before + scalar_before
+
+    WRITEF("Before call: PAIR(100,200) + 50 = PAIR(%d, %d)%N",
+           result_before.first, result_before.second)
+
+    // Function call
+    NEWLINE()
+
+    // Use result after call - tests liveness analysis
+    WRITEF("After call: result still = PAIR(%d, %d)%N",
+           result_before.first, result_before.second)
+
+    // Test 8: Negative scalars
+    WRITEF("%N=== Test 8: Negative Scalars ===%N")
+
+    LET p_neg_test = PAIR(10, 20)
+    LET neg_scalar = -5
+
+    LET p_neg_add = p_neg_test + neg_scalar
+    WRITEF("PAIR(10,20) + (-5) = PAIR(%d, %d)%N", p_neg_add.first, p_neg_add.second)
+
+    LET p_neg_mul = p_neg_test * neg_scalar
+    WRITEF("PAIR(10,20) * (-5) = PAIR(%d, %d)%N", p_neg_mul.first, p_neg_mul.second)
+
+    // Test 9: Fractional scalars with FPAIR
+    WRITEF("%N=== Test 9: Fractional Scalars ===%N")
+
+    LET fp_frac_test = FPAIR(8.0, 12.0)
+    LET frac_scalar = 0.5
+
+    LET fp_frac_mul = fp_frac_test * frac_scalar
+    WRITEF("FPAIR(8.0,12.0) * 0.5 = FPAIR(%f, %f)%N", fp_frac_mul.first, fp_frac_mul.second)
+
+    LET fp_frac_div = fp_frac_test / frac_scalar
+    WRITEF("FPAIR(8.0,12.0) / 0.5 = FPAIR(%f, %f)%N", fp_frac_div.first, fp_frac_div.second)
+
+    // Test 10: Large scalars
+    WRITEF("%N=== Test 10: Large Scalars ===%N")
+
+    LET p_large_test = PAIR(1, 2)
+    LET large_scalar = 1000
+
+    LET p_large_result = p_large_test * large_scalar
+    WRITEF("PAIR(1,2) * 1000 = PAIR(%d, %d)%N", p_large_result.first, p_large_result.second)
+
+    WRITEF("%N=== Scalar-PAIR Operations Test Complete ===%N")
+
+$)

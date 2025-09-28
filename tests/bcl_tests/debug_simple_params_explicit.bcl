@@ -1,0 +1,34 @@
+// Minimal test to isolate parameter passing issue with explicit float syntax
+// Test if the problem is in parameter passing or in float literal recognition
+
+// Function that just returns its first parameter (should be integer)
+LET ReturnInt(x, y) = VALOF {
+    WRITES("LET function*N")
+    RESULTIS x }
+
+// Function that just returns its first parameter (should be float)
+FLET ReturnFloat(x, y) = VALOF {
+ WRITES("FLET function*N")
+ RESULTIS x
+ }
+
+LET START() BE {
+    LET my_int = 42
+    FLET my_float = 3.14  // Explicit FLET declaration
+
+    WRITEF("Testing simple parameter return with explicit float...*n")
+
+    // Test 1: Pass int to int function - should work
+    LET result1 = ReturnInt(my_int, my_float)
+    WRITEF("ReturnInt(42, 3.14) = %d*n", result1)
+
+    // Test 2: Pass int to float function - should convert int to float
+    FLET result2 = ReturnFloat(my_int, my_float)  // Explicit FLET for result
+    WRITEF("ReturnFloat(42, 3.14) = %f*n", result2)
+
+    // Test 3: Pass float to float function - should work directly
+    FLET result3 = ReturnFloat(my_float, my_int)
+    WRITEF("ReturnFloat(3.14, 42) = %f*n", result3)
+
+    WRITEF("Explicit float parameter test completed.*n")
+}

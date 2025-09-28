@@ -1,0 +1,37 @@
+// Test to verify the string literal constant size optimization
+// This test should demonstrate that string literals use immediate length
+
+LET START() BE {
+    WRITEF("Testing string literal FOREACH optimization\n")
+
+    // Test 1: Direct string literal - should use immediate length optimization
+    WRITEF("Test 1: Direct string literal FOREACH (should use immediate length)\n")
+    FOREACH char IN "hello" DO {
+        WRITEF("Char: %c\n", char)
+    }
+    WRITEF("Direct string literal FOREACH completed\n")
+
+    // Test 2: Empty string literal - should use immediate length (0)
+    WRITEF("Test 2: Empty string literal FOREACH (should use immediate length 0)\n")
+    FOREACH char IN "" DO {
+        WRITEF("This should never execute\n")
+    }
+    WRITEF("Empty string literal FOREACH completed (no iterations)\n")
+
+    // Test 3: String variable - should NOT use immediate length optimization
+    LET my_string = "world"
+    WRITEF("Test 3: String variable FOREACH (should call LEN)\n")
+    FOREACH char IN my_string DO {
+        WRITEF("Char: %c\n", char)
+    }
+    WRITEF("String variable FOREACH completed\n")
+
+    // Test 4: Longer string literal - should use immediate length
+    WRITEF("Test 4: Longer string literal FOREACH (should use immediate length)\n")
+    FOREACH char IN "testing123" DO {
+        WRITEF("Char: %c\n", char)
+    }
+    WRITEF("Longer string literal FOREACH completed\n")
+
+    WRITEF("All string literal FOREACH optimization tests completed!\n")
+}

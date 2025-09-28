@@ -1,0 +1,43 @@
+LET START() BE {
+    WRITES("Testing floating point multiplication...*N")
+
+    // Test case 1: Simple float multiplication with literal values
+    FLET a = 2.0
+    FLET b = 4.0
+    FLET c = a *# b
+    WRITES("2.0 *# 4.0 = ")
+    WRITEF(c)
+    WRITES("*N")
+
+    // Test case 2: Integer to float conversion + multiplication
+    LET x = 8
+    FLET y = FLOAT(x) *# 2.0
+    WRITES("FLOAT(8) *# 2.0 = ")
+    WRITEF(y)
+    WRITES("*N")
+
+    // Test case 3: The MULTIPLY_BY_TWO(8) case from the reported issue
+    LET z = 8
+    FLET result = FLOAT(z) *# 2.0
+    WRITES("MULTIPLY_BY_TWO(8) = ")
+    WRITEF(result)
+    WRITES("*N")
+
+    // Test case 4: Multiple operations to test register handling
+    FLET m = 3.5
+    FLET n = 2.0
+    FLET p = 1.5
+    FLET q = m *# n *# p
+    WRITES("3.5 *# 2.0 *# 1.5 = ")
+    WRITEF(q)
+    WRITES("*N")
+
+    WRITES("Float multiplication test complete.*N")
+}
+
+// Helper function to simulate the MULTIPLY_BY_TWO function mentioned in the issue
+LET MULTIPLY_BY_TWO(val) = VALOF {
+    // Convert to float and multiply by 2.0
+    FLET result = FLOAT(val) *# 2.0
+    RESULTIS result
+}

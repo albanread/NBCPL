@@ -1,0 +1,47 @@
+GLOBALS $(
+    LET global_int = 123
+    LET global_str = "hello world"
+    FLET global_float = 3.14159
+
+    // You can also use semicolons or newlines for separation
+    LET another_int = 999;
+    FLET another_float = -1.5
+    FLET pi_approx = 3.14
+
+    LET status_message = "GLOBALS test running"
+$)
+
+LET START() BE $(
+
+    WRITEF("GLOBALS Block Test*N")
+    WRITEF("==================*N*N")
+
+    WRITEF("Testing global integer variables:*N")
+    WRITEF("global_int = %d*N", global_int)
+    WRITEF("another_int = %d*N*N", another_int)
+
+    WRITEF("Testing global string variables:*N")
+    WRITEF("global_str = '%s'*N", global_str)
+    WRITEF("status_message = '%s'*N*N", status_message)
+
+    WRITEF("Testing global floating point variables:*N")
+    WRITEF("global_float = %f", global_float)
+    WRITEF("*N")
+
+    WRITEF("another_float = %f",another_float)
+    WRITEF("*N")
+
+    WRITEF("pi_approx = %f", pi_approx)
+    WRITEF("*N*N")
+
+    // Test that globals can be modified
+    global_int := global_int + 100
+    global_float := global_float * 2.0
+
+    WRITEF("After modification:*N")
+    WRITEF("global_int = %d*N", global_int)
+    WRITEF("global_float = %f", global_float)
+    WRITEF("*N*N")
+
+    WRITEF("✅ GLOBALS block test completed successfully!*N")
+$)

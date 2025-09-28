@@ -1,0 +1,10 @@
+LET START() BE {
+    WRITES("Testing minimal floating point arithmetic...*N")
+
+    // Test simple addition only
+    LET A = 1.0
+    LET B = 2.0
+    LET C = A +# B
+
+    WRITES("Simple addition test complete.*N")
+}

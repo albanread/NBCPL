@@ -1,0 +1,31 @@
+// Minimal test to isolate register allocation issue
+// This should help identify where register pressure occurs
+
+GLOBALS {
+    FLET x = 0.0
+    FLET y = 0.0
+}
+
+LET simple_math() BE $(
+    FLET a = 1.0
+    FLET b = 2.0
+
+    // Simple expression that might cause register pressure
+    a := x * 2.0 + y * 3.0
+
+    x := a
+    y := b
+$)
+
+LET START() BE $(
+    WRITES("Minimal register test")
+    NEWLINE()
+
+    x := 1.0
+    y := 2.0
+
+    simple_math()
+
+    WRITES("Test complete")
+    NEWLINE()
+$)

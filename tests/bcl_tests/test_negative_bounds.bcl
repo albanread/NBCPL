@@ -1,0 +1,13 @@
+// Test for negative index bounds checking
+LET START() BE $(
+    LET v = VEC 3
+
+    // Valid access
+    v!0 := 10
+    WRITES("Valid access completed*N")
+
+    // Invalid negative access - should be caught at compile time
+    v!-1 := 20  // ERROR: negative index
+
+    WRITES("Test completed*N")
+$)

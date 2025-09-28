@@ -1,0 +1,92 @@
+// loop_test.bcl - Test for LOOP statement in REPEAT loops
+//
+// This program tests the LOOP statement by:
+// 1. Testing LOOP in a simple REPEAT loop
+// 2. Testing LOOP with a conditional jump in a REPEAT UNTIL loop
+// 3. Testing LOOP with a conditional jump in a REPEAT WHILE loop
+//
+// The expected behavior is that LOOP will continue the loop from the beginning
+// without re-evaluating the initialization code.
+
+GET "LIBHDR"
+
+LET start() = VALOF
+{
+    LET count = 0
+    LET sum = 0
+
+    writef("Test 1: Simple REPEAT loop with LOOP*n")
+    count := 0
+
+    // Test LOOP in a simple REPEAT loop
+    LET i = 0
+    REPEAT
+    {
+        writef("Iteration %i2: i = %i2*n", count, i)
+        count := count + 1
+        i := i + 1
+
+        // After 3 iterations, use LOOP to skip to the next iteration
+        IF i = 3 THEN
+        {
+            writef("  Using LOOP at i = %i2*n", i)
+            i := i + 10
+            LOOP
+        }
+
+        // This should not be executed when i = 3
+        writef("  After conditional: i = %i2*n", i)
+
+        // Break after 5 iterations
+        IF count >= 5 BREAK
+    }
+
+    writef("*nTest 2: REPEAT UNTIL loop with LOOP*n")
+    count := 0
+
+    // Test LOOP in a REPEAT UNTIL loop
+    LET j = 0
+    REPEAT
+    {
+        writef("Iteration %i2: j = %i2*n", count, j)
+        count := count + 1
+        j := j + 1
+
+        // After 3 iterations, use LOOP to continue to the next iteration
+        IF j = 3 THEN
+        {
+            writef("  Using LOOP at j = %i2*n", j)
+            j := j + 10
+            LOOP
+        }
+
+        // This should not be executed when j = 3
+        writef("  After conditional: j = %i2*n", j)
+    } UNTIL j >= 5
+
+    writef("*nTest 3: REPEAT WHILE loop with LOOP*n")
+    count := 0
+
+    // Test LOOP in a REPEAT WHILE loop
+    LET k = 0
+    REPEAT
+    {
+        writef("Iteration %i2: k = %i2*n", count, k)
+        count := count + 1
+        k := k + 1
+
+        // After 3 iterations, use LOOP to continue to the next iteration
+        IF k = 3 THEN
+        {
+            writef("  Using LOOP at k = %i2*n", k)
+            k := k + 10
+            LOOP
+        }
+
+        // This should not be executed when k = 3
+        writef("  After conditional: k = %i2*n", k)
+    } WHILE k < 5
+
+    writef("*nAll tests completed.*n")
+    RESULTIS 0
+}

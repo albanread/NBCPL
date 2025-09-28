@@ -1,0 +1,13 @@
+LET START() BE {
+    WRITES("Testing floating point variable type detection...*N")
+
+    // Test simple float assignment
+    LET F = 3.5
+    WRITES("Float literal assigned to F*N")
+
+    // Test float arithmetic
+    LET G = 1.0 +# 2.0
+    WRITES("Float arithmetic assigned to G*N")
+
+    WRITES("Debug float test complete.*N")
+}

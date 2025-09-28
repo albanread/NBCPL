@@ -1,0 +1,14 @@
+GET "libhdr.h"
+
+LET START() = VALOF
+$(
+  WRITES("Minimal RAND test*N")
+
+  // Try calling RAND with a simple value
+  LET r = RAND(1)
+  WRITES("RAND(1) = ")
+  WRITEN(r)
+  WRITES("*N")
+
+  RESULTIS 0
+$)

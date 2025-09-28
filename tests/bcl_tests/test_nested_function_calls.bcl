@@ -1,0 +1,19 @@
+GET "libhdr.h"
+
+LET ADD(A, B) = A + B
+
+LET MULTIPLY(A, B) = A * B
+
+LET CALCULATE(X, Y, Z) = MULTIPLY(ADD(X, Y), Z)
+
+LET START() = VALOF
+$(
+  LET RESULT = CALCULATE(2, 3, 4) // Expected: (2 + 3) * 4 = 5 * 4 = 20
+  WRITES("expect 20 = ")
+  WRITEN(RESULT) WRITEC(10)
+
+  RESULT := CALCULATE(5, 5, 10) // Expected: (5 + 5) * 10 = 10 * 10 = 100
+  WRITES("expect 100 = ") 
+  WRITEN(RESULT)
+  WRITEC(10)
+$)

@@ -1,0 +1,8 @@
+LET START() BE
+$(
+   LET T=TABLE 1,2,3,4,5
+   FOREACH I IN T DO 
+   $(
+     WRITEN(I) WRITEC(32)
+   $)
+$)

@@ -1,0 +1,178 @@
+#include "../NewCodeGenerator.h"
+#include "../LabelManager.h"
+#include "../analysis/ASTAnalyzer.h"
+#include <stdexcept>
+#include "CodeGenUtils.h"
+#include "../runtime/ListDataTypes.h"
+
+// Format specifier structure for WRITEF validation
+struct FormatSpecifier {
+    char spec;
+    VarType expected_type;
+    size_t position;
+    
+    FormatSpecifier(char s, VarType t, size_t p) : spec(s), expected_type(t), position(p) {}
+};
+
+// Parse format string to extract format specifiers
+std::vector<FormatSpecifier> parse_format_string(const std::string& format_str) {
+    std::vector<FormatSpecifier> specifiers;
+    size_t pos = 0;
+    
+    for (size_t i = 0; i < format_str.length(); ++i) {
+        if (format_str[i] == '*') {
+            if (i + 1 < format_str.length()) {
+                char spec = format_str[i + 1];
+                VarType expected_type = VarType::UNKNOWN;
+                
+                switch (spec) {
+                    case 'N': case 'I': case 'O': case 'X': case 'B': case 'U':
+                        expected_type = VarType::INTEGER;
+                        break;
+                    case 'E': case 'F': case 'G':
+                        expected_type = VarType::FLOAT;
+                        break;
+                    case 'S': case 'C':
+                        expected_type = VarType::STRING;
+                        break;
+                    default:
+                        expected_type = VarType::UNKNOWN;
+                        break;
+                }
+                
+                if (expected_type != VarType::UNKNOWN) {
+                    specifiers.emplace_back(spec, expected_type, pos++);
+                }
+                i++; // Skip the specifier character
+            }
+        }
+    }
+    
+    return specifiers;
+}
+
+// Check if two types are compatible for WRITEF
+bool types_compatible(VarType actual, VarType expected) {
+    if (expected == VarType::UNKNOWN) return true;
+    if (actual == expected) return true;
+    
+    // Allow integer-float conversions
+    if ((actual == VarType::INTEGER && expected == VarType::FLOAT) ||
+        (actual == VarType::FLOAT && expected == VarType::INTEGER)) {
+        return true;
+    }
+    
+    return false;
+}
+
+// Convert VarType to string for error messages
+std::string type_to_string(VarType type) {
+    switch (type) {
+        case VarType::INTEGER: return "INTEGER";
+        case VarType::FLOAT: return "FLOAT";
+        case VarType::STRING: return "STRING";
+        case VarType::UNKNOWN: return "UNKNOWN";
+        default: return "OTHER";
+    }
+}
+
+// Validate WRITEF format string against provided arguments
+void validate_writef_call(const std::vector<ExprPtr>& arguments) {
+    if (arguments.empty()) {
+        throw std::runtime_error("WRITEF requires at least a format string argument.");
+    }
+    
+    // Get the format string (first argument)
+    auto* format_literal = dynamic_cast<StringLiteral*>(arguments[0].get());
+    if (!format_literal) {
+        // If it's not a literal, we can't validate at compile time
+        return;
+    }
+    
+    std::string format_str = format_literal->value;
+    std::vector<FormatSpecifier> specifiers = parse_format_string(format_str);
+    
+    // Check that the number of format specifiers matches the number of value arguments
+    size_t value_arg_count = arguments.size() - 1; // Exclude format string
+    if (specifiers.size() != value_arg_count) {
+        throw std::runtime_error("WRITEF format string expects " + std::to_string(specifiers.size()) + 
+                                " arguments but " + std::to_string(value_arg_count) + " were provided.");
+    }
+    
+    // Validate each argument type against its format specifier
+    for (size_t i = 0; i < specifiers.size(); ++i) {
+        const FormatSpecifier& spec = specifiers[i];
+        size_t arg_index = i + 1; // Skip format string
+        
+        VarType actual_type = ASTAnalyzer::getInstance().infer_expression_type(arguments[arg_index].get());
+        
+        if (!types_compatible(actual_type, spec.expected_type)) {
+            throw std::runtime_error("WRITEF argument " + std::to_string(i + 1) + 
+                                    " has type " + type_to_string(actual_type) + 
+                                    " but format specifier *" + std::string(1, spec.spec) + 
+                                    " expects " + type_to_string(spec.expected_type));
+        }
+    }
+}
+
+void NewCodeGenerator::visit(RoutineCallStatement& node) {
+    debug_print("--- Entering NewCodeGenerator::visit(RoutineCallStatement& node) [ARM64 ABI COMPLIANT] ---");
+
+    // Skip codegen for the SETTYPE intrinsic, as it's a compile-time directive.
+    if (auto* var_access = dynamic_cast<VariableAccess*>(node.routine_expr.get())) {
+        if (var_access->name == "SETTYPE") {
+            debug_print("Skipping code generation for SETTYPE intrinsic.");
+            return;
+        }
+    }
+
+    // Spill any live variables that are in caller-saved registers before the call.
+    std::vector<std::string> spilled_gp, spilled_fp;
+    spillLiveScratchRegisters(spilled_gp, spilled_fp);
+
+    // --- UNIFIED LOGIC FOR ALL METHOD AND SUPER CALLS ---
+    if (auto* member_access = dynamic_cast<MemberAccessExpression*>(node.routine_expr.get())) {
+        debug_print("Detected a method call to: " + member_access->member_name);
+
+        // --- Stage 1: Evaluate all arguments into temporary registers ---
+        std::vector<std::string> arg_value_regs;
+        for (const auto& arg_expr : node.arguments) {
+            generate_expression_code(*arg_expr);
+            std::string temp_reg;
+            if (register_manager_.is_fp_register(expression_result_reg_)) {
+                temp_reg = register_manager_.acquire_spillable_fp_temp_reg(*this);
+                emit(Encoder::create_fmov_reg(temp_reg, expression_result_reg_));
+            } else {
+                temp_reg = register_manager_.acquire_spillable_temp_reg(*this);
+                emit(Encoder::create_mov_reg(temp_reg, expression_result_reg_));
+            }
+            register_manager_.release_register(expression_result_reg_);
+            arg_value_regs.push_back(temp_reg);
+        }
+
+        // --- Stage 2: Evaluate the object pointer ('this') ---
+        generate_expression_code(*member_access->object_expr);
+        std::string this_ptr_reg = expression_result_reg_;
+
+        // --- Stage 3: Set up 'this' pointer in X0 ---
+        emit(Encoder::create_mov_reg("X0", this_ptr_reg));
+        register_manager_.release_register(this_ptr_reg);
+
+        // --- Stage 4: Prepare argument type information for ARM64 ABI coercion ---
+        std::vector<VarType> arg_types;
+        std::vector<VarType> expected_types;
+        
+        // Look up method signature for parameter types
+        std::string class_name = get_class_name_for_expression(member_access->object_expr.get());
+        ClassMethodInfo* method_info = class_table_->lookup_class_method(class_name, member_access->member_name);
+        Symbol method_symbol;
+        bool has_symbol_param_info = false;
+        std::string method_qualified_name = class_name + "::" + member_access->member_name;
+        if (symbol_table_->lookup(method_qualified_name, method_symbol)) {
+            has_symbol_param_info = true;
+        }
+
+        for (size_t i = 0; i < arg_value_regs.size(); ++i) {
+            // Infer the actual type of this argument expression
+            VarType arg_expr_type = ASTAnalyzer::getInstance().infer_expression_type(node.arguments[i].get());
+            arg_types.push_back(arg_

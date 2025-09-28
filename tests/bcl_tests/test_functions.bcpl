@@ -1,0 +1,28 @@
+// test_functions.bcpl
+// Test to check if our file API functions are registered
+
+LET START() BE {
+    WRITES("=== Testing Runtime Function Registration ===*N")
+
+    // Test basic runtime functions first
+    WRITES("Testing WRITES: OK*N")
+
+    // Test if we can call STRLEN (known working function)
+    LET test_str = "Hello"
+    LET len = STRLEN(test_str)
+    WRITES("STRLEN test passed*N")
+
+    // Test RAND function (known to work)
+    LET random_num = RAND(100)
+    WRITES("RAND test passed*N")
+
+    WRITES("=== Basic functions work ===*N")
+    WRITES("Now testing file functions...*N")
+
+    // Test actual function call
+    WRITES("About to call FILE_OPEN_WRITE...*N")
+    LET handle = FILE_OPEN_WRITE("debug_test.txt")
+    WRITES("FILE_OPEN_WRITE returned*N")
+
+    WRITES("=== Test Complete ===*N")
+}

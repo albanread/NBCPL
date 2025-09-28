@@ -1,0 +1,150 @@
+// Test case to demonstrate ARM64 calling convention bug in SUPER calls
+// This test creates a scenario where parameter values can be corrupted
+// if caller-saved registers are improperly used during SUPER calls
+
+// Base class with constructor that takes parameters
+class Point(x, y) {
+    LET x_coord = x
+    LET y_coord = y
+
+    // Constructor that might modify caller-saved registers
+    LET CREATE(init_x, init_y) BE {
+        x_coord := init_x
+        y_coord := init_y
+
+        // This call might corrupt caller-saved registers in the calling function
+        WRITES("Creating Point at (")
+        WRITEN(init_x)
+        WRITES(", ")
+        WRITEN(init_y)
+        WRITES(")*n")
+    }
+
+    LET get_x() = x_coord
+    LET get_y() = y_coord
+}
+
+// Derived class that calls SUPER constructor
+class ColorPoint(x, y, color) EXTENDS Point {
+    LET color_value = color
+
+    // CRITICAL: This constructor is vulnerable to the calling convention bug
+    LET CREATE(init_x, init_y, init_color) BE {
+        // BUG SCENARIO: If init_color gets stored in a caller-saved register (e.g., X15)
+        // and then SUPER.CREATE() is called, that register may get overwritten
+        // during the parent constructor's execution
+
+        // The SUPER call should preserve init_color, but the bug causes it to be lost
+        SUPER.CREATE(init_x, init_y)
+
+        // At this point, init_color should still be 255, but with the bug it becomes 0
+        color_value := init_color
+
+        WRITES("Creating ColorPoint with color: ")
+        WRITEN(init_color)
+        WRITES("*n")
+    }
+
+    LET get_color() = color_value
+}
+
+// Test function that demonstrates the bug
+LET test_super_call_bug() BE {
+    WRITES("=== ARM64 Calling Convention Bug Test ==*n")
+
+    // Create a ColorPoint with specific color value
+    // With the bug: color gets corrupted from 255 to 0
+    // With the fix: color is properly preserved as 255
+    LET cp = NEW ColorPoint(100, 200, 255)
+
+    WRITES("Expected color: 255*n")
+    WRITES("Actual color: ")
+    WRITEN(cp.get_color())
+    WRITES("*n")
+
+    IF cp.get_color() = 255 THEN {
+        WRITES("✓ PASS: Color value preserved correctly*n")
+    } ELSE {
+        WRITES("✗ FAIL: Color value corrupted! (calling convention bug)*n")
+    }
+
+    // Test with different values to ensure consistency
+    LET cp2 = NEW ColorPoint(50, 75, 128)
+    WRITES("Second test - Expected: 128, Actual: ")
+    WRITEN(cp2.get_color())
+    WRITES("*n")
+
+    IF cp2.get_color() = 128 THEN {
+        WRITES("✓ PASS: Second test passed*n")
+    } ELSE {
+        WRITES("✗ FAIL: Second test failed*n")
+    }
+}
+
+// Additional stress test with nested calls
+class GradientPoint(x, y, color, alpha) EXTENDS ColorPoint {
+    LET alpha_value = alpha
+
+    LET CREATE(init_x, init_y, init_color, init_alpha) BE {
+        // This creates an even deeper call chain that's more likely to expose the bug
+        SUPER.CREATE(init_x, init_y, init_color)
+
+        alpha_value := init_alpha
+
+        WRITES("Creating GradientPoint with alpha: ")
+        WRITEN(init_alpha)
+        WRITES("*n")
+    }
+
+    LET get_alpha() = alpha_value
+}
+
+LET test_nested_super_calls() BE {
+    WRITES("=== Nested SUPER Call Test ==*n")
+
+    // This test has two levels of SUPER calls:
+    // GradientPoint.CREATE -> ColorPoint.CREATE -> Point.CREATE
+    // Each level passes multiple parameters that could be corrupted
+    LET gp = NEW GradientPoint(10, 20, 255, 128)
+
+    WRITES("Testing nested SUPER calls...*n")
+    WRITES("Expected - X: 10, Y: 20, Color: 255, Alpha: 128*n")
+    WRITES("Actual - X: ")
+    WRITEN(gp.get_x())
+    WRITES(", Y: ")
+    WRITEN(gp.get_y())
+    WRITES(", Color: ")
+    WRITEN(gp.get_color())
+    WRITES(", Alpha: ")
+    WRITEN(gp.get_alpha())
+    WRITES("*n")
+
+    LET all_correct = (gp.get_x() = 10) AND (gp.get_y() = 20) AND
+                     (gp.get_color() = 255) AND (gp.get_alpha() = 128)
+
+    IF all_correct THEN {
+        WRITES("✓ PASS: All parameters preserved through nested SUPER calls*n")
+    } ELSE {
+        WRITES("✗ FAIL: Parameter corruption in nested SUPER calls*n")
+    }
+}
+
+// Main test runner
+LET START() BE {
+    WRITES("ARM64 Calling Convention Bug Test Suite*n")
+    WRITES("=====================================*n*n")
+
+    test_super_call_bug()
+    WRITES("*n")
+    test_nested_super_calls()
+
+    WRITES("*nTest complete. Check results above.*n")
+
+    // Expected behavior with the fix:
+    // - All color/alpha values should be preserved exactly
+    // - No parameter corruption should occur
+
+    // Buggy behavior (before fix):
+    // - Parameter values get corrupted to 0 or garbage
+    // - Especially noticeable with the third parameter (color) in SUPER calls
+}

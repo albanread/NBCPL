@@ -1,0 +1,24 @@
+GET "libhdr.h"
+
+// Integer-only test for WRITEF functions
+LET START() BE
+$(
+    // Test basic WRITEF (no arguments)
+    WRITEF("Hello from WRITEF!*n")
+
+    // Test WRITEF with one integer
+    WRITEF("Number: %d*n", 42)
+
+    // Test WRITEF with two arguments
+    WRITEF("Two numbers: %d and %d*n", 10, 20)
+
+    // Test different format specifiers
+    WRITEF("Hex: %x*n", 255)
+    WRITEF("Octal: %o*n", 64)
+    WRITEF("Character: %c*n", 65)
+
+    // Test WRITEF with three arguments
+    WRITEF("Three: %d, %d, %d*n", 1, 2, 3)
+
+    WRITES("Integer test complete.*n")
+$)

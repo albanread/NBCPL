@@ -1,0 +1,46 @@
+// Simple call tree test without parameters to verify SAMM optimization
+
+// LEVEL 3: Pure arithmetic leaf function (no heap allocation, no parameters)
+LET get_constant() = 42
+
+// LEVEL 2: Calls level 3 function (no direct heap allocation, no parameters)
+LET get_doubled_constant() = get_constant() * 2
+
+// LEVEL 1: Calls level 2 function (no direct heap allocation, no parameters)
+LET get_final_result() = get_doubled_constant() + 10
+
+// HEAP-ALLOCATING LEAF FUNCTION (no parameters)
+LET create_simple_list() = LIST(1, 2, 3)
+
+// NON-OPTIMIZABLE FUNCTION: Calls heap-allocating function
+LET get_list_first() = VALOF $(
+    LET my_list = create_simple_list()
+    RESULTIS my_list!0
+$)
+
+// Main test program
+LET start() BE $(
+    WRITEF("Testing simple call tree optimization:*N*N")
+
+    // Test optimizable call tree (should all be optimized)
+    WRITEF("=== OPTIMIZABLE CALL TREE ===*N")
+    LET result1 = get_final_result()
+    WRITEF("get_final_result() = %d*N", result1)
+
+    LET result2 = get_doubled_constant()
+    WRITEF("get_doubled_constant() = %d*N", result2)
+
+    LET result3 = get_constant()
+    WRITEF("get_constant() = %d*N", result3)
+
+    // Test non-optimizable functions
+    WRITEF("*N=== NON-OPTIMIZABLE (HEAP ALLOCATION) ===*N")
+    LET result4 = get_list_first()
+    WRITEF("get_list_first() = %d*N", result4)
+
+    WRITEF("*NExpected optimization results:*N")
+    WRITEF("- get_constant, get_doubled_constant, get_final_result: OPTIMIZED*N")
+    WRITEF("- create_simple_list, get_list_first: NOT OPTIMIZED*N")
+
+    WRITEF("*NTest completed!*N")
+$)

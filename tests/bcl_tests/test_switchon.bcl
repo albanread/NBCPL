@@ -1,0 +1,13 @@
+GET "libhdr.h"
+
+LET START() = VALOF
+$(
+  LET X = 3
+  SWITCHON X INTO
+  $(
+    CASE 1: WRITES("One*N")
+    CASE 2: WRITES("Two*N")
+    DEFAULT: WRITES("Other*N")
+  $)
+  RESULTIS 0
+$)

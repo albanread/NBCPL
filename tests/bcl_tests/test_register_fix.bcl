@@ -1,0 +1,31 @@
+LET START() BE $(
+    // Simple test to verify register encoding bug fix
+    WRITEF("Testing PAIR register encoding fix...*N")
+
+    // Test basic PAIR operations
+    LET P1 = PAIR(10, 20)
+    LET P2 = PAIR(5, 3)
+
+    WRITEF("P1 = PAIR(10, 20)*N")
+    WRITEF("P2 = PAIR(5, 3)*N")
+
+    // Test PAIR addition
+    LET P3 = P1 + P2
+    WRITEF("P3 = P1 + P2*N")
+    WRITEF("P3.first = %N*N", P3.first)
+    WRITEF("P3.second = %N*N", P3.second)
+
+    // Test scalar-PAIR operations
+    LET P4 = P1 * 2
+    WRITEF("P4 = P1 * 2*N")
+    WRITEF("P4.first = %N*N", P4.first)
+    WRITEF("P4.second = %N*N", P4.second)
+
+    // Test mixed operations
+    LET P5 = P4 + 1
+    WRITEF("P5 = P4 + 1*N")
+    WRITEF("P5.first = %N*N", P5.first)
+    WRITEF("P5.second = %N*N", P5.second)
+
+    WRITEF("Test completed successfully!*N")
+$)

@@ -1,0 +1,22 @@
+// Explicit WRITEF1 test to debug %f argument passing
+
+GLOBALS $(
+    FLET test_float = 3.14159
+    LET test_int = 42
+$)
+
+LET START() BE $(
+    WRITES("=== WRITEF1 Debug Test ===*N*N")
+
+    // Test explicit WRITEF1 calls
+    WRITES("Testing WRITEF1 with integer:*N")
+    WRITEF1("Integer value: %d*N", test_int)
+
+    WRITES("Testing WRITEF1 with float as %f:*N")
+    WRITEF1("Float value: %f*N", test_float)
+
+    WRITES("Testing WRITEF1 with float as %d (raw bits):*N")
+    WRITEF1("Float as integer: %d*N", test_float)
+
+    WRITES("*N=== Test Complete ===*N")
+$)

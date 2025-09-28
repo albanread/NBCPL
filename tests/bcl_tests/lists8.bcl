@@ -1,0 +1,10 @@
+LET START() BE
+$(
+   LET L = LIST("a", "string", "list")
+   FOREACH S IN L DO
+   $( 
+            WRITES("String: ")
+            WRITES(S)
+            WRITES("*N")
+    $)
+$)

@@ -1,0 +1,28 @@
+// Test file to mimic the exact pattern from fern_basic.bcl
+// Testing the specific assignment pattern that's causing x=400
+
+LET START() BE $(
+    WRITES("Testing fern_basic assignment pattern...*N")
+
+    // Test the exact pattern from fern_basic.bcl
+    WRITES("Testing: xx := RAND(400) yy:= RAND(400)*N")
+
+    FOR i = 1 TO 10 DO $(
+        LET xx = 0
+        LET yy = 0
+        xx := RAND(400) yy:= RAND(400)
+        WRITEF("x = %d y = %d*N", xx, yy)
+    $)
+
+    WRITES("*NTesting with proper spacing:*N")
+
+    FOR i = 1 TO 10 DO $(
+        LET xx = 0
+        LET yy = 0
+        xx := RAND(400)
+        yy := RAND(400)
+        WRITEF("x = %d y = %d*N", xx, yy)
+    $)
+
+    WRITES("*NTest complete.*N")
+$)

@@ -1,0 +1,6 @@
+// Minimal test for veneer system - single RAND call only
+// RAND should definitely require a veneer since it's an external runtime function
+
+LET START() BE $(
+    LET result = RAND(10)
+$)

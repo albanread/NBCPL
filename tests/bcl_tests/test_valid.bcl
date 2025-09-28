@@ -1,0 +1,6 @@
+LET START() BE $(
+
+ LET X=100
+ WRITES("X is 100")
+ WRITEF("Value is %N*N", X)
+$)

@@ -1,0 +1,24 @@
+LET START() BE 
+{
+
+ LET I = 0
+ I := 2.45
+
+ LET J = 2.45
+
+ FLET F = 2
+
+ WRITEN(I)
+ WRITEC(':')
+ WRITEF(I)
+ WRITEC(' ')
+ WRITEN(J)
+ WRITEC(':')
+ WRITEF(J)
+ WRITEC(32)
+ WRITEN(F)
+ WRITEC(':')
+ WRITEF(F)
+ WRITEC(10)
+
+}

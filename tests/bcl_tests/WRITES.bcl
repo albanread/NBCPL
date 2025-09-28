@@ -1,0 +1,5 @@
+LET WRITES(S) BE $(
+  // This is a minimal implementation using the BCPL runtime's output primitive
+  // Replace with your actual output routine if needed
+  // For now, just a stub to avoid linker errors
+$)

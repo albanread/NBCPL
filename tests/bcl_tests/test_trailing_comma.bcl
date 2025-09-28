@@ -1,0 +1,49 @@
+LET START() BE
+$(
+   // Test file to verify trailing comma fix in LIST parsing
+   WRITES("Testing LIST parsing with trailing commas*N")
+
+   // Test 1: Empty list (should work as before)
+   LET L0 = LIST()
+   WRITES("Test 1: Empty list - OK*N")
+
+   // Test 2: Single item without trailing comma (should work as before)
+   LET L1 = LIST("single")
+   WRITES("Test 2: Single item without trailing comma - OK*N")
+
+   // Test 3: Single item WITH trailing comma (new fix)
+   LET L2 = LIST("single",)
+   WRITES("Test 3: Single item with trailing comma - OK*N")
+
+   // Test 4: Multiple items without trailing comma (should work as before)
+   LET L3 = LIST("first", "second", "third")
+   WRITES("Test 4: Multiple items without trailing comma - OK*N")
+
+   // Test 5: Multiple items WITH trailing comma (new fix)
+   LET L4 = LIST("first", "second", "third",)
+   WRITES("Test 5: Multiple items with trailing comma - OK*N")
+
+   // Test 6: Mixed types with trailing comma (new fix)
+   LET L5 = LIST("string", 42, "another",)
+   WRITES("Test 6: Mixed types with trailing comma - OK*N")
+
+   // Test 7: Verify the lists actually work by accessing elements
+   WRITES("Verifying list contents:*N")
+   WRITES("L1 first element: ")
+   WRITES(HD(L1))
+   WRITES("*N")
+
+   WRITES("L2 first element: ")
+   WRITES(HD(L2))
+   WRITES("*N")
+
+   WRITES("L4 first element: ")
+   WRITES(HD(L4))
+   WRITES("*N")
+
+   WRITES("L5 first element: ")
+   WRITES(HD(L5))
+   WRITES("*N")
+
+   WRITES("All trailing comma tests passed!*N")
+$)

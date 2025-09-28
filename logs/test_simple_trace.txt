@@ -1,0 +1,304 @@
+[DEBUG EARLY] Compiler starting with argc=4
+NewBCPL Compiler Version 1.0.1565
+SDL2 runtime functions registered successfully.
+[DEBUG] LocalOptimizationPass: enable_opt=1, about to run CSE pass
+[CSE DEBUG] Starting LocalOptimizationPass::run() on AST
+[CSE DEBUG] Processing routine: START
+[CSE DEBUG] ANALYSIS: Counting subexpressions in routine START
+[CSE DEBUG] count_subexpressions: ENTRY
+[CSE DEBUG] count_subexpressions: examining node type=62
+[CSE DEBUG] Processing BlockStatement with 2 statements
+[CSE DEBUG] count_subexpressions: ENTRY
+[CSE DEBUG] count_subexpressions: examining node type=44
+[CSE DEBUG] Processing RoutineCallStatement with 1 arguments
+[CSE DEBUG]   Argument 0 type: 12
+[CSE DEBUG] count_subexpressions: ENTRY
+[CSE DEBUG] count_subexpressions: examining node type=12
+[CSE DEBUG] Found expression: type=12 key='(STR "Test")' (StringLit)
+[CSE DEBUG] COUNTED expression: type=12 key='(STR "Test")' count=1
+[CSE DEBUG] count_subexpressions: EXIT
+[CSE DEBUG] count_subexpressions: EXIT
+[CSE DEBUG] count_subexpressions: ENTRY
+[CSE DEBUG] count_subexpressions: examining node type=44
+[CSE DEBUG] Processing RoutineCallStatement with 1 arguments
+[CSE DEBUG]   Argument 0 type: 12
+[CSE DEBUG] count_subexpressions: ENTRY
+[CSE DEBUG] count_subexpressions: examining node type=12
+[CSE DEBUG] Found expression: type=12 key='(STR "Test")' (StringLit)
+[CSE DEBUG] COUNTED expression: type=12 key='(STR "Test")' count=2
+[CSE DEBUG] count_subexpressions: EXIT
+[CSE DEBUG] count_subexpressions: EXIT
+[CSE DEBUG] count_subexpressions: EXIT
+[CSE DEBUG] Expression counts after analysis:
+[CSE DEBUG]   '(STR "Test")' appears 2 times
+[CSE DEBUG] TRANSFORMATION: Optimizing routine START
+[CSE DEBUG] TRANSFORMATION: Starting optimization of statement list with 2 statements
+[CSE DEBUG] TRANSFORMATION: Processing statement 0
+[CSE DEBUG] Processing expression: type=12 key='(STR "Test")'
+[CSE DEBUG] Creating new temp var for common subexpression (count=2)
+[CSE DEBUG] TRANSFORMATION: Processing statement 2
+[CSE DEBUG] Processing expression: type=12 key='(STR "Test")'
+[CSE DEBUG] Found available expression, replacing with temp var: _cse_temp_0
+[CSE DEBUG] TRANSFORMATION: Finished optimization of statement list
+[CSE DEBUG] LocalOptimizationPass::run() completed
+
+[INFO] Building Live Intervals for all functions...
+
+[INFO] Performing Linear Scan Register Allocation for ALL functions...
+[Allocator] Starting partitioned linear scan for function: START
+[Allocator] Available integer registers: 16, float registers: 24
+[Allocator] Function has 2 call sites at: 0 4 
+[Allocator] Partitioned: 0 call-crossing, 0 local-only intervals
+[Allocator] Register pools - Callee-saved INT: 9, Caller-saved INT: 4, Reserved scratch INT: 3
+[Allocator] Register pools - Callee-saved FP: 8, Caller-saved FP: 16
+[Allocator] Stage 1: Allocating call-crossing intervals
+[Allocator] Stage 2: Allocating local-only intervals
+[Allocator] Partitioned allocation complete for START
+[Allocator] Reserved 3 scratch registers for code generation: X9 X10 X11 
+[Allocator] Final state validation:
+  Active intervals remaining: 0
+  Free integer registers: 13
+  Free float registers: 24
+  ✓ No register conflicts detected
+[Allocator] Results:
+
+[INFO] Synchronizing RegisterManager with LinearScanAllocator decisions...
+
+--- Final Metrics State Before Code Generation ---
+==== ASTAnalyzer Function Metrics Report ====
+Function: START
+  Type: int
+  Parameters: 0
+  Integer Locals: 1
+  Float Locals: 0
+  Runtime Calls: 2
+  Local Function Calls: 0
+  Local Routine Calls: 0
+  Vector Allocations: no
+  Accesses Globals: yes
+  Max Live Variables (Register Pressure): 0
+  Required Callee-Saved Temps: 0
+--------------------------------------------
+--------------------------------------------------
+
+[DEBUG] Starting code generation for program.
+[DEBUG] Step 1: Performing pre-analysis scan for external functions...
+[DEBUG] Found 1 unique external functions:
+[DEBUG]   - WRITEF
+[DEBUG] Step 2: Generating veneer section using standard pipeline...
+[VeneerManager] CRITICAL: Adding essential HeapManager function: HeapManager_enter_scope
+[VeneerManager] CRITICAL: Adding essential HeapManager function: HeapManager_exit_scope
+[DEBUG] Step 3: Generating main function code...
+[DEBUG] Visiting Program node.
+[DEBUG] Moving 'START' routine to the end of the generation queue for JIT compatibility.
+[DEBUG] Code Generator: Registering global data declarations.
+[DEBUG] Code Generator: Global data offsets calculated.
+[DEBUG] Code Generator: Generating code for functions and routines.
+[DEBUG] DEBUG: Visiting RoutineDeclaration node (Name: START).
+[DEBUG] Using name as-is for metrics lookup: START
+[DEBUG] DEBUG: generate_function_like_code called for: START
+[DEBUG] Generating function-like code for: START
+[DEBUG] Clearing local value tracking for function: START
+[SYNC] Resetting all LinearScanAllocator reservations
+[SYNC] Syncing RegisterManager with LinearScanAllocator for function: START
+[SYNC] Found 0 variable allocations
+[DEBUG] Synced RegisterManager with LinearScanAllocator for function: START
+[DEBUG] Using name as-is for lookup: START
+Call Frame Layout for function: START
+[METRICS DEBUG] Found metrics for 'START'.
+  >> Parameter Count: 0
+  >> Local Var Count: 1
+  >> Variable Types Map Size: 1
+[DEBUG] Registering all parameters as locals in CallFrameManager for 'START'.
+[DEBUG] DEBUG: metrics.variable_types size for 'START': 1
+[DEBUG] DEBUG: variable_types['_cse_temp_0'] = INTEGER
+[DEBUG] Registering all local variables from ASTAnalyzer metrics for 'START'.
+// [CFM-DEBUG] CallFrameManager::has_local called for: '_cse_temp_0'
+// [CFM-DEBUG] CallFrameManager::has_local: DID NOT find '_cse_temp_0'.
+Added local variable '_cse_temp_0' of type 1 at offset 16 (size 8)
+[DEBUG] Registered local '_cse_temp_0' from analyzer metrics.
+[DEBUG] Entered new scope. Scope stack size: 1
+[DEBUG] Using pre-computed register allocation for 'START'.
+[DEBUG] No spills needed - all variables fit in registers.
+// [CFM-DEBUG] Analyzing register reservation based on pressure: 0
+[DEBUG] Attempting to generate prologue for 'START'.
+// [CFM-DEBUG] Starting prologue generation.
+// [CFM-DEBUG] Function uses global pointers. Forcing save of X19 and X28.
+// [CFM-DEBUG] Sorted callee_saved_registers_to_save.
+--- Call Frame Layout for function: START (Total Size: 48 bytes) ---
+Offset   | Content                               | Type
+------------------------------------------------------
++0       | Old Frame Pointer (x29)     <-- FP (x29) points here
++8       | Return Address (Caller's PC)
++16      | Local: _cse_temp_0                    | INTEGER
++24      | Saved Reg: X19                        | UNKNOWN
++32      | Saved Reg: X28                        | UNKNOWN
+------------------------------------------------------
+                                     <-- SP (+48 from FP)
+
+[DEBUG LEVEL 5] Emitting instruction: STP X29, X30, [SP, #-48]!
+[DEBUG LEVEL 5] Emitting instruction: MOV X29, SP
+[DEBUG LEVEL 5] Emitting instruction: STR X19, [X29, #24] ; Saved Reg: X19 @ FP+24
+[DEBUG LEVEL 5] Emitting instruction: STR X28, [X29, #32] ; Saved Reg: X28 @ FP+32
+[DEBUG] Mapping incoming parameters to home registers or stack slots as per allocation plan.
+// [CFM-DEBUG] CallFrameManager::get_offset called for: 'X28'
+// [CFM-DEBUG] Current variable_offsets_ map size: 3
+// [CFM-DEBUG] CallFrameManager::get_offset: Found offset for 'X28' = 32
+[DEBUG] Registered local variable 'X28' with the allocation system (spilled)
+// [CFM-DEBUG] CallFrameManager::get_offset called for: 'X19'
+// [CFM-DEBUG] Current variable_offsets_ map size: 3
+// [CFM-DEBUG] CallFrameManager::get_offset: Found offset for 'X19' = 24
+[DEBUG] Registered local variable 'X19' with the allocation system (spilled)
+// [CFM-DEBUG] CallFrameManager::get_offset called for: '_cse_temp_0'
+// [CFM-DEBUG] Current variable_offsets_ map size: 3
+// [CFM-DEBUG] CallFrameManager::get_offset: Found offset for '_cse_temp_0' = 16
+[DEBUG] Registered local variable '_cse_temp_0' with the allocation system (spilled)
+[DEBUG LEVEL 5] Emitting instruction: ADRP X28, L__data_segment_base
+[DEBUG LEVEL 5] Emitting instruction: ADD X28, X28, #:lo12:L__data_segment_base
+[DEBUG] Emitted ADRP+ADD sequence for global base pointer (X28) in static mode.
+[DEBUG] Skipping duplicate parameter storage
+[DEBUG] --- Call Frame Layout for function: START (Total Size: 48 bytes) ---
+Offset   | Content                               | Type
+------------------------------------------------------
++0       | Old Frame Pointer (x29)     <-- FP (x29) points here
++8       | Return Address (Caller's PC)
++16      | Local: _cse_temp_0                    | INTEGER
++24      | Saved Reg: X19                        | UNKNOWN
++32      | Saved Reg: X28                        | UNKNOWN
+------------------------------------------------------
+                                     <-- SP (+48 from FP)
+
+[DEBUG] --- DEBUG: Available CFGs in the map ---
+[DEBUG]   Available CFG: 'START'
+[DEBUG] --- End of CFG list ---
+[DEBUG] Found CFG using lookup_name: START
+[DEBUG] --- Entering NewCodeGenerator::visit(RoutineCallStatement& node) [ARM64 ABI COMPLIANT] ---
+[DEBUG] Detected a regular function/routine call.
+[DEBUG] Generating code for StringLiteral.
+[DEBUG] Allocated register X9 for the string address.
+[DEBUG LEVEL 5] Emitting instruction: ADRP X9, L_str0
+[DEBUG LEVEL 5] Emitting instruction: ADD X9, X9, #:lo12:L_str0
+[DEBUG LEVEL 5] Emitting instruction: ADD X9, X9, #8
+[DEBUG] Emitted ADRP/ADD sequence and offset adjustment for string literal 'Test'.
+[DEBUG LEVEL 5] Emitting instruction: MOV X0, X9
+[DEBUG LEVEL 5] Emitting instruction: BL WRITEF_veneer
+[DEBUG] --- Exiting NewCodeGenerator::visit(RoutineCallStatement& node) ---
+[DEBUG] --- Entering NewCodeGenerator::visit(RoutineCallStatement& node) [ARM64 ABI COMPLIANT] ---
+[DEBUG] Detected a regular function/routine call.
+[DEBUG] Generating code for StringLiteral.
+[DEBUG] Allocated register X9 for the string address.
+[DEBUG LEVEL 5] Emitting instruction: ADRP X9, L_str0
+[DEBUG LEVEL 5] Emitting instruction: ADD X9, X9, #:lo12:L_str0
+[DEBUG LEVEL 5] Emitting instruction: ADD X9, X9, #8
+[DEBUG] Emitted ADRP/ADD sequence and offset adjustment for string literal 'Test'.
+[DEBUG LEVEL 5] Emitting instruction: MOV X0, X9
+[DEBUG LEVEL 5] Emitting instruction: BL WRITEF_veneer
+[DEBUG] --- Exiting NewCodeGenerator::visit(RoutineCallStatement& node) ---
+[DEBUG LEVEL 5] Emitting instruction: B START_Exit_1
+[DEBUG LEVEL 5] Emitting instruction: B .L0
+[DEBUG] Performing end-of-function scope cleanup for 'START'.
+[DEBUG] Defining epilogue label: .L0
+[DEBUG] Attempting to generate epilogue for 'START'.
+[DEBUG] Exited scope. Scope stack size: 0
+[DEBUG] Finished visiting RoutineDeclaration node.
+[DEBUG] Code Generator: Generating code for top-level statements.
+[DEBUG] Finished visiting Program node.
+[InstructionStream TRACE] Adding label definition: L_str0
+[DataGenerator TRACE] Entering generate_rodata_section.
+[DataGenerator TRACE] Size of list_literals_ vector is: 0
+[InstructionStream TRACE] Adding label definition: L__data_segment_base
+[DEBUG] Code generation finished.
+Code generation complete.
+
+--- Symbol Table After Code Generation ---
+Symbol Table (Persistent, All Symbols)
+==================================================
+Symbol 'START' (ROUTINE, INTEGER, scope=0, block=0, class_name='', function_name='START')
+Symbol 'READN' (RUNTIME_FUNCTION, INTEGER, scope=0, block=0, class_name='', function_name='')
+Symbol 'RND' (RUNTIME_FLOAT_FUNCTION, FLOAT, scope=0, block=0, class_name='', function_name='', parameters=[INTEGER])
+Symbol 'RAND' (RUNTIME_FUNCTION, INTEGER, scope=0, block=0, class_name='', function_name='', parameters=[INTEGER])
+Symbol 'LENGTH' (RUNTIME_FUNCTION, INTEGER, scope=0, block=0, class_name='', function_name='', parameters=[INTEGER])
+Symbol 'GETBYTE' (RUNTIME_FUNCTION, INTEGER, scope=0, block=0, class_name='', function_name='', parameters=[INTEGER, INTEGER])
+Symbol 'GETWORD' (RUNTIME_FUNCTION, INTEGER, scope=0, block=0, class_name='', function_name='', parameters=[INTEGER, INTEGER])
+Symbol 'READF' (RUNTIME_FLOAT_FUNCTION, FLOAT, scope=0, block=0, class_name='', function_name='')
+Symbol 'FLTOFX' (RUNTIME_FLOAT_FUNCTION, FLOAT, scope=0, block=0, class_name='', function_name='', parameters=[INTEGER])
+Symbol 'FSIN' (RUNTIME_FLOAT_FUNCTION, FLOAT, scope=0, block=0, class_name='', function_name='', parameters=[FLOAT])
+Symbol 'FCOS' (RUNTIME_FLOAT_FUNCTION, FLOAT, scope=0, block=0, class_name='', function_name='', parameters=[FLOAT])
+Symbol 'FTAN' (RUNTIME_FLOAT_FUNCTION, FLOAT, scope=0, block=0, class_name='', function_name='', parameters=[FLOAT])
+Symbol 'FABS' (RUNTIME_FLOAT_FUNCTION, FLOAT, scope=0, block=0, class_name='', function_name='', parameters=[FLOAT])
+Symbol 'FLOG' (RUNTIME_FLOAT_FUNCTION, FLOAT, scope=0, block=0, class_name='', function_name='', parameters=[FLOAT])
+Symbol 'FEXP' (RUNTIME_FLOAT_FUNCTION, FLOAT, scope=0, block=0, class_name='', function_name='', parameters=[FLOAT])
+Symbol 'FRND' (RUNTIME_FLOAT_FUNCTION, FLOAT, scope=0, block=0, class_name='', function_name='')
+Symbol 'WRITES' (RUNTIME_ROUTINE, INTEGER, scope=0, block=0, class_name='', function_name='', parameters=[INTEGER])
+Symbol 'WRITEN' (RUNTIME_ROUTINE, INTEGER, scope=0, block=0, class_name='', function_name='', parameters=[INTEGER])
+Symbol 'FWRITE' (RUNTIME_FLOAT_ROUTINE, FLOAT, scope=0, block=0, class_name='', function_name='', parameters=[FLOAT])
+Symbol 'WRITEF' (RUNTIME_ROUTINE, INTEGER, scope=0, block=0, class_name='', function_name='', parameters=[STRING])
+Symbol 'PUTBYTE' (RUNTIME_ROUTINE, INTEGER, scope=0, block=0, class_name='', function_name='', parameters=[INTEGER, INTEGER, INTEGER])
+Symbol 'PUTWORD' (RUNTIME_ROUTINE, INTEGER, scope=0, block=0, class_name='', function_name='', parameters=[INTEGER, INTEGER, INTEGER])
+Symbol 'EXIT' (RUNTIME_ROUTINE, INTEGER, scope=0, block=0, class_name='', function_name='', parameters=[INTEGER])
+Symbol 'NEWLINE' (RUNTIME_ROUTINE, INTEGER, scope=0, block=0, class_name='', function_name='')
+Symbol 'NEWPAGE' (RUNTIME_ROUTINE, INTEGER, scope=0, block=0, class_name='', function_name='')
+Symbol 'FILE_OPEN_READ' (RUNTIME_FUNCTION, INTEGER, scope=0, block=0, class_name='', function_name='', parameters=[STRING])
+Symbol 'FILE_OPEN_WRITE' (RUNTIME_FUNCTION, INTEGER, scope=0, block=0, class_name='', function_name='', parameters=[STRING])
+Symbol 'FILE_OPEN_APPEND' (RUNTIME_FUNCTION, INTEGER, scope=0, block=0, class_name='', function_name='', parameters=[STRING])
+Symbol 'FILE_CLOSE' (RUNTIME_FUNCTION, INTEGER, scope=0, block=0, class_name='', function_name='', parameters=[INTEGER])
+Symbol 'FILE_WRITES' (RUNTIME_FUNCTION, INTEGER, scope=0, block=0, class_name='', function_name='', parameters=[INTEGER, STRING])
+Symbol 'FILE_READS' (RUNTIME_FUNCTION, INTEGER, scope=0, block=0, class_name='', function_name='', parameters=[INTEGER])
+Symbol 'FILE_READ' (RUNTIME_FUNCTION, INTEGER, scope=0, block=0, class_name='', function_name='', parameters=[INTEGER, INTEGER, INTEGER])
+Symbol 'FILE_WRITE' (RUNTIME_FUNCTION, INTEGER, scope=0, block=0, class_name='', function_name='', parameters=[INTEGER, INTEGER, INTEGER])
+Symbol 'FILE_SEEK' (RUNTIME_FUNCTION, INTEGER, scope=0, block=0, class_name='', function_name='', parameters=[INTEGER, INTEGER, INTEGER])
+Symbol 'FILE_TELL' (RUNTIME_FUNCTION, INTEGER, scope=0, block=0, class_name='', function_name='', parameters=[INTEGER])
+Symbol 'FILE_EOF' (RUNTIME_FUNCTION, INTEGER, scope=0, block=0, class_name='', function_name='', parameters=[INTEGER])
+Symbol 'SDL2_INIT' (RUNTIME_FUNCTION, INTEGER, scope=0, block=0, class_name='', function_name='')
+Symbol 'SDL2_INIT_SUBSYSTEMS' (RUNTIME_FUNCTION, INTEGER, scope=0, block=0, class_name='', function_name='', parameters=[INTEGER])
+Symbol 'SDL2_QUIT' (RUNTIME_ROUTINE, INTEGER, scope=0, block=0, class_name='', function_name='')
+Symbol 'SDL2_CREATE_WINDOW' (RUNTIME_FUNCTION, INTEGER, scope=0, block=0, class_name='', function_name='', parameters=[STRING])
+Symbol 'SDL2_CREATE_WINDOW_EX' (RUNTIME_FUNCTION, INTEGER, scope=0, block=0, class_name='', function_name='', parameters=[STRING, INTEGER, INTEGER, INTEGER, INTEGER, INTEGER])
+Symbol 'SDL2_DESTROY_WINDOW' (RUNTIME_ROUTINE, INTEGER, scope=0, block=0, class_name='', function_name='', parameters=[INTEGER])
+Symbol 'SDL2_SET_WINDOW_TITLE' (RUNTIME_ROUTINE, INTEGER, scope=0, block=0, class_name='', function_name='', parameters=[INTEGER, STRING])
+Symbol 'SDL2_SET_WINDOW_SIZE' (RUNTIME_ROUTINE, INTEGER, scope=0, block=0, class_name='', function_name='', parameters=[INTEGER, INTEGER, INTEGER])
+Symbol 'SDL2_CREATE_RENDERER' (RUNTIME_FUNCTION, INTEGER, scope=0, block=0, class_name='', function_name='', parameters=[INTEGER])
+Symbol 'SDL2_CREATE_RENDERER_EX' (RUNTIME_FUNCTION, INTEGER, scope=0, block=0, class_name='', function_name='', parameters=[INTEGER, INTEGER])
+Symbol 'SDL2_DESTROY_RENDERER' (RUNTIME_ROUTINE, INTEGER, scope=0, block=0, class_name='', function_name='', parameters=[INTEGER])
+Symbol 'SDL2_SET_DRAW_COLOR' (RUNTIME_ROUTINE, INTEGER, scope=0, block=0, class_name='', function_name='', parameters=[INTEGER, INTEGER, INTEGER, INTEGER, INTEGER])
+Symbol 'SDL2_CLEAR' (RUNTIME_ROUTINE, INTEGER, scope=0, block=0, class_name='', function_name='', parameters=[INTEGER])
+Symbol 'SDL2_PRESENT' (RUNTIME_ROUTINE, INTEGER, scope=0, block=0, class_name='', function_name='', parameters=[INTEGER])
+Symbol 'SDL2_DRAW_POINT' (RUNTIME_ROUTINE, INTEGER, scope=0, block=0, class_name='', function_name='', parameters=[INTEGER, INTEGER, INTEGER])
+Symbol 'SDL2_DRAW_LINE' (RUNTIME_ROUTINE, INTEGER, scope=0, block=0, class_name='', function_name='', parameters=[INTEGER, INTEGER, INTEGER, INTEGER, INTEGER])
+Symbol 'SDL2_DRAW_RECT' (RUNTIME_ROUTINE, INTEGER, scope=0, block=0, class_name='', function_name='', parameters=[INTEGER, INTEGER, INTEGER, INTEGER, INTEGER])
+Symbol 'SDL2_FILL_RECT' (RUNTIME_ROUTINE, INTEGER, scope=0, block=0, class_name='', function_name='', parameters=[INTEGER, INTEGER, INTEGER, INTEGER, INTEGER])
+Symbol 'SDL2_POLL_EVENT' (RUNTIME_FUNCTION, INTEGER, scope=0, block=0, class_name='', function_name='')
+Symbol 'SDL2_GET_EVENT_KEY' (RUNTIME_FUNCTION, INTEGER, scope=0, block=0, class_name='', function_name='')
+Symbol 'SDL2_GET_EVENT_MOUSE' (RUNTIME_FUNCTION, INTEGER, scope=0, block=0, class_name='', function_name='', parameters=[INTEGER, INTEGER])
+Symbol 'SDL2_GET_EVENT_BUTTON' (RUNTIME_FUNCTION, INTEGER, scope=0, block=0, class_name='', function_name='')
+Symbol 'SDL2_DELAY' (RUNTIME_ROUTINE, INTEGER, scope=0, block=0, class_name='', function_name='', parameters=[INTEGER])
+Symbol 'SDL2_GET_TICKS' (RUNTIME_FUNCTION, INTEGER, scope=0, block=0, class_name='', function_name='')
+Symbol 'SDL2_GET_ERROR' (RUNTIME_FUNCTION, INTEGER, scope=0, block=0, class_name='', function_name='')
+Symbol 'SDL2_CLEAR_ERROR' (RUNTIME_ROUTINE, INTEGER, scope=0, block=0, class_name='', function_name='')
+Symbol 'SDL2_GET_VERSION' (RUNTIME_FUNCTION, INTEGER, scope=0, block=0, class_name='', function_name='')
+Symbol 'SDL2_GET_VIDEO_DRIVERS' (RUNTIME_FUNCTION, INTEGER, scope=0, block=0, class_name='', function_name='')
+Symbol 'SDL2_GET_CURRENT_VIDEO_DRIVER' (RUNTIME_FUNCTION, INTEGER, scope=0, block=0, class_name='', function_name='')
+Symbol 'SDL2_GET_DISPLAY_MODES' (RUNTIME_FUNCTION, INTEGER, scope=0, block=0, class_name='', function_name='')
+Symbol 'SDL2_TEST_BASIC' (RUNTIME_FUNCTION, INTEGER, scope=0, block=0, class_name='', function_name='')
+Symbol '_cse_temp_0' (LOCAL_VAR, INTEGER, scope=0, block=0, class_name='', function_name='START')
+
+Data sections generated.
+
+=== Peephole Optimization ===
+Analyzing 91 ARM64 instructions...
+Maximum optimization passes: 5
+Peephole optimization completed 1 
+  Passes with changes: 0
+Peephole optimization completed 1 passes:
+  Instructions before: 91
+  Instructions after:  91
+  Total optimizations: 0
+  No optimization patterns matched
+==============================
+[Peephole Optimizer] Detailed peephole optimization trace complete
+Performing static linking for assembly file generation...
+[LINKER-PASS1] Starting address and label assignment...
+[LINKER-PASS1] Code segment ends near 0x10c.
+[LINKER-PASS1] Read-only data (.rodata) segment will start at 0x5000.
+[LINKER-PASS2] Starting instruction relocation...
+Assembly written to: test_simple_cse.s

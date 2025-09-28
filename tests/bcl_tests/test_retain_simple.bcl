@@ -1,0 +1,9 @@
+// Minimal test for RETAIN keyword to verify it works
+LET START() BE $(
+    WRITES("Testing RETAIN keyword...*N")
+
+    LET x = VEC 10
+    RETAIN x
+
+    WRITES("RETAIN test complete*N")
+$)

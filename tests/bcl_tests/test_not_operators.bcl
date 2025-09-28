@@ -1,0 +1,89 @@
+// test_not_operators.bcl - Comprehensive test for bitwise and logical NOT operations
+
+LET START() BE $(
+    WRITES("Testing NOT Operators - Bitwise vs Logical*N")
+    WRITES("===============================================*N*N")
+
+    // Test 1: Bitwise NOT operator (~)
+    WRITES("1. Bitwise NOT Tests (~)*N")
+    WRITES("------------------------*N")
+
+    LET value1 = 5
+    LET bitwise1 = ~value1
+    WRITES("~5 = ")
+    WRITEN(bitwise1)
+    WRITES(" (bitwise NOT)*N")
+
+    LET value2 = 0
+    LET bitwise2 = ~value2
+    WRITES("~0 = ")
+    WRITEN(bitwise2)
+    WRITES(" (should be -1 or all 1s)*N")
+
+    LET value3 = -1
+    LET bitwise3 = ~value3
+    WRITES("~(-1) = ")
+    WRITEN(bitwise3)
+    WRITES(" (should be 0)*N")
+
+    // Test 2: Logical NOT with keyword (NOT)
+    WRITES("*N2. Logical NOT Tests (NOT keyword)*N")
+    WRITES("------------------------------------*N")
+
+    LET flag1 = 5
+    TEST NOT flag1 THEN
+        WRITES("NOT 5 is TRUE (ERROR)*N")
+    ELSE
+        WRITES("NOT 5 is FALSE (CORRECT)*N")
+
+    LET flag2 = 0
+    TEST NOT flag2 THEN
+        WRITES("NOT 0 is TRUE (CORRECT)*N")
+    ELSE
+        WRITES("NOT 0 is FALSE (ERROR)*N")
+
+    // Test 3: Verify bitwise NOT is NOT logical NOT
+    WRITES("*N3. Verification: ~ is NOT logical NOT*N")
+    WRITES("---------------------------------------*N")
+
+    // Bitwise NOT of 5 should NOT be 0 (logical NOT behavior)
+    TEST ~5 = 0 THEN
+        WRITES("ERROR: ~5 equals 0 (behaving as logical NOT)*N")
+    ELSE
+        WRITES("CORRECT: ~5 does not equal 0 (bitwise behavior)*N")
+
+    // Bitwise NOT of 0 should NOT be 1 (logical NOT behavior)
+    TEST ~0 = 1 THEN
+        WRITES("ERROR: ~0 equals 1 (behaving as logical NOT)*N")
+    ELSE
+        WRITES("CORRECT: ~0 does not equal 1 (bitwise behavior)*N")
+
+    // Test 4: Practical bitwise operations
+    WRITES("*N4. Practical Bitwise Examples*N")
+    WRITES("-------------------------------*N")
+
+    // Toggle all bits example
+    LET mask = 15        // Binary: 1111 (low 4 bits)
+    LET inverted = ~mask
+    WRITES("Original mask: ")
+    WRITEN(mask)
+    WRITES("*N")
+    WRITES("Inverted mask: ")
+    WRITEN(inverted)
+    WRITES("*N")
+
+    // Double inversion should restore original (for verification)
+    LET restored = ~inverted
+    WRITES("Double inversion: ")
+    WRITEN(restored)
+    TEST restored = mask THEN
+        WRITES(" (CORRECT: equals original)*N")
+    ELSE
+        WRITES(" (ERROR: does not equal original)*N")
+
+    WRITES("*N5. Summary*N")
+    WRITES("------------*N")
+    WRITES("~ operator: Bitwise NOT (inverts all bits)*N")
+    WRITES("NOT keyword: Logical NOT (boolean negation)*N")
+    WRITES("Test completed successfully*N")
+$)

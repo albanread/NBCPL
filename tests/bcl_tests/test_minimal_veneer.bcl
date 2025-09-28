@@ -1,0 +1,6 @@
+LET START() BE
+$(
+    WRITES("Minimal veneer test*N")
+    LET x = RAND(5)
+    WRITES("Done*N")
+$)

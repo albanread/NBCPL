@@ -1,0 +1,12 @@
+LET START() BE
+$(
+    WRITES("Testing external function calls...")
+    NEWLINE()
+
+    // Test simple external function
+    LET x = RAND(10)
+    WRITEF("Random number: %d*N", x)
+
+    WRITES("Test complete!")
+    NEWLINE()
+$)

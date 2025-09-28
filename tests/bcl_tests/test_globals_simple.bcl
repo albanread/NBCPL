@@ -1,0 +1,17 @@
+// Simple test for GLOBALS syntax parsing
+// This test verifies that the GLOBALS block can be parsed correctly
+
+GLOBALS $(
+    LET global_int = 123
+    LET global_str = "hello"
+    FLET global_float = 3.14
+$)
+
+LET START() BE $(
+    WRITEF("Simple GLOBALS test*N")
+    WRITEF("global_int = %d*N", global_int)
+    //WRITEF("global_str = %s*N", global_str)
+    WRITEF("global_flt = %f*N", global_float)
+    NEWLINE()
+    WRITEF("Test completed*N")
+$)

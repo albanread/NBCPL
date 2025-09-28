@@ -1,0 +1,6 @@
+GET "libhdr"
+
+LET START() BE
+$(
+    WRITES("Hey ")
+$)

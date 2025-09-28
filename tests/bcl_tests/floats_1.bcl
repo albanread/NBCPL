@@ -1,0 +1,23 @@
+
+// A user-defined function that returns a floating-point value.
+LET CircleArea(Radius) = FVALOF
+$(
+    RESULTIS 3.14159 *# Radius *# Radius
+$)
+
+FLET GF = 0.8
+
+LET START() = VALOF
+$(
+    FLET Z = 12.12
+    FLET C = CircleArea(Z)
+    FLET X = 0.123
+    WRITES("Result of C (function call test): ")
+    WRITEF(C)
+    WRITEC(10)
+    FLET D = X *# C +# Z -# GF
+    WRITEF(D)
+    WRITEC(10)
+    // Result of C (function call test): 461.338
+    // 68.869
+$)

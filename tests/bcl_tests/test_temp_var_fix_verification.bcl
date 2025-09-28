@@ -1,0 +1,73 @@
+// Comprehensive test to verify the FOREACH temporary variable registration fix
+// This test confirms that the CFGBuilderPass now properly registers temporary
+// variables (_forEach_vec_*, _forEach_len_*, _forEach_idx_*, etc.) in the SymbolTable
+// so that the register allocator can assign them storage locations.
+
+LET start() BE {
+
+    WRITEF("=== FOREACH Temporary Variable Fix Verification ===\n")
+
+    // Test 1: Simple vector FOREACH (should work now)
+    WRITEF("Test 1: Vector FOREACH with integers\n")
+    LET int_vec = VEC 4
+    int_vec!0 := 100
+    int_vec!1 := 200
+    int_vec!2 := 300
+    int_vec!3 := 400
+
+    FOREACH val IN int_vec DO {
+        WRITEF("  Integer value: %d\n", val)
+    }
+
+    // Test 2: Float vector FOREACH (should work now)
+    WRITEF("Test 2: Float vector FOREACH\n")
+    LET float_vec = FVEC 3
+    float_vec!0 := 1.1
+    float_vec!1 := 2.2
+    float_vec!2 := 3.3
+
+    FOREACH fval IN float_vec DO {
+        WRITEF("  Float value: %.1f\n", fval)
+    }
+
+    // Test 3: Simple vector setup and FOREACH (should work now)
+    WRITEF("Test 3: Simple vector FOREACH\n")
+    LET init_vec = VEC 5
+    init_vec!0 := 10
+    init_vec!1 := 20
+    init_vec!2 := 30
+    init_vec!3 := 40
+    init_vec!4 := 50
+
+    FOREACH item IN init_vec DO {
+        WRITEF("  Simple vector value: %d\n", item)
+    }
+
+    // Test 4: List FOREACH (was already working but verify it still works)
+    WRITEF("Test 4: List FOREACH (should continue working)\n")
+    LET test_list = LIST("Alpha", "Beta", "Gamma")
+
+    FOREACH str IN test_list DO {
+        WRITEF("  List item: %s\n", str)
+    }
+
+    // Test 5: Nested FOREACH (critical test for temporary variable name conflicts)
+    WRITEF("Test 5: Nested FOREACH loops\n")
+    LET outer_vec = VEC 2
+    outer_vec!0 := 1
+    outer_vec!1 := 2
+
+    FOREACH outer_val IN outer_vec DO {
+        WRITEF("  Outer value: %d\n", outer_val)
+
+        LET inner_vec = VEC 2
+        inner_vec!0 := 10
+        inner_vec!1 := 20
+        FOREACH inner_val IN inner_vec DO {
+            WRITEF("    Inner value: %d\n", inner_val)
+        }
+    }
+
+    WRITEF("=== All FOREACH tests completed successfully! ===\n")
+    WRITEF("The temporary variable registration fix is working.\n")
+}

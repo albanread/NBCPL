@@ -1,0 +1,26 @@
+// simple_null_test.bcl - Simple test for the ? null literal
+
+LET START() BE $(
+    WRITES("Testing null literal (?)*N")
+
+    // Test 1: Basic null assignment
+    LET ptr = ?
+    WRITES("Assigned ? to ptr*N")
+
+    // Test 2: Simple IF statement instead of TEST
+    IF ptr = ? THEN
+        WRITES("ptr equals ? - SUCCESS*N")
+
+    // Test 3: Null in arithmetic
+    LET result = ? + 5
+    WRITES("? + 5 = ")
+    WRITEN(result)
+    WRITES("*N")
+
+    // Test 4: Null vs non-null comparison
+    LET non_null = 42
+    IF non_null ~= ? THEN
+        WRITES("42 ~= ? - SUCCESS*N")
+
+    WRITES("Null literal test complete*N")
+$)

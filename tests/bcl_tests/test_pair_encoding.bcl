@@ -1,0 +1,33 @@
+LET START() BE $(
+    LET P1 = PAIR(100, 100)
+    LET P2 = PAIR(10, 5)
+    LET P3 = P1 + P2
+    P3 := P3 * 2
+    P3 := P3 + 1
+
+    NEWLINE()
+    WRITEF("P3.first = *N*N", P3.first)
+    WRITEF("P3.second = *N*N", P3.second)
+
+    // Expected output should be:
+    // P3.first = 221
+    // P3.second = 211
+
+    // Test individual access
+    LET FIRST_VAL = P3.first
+    LET SECOND_VAL = P3.second
+
+    WRITEF("Extracted first: *N*N", FIRST_VAL)
+    WRITEF("Extracted second: *N*N", SECOND_VAL)
+
+    // Test that we match clang encoding
+    IF FIRST_VAL = 221 THEN
+        WRITEF("PASS: First value matches expected (221)*N")
+    ELSE
+        WRITEF("FAIL: First value is *N, expected 221*N", FIRST_VAL)
+
+    IF SECOND_VAL = 211 THEN
+        WRITEF("PASS: Second value matches expected (211)*N")
+    ELSE
+        WRITEF("FAIL: Second value is *N, expected 211*N", SECOND_VAL)
+$)

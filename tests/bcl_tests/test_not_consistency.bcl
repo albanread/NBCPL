@@ -1,0 +1,13 @@
+LET START() BE
+{
+	// Test NOT with simple values
+	LET A = NOT 0
+	LET B = NOT 1
+	
+	// Test NOT with OR results  
+	LET C = 1 OR 0
+	LET D = NOT C
+	
+	WRITEF(" NOT 0=%d, NOT 1=%d*N", A, B)
+	WRITEF(" 1 OR 0=%d, NOT(1 OR 0)=%d*N", C, D)
+}

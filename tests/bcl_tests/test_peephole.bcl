@@ -1,0 +1,44 @@
+// test_peephole.bcl - Test for peephole optimization
+// This program demonstrates the "load after store" pattern that should be
+// optimized to use a register-to-register MOV instead of a memory load
+
+GET "libhdr"
+
+LET START() BE
+$(
+    LET a = 10
+    LET b = 20
+    LET c = 0
+
+    // The following sequence should trigger our optimization:
+    // 1. Store c = a + b (STR instruction)
+    // 2. Load c for printing (LDR instruction)
+    // Our optimizer should replace the LDR with a MOV
+    c := a + b
+    WRITEN(c)
+    NEWLINE()
+
+    // Repeat with different operations to create more instances
+    // of the pattern for testing
+    c := a * b
+    WRITEN(c)
+    NEWLINE()
+
+    c := a - b
+    WRITEN(c)
+    NEWLINE()
+
+    // More integer test cases
+    LET d = 100
+    LET e = 50
+
+    // Division should also trigger the pattern
+    c := d / e
+    WRITEN(c)
+    NEWLINE()
+
+    // And bitwise operations
+    c := d & e
+    WRITEN(c)
+    NEWLINE()
+$)

@@ -1,0 +1,29 @@
+
+
+// Test for GLOBALS block feature with floating-point variables
+// Tests basic float global variable declarations
+
+GLOBALS $(
+    FLET global_float = 3.14159
+    FLET another_float = 2.71828
+    LET global_int = 42
+$)
+
+LET START() BE $(
+    WRITEF("Float GLOBALS Test*N")
+    WRITEF("==================*N*N")
+
+    WRITEF("global_float = %f*N", global_float)
+    WRITEF("another_float = %f*N", another_float)
+    WRITEF("global_int = %d*N", global_int)
+
+    // Test modification
+    global_float := global_float * 2.0
+    WRITEF("After doubling: global_float = %f*N", global_float)
+
+    // Test arithmetic with mixed types
+    LET mixed_sum = global_int +  global_float
+    WRITEF("Mixed sum (int + float): %f*N", mixed_sum)
+
+    WRITEF("*N✅ Float GLOBALS test completed!*N")
+$)

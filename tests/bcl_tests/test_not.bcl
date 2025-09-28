@@ -1,0 +1,7 @@
+LET START() BE
+{
+	LET X = NOT 1
+	LET Y = NOT 0
+	LET Z = NOT -1
+	WRITEF(" TEST X %d Y %d Z %d*N", X,Y,Z)
+}

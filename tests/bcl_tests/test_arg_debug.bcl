@@ -1,0 +1,34 @@
+LET START() BE {
+    WRITEF("=== Argument Coercion Debug Test ===*N")
+
+    // Simple test with one integer and one float
+    LET my_int = 42
+    FLET my_float = 3.14
+
+    WRITEF("Before function calls:*N")
+    WRITEF("  my_int = %d*N", my_int)
+    WRITEF("  my_float = %f*N", my_float)
+    WRITEF("*N")
+
+    // Test 1: Call IntFunc with mixed types
+    WRITEF("Calling IntFunc(42, 3.14)...*N")
+    LET result1 = IntFunc(my_int, my_float)
+    WRITEF("Result: %d*N*N", result1)
+
+    // Test 2: Call FloatFunc with mixed types
+    WRITEF("Calling FloatFunc(42, 3.14)...*N")
+    FLET result2 = FloatFunc(my_int, my_float)
+    WRITEF("Result: %f*N*N", result2)
+
+    WRITEF("=== End Test ===*N")
+}
+
+LET IntFunc(a, b) = VALOF {
+    WRITEF("  IntFunc: a=%d, b=%d*N", a, b)
+    RESULTIS a + b
+}
+
+FLET FloatFunc(x, y) = VALOF {
+    WRITEF("  FloatFunc: x=%f, y=%f*N", x, y)
+    RESULTIS x + y
+}

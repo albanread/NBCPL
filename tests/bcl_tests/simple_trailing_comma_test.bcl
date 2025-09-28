@@ -1,0 +1,12 @@
+LET START() BE
+$(
+   // Simple test to verify trailing comma parsing works
+
+   // This should work (no trailing comma)
+   LET L1 = LIST("a", "b")
+
+   // This should also work (with trailing comma) - the fix!
+   LET L2 = LIST("x", "y",)
+
+   WRITES("Trailing comma test passed!*N")
+$)

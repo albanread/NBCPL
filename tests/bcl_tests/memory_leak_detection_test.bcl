@@ -1,0 +1,111 @@
+// Test for memory leak detection on pointer reassignment
+
+CLASS TestClass $(
+    LET value = 0
+
+    ROUTINE setValue(v) BE $(
+        value := v
+    $)
+$)
+
+// Test 1: Direct pointer reassignment (should trigger warning)
+LET TestDirectReassignment() BE $(
+    WRITES("Testing direct pointer reassignment*N")
+
+    LET p = NEW TestClass()     // p now owns heap memory
+    p.setValue(42)
+
+    p := NEW TestClass()        // WARNING: p still owns previous object!
+                                // This should trigger memory leak detection
+    p.setValue(84)
+$)
+
+// Test 2: Vector reassignment (should trigger warning)
+LET TestVectorReassignment() BE $(
+    WRITES("Testing vector reassignment*N")
+
+    LET v = VEC 100            // v now owns heap memory
+    v!0 := 123
+
+    v := VEC 200               // WARNING: v still owns previous vector!
+                               // This should trigger memory leak detection
+    v!0 := 456
+$)
+
+// Test 3: Proper cleanup before reassignment (should NOT trigger warning)
+LET TestProperCleanup() BE $(
+    WRITES("Testing proper cleanup before reassignment*N")
+
+    LET p = NEW TestClass()     // p owns heap memory
+    p.setValue(42)
+
+    p.RELEASE()                 // Explicit cleanup
+    p := NEW TestClass()        // OK: no warning, previous memory was released
+    p.setValue(84)
+$)
+
+// Test 4: Assignment to non-owning variable (should NOT trigger warning)
+LET TestNonOwningAssignment() BE $(
+    WRITES("Testing assignment to non-owning variable*N")
+
+    LET p = NULL               // p doesn't own heap memory
+    p := NEW TestClass()       // OK: no warning, p wasn't owning anything
+    p.setValue(42)
+$)
+
+// Test 5: Multiple reassignments (should trigger multiple warnings)
+LET TestMultipleReassignments() BE $(
+    WRITES("Testing multiple reassignments*N")
+
+    LET obj = NEW TestClass()   // obj owns heap memory
+    obj.setValue(1)
+
+    obj := NEW TestClass()      // WARNING 1: reassigning while owning memory
+    obj.setValue(2)
+
+    obj := NEW TestClass()      // WARNING 2: reassigning while owning memory again
+    obj.setValue(3)
+$)
+
+// Test 6: Mixed types reassignment
+LET TestMixedReassignment() BE $(
+    WRITES("Testing mixed type reassignments*N")
+
+    LET data = NEW TestClass()  // data owns object
+    data.setValue(100)
+
+    data := VEC 50             // WARNING: reassigning object pointer with vector
+                               // Both are heap allocations, so this should warn
+$)
+
+// Test 7: Reassignment with non-allocating expression (should NOT warn)
+LET TestNonAllocatingReassignment() BE $(
+    WRITES("Testing reassignment with non-allocating expression*N")
+
+    LET p = NEW TestClass()     // p owns heap memory
+    p.setValue(42)
+
+    p := NULL                   // OK: not allocating new memory, just clearing pointer
+                               // (Though this still leaks, it's a different issue)
+$)
+
+LET START() BE $(
+    WRITES("Memory Leak Detection Test Suite*N")
+    WRITES("====================================*N*N")
+
+    // These should trigger warnings
+    TestDirectReassignment()
+    TestVectorReassignment()
+    TestMultipleReassignments()
+    TestMixedReassignment()
+
+    WRITES("*N--- Tests that should NOT trigger warnings ---*N")
+
+    // These should NOT trigger warnings
+    TestProperCleanup()
+    TestNonOwningAssignment()
+    TestNonAllocatingReassignment()
+
+    WRITES("*NMemory leak detection test completed.*N")
+    WRITES("Check compiler output for memory leak warnings.*N")
+$)

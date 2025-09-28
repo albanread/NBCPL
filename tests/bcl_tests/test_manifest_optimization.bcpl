@@ -1,0 +1,121 @@
+// Test case for manifest constant optimization in FOR loops
+// This verifies that manifest constants are recognized as compile-time constants
+// and that FOR loops using them get optimized with immediate values
+
+MANIFEST {
+    MAX_ITERATIONS = 50;
+    STEP_SIZE = 3;
+    ARRAY_SIZE = 100;
+    MIN_VALUE = 1;
+    LARGE_LIMIT = 1000
+}
+
+LET test_manifest_constants() = VALOF {
+    LET sum = 0
+
+    // Test 1: Manifest constant as end bound - SHOULD BE OPTIMIZED
+    // Expected: CMP with immediate #50, no backing variable for end
+    FOR i = 1 TO MAX_ITERATIONS DO {
+        sum := sum + i
+    }
+
+    // Test 2: Manifest constant as step - SHOULD BE OPTIMIZED
+    // Expected: ADD with immediate #3, no backing variable for step
+    FOR j = MIN_VALUE TO 30 BY STEP_SIZE DO {
+        sum := sum + j
+    }
+
+    // Test 3: Both bounds are manifest constants - SHOULD BE OPTIMIZED
+    // Expected: Both CMP and ADD use immediate values
+    FOR k = MIN_VALUE TO MAX_ITERATIONS BY STEP_SIZE DO {
+        sum := sum + k
+    }
+
+    RESULTIS sum
+}
+
+LET test_mixed_manifest_variables() = VALOF {
+    LET sum = 0
+    LET variable_end = 25
+    LET variable_step = 2
+
+    // Test 4: Manifest start, variable end - PARTIALLY OPTIMIZED
+    // Expected: No backing variable for start, backing variable for end
+    FOR m = MIN_VALUE TO variable_end DO {
+        sum := sum + m
+    }
+
+    // Test 5: Variable end, manifest step - PARTIALLY OPTIMIZED
+    // Expected: Backing variable for end, no backing variable for step
+    FOR n = 1 TO variable_end BY STEP_SIZE DO {
+        sum := sum + n
+    }
+
+    // Test 6: All variables - NO OPTIMIZATION
+    // Expected: Backing variables for both end and step
+    FOR p = 1 TO variable_end BY variable_step DO {
+        sum := sum + p
+    }
+
+    RESULTIS sum
+}
+
+LET test_manifest_arithmetic() = VALOF {
+    LET sum = 0
+
+    // Test 7: Arithmetic with manifest constants - SHOULD BE OPTIMIZED
+    // Expected: (MAX_ITERATIONS + 10) should constant-fold to 60
+    FOR q = 1 TO (MAX_ITERATIONS + 10) DO {
+        sum := sum + q
+    }
+
+    // Test 8: Complex manifest expression - SHOULD BE OPTIMIZED
+    // Expected: (ARRAY_SIZE - MAX_ITERATIONS) should constant-fold to 50
+    FOR r = MIN_VALUE TO (ARRAY_SIZE - MAX_ITERATIONS) BY STEP_SIZE DO {
+        sum := sum + r
+    }
+
+    RESULTIS sum
+}
+
+LET test_nested_manifest_loops() = VALOF {
+    LET sum = 0
+
+    // Test 9: Nested loops with manifest constants - BOTH SHOULD BE OPTIMIZED
+    // Expected: All bounds use immediate values, significant register savings
+    FOR outer = MIN_VALUE TO 5 DO {
+        FOR inner = MIN_VALUE TO MAX_ITERATIONS DO {
+            sum := sum + (outer + inner)
+        }
+    }
+
+    RESULTIS sum
+}
+
+LET START() BE {
+    WRITEF("=== Manifest Constant Optimization Test ===*N*N")
+
+    WRITEF("Test 1: Basic manifest constants*N")
+    LET result1 = test_manifest_constants()
+    WRITEF("Result: %d*N*N", result1)
+
+    WRITEF("Test 2: Mixed manifest and variable bounds*N")
+    LET result2 = test_mixed_manifest_variables()
+    WRITEF("Result: %d*N*N", result2)
+
+    WRITEF("Test 3: Manifest arithmetic expressions*N")
+    LET result3 = test_manifest_arithmetic()
+    WRITEF("Result: %d*N*N", result3)
+
+    WRITEF("Test 4: Nested manifest loops*N")
+    LET result4 = test_nested_manifest_loops()
+    WRITEF("Result: %d*N*N", result4)
+
+    WRITEF("*N=== Expected Optimizations ===*N")
+    WRITEF("Manifest constants should be treated as immediate values:*N")
+    WRITEF("- MAX_ITERATIONS = 50 should generate CMP reg, #50*N")
+    WRITEF("- STEP_SIZE = 3 should generate ADD reg, reg, #3*N")
+    WRITEF("- Arithmetic like (50 + 10) should constant-fold to 60*N")
+    WRITEF("*NRun with --trace-ast to see optimization analysis*N")
+    WRITEF("Run with --trace-codegen to see immediate instructions*N")
+}

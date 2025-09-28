@@ -1,0 +1,36 @@
+// test_escapes.bcpl
+// Test escape sequence support in WRITES and WRITEF
+
+LET START() BE {
+    WRITES("=== Testing Escape Sequences ===\n")
+
+    // Test basic escape sequences with WRITES
+    WRITES("Testing WRITES with escape sequences:\n")
+    WRITES("Line 1\nLine 2\nLine 3\n")
+    WRITES("Tab\tseparated\tvalues\n")
+    WRITES("Quote: \"Hello World\"\n")
+    WRITES("Backslash: \\\n")
+    WRITES("Carriage return and new line:\r\nNext line\n")
+
+    // Test escape sequences with WRITEF
+    WRITES("\nTesting WRITEF with escape sequences:\n")
+    WRITEF("Simple newline test:\nThis is line 2\n")
+    WRITEF("Tab test:\tIndented text\n")
+    WRITEF("Quote test: \"WRITEF with quotes\"\n")
+    WRITEF("Backslash test: \\\n")
+
+    // Test WRITEF with format specifiers AND escape sequences
+    WRITES("\nTesting WRITEF with format specifiers and escapes:\n")
+    LET number = 42
+    WRITEF1("Number: %n\tHex: %x\nDone!\n", number)
+
+    LET value1 = 10
+    LET value2 = 20
+    WRITEF2("Value 1: %n\nValue 2: %n\nSum would be: (calculation)\n", value1, value2)
+
+    // Test mixed content
+    WRITES("\nTesting mixed content:\n")
+    WRITES("Normal text with\ttabs and\nnewlines and \"quotes\" and \\ backslashes\n")
+
+    WRITES("\n=== Escape Sequence Test Complete ===\n")
+}

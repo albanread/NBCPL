@@ -1,0 +1,69 @@
+GET "runtime.bcl"
+
+// Define a class to hold X, Y coordinates
+CLASS Point
+$(
+
+  FLET x
+  FLET y
+
+  ROUTINE CREATE(initialX, initialY) BE $(
+    SELF.x := initialX
+    SELF.y := initialY
+  $)
+$)
+
+LET START() BE $(
+  LET fern_points = LIST()
+  LET x, y = 0.0, 0.0
+  LET i = 0
+
+  // Generate 50,000 points for the fern
+  FOR i = 1 TO 50000 DO $(
+    LET r = RAND(99) // Random number between 0 and 99
+    LET next_x, next_y = 0.0, 0.0
+
+    // Apply one of the four IFS transformations based on probability
+    TEST r < 1 THEN $(
+      // Stem (1% probability)
+      next_x := 0.0
+      next_y := 0.16 * y
+    $) ELSE TEST r < 86 THEN $(
+      // Successively smaller leaflets (85% probability)
+      next_x := 0.85 * x + 0.04 * y
+      next_y := -0.04 * x + 0.85 * y + 1.6
+    $) ELSE TEST r < 93 THEN $(
+      // Largest left-hand leaflet (7% probability)
+      next_x := 0.20 * x - 0.26 * y
+      next_y := 0.23 * x + 0.22 * y + 1.6
+    $) ELSE $(
+      // Largest right-hand leaflet (7% probability)
+      next_x := -0.15 * x + 0.28 * y
+      next_y := 0.26 * x + 0.24 * y + 0.44
+    $)
+
+    x := next_x
+    y := next_y
+
+    // Create a new Point object and append it to the list
+    APND(fern_points, NEW Point(x, y))
+  $)
+
+  WRITEF("Generated %s points for the fern.*N", i)
+
+
+  LET cursor = fern_points
+  FOR i = 1 TO 5 DO $(
+    IF cursor = 0 THEN BREAK
+    LET current_point = HD(cursor)
+    WRITES("Point " & VAL(i) & ": (")
+    FWRITE(current_point.x)
+    WRITES(", ")
+    FWRITE(current_point.y)
+    WRITES(")*N")
+    cursor := TAIL(cursor)
+  $)
+
+  // The 'fern_points' list now holds all the point objects.
+  // SAMM will automatically clean up the list and all Point objects.
+$)

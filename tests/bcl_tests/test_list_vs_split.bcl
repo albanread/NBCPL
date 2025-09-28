@@ -1,0 +1,29 @@
+LET START() BE
+$(
+   WRITES("Testing LIST vs SPLIT in FOREACH loops*N")
+
+   // Test 1: LIST() - this should crash
+   WRITES("Test 1: Using LIST()*N")
+   LET L1 = LIST("apple", "banana")
+   FOREACH S IN L1 DO
+   $(
+      WRITES("  ")
+      WRITES(S)
+      WRITES("*N")
+   $)
+   WRITES("Test 1 completed*N")
+
+   // Test 2: SPLIT() - this should not crash
+   WRITES("Test 2: Using SPLIT()*N")
+   LET STR = "cherry date"
+   LET L2 = SPLIT(STR, " ")
+   FOREACH S IN L2 DO
+   $(
+      WRITES("  ")
+      WRITES(S)
+      WRITES("*N")
+   $)
+   WRITES("Test 2 completed*N")
+
+   WRITES("All tests finished*N")
+$)

@@ -1,0 +1,69 @@
+// Test program for CFG simplification pass
+// This program is designed to generate redundant branch patterns
+// that should be eliminated by the CFG simplification pass
+
+LET start() BE {
+    LET x = 10
+    LET y = 20
+
+    // Simple IF that creates redundant jumps
+    IF x < y THEN {
+        GOTO label_a
+    }
+
+    // This should create a redundant jump block
+    GOTO label_b
+
+    label_a:
+        writef("x is less than y*N")
+        GOTO label_end
+
+    label_b:
+        writef("x is not less than y*N")
+        GOTO label_end
+
+    label_end:
+        writef("End of test*N")
+
+    // Test nested structure that creates intermediate jumps
+    TEST x = 10 THEN {
+        GOTO success_path
+    } ELSE {
+        GOTO failure_path
+    }
+
+    success_path:
+        writef("Success case*N")
+        GOTO final_exit
+
+    failure_path:
+        writef("Failure case*N")
+        GOTO final_exit
+
+    final_exit:
+        writef("Final exit*N")
+
+    // Test SWITCHON that might create redundant blocks
+    SWITCHON x INTO {
+        CASE 10:
+            writef("Case 10*N")
+
+        CASE 20:
+            writef("Case 20*N")
+
+        DEFAULT:
+            writef("Default case*N")
+    }
+
+    writef("Switch completed*N")
+
+    // Test loop with break that creates cleanup chains
+    FOR i = 1 TO 5 DO {
+        IF i = 3 THEN {
+            BREAK
+        }
+        writef("Loop iteration %d*N", i)
+    }
+
+    writef("Program completed*N")
+}

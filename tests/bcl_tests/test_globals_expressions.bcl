@@ -1,0 +1,33 @@
+// Test for GLOBALS block feature with expressions referencing earlier globals
+// Tests that global initializers can reference previously declared globals
+
+GLOBALS $(
+    LET base_value = 100
+    LET doubled = base_value * 2
+    LET tripled = base_value * 3
+    LET sum_of_all = base_value + doubled + tripled
+    LET calculated = (base_value + doubled) * 2 - tripled
+$)
+
+LET START() BE $(
+    WRITEF("Global Expression Test*N")
+    WRITEF("=====================*N*N")
+
+    WRITEF("base_value = %d*N", base_value)
+    WRITEF("doubled = %d (should be 200)*N", doubled)
+    WRITEF("tripled = %d (should be 300)*N", tripled)
+    WRITEF("sum_of_all = %d (should be 600)*N", sum_of_all)
+    WRITEF("calculated = %d (should be 100)*N", calculated)
+
+    // Test that we can still modify globals that were computed from expressions
+    LET old_doubled = doubled
+    doubled := doubled + 50
+    WRITEF("*NAfter modifying doubled:*N")
+    WRITEF("doubled changed from %d to %d*N", old_doubled, doubled)
+
+    // Test arithmetic with computed globals
+    LET new_total = base_value + doubled + tripled
+    WRITEF("new_total = %d*N", new_total)
+
+    WRITEF("*N✅ Global expression test completed!*N")
+$)

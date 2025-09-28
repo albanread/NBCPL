@@ -1,0 +1,7 @@
+// Minimal test for FIX intrinsic
+LET START() BE {
+    WRITEF("Testing FIX intrinsic*N")
+    LET val = 5
+    LET result = FIX(val)
+    WRITEF("FIX(5) = %d*N", result)
+}

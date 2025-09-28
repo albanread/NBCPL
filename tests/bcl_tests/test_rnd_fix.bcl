@@ -1,0 +1,51 @@
+// Test file to verify that the RND function fix works correctly
+// RND should return float values, RAND should return integer values
+
+LET START() BE $(
+    WRITES("Testing RND (float) and RAND (int) functions...*N")
+    WRITES("*NTesting RND(10.0) - should return floats between 0.0 and 10.0:*N")
+
+    FOR i = 1 TO 5 DO $(
+        FLET result = RND(10)
+        FWRITE(result)
+        WRITES(" ")
+    $)
+    WRITES("*N")
+
+    WRITES("*NTesting RND(100.0) - should return floats between 0.0 and 100.0:*N")
+
+    FOR i = 1 TO 5 DO $(
+        FLET result = RND(100)
+        FWRITE(result)
+        WRITES(" ")
+    $)
+    WRITES("*N")
+
+    WRITES("*NTesting RAND(10) - should return integers between 0 and 10:*N")
+
+    FOR i = 1 TO 5 DO $(
+        LET result = RAND(10)
+        WRITEF("%d ", result)
+    $)
+    WRITES("*N")
+
+    WRITES("*NTesting RAND(100) - should return integers between 0 and 100:*N")
+
+    FOR i = 1 TO 5 DO $(
+        LET result = RAND(100)
+        WRITEF("%d ", result)
+    $)
+    WRITES("*N")
+
+    WRITES("*NTesting FRND() - should return floats between 0.0 and 1.0:*N")
+
+    FOR i = 1 TO 5 DO $(
+        FLET result = FRND()
+        FWRITE(result)
+        WRITES(" ")
+    $)
+    WRITES("*N")
+
+    WRITES("*NIf all numbers above are NOT zero and show variation, the fix worked!*N")
+    WRITES("RND should show decimal values, RAND should show whole numbers.*N")
+$)

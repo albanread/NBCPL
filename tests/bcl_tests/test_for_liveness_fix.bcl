@@ -1,0 +1,28 @@
+// Test for FOR loop liveness analysis fix
+// This test verifies that variables assigned inside a FOR loop body
+// are not incorrectly attributed to the loop header block
+
+LET START() BE $(
+    WRITEF("Testing FOR loop liveness analysis fix*N")
+
+    // Test case: FOR loop with variable assignments in the body
+    // The bug was that xx and yy assignments were incorrectly added
+    // to the header block's Def set instead of the body block's Def set
+
+    LET renderer = 100  // This should be in the header block's Use set
+
+    FOR i = 1 TO 10 DO $(
+        // These assignments should be in the BODY block's Def set,
+        // NOT in the header block's Def set
+        LET xx = i * 2
+        LET yy = i * 3
+
+        WRITEF("Loop %d: xx=%d, yy=%d*N", i, xx, yy)
+
+        // Use renderer to ensure it's in the Use set
+        IF renderer > 0 THEN
+            WRITEF("Renderer active*N")
+    $)
+
+    WRITEF("FOR loop test completed*N")
+$)

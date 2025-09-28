@@ -1,0 +1,15 @@
+LET START() BE $(
+
+LET p1 = PAIR(100,200)
+WRITEF("Pair1 = %P", p1)
+
+LET points = LIST()
+APND(points, p1)
+
+FOREACH p AS PAIR IN points DO $(
+        WRITEF("*NPoint: %P *N", p)
+$)
+
+
+
+$)

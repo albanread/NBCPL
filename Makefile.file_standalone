@@ -1,0 +1,68 @@
+# Makefile for standalone FILE Runtime API Test
+# Tests FILE_ commands with minimal dependencies
+
+# Compiler settings
+CXX = clang++
+CXXFLAGS = -std=c++17 -Wall -Wextra -O2 -g
+CFLAGS = -std=c99 -Wall -Wextra -O2 -g
+
+# Directories
+BUILD_DIR = build/file_standalone
+TARGET = $(BUILD_DIR)/test_file_standalone
+
+# Source files
+TEST_SRC = test_file_runtime_standalone.cpp
+
+# Object files
+TEST_OBJ = $(BUILD_DIR)/test_file_runtime_standalone.o
+
+# Include directories
+INCLUDES = -I. -Iruntime -IHeapManager
+
+# Create build directory
+$(BUILD_DIR):
+	mkdir -p $(BUILD_DIR)
+
+# Main target
+$(TARGET): $(BUILD_DIR) $(TEST_OBJ)
+	$(CXX) $(CXXFLAGS) -o $@ $(TEST_OBJ)
+
+# Test source compilation
+$(BUILD_DIR)/test_file_runtime_standalone.o: test_file_runtime_standalone.cpp
+	$(CXX) $(CXXFLAGS) $(INCLUDES) -c $< -o $@
+
+# Build and run test
+test: $(TARGET)
+	@echo "Running standalone FILE Runtime API Test..."
+	@./$(TARGET)
+
+# Build only
+build: $(TARGET)
+
+# Clean build artifacts
+clean:
+	rm -rf $(BUILD_DIR)
+	rm -f test_*.txt test_*.dat *.txt *.dat
+
+# Clean test files only
+clean-tests:
+	rm -f test_*.txt test_*.dat *.txt *.dat
+
+# Debug build
+debug: CXXFLAGS += -DDEBUG -O0
+debug: $(TARGET)
+
+# Show help
+help:
+	@echo "Available targets:"
+	@echo "  build       - Build the standalone test executable"
+	@echo "  test        - Build and run the standalone FILE API tests"
+	@echo "  debug       - Build with debug symbols and no optimization"
+	@echo "  clean       - Remove all build artifacts and test files"
+	@echo "  clean-tests - Remove only test files"
+	@echo "  help        - Show this help message"
+
+.PHONY: test build clean clean-tests debug help
+
+# Default target
+.DEFAULT_GOAL := test

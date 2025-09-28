@@ -1,0 +1,23 @@
+// Simple test for FIX intrinsic with integer operands
+// This tests that FIX works as identity function for integers
+
+LET START() BE {
+    WRITEF("Testing FIX intrinsic with integers*N")
+
+    // Test 1: FIX with positive integer
+    LET val1 = 42
+    LET result1 = FIX(val1)
+    WRITEF("FIX(42) = %d*N", result1)
+
+    // Test 2: FIX with negative integer
+    LET val2 = -17
+    LET result2 = FIX(val2)
+    WRITEF("FIX(-17) = %d*N", result2)
+
+    // Test 3: FIX with zero
+    LET val3 = 0
+    LET result3 = FIX(val3)
+    WRITEF("FIX(0) = %d*N", result3)
+
+    WRITEF("FIX integer tests completed*N")
+}

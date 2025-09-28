@@ -1,0 +1,75 @@
+# Makefile for recycling_allocator (Simple Recycling Object Allocator Test)
+# Tests simple freelist-based object recycling for maximum performance
+
+CXX = clang++
+CXXFLAGS = -std=c++17 -Wall -Wextra -O3 -g -march=native
+INCLUDES = -I. -I../../HeapManager -I../../runtime -I../../include
+LIBS = ../../libbcpl_runtime_sdl2_static.a -lpthread \
+       -framework CoreFoundation -framework CoreAudio -framework AudioToolbox \
+       -framework CoreGraphics -framework AppKit -framework IOKit \
+       -framework ForceFeedback -framework Carbon -framework CoreHaptics \
+       -framework GameController -framework Metal -framework QuartzCore
+
+# Target executable
+TARGET = recycling_allocator
+
+# Source files
+MAIN_SRC = recycling_allocator.cpp
+
+# Default target
+all: $(TARGET)
+
+# Main executable
+$(TARGET): $(TARGET).o
+	@echo "Linking recycling_allocator executable..."
+	$(CXX) $(CXXFLAGS) -o $@ $^ $(LIBS)
+
+# Main test source
+$(TARGET).o: $(MAIN_SRC)
+	@echo "Compiling recycling_allocator.cpp..."
+	$(CXX) $(CXXFLAGS) $(INCLUDES) -c $< -o $@
+
+# Clean up build artifacts
+clean:
+	@echo "Cleaning recycling_allocator build artifacts..."
+	rm -f $(TARGET) $(TARGET).o
+
+# Force rebuild
+rebuild: clean all
+
+# Run the test
+test: $(TARGET)
+	@echo "Running recycling allocator test..."
+	./$(TARGET)
+
+# Run test with timing
+test-timed: $(TARGET)
+	@echo "Running recycling allocator test with timing..."
+	time ./$(TARGET)
+
+# Run performance benchmark
+test-perf: $(TARGET)
+	@echo "Running performance benchmark..."
+	@echo "Note: This uses -O3 optimization for maximum performance"
+	./$(TARGET)
+
+# Run test with memory usage monitoring
+test-memory: $(TARGET)
+	@echo "Running test with memory monitoring..."
+	@if command -v /usr/bin/time >/dev/null 2>&1; then \
+		/usr/bin/time -l ./$(TARGET); \
+	else \
+		echo "GNU time not available, running normal test..."; \
+		./$(TARGET); \
+	fi
+
+# Quick development test
+test-quick: $(TARGET)
+	@echo "Running quick development test..."
+	./$(TARGET)
+
+# Debug version with less optimization
+debug: clean
+	@echo "Building debug version..."
+	$(CXX) -std=c++17 -Wall -Wextra -O0 -g $(INCLUDES) -c $(MAIN_SRC) -o $(TARGET).o
+	$(CXX) -O0 -g -o $(TARGET) $(TARGET).o $(LIBS)

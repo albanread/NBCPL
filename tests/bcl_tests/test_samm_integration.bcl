@@ -1,0 +1,180 @@
+PROGRAM TestSAMMIntegration;
+
+// Simple test program to verify SAMM (Scope Aware Memory Management) integration
+// This tests basic scope management, RETAIN syntax, and automatic cleanup
+
+CLASS TestObject {
+    value: INT;
+
+    NEW(v: INT) {
+        value := v;
+        WRITEF("Created object with value %d\n", value);
+    }
+
+    RELEASE() {
+        WRITEF("Releasing object with value %d\n", value);
+        // SAMM will automatically inject cleanup code here
+    }
+}
+
+FUNCTION testBasicScopeManagement() {
+    WRITEF("=== Testing Basic Scope Management ===\n");
+
+    // This scope will be automatically managed by SAMM
+    {
+        LET obj1 = NEW TestObject(42);
+        LET obj2 = NEW TestObject(84);
+        LET vec1 = GETVEC(10);
+
+        WRITEF("Inside nested scope - objects created\n");
+        // When this scope exits, SAMM should automatically clean up obj1, obj2, and vec1
+    }
+
+    WRITEF("Exited nested scope - cleanup should have occurred\n");
+}
+
+FUNCTION testRetainAssignmentSyntax() {
+    WRITEF("=== Testing RETAIN Assignment Syntax ===\n");
+
+    LET retained_obj: ^TestObject;
+    LET retained_vec: ^INT;
+
+    {
+        LET local_obj = NEW TestObject(100);
+        RETAIN retained_obj = NEW TestObject(200);  // Allocated to parent scope
+        RETAIN retained_vec = GETVEC(20);           // Vector allocated to parent scope
+
+        WRITEF("Inside nested scope - local and retained objects created\n");
+        // Only local_obj should be cleaned up when this scope exits
+        // retained_obj and retained_vec should persist
+    }
+
+    WRITEF("Exited nested scope - retained objects should still exist\n");
+    WRITEF("Retained object value: %d\n", retained_obj.value);
+
+    // retained_obj and retained_vec will be cleaned up when this function exits
+}
+
+FUNCTION testRetainTransferSyntax() {
+    WRITEF("=== Testing RETAIN Transfer Syntax ===\n");
+
+    LET transferred_obj: ^TestObject;
+
+    {
+        LET obj1 = NEW TestObject(300);
+        LET obj2 = NEW TestObject(400);
+
+        // Transfer obj1 to parent scope, obj2 stays in current scope
+        RETAIN obj1;
+        transferred_obj := obj1;
+
+        WRITEF("Inside nested scope - obj1 transferred, obj2 remains local\n");
+        // Only obj2 should be cleaned up when this scope exits
+    }
+
+    WRITEF("Exited nested scope - transferred object should still exist\n");
+    WRITEF("Transferred object value: %d\n", transferred_obj.value);
+
+    // transferred_obj will be cleaned up when this function exits
+}
+
+FUNCTION testComplexNesting() {
+    WRITEF("=== Testing Complex Nested Scopes ===\n");
+
+    LET level1_retained: ^TestObject;
+
+    {
+        WRITEF("Entering level 1 scope\n");
+        LET level1_obj = NEW TestObject(1000);
+
+        {
+            WRITEF("Entering level 2 scope\n");
+            LET level2_obj = NEW TestObject(2000);
+            RETAIN level1_retained = NEW TestObject(1500);  // Goes to level 1
+
+            {
+                WRITEF("Entering level 3 scope\n");
+                LET level3_obj = NEW TestObject(3000);
+
+                WRITEF("Exiting level 3 scope\n");
+                // level3_obj should be cleaned up here
+            }
+
+            WRITEF("Exiting level 2 scope\n");
+            // level2_obj should be cleaned up here
+            // level1_retained should persist (moved to level 1)
+        }
+
+        WRITEF("Back in level 1 scope, retained object value: %d\n", level1_retained.value);
+        WRITEF("Exiting level 1 scope\n");
+        // level1_obj and level1_retained should be cleaned up here
+    }
+
+    WRITEF("Back in function scope\n");
+}
+
+FUNCTION testEarlyReturns() {
+    WRITEF("=== Testing Early Returns with SAMM ===\n");
+
+    {
+        LET obj1 = NEW TestObject(5000);
+        LET obj2 = NEW TestObject(5001);
+
+        IF obj1.value > 4000 DO {
+            WRITEF("Taking early return path\n");
+            // SAMM should inject scope exit calls before this return
+            RETURN;
+        }
+
+        WRITEF("This should not be reached\n");
+    }
+
+    WRITEF("After early return scope\n");
+}
+
+FUNCTION testLoopBreaks() {
+    WRITEF("=== Testing Loop Breaks with SAMM ===\n");
+
+    FOR i := 1 TO 3 DO {
+        WRITEF("Loop iteration %d\n", i);
+        LET loop_obj = NEW TestObject(6000 + i);
+
+        IF i = 2 DO {
+            WRITEF("Breaking from loop\n");
+            // SAMM should inject scope exit calls before this break
+            BREAK;
+        }
+
+        // loop_obj should be cleaned up at end of each iteration
+    }
+
+    WRITEF("After loop with break\n");
+}
+
+BEGIN
+    WRITEF("SAMM Integration Test Starting\n");
+    WRITEF("==============================\n");
+
+    testBasicScopeManagement();
+    NEWLINE();
+
+    testRetainAssignmentSyntax();
+    NEWLINE();
+
+    testRetainTransferSyntax();
+    NEWLINE();
+
+    testComplexNesting();
+    NEWLINE();
+
+    testEarlyReturns();
+    NEWLINE();
+
+    testLoopBreaks();
+    NEWLINE();
+
+    WRITEF("==============================\n");
+    WRITEF("SAMM Integration Test Complete\n");
+
+    // Final cleanup should happen automatically when program ends
+END TestSAMMIntegration.

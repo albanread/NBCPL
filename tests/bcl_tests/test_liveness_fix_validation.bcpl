@@ -1,0 +1,49 @@
+// Test case to validate the corrected liveness analysis
+// This test demonstrates the difference between incorrect and correct def/use computation
+
+LET test_function(p1, p2, p3) BE
+{
+    writef("Parameters: %d, %d, %d*n", p1, p2, p3)
+}
+
+LET START() BE
+{
+    // Test Case 1: Variable used before and after assignment in same block
+    // This should show that 'x' is in both use[B] and def[B]
+    LET x = 10
+    writef("Initial x: %d*n", x)  // USE of x (should be in use set)
+    x := 20                      // DEF of x (should be in def set)
+    writef("Modified x: %d*n", x) // Another USE of x (but after def)
+
+    // Test Case 2: Variable only defined (no prior use)
+    // This should show that 'y' is only in def[B], not use[B]
+    LET y = 0
+    y := 100                     // DEF of y only
+
+    // Test Case 3: Variable only used (no definition in this block)
+    // This should show that 'z' is only in use[B], not def[B]
+    LET z = 200
+    writef("Value of z: %d*n", z) // USE of z only
+
+    // Test Case 4: Multiple assignments to same variable
+    // This should show that 'w' appears once in def[B] regardless of multiple assignments
+    LET w = 0
+    w := 10                      // First DEF of w
+    w := w + 5                   // USE and DEF of w in same statement
+    w := 30                      // Another DEF of w
+
+    // Test Case 5: Variable in complex expression
+    // This tests that variables in expressions are correctly identified as uses
+    LET a = 5
+    LET b = 10
+    LET result = 0
+    result := (a * b) + (a - b)  // Uses: a, b (twice each); Def: result
+
+    writef("Result: %d*n", result)
+
+    // Test Case 6: Function call with variable arguments
+    // Variables passed to functions should be marked as uses
+    test_function(x, y, z)
+
+    FINISH
+}

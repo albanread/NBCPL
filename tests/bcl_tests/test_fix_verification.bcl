@@ -1,0 +1,104 @@
+// test_fix_verification.bcl
+// Comprehensive test to verify that SDL2 function names are no longer
+// incorrectly treated as live variables in liveness analysis
+
+LET START() BE $(
+    WRITEF("=== Liveness Analysis Fix Verification ===%N")
+    WRITEF("This test demonstrates that SDL2 function names%N")
+    WRITEF("are no longer treated as live variables.%N%N")
+
+    // === SECTION 1: Basic SDL2 Function Calls ===
+    WRITEF("1. Testing basic SDL2 function calls...%N")
+
+    // These SDL2 function names should NOT appear in liveness analysis:
+    // - SDL2_INIT_SUBSYSTEMS
+    // - SDL2_CREATE_WINDOW
+    // - SDL2_CREATE_RENDERER
+    // - SDL2_SET_DRAW_COLOR
+    // - SDL2_CLEAR
+    // - SDL2_PRESENT
+    // - SDL2_DESTROY_RENDERER
+    // - SDL2_DESTROY_WINDOW
+    // - SDL2_QUIT
+
+    LET init_result = SDL2_INIT_SUBSYSTEMS(#X7231)
+    LET window = SDL2_CREATE_WINDOW("Test Window")
+    LET renderer = SDL2_CREATE_RENDERER(window)
+
+    // === SECTION 2: Program Variables ===
+    WRITEF("2. Testing actual program variables...%N")
+
+    // These variables SHOULD appear in liveness analysis:
+    LET counter = 0
+    LET loop_var = 1
+    LET temp_value = 42
+    LET result_sum = counter + loop_var + temp_value
+
+    WRITEF("Variables: counter=%d, loop_var=%d, temp_value=%d%N",
+           counter, loop_var, temp_value)
+    WRITEF("Sum: %d%N", result_sum)
+
+    // === SECTION 3: SDL2 Calls in Control Flow ===
+    WRITEF("3. Testing SDL2 calls in control structures...%N")
+
+    TEST renderer > 0 THEN $(
+        // More SDL2 calls that should be filtered out
+        SDL2_SET_DRAW_COLOR(renderer, 255, 0, 0, 255)
+        SDL2_CLEAR(renderer)
+        SDL2_PRESENT(renderer)
+
+        // But these variables should be tracked
+        LET red_component = 255
+        LET drawing_complete = TRUE
+
+        WRITEF("Drawing with red=%d, complete=%d%N",
+               red_component, drawing_complete)
+    $) ELSE $(
+        WRITEF("Failed to create renderer%N")
+    $)
+
+    // === SECTION 4: Function Calls in Loops ===
+    WRITEF("4. Testing SDL2 calls in loops...%N")
+
+    FOR i = 1 TO 3 DO $(
+        // SDL2 function names should not be live across loop iterations
+        SDL2_SET_DRAW_COLOR(renderer, i * 50, 0, 0, 255)
+        SDL2_CLEAR(renderer)
+
+        // But loop variables and locals should be tracked
+        LET frame_number = i
+        WRITEF("Frame %d rendered%N", frame_number)
+    $)
+
+    // === SECTION 5: Cleanup ===
+    WRITEF("5. Cleaning up resources...%N")
+
+    // Final SDL2 calls to filter out
+    SDL2_DESTROY_RENDERER(renderer)
+    SDL2_DESTROY_WINDOW(window)
+    SDL2_QUIT()
+
+    // Final program variables
+    LET cleanup_status = 1
+    WRITEF("Cleanup complete with status: %d%N", cleanup_status)
+
+    WRITEF("%N=== Expected Liveness Analysis Results ===%N")
+    WRITEF("SHOULD appear in live intervals:%N")
+    WRITEF("- init_result, window, renderer%N")
+    WRITEF("- counter, loop_var, temp_value, result_sum%N")
+    WRITEF("- red_component, drawing_complete%N")
+    WRITEF("- i, frame_number%N")
+    WRITEF("- cleanup_status%N")
+    WRITEF("%N")
+    WRITEF("should NOT appear in live intervals:%N")
+    WRITEF("- SDL2_INIT_SUBSYSTEMS%N")
+    WRITEF("- SDL2_CREATE_WINDOW%N")
+    WRITEF("- SDL2_CREATE_RENDERER%N")
+    WRITEF("- SDL2_SET_DRAW_COLOR%N")
+    WRITEF("- SDL2_CLEAR%N")
+    WRITEF("- SDL2_PRESENT%N")
+    WRITEF("- SDL2_DESTROY_RENDERER%N")
+    WRITEF("- SDL2_DESTROY_WINDOW%N")
+    WRITEF("- SDL2_QUIT%N")
+    WRITEF("%N=== Test Complete ===%N")
+$)

@@ -1,0 +1,34 @@
+GET "runtime.bcl"
+
+LET START() BE $(
+  LET x = 5
+  LET result = 0
+
+  // Test simple IF-ELSE
+  IF x > 10 THEN $(
+    result := 1
+  $) ELSE $(
+    result := 2
+  $)
+
+  WRITES("Simple IF-ELSE test: ")
+  WRITEN(result)
+  WRITES("*N")
+
+  // Test nested IF in ELSE
+  IF x > 20 THEN $(
+    result := 10
+  $) ELSE $(
+    IF x > 3 THEN $(
+      result := 20
+    $) ELSE $(
+      result := 30
+    $)
+  $)
+
+  WRITES("Nested IF in ELSE test: ")
+  WRITEN(result)
+  WRITES("*N")
+
+  WRITES("ELSE tests completed*N")
+$)
