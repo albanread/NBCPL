@@ -7,10 +7,14 @@
 #include "SymbolTable.h"
 #include "analysis/ASTAnalyzer.h"
 #include "DataTypes.h"
+#include "StringTable.h"
 
 // Forward declaration for AST nodes
 class AssignmentStatement;
 class Stmt;
+
+// Forward declaration for StringTable
+class StringTable;
 
 
 /**
@@ -25,7 +29,8 @@ class Stmt;
  */
 class LocalOptimizationPass {
 public:
-    LocalOptimizationPass();
+    // Pass a pointer to StringTable so we can lift string literals to global labels
+    LocalOptimizationPass(StringTable* string_table);
 
     // Run local optimizations on the AST program.
     void run(Program& ast,
@@ -34,8 +39,9 @@ public:
 
 private:
     // Map from canonical expression string to temporary variable name
-    std::unordered_map<std::string, std::string> available_expressions_;
-    int temp_var_counter_;
+   std::unordered_map<std::string, std::string> available_expressions_;
+   int temp_var_counter_;
+   StringTable* string_table_; // For string literal lifting
 
     // --- NEW: Map from canonical expression string to count for analysis stage ---
     std::unordered_map<std::string, int> expr_counts_;

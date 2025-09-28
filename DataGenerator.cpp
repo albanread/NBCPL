@@ -5,12 +5,30 @@
 #include "InstructionStream.h"
 #include "runtime/ListDataTypes.h"
 #include <sstream>
+#include "DataGenerator.h"
 #include <stdexcept>
 #include <cstring>
 #include <iostream>
 #include "DataTypes.h"
 #include "LabelManager.h"
 #include <vector>
+#include "StringTable.h"
+
+// Emit all interned strings from the string table
+void DataGenerator::emit_interned_strings() {
+    if (!string_table_) {
+        throw std::runtime_error("DataGenerator: string_table_ is not set!");
+    }
+    // Example: Print or emit all interned strings and their labels
+    for (const auto& pair : string_table_->get_all_labels()) {
+        const std::string& value = pair.first;
+        const std::string& label = pair.second;
+        std::cout << "Emitting string label: " << label << " value: " << value << std::endl;
+        // Actual emission logic would go here (e.g., writing to a data section)
+    }
+}
+#include "StringTable.h"
+#include "StringTable.h"
 #include <algorithm>
 #include <iomanip>
 #include "AST.h"
@@ -108,21 +126,17 @@ DataGenerator::DataGenerator(bool enable_tracing, bool trace_vtables)
 
 // add_string_literal, add_float_literal, etc. remain the same as provided previously...
 std::string DataGenerator::add_string_literal(const std::string& value) {
-    // String interning: check if we've already generated this string
-    auto it = interned_strings_.find(value);
-    if (it != interned_strings_.end()) {
-        // CACHE HIT: Return the existing label
-        return it->second;
+    // Use StringTable for interning and label assignment
+    if (!string_table_) {
+        throw std::runtime_error("DataGenerator: string_table_ is not set!");
     }
-    // CACHE MISS: Generate new label and data
-    std::string label = "L_str" + std::to_string(next_string_id_++);
+    std::string label = string_table_->get_or_create_label(value);
+    // Optionally, still store the UTF-32 version for emission if needed
     std::u32string u32_value = utf8_to_utf32(value);
     u32_value.push_back(U'\0');
     u32_value.push_back(U'\0');
     string_literals_.push_back({label, u32_value});
-    // Store in both the old map (for compatibility) and the new interned map
-    string_literal_map_[value] = label;
-    interned_strings_[value] = label;
+    // No need to maintain local maps; StringTable is the source of truth
     return label;
 }
 

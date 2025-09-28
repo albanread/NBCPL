@@ -14654,12 +14654,30 @@ void CreateMethodReorderPass::visit(FreeStatement& node) {
 #include "InstructionStream.h"
 #include "runtime/ListDataTypes.h"
 #include <sstream>
+#include "DataGenerator.h"
 #include <stdexcept>
 #include <cstring>
 #include <iostream>
 #include "DataTypes.h"
 #include "LabelManager.h"
 #include <vector>
+#include "StringTable.h"
+
+// Emit all interned strings from the string table
+void DataGenerator::emit_interned_strings() {
+    if (!string_table_) {
+        throw std::runtime_error("DataGenerator: string_table_ is not set!");
+    }
+    // Example: Print or emit all interned strings and their labels
+    for (const auto& pair : string_table_->get_all_labels()) {
+        const std::string& value = pair.first;
+        const std::string& label = pair.second;
+        std::cout << "Emitting string label: " << label << " value: " << value << std::endl;
+        // Actual emission logic would go here (e.g., writing to a data section)
+    }
+}
+#include "StringTable.h"
+#include "StringTable.h"
 #include <algorithm>
 #include <iomanip>
 #include "AST.h"
@@ -14757,21 +14775,17 @@ DataGenerator::DataGenerator(bool enable_tracing, bool trace_vtables)
 
 // add_string_literal, add_float_literal, etc. remain the same as provided previously...
 std::string DataGenerator::add_string_literal(const std::string& value) {
-    // String interning: check if we've already generated this string
-    auto it = interned_strings_.find(value);
-    if (it != interned_strings_.end()) {
-        // CACHE HIT: Return the existing label
-        return it->second;
+    // Use StringTable for interning and label assignment
+    if (!string_table_) {
+        throw std::runtime_error("DataGenerator: string_table_ is not set!");
     }
-    // CACHE MISS: Generate new label and data
-    std::string label = "L_str" + std::to_string(next_string_id_++);
+    std::string label = string_table_->get_or_create_label(value);
+    // Optionally, still store the UTF-32 version for emission if needed
     std::u32string u32_value = utf8_to_utf32(value);
     u32_value.push_back(U'\0');
     u32_value.push_back(U'\0');
     string_literals_.push_back({label, u32_value});
-    // Store in both the old map (for compatibility) and the new interned map
-    string_literal_map_[value] = label;
-    interned_strings_[value] = label;
+    // No need to maintain local maps; StringTable is the source of truth
     return label;
 }
 
@@ -29757,7 +29771,8 @@ void NewCodeGenerator::visit(UnaryOp& node) {
                         int offset = current_frame_manager_->get_offset(var_access->name);
                         emit(Encoder::create_add_imm(dest_reg, "X29", offset));
                     } else {
-                        // Assume global/static
+                        // Special case: If the variable name matches a string label, treat as global label
+                        // This covers AddressOf(VariableAccess(label)) for string literals
                         emit(Encoder::create_adrp(dest_reg, var_access->name));
                         emit(Encoder::create_add_literal(dest_reg, dest_reg, var_access->name));
                     }
@@ -34925,6 +34940,7 @@ std::map<std::string, int> LivenessAnalysisPass::calculate_register_pressure() c
 
 // -- start of file: LocalOptimizationPass.cpp
 #include "LocalOptimizationPass.h"
+#include "StringTable.h"
 #include "BasicBlock.h"
 #include "analysis/StatelessTypeInference.h"
 #include <vector>
@@ -35003,6 +35019,7 @@ static std::string expression_to_string_recursive(const Expression* expr) {
         }
         case ASTNode::NodeType::StringLit: {
             const auto* lit = static_cast<const StringLiteral*>(expr);
+            // Use the string's actual content for canonicalization, not any label or ID
             return "(STR \"" + lit->value + "\")";
         }
         case ASTNode::NodeType::CharLit: {
@@ -35026,8 +35043,8 @@ std::string LocalOptimizationPass::expression_to_string(const Expression* expr) 
 
 // --- LocalOptimizationPass Implementation ---
 
-LocalOptimizationPass::LocalOptimizationPass()
-    : temp_var_counter_(0)
+LocalOptimizationPass::LocalOptimizationPass(StringTable* string_table)
+    : temp_var_counter_(0), string_table_(string_table)
 {}
 
 std::string LocalOptimizationPass::generate_temp_var_name() {
@@ -35163,10 +35180,61 @@ void LocalOptimizationPass::optimize_expression(ExprPtr& expr, std::vector<StmtP
         std::cout << "[CSE DEBUG] Replacement complete (new ptr=" << expr.get() << ")\n";
         return;
     }
+
+    // Special case: Lifting StringLiteral (regardless of count)
+    // This ensures that only AddressOf(VariableAccess(label)) is used for string literal lifting.
+    if (expr->getType() == ASTNode::NodeType::StringLit) {
+        auto* str_lit = static_cast<StringLiteral*>(expr.get());
+        std::string label = string_table_->get_or_create_label(str_lit->value);
+
+        // 1. Generate the temporary variable name and store it.
+        std::string temp_var_name = generate_temp_var_name();
+        available_expressions_[canonical_expr_str] = temp_var_name;
+
+        // --- Register the new variable in the Symbol Table for the current function scope ---
+        Symbol temp_symbol(
+            temp_var_name,
+            SymbolKind::LOCAL_VAR,
+            VarType::POINTER_TO_STRING,
+            symbol_table.getCurrentScopeLevel(),
+            current_function_name
+        );
+        symbol_table.addSymbol(temp_symbol);
+
+        // --- Increment the local variable count in the ASTAnalyzer's metrics ---
+        auto metrics_it = analyzer.get_function_metrics_mut().find(current_function_name);
+        if (metrics_it == analyzer.get_function_metrics_mut().end()) {
+            std::cerr << "LocalOptimizationPass Error: Function metrics not found for: " << current_function_name << std::endl;
+            return;
+        }
+        auto& metrics = metrics_it->second;
+        metrics.num_variables++;
+        metrics.variable_types[temp_var_name] = VarType::POINTER_TO_STRING;
+
+        // 2. Replace the original expression with a variable access to our new temp.
+        expr = std::make_unique<VariableAccess>(temp_var_name);
+
+        // 3. Create assignment statement: temp_var := @label
+        // This is represented as UnaryOp(AddressOf, VariableAccess(label))
+        std::vector<ExprPtr> lhs_vec;
+        lhs_vec.push_back(std::make_unique<VariableAccess>(temp_var_name));
+        std::vector<ExprPtr> rhs_vec;
+        rhs_vec.push_back(std::make_unique<UnaryOp>(
+            UnaryOp::Operator::AddressOf,
+            std::make_unique<VariableAccess>(label)
+        ));
+        auto assignment = std::make_unique<AssignmentStatement>(
+            std::move(lhs_vec),
+            std::move(rhs_vec)
+        );
+        statements.insert(statements.begin() + i, std::move(assignment));
+        ++i; // Advance index for the inserted assignment
+
+        return;
+    }
     
     // Otherwise, only hoist if it's a common subexpression (count > 1)
     if ((expr->getType() == ASTNode::NodeType::BinaryOpExpr ||
-         expr->getType() == ASTNode::NodeType::StringLit ||
          expr->getType() == ASTNode::NodeType::FunctionCallExpr) &&
         expr_counts_.count(canonical_expr_str) &&
         expr_counts_.at(canonical_expr_str) > 1) {
@@ -35573,6 +35641,7 @@ void LoopInvariantCodeMotionPass::findAndHoistInvariants(StmtPtr& stmt, const st
 // #include "passes/ShortCircuitPass.h"  // Temporarily disabled to test crash
 #include "DataGenerator.h"
 #include "DebugPrinter.h"
+#include "StringTable.h"
 #include "InstructionStream.h"
 #include "JITExecutor.h"
 #include "LabelManager.h"
@@ -35937,25 +36006,17 @@ int main(int argc, char* argv[]) {
         RuntimeSymbols::registerAll(*symbol_table);
 
         // (CSE pass removed; now handled after CFG construction)
-        // --- Local Optimization Pass (CSE/LVN)
-        // if (enable_opt) {
-        //     std::cout << "[DEBUG] LocalOptimizationPass: enable_opt=" << enable_opt << ", about to run CSE pass\n";
-        //     if (enable_tracing || trace_optimizer) std::cout << "Applying Local Optimization Pass (CSE/LVN)...\n";
-        //     LocalOptimizationPass local_opt_pass;
-        //     local_opt_pass.run(*ast, *symbol_table, analyzer);
-        // } else {
-        //     std::cout << "[DEBUG] LocalOptimizationPass: SKIPPED because enable_opt=" << enable_opt << "\n";
-        // }
+        // --- String Table Pass: Construct early and wire to pipeline ---
+        StringTable string_table;
 
         // Get analyzer instance for use in optimization passes and analysis
         ASTAnalyzer& analyzer = ASTAnalyzer::getInstance();
 
-        // common optimizations
+        // --- Local Optimization Pass (CSE/LVN) using StringTable ---
         if (enable_opt) {
-
             if (enable_tracing || trace_optimizer) std::cout << "Optimization enabled. Applying passes...\n";
-//            ConstantFoldingPass constant_folding_pass(g_global_manifest_constants);
-//            ast = constant_folding_pass.apply(std::move(ast));
+            //            ConstantFoldingPass constant_folding_pass(g_global_manifest_constants);
+            //            ast = constant_folding_pass.apply(std::move(ast));
 
             // Clear FOR loop state before StrengthReductionPass to prevent corruption
             ASTAnalyzer& analyzer_for_clearing = ASTAnalyzer::getInstance();
@@ -36057,6 +36118,13 @@ if (!semantic_errors.empty()) {
 if (enable_tracing || trace_ast) {
    std::cout << "Initial AST analysis complete.\n";
    analyzer.print_report();
+}
+
+// --- Run Local Optimization Pass (CSE/LVN) after analyzer.analyze so function metrics are available ---
+if (enable_opt) {
+    if (enable_tracing || trace_optimizer) std::cout << "Optimization enabled. Applying passes...\n";
+    LocalOptimizationPass local_opt_pass(&string_table);
+    local_opt_pass.run(*ast, *symbol_table, analyzer);
 }
 
 if (trace_class_table) {
@@ -36250,6 +36318,7 @@ if (enable_tracing || trace_ast) std::cout << "AST transformation complete.\n";
         InstructionStream instruction_stream(LabelManager::instance(), enable_tracing || trace_codegen);
         DataGenerator data_generator(enable_tracing || trace_codegen, trace_vtables);
         data_generator.set_class_table(class_table.get());
+        data_generator.set_string_table(&string_table);
         RegisterManager& register_manager = RegisterManager::getInstance();
         register_manager.set_debug_enabled(enable_tracing || trace_codegen);
         LabelManager& label_manager = LabelManager::instance();
@@ -36303,6 +36372,8 @@ if (enable_tracing || trace_ast) std::cout << "AST transformation complete.\n";
 
         // Generate code
         code_generator.generate_code(*ast);
+        // Emit all interned strings after code generation
+        data_generator.emit_interned_strings();
         if (enable_tracing || trace_codegen) std::cout << "Code generation complete.\n";
 
         // --- Print symbol table after code generation ---
@@ -51710,6 +51781,43 @@ size_t safeEncode_utf8_char(uint32_t char_code, char* buffer) {
 
 // The implementation is entirely in the header file.
 // This file exists to satisfy the build system which expects a .cpp file.
+// -- end of file
+
+// -- start of file: StringTable.cpp
+#include "StringTable.h"
+#include <sstream>
+
+// Constructor
+StringTable::StringTable()
+    : next_id_(0)
+{}
+
+// Returns the label for the string, creating it if needed
+std::string StringTable::get_or_create_label(const std::string& value) {
+    auto it = string_to_label_.find(value);
+    if (it != string_to_label_.end()) {
+        return it->second;
+    }
+    // Create new label
+    std::ostringstream oss;
+    oss << "L_str" << next_id_++;
+    std::string label = oss.str();
+    string_to_label_[value] = label;
+    label_to_string_[label] = value;
+    return label;
+}
+
+// Returns all label->string mappings (for emission)
+const std::unordered_map<std::string, std::string>& StringTable::get_all_labels() const {
+    return label_to_string_;
+}
+
+// Optional: clear all interned strings (for reuse/testing)
+void StringTable::clear() {
+    string_to_label_.clear();
+    label_to_string_.clear();
+    next_id_ = 0;
+}
 // -- end of file
 
 // -- start of file: SuperCallTransformationPass.cpp

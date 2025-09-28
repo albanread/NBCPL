@@ -1,6 +1,8 @@
 #ifndef DATA_GENERATOR_H
 #define DATA_GENERATOR_H
 
+#include "StringTable.h"
+
 #include "SymbolTable.h"
 #include "AST.h"
 #include "DataTypes.h"
@@ -19,6 +21,7 @@ class LabelManager; // Forward declaration
 
 class DataGenerator {
 public:
+    void set_string_table(StringTable* table) { string_table_ = table; }
     // --- Struct Definitions for Literals ---
 
     void set_class_table(ClassTable* ct);
@@ -85,6 +88,9 @@ public:
     std::string add_string_literal(const std::string& value);
     std::string add_float_literal(double value);
     std::string add_pair_literal(int64_t first_value, int64_t second_value);
+
+    // Emit all interned strings from the string table
+    void emit_interned_strings();
     void add_global_variable(const std::string& name, ExprPtr initializer);
     std::string add_table_literal(const std::vector<ExprPtr>& initializers);
     std::string add_float_table_literal(const std::vector<ExprPtr>& initializers);
@@ -111,6 +117,7 @@ public:
     std::string display_literal_list(const ListLiteralInfo& list_info) const;
 
 private:
+    StringTable* string_table_ = nullptr;
     SymbolTable* symbol_table_ = nullptr;
     ClassTable* class_table_ = nullptr; // New: ClassTable reference
     bool enable_tracing_;

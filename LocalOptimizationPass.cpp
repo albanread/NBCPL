@@ -1,4 +1,5 @@
 #include "LocalOptimizationPass.h"
+#include "StringTable.h"
 #include "BasicBlock.h"
 #include "analysis/StatelessTypeInference.h"
 #include <vector>
@@ -77,6 +78,7 @@ static std::string expression_to_string_recursive(const Expression* expr) {
         }
         case ASTNode::NodeType::StringLit: {
             const auto* lit = static_cast<const StringLiteral*>(expr);
+            // Use the string's actual content for canonicalization, not any label or ID
             return "(STR \"" + lit->value + "\")";
         }
         case ASTNode::NodeType::CharLit: {
@@ -100,8 +102,8 @@ std::string LocalOptimizationPass::expression_to_string(const Expression* expr) 
 
 // --- LocalOptimizationPass Implementation ---
 
-LocalOptimizationPass::LocalOptimizationPass()
-    : temp_var_counter_(0)
+LocalOptimizationPass::LocalOptimizationPass(StringTable* string_table)
+    : temp_var_counter_(0), string_table_(string_table)
 {}
 
 std::string LocalOptimizationPass::generate_temp_var_name() {
@@ -237,10 +239,61 @@ void LocalOptimizationPass::optimize_expression(ExprPtr& expr, std::vector<StmtP
         std::cout << "[CSE DEBUG] Replacement complete (new ptr=" << expr.get() << ")\n";
         return;
     }
+
+    // Special case: Lifting StringLiteral (regardless of count)
+    // This ensures that only AddressOf(VariableAccess(label)) is used for string literal lifting.
+    if (expr->getType() == ASTNode::NodeType::StringLit) {
+        auto* str_lit = static_cast<StringLiteral*>(expr.get());
+        std::string label = string_table_->get_or_create_label(str_lit->value);
+
+        // 1. Generate the temporary variable name and store it.
+        std::string temp_var_name = generate_temp_var_name();
+        available_expressions_[canonical_expr_str] = temp_var_name;
+
+        // --- Register the new variable in the Symbol Table for the current function scope ---
+        Symbol temp_symbol(
+            temp_var_name,
+            SymbolKind::LOCAL_VAR,
+            VarType::POINTER_TO_STRING,
+            symbol_table.getCurrentScopeLevel(),
+            current_function_name
+        );
+        symbol_table.addSymbol(temp_symbol);
+
+        // --- Increment the local variable count in the ASTAnalyzer's metrics ---
+        auto metrics_it = analyzer.get_function_metrics_mut().find(current_function_name);
+        if (metrics_it == analyzer.get_function_metrics_mut().end()) {
+            std::cerr << "LocalOptimizationPass Error: Function metrics not found for: " << current_function_name << std::endl;
+            return;
+        }
+        auto& metrics = metrics_it->second;
+        metrics.num_variables++;
+        metrics.variable_types[temp_var_name] = VarType::POINTER_TO_STRING;
+
+        // 2. Replace the original expression with a variable access to our new temp.
+        expr = std::make_unique<VariableAccess>(temp_var_name);
+
+        // 3. Create assignment statement: temp_var := @label
+        // This is represented as UnaryOp(AddressOf, VariableAccess(label))
+        std::vector<ExprPtr> lhs_vec;
+        lhs_vec.push_back(std::make_unique<VariableAccess>(temp_var_name));
+        std::vector<ExprPtr> rhs_vec;
+        rhs_vec.push_back(std::make_unique<UnaryOp>(
+            UnaryOp::Operator::AddressOf,
+            std::make_unique<VariableAccess>(label)
+        ));
+        auto assignment = std::make_unique<AssignmentStatement>(
+            std::move(lhs_vec),
+            std::move(rhs_vec)
+        );
+        statements.insert(statements.begin() + i, std::move(assignment));
+        ++i; // Advance index for the inserted assignment
+
+        return;
+    }
     
     // Otherwise, only hoist if it's a common subexpression (count > 1)
     if ((expr->getType() == ASTNode::NodeType::BinaryOpExpr ||
-         expr->getType() == ASTNode::NodeType::StringLit ||
          expr->getType() == ASTNode::NodeType::FunctionCallExpr) &&
         expr_counts_.count(canonical_expr_str) &&
         expr_counts_.at(canonical_expr_str) > 1) {

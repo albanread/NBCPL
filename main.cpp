@@ -51,6 +51,7 @@
 // #include "passes/ShortCircuitPass.h"  // Temporarily disabled to test crash
 #include "DataGenerator.h"
 #include "DebugPrinter.h"
+#include "StringTable.h"
 #include "InstructionStream.h"
 #include "JITExecutor.h"
 #include "LabelManager.h"
@@ -415,25 +416,17 @@ int main(int argc, char* argv[]) {
         RuntimeSymbols::registerAll(*symbol_table);
 
         // (CSE pass removed; now handled after CFG construction)
-        // --- Local Optimization Pass (CSE/LVN)
-        // if (enable_opt) {
-        //     std::cout << "[DEBUG] LocalOptimizationPass: enable_opt=" << enable_opt << ", about to run CSE pass\n";
-        //     if (enable_tracing || trace_optimizer) std::cout << "Applying Local Optimization Pass (CSE/LVN)...\n";
-        //     LocalOptimizationPass local_opt_pass;
-        //     local_opt_pass.run(*ast, *symbol_table, analyzer);
-        // } else {
-        //     std::cout << "[DEBUG] LocalOptimizationPass: SKIPPED because enable_opt=" << enable_opt << "\n";
-        // }
+        // --- String Table Pass: Construct early and wire to pipeline ---
+        StringTable string_table;
 
         // Get analyzer instance for use in optimization passes and analysis
         ASTAnalyzer& analyzer = ASTAnalyzer::getInstance();
 
-        // common optimizations
+        // --- Local Optimization Pass (CSE/LVN) using StringTable ---
         if (enable_opt) {
-
             if (enable_tracing || trace_optimizer) std::cout << "Optimization enabled. Applying passes...\n";
-//            ConstantFoldingPass constant_folding_pass(g_global_manifest_constants);
-//            ast = constant_folding_pass.apply(std::move(ast));
+            //            ConstantFoldingPass constant_folding_pass(g_global_manifest_constants);
+            //            ast = constant_folding_pass.apply(std::move(ast));
 
             // Clear FOR loop state before StrengthReductionPass to prevent corruption
             ASTAnalyzer& analyzer_for_clearing = ASTAnalyzer::getInstance();
@@ -535,6 +528,13 @@ if (!semantic_errors.empty()) {
 if (enable_tracing || trace_ast) {
    std::cout << "Initial AST analysis complete.\n";
    analyzer.print_report();
+}
+
+// --- Run Local Optimization Pass (CSE/LVN) after analyzer.analyze so function metrics are available ---
+if (enable_opt) {
+    if (enable_tracing || trace_optimizer) std::cout << "Optimization enabled. Applying passes...\n";
+    LocalOptimizationPass local_opt_pass(&string_table);
+    local_opt_pass.run(*ast, *symbol_table, analyzer);
 }
 
 if (trace_class_table) {
@@ -728,6 +728,7 @@ if (enable_tracing || trace_ast) std::cout << "AST transformation complete.\n";
         InstructionStream instruction_stream(LabelManager::instance(), enable_tracing || trace_codegen);
         DataGenerator data_generator(enable_tracing || trace_codegen, trace_vtables);
         data_generator.set_class_table(class_table.get());
+        data_generator.set_string_table(&string_table);
         RegisterManager& register_manager = RegisterManager::getInstance();
         register_manager.set_debug_enabled(enable_tracing || trace_codegen);
         LabelManager& label_manager = LabelManager::instance();
@@ -781,6 +782,8 @@ if (enable_tracing || trace_ast) std::cout << "AST transformation complete.\n";
 
         // Generate code
         code_generator.generate_code(*ast);
+        // Emit all interned strings after code generation
+        data_generator.emit_interned_strings();
         if (enable_tracing || trace_codegen) std::cout << "Code generation complete.\n";
 
         // --- Print symbol table after code generation ---

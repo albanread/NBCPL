@@ -370,7 +370,8 @@ void NewCodeGenerator::visit(UnaryOp& node) {
                         int offset = current_frame_manager_->get_offset(var_access->name);
                         emit(Encoder::create_add_imm(dest_reg, "X29", offset));
                     } else {
-                        // Assume global/static
+                        // Special case: If the variable name matches a string label, treat as global label
+                        // This covers AddressOf(VariableAccess(label)) for string literals
                         emit(Encoder::create_adrp(dest_reg, var_access->name));
                         emit(Encoder::create_add_literal(dest_reg, dest_reg, var_access->name));
                     }

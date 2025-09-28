@@ -38,9 +38,10 @@ CLASS Point $(
 $)
 
 LET START() BE $(
-    WRITES("Creating point...\n")
-    LET p = NEW Point
-    p.CREATE(50, 75)
+
+    WRITES("Creating point...*N")
+
+    LET p = NEW Point(50,75)
 
     WRITES("Reading values: x=")
     WRITEN(p.getX())
