@@ -226,7 +226,6 @@ bool CFGSimplificationPass::is_unconditional_jump(const StmtPtr& stmt) {
         case ASTNode::NodeType::BreakStmt:
         case ASTNode::NodeType::LoopStmt:
         case ASTNode::NodeType::EndcaseStmt:
-        case ASTNode::NodeType::ResultisStmt:
             return true;
         default:
             return false;

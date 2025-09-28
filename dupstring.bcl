@@ -7,5 +7,5 @@ $(
    WRITEF("%s", S)
    WRITES(S)
    WRITEF(S)
-   WRITEF("Hello worls*N")
+   WRITEF("Hello world*N")
 $)

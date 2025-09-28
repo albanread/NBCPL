@@ -85,6 +85,30 @@ static std::string expression_to_string_recursive(const Expression* expr) {
             const auto* lit = static_cast<const BooleanLiteral*>(expr);
             return lit->value ? "(BOOL 1)" : "(BOOL 0)";
         }
+        case ASTNode::NodeType::FunctionCallExpr: {
+            const auto* call = static_cast<const FunctionCall*>(expr);
+            std::string func_str;
+
+            // Try to get the function name if it's a VariableAccessExpr
+            if (call->function_expr) {
+                if (call->function_expr->getType() == ASTNode::NodeType::VariableAccessExpr) {
+                    const auto* var = static_cast<const VariableAccess*>(call->function_expr.get());
+                    func_str = var->name;
+                } else {
+                    // Otherwise, serialize the function expression
+                    func_str = expression_to_string_recursive(call->function_expr.get());
+                }
+            } else {
+                func_str = "<null_func>";
+            }
+
+            std::string args_str;
+            for (const auto& arg : call->arguments) {
+                if (!args_str.empty()) args_str += " ";
+                args_str += expression_to_string_recursive(arg.get());
+            }
+            return "(CALL " + func_str + (args_str.empty() ? "" : " " + args_str) + ")";
+        }
         // Add more cases as needed for your language
         default:
             return "(EXPR)";
@@ -232,8 +256,7 @@ void LocalOptimizationPass::optimize_expression(ExprPtr& expr, std::vector<StmtP
 
     // Only optimize if it's a common subexpression (count > 1) and not a StringLiteral.
     if ((expr_counts_.count(canonical_expr_str) && expr_counts_.at(canonical_expr_str) > 1) &&
-        (expr->getType() == ASTNode::NodeType::BinaryOpExpr ||
-         expr->getType() == ASTNode::NodeType::FunctionCallExpr)) {
+        (expr->getType() == ASTNode::NodeType::BinaryOpExpr)) {
 
         if (trace_optimizer_) std::cout << "[CSE DEBUG] Creating new temp var for common subexpression (count="
                   << expr_counts_.at(canonical_expr_str) << ")\n";

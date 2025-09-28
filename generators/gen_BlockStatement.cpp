@@ -30,6 +30,11 @@ void NewCodeGenerator::visit(BlockStatement& node) {
     for (const auto& stmt : node.statements) {
         if (stmt) {
             generate_statement_code(*stmt);
+            // Stop codegen after ResultisStatement or ReturnStatement
+            if (stmt->getType() == ASTNode::NodeType::ResultisStmt ||
+                stmt->getType() == ASTNode::NodeType::ReturnStmt) {
+                break;
+            }
         }
     }
 
