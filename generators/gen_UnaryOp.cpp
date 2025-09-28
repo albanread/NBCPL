@@ -9,6 +9,19 @@ void NewCodeGenerator::visit(UnaryOp& node) {
 
     using Op = UnaryOp::Operator;
 
+    // --- FIX: Special case for AddressOf(VariableAccess(label)) for global string labels ---
+    if (node.op == Op::AddressOf) {
+        if (auto* var_access = dynamic_cast<VariableAccess*>(node.operand.get())) {
+            // Special case: @label (global address)
+            const std::string& label = var_access->name;
+            std::string dest_reg = register_manager_.acquire_scratch_reg(*this);
+            emit(Encoder::create_adrp(dest_reg, label));
+            emit(Encoder::create_add_literal(dest_reg, dest_reg, label));
+            expression_result_reg_ = dest_reg;
+            return; // Do NOT visit the operand!
+        }
+    }
+
     // --- HD and HDf (HeadOf / HeadOfAsFloat) Operations ---
     if (node.op == Op::HeadOf || node.op == Op::HeadOfAsFloat) {
         debug_print("Generating INLINE code for hybrid static/runtime HD operation.");

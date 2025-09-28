@@ -76,11 +76,7 @@ static std::string expression_to_string_recursive(const Expression* expr) {
                 return "(FLOAT " + std::to_string(lit->float_value) + ")";
             }
         }
-        case ASTNode::NodeType::StringLit: {
-            const auto* lit = static_cast<const StringLiteral*>(expr);
-            // Use the string's actual content for canonicalization, not any label or ID
-            return "(STR \"" + lit->value + "\")";
-        }
+
         case ASTNode::NodeType::CharLit: {
             const auto* lit = static_cast<const CharLiteral*>(expr);
             return "(CHAR " + std::to_string(lit->value) + ")";
@@ -102,8 +98,8 @@ std::string LocalOptimizationPass::expression_to_string(const Expression* expr) 
 
 // --- LocalOptimizationPass Implementation ---
 
-LocalOptimizationPass::LocalOptimizationPass(StringTable* string_table)
-    : temp_var_counter_(0), string_table_(string_table)
+LocalOptimizationPass::LocalOptimizationPass(StringTable* string_table, bool trace_optimizer)
+    : temp_var_counter_(0), string_table_(string_table), trace_optimizer_(trace_optimizer)
 {}
 
 std::string LocalOptimizationPass::generate_temp_var_name() {
@@ -113,20 +109,20 @@ std::string LocalOptimizationPass::generate_temp_var_name() {
 void LocalOptimizationPass::run(Program& ast,
                                 SymbolTable& symbol_table,
                                 ASTAnalyzer& analyzer) {
-    std::cout << "[CSE DEBUG] Starting LocalOptimizationPass::run() on AST\n";
+    if (trace_optimizer_) std::cout << "[CSE DEBUG] Starting LocalOptimizationPass::run() on AST\n";
     
     // Process all function and routine declarations in the program
     for (auto& decl : ast.declarations) {
         if (auto* func = dynamic_cast<FunctionDeclaration*>(decl.get())) {
-            std::cout << "[CSE DEBUG] Processing function: " << func->name << "\n";
+            if (trace_optimizer_) std::cout << "[CSE DEBUG] Processing function: " << func->name << "\n";
             optimize_function(func, symbol_table, analyzer);
         } else if (auto* routine = dynamic_cast<RoutineDeclaration*>(decl.get())) {
-            std::cout << "[CSE DEBUG] Processing routine: " << routine->name << "\n";
+            if (trace_optimizer_) std::cout << "[CSE DEBUG] Processing routine: " << routine->name << "\n";
             optimize_function(routine, symbol_table, analyzer);
         }
     }
     
-    std::cout << "[CSE DEBUG] LocalOptimizationPass::run() completed\n";
+    if (trace_optimizer_) std::cout << "[CSE DEBUG] LocalOptimizationPass::run() completed\n";
 }
 
 void LocalOptimizationPass::optimize_function(FunctionDeclaration* func,
@@ -140,16 +136,18 @@ void LocalOptimizationPass::optimize_function(FunctionDeclaration* func,
     temp_var_counter_ = 0;
     
     // Pass 1: Analysis - count subexpressions
-    std::cout << "[CSE DEBUG] ANALYSIS: Counting subexpressions in function " << func->name << "\n";
+    if (trace_optimizer_) std::cout << "[CSE DEBUG] ANALYSIS: Counting subexpressions in function " << func->name << "\n";
     count_subexpressions(func->body.get());
     
-    std::cout << "[CSE DEBUG] Expression counts after analysis:\n";
-    for (const auto& pair : expr_counts_) {
-        std::cout << "[CSE DEBUG]   '" << pair.first << "' appears " << pair.second << " times\n";
+    if (trace_optimizer_) {
+        std::cout << "[CSE DEBUG] Expression counts after analysis:\n";
+        for (const auto& pair : expr_counts_) {
+            std::cout << "[CSE DEBUG]   '" << pair.first << "' appears " << pair.second << " times\n";
+        }
     }
     
     // Pass 2: Transformation - optimize statements
-    std::cout << "[CSE DEBUG] TRANSFORMATION: Optimizing function " << func->name << "\n";
+    if (trace_optimizer_) std::cout << "[CSE DEBUG] TRANSFORMATION: Optimizing function " << func->name << "\n";
     if (auto* compound = dynamic_cast<CompoundStatement*>(func->body.get())) {
         optimize_statement_list(compound->statements, func->name, symbol_table, analyzer);
     } else if (auto* block = dynamic_cast<BlockStatement*>(func->body.get())) {
@@ -168,16 +166,18 @@ void LocalOptimizationPass::optimize_function(RoutineDeclaration* routine,
     temp_var_counter_ = 0;
     
     // Pass 1: Analysis - count subexpressions
-    std::cout << "[CSE DEBUG] ANALYSIS: Counting subexpressions in routine " << routine->name << "\n";
+    if (trace_optimizer_) std::cout << "[CSE DEBUG] ANALYSIS: Counting subexpressions in routine " << routine->name << "\n";
     count_subexpressions(routine->body.get());
     
-    std::cout << "[CSE DEBUG] Expression counts after analysis:\n";
-    for (const auto& pair : expr_counts_) {
-        std::cout << "[CSE DEBUG]   '" << pair.first << "' appears " << pair.second << " times\n";
+    if (trace_optimizer_) {
+        std::cout << "[CSE DEBUG] Expression counts after analysis:\n";
+        for (const auto& pair : expr_counts_) {
+            std::cout << "[CSE DEBUG]   '" << pair.first << "' appears " << pair.second << " times\n";
+        }
     }
     
     // Pass 2: Transformation - optimize statements
-    std::cout << "[CSE DEBUG] TRANSFORMATION: Optimizing routine " << routine->name << "\n";
+    if (trace_optimizer_) std::cout << "[CSE DEBUG] TRANSFORMATION: Optimizing routine " << routine->name << "\n";
     if (auto* compound = dynamic_cast<CompoundStatement*>(routine->body.get())) {
         optimize_statement_list(compound->statements, routine->name, symbol_table, analyzer);
     } else if (auto* block = dynamic_cast<BlockStatement*>(routine->body.get())) {
@@ -189,11 +189,11 @@ void LocalOptimizationPass::optimize_statement_list(std::vector<StmtPtr>& statem
                                                    const std::string& current_function_name,
                                                    SymbolTable& symbol_table,
                                                    ASTAnalyzer& analyzer) {
-    std::cout << "[CSE DEBUG] TRANSFORMATION: Starting optimization of statement list with " << statements.size() << " statements\n";
+    if (trace_optimizer_) std::cout << "[CSE DEBUG] TRANSFORMATION: Starting optimization of statement list with " << statements.size() << " statements\n";
     
     // Use an index-based loop to allow for statement insertion.
     for (size_t i = 0; i < statements.size(); ++i) {
-        std::cout << "[CSE DEBUG] TRANSFORMATION: Processing statement " << i << "\n";
+        if (trace_optimizer_) std::cout << "[CSE DEBUG] TRANSFORMATION: Processing statement " << i << "\n";
         StmtPtr& stmt_ptr = statements[i];
         if (!stmt_ptr) continue;
 
@@ -217,7 +217,7 @@ void LocalOptimizationPass::optimize_statement_list(std::vector<StmtPtr>& statem
         // Add other statement types as needed
     }
     
-    std::cout << "[CSE DEBUG] TRANSFORMATION: Finished optimization of statement list\n";
+    if (trace_optimizer_) std::cout << "[CSE DEBUG] TRANSFORMATION: Finished optimization of statement list\n";
 }
 
 void LocalOptimizationPass::optimize_expression(ExprPtr& expr, std::vector<StmtPtr>& statements, size_t& i,
@@ -227,80 +227,27 @@ void LocalOptimizationPass::optimize_expression(ExprPtr& expr, std::vector<StmtP
     if (!expr) return;
 
     std::string canonical_expr_str = expression_to_string(expr.get());
-    std::cout << "[CSE DEBUG] Processing expression: type=" << static_cast<int>(expr->getType()) 
+    if (trace_optimizer_) std::cout << "[CSE DEBUG] Processing expression: type=" << static_cast<int>(expr->getType()) 
              << " key='" << canonical_expr_str << "' ptr=" << expr.get() << "\n";
 
-    // If the expression is already available, just replace it.
-    auto it = available_expressions_.find(canonical_expr_str);
-    if (it != available_expressions_.end()) {
-        std::cout << "[CSE DEBUG] Found available expression, replacing with temp var: " << it->second 
-                 << " (old ptr=" << expr.get() << ")\n";
-        expr = std::make_unique<VariableAccess>(it->second);
-        std::cout << "[CSE DEBUG] Replacement complete (new ptr=" << expr.get() << ")\n";
-        return;
-    }
+    // Only optimize if it's a common subexpression (count > 1) and not a StringLiteral.
+    if ((expr_counts_.count(canonical_expr_str) && expr_counts_.at(canonical_expr_str) > 1) &&
+        (expr->getType() == ASTNode::NodeType::BinaryOpExpr ||
+         expr->getType() == ASTNode::NodeType::FunctionCallExpr)) {
 
-    // Special case: Lifting StringLiteral (regardless of count)
-    // This ensures that only AddressOf(VariableAccess(label)) is used for string literal lifting.
-    if (expr->getType() == ASTNode::NodeType::StringLit) {
-        auto* str_lit = static_cast<StringLiteral*>(expr.get());
-        std::string label = string_table_->get_or_create_label(str_lit->value);
+        if (trace_optimizer_) std::cout << "[CSE DEBUG] Creating new temp var for common subexpression (count="
+                  << expr_counts_.at(canonical_expr_str) << ")\n";
 
-        // 1. Generate the temporary variable name and store it.
-        std::string temp_var_name = generate_temp_var_name();
-        available_expressions_[canonical_expr_str] = temp_var_name;
-
-        // --- Register the new variable in the Symbol Table for the current function scope ---
-        Symbol temp_symbol(
-            temp_var_name,
-            SymbolKind::LOCAL_VAR,
-            VarType::POINTER_TO_STRING,
-            symbol_table.getCurrentScopeLevel(),
-            current_function_name
-        );
-        symbol_table.addSymbol(temp_symbol);
-
-        // --- Increment the local variable count in the ASTAnalyzer's metrics ---
-        auto metrics_it = analyzer.get_function_metrics_mut().find(current_function_name);
-        if (metrics_it == analyzer.get_function_metrics_mut().end()) {
-            std::cerr << "LocalOptimizationPass Error: Function metrics not found for: " << current_function_name << std::endl;
+        // If the expression is already available, just replace it.
+        auto it = available_expressions_.find(canonical_expr_str);
+        if (it != available_expressions_.end()) {
+            if (trace_optimizer_) std::cout << "[CSE DEBUG] Found available expression, replacing with temp var: " << it->second
+                      << " (old ptr=" << expr.get() << ")\n";
+            expr = std::make_unique<VariableAccess>(it->second);
+            if (trace_optimizer_) std::cout << "[CSE DEBUG] Replacement complete (new ptr=" << expr.get() << ")\n";
             return;
         }
-        auto& metrics = metrics_it->second;
-        metrics.num_variables++;
-        metrics.variable_types[temp_var_name] = VarType::POINTER_TO_STRING;
 
-        // 2. Replace the original expression with a variable access to our new temp.
-        expr = std::make_unique<VariableAccess>(temp_var_name);
-
-        // 3. Create assignment statement: temp_var := @label
-        // This is represented as UnaryOp(AddressOf, VariableAccess(label))
-        std::vector<ExprPtr> lhs_vec;
-        lhs_vec.push_back(std::make_unique<VariableAccess>(temp_var_name));
-        std::vector<ExprPtr> rhs_vec;
-        rhs_vec.push_back(std::make_unique<UnaryOp>(
-            UnaryOp::Operator::AddressOf,
-            std::make_unique<VariableAccess>(label)
-        ));
-        auto assignment = std::make_unique<AssignmentStatement>(
-            std::move(lhs_vec),
-            std::move(rhs_vec)
-        );
-        statements.insert(statements.begin() + i, std::move(assignment));
-        ++i; // Advance index for the inserted assignment
-
-        return;
-    }
-    
-    // Otherwise, only hoist if it's a common subexpression (count > 1)
-    if ((expr->getType() == ASTNode::NodeType::BinaryOpExpr ||
-         expr->getType() == ASTNode::NodeType::FunctionCallExpr) &&
-        expr_counts_.count(canonical_expr_str) &&
-        expr_counts_.at(canonical_expr_str) > 1) {
-        
-        std::cout << "[CSE DEBUG] Creating new temp var for common subexpression (count=" 
-                 << expr_counts_.at(canonical_expr_str) << ")\n";
-        
         // 1. Generate the temporary variable name and store it.
         std::string temp_var_name = generate_temp_var_name();
         available_expressions_[canonical_expr_str] = temp_var_name;
@@ -334,11 +281,11 @@ void LocalOptimizationPass::optimize_expression(ExprPtr& expr, std::vector<StmtP
 
         // 2. Clone the expression before moving it
         auto expr_clone = clone_unique_ptr<Expression>(expr);
-        
+
         // 3. Replace the original expression with a variable access to our new temp.
-        std::cout << "[CSE DEBUG] Replacing expression (old ptr=" << expr.get() << ")\n";
+        if (trace_optimizer_) std::cout << "[CSE DEBUG] Replacing expression (old ptr=" << expr.get() << ")\n";
         expr = std::make_unique<VariableAccess>(temp_var_name);
-        std::cout << "[CSE DEBUG] Replacement complete (new ptr=" << expr.get() << ")\n";
+        if (trace_optimizer_) std::cout << "[CSE DEBUG] Replacement complete (new ptr=" << expr.get() << ")\n";
 
         // 4. Create assignment statement and insert it before the current statement
         std::vector<ExprPtr> lhs_vec;
@@ -370,34 +317,36 @@ void LocalOptimizationPass::invalidate_expressions_with_var(const std::string& v
 
 // --- NEW: Helper to recursively count all subexpressions in a statement/expression tree (ANALYSIS STAGE) ---
 void LocalOptimizationPass::count_subexpressions(ASTNode* node) {
-    std::cout << "[CSE DEBUG] count_subexpressions: ENTRY\n";
+    if (trace_optimizer_) std::cout << "[CSE DEBUG] count_subexpressions: ENTRY\n";
     if (!node) {
-        std::cout << "[CSE DEBUG] count_subexpressions: node is null\n";
+        if (trace_optimizer_) std::cout << "[CSE DEBUG] count_subexpressions: node is null\n";
         return;
     }
     
-    std::cout << "[CSE DEBUG] count_subexpressions: examining node type=" << static_cast<int>(node->getType()) << "\n";
+    if (trace_optimizer_) std::cout << "[CSE DEBUG] count_subexpressions: examining node type=" << static_cast<int>(node->getType()) << "\n";
 
     if (auto* expr = dynamic_cast<Expression*>(node)) {
         std::string key = expression_to_string(expr);
-        std::cout << "[CSE DEBUG] Found expression: type=" << static_cast<int>(expr->getType()) 
+        if (trace_optimizer_) {
+            std::cout << "[CSE DEBUG] Found expression: type=" << static_cast<int>(expr->getType()) 
                  << " key='" << key << "' (";
-        if (expr->getType() == ASTNode::NodeType::StringLit) {
-            std::cout << "StringLit";
-        } else if (expr->getType() == ASTNode::NodeType::BinaryOpExpr) {
-            std::cout << "BinaryOpExpr";
-        } else if (expr->getType() == ASTNode::NodeType::FunctionCallExpr) {
-            std::cout << "FunctionCallExpr";
-        } else {
-            std::cout << "Other";
+            if (expr->getType() == ASTNode::NodeType::StringLit) {
+                std::cout << "StringLit";
+            } else if (expr->getType() == ASTNode::NodeType::BinaryOpExpr) {
+                std::cout << "BinaryOpExpr";
+            } else if (expr->getType() == ASTNode::NodeType::FunctionCallExpr) {
+                std::cout << "FunctionCallExpr";
+            } else {
+                std::cout << "Other";
+            }
+            std::cout << ")\n";
         }
-        std::cout << ")\n";
         // Count expressions that could benefit from CSE
         if (expr->getType() == ASTNode::NodeType::BinaryOpExpr ||
             expr->getType() == ASTNode::NodeType::StringLit ||
             expr->getType() == ASTNode::NodeType::FunctionCallExpr) {
             expr_counts_[key]++;
-            std::cout << "[CSE DEBUG] COUNTED expression: type=" << static_cast<int>(expr->getType()) 
+            if (trace_optimizer_) std::cout << "[CSE DEBUG] COUNTED expression: type=" << static_cast<int>(expr->getType()) 
                      << " key='" << key << "' count=" << expr_counts_[key] << "\n";
         }
 
@@ -412,29 +361,29 @@ void LocalOptimizationPass::count_subexpressions(ASTNode* node) {
         }
     }
     else if (auto* let = dynamic_cast<LetDeclaration*>(node)) {
-        std::cout << "[CSE DEBUG] Processing LetDeclaration with " << let->initializers.size() << " initializers\n";
+        if (trace_optimizer_) std::cout << "[CSE DEBUG] Processing LetDeclaration with " << let->initializers.size() << " initializers\n";
         for (auto& init : let->initializers) count_subexpressions(init.get());
     } else if (auto* assign = dynamic_cast<AssignmentStatement*>(node)) {
-        std::cout << "[CSE DEBUG] Processing AssignmentStatement with " << assign->rhs.size() << " RHS expressions\n";
+        if (trace_optimizer_) std::cout << "[CSE DEBUG] Processing AssignmentStatement with " << assign->rhs.size() << " RHS expressions\n";
         for (auto& rhs : assign->rhs) count_subexpressions(rhs.get());
     } else if (auto* routine_call = dynamic_cast<RoutineCallStatement*>(node)) {
-        std::cout << "[CSE DEBUG] Processing RoutineCallStatement with " << routine_call->arguments.size() << " arguments\n";
+        if (trace_optimizer_) std::cout << "[CSE DEBUG] Processing RoutineCallStatement with " << routine_call->arguments.size() << " arguments\n";
         for (size_t i = 0; i < routine_call->arguments.size(); ++i) {
-            std::cout << "[CSE DEBUG]   Argument " << i << " type: " << static_cast<int>(routine_call->arguments[i]->getType()) << "\n";
+            if (trace_optimizer_) std::cout << "[CSE DEBUG]   Argument " << i << " type: " << static_cast<int>(routine_call->arguments[i]->getType()) << "\n";
             count_subexpressions(routine_call->arguments[i].get());
         }
     } else if (auto* block = dynamic_cast<BlockStatement*>(node)) {
-        std::cout << "[CSE DEBUG] Processing BlockStatement with " << block->statements.size() << " statements\n";
+        if (trace_optimizer_) std::cout << "[CSE DEBUG] Processing BlockStatement with " << block->statements.size() << " statements\n";
         for (auto& s : block->statements) count_subexpressions(s.get());
     } else if (auto* comp = dynamic_cast<CompoundStatement*>(node)) {
-        std::cout << "[CSE DEBUG] Processing CompoundStatement with " << comp->statements.size() << " statements\n";
+        if (trace_optimizer_) std::cout << "[CSE DEBUG] Processing CompoundStatement with " << comp->statements.size() << " statements\n";
         for (auto& s : comp->statements) count_subexpressions(s.get());
     } else if (auto* if_stmt = dynamic_cast<IfStatement*>(node)) {
-        std::cout << "[CSE DEBUG] Processing IfStatement\n";
+        if (trace_optimizer_) std::cout << "[CSE DEBUG] Processing IfStatement\n";
         count_subexpressions(if_stmt->condition.get());
         count_subexpressions(if_stmt->then_branch.get());
     } else {
-        std::cout << "[CSE DEBUG] Unhandled node type: " << static_cast<int>(node->getType()) << "\n";
+        if (trace_optimizer_) std::cout << "[CSE DEBUG] Unhandled node type: " << static_cast<int>(node->getType()) << "\n";
     }
-    std::cout << "[CSE DEBUG] count_subexpressions: EXIT\n";
+    if (trace_optimizer_) std::cout << "[CSE DEBUG] count_subexpressions: EXIT\n";
 }

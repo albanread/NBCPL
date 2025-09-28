@@ -30,7 +30,7 @@ class StringTable;
 class LocalOptimizationPass {
 public:
     // Pass a pointer to StringTable so we can lift string literals to global labels
-    LocalOptimizationPass(StringTable* string_table);
+    LocalOptimizationPass(StringTable* string_table, bool trace_optimizer = false);
 
     // Run local optimizations on the AST program.
     void run(Program& ast,
@@ -42,6 +42,7 @@ private:
    std::unordered_map<std::string, std::string> available_expressions_;
    int temp_var_counter_;
    StringTable* string_table_; // For string literal lifting
+   bool trace_optimizer_;
 
     // --- NEW: Map from canonical expression string to count for analysis stage ---
     std::unordered_map<std::string, int> expr_counts_;

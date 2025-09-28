@@ -54,7 +54,7 @@ struct ClassTableEntry {
     size_t instance_size; // Total size of an instance of this class
 
     // --- CREATE/RELEASE support ---
-    ClassMethodInfo* constructor = nullptr; // Pointer to the CREATE method, if any.
+    RoutineDeclaration* constructor = nullptr; // Pointer to the CREATE routine AST node, if any.
     ClassMethodInfo* destructor = nullptr;  // Pointer to the RELEASE method, if any.
 
     // --- ADD: Tracks if the layout has been calculated ---

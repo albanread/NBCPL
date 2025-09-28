@@ -52,6 +52,7 @@
 #include "DataGenerator.h"
 #include "DebugPrinter.h"
 #include "StringTable.h"
+#include "StringLiteralLiftingPass.h"
 #include "InstructionStream.h"
 #include "JITExecutor.h"
 #include "LabelManager.h"
@@ -530,10 +531,17 @@ if (enable_tracing || trace_ast) {
    analyzer.print_report();
 }
 
+// --- String Literal Lifting Pass: run after symbol discovery/type analysis, before CFG/liveness ---
+{
+    if (enable_tracing || trace_optimizer) std::cout << "Running StringLiteralLiftingPass (string literal lifting)...\n";
+    StringLiteralLiftingPass string_lifting_pass(&string_table);
+    string_lifting_pass.run(*ast, *symbol_table, analyzer);
+}
+
 // --- Run Local Optimization Pass (CSE/LVN) after analyzer.analyze so function metrics are available ---
 if (enable_opt) {
     if (enable_tracing || trace_optimizer) std::cout << "Optimization enabled. Applying passes...\n";
-    LocalOptimizationPass local_opt_pass(&string_table);
+    LocalOptimizationPass local_opt_pass(&string_table, trace_optimizer);
     local_opt_pass.run(*ast, *symbol_table, analyzer);
 }
 

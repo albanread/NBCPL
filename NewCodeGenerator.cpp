@@ -1867,7 +1867,11 @@ void NewCodeGenerator::visit(NewExpression& node) {
     // --- STEP 3: Call the CREATE Routine (Constructor) ---
     if (entry->constructor) {
         debug_print("Calling CREATE routine for " + node.class_name);
-        debug_print("  - CREATE method found at vtable slot: " + std::to_string(entry->constructor->vtable_slot));
+        ClassMethodInfo* create_method_info = const_cast<ClassTableEntry*>(entry)->lookup_method("CREATE");
+        if (!create_method_info) {
+            throw std::runtime_error("CREATE method metadata not found in class table for class: " + node.class_name);
+        }
+        debug_print("  - CREATE method found at vtable slot: " + std::to_string(create_method_info->vtable_slot));
         debug_print("  - Will pass " + std::to_string(node.constructor_arguments.size()) + " arguments to CREATE");
 
         // Argument 0: The 'this' pointer goes in X0.
@@ -1884,8 +1888,8 @@ void NewCodeGenerator::visit(NewExpression& node) {
             }
         }
 
-        // Load method address from the vtable (assuming CREATE is at slot 0)
-        size_t create_slot = entry->constructor->vtable_slot;
+        // Load method address from the vtable (get slot from ClassMethodInfo)
+        size_t create_slot = create_method_info->vtable_slot;
         std::string vtable_ptr_reg = register_manager_.acquire_scratch_reg(*this);
         std::string method_addr_reg = register_manager_.acquire_scratch_reg(*this);
 

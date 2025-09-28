@@ -362,6 +362,32 @@ void SymbolDiscoveryPass::visit(RoutineDeclaration& node) {
     current_function_name_ = ""; // Reset function context
 }
 
+void SymbolDiscoveryPass::visit(ClassDeclaration& node) {
+    trace("Processing class declaration: " + node.name);
+
+    // Get the class entry from the class table
+    ClassTableEntry* entry = class_table_->get_class(node.name);
+    if (!entry) {
+        std::cerr << "Error: ClassTableEntry not found for class: " << node.name << std::endl;
+        return;
+    }
+
+    // Process all members
+    for (auto& member : node.members) {
+        if (!member.declaration) continue;
+        // Check if this is a CREATE routine
+        if (auto* routine = dynamic_cast<RoutineDeclaration*>(member.declaration.get())) {
+            member.declaration->accept(*this); // Add to symbol table as usual
+            if (routine->name == "CREATE") {
+                entry->constructor = routine;
+                trace("Registered CREATE routine as constructor for class: " + node.name);
+            }
+        } else {
+            member.declaration->accept(*this);
+        }
+    }
+}
+
 
 
 void SymbolDiscoveryPass::visit(LabelDeclaration& node) {

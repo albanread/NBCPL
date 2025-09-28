@@ -1,4 +1,5 @@
 #include "DataGenerator.h"
+#include <unordered_set>
 #include "ClassTable.h"
 #include "NameMangler.h"
 #include "AssemblerData.h"
@@ -23,7 +24,7 @@ void DataGenerator::emit_interned_strings() {
     for (const auto& pair : string_table_->get_all_labels()) {
         const std::string& value = pair.first;
         const std::string& label = pair.second;
-        std::cout << "Emitting string label: " << label << " value: " << value << std::endl;
+        // std::cout << "Emitting string label: " << label << " value: " << value << std::endl;
         // Actual emission logic would go here (e.g., writing to a data section)
     }
 }
@@ -299,8 +300,11 @@ void DataGenerator::add_global_variable(const std::string& name, ExprPtr initial
 
 // ** REFACTORED `generate_rodata_section` **
 void DataGenerator::generate_rodata_section(InstructionStream& stream) {
-    // Emit String Literals (no changes)
+    // Emit String Literals (deduplicated by label)
+    std::unordered_set<std::string> emitted_labels;
     for (const auto& info : string_literals_) {
+        if (emitted_labels.count(info.label)) continue; // Skip duplicates
+        emitted_labels.insert(info.label);
         stream.add(Instruction::as_label(info.label, SegmentType::RODATA));
         stream.add_data64(info.value.length() - 2, "", SegmentType::RODATA);
         for (char32_t ch : info.value) {
