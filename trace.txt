@@ -8,7 +8,7 @@ SAMM: ENABLED and background worker started
 SAMM (Scope Aware Memory Management): ENABLED
 SAMM: Background cleanup worker thread started (DEBUG)
 SAMM: Worker waiting for cleanup queue (queue size: 0)
-NewBCPL Compiler Version 1.0.1612
+NewBCPL Compiler Version 1.0.1618
 Compiling this source Code:
 //LINE 1 "/Users/oberon/projects/NewBCPL/tests/bcl_tests/class1.bcl"
 // class1.bcl - Test for class member variable access
@@ -73,100 +73,100 @@ LET START() BE $(
 $)
 
 BCPL Runtime v1.0.0 initialized
-DEBUG: Registering FREEVEC with bcpl_free at address 0x102b54e40
+DEBUG: Registering FREEVEC with bcpl_free at address 0x1027806d4
 Registered 91 runtime functions
 === Registered Runtime Functions ===
-  NEWLINE          | address: 0x102b53b74 | args: 0 | table_offset: 712
-  FINISH           | address: 0x102b52924 | args: 0 | table_offset: 704
-  FABS             | address: 0x102b52cd4 | args: 1 | table_offset: 672
-  FSIN             | address: 0x102b52c98 | args: 1 | table_offset: 648
-  FILE_EOF         | address: 0x102b55f8c | args: 1 | table_offset: 616
-  RAND             | address: 0x102b52b24 | args: 1 | table_offset: 624
-  FILE_TELL        | address: 0x102b55f34 | args: 1 | table_offset: 608
-  FILE_SEEK        | address: 0x102b55e70 | args: 3 | table_offset: 600
-  FILE_WRITE       | address: 0x102b55d58 | args: 3 | table_offset: 592
-  FIX              | address: 0x102b52d14 | args: 1 | table_offset: 696
-  FILE_READS       | address: 0x102b557a4 | args: 1 | table_offset: 576
-  FILE_WRITES      | address: 0x102b554c8 | args: 2 | table_offset: 568
-  FEXP             | address: 0x102b52d00 | args: 1 | table_offset: 688
-  FILE_CLOSE       | address: 0x102b5545c | args: 1 | table_offset: 560
-  FILE_OPEN_APPEND | address: 0x102b553cc | args: 1 | table_offset: 552
-  SLURP            | address: 0x102b533fc | args: 1 | table_offset: 520
-  PACKSTRING       | address: 0x102b52d2c | args: 1 | table_offset: 504
-  STRLEN           | address: 0x102b52934 | args: 1 | table_offset: 496
-  FCOS             | address: 0x102b52cac | args: 1 | table_offset: 656
-  STRCMP           | address: 0x102b52994 | args: 2 | table_offset: 488
-  STRCOPY          | address: 0x102b52a78 | args: 2 | table_offset: 480
-  FIND             | address: 0x102b594b4 | args: 3 | table_offset: 448
-  DEEPCOPYLITERALLIST | address: 0x102b5912c | args: 1 | table_offset: 432
-  DEEPCOPYLIST     | address: 0x102b58f94 | args: 1 | table_offset: 424
-  COPYLIST         | address: 0x102b58e94 | args: 1 | table_offset: 416
-  CONCAT           | address: 0x102b592cc | args: 2 | table_offset: 408
-  BCPL_CONCAT_LISTS | address: 0x102b592cc | args: 2 | table_offset: 400
-  SPIT             | address: 0x102b53928 | args: 2 | table_offset: 528
-  JOIN             | address: 0x102b58530 | args: 2 | table_offset: 472
-  LPND             | address: 0x102b58a40 | args: 2 | table_offset: 392
-  SPND             | address: 0x102b58970 | args: 2 | table_offset: 384
-  FPND             | address: 0x102b588a0 | args: 2 | table_offset: 376
-  RETURNNODETOFREELIST | address: 0x102b59984 | args: 1 | table_offset: 720
-  BCPL_LIST_APPEND_INT | address: 0x102b587d0 | args: 2 | table_offset: 344
-  GETVEC           | address: 0x102b54f04 | args: 1 | table_offset: 128
-  HEAPMANAGER_WAITFORSAMM | address: 0x102a439c0 | args: 0 | table_offset: 312
-  APND             | address: 0x102b587d0 | args: 2 | table_offset: 368
-  HEAPMANAGER_ENTER_SCOPE | address: 0x102a438f8 | args: 0 | table_offset: 280
-  HEAPMANAGER_SETSAMMENABLED | address: 0x102a438a4 | args: 1 | table_offset: 296
-  HEAPMANAGER_EXIT_SCOPE | address: 0x102a43924 | args: 0 | table_offset: 288
-  PIC_RUNTIME_HELPER | address: 0x102b54fb8 | args: 0 | table_offset: 272
-  OBJECT_HEAP_FREE | address: 0x102b54f7c | args: 1 | table_offset: 256
-  OBJECT_HEAP_ALLOC | address: 0x102b54f58 | args: 1 | table_offset: 248
-  BCPL_LIST_GET_REST | address: 0x102b58cfc | args: 1 | table_offset: 216
-  FRND             | address: 0x102b52bb0 | args: 0 | table_offset: 640
-  BCPL_LIST_GET_HEAD_AS_FLOAT | address: 0x102b58c44 | args: 1 | table_offset: 200
-  BCPL_LIST_GET_HEAD_AS_INT | address: 0x102b58be0 | args: 1 | table_offset: 192
-  RUNTIME_METHOD_LOOKUP | address: 0x102b54fa0 | args: 2 | table_offset: 264
-  FREEVEC          | address: 0x102b54e40 | args: 1 | table_offset: 136
-  BCPL_BOUNDS_ERROR | address: 0x102b50e04 | args: 3 | table_offset: 184
-  WRITEF4          | address: 0x102b52458 | args: 5 | table_offset: 56
-  BCPL_FREE_LIST   | address: 0x102b59658 | args: 1 | table_offset: 144
-  BCPL_ALLOC_CHARS | address: 0x102b54de8 | args: 1 | table_offset: 112
-  BCPL_LIST_APPEND_FLOAT | address: 0x102b588a0 | args: 2 | table_offset: 352
-  GET_FREE_LIST_HEAD_ADDR | address: 0x102b59978 | args: 0 | table_offset: 328
-  BCPL_GET_ATOM_TYPE | address: 0x102b58d60 | args: 1 | table_offset: 224
-  FWRITE           | address: 0x102b51e34 | args: 1 | table_offset: 16
-  BCPL_LIST_CREATE_EMPTY | address: 0x102b58770 | args: 0 | table_offset: 336
-  SPLIT            | address: 0x102b581c4 | args: 2 | table_offset: 464
-  BCPL_FREE_CELLS  | address: 0x102b59974 | args: 0 | table_offset: 320
-  RND              | address: 0x102b52c04 | args: 1 | table_offset: 632
-  HEAPMANAGER_ISSAMMENABLED | address: 0x102a438d4 | args: 0 | table_offset: 304
-  WRITEC           | address: 0x102b52714 | args: 1 | table_offset: 88
-  MALLOC           | address: 0x102b54d88 | args: 1 | table_offset: 120
-  BCPL_ALLOC_WORDS | address: 0x102b54d88 | args: 3 | table_offset: 104
-  FTAN             | address: 0x102b52cc0 | args: 1 | table_offset: 664
+  NEWLINE          | address: 0x10277f408 | args: 0 | table_offset: 712
+  FINISH           | address: 0x10277e1b8 | args: 0 | table_offset: 704
+  FABS             | address: 0x10277e568 | args: 1 | table_offset: 672
+  FSIN             | address: 0x10277e52c | args: 1 | table_offset: 648
+  FILE_EOF         | address: 0x102781820 | args: 1 | table_offset: 616
+  RAND             | address: 0x10277e3b8 | args: 1 | table_offset: 624
+  FILE_TELL        | address: 0x1027817c8 | args: 1 | table_offset: 608
+  FILE_SEEK        | address: 0x102781704 | args: 3 | table_offset: 600
+  FILE_WRITE       | address: 0x1027815ec | args: 3 | table_offset: 592
+  FIX              | address: 0x10277e5a8 | args: 1 | table_offset: 696
+  FILE_READS       | address: 0x102781038 | args: 1 | table_offset: 576
+  FILE_WRITES      | address: 0x102780d5c | args: 2 | table_offset: 568
+  FEXP             | address: 0x10277e594 | args: 1 | table_offset: 688
+  FILE_CLOSE       | address: 0x102780cf0 | args: 1 | table_offset: 560
+  FILE_OPEN_APPEND | address: 0x102780c60 | args: 1 | table_offset: 552
+  SLURP            | address: 0x10277ec90 | args: 1 | table_offset: 520
+  PACKSTRING       | address: 0x10277e5c0 | args: 1 | table_offset: 504
+  STRLEN           | address: 0x10277e1c8 | args: 1 | table_offset: 496
+  FCOS             | address: 0x10277e540 | args: 1 | table_offset: 656
+  STRCMP           | address: 0x10277e228 | args: 2 | table_offset: 488
+  STRCOPY          | address: 0x10277e30c | args: 2 | table_offset: 480
+  FIND             | address: 0x102784d48 | args: 3 | table_offset: 448
+  DEEPCOPYLITERALLIST | address: 0x1027849c0 | args: 1 | table_offset: 432
+  DEEPCOPYLIST     | address: 0x102784828 | args: 1 | table_offset: 424
+  COPYLIST         | address: 0x102784728 | args: 1 | table_offset: 416
+  CONCAT           | address: 0x102784b60 | args: 2 | table_offset: 408
+  BCPL_CONCAT_LISTS | address: 0x102784b60 | args: 2 | table_offset: 400
+  SPIT             | address: 0x10277f1bc | args: 2 | table_offset: 528
+  JOIN             | address: 0x102783dc4 | args: 2 | table_offset: 472
+  LPND             | address: 0x1027842d4 | args: 2 | table_offset: 392
+  SPND             | address: 0x102784204 | args: 2 | table_offset: 384
+  FPND             | address: 0x102784134 | args: 2 | table_offset: 376
+  RETURNNODETOFREELIST | address: 0x102785218 | args: 1 | table_offset: 720
+  BCPL_LIST_APPEND_INT | address: 0x102784064 | args: 2 | table_offset: 344
+  GETVEC           | address: 0x102780798 | args: 1 | table_offset: 128
+  HEAPMANAGER_WAITFORSAMM | address: 0x10266f984 | args: 0 | table_offset: 312
+  APND             | address: 0x102784064 | args: 2 | table_offset: 368
+  HEAPMANAGER_ENTER_SCOPE | address: 0x10266f8bc | args: 0 | table_offset: 280
+  HEAPMANAGER_SETSAMMENABLED | address: 0x10266f868 | args: 1 | table_offset: 296
+  HEAPMANAGER_EXIT_SCOPE | address: 0x10266f8e8 | args: 0 | table_offset: 288
+  PIC_RUNTIME_HELPER | address: 0x10278084c | args: 0 | table_offset: 272
+  OBJECT_HEAP_FREE | address: 0x102780810 | args: 1 | table_offset: 256
+  OBJECT_HEAP_ALLOC | address: 0x1027807ec | args: 1 | table_offset: 248
+  BCPL_LIST_GET_REST | address: 0x102784590 | args: 1 | table_offset: 216
+  FRND             | address: 0x10277e444 | args: 0 | table_offset: 640
+  BCPL_LIST_GET_HEAD_AS_FLOAT | address: 0x1027844d8 | args: 1 | table_offset: 200
+  BCPL_LIST_GET_HEAD_AS_INT | address: 0x102784474 | args: 1 | table_offset: 192
+  RUNTIME_METHOD_LOOKUP | address: 0x102780834 | args: 2 | table_offset: 264
+  FREEVEC          | address: 0x1027806d4 | args: 1 | table_offset: 136
+  BCPL_BOUNDS_ERROR | address: 0x10277c698 | args: 3 | table_offset: 184
+  WRITEF4          | address: 0x10277dcec | args: 5 | table_offset: 56
+  BCPL_FREE_LIST   | address: 0x102784eec | args: 1 | table_offset: 144
+  BCPL_ALLOC_CHARS | address: 0x10278067c | args: 1 | table_offset: 112
+  BCPL_LIST_APPEND_FLOAT | address: 0x102784134 | args: 2 | table_offset: 352
+  GET_FREE_LIST_HEAD_ADDR | address: 0x10278520c | args: 0 | table_offset: 328
+  BCPL_GET_ATOM_TYPE | address: 0x1027845f4 | args: 1 | table_offset: 224
+  FWRITE           | address: 0x10277d6c8 | args: 1 | table_offset: 16
+  BCPL_LIST_CREATE_EMPTY | address: 0x102784004 | args: 0 | table_offset: 336
+  SPLIT            | address: 0x102783a58 | args: 2 | table_offset: 464
+  BCPL_FREE_CELLS  | address: 0x102785208 | args: 0 | table_offset: 320
+  RND              | address: 0x10277e498 | args: 1 | table_offset: 632
+  HEAPMANAGER_ISSAMMENABLED | address: 0x10266f898 | args: 0 | table_offset: 304
+  WRITEC           | address: 0x10277dfa8 | args: 1 | table_offset: 88
+  MALLOC           | address: 0x10278061c | args: 1 | table_offset: 120
+  BCPL_ALLOC_WORDS | address: 0x10278061c | args: 3 | table_offset: 104
+  FTAN             | address: 0x10277e554 | args: 1 | table_offset: 664
   SETTYPE          | address: 0x0 | args: 2 | table_offset: 240
-  BCPL_GET_LAST_ERROR | address: 0x102b50c84 | args: 1 | table_offset: 160
-  RDCH             | address: 0x102b528d8 | args: 0 | table_offset: 96
-  FILE_READ        | address: 0x102b55c44 | args: 3 | table_offset: 584
-  UNPACKSTRING     | address: 0x102b53064 | args: 1 | table_offset: 512
-  WRITEF5          | address: 0x102b524e4 | args: 6 | table_offset: 64
-  FILTER           | address: 0x102b595a8 | args: 2 | table_offset: 456
-  BCPL_FREE_LIST_SAFE | address: 0x102b59760 | args: 1 | table_offset: 152
-  FILE_OPEN_WRITE  | address: 0x102b5533c | args: 1 | table_offset: 544
-  FILE_OPEN_READ   | address: 0x102b54fbc | args: 1 | table_offset: 536
-  BCPL_LIST_GET_NTH | address: 0x102b58dc8 | args: 2 | table_offset: 232
-  WRITEF7          | address: 0x102b52620 | args: 8 | table_offset: 80
-  WRITEF3          | address: 0x102b523d8 | args: 4 | table_offset: 48
-  WRITEF6          | address: 0x102b5257c | args: 7 | table_offset: 72
-  REVERSE          | address: 0x102b593cc | args: 1 | table_offset: 440
-  WRITEF2          | address: 0x102b52364 | args: 3 | table_offset: 40
-  WRITEF1          | address: 0x102b522fc | args: 2 | table_offset: 32
-  BCPL_LIST_GET_TAIL | address: 0x102b58cac | args: 1 | table_offset: 208
-  BCPL_CLEAR_ERRORS | address: 0x102b50d34 | args: 0 | table_offset: 168
-  WRITEF           | address: 0x102b51e78 | args: 1 | table_offset: 24
-  BCPL_LIST_APPEND_STRING | address: 0x102b58970 | args: 2 | table_offset: 360
-  WRITES           | address: 0x102b51bc4 | args: 1 | table_offset: 0
-  BCPL_CHECK_AND_DISPLAY_ERRORS | address: 0x102b599cc | args: 0 | table_offset: 176
-  FLOG             | address: 0x102b52cec | args: 1 | table_offset: 680
-  WRITEN           | address: 0x102b526d0 | args: 1 | table_offset: 8
+  BCPL_GET_LAST_ERROR | address: 0x10277c518 | args: 1 | table_offset: 160
+  RDCH             | address: 0x10277e16c | args: 0 | table_offset: 96
+  FILE_READ        | address: 0x1027814d8 | args: 3 | table_offset: 584
+  UNPACKSTRING     | address: 0x10277e8f8 | args: 1 | table_offset: 512
+  WRITEF5          | address: 0x10277dd78 | args: 6 | table_offset: 64
+  FILTER           | address: 0x102784e3c | args: 2 | table_offset: 456
+  BCPL_FREE_LIST_SAFE | address: 0x102784ff4 | args: 1 | table_offset: 152
+  FILE_OPEN_WRITE  | address: 0x102780bd0 | args: 1 | table_offset: 544
+  FILE_OPEN_READ   | address: 0x102780850 | args: 1 | table_offset: 536
+  BCPL_LIST_GET_NTH | address: 0x10278465c | args: 2 | table_offset: 232
+  WRITEF7          | address: 0x10277deb4 | args: 8 | table_offset: 80
+  WRITEF3          | address: 0x10277dc6c | args: 4 | table_offset: 48
+  WRITEF6          | address: 0x10277de10 | args: 7 | table_offset: 72
+  REVERSE          | address: 0x102784c60 | args: 1 | table_offset: 440
+  WRITEF2          | address: 0x10277dbf8 | args: 3 | table_offset: 40
+  WRITEF1          | address: 0x10277db90 | args: 2 | table_offset: 32
+  BCPL_LIST_GET_TAIL | address: 0x102784540 | args: 1 | table_offset: 208
+  BCPL_CLEAR_ERRORS | address: 0x10277c5c8 | args: 0 | table_offset: 168
+  WRITEF           | address: 0x10277d70c | args: 1 | table_offset: 24
+  BCPL_LIST_APPEND_STRING | address: 0x102784204 | args: 2 | table_offset: 360
+  WRITES           | address: 0x10277d458 | args: 1 | table_offset: 0
+  BCPL_CHECK_AND_DISPLAY_ERRORS | address: 0x102785260 | args: 0 | table_offset: 176
+  FLOG             | address: 0x10277e580 | args: 1 | table_offset: 680
+  WRITEN           | address: 0x10277df64 | args: 1 | table_offset: 8
 ====================================
 Core runtime registered. SDL2 registration will follow...
 SDL2 runtime functions registered immediately
@@ -604,33 +604,36 @@ Program:
 Building symbol table...
 [SymbolDiscoveryPass] Entering global scope
 [SymbolDiscoveryPass] Processing class declaration: Point
-[SymbolDiscoveryPass] Processing member variable declaration in class: Point
-[SymbolDiscoveryPass] Added member variable: x to class Point
-[SymbolDiscoveryPass] Added member variable: y to class Point
-[SymbolDiscoveryPass] Added class method routine: Point::CREATE
-[SymbolDiscoveryPass] Added implicit _this parameter for method: Point::CREATE
-[SymbolDiscoveryPass] Added parameter: _this in method Point::CREATE
-[SymbolDiscoveryPass] Added parameter: initialX in method Point::CREATE
-[SymbolDiscoveryPass] Added parameter: initialY in method Point::CREATE
+[SymbolDiscoveryPass] Processing let declaration
+[SymbolDiscoveryPass] Added let variable: x as INTEGER (default INTEGER)
+[SymbolDiscoveryPass] Added let variable: y as INTEGER (default INTEGER)
+[SymbolDiscoveryPass] Processing routine declaration: CREATE
+[SymbolDiscoveryPass] Added routine: CREATE
+[SymbolDiscoveryPass] Added parameter variable: _this in routine CREATE
+[SymbolDiscoveryPass] Added parameter variable: initialX in routine CREATE
+[SymbolDiscoveryPass] Added parameter variable: initialY in routine CREATE
 [SymbolDiscoveryPass] Entering block scope
-[SymbolDiscoveryPass] Added class method function: Point::getX
-[SymbolDiscoveryPass] Added implicit _this parameter for method: Point::getX
-[SymbolDiscoveryPass] Added parameter: _this in method Point::getX
+[SymbolDiscoveryPass] Registered CREATE routine as constructor for class: Point
+[SymbolDiscoveryPass] Processing function declaration: getX
+[SymbolDiscoveryPass] Added parameter '_this' as UNKNOWN (parameter type will be determined at call sites)
+[SymbolDiscoveryPass] Added function: getX returns INTEGER with 1 parameters
+[SymbolDiscoveryPass] Added parameter variable: _this in function getX
 [SymbolDiscoveryPass] Entering ValofExpression block
 [SymbolDiscoveryPass] Entering block scope
-[SymbolDiscoveryPass] Added class method function: Point::getY
-[SymbolDiscoveryPass] Added implicit _this parameter for method: Point::getY
-[SymbolDiscoveryPass] Added parameter: _this in method Point::getY
+[SymbolDiscoveryPass] Processing function declaration: getY
+[SymbolDiscoveryPass] Added parameter '_this' as UNKNOWN (parameter type will be determined at call sites)
+[SymbolDiscoveryPass] Added function: getY returns INTEGER with 1 parameters
+[SymbolDiscoveryPass] Added parameter variable: _this in function getY
 [SymbolDiscoveryPass] Entering ValofExpression block
 [SymbolDiscoveryPass] Entering block scope
-[SymbolDiscoveryPass] Added class method routine: Point::set
-[SymbolDiscoveryPass] Added implicit _this parameter for method: Point::set
-[SymbolDiscoveryPass] Added parameter: _this in method Point::set
-[SymbolDiscoveryPass] Added parameter: newX in method Point::set
-[SymbolDiscoveryPass] Added parameter: newY in method Point::set
+[SymbolDiscoveryPass] Processing routine declaration: set
+[SymbolDiscoveryPass] Added routine: set
+[SymbolDiscoveryPass] Added parameter variable: _this in routine set
+[SymbolDiscoveryPass] Added parameter variable: newX in routine set
+[SymbolDiscoveryPass] Added parameter variable: newY in routine set
 [SymbolDiscoveryPass] Entering block scope
-[SymbolDiscoveryPass] Added class method routine: Point::RELEASE
-[SymbolDiscoveryPass] Added implicit _this parameter for method: Point::RELEASE
+[SymbolDiscoveryPass] Processing routine declaration: RELEASE
+[SymbolDiscoveryPass] Added routine: RELEASE
 [SymbolDiscoveryPass] Processing routine declaration: START
 [SymbolDiscoveryPass] Added routine: START
 [SymbolDiscoveryPass] Entering block scope
@@ -640,26 +643,21 @@ Building symbol table...
 === SYMBOL TABLE DUMP AFTER SYMBOL DISCOVERY ===
 Symbol Table (Persistent, All Symbols)
 ==================================================
-Symbol 'x' (MEMBER_VAR, INTEGER, scope=0, block=0, class_name='', function_name='Point')
-Symbol 'y' (MEMBER_VAR, INTEGER, scope=0, block=0, class_name='', function_name='Point')
-Symbol 'Point::CREATE' (class: Point, ROUTINE, INTEGER, scope=0, block=0, class_name='Point', function_name='Point::CREATE')
-Symbol '_this' (PARAMETER, POINTER_TO|OBJECT, scope=1, block=0, class_name='', function_name='Point::CREATE')
-Symbol '_this' (PARAMETER, UNKNOWN, scope=1, block=0, class_name='', function_name='Point::CREATE')
-Symbol 'initialX' (PARAMETER, UNKNOWN, scope=1, block=0, class_name='', function_name='Point::CREATE')
-Symbol 'initialY' (PARAMETER, UNKNOWN, scope=1, block=0, class_name='', function_name='Point::CREATE')
-Symbol 'Point::getX' (class: Point, FUNCTION, INTEGER, scope=0, block=0, class_name='Point', function_name='Point::getX')
-Symbol '_this' (PARAMETER, POINTER_TO|OBJECT, scope=1, block=0, class_name='', function_name='Point::getX')
-Symbol '_this' (PARAMETER, UNKNOWN, scope=1, block=0, class_name='', function_name='Point::getX')
-Symbol 'Point::getY' (class: Point, FUNCTION, INTEGER, scope=0, block=0, class_name='Point', function_name='Point::getY')
-Symbol '_this' (PARAMETER, POINTER_TO|OBJECT, scope=1, block=0, class_name='', function_name='Point::getY')
-Symbol '_this' (PARAMETER, UNKNOWN, scope=1, block=0, class_name='', function_name='Point::getY')
-Symbol 'Point::set' (class: Point, ROUTINE, INTEGER, scope=0, block=0, class_name='Point', function_name='Point::set')
-Symbol '_this' (PARAMETER, POINTER_TO|OBJECT, scope=1, block=0, class_name='', function_name='Point::set')
-Symbol '_this' (PARAMETER, UNKNOWN, scope=1, block=0, class_name='', function_name='Point::set')
-Symbol 'newX' (PARAMETER, UNKNOWN, scope=1, block=0, class_name='', function_name='Point::set')
-Symbol 'newY' (PARAMETER, UNKNOWN, scope=1, block=0, class_name='', function_name='Point::set')
-Symbol 'Point::RELEASE' (class: Point, ROUTINE, INTEGER, scope=0, block=0, class_name='Point', function_name='Point::RELEASE')
-Symbol '_this' (PARAMETER, POINTER_TO|OBJECT, scope=1, block=0, class_name='', function_name='Point::RELEASE')
+Symbol 'x' (LOCAL_VAR, INTEGER, scope=0, block=0, class_name='', function_name='Global')
+Symbol 'y' (LOCAL_VAR, INTEGER, scope=0, block=0, class_name='', function_name='Global')
+Symbol 'CREATE' (ROUTINE, INTEGER, scope=0, block=0, class_name='', function_name='CREATE')
+Symbol '_this' (PARAMETER, UNKNOWN, scope=1, block=0, class_name='', function_name='CREATE')
+Symbol 'initialX' (PARAMETER, UNKNOWN, scope=1, block=0, class_name='', function_name='CREATE')
+Symbol 'initialY' (PARAMETER, UNKNOWN, scope=1, block=0, class_name='', function_name='CREATE')
+Symbol 'getX' (FUNCTION, INTEGER, scope=0, block=0, class_name='', function_name='getX', parameters=[UNKNOWN])
+Symbol '_this' (PARAMETER, UNKNOWN, scope=1, block=0, class_name='', function_name='getX')
+Symbol 'getY' (FUNCTION, INTEGER, scope=0, block=0, class_name='', function_name='getY', parameters=[UNKNOWN])
+Symbol '_this' (PARAMETER, UNKNOWN, scope=1, block=0, class_name='', function_name='getY')
+Symbol 'set' (ROUTINE, INTEGER, scope=0, block=0, class_name='', function_name='set')
+Symbol '_this' (PARAMETER, UNKNOWN, scope=1, block=0, class_name='', function_name='set')
+Symbol 'newX' (PARAMETER, UNKNOWN, scope=1, block=0, class_name='', function_name='set')
+Symbol 'newY' (PARAMETER, UNKNOWN, scope=1, block=0, class_name='', function_name='set')
+Symbol 'RELEASE' (ROUTINE, INTEGER, scope=0, block=0, class_name='', function_name='RELEASE')
 Symbol 'START' (ROUTINE, INTEGER, scope=0, block=0, class_name='', function_name='START')
 Symbol 'p' (LOCAL_VAR, INTEGER, scope=2, block=0, class_name='', function_name='START')
 
@@ -683,14 +681,21 @@ Cleared FOR loop state before analysis to prevent corruption
 [ANALYZER TRACE] Starting analysis...
 [ANALYZER TRACE] Skipping reset - signature analysis already complete.
 [ANALYZER TRACE] --- PASS 1: Discovering all function definitions ---
+[SYMBOL TABLE TRACE] Lookup FAILED for symbol: 'Point::getY'
+[SYMBOL TABLE TRACE] Lookup FAILED for symbol: 'Point::RELEASE'
+[SYMBOL TABLE TRACE] Lookup FAILED for symbol: 'Point::getX'
+[SYMBOL TABLE TRACE] Lookup FAILED for symbol: 'Point::set'
+[SYMBOL TABLE TRACE] Lookup FAILED for symbol: 'Point::CREATE'
 [ANALYZER TRACE] Visiting Program.
 [ANALYZER TRACE] Visiting ClassDeclaration: Point
 [ANALYZER TRACE] Visiting class.
 [ANALYZER TRACE] Visiting RoutineDeclaration: CREATE
 [ANALYZER IMPORTANT] Setting _this parameter type to POINTER_TO_OBJECT for Point::CREATE
 [ANALYZER IMPORTANT] Added _this symbol to symbol table with class_name: Point
+[SYMBOL TABLE TRACE] Warning: Found symbol 'initialX' in different context 'CREATE' (requested context was 'Point::CREATE')
 [ANALYZER] Set parameter type: initialX in Point::CREATE to 0
 [ANALYZER TRACE] Early parameter type for initialX in Point::CREATE set to 0
+[SYMBOL TABLE TRACE] Warning: Found symbol 'initialY' in different context 'CREATE' (requested context was 'Point::CREATE')
 [ANALYZER] Set parameter type: initialY in Point::CREATE to 0
 [ANALYZER TRACE] Early parameter type for initialY in Point::CREATE set to 0
 [ANALYZER] Starting parameter type inference for function: Point::CREATE
@@ -700,8 +705,10 @@ Cleared FOR loop state before analysis to prevent corruption
 [ANALYZER] Parameter 'initialY' already has type from Pass 1: 0. Preserving it.
 [ANALYZER] Set parameter type: _this in Point::CREATE to 1056768
 [ANALYZER TRACE] Updated parameter type for _this in Point::CREATE to 1056768 after inference
+[SYMBOL TABLE TRACE] Warning: Found symbol 'initialX' in different context 'CREATE' (requested context was 'Point::CREATE')
 [ANALYZER] Set parameter type: initialX in Point::CREATE to 0
 [ANALYZER TRACE] Updated parameter type for initialX in Point::CREATE to 0 after inference
+[SYMBOL TABLE TRACE] Warning: Found symbol 'initialY' in different context 'CREATE' (requested context was 'Point::CREATE')
 [ANALYZER] Set parameter type: initialY in Point::CREATE to 0
 [ANALYZER TRACE] Updated parameter type for initialY in Point::CREATE to 0 after inference
 [ANALYZER TRACE] ASTAnalyzer::visit(RoutineDeclaration&) is traversing body for routine: CREATE
@@ -724,10 +731,10 @@ Cleared FOR loop state before analysis to prevent corruption
 [DEBUG get_effective_variable_name] In FOR loop context: NO
 [DEBUG get_effective_variable_name] Not in FOR loop context, returning original: 'initialY'
 [ANALYZER TRACE] BlockStatement: Calling accept on statement 2 of type 44
-[ANALYZER TRACE] Entered ASTAnalyzer::visit(RoutineCallStatement&) for node at 0x10388bc00
+[ANALYZER TRACE] Entered ASTAnalyzer::visit(RoutineCallStatement&) for node at 0x1035673f0
 [ANALYZER TRACE]   Detected call to runtime function: WRITES, Type: INTEGER
 [ANALYZER TRACE] BlockStatement: Calling accept on statement 3 of type 44
-[ANALYZER TRACE] Entered ASTAnalyzer::visit(RoutineCallStatement&) for node at 0x10388bcf0
+[ANALYZER TRACE] Entered ASTAnalyzer::visit(RoutineCallStatement&) for node at 0x1035674e0
 [ANALYZER TRACE]   Detected call to runtime function: WRITEN, Type: INTEGER
 [ANALYZER TRACE] Visiting VariableAccess: x
 [DEBUG get_effective_variable_name] Called with: 'x'
@@ -738,10 +745,10 @@ Cleared FOR loop state before analysis to prevent corruption
 [DEBUG get_effective_variable_name] Not in FOR loop context, returning original: 'x'
 [ANALYZER TRACE] Identified 'x' as class member of 'Point'
 [ANALYZER TRACE] BlockStatement: Calling accept on statement 4 of type 44
-[ANALYZER TRACE] Entered ASTAnalyzer::visit(RoutineCallStatement&) for node at 0x10388bd90
+[ANALYZER TRACE] Entered ASTAnalyzer::visit(RoutineCallStatement&) for node at 0x103567580
 [ANALYZER TRACE]   Detected call to runtime function: WRITES, Type: INTEGER
 [ANALYZER TRACE] BlockStatement: Calling accept on statement 5 of type 44
-[ANALYZER TRACE] Entered ASTAnalyzer::visit(RoutineCallStatement&) for node at 0x84901c000
+[ANALYZER TRACE] Entered ASTAnalyzer::visit(RoutineCallStatement&) for node at 0x103568340
 [ANALYZER TRACE]   Detected call to runtime function: WRITEN, Type: INTEGER
 [ANALYZER TRACE] Visiting VariableAccess: y
 [DEBUG get_effective_variable_name] Called with: 'y'
@@ -752,7 +759,7 @@ Cleared FOR loop state before analysis to prevent corruption
 [DEBUG get_effective_variable_name] Not in FOR loop context, returning original: 'y'
 [ANALYZER TRACE] Identified 'y' as class member of 'Point'
 [ANALYZER TRACE] BlockStatement: Calling accept on statement 6 of type 44
-[ANALYZER TRACE] Entered ASTAnalyzer::visit(RoutineCallStatement&) for node at 0x84901c030
+[ANALYZER TRACE] Entered ASTAnalyzer::visit(RoutineCallStatement&) for node at 0x1035683e0
 [ANALYZER TRACE]   Detected call to runtime function: WRITES, Type: INTEGER
 [ANALYZER TRACE] Exiting block scope, returning to: Point::CREATE
 [ANALYZER TRACE] Visiting FunctionDeclaration: getX
@@ -777,7 +784,6 @@ Cleared FOR loop state before analysis to prevent corruption
 [DEBUG get_variable_type] Parameter types count: 1
 [DEBUG get_variable_type] Variable types count: 1
 [DEBUG get_variable_type] Variable 'x' not found in function metrics
-[SYMBOL TABLE TRACE] Warning: Found symbol 'x' in different context 'Point' (requested context was 'Point::getX')
 [DEBUG get_variable_type] Found in symbol table: x -> 1
 [ANALYZER TRACE] Exiting block scope, returning to: Point::getX
 [DEBUG get_variable_type] Looking for 'x' in function 'Point::getX'
@@ -785,9 +791,7 @@ Cleared FOR loop state before analysis to prevent corruption
 [DEBUG get_variable_type] Parameter types count: 1
 [DEBUG get_variable_type] Variable types count: 1
 [DEBUG get_variable_type] Variable 'x' not found in function metrics
-[SYMBOL TABLE TRACE] Warning: Found symbol 'x' in different context 'Point' (requested context was 'Point::getX')
 [DEBUG get_variable_type] Found in symbol table: x -> 1
-[ANALYZER TRACE] Detected trivial accessor method: Point::getX (accesses: x)
 [ANALYZER TRACE] Visiting FunctionDeclaration: getY
 [ANALYZER IMPORTANT] Setting _this parameter type to POINTER_TO_OBJECT for Point::getY
 [ANALYZER IMPORTANT] Added _this symbol to symbol table with class_name: Point
@@ -810,7 +814,6 @@ Cleared FOR loop state before analysis to prevent corruption
 [DEBUG get_variable_type] Parameter types count: 1
 [DEBUG get_variable_type] Variable types count: 1
 [DEBUG get_variable_type] Variable 'y' not found in function metrics
-[SYMBOL TABLE TRACE] Warning: Found symbol 'y' in different context 'Point' (requested context was 'Point::getY')
 [DEBUG get_variable_type] Found in symbol table: y -> 1
 [ANALYZER TRACE] Exiting block scope, returning to: Point::getY
 [DEBUG get_variable_type] Looking for 'y' in function 'Point::getY'
@@ -818,14 +821,14 @@ Cleared FOR loop state before analysis to prevent corruption
 [DEBUG get_variable_type] Parameter types count: 1
 [DEBUG get_variable_type] Variable types count: 1
 [DEBUG get_variable_type] Variable 'y' not found in function metrics
-[SYMBOL TABLE TRACE] Warning: Found symbol 'y' in different context 'Point' (requested context was 'Point::getY')
 [DEBUG get_variable_type] Found in symbol table: y -> 1
-[ANALYZER TRACE] Detected trivial accessor method: Point::getY (accesses: y)
 [ANALYZER TRACE] Visiting RoutineDeclaration: set
 [ANALYZER IMPORTANT] Setting _this parameter type to POINTER_TO_OBJECT for Point::set
 [ANALYZER IMPORTANT] Added _this symbol to symbol table with class_name: Point
+[SYMBOL TABLE TRACE] Warning: Found symbol 'newX' in different context 'set' (requested context was 'Point::set')
 [ANALYZER] Set parameter type: newX in Point::set to 0
 [ANALYZER TRACE] Early parameter type for newX in Point::set set to 0
+[SYMBOL TABLE TRACE] Warning: Found symbol 'newY' in different context 'set' (requested context was 'Point::set')
 [ANALYZER] Set parameter type: newY in Point::set to 0
 [ANALYZER TRACE] Early parameter type for newY in Point::set set to 0
 [ANALYZER] Starting parameter type inference for function: Point::set
@@ -835,8 +838,10 @@ Cleared FOR loop state before analysis to prevent corruption
 [ANALYZER] Parameter 'newY' already has type from Pass 1: 0. Preserving it.
 [ANALYZER] Set parameter type: _this in Point::set to 1056768
 [ANALYZER TRACE] Updated parameter type for _this in Point::set to 1056768 after inference
+[SYMBOL TABLE TRACE] Warning: Found symbol 'newX' in different context 'set' (requested context was 'Point::set')
 [ANALYZER] Set parameter type: newX in Point::set to 0
 [ANALYZER TRACE] Updated parameter type for newX in Point::set to 0 after inference
+[SYMBOL TABLE TRACE] Warning: Found symbol 'newY' in different context 'set' (requested context was 'Point::set')
 [ANALYZER] Set parameter type: newY in Point::set to 0
 [ANALYZER TRACE] Updated parameter type for newY in Point::set to 0 after inference
 [ANALYZER TRACE] ASTAnalyzer::visit(RoutineDeclaration&) is traversing body for routine: set
@@ -859,10 +864,10 @@ Cleared FOR loop state before analysis to prevent corruption
 [DEBUG get_effective_variable_name] In FOR loop context: NO
 [DEBUG get_effective_variable_name] Not in FOR loop context, returning original: 'newY'
 [ANALYZER TRACE] BlockStatement: Calling accept on statement 2 of type 44
-[ANALYZER TRACE] Entered ASTAnalyzer::visit(RoutineCallStatement&) for node at 0x84901c060
+[ANALYZER TRACE] Entered ASTAnalyzer::visit(RoutineCallStatement&) for node at 0x103568960
 [ANALYZER TRACE]   Detected call to runtime function: WRITES, Type: INTEGER
 [ANALYZER TRACE] BlockStatement: Calling accept on statement 3 of type 44
-[ANALYZER TRACE] Entered ASTAnalyzer::visit(RoutineCallStatement&) for node at 0x84901c090
+[ANALYZER TRACE] Entered ASTAnalyzer::visit(RoutineCallStatement&) for node at 0x103568a30
 [ANALYZER TRACE]   Detected call to runtime function: WRITEN, Type: INTEGER
 [ANALYZER TRACE] Visiting VariableAccess: x
 [DEBUG get_effective_variable_name] Called with: 'x'
@@ -873,10 +878,10 @@ Cleared FOR loop state before analysis to prevent corruption
 [DEBUG get_effective_variable_name] Not in FOR loop context, returning original: 'x'
 [ANALYZER TRACE] Identified 'x' as class member of 'Point'
 [ANALYZER TRACE] BlockStatement: Calling accept on statement 4 of type 44
-[ANALYZER TRACE] Entered ASTAnalyzer::visit(RoutineCallStatement&) for node at 0x84901c0c0
+[ANALYZER TRACE] Entered ASTAnalyzer::visit(RoutineCallStatement&) for node at 0x103568ae0
 [ANALYZER TRACE]   Detected call to runtime function: WRITES, Type: INTEGER
 [ANALYZER TRACE] BlockStatement: Calling accept on statement 5 of type 44
-[ANALYZER TRACE] Entered ASTAnalyzer::visit(RoutineCallStatement&) for node at 0x84901c0f0
+[ANALYZER TRACE] Entered ASTAnalyzer::visit(RoutineCallStatement&) for node at 0x103568b90
 [ANALYZER TRACE]   Detected call to runtime function: WRITEN, Type: INTEGER
 [ANALYZER TRACE] Visiting VariableAccess: y
 [DEBUG get_effective_variable_name] Called with: 'y'
@@ -887,7 +892,7 @@ Cleared FOR loop state before analysis to prevent corruption
 [DEBUG get_effective_variable_name] Not in FOR loop context, returning original: 'y'
 [ANALYZER TRACE] Identified 'y' as class member of 'Point'
 [ANALYZER TRACE] BlockStatement: Calling accept on statement 6 of type 44
-[ANALYZER TRACE] Entered ASTAnalyzer::visit(RoutineCallStatement&) for node at 0x84901c120
+[ANALYZER TRACE] Entered ASTAnalyzer::visit(RoutineCallStatement&) for node at 0x103568c30
 [ANALYZER TRACE]   Detected call to runtime function: WRITES, Type: INTEGER
 [ANALYZER TRACE] Exiting block scope, returning to: Point::set
 [ANALYZER TRACE] Visiting RoutineDeclaration: RELEASE
@@ -906,7 +911,7 @@ Cleared FOR loop state before analysis to prevent corruption
 [ANALYZER TRACE] Entering block scope: START_block_5 (Function scope remains: START)
 [ANALYZER TRACE] BlockStatement: Traversing 14 statements.
 [ANALYZER TRACE] BlockStatement: Calling accept on statement 0 of type 44
-[ANALYZER TRACE] Entered ASTAnalyzer::visit(RoutineCallStatement&) for node at 0x84901c150
+[ANALYZER TRACE] Entered ASTAnalyzer::visit(RoutineCallStatement&) for node at 0x103568e00
 [ANALYZER TRACE]   Detected call to runtime function: WRITES, Type: INTEGER
 [ANALYZER TRACE] BlockStatement: Calling accept on statement 1 of type 43
 [ANALYZER TRACE] Visiting VariableAccess: p
@@ -917,39 +922,39 @@ Cleared FOR loop state before analysis to prevent corruption
 [DEBUG get_effective_variable_name] In FOR loop context: NO
 [DEBUG get_effective_variable_name] Not in FOR loop context, returning original: 'p'
 [ANALYZER TRACE] BlockStatement: Calling accept on statement 2 of type 44
-[ANALYZER TRACE] Entered ASTAnalyzer::visit(RoutineCallStatement&) for node at 0x84901c180
+[ANALYZER TRACE] Entered ASTAnalyzer::visit(RoutineCallStatement&) for node at 0x103568fa0
 [ANALYZER TRACE]   Detected call to runtime function: WRITES, Type: INTEGER
 [ANALYZER TRACE] BlockStatement: Calling accept on statement 3 of type 44
-[ANALYZER TRACE] Entered ASTAnalyzer::visit(RoutineCallStatement&) for node at 0x84901c1b0
+[ANALYZER TRACE] Entered ASTAnalyzer::visit(RoutineCallStatement&) for node at 0x103569000
 [ANALYZER TRACE]   Detected call to runtime function: WRITEN, Type: INTEGER
 [ANALYZER TRACE] BlockStatement: Calling accept on statement 4 of type 44
-[ANALYZER TRACE] Entered ASTAnalyzer::visit(RoutineCallStatement&) for node at 0x84901c1e0
+[ANALYZER TRACE] Entered ASTAnalyzer::visit(RoutineCallStatement&) for node at 0x103569070
 [ANALYZER TRACE]   Detected call to runtime function: WRITES, Type: INTEGER
 [ANALYZER TRACE] BlockStatement: Calling accept on statement 5 of type 44
-[ANALYZER TRACE] Entered ASTAnalyzer::visit(RoutineCallStatement&) for node at 0x84901c210
+[ANALYZER TRACE] Entered ASTAnalyzer::visit(RoutineCallStatement&) for node at 0x1035690e0
 [ANALYZER TRACE]   Detected call to runtime function: WRITEN, Type: INTEGER
 [ANALYZER TRACE] BlockStatement: Calling accept on statement 6 of type 44
-[ANALYZER TRACE] Entered ASTAnalyzer::visit(RoutineCallStatement&) for node at 0x84901c240
+[ANALYZER TRACE] Entered ASTAnalyzer::visit(RoutineCallStatement&) for node at 0x103569150
 [ANALYZER TRACE]   Detected call to runtime function: WRITES, Type: INTEGER
 [ANALYZER TRACE] BlockStatement: Calling accept on statement 7 of type 44
-[ANALYZER TRACE] Entered ASTAnalyzer::visit(RoutineCallStatement&) for node at 0x84901c270
+[ANALYZER TRACE] Entered ASTAnalyzer::visit(RoutineCallStatement&) for node at 0x1035691c0
 [ANALYZER TRACE]   Detected call to runtime function: WRITES, Type: INTEGER
 [ANALYZER TRACE] BlockStatement: Calling accept on statement 8 of type 44
-[ANALYZER TRACE] Entered ASTAnalyzer::visit(RoutineCallStatement&) for node at 0x84901c2a0
+[ANALYZER TRACE] Entered ASTAnalyzer::visit(RoutineCallStatement&) for node at 0x753024000
 [ANALYZER TRACE] BlockStatement: Calling accept on statement 9 of type 44
-[ANALYZER TRACE] Entered ASTAnalyzer::visit(RoutineCallStatement&) for node at 0x84901c2d0
+[ANALYZER TRACE] Entered ASTAnalyzer::visit(RoutineCallStatement&) for node at 0x753024030
 [ANALYZER TRACE]   Detected call to runtime function: WRITES, Type: INTEGER
 [ANALYZER TRACE] BlockStatement: Calling accept on statement 10 of type 44
-[ANALYZER TRACE] Entered ASTAnalyzer::visit(RoutineCallStatement&) for node at 0x84901c300
+[ANALYZER TRACE] Entered ASTAnalyzer::visit(RoutineCallStatement&) for node at 0x753024060
 [ANALYZER TRACE]   Detected call to runtime function: WRITEN, Type: INTEGER
 [ANALYZER TRACE] BlockStatement: Calling accept on statement 11 of type 44
-[ANALYZER TRACE] Entered ASTAnalyzer::visit(RoutineCallStatement&) for node at 0x84901c330
+[ANALYZER TRACE] Entered ASTAnalyzer::visit(RoutineCallStatement&) for node at 0x753024090
 [ANALYZER TRACE]   Detected call to runtime function: WRITES, Type: INTEGER
 [ANALYZER TRACE] BlockStatement: Calling accept on statement 12 of type 44
-[ANALYZER TRACE] Entered ASTAnalyzer::visit(RoutineCallStatement&) for node at 0x84901c360
+[ANALYZER TRACE] Entered ASTAnalyzer::visit(RoutineCallStatement&) for node at 0x7530240c0
 [ANALYZER TRACE]   Detected call to runtime function: WRITEN, Type: INTEGER
 [ANALYZER TRACE] BlockStatement: Calling accept on statement 13 of type 44
-[ANALYZER TRACE] Entered ASTAnalyzer::visit(RoutineCallStatement&) for node at 0x84901c390
+[ANALYZER TRACE] Entered ASTAnalyzer::visit(RoutineCallStatement&) for node at 0x7530240f0
 [ANALYZER TRACE]   Detected call to runtime function: WRITES, Type: INTEGER
 [ANALYZER TRACE] Exiting block scope, returning to: START
 [SAMM OPTIMIZATION] Starting heap allocation propagation...
@@ -1043,218 +1048,6 @@ Function: START
 --------------------------------------------
 Running StringLiteralLiftingPass (string literal lifting)...
 Optimization enabled. Applying passes...
-[CSE DEBUG] Starting LocalOptimizationPass::run() on AST
-[CSE DEBUG] Processing routine: START
-[CSE DEBUG] ANALYSIS: Counting subexpressions in routine START
-[CSE DEBUG] count_subexpressions: ENTRY
-[CSE DEBUG] count_subexpressions: examining node type=62
-[CSE DEBUG] Processing BlockStatement with 14 statements
-[CSE DEBUG] count_subexpressions: ENTRY
-[CSE DEBUG] count_subexpressions: examining node type=44
-[CSE DEBUG] Processing RoutineCallStatement with 1 arguments
-[CSE DEBUG]   Argument 0 type: 12
-[CSE DEBUG] count_subexpressions: ENTRY
-[CSE DEBUG] count_subexpressions: examining node type=12
-[CSE DEBUG] Found expression: type=12 key='(EXPR)' (StringLit)
-[CSE DEBUG] COUNTED expression: type=12 key='(EXPR)' count=1
-[CSE DEBUG] count_subexpressions: EXIT
-[CSE DEBUG] count_subexpressions: EXIT
-[CSE DEBUG] count_subexpressions: ENTRY
-[CSE DEBUG] count_subexpressions: examining node type=43
-[CSE DEBUG] Processing AssignmentStatement with 1 RHS expressions
-[CSE DEBUG] count_subexpressions: ENTRY
-[CSE DEBUG] count_subexpressions: examining node type=27
-[CSE DEBUG] Found expression: type=27 key='(EXPR)' (Other)
-[CSE DEBUG] count_subexpressions: EXIT
-[CSE DEBUG] count_subexpressions: EXIT
-[CSE DEBUG] count_subexpressions: ENTRY
-[CSE DEBUG] count_subexpressions: examining node type=44
-[CSE DEBUG] Processing RoutineCallStatement with 1 arguments
-[CSE DEBUG]   Argument 0 type: 12
-[CSE DEBUG] count_subexpressions: ENTRY
-[CSE DEBUG] count_subexpressions: examining node type=12
-[CSE DEBUG] Found expression: type=12 key='(EXPR)' (StringLit)
-[CSE DEBUG] COUNTED expression: type=12 key='(EXPR)' count=2
-[CSE DEBUG] count_subexpressions: EXIT
-[CSE DEBUG] count_subexpressions: EXIT
-[CSE DEBUG] count_subexpressions: ENTRY
-[CSE DEBUG] count_subexpressions: examining node type=44
-[CSE DEBUG] Processing RoutineCallStatement with 1 arguments
-[CSE DEBUG]   Argument 0 type: 22
-[CSE DEBUG] count_subexpressions: ENTRY
-[CSE DEBUG] count_subexpressions: examining node type=22
-[CSE DEBUG] Found expression: type=22 key='(EXPR)' (FunctionCallExpr)
-[CSE DEBUG] COUNTED expression: type=22 key='(EXPR)' count=3
-[CSE DEBUG] count_subexpressions: ENTRY
-[CSE DEBUG] count_subexpressions: examining node type=28
-[CSE DEBUG] Found expression: type=28 key='(EXPR)' (Other)
-[CSE DEBUG] count_subexpressions: EXIT
-[CSE DEBUG] count_subexpressions: EXIT
-[CSE DEBUG] count_subexpressions: EXIT
-[CSE DEBUG] count_subexpressions: ENTRY
-[CSE DEBUG] count_subexpressions: examining node type=44
-[CSE DEBUG] Processing RoutineCallStatement with 1 arguments
-[CSE DEBUG]   Argument 0 type: 12
-[CSE DEBUG] count_subexpressions: ENTRY
-[CSE DEBUG] count_subexpressions: examining node type=12
-[CSE DEBUG] Found expression: type=12 key='(EXPR)' (StringLit)
-[CSE DEBUG] COUNTED expression: type=12 key='(EXPR)' count=4
-[CSE DEBUG] count_subexpressions: EXIT
-[CSE DEBUG] count_subexpressions: EXIT
-[CSE DEBUG] count_subexpressions: ENTRY
-[CSE DEBUG] count_subexpressions: examining node type=44
-[CSE DEBUG] Processing RoutineCallStatement with 1 arguments
-[CSE DEBUG]   Argument 0 type: 22
-[CSE DEBUG] count_subexpressions: ENTRY
-[CSE DEBUG] count_subexpressions: examining node type=22
-[CSE DEBUG] Found expression: type=22 key='(EXPR)' (FunctionCallExpr)
-[CSE DEBUG] COUNTED expression: type=22 key='(EXPR)' count=5
-[CSE DEBUG] count_subexpressions: ENTRY
-[CSE DEBUG] count_subexpressions: examining node type=28
-[CSE DEBUG] Found expression: type=28 key='(EXPR)' (Other)
-[CSE DEBUG] count_subexpressions: EXIT
-[CSE DEBUG] count_subexpressions: EXIT
-[CSE DEBUG] count_subexpressions: EXIT
-[CSE DEBUG] count_subexpressions: ENTRY
-[CSE DEBUG] count_subexpressions: examining node type=44
-[CSE DEBUG] Processing RoutineCallStatement with 1 arguments
-[CSE DEBUG]   Argument 0 type: 12
-[CSE DEBUG] count_subexpressions: ENTRY
-[CSE DEBUG] count_subexpressions: examining node type=12
-[CSE DEBUG] Found expression: type=12 key='(EXPR)' (StringLit)
-[CSE DEBUG] COUNTED expression: type=12 key='(EXPR)' count=6
-[CSE DEBUG] count_subexpressions: EXIT
-[CSE DEBUG] count_subexpressions: EXIT
-[CSE DEBUG] count_subexpressions: ENTRY
-[CSE DEBUG] count_subexpressions: examining node type=44
-[CSE DEBUG] Processing RoutineCallStatement with 1 arguments
-[CSE DEBUG]   Argument 0 type: 12
-[CSE DEBUG] count_subexpressions: ENTRY
-[CSE DEBUG] count_subexpressions: examining node type=12
-[CSE DEBUG] Found expression: type=12 key='(EXPR)' (StringLit)
-[CSE DEBUG] COUNTED expression: type=12 key='(EXPR)' count=7
-[CSE DEBUG] count_subexpressions: EXIT
-[CSE DEBUG] count_subexpressions: EXIT
-[CSE DEBUG] count_subexpressions: ENTRY
-[CSE DEBUG] count_subexpressions: examining node type=44
-[CSE DEBUG] Processing RoutineCallStatement with 2 arguments
-[CSE DEBUG]   Argument 0 type: 11
-[CSE DEBUG] count_subexpressions: ENTRY
-[CSE DEBUG] count_subexpressions: examining node type=11
-[CSE DEBUG] Found expression: type=11 key='(INT 100)' (Other)
-[CSE DEBUG] count_subexpressions: EXIT
-[CSE DEBUG]   Argument 1 type: 11
-[CSE DEBUG] count_subexpressions: ENTRY
-[CSE DEBUG] count_subexpressions: examining node type=11
-[CSE DEBUG] Found expression: type=11 key='(INT 200)' (Other)
-[CSE DEBUG] count_subexpressions: EXIT
-[CSE DEBUG] count_subexpressions: EXIT
-[CSE DEBUG] count_subexpressions: ENTRY
-[CSE DEBUG] count_subexpressions: examining node type=44
-[CSE DEBUG] Processing RoutineCallStatement with 1 arguments
-[CSE DEBUG]   Argument 0 type: 12
-[CSE DEBUG] count_subexpressions: ENTRY
-[CSE DEBUG] count_subexpressions: examining node type=12
-[CSE DEBUG] Found expression: type=12 key='(EXPR)' (StringLit)
-[CSE DEBUG] COUNTED expression: type=12 key='(EXPR)' count=8
-[CSE DEBUG] count_subexpressions: EXIT
-[CSE DEBUG] count_subexpressions: EXIT
-[CSE DEBUG] count_subexpressions: ENTRY
-[CSE DEBUG] count_subexpressions: examining node type=44
-[CSE DEBUG] Processing RoutineCallStatement with 1 arguments
-[CSE DEBUG]   Argument 0 type: 22
-[CSE DEBUG] count_subexpressions: ENTRY
-[CSE DEBUG] count_subexpressions: examining node type=22
-[CSE DEBUG] Found expression: type=22 key='(EXPR)' (FunctionCallExpr)
-[CSE DEBUG] COUNTED expression: type=22 key='(EXPR)' count=9
-[CSE DEBUG] count_subexpressions: ENTRY
-[CSE DEBUG] count_subexpressions: examining node type=28
-[CSE DEBUG] Found expression: type=28 key='(EXPR)' (Other)
-[CSE DEBUG] count_subexpressions: EXIT
-[CSE DEBUG] count_subexpressions: EXIT
-[CSE DEBUG] count_subexpressions: EXIT
-[CSE DEBUG] count_subexpressions: ENTRY
-[CSE DEBUG] count_subexpressions: examining node type=44
-[CSE DEBUG] Processing RoutineCallStatement with 1 arguments
-[CSE DEBUG]   Argument 0 type: 12
-[CSE DEBUG] count_subexpressions: ENTRY
-[CSE DEBUG] count_subexpressions: examining node type=12
-[CSE DEBUG] Found expression: type=12 key='(EXPR)' (StringLit)
-[CSE DEBUG] COUNTED expression: type=12 key='(EXPR)' count=10
-[CSE DEBUG] count_subexpressions: EXIT
-[CSE DEBUG] count_subexpressions: EXIT
-[CSE DEBUG] count_subexpressions: ENTRY
-[CSE DEBUG] count_subexpressions: examining node type=44
-[CSE DEBUG] Processing RoutineCallStatement with 1 arguments
-[CSE DEBUG]   Argument 0 type: 22
-[CSE DEBUG] count_subexpressions: ENTRY
-[CSE DEBUG] count_subexpressions: examining node type=22
-[CSE DEBUG] Found expression: type=22 key='(EXPR)' (FunctionCallExpr)
-[CSE DEBUG] COUNTED expression: type=22 key='(EXPR)' count=11
-[CSE DEBUG] count_subexpressions: ENTRY
-[CSE DEBUG] count_subexpressions: examining node type=28
-[CSE DEBUG] Found expression: type=28 key='(EXPR)' (Other)
-[CSE DEBUG] count_subexpressions: EXIT
-[CSE DEBUG] count_subexpressions: EXIT
-[CSE DEBUG] count_subexpressions: EXIT
-[CSE DEBUG] count_subexpressions: ENTRY
-[CSE DEBUG] count_subexpressions: examining node type=44
-[CSE DEBUG] Processing RoutineCallStatement with 1 arguments
-[CSE DEBUG]   Argument 0 type: 12
-[CSE DEBUG] count_subexpressions: ENTRY
-[CSE DEBUG] count_subexpressions: examining node type=12
-[CSE DEBUG] Found expression: type=12 key='(EXPR)' (StringLit)
-[CSE DEBUG] COUNTED expression: type=12 key='(EXPR)' count=12
-[CSE DEBUG] count_subexpressions: EXIT
-[CSE DEBUG] count_subexpressions: EXIT
-[CSE DEBUG] count_subexpressions: EXIT
-[CSE DEBUG] Expression counts after analysis:
-[CSE DEBUG]   '(EXPR)' appears 12 times
-[CSE DEBUG] TRANSFORMATION: Optimizing routine START
-[CSE DEBUG] TRANSFORMATION: Starting optimization of statement list with 14 statements
-[CSE DEBUG] TRANSFORMATION: Processing statement 0
-[CSE DEBUG] Processing expression: type=12 key='(EXPR)' ptr=0x10388d3d0
-[CSE DEBUG] TRANSFORMATION: Processing statement 1
-[CSE DEBUG] Processing expression: type=27 key='(EXPR)' ptr=0x84901a8e0
-[CSE DEBUG] TRANSFORMATION: Processing statement 2
-[CSE DEBUG] Processing expression: type=12 key='(EXPR)' ptr=0x10388d540
-[CSE DEBUG] TRANSFORMATION: Processing statement 3
-[CSE DEBUG] Processing expression: type=22 key='(EXPR)' ptr=0x10388d5c0
-[CSE DEBUG] Creating new temp var for common subexpression (count=12)
-[CSE DEBUG] Replacing expression (old ptr=0x10388d5c0)
-[CSE DEBUG] Replacement complete (new ptr=0x8490244c0)
-[CSE DEBUG] TRANSFORMATION: Processing statement 5
-[CSE DEBUG] Processing expression: type=12 key='(EXPR)' ptr=0x10388d600
-[CSE DEBUG] TRANSFORMATION: Processing statement 6
-[CSE DEBUG] Processing expression: type=22 key='(EXPR)' ptr=0x10388d670
-[CSE DEBUG] Creating new temp var for common subexpression (count=12)
-[CSE DEBUG] Found available expression, replacing with temp var: _cse_temp_0 (old ptr=0x10388d670)
-[CSE DEBUG] Replacement complete (new ptr=0x849024500)
-[CSE DEBUG] TRANSFORMATION: Processing statement 7
-[CSE DEBUG] Processing expression: type=12 key='(EXPR)' ptr=0x10388d6b0
-[CSE DEBUG] TRANSFORMATION: Processing statement 8
-[CSE DEBUG] Processing expression: type=12 key='(EXPR)' ptr=0x849028000
-[CSE DEBUG] TRANSFORMATION: Processing statement 9
-[CSE DEBUG] Processing expression: type=11 key='(INT 100)' ptr=0x849020000
-[CSE DEBUG] Processing expression: type=11 key='(INT 200)' ptr=0x849020080
-[CSE DEBUG] TRANSFORMATION: Processing statement 10
-[CSE DEBUG] Processing expression: type=12 key='(EXPR)' ptr=0x849028060
-[CSE DEBUG] TRANSFORMATION: Processing statement 11
-[CSE DEBUG] Processing expression: type=22 key='(EXPR)' ptr=0x10388d7d0
-[CSE DEBUG] Creating new temp var for common subexpression (count=12)
-[CSE DEBUG] Found available expression, replacing with temp var: _cse_temp_0 (old ptr=0x10388d7d0)
-[CSE DEBUG] Replacement complete (new ptr=0x849024240)
-[CSE DEBUG] TRANSFORMATION: Processing statement 12
-[CSE DEBUG] Processing expression: type=12 key='(EXPR)' ptr=0x8490280c0
-[CSE DEBUG] TRANSFORMATION: Processing statement 13
-[CSE DEBUG] Processing expression: type=22 key='(EXPR)' ptr=0x10388d830
-[CSE DEBUG] Creating new temp var for common subexpression (count=12)
-[CSE DEBUG] Found available expression, replacing with temp var: _cse_temp_0 (old ptr=0x10388d830)
-[CSE DEBUG] Replacement complete (new ptr=0x849024380)
-[CSE DEBUG] TRANSFORMATION: Processing statement 14
-[CSE DEBUG] Processing expression: type=12 key='(EXPR)' ptr=0x849028120
-[CSE DEBUG] TRANSFORMATION: Finished optimization of statement list
-[CSE DEBUG] LocalOptimizationPass::run() completed
 Cleared FOR loop state before AST transformation to prevent corruption
 [ANALYZER TRACE] Starting AST transformation...
 [ANALYZER TRACE] AST transformation complete.
@@ -1539,10 +1332,14 @@ Applying CFG Simplification Pass (Branch Chaining)...
 [LivenessAnalysisPass] Starting intra-block analysis for Point::set_Entry_0 with 7 statements
 [LivenessAnalysisPass] Found RoutineCallStatement
 [LivenessAnalysisPass] Found call in statement
+[LivenessAnalysisPass] Statement uses variables: y 
+[LivenessAnalysisPass] Variables used after call: y 
 [LivenessAnalysisPass] Found RoutineCallStatement
 [LivenessAnalysisPass] Found call in statement
 [LivenessAnalysisPass] Found RoutineCallStatement
 [LivenessAnalysisPass] Found call in statement
+[LivenessAnalysisPass] Statement uses variables: x 
+[LivenessAnalysisPass] Variables used after call: x 
 [LivenessAnalysisPass] Found RoutineCallStatement
 [LivenessAnalysisPass] Found call in statement
 [LivenessAnalysisPass] Found RoutineCallStatement
@@ -1551,7 +1348,7 @@ Applying CFG Simplification Pass (Branch Chaining)...
 [LivenessAnalysisPass] Variables used after call: newY 
 [LivenessAnalysisPass] Statement uses variables: newX 
 [LivenessAnalysisPass] Variables used after call: newX 
-[LivenessAnalysisPass] Intra-block call interval detected in Point::set_Entry_0 - variables live across calls: newX newY 
+[LivenessAnalysisPass] Intra-block call interval detected in Point::set_Entry_0 - variables live across calls: newX newY x y 
 [LivenessAnalysisPass] Block Point::set_Entry_0 contains routine call - marked for call interval fix
 [LivenessAnalysisPass] Block Point::set_Entry_0 contains routine call - marked for call interval fix
 [LivenessAnalysisPass] Block Point::set_Entry_0 contains routine call - marked for call interval fix
@@ -1568,10 +1365,14 @@ Applying CFG Simplification Pass (Branch Chaining)...
 [LivenessAnalysisPass] Starting intra-block analysis for Point::CREATE_Entry_0 with 7 statements
 [LivenessAnalysisPass] Found RoutineCallStatement
 [LivenessAnalysisPass] Found call in statement
+[LivenessAnalysisPass] Statement uses variables: y 
+[LivenessAnalysisPass] Variables used after call: y 
 [LivenessAnalysisPass] Found RoutineCallStatement
 [LivenessAnalysisPass] Found call in statement
 [LivenessAnalysisPass] Found RoutineCallStatement
 [LivenessAnalysisPass] Found call in statement
+[LivenessAnalysisPass] Statement uses variables: x 
+[LivenessAnalysisPass] Variables used after call: x 
 [LivenessAnalysisPass] Found RoutineCallStatement
 [LivenessAnalysisPass] Found call in statement
 [LivenessAnalysisPass] Found RoutineCallStatement
@@ -1580,7 +1381,7 @@ Applying CFG Simplification Pass (Branch Chaining)...
 [LivenessAnalysisPass] Variables used after call: initialY 
 [LivenessAnalysisPass] Statement uses variables: initialX 
 [LivenessAnalysisPass] Variables used after call: initialX 
-[LivenessAnalysisPass] Intra-block call interval detected in Point::CREATE_Entry_0 - variables live across calls: initialX initialY 
+[LivenessAnalysisPass] Intra-block call interval detected in Point::CREATE_Entry_0 - variables live across calls: initialX initialY x y 
 [LivenessAnalysisPass] Block Point::CREATE_Entry_0 contains routine call - marked for call interval fix
 [LivenessAnalysisPass] Block Point::CREATE_Entry_0 contains routine call - marked for call interval fix
 [LivenessAnalysisPass] Block Point::CREATE_Entry_0 contains routine call - marked for call interval fix
@@ -1648,9 +1449,9 @@ Block ID: Point::getY_Exit_1
   In : { }
   Out: { }
 Block ID: Point::getY_Entry_0
-  Use: { }
+  Use: { y }
   Def: { }
-  In : { }
+  In : { y }
   Out: { }
 
 Liveness Analysis for function: Point::RELEASE
@@ -1674,9 +1475,9 @@ Block ID: Point::getX_Exit_1
   In : { }
   Out: { }
 Block ID: Point::getX_Entry_0
-  Use: { }
+  Use: { x }
   Def: { }
-  In : { }
+  In : { x }
   Out: { }
 
 Liveness Analysis for function: Point::set
@@ -1687,9 +1488,9 @@ Block ID: Point::set_Exit_1
   In : { }
   Out: { }
 Block ID: Point::set_Entry_0
-  Use: { newX newY }
+  Use: { newX newY x y }
   Def: { x y }
-  In : { newX newY }
+  In : { newX newY x y }
   Out: { }
 
 Liveness Analysis for function: Point::CREATE
@@ -1700,9 +1501,9 @@ Block ID: Point::CREATE_Exit_1
   In : { }
   Out: { }
 Block ID: Point::CREATE_Entry_0
-  Use: { initialX initialY }
+  Use: { initialX initialY x y }
   Def: { x y }
-  In : { initialX initialY }
+  In : { initialX initialY x y }
   Out: { }
 
 CFG for function: START
@@ -2058,28 +1859,38 @@ Updating register pressure from liveness data...
   p: [2-4]
 [LiveIntervalPass] Building intervals for function: Point::getY
 [LiveIntervalPass] Injected _this interval for class method: Point::getY [0-3]
-[LiveIntervalPass] Created 1 intervals for function: Point::getY
+[LiveIntervalPass] Created 2 intervals for function: Point::getY
   _this: [0-3]
+  y: [0-0]
 [LiveIntervalPass] Building intervals for function: Point::RELEASE
 [LiveIntervalPass] Injected _this interval for class method: Point::RELEASE [0-2]
 [LiveIntervalPass] Created 1 intervals for function: Point::RELEASE
   _this: [0-2]
 [LiveIntervalPass] Building intervals for function: Point::getX
 [LiveIntervalPass] Injected _this interval for class method: Point::getX [0-3]
-[LiveIntervalPass] Created 1 intervals for function: Point::getX
+[LiveIntervalPass] Created 2 intervals for function: Point::getX
   _this: [0-3]
+  x: [0-0]
 [LiveIntervalPass] Building intervals for function: Point::set
+[SYMBOL TABLE TRACE] Warning: Found symbol 'newX' in different context 'set' (requested context was 'Point::set')
+[SYMBOL TABLE TRACE] Warning: Found symbol 'newY' in different context 'set' (requested context was 'Point::set')
 [LiveIntervalPass] Injected _this interval for class method: Point::set [0-9]
-[LiveIntervalPass] Created 3 intervals for function: Point::set
+[LiveIntervalPass] Created 5 intervals for function: Point::set
   _this: [0-9]
   newX: [0-0]
   newY: [0-1]
+  x: [0-3]
+  y: [0-5]
 [LiveIntervalPass] Building intervals for function: Point::CREATE
+[SYMBOL TABLE TRACE] Warning: Found symbol 'initialX' in different context 'CREATE' (requested context was 'Point::CREATE')
+[SYMBOL TABLE TRACE] Warning: Found symbol 'initialY' in different context 'CREATE' (requested context was 'Point::CREATE')
 [LiveIntervalPass] Injected _this interval for class method: Point::CREATE [0-9]
-[LiveIntervalPass] Created 3 intervals for function: Point::CREATE
+[LiveIntervalPass] Created 5 intervals for function: Point::CREATE
   _this: [0-9]
   initialX: [0-0]
   initialY: [0-1]
+  x: [0-3]
+  y: [0-5]
 
 [INFO] Performing Linear Scan Register Allocation for ALL functions...
 [Allocator] Starting partitioned linear scan for function: START
@@ -2109,7 +1920,7 @@ Updating register pressure from liveness data...
 [Allocator] Starting partitioned linear scan for function: Point::getY
 [Allocator] Available integer registers: 16, float registers: 24
 [Allocator] Function has 0 call sites at: 
-[Allocator] Partitioned: 0 call-crossing, 1 local-only intervals
+[Allocator] Partitioned: 0 call-crossing, 2 local-only intervals
 [Allocator] Register pools - Callee-saved INT: 9, Caller-saved INT: 4, Reserved scratch INT: 3
 [Allocator] Register pools - Callee-saved FP: 8, Caller-saved FP: 16
 [Allocator] Stage 1: Allocating call-crossing intervals
@@ -2117,15 +1928,19 @@ Updating register pressure from liveness data...
 [Allocator] Allocating local-only _this [0-3]
   Assigned register X15 to _this
 [ALLOC] Updated allocations for _this: spilled=0, register='X15'
+[Allocator] Allocating local-only y [0-0]
+  Assigned register X14 to y
+[ALLOC] Updated allocations for y: spilled=0, register='X14'
 [Allocator] Partitioned allocation complete for Point::getY
 [Allocator] Reserved 3 scratch registers for code generation: X9 X10 X11 
 [Allocator] Final state validation:
-  Active intervals remaining: 1
-  Free integer registers: 12
+  Active intervals remaining: 2
+  Free integer registers: 11
   Free float registers: 24
   ✓ No register conflicts detected
 [Allocator] Results:
   _this: reg X15 (caller-saved) [local-only]
+  y: reg X14 (caller-saved) [local-only]
 [Allocator] Starting partitioned linear scan for function: Point::RELEASE
 [Allocator] Available integer registers: 16, float registers: 24
 [Allocator] Function has 0 call sites at: 
@@ -2149,7 +1964,7 @@ Updating register pressure from liveness data...
 [Allocator] Starting partitioned linear scan for function: Point::getX
 [Allocator] Available integer registers: 16, float registers: 24
 [Allocator] Function has 0 call sites at: 
-[Allocator] Partitioned: 0 call-crossing, 1 local-only intervals
+[Allocator] Partitioned: 0 call-crossing, 2 local-only intervals
 [Allocator] Register pools - Callee-saved INT: 9, Caller-saved INT: 4, Reserved scratch INT: 3
 [Allocator] Register pools - Callee-saved FP: 8, Caller-saved FP: 16
 [Allocator] Stage 1: Allocating call-crossing intervals
@@ -2157,19 +1972,23 @@ Updating register pressure from liveness data...
 [Allocator] Allocating local-only _this [0-3]
   Assigned register X15 to _this
 [ALLOC] Updated allocations for _this: spilled=0, register='X15'
+[Allocator] Allocating local-only x [0-0]
+  Assigned register X14 to x
+[ALLOC] Updated allocations for x: spilled=0, register='X14'
 [Allocator] Partitioned allocation complete for Point::getX
 [Allocator] Reserved 3 scratch registers for code generation: X9 X10 X11 
 [Allocator] Final state validation:
-  Active intervals remaining: 1
-  Free integer registers: 12
+  Active intervals remaining: 2
+  Free integer registers: 11
   Free float registers: 24
   ✓ No register conflicts detected
 [Allocator] Results:
   _this: reg X15 (caller-saved) [local-only]
+  x: reg X14 (caller-saved) [local-only]
 [Allocator] Starting partitioned linear scan for function: Point::set
 [Allocator] Available integer registers: 16, float registers: 24
 [Allocator] Function has 5 call sites at: 0 4 8 12 16 
-[Allocator] Partitioned: 3 call-crossing, 0 local-only intervals
+[Allocator] Partitioned: 5 call-crossing, 0 local-only intervals
 [Allocator] Register pools - Callee-saved INT: 9, Caller-saved INT: 4, Reserved scratch INT: 3
 [Allocator] Register pools - Callee-saved FP: 8, Caller-saved FP: 16
 [Allocator] Stage 1: Allocating call-crossing intervals
@@ -2182,22 +2001,30 @@ Updating register pressure from liveness data...
 [Allocator] Allocating call-crossing newY [0-1]
   Assigned callee-saved register X25 to newY
 [ALLOC] Updated allocations for newY: spilled=0, register='X25'
+[Allocator] Allocating call-crossing x [0-3]
+  Assigned callee-saved register X24 to x
+[ALLOC] Updated allocations for x: spilled=0, register='X24'
+[Allocator] Allocating call-crossing y [0-5]
+  Assigned callee-saved register X23 to y
+[ALLOC] Updated allocations for y: spilled=0, register='X23'
 [Allocator] Stage 2: Allocating local-only intervals
 [Allocator] Partitioned allocation complete for Point::set
 [Allocator] Reserved 3 scratch registers for code generation: X9 X10 X11 
 [Allocator] Final state validation:
-  Active intervals remaining: 3
-  Free integer registers: 10
+  Active intervals remaining: 5
+  Free integer registers: 8
   Free float registers: 24
   ✓ No register conflicts detected
 [Allocator] Results:
   _this: reg X27 (callee-saved) [call-crossing]
   newX: reg X26 (callee-saved) [call-crossing]
   newY: reg X25 (callee-saved) [call-crossing]
+  x: reg X24 (callee-saved) [call-crossing]
+  y: reg X23 (callee-saved) [call-crossing]
 [Allocator] Starting partitioned linear scan for function: Point::CREATE
 [Allocator] Available integer registers: 16, float registers: 24
 [Allocator] Function has 5 call sites at: 0 4 8 12 16 
-[Allocator] Partitioned: 3 call-crossing, 0 local-only intervals
+[Allocator] Partitioned: 5 call-crossing, 0 local-only intervals
 [Allocator] Register pools - Callee-saved INT: 9, Caller-saved INT: 4, Reserved scratch INT: 3
 [Allocator] Register pools - Callee-saved FP: 8, Caller-saved FP: 16
 [Allocator] Stage 1: Allocating call-crossing intervals
@@ -2210,18 +2037,26 @@ Updating register pressure from liveness data...
 [Allocator] Allocating call-crossing initialY [0-1]
   Assigned callee-saved register X25 to initialY
 [ALLOC] Updated allocations for initialY: spilled=0, register='X25'
+[Allocator] Allocating call-crossing x [0-3]
+  Assigned callee-saved register X24 to x
+[ALLOC] Updated allocations for x: spilled=0, register='X24'
+[Allocator] Allocating call-crossing y [0-5]
+  Assigned callee-saved register X23 to y
+[ALLOC] Updated allocations for y: spilled=0, register='X23'
 [Allocator] Stage 2: Allocating local-only intervals
 [Allocator] Partitioned allocation complete for Point::CREATE
 [Allocator] Reserved 3 scratch registers for code generation: X9 X10 X11 
 [Allocator] Final state validation:
-  Active intervals remaining: 3
-  Free integer registers: 10
+  Active intervals remaining: 5
+  Free integer registers: 8
   Free float registers: 24
   ✓ No register conflicts detected
 [Allocator] Results:
   _this: reg X27 (callee-saved) [call-crossing]
   initialX: reg X26 (callee-saved) [call-crossing]
   initialY: reg X25 (callee-saved) [call-crossing]
+  x: reg X24 (callee-saved) [call-crossing]
+  y: reg X23 (callee-saved) [call-crossing]
 
 [INFO] Synchronizing RegisterManager with LinearScanAllocator decisions...
 
@@ -2237,7 +2072,7 @@ Function: Point::CREATE
   Local Routine Calls: 0
   Vector Allocations: no
   Accesses Globals: yes
-  Max Live Variables (Register Pressure): 2
+  Max Live Variables (Register Pressure): 4
   Required Callee-Saved Temps: 0
 --------------------------------------------
 Function: Point::RELEASE
@@ -2263,7 +2098,7 @@ Function: Point::getX
   Local Routine Calls: 0
   Vector Allocations: no
   Accesses Globals: no
-  Max Live Variables (Register Pressure): 0
+  Max Live Variables (Register Pressure): 1
   Required Callee-Saved Temps: 0
 --------------------------------------------
 Function: Point::getY
@@ -2276,7 +2111,7 @@ Function: Point::getY
   Local Routine Calls: 0
   Vector Allocations: no
   Accesses Globals: no
-  Max Live Variables (Register Pressure): 0
+  Max Live Variables (Register Pressure): 1
   Required Callee-Saved Temps: 0
 --------------------------------------------
 Function: Point::set
@@ -2289,7 +2124,7 @@ Function: Point::set
   Local Routine Calls: 0
   Vector Allocations: no
   Accesses Globals: yes
-  Max Live Variables (Register Pressure): 2
+  Max Live Variables (Register Pressure): 4
   Required Callee-Saved Temps: 0
 --------------------------------------------
 Function: START
@@ -2307,7 +2142,7 @@ Function: START
 --------------------------------------------
 --------------------------------------------------
 
-[DEBUG] Initialized veneer manager with base address: 0x4426498048
+[DEBUG] Initialized veneer manager with base address: 0x4422156288
 [DEBUG] Starting code generation for program.
 [DEBUG] Step 1: Performing pre-analysis scan for external functions...
 [DEBUG] Found 2 unique external functions:
@@ -2336,10 +2171,10 @@ Function: START
 [SYNC] No allocations found for function: CREATE
 [DEBUG] Synced RegisterManager with LinearScanAllocator for function: CREATE
 [DEBUG] Using name as-is for lookup: Point::CREATE
-[DEBUG] Generating code for method. Using mangled label from symbol: Point::CREATE
+[SYMBOL TABLE TRACE] Lookup FAILED for symbol: 'Point::CREATE'
 Call Frame Layout for function: Point::CREATE
-[SYMBOL TABLE TRACE] Warning: Found symbol 'x' in different context 'Point' (requested context was 'Point::CREATE')
-[SYMBOL TABLE TRACE] Warning: Found symbol 'y' in different context 'Point' (requested context was 'Point::CREATE')
+[SYMBOL TABLE TRACE] Warning: Found symbol 'initialX' in different context 'CREATE' (requested context was 'Point::CREATE')
+[SYMBOL TABLE TRACE] Warning: Found symbol 'initialY' in different context 'CREATE' (requested context was 'Point::CREATE')
 [DEBUG] Registering all parameters as locals in CallFrameManager for 'Point::CREATE'.
 [DEBUG] DEBUG: metrics.variable_types size for 'Point::CREATE': 3
 [DEBUG] DEBUG: variable_types['_this'] = POINTER_TO|OBJECT
@@ -2358,14 +2193,18 @@ Added local variable 'initialY' of type 0 at offset 32 (size 8)
 [DEBUG] Added parameter '_this' to CallFrameManager locals.
 [DEBUG] Added parameter 'initialX' to CallFrameManager locals.
 [DEBUG] Added parameter 'initialY' to CallFrameManager locals.
+[SYMBOL TABLE TRACE] Warning: Found symbol 'initialX' in different context 'CREATE' (requested context was 'Point::CREATE')
+[SYMBOL TABLE TRACE] Warning: Found symbol 'initialY' in different context 'CREATE' (requested context was 'Point::CREATE')
 [DEBUG] Entered new scope. Scope stack size: 1
 [DEBUG] Using pre-computed register allocation for 'Point::CREATE'.
 [DEBUG] No spills needed - all variables fit in registers.
+Added X23 to callee_saved_registers_to_save list.
+Added X24 to callee_saved_registers_to_save list.
 Added X25 to callee_saved_registers_to_save list.
 Added X26 to callee_saved_registers_to_save list.
 Added X27 to callee_saved_registers_to_save list.
 [DEBUG] Attempting to generate prologue for 'Point::CREATE'.
---- Call Frame Layout for function: Point::CREATE (Total Size: 96 bytes) ---
+--- Call Frame Layout for function: Point::CREATE (Total Size: 128 bytes) ---
 Offset   | Content                               | Type
 ------------------------------------------------------
 +0       | Old Frame Pointer (x29)     <-- FP (x29) points here
@@ -2375,21 +2214,29 @@ Offset   | Content                               | Type
 +32      | Local: initialY                       | UNKNOWN
 +40      | Saved Reg: X19                        | UNKNOWN
 +48      | Saved Reg: X20                        | UNKNOWN
-+56      | Saved Reg: X25                        | UNKNOWN
-+64      | Saved Reg: X26                        | UNKNOWN
-+72      | Saved Reg: X27                        | UNKNOWN
-+80      | Saved Reg: X28                        | UNKNOWN
++56      | Saved Reg: X21                        | UNKNOWN
++64      | Saved Reg: X22                        | UNKNOWN
++72      | Saved Reg: X23                        | UNKNOWN
++80      | Saved Reg: X24                        | UNKNOWN
++88      | Saved Reg: X25                        | UNKNOWN
++96      | Saved Reg: X26                        | UNKNOWN
++104     | Saved Reg: X27                        | UNKNOWN
++112     | Saved Reg: X28                        | UNKNOWN
 ------------------------------------------------------
-                                     <-- SP (+96 from FP)
+                                     <-- SP (+128 from FP)
 
-[DEBUG LEVEL 5] Emitting instruction: STP X29, X30, [SP, #-96]!
+[DEBUG LEVEL 5] Emitting instruction: STP X29, X30, [SP, #-128]!
 [DEBUG LEVEL 5] Emitting instruction: MOV X29, SP
 [DEBUG LEVEL 5] Emitting instruction: STR X19, [X29, #40] ; Saved Reg: X19 @ FP+40
 [DEBUG LEVEL 5] Emitting instruction: STR X20, [X29, #48] ; Saved Reg: X20 @ FP+48
-[DEBUG LEVEL 5] Emitting instruction: STR X25, [X29, #56] ; Saved Reg: X25 @ FP+56
-[DEBUG LEVEL 5] Emitting instruction: STR X26, [X29, #64] ; Saved Reg: X26 @ FP+64
-[DEBUG LEVEL 5] Emitting instruction: STR X27, [X29, #72] ; Saved Reg: X27 @ FP+72
-[DEBUG LEVEL 5] Emitting instruction: STR X28, [X29, #80] ; Saved Reg: X28 @ FP+80
+[DEBUG LEVEL 5] Emitting instruction: STR X21, [X29, #56] ; Saved Reg: X21 @ FP+56
+[DEBUG LEVEL 5] Emitting instruction: STR X22, [X29, #64] ; Saved Reg: X22 @ FP+64
+[DEBUG LEVEL 5] Emitting instruction: STR X23, [X29, #72] ; Saved Reg: X23 @ FP+72
+[DEBUG LEVEL 5] Emitting instruction: STR X24, [X29, #80] ; Saved Reg: X24 @ FP+80
+[DEBUG LEVEL 5] Emitting instruction: STR X25, [X29, #88] ; Saved Reg: X25 @ FP+88
+[DEBUG LEVEL 5] Emitting instruction: STR X26, [X29, #96] ; Saved Reg: X26 @ FP+96
+[DEBUG LEVEL 5] Emitting instruction: STR X27, [X29, #104] ; Saved Reg: X27 @ FP+104
+[DEBUG LEVEL 5] Emitting instruction: STR X28, [X29, #112] ; Saved Reg: X28 @ FP+112
 [DEBUG] Mapping incoming parameters to home registers or stack slots as per allocation plan.
 [DEBUG]   Moving '_this' from arg reg X0 to home reg X27.
 [DEBUG LEVEL 5] Emitting instruction: MOV X27, X0    // Move parameter '_this' from X0 to X27
@@ -2397,15 +2244,19 @@ Offset   | Content                               | Type
 [DEBUG LEVEL 5] Emitting instruction: MOV X26, X1    // Move parameter 'initialX' from X1 to X26
 [DEBUG]   Moving 'initialY' from arg reg X2 to home reg X25.
 [DEBUG LEVEL 5] Emitting instruction: MOV X25, X2    // Move parameter 'initialY' from X2 to X25
+[DEBUG] Registered local variable 'X27' with the allocation system (spilled)
+[DEBUG] Registered local variable 'X24' with the allocation system (spilled)
+[DEBUG] Registered local variable 'X23' with the allocation system (spilled)
 [DEBUG] Registered local variable 'X26' with the allocation system (spilled)
-[DEBUG] Registered local variable 'X19' with the allocation system (spilled)
+[DEBUG] Registered local variable 'X22' with the allocation system (spilled)
 [DEBUG] Registered local variable 'X28' with the allocation system (spilled)
+[DEBUG] Registered local variable 'X21' with the allocation system (spilled)
+[DEBUG] Registered local variable 'X19' with the allocation system (spilled)
 [DEBUG] Registered local variable 'X25' with the allocation system (spilled)
 [DEBUG] Registered local variable 'X20' with the allocation system (spilled)
-[DEBUG] Registered local variable 'X27' with the allocation system (spilled)
 [DEBUG] Emitted JIT address load sequence for global base pointer (X28).
 [DEBUG] Skipping duplicate parameter storage
-[DEBUG] --- Call Frame Layout for function: Point::CREATE (Total Size: 96 bytes) ---
+[DEBUG] --- Call Frame Layout for function: Point::CREATE (Total Size: 128 bytes) ---
 Offset   | Content                               | Type
 ------------------------------------------------------
 +0       | Old Frame Pointer (x29)     <-- FP (x29) points here
@@ -2415,12 +2266,16 @@ Offset   | Content                               | Type
 +32      | Local: initialY                       | UNKNOWN
 +40      | Saved Reg: X19                        | UNKNOWN
 +48      | Saved Reg: X20                        | UNKNOWN
-+56      | Saved Reg: X25                        | UNKNOWN
-+64      | Saved Reg: X26                        | UNKNOWN
-+72      | Saved Reg: X27                        | UNKNOWN
-+80      | Saved Reg: X28                        | UNKNOWN
++56      | Saved Reg: X21                        | UNKNOWN
++64      | Saved Reg: X22                        | UNKNOWN
++72      | Saved Reg: X23                        | UNKNOWN
++80      | Saved Reg: X24                        | UNKNOWN
++88      | Saved Reg: X25                        | UNKNOWN
++96      | Saved Reg: X26                        | UNKNOWN
++104     | Saved Reg: X27                        | UNKNOWN
++112     | Saved Reg: X28                        | UNKNOWN
 ------------------------------------------------------
-                                     <-- SP (+96 from FP)
+                                     <-- SP (+128 from FP)
 
 [DEBUG] --- DEBUG: Available CFGs in the map ---
 [DEBUG]   Available CFG: 'START'
@@ -2438,6 +2293,7 @@ Offset   | Content                               | Type
 [DEBUG]   [DEBUG] About to call get_variable_register for 'initialX' in function 'Point::CREATE'
 [DEBUG] get_variable_register for: 'initialX' in function 'Point::CREATE'
 [DEBUG]   [DEBUG] Current function allocations exist: YES
+[SYMBOL TABLE TRACE] Warning: Found symbol 'initialX' in different context 'CREATE' (requested context was 'Point::CREATE')
 [DEBUG]   ✅ REGISTER ALLOCATED: Variable 'initialX' lives in register X26
 [DEBUG] Variable 'initialX' value loaded into X26
 [DEBUG]   [DEBUG] get_variable_register returned: 'X26'
@@ -2451,6 +2307,8 @@ Offset   | Content                               | Type
 [DEBUG]   [DEBUG] Current function allocations exist: YES
 [DEBUG]   ✅ REGISTER ALLOCATED: Variable '_this' lives in register X27
 [DEBUG LEVEL 5] Emitting instruction: STR X26, [X27, #8] ; Store to member x
+[DEBUG]   Updating home register X24 for member 'x' after store.
+[DEBUG LEVEL 5] Emitting instruction: MOV X24, X26
 [DEBUG] Finished visiting AssignmentStatement node.
 [DEBUG] Visiting AssignmentStatement node.
 [DEBUG]   [CSE DEBUG] *** PROCESSING ASSIGNMENT STATEMENT ***
@@ -2459,6 +2317,7 @@ Offset   | Content                               | Type
 [DEBUG]   [DEBUG] About to call get_variable_register for 'initialY' in function 'Point::CREATE'
 [DEBUG] get_variable_register for: 'initialY' in function 'Point::CREATE'
 [DEBUG]   [DEBUG] Current function allocations exist: YES
+[SYMBOL TABLE TRACE] Warning: Found symbol 'initialY' in different context 'CREATE' (requested context was 'Point::CREATE')
 [DEBUG]   ✅ REGISTER ALLOCATED: Variable 'initialY' lives in register X25
 [DEBUG] Variable 'initialY' value loaded into X25
 [DEBUG]   [DEBUG] get_variable_register returned: 'X25'
@@ -2472,6 +2331,8 @@ Offset   | Content                               | Type
 [DEBUG]   [DEBUG] Current function allocations exist: YES
 [DEBUG]   ✅ REGISTER ALLOCATED: Variable '_this' lives in register X27
 [DEBUG LEVEL 5] Emitting instruction: STR X25, [X27, #16] ; Store to member y
+[DEBUG]   Updating home register X23 for member 'y' after store.
+[DEBUG LEVEL 5] Emitting instruction: MOV X23, X25
 [DEBUG] Finished visiting AssignmentStatement node.
 [DEBUG] --- Entering NewCodeGenerator::visit(RoutineCallStatement& node) [ARM64 ABI COMPLIANT] ---
 [DEBUG] Detected a regular function/routine call.
@@ -2501,7 +2362,6 @@ Offset   | Content                               | Type
 [DEBUG]   [DEBUG] About to call get_variable_register for 'x' in function 'Point::CREATE'
 [DEBUG] get_variable_register for: 'x' in function 'Point::CREATE'
 [DEBUG]   [DEBUG] Current function allocations exist: YES
-[SYMBOL TABLE TRACE] Warning: Found symbol 'x' in different context 'Point' (requested context was 'Point::CREATE')
 [DEBUG]   ✅ CLASS MEMBER: Variable 'x' is a class member. Generating member access via _this.
 [DEBUG] get_variable_register for: '_this' in function 'Point::CREATE'
 [DEBUG]   [DEBUG] Current function allocations exist: YES
@@ -2553,7 +2413,6 @@ Offset   | Content                               | Type
 [DEBUG]   [DEBUG] About to call get_variable_register for 'y' in function 'Point::CREATE'
 [DEBUG] get_variable_register for: 'y' in function 'Point::CREATE'
 [DEBUG]   [DEBUG] Current function allocations exist: YES
-[SYMBOL TABLE TRACE] Warning: Found symbol 'y' in different context 'Point' (requested context was 'Point::CREATE')
 [DEBUG]   ✅ CLASS MEMBER: Variable 'y' is a class member. Generating member access via _this.
 [DEBUG] get_variable_register for: '_this' in function 'Point::CREATE'
 [DEBUG]   [DEBUG] Current function allocations exist: YES
@@ -2619,10 +2478,85 @@ Offset   | Content                               | Type
 [SYNC] No allocations found for function: getX
 [DEBUG] Synced RegisterManager with LinearScanAllocator for function: getX
 [DEBUG] Using name as-is for lookup: Point::getX
-[DEBUG] Generating code for method. Using mangled label from symbol: Point::getX
-[DEBUG] ✅ Detected TRIVIAL ACCESSOR method: 'Point::getX'. Generating optimized code.
-[DEBUG LEVEL 5] Emitting instruction: LDR X0, [X0, #8] ; Optimized accessor load (int/ptr)
-[DEBUG LEVEL 5] Emitting instruction: RET
+[SYMBOL TABLE TRACE] Lookup FAILED for symbol: 'Point::getX'
+Call Frame Layout for function: Point::getX
+[DEBUG] Registering all parameters as locals in CallFrameManager for 'Point::getX'.
+[DEBUG] DEBUG: metrics.variable_types size for 'Point::getX': 1
+[DEBUG] DEBUG: variable_types['_this'] = POINTER_TO|OBJECT
+[DEBUG] DEBUG: Parameter '_this' type from metrics: POINTER_TO|OBJECT
+Added local variable '_this' of type 1056768 at offset 16 (size 8)
+[DEBUG] Added parameter '_this' to CallFrameManager locals.
+[DEBUG] Registering all local variables from ASTAnalyzer metrics for 'Point::getX'.
+[DEBUG] Added parameter '_this' to CallFrameManager locals.
+[DEBUG] Entered new scope. Scope stack size: 1
+[DEBUG] Using pre-computed register allocation for 'Point::getX'.
+[DEBUG] No spills needed - all variables fit in registers.
+Added X28 to callee_saved_registers_to_save list.
+[DEBUG] Attempting to generate prologue for 'Point::getX'.
+--- Call Frame Layout for function: Point::getX (Total Size: 48 bytes) ---
+Offset   | Content                               | Type
+------------------------------------------------------
++0       | Old Frame Pointer (x29)     <-- FP (x29) points here
++8       | Return Address (Caller's PC)
++16      | Local: _this                          | POINTER_TO|OBJECT
++24      | Saved Reg: X19                        | UNKNOWN
++32      | Saved Reg: X28                        | UNKNOWN
+------------------------------------------------------
+                                     <-- SP (+48 from FP)
+
+[DEBUG LEVEL 5] Emitting instruction: STP X29, X30, [SP, #-48]!
+[DEBUG LEVEL 5] Emitting instruction: MOV X29, SP
+[DEBUG LEVEL 5] Emitting instruction: STR X19, [X29, #24] ; Saved Reg: X19 @ FP+24
+[DEBUG LEVEL 5] Emitting instruction: STR X28, [X29, #32] ; Saved Reg: X28 @ FP+32
+[DEBUG] Mapping incoming parameters to home registers or stack slots as per allocation plan.
+[DEBUG]   Moving '_this' from arg reg X0 to home reg X15.
+[DEBUG LEVEL 5] Emitting instruction: MOV X15, X0    // Move parameter '_this' from X0 to X15
+[DEBUG] Registered local variable 'X28' with the allocation system (spilled)
+[DEBUG] Registered local variable 'X19' with the allocation system (spilled)
+[DEBUG] Skipping duplicate parameter storage
+[DEBUG] --- Call Frame Layout for function: Point::getX (Total Size: 48 bytes) ---
+Offset   | Content                               | Type
+------------------------------------------------------
++0       | Old Frame Pointer (x29)     <-- FP (x29) points here
++8       | Return Address (Caller's PC)
++16      | Local: _this                          | POINTER_TO|OBJECT
++24      | Saved Reg: X19                        | UNKNOWN
++32      | Saved Reg: X28                        | UNKNOWN
+------------------------------------------------------
+                                     <-- SP (+48 from FP)
+
+[DEBUG] --- DEBUG: Available CFGs in the map ---
+[DEBUG]   Available CFG: 'START'
+[DEBUG]   Available CFG: 'Point::getY'
+[DEBUG]   Available CFG: 'Point::RELEASE'
+[DEBUG]   Available CFG: 'Point::getX'
+[DEBUG]   Available CFG: 'Point::set'
+[DEBUG]   Available CFG: 'Point::CREATE'
+[DEBUG] --- End of CFG list ---
+[DEBUG] Found CFG using lookup_name: Point::getX
+[DEBUG] Visiting ResultisStatement node.
+[DEBUG] Visiting VariableAccess node for 'x'.
+[DEBUG]   [DEBUG] About to call get_variable_register for 'x' in function 'Point::getX'
+[DEBUG] get_variable_register for: 'x' in function 'Point::getX'
+[DEBUG]   [DEBUG] Current function allocations exist: YES
+[DEBUG]   ✅ CLASS MEMBER: Variable 'x' is a class member. Generating member access via _this.
+[DEBUG] get_variable_register for: '_this' in function 'Point::getX'
+[DEBUG]   [DEBUG] Current function allocations exist: YES
+[DEBUG]   ✅ REGISTER ALLOCATED: Variable '_this' lives in register X15
+[DEBUG]   Member offset: 8 bytes
+[DEBUG LEVEL 5] Emitting instruction: LDR X9, [X15, #8] ; x
+[DEBUG] Generated LDR for class member x at offset 8
+[DEBUG] Variable 'x' value loaded into X9
+[DEBUG]   [DEBUG] get_variable_register returned: 'X9'
+[DEBUG LEVEL 5] Emitting instruction: MOV X0, X9
+[DEBUG LEVEL 5] Emitting instruction: B .L1
+[DEBUG] RESULTIS: Branching to function epilogue label .L1
+[DEBUG LEVEL 5] Emitting instruction: B Point::getX_Exit_1
+[DEBUG LEVEL 5] Emitting instruction: B .L1
+[DEBUG] Performing end-of-function scope cleanup for 'Point::getX'.
+[DEBUG] Defining epilogue label: .L1
+[DEBUG] Attempting to generate epilogue for 'Point::getX'.
+[DEBUG] Exited scope. Scope stack size: 0
 [DEBUG] Finished visiting FunctionDeclaration node.
 [DEBUG] Visiting FunctionDeclaration node (Name: getY).
 [DEBUG] Function metrics for getY not found.
@@ -2636,10 +2570,85 @@ Offset   | Content                               | Type
 [SYNC] No allocations found for function: getY
 [DEBUG] Synced RegisterManager with LinearScanAllocator for function: getY
 [DEBUG] Using name as-is for lookup: Point::getY
-[DEBUG] Generating code for method. Using mangled label from symbol: Point::getY
-[DEBUG] ✅ Detected TRIVIAL ACCESSOR method: 'Point::getY'. Generating optimized code.
-[DEBUG LEVEL 5] Emitting instruction: LDR X0, [X0, #16] ; Optimized accessor load (int/ptr)
-[DEBUG LEVEL 5] Emitting instruction: RET
+[SYMBOL TABLE TRACE] Lookup FAILED for symbol: 'Point::getY'
+Call Frame Layout for function: Point::getY
+[DEBUG] Registering all parameters as locals in CallFrameManager for 'Point::getY'.
+[DEBUG] DEBUG: metrics.variable_types size for 'Point::getY': 1
+[DEBUG] DEBUG: variable_types['_this'] = POINTER_TO|OBJECT
+[DEBUG] DEBUG: Parameter '_this' type from metrics: POINTER_TO|OBJECT
+Added local variable '_this' of type 1056768 at offset 16 (size 8)
+[DEBUG] Added parameter '_this' to CallFrameManager locals.
+[DEBUG] Registering all local variables from ASTAnalyzer metrics for 'Point::getY'.
+[DEBUG] Added parameter '_this' to CallFrameManager locals.
+[DEBUG] Entered new scope. Scope stack size: 1
+[DEBUG] Using pre-computed register allocation for 'Point::getY'.
+[DEBUG] No spills needed - all variables fit in registers.
+Added X28 to callee_saved_registers_to_save list.
+[DEBUG] Attempting to generate prologue for 'Point::getY'.
+--- Call Frame Layout for function: Point::getY (Total Size: 48 bytes) ---
+Offset   | Content                               | Type
+------------------------------------------------------
++0       | Old Frame Pointer (x29)     <-- FP (x29) points here
++8       | Return Address (Caller's PC)
++16      | Local: _this                          | POINTER_TO|OBJECT
++24      | Saved Reg: X19                        | UNKNOWN
++32      | Saved Reg: X28                        | UNKNOWN
+------------------------------------------------------
+                                     <-- SP (+48 from FP)
+
+[DEBUG LEVEL 5] Emitting instruction: STP X29, X30, [SP, #-48]!
+[DEBUG LEVEL 5] Emitting instruction: MOV X29, SP
+[DEBUG LEVEL 5] Emitting instruction: STR X19, [X29, #24] ; Saved Reg: X19 @ FP+24
+[DEBUG LEVEL 5] Emitting instruction: STR X28, [X29, #32] ; Saved Reg: X28 @ FP+32
+[DEBUG] Mapping incoming parameters to home registers or stack slots as per allocation plan.
+[DEBUG]   Moving '_this' from arg reg X0 to home reg X15.
+[DEBUG LEVEL 5] Emitting instruction: MOV X15, X0    // Move parameter '_this' from X0 to X15
+[DEBUG] Registered local variable 'X28' with the allocation system (spilled)
+[DEBUG] Registered local variable 'X19' with the allocation system (spilled)
+[DEBUG] Skipping duplicate parameter storage
+[DEBUG] --- Call Frame Layout for function: Point::getY (Total Size: 48 bytes) ---
+Offset   | Content                               | Type
+------------------------------------------------------
++0       | Old Frame Pointer (x29)     <-- FP (x29) points here
++8       | Return Address (Caller's PC)
++16      | Local: _this                          | POINTER_TO|OBJECT
++24      | Saved Reg: X19                        | UNKNOWN
++32      | Saved Reg: X28                        | UNKNOWN
+------------------------------------------------------
+                                     <-- SP (+48 from FP)
+
+[DEBUG] --- DEBUG: Available CFGs in the map ---
+[DEBUG]   Available CFG: 'START'
+[DEBUG]   Available CFG: 'Point::getY'
+[DEBUG]   Available CFG: 'Point::RELEASE'
+[DEBUG]   Available CFG: 'Point::getX'
+[DEBUG]   Available CFG: 'Point::set'
+[DEBUG]   Available CFG: 'Point::CREATE'
+[DEBUG] --- End of CFG list ---
+[DEBUG] Found CFG using lookup_name: Point::getY
+[DEBUG] Visiting ResultisStatement node.
+[DEBUG] Visiting VariableAccess node for 'y'.
+[DEBUG]   [DEBUG] About to call get_variable_register for 'y' in function 'Point::getY'
+[DEBUG] get_variable_register for: 'y' in function 'Point::getY'
+[DEBUG]   [DEBUG] Current function allocations exist: YES
+[DEBUG]   ✅ CLASS MEMBER: Variable 'y' is a class member. Generating member access via _this.
+[DEBUG] get_variable_register for: '_this' in function 'Point::getY'
+[DEBUG]   [DEBUG] Current function allocations exist: YES
+[DEBUG]   ✅ REGISTER ALLOCATED: Variable '_this' lives in register X15
+[DEBUG]   Member offset: 16 bytes
+[DEBUG LEVEL 5] Emitting instruction: LDR X9, [X15, #16] ; y
+[DEBUG] Generated LDR for class member y at offset 16
+[DEBUG] Variable 'y' value loaded into X9
+[DEBUG]   [DEBUG] get_variable_register returned: 'X9'
+[DEBUG LEVEL 5] Emitting instruction: MOV X0, X9
+[DEBUG LEVEL 5] Emitting instruction: B .L2
+[DEBUG] RESULTIS: Branching to function epilogue label .L2
+[DEBUG LEVEL 5] Emitting instruction: B Point::getY_Exit_1
+[DEBUG LEVEL 5] Emitting instruction: B .L2
+[DEBUG] Performing end-of-function scope cleanup for 'Point::getY'.
+[DEBUG] Defining epilogue label: .L2
+[DEBUG] Attempting to generate epilogue for 'Point::getY'.
+[DEBUG] Exited scope. Scope stack size: 0
 [DEBUG] Finished visiting FunctionDeclaration node.
 [DEBUG] DEBUG: Visiting RoutineDeclaration node (Name: set).
 [DEBUG] Using qualified name for method: Point::set
@@ -2652,10 +2661,10 @@ Offset   | Content                               | Type
 [SYNC] No allocations found for function: set
 [DEBUG] Synced RegisterManager with LinearScanAllocator for function: set
 [DEBUG] Using name as-is for lookup: Point::set
-[DEBUG] Generating code for method. Using mangled label from symbol: Point::set
+[SYMBOL TABLE TRACE] Lookup FAILED for symbol: 'Point::set'
 Call Frame Layout for function: Point::set
-[SYMBOL TABLE TRACE] Warning: Found symbol 'x' in different context 'Point' (requested context was 'Point::set')
-[SYMBOL TABLE TRACE] Warning: Found symbol 'y' in different context 'Point' (requested context was 'Point::set')
+[SYMBOL TABLE TRACE] Warning: Found symbol 'newX' in different context 'set' (requested context was 'Point::set')
+[SYMBOL TABLE TRACE] Warning: Found symbol 'newY' in different context 'set' (requested context was 'Point::set')
 [DEBUG] Registering all parameters as locals in CallFrameManager for 'Point::set'.
 [DEBUG] DEBUG: metrics.variable_types size for 'Point::set': 3
 [DEBUG] DEBUG: variable_types['_this'] = POINTER_TO|OBJECT
@@ -2674,14 +2683,18 @@ Added local variable 'newY' of type 0 at offset 32 (size 8)
 [DEBUG] Added parameter '_this' to CallFrameManager locals.
 [DEBUG] Added parameter 'newX' to CallFrameManager locals.
 [DEBUG] Added parameter 'newY' to CallFrameManager locals.
+[SYMBOL TABLE TRACE] Warning: Found symbol 'newX' in different context 'set' (requested context was 'Point::set')
+[SYMBOL TABLE TRACE] Warning: Found symbol 'newY' in different context 'set' (requested context was 'Point::set')
 [DEBUG] Entered new scope. Scope stack size: 1
 [DEBUG] Using pre-computed register allocation for 'Point::set'.
 [DEBUG] No spills needed - all variables fit in registers.
+Added X23 to callee_saved_registers_to_save list.
+Added X24 to callee_saved_registers_to_save list.
 Added X25 to callee_saved_registers_to_save list.
 Added X26 to callee_saved_registers_to_save list.
 Added X27 to callee_saved_registers_to_save list.
 [DEBUG] Attempting to generate prologue for 'Point::set'.
---- Call Frame Layout for function: Point::set (Total Size: 96 bytes) ---
+--- Call Frame Layout for function: Point::set (Total Size: 128 bytes) ---
 Offset   | Content                               | Type
 ------------------------------------------------------
 +0       | Old Frame Pointer (x29)     <-- FP (x29) points here
@@ -2691,21 +2704,29 @@ Offset   | Content                               | Type
 +32      | Local: newY                           | UNKNOWN
 +40      | Saved Reg: X19                        | UNKNOWN
 +48      | Saved Reg: X20                        | UNKNOWN
-+56      | Saved Reg: X25                        | UNKNOWN
-+64      | Saved Reg: X26                        | UNKNOWN
-+72      | Saved Reg: X27                        | UNKNOWN
-+80      | Saved Reg: X28                        | UNKNOWN
++56      | Saved Reg: X21                        | UNKNOWN
++64      | Saved Reg: X22                        | UNKNOWN
++72      | Saved Reg: X23                        | UNKNOWN
++80      | Saved Reg: X24                        | UNKNOWN
++88      | Saved Reg: X25                        | UNKNOWN
++96      | Saved Reg: X26                        | UNKNOWN
++104     | Saved Reg: X27                        | UNKNOWN
++112     | Saved Reg: X28                        | UNKNOWN
 ------------------------------------------------------
-                                     <-- SP (+96 from FP)
+                                     <-- SP (+128 from FP)
 
-[DEBUG LEVEL 5] Emitting instruction: STP X29, X30, [SP, #-96]!
+[DEBUG LEVEL 5] Emitting instruction: STP X29, X30, [SP, #-128]!
 [DEBUG LEVEL 5] Emitting instruction: MOV X29, SP
 [DEBUG LEVEL 5] Emitting instruction: STR X19, [X29, #40] ; Saved Reg: X19 @ FP+40
 [DEBUG LEVEL 5] Emitting instruction: STR X20, [X29, #48] ; Saved Reg: X20 @ FP+48
-[DEBUG LEVEL 5] Emitting instruction: STR X25, [X29, #56] ; Saved Reg: X25 @ FP+56
-[DEBUG LEVEL 5] Emitting instruction: STR X26, [X29, #64] ; Saved Reg: X26 @ FP+64
-[DEBUG LEVEL 5] Emitting instruction: STR X27, [X29, #72] ; Saved Reg: X27 @ FP+72
-[DEBUG LEVEL 5] Emitting instruction: STR X28, [X29, #80] ; Saved Reg: X28 @ FP+80
+[DEBUG LEVEL 5] Emitting instruction: STR X21, [X29, #56] ; Saved Reg: X21 @ FP+56
+[DEBUG LEVEL 5] Emitting instruction: STR X22, [X29, #64] ; Saved Reg: X22 @ FP+64
+[DEBUG LEVEL 5] Emitting instruction: STR X23, [X29, #72] ; Saved Reg: X23 @ FP+72
+[DEBUG LEVEL 5] Emitting instruction: STR X24, [X29, #80] ; Saved Reg: X24 @ FP+80
+[DEBUG LEVEL 5] Emitting instruction: STR X25, [X29, #88] ; Saved Reg: X25 @ FP+88
+[DEBUG LEVEL 5] Emitting instruction: STR X26, [X29, #96] ; Saved Reg: X26 @ FP+96
+[DEBUG LEVEL 5] Emitting instruction: STR X27, [X29, #104] ; Saved Reg: X27 @ FP+104
+[DEBUG LEVEL 5] Emitting instruction: STR X28, [X29, #112] ; Saved Reg: X28 @ FP+112
 [DEBUG] Mapping incoming parameters to home registers or stack slots as per allocation plan.
 [DEBUG]   Moving '_this' from arg reg X0 to home reg X27.
 [DEBUG LEVEL 5] Emitting instruction: MOV X27, X0    // Move parameter '_this' from X0 to X27
@@ -2713,15 +2734,19 @@ Offset   | Content                               | Type
 [DEBUG LEVEL 5] Emitting instruction: MOV X26, X1    // Move parameter 'newX' from X1 to X26
 [DEBUG]   Moving 'newY' from arg reg X2 to home reg X25.
 [DEBUG LEVEL 5] Emitting instruction: MOV X25, X2    // Move parameter 'newY' from X2 to X25
+[DEBUG] Registered local variable 'X27' with the allocation system (spilled)
+[DEBUG] Registered local variable 'X24' with the allocation system (spilled)
+[DEBUG] Registered local variable 'X23' with the allocation system (spilled)
 [DEBUG] Registered local variable 'X26' with the allocation system (spilled)
+[DEBUG] Registered local variable 'X22' with the allocation system (spilled)
+[DEBUG] Registered local variable 'X28' with the allocation system (spilled)
+[DEBUG] Registered local variable 'X21' with the allocation system (spilled)
 [DEBUG] Registered local variable 'X20' with the allocation system (spilled)
 [DEBUG] Registered local variable 'X19' with the allocation system (spilled)
-[DEBUG] Registered local variable 'X28' with the allocation system (spilled)
 [DEBUG] Registered local variable 'X25' with the allocation system (spilled)
-[DEBUG] Registered local variable 'X27' with the allocation system (spilled)
 [DEBUG] Emitted JIT address load sequence for global base pointer (X28).
 [DEBUG] Skipping duplicate parameter storage
-[DEBUG] --- Call Frame Layout for function: Point::set (Total Size: 96 bytes) ---
+[DEBUG] --- Call Frame Layout for function: Point::set (Total Size: 128 bytes) ---
 Offset   | Content                               | Type
 ------------------------------------------------------
 +0       | Old Frame Pointer (x29)     <-- FP (x29) points here
@@ -2731,12 +2756,16 @@ Offset   | Content                               | Type
 +32      | Local: newY                           | UNKNOWN
 +40      | Saved Reg: X19                        | UNKNOWN
 +48      | Saved Reg: X20                        | UNKNOWN
-+56      | Saved Reg: X25                        | UNKNOWN
-+64      | Saved Reg: X26                        | UNKNOWN
-+72      | Saved Reg: X27                        | UNKNOWN
-+80      | Saved Reg: X28                        | UNKNOWN
++56      | Saved Reg: X21                        | UNKNOWN
++64      | Saved Reg: X22                        | UNKNOWN
++72      | Saved Reg: X23                        | UNKNOWN
++80      | Saved Reg: X24                        | UNKNOWN
++88      | Saved Reg: X25                        | UNKNOWN
++96      | Saved Reg: X26                        | UNKNOWN
++104     | Saved Reg: X27                        | UNKNOWN
++112     | Saved Reg: X28                        | UNKNOWN
 ------------------------------------------------------
-                                     <-- SP (+96 from FP)
+                                     <-- SP (+128 from FP)
 
 [DEBUG] --- DEBUG: Available CFGs in the map ---
 [DEBUG]   Available CFG: 'START'
@@ -2754,6 +2783,7 @@ Offset   | Content                               | Type
 [DEBUG]   [DEBUG] About to call get_variable_register for 'newX' in function 'Point::set'
 [DEBUG] get_variable_register for: 'newX' in function 'Point::set'
 [DEBUG]   [DEBUG] Current function allocations exist: YES
+[SYMBOL TABLE TRACE] Warning: Found symbol 'newX' in different context 'set' (requested context was 'Point::set')
 [DEBUG]   ✅ REGISTER ALLOCATED: Variable 'newX' lives in register X26
 [DEBUG] Variable 'newX' value loaded into X26
 [DEBUG]   [DEBUG] get_variable_register returned: 'X26'
@@ -2767,6 +2797,8 @@ Offset   | Content                               | Type
 [DEBUG]   [DEBUG] Current function allocations exist: YES
 [DEBUG]   ✅ REGISTER ALLOCATED: Variable '_this' lives in register X27
 [DEBUG LEVEL 5] Emitting instruction: STR X26, [X27, #8] ; Store to member x
+[DEBUG]   Updating home register X24 for member 'x' after store.
+[DEBUG LEVEL 5] Emitting instruction: MOV X24, X26
 [DEBUG] Finished visiting AssignmentStatement node.
 [DEBUG] Visiting AssignmentStatement node.
 [DEBUG]   [CSE DEBUG] *** PROCESSING ASSIGNMENT STATEMENT ***
@@ -2775,6 +2807,7 @@ Offset   | Content                               | Type
 [DEBUG]   [DEBUG] About to call get_variable_register for 'newY' in function 'Point::set'
 [DEBUG] get_variable_register for: 'newY' in function 'Point::set'
 [DEBUG]   [DEBUG] Current function allocations exist: YES
+[SYMBOL TABLE TRACE] Warning: Found symbol 'newY' in different context 'set' (requested context was 'Point::set')
 [DEBUG]   ✅ REGISTER ALLOCATED: Variable 'newY' lives in register X25
 [DEBUG] Variable 'newY' value loaded into X25
 [DEBUG]   [DEBUG] get_variable_register returned: 'X25'
@@ -2788,6 +2821,8 @@ Offset   | Content                               | Type
 [DEBUG]   [DEBUG] Current function allocations exist: YES
 [DEBUG]   ✅ REGISTER ALLOCATED: Variable '_this' lives in register X27
 [DEBUG LEVEL 5] Emitting instruction: STR X25, [X27, #16] ; Store to member y
+[DEBUG]   Updating home register X23 for member 'y' after store.
+[DEBUG LEVEL 5] Emitting instruction: MOV X23, X25
 [DEBUG] Finished visiting AssignmentStatement node.
 [DEBUG] --- Entering NewCodeGenerator::visit(RoutineCallStatement& node) [ARM64 ABI COMPLIANT] ---
 [DEBUG] Detected a regular function/routine call.
@@ -2817,7 +2852,6 @@ Offset   | Content                               | Type
 [DEBUG]   [DEBUG] About to call get_variable_register for 'x' in function 'Point::set'
 [DEBUG] get_variable_register for: 'x' in function 'Point::set'
 [DEBUG]   [DEBUG] Current function allocations exist: YES
-[SYMBOL TABLE TRACE] Warning: Found symbol 'x' in different context 'Point' (requested context was 'Point::set')
 [DEBUG]   ✅ CLASS MEMBER: Variable 'x' is a class member. Generating member access via _this.
 [DEBUG] get_variable_register for: '_this' in function 'Point::set'
 [DEBUG]   [DEBUG] Current function allocations exist: YES
@@ -2869,7 +2903,6 @@ Offset   | Content                               | Type
 [DEBUG]   [DEBUG] About to call get_variable_register for 'y' in function 'Point::set'
 [DEBUG] get_variable_register for: 'y' in function 'Point::set'
 [DEBUG]   [DEBUG] Current function allocations exist: YES
-[SYMBOL TABLE TRACE] Warning: Found symbol 'y' in different context 'Point' (requested context was 'Point::set')
 [DEBUG]   ✅ CLASS MEMBER: Variable 'y' is a class member. Generating member access via _this.
 [DEBUG] get_variable_register for: '_this' in function 'Point::set'
 [DEBUG]   [DEBUG] Current function allocations exist: YES
@@ -2934,7 +2967,7 @@ Offset   | Content                               | Type
 [SYNC] No allocations found for function: RELEASE
 [DEBUG] Synced RegisterManager with LinearScanAllocator for function: RELEASE
 [DEBUG] Using name as-is for lookup: Point::RELEASE
-[DEBUG] Generating code for method. Using mangled label from symbol: Point::RELEASE
+[SYMBOL TABLE TRACE] Lookup FAILED for symbol: 'Point::RELEASE'
 Call Frame Layout for function: Point::RELEASE
 [DEBUG] Registering all parameters as locals in CallFrameManager for 'Point::RELEASE'.
 [DEBUG] DEBUG: metrics.variable_types size for 'Point::RELEASE': 1
@@ -3123,6 +3156,21 @@ Offset   | Content                               | Type
 [DEBUG LEVEL 5] Emitting instruction: ADRP X9, Point_vtable
 [DEBUG LEVEL 5] Emitting instruction: ADD X9, X9, #:lo12:Point_vtable
 [DEBUG LEVEL 5] Emitting instruction: STR X9, [X20, #0] ; store vtable ptr
+[DEBUG] Calling CREATE routine for Point
+[DEBUG]   - CREATE method found at vtable slot: 0
+[DEBUG]   - Will pass 2 arguments to CREATE
+[DEBUG LEVEL 5] Emitting instruction: MOV X0, X20
+[DEBUG] Visiting NumberLiteral node.
+[DEBUG LEVEL 5] Emitting instruction: MOVZ X9, #50
+[DEBUG] Loaded integer literal 50 into X9 using MOVZ.
+[DEBUG LEVEL 5] Emitting instruction: MOV X1, X9
+[DEBUG] Visiting NumberLiteral node.
+[DEBUG LEVEL 5] Emitting instruction: MOVZ X9, #75
+[DEBUG] Loaded integer literal 75 into X9 using MOVZ.
+[DEBUG LEVEL 5] Emitting instruction: MOV X2, X9
+[DEBUG LEVEL 5] Emitting instruction: LDR X9, [X20, #0] ; Load vtable pointer for CREATE call
+[DEBUG LEVEL 5] Emitting instruction: LDR X10, [X9, #0] ; Load CREATE method address
+[DEBUG LEVEL 5] Emitting instruction: BLR X10
 [DEBUG] Handling assignment for variable: p
 [DEBUG] store_variable_register for 'p' from register 'X20'
 [DEBUG]   [ALLOCATOR HIT] Variable 'p' lives in X26. Emitting MOV.
@@ -3170,6 +3218,7 @@ Offset   | Content                               | Type
 [DEBUG LEVEL 5] Emitting instruction: LDR X10, [X9, #16] ; Load method address
 [DEBUG LEVEL 5] Emitting instruction: MOV X0, X26
 [DEBUG LEVEL 5] Emitting instruction: BLR X10
+[SYMBOL TABLE TRACE] Lookup FAILED for symbol: 'Point::getX'
 [DEBUG] Handling assignment for variable: _cse_temp_0
 [DEBUG] store_variable_register for '_cse_temp_0' from register 'X0'
 [DEBUG]   [ALLOCATOR HIT] Variable '_cse_temp_0' lives in X27. Emitting MOV.
@@ -3314,6 +3363,7 @@ Offset   | Content                               | Type
 [DEBUG LEVEL 5] Emitting instruction: MOV X0, X26
 [DEBUG] Expression is a VariableAccess to: p
 [DEBUG] Found symbol with class_name: Point
+[SYMBOL TABLE TRACE] Lookup FAILED for symbol: 'Point::set'
 [DEBUG LEVEL 5] Emitting instruction: MOV X1, X20
 [DEBUG LEVEL 5] Emitting instruction: MOV X2, X21
 [DEBUG LEVEL 5] Emitting instruction: BL Point::set
@@ -3481,48 +3531,26 @@ Offset   | Content                               | Type
 [DataGenerator TRACE] Size of list_literals_ vector is: 0
 [InstructionStream TRACE] Adding label definition: L__data_segment_base
 [DEBUG] Code generation finished.
-Emitting string label: Reading new values: x= value: L_str9
-Emitting string label: Setting new values...
- value: L_str8
-Emitting string label: Reading values: x= value: L_str5
-Emitting string label: 
-
- value: L_str7
-Emitting string label: Point moved to ( value: L_str3
-Emitting string label: Creating point...
- value: L_str4
-Emitting string label: )
- value: L_str2
-Emitting string label: ,  value: L_str1
-Emitting string label: 
- value: L_str10
-Emitting string label: , y= value: L_str6
-Emitting string label: Point created at ( value: L_str0
 Code generation complete.
 
 --- Symbol Table After Code Generation ---
 Symbol Table (Persistent, All Symbols)
 ==================================================
-Symbol 'x' (MEMBER_VAR, INTEGER, scope=0, block=0, class_name='', function_name='Point')
-Symbol 'y' (MEMBER_VAR, INTEGER, scope=0, block=0, class_name='', function_name='Point')
-Symbol 'Point::CREATE' (class: Point, ROUTINE, INTEGER, scope=0, block=0, class_name='Point', function_name='Point::CREATE')
-Symbol '_this' (PARAMETER, POINTER_TO|OBJECT, scope=1, block=0, class_name='', function_name='Point::CREATE')
-Symbol '_this' (PARAMETER, UNKNOWN, scope=1, block=0, class_name='', function_name='Point::CREATE')
-Symbol 'initialX' (PARAMETER, UNKNOWN, scope=1, block=0, class_name='', function_name='Point::CREATE')
-Symbol 'initialY' (PARAMETER, UNKNOWN, scope=1, block=0, class_name='', function_name='Point::CREATE')
-Symbol 'Point::getX' (class: Point, FUNCTION, INTEGER, scope=0, block=0, class_name='Point', function_name='Point::getX')
-Symbol '_this' (PARAMETER, POINTER_TO|OBJECT, scope=1, block=0, class_name='', function_name='Point::getX')
-Symbol '_this' (PARAMETER, UNKNOWN, scope=1, block=0, class_name='', function_name='Point::getX')
-Symbol 'Point::getY' (class: Point, FUNCTION, INTEGER, scope=0, block=0, class_name='Point', function_name='Point::getY')
-Symbol '_this' (PARAMETER, POINTER_TO|OBJECT, scope=1, block=0, class_name='', function_name='Point::getY')
-Symbol '_this' (PARAMETER, UNKNOWN, scope=1, block=0, class_name='', function_name='Point::getY')
-Symbol 'Point::set' (class: Point, ROUTINE, INTEGER, scope=0, block=0, class_name='Point', function_name='Point::set')
-Symbol '_this' (PARAMETER, POINTER_TO|OBJECT, scope=1, block=0, class_name='', function_name='Point::set')
-Symbol '_this' (PARAMETER, UNKNOWN, scope=1, block=0, class_name='', function_name='Point::set')
-Symbol 'newX' (PARAMETER, UNKNOWN, scope=1, block=0, class_name='', function_name='Point::set')
-Symbol 'newY' (PARAMETER, UNKNOWN, scope=1, block=0, class_name='', function_name='Point::set')
-Symbol 'Point::RELEASE' (class: Point, ROUTINE, INTEGER, scope=0, block=0, class_name='Point', function_name='Point::RELEASE')
-Symbol '_this' (PARAMETER, POINTER_TO|OBJECT, scope=1, block=0, class_name='', function_name='Point::RELEASE')
+Symbol 'x' (LOCAL_VAR, INTEGER, scope=0, block=0, class_name='', function_name='Global')
+Symbol 'y' (LOCAL_VAR, INTEGER, scope=0, block=0, class_name='', function_name='Global')
+Symbol 'CREATE' (ROUTINE, INTEGER, scope=0, block=0, class_name='', function_name='CREATE')
+Symbol '_this' (PARAMETER, UNKNOWN, scope=1, block=0, class_name='', function_name='CREATE')
+Symbol 'initialX' (PARAMETER, UNKNOWN, scope=1, block=0, class_name='', function_name='CREATE')
+Symbol 'initialY' (PARAMETER, UNKNOWN, scope=1, block=0, class_name='', function_name='CREATE')
+Symbol 'getX' (FUNCTION, INTEGER, scope=0, block=0, class_name='', function_name='getX', parameters=[UNKNOWN])
+Symbol '_this' (PARAMETER, UNKNOWN, scope=1, block=0, class_name='', function_name='getX')
+Symbol 'getY' (FUNCTION, INTEGER, scope=0, block=0, class_name='', function_name='getY', parameters=[UNKNOWN])
+Symbol '_this' (PARAMETER, UNKNOWN, scope=1, block=0, class_name='', function_name='getY')
+Symbol 'set' (ROUTINE, INTEGER, scope=0, block=0, class_name='', function_name='set')
+Symbol '_this' (PARAMETER, UNKNOWN, scope=1, block=0, class_name='', function_name='set')
+Symbol 'newX' (PARAMETER, UNKNOWN, scope=1, block=0, class_name='', function_name='set')
+Symbol 'newY' (PARAMETER, UNKNOWN, scope=1, block=0, class_name='', function_name='set')
+Symbol 'RELEASE' (ROUTINE, INTEGER, scope=0, block=0, class_name='', function_name='RELEASE')
 Symbol 'START' (ROUTINE, INTEGER, scope=0, block=0, class_name='', function_name='START')
 Symbol 'p' (class: Point, LOCAL_VAR, POINTER_TO|OBJECT, scope=2, block=0, class_name='Point', function_name='START')
 Symbol 'READN' (RUNTIME_FUNCTION, INTEGER, scope=0, block=0, class_name='', function_name='')
@@ -3601,11 +3629,11 @@ Symbol '_cse_temp_0' (LOCAL_VAR, UNKNOWN, scope=0, block=0, class_name='', funct
 Data sections generated.
 
 === Peephole Optimization ===
-Analyzing 454 ARM64 instructions...
+Analyzing 518 ARM64 instructions...
 Maximum optimization passes: 5
 
 [Peephole Optimizer] Applied: Identical sequential move elimination (MOV Xd, Xn; MOV Xd, Xn)
-  Position: 180
+  Position: 244
   Before:
     MOV X26, X20  [Opcode=1, Dest=26, Src1=20]
     MOV X26, X20  [Opcode=1, Dest=26, Src1=20]
@@ -3615,7 +3643,7 @@ Maximum optimization passes: 5
 
 
 [Peephole Optimizer] Applied: Identical sequential move elimination (MOV Xd, Xn; MOV Xd, Xn)
-  Position: 190
+  Position: 254
   Before:
     MOV X27, X0  [Opcode=1, Dest=27, Src1=0]
     MOV X27, X0  [Opcode=1, Dest=27, Src1=0]
@@ -3627,8 +3655,8 @@ Maximum optimization passes: 5
 Peephole optimization completed 2 
   Passes with changes: 1
 Peephole optimization completed 2 passes:
-  Instructions before: 454
-  Instructions after:  452
+  Instructions before: 518
+  Instructions after:  516
   Total optimizations: 2
   Patterns matched:
     - Identical sequential move elimination (MOV Xd, Xn; MOV Xd, Xn): 2
@@ -3636,448 +3664,512 @@ Peephole optimization completed 2 passes:
 [Peephole Optimizer] Detailed peephole optimization trace complete
 Populating JIT memory according to linker layout...
 
---- CodeBuffer JIT Listing ------ Code Section Listing (Base Address: 0x107d70000) ---
+--- CodeBuffer JIT Listing ------ Code Section Listing (Base Address: 0x10794c000) ---
 Address Hex Code    Assembly
 --------------------------------------------------
- 107d70000 0x00000000  
+ 10794c000 0x00000000  
 ; --- Veneer Section ---
 HeapManager_enter_scope_veneer:
- 107d70004 0xd2871f10  MOVZ X16, #14584
- 107d70008 0xf2a05490  MOVK X16, #676, LSL #16
- 107d7000c 0xf2c00030  MOVK X16, #1, LSL #32
- 107d70010 0xd61f0200  BR X16
+ 10794c004 0xd29f1790  MOVZ X16, #63676
+ 10794c008 0xf2a04cd0  MOVK X16, #614, LSL #16
+ 10794c00c 0xf2c00030  MOVK X16, #1, LSL #32
+ 10794c010 0xd61f0200  BR X16
 HeapManager_exit_scope_veneer:
- 107d70014 0xd2872490  MOVZ X16, #14628
- 107d70018 0xf2a05490  MOVK X16, #676, LSL #16
- 107d7001c 0xf2c00030  MOVK X16, #1, LSL #32
- 107d70020 0xd61f0200  BR X16
+ 10794c014 0xd29f1d10  MOVZ X16, #63720
+ 10794c018 0xf2a04cd0  MOVK X16, #614, LSL #16
+ 10794c01c 0xf2c00030  MOVK X16, #1, LSL #32
+ 10794c020 0xd61f0200  BR X16
 WRITEN_veneer:
- 107d70024 0xd284da10  MOVZ X16, #9936
- 107d70028 0xf2a056b0  MOVK X16, #693, LSL #16
- 107d7002c 0xf2c00030  MOVK X16, #1, LSL #32
- 107d70030 0xd61f0200  BR X16
+ 10794c024 0xd29bec90  MOVZ X16, #57188
+ 10794c028 0xf2a04ef0  MOVK X16, #631, LSL #16
+ 10794c02c 0xf2c00030  MOVK X16, #1, LSL #32
+ 10794c030 0xd61f0200  BR X16
 WRITES_veneer:
- 107d70034 0xd2837890  MOVZ X16, #7108
- 107d70038 0xf2a056b0  MOVK X16, #693, LSL #16
- 107d7003c 0xf2c00030  MOVK X16, #1, LSL #32
- 107d70040 0xd61f0200  BR X16
- 107d70044 0x00000000  ; --- End Veneer Section ---
+ 10794c034 0xd29a8b10  MOVZ X16, #54360
+ 10794c038 0xf2a04ef0  MOVK X16, #631, LSL #16
+ 10794c03c 0xf2c00030  MOVK X16, #1, LSL #32
+ 10794c040 0xd61f0200  BR X16
+ 10794c044 0x00000000  ; --- End Veneer Section ---
 
 Point::CREATE:
- 107d70048 0xa9ba7bfd  STP X29, X30, [SP, #-96]!
- 107d7004c 0x910003fd  MOV X29, SP
- 107d70050 0xf90017b3  STR X19, [X29, #40] ; Saved Reg: X19 @ FP+40
- 107d70054 0xf9001bb4  STR X20, [X29, #48] ; Saved Reg: X20 @ FP+48
- 107d70058 0xf9001fb9  STR X25, [X29, #56] ; Saved Reg: X25 @ FP+56
- 107d7005c 0xf90023ba  STR X26, [X29, #64] ; Saved Reg: X26 @ FP+64
- 107d70060 0xf90027bb  STR X27, [X29, #72] ; Saved Reg: X27 @ FP+72
- 107d70064 0xf9002bbc  STR X28, [X29, #80] ; Saved Reg: X28 @ FP+80
- 107d70068 0xaa0003fb  MOV X27, X0    // Move parameter '_this' from X0 to X27
- 107d7006c 0xaa0103fa  MOV X26, X1    // Move parameter 'initialX' from X1 to X26
- 107d70070 0xaa0203f9  MOV X25, X2    // Move parameter 'initialY' from X2 to X25
- 107d70074 0xd280001c  MOVZ X28, #0
- 107d70078 0xf2a0f8fc  MOVK X28, #1991, LSL #16
- 107d7007c 0xf2c0003c  MOVK X28, #1, LSL #32
- 107d70080 0xf2e0001c  MOVK X28, #0, LSL #48
+ 10794c048 0xa9b87bfd  STP X29, X30, [SP, #-128]!
+ 10794c04c 0x910003fd  MOV X29, SP
+ 10794c050 0xf90017b3  STR X19, [X29, #40] ; Saved Reg: X19 @ FP+40
+ 10794c054 0xf9001bb4  STR X20, [X29, #48] ; Saved Reg: X20 @ FP+48
+ 10794c058 0xf9001fb5  STR X21, [X29, #56] ; Saved Reg: X21 @ FP+56
+ 10794c05c 0xf90023b6  STR X22, [X29, #64] ; Saved Reg: X22 @ FP+64
+ 10794c060 0xf90027b7  STR X23, [X29, #72] ; Saved Reg: X23 @ FP+72
+ 10794c064 0xf9002bb8  STR X24, [X29, #80] ; Saved Reg: X24 @ FP+80
+ 10794c068 0xf9002fb9  STR X25, [X29, #88] ; Saved Reg: X25 @ FP+88
+ 10794c06c 0xf90033ba  STR X26, [X29, #96] ; Saved Reg: X26 @ FP+96
+ 10794c070 0xf90037bb  STR X27, [X29, #104] ; Saved Reg: X27 @ FP+104
+ 10794c074 0xf9003bbc  STR X28, [X29, #112] ; Saved Reg: X28 @ FP+112
+ 10794c078 0xaa0003fb  MOV X27, X0    // Move parameter '_this' from X0 to X27
+ 10794c07c 0xaa0103fa  MOV X26, X1    // Move parameter 'initialX' from X1 to X26
+ 10794c080 0xaa0203f9  MOV X25, X2    // Move parameter 'initialY' from X2 to X25
+ 10794c084 0xd290001c  MOVZ X28, #32768
+ 10794c088 0xf2a05e9c  MOVK X28, #756, LSL #16
+ 10794c08c 0xf2c0003c  MOVK X28, #1, LSL #32
+ 10794c090 0xf2e0001c  MOVK X28, #0, LSL #48
 Point::CREATE_Entry_0:
- 107d70084 0xf900077a  STR X26, [X27, #8] ; Store to member x
- 107d70088 0xf9000b79  STR X25, [X27, #16] ; Store to member y
- 107d7008c 0xb0000029  ADRP X9, L_str0    ; Reloc -> 'L_str0' @ 0x107d75000
- 107d70090 0x91000129  ADD X9, X9, #:lo12:L_str0    ; Reloc -> 'L_str0' @ 0x107d75000
- 107d70094 0x91002129  ADD X9, X9, #8
- 107d70098 0xaa0903e0  MOV X0, X9
- 107d7009c 0x97ffffe6  BL WRITES_veneer    ; Reloc -> 'WRITES_veneer' @ 0x107d70034
- 107d700a0 0xf9400769  LDR X9, [X27, #8] ; x
- 107d700a4 0xaa0903e0  MOV X0, X9
- 107d700a8 0x97ffffdf  BL WRITEN_veneer    ; Reloc -> 'WRITEN_veneer' @ 0x107d70024
- 107d700ac 0xb0000029  ADRP X9, L_str1    ; Reloc -> 'L_str1' @ 0x107d75058
- 107d700b0 0x91016129  ADD X9, X9, #:lo12:L_str1    ; Reloc -> 'L_str1' @ 0x107d75058
- 107d700b4 0x91002129  ADD X9, X9, #8
- 107d700b8 0xaa0903e0  MOV X0, X9
- 107d700bc 0x97ffffde  BL WRITES_veneer    ; Reloc -> 'WRITES_veneer' @ 0x107d70034
- 107d700c0 0xf9400b69  LDR X9, [X27, #16] ; y
- 107d700c4 0xaa0903e0  MOV X0, X9
- 107d700c8 0x97ffffd7  BL WRITEN_veneer    ; Reloc -> 'WRITEN_veneer' @ 0x107d70024
- 107d700cc 0xb0000029  ADRP X9, L_str2    ; Reloc -> 'L_str2' @ 0x107d75070
- 107d700d0 0x9101c129  ADD X9, X9, #:lo12:L_str2    ; Reloc -> 'L_str2' @ 0x107d75070
- 107d700d4 0x91002129  ADD X9, X9, #8
- 107d700d8 0xaa0903e0  MOV X0, X9
- 107d700dc 0x97ffffd6  BL WRITES_veneer    ; Reloc -> 'WRITES_veneer' @ 0x107d70034
- 107d700e0 0x14000001  B Point::CREATE_Exit_1    ; Reloc -> 'Point::CREATE_Exit_1' @ 0x107d700e4
+ 10794c094 0xf900077a  STR X26, [X27, #8] ; Store to member x
+ 10794c098 0xaa1a03f8  MOV X24, X26
+ 10794c09c 0xf9000b79  STR X25, [X27, #16] ; Store to member y
+ 10794c0a0 0xaa1903f7  MOV X23, X25
+ 10794c0a4 0xb0000029  ADRP X9, L_str0    ; Reloc -> 'L_str0' @ 0x107951000
+ 10794c0a8 0x91000129  ADD X9, X9, #:lo12:L_str0    ; Reloc -> 'L_str0' @ 0x107951000
+ 10794c0ac 0x91002129  ADD X9, X9, #8
+ 10794c0b0 0xaa0903e0  MOV X0, X9
+ 10794c0b4 0x97ffffe0  BL WRITES_veneer    ; Reloc -> 'WRITES_veneer' @ 0x10794c034
+ 10794c0b8 0xf9400769  LDR X9, [X27, #8] ; x
+ 10794c0bc 0xaa0903e0  MOV X0, X9
+ 10794c0c0 0x97ffffd9  BL WRITEN_veneer    ; Reloc -> 'WRITEN_veneer' @ 0x10794c024
+ 10794c0c4 0xb0000029  ADRP X9, L_str1    ; Reloc -> 'L_str1' @ 0x107951058
+ 10794c0c8 0x91016129  ADD X9, X9, #:lo12:L_str1    ; Reloc -> 'L_str1' @ 0x107951058
+ 10794c0cc 0x91002129  ADD X9, X9, #8
+ 10794c0d0 0xaa0903e0  MOV X0, X9
+ 10794c0d4 0x97ffffd8  BL WRITES_veneer    ; Reloc -> 'WRITES_veneer' @ 0x10794c034
+ 10794c0d8 0xf9400b69  LDR X9, [X27, #16] ; y
+ 10794c0dc 0xaa0903e0  MOV X0, X9
+ 10794c0e0 0x97ffffd1  BL WRITEN_veneer    ; Reloc -> 'WRITEN_veneer' @ 0x10794c024
+ 10794c0e4 0xb0000029  ADRP X9, L_str2    ; Reloc -> 'L_str2' @ 0x107951070
+ 10794c0e8 0x9101c129  ADD X9, X9, #:lo12:L_str2    ; Reloc -> 'L_str2' @ 0x107951070
+ 10794c0ec 0x91002129  ADD X9, X9, #8
+ 10794c0f0 0xaa0903e0  MOV X0, X9
+ 10794c0f4 0x97ffffd0  BL WRITES_veneer    ; Reloc -> 'WRITES_veneer' @ 0x10794c034
+ 10794c0f8 0x14000001  B Point::CREATE_Exit_1    ; Reloc -> 'Point::CREATE_Exit_1' @ 0x10794c0fc
 Point::CREATE_Exit_1:
- 107d700e4 0x14000001  B .L0    ; Reloc -> '.L0' @ 0x107d700e8
+ 10794c0fc 0x14000001  B .L0    ; Reloc -> '.L0' @ 0x10794c100
 .L0:
- 107d700e8 0xf94017b3  LDR X19, [X29, #40] ; Restored Reg: X19 @ FP+40
- 107d700ec 0xf9401bb4  LDR X20, [X29, #48] ; Restored Reg: X20 @ FP+48
- 107d700f0 0xf9401fb9  LDR X25, [X29, #56] ; Restored Reg: X25 @ FP+56
- 107d700f4 0xf94023ba  LDR X26, [X29, #64] ; Restored Reg: X26 @ FP+64
- 107d700f8 0xf94027bb  LDR X27, [X29, #72] ; Restored Reg: X27 @ FP+72
- 107d700fc 0xf9402bbc  LDR X28, [X29, #80] ; Restored Reg: X28 @ FP+80
- 107d70100 0x910003bf  MOV SP, X29 ; Deallocate frame by moving FP to SP
- 107d70104 0xf94003fd  LDR X29, [SP, #0] ; Restore caller's Frame Pointer
- 107d70108 0xf94007fe  LDR X30, [SP, #8] ; Restore Link Register
- 107d7010c 0x910043ff  ADD SP, SP, #16 ; Deallocate space for saved FP/LR
- 107d70110 0xd65f03c0  RET
+ 10794c100 0xf94017b3  LDR X19, [X29, #40] ; Restored Reg: X19 @ FP+40
+ 10794c104 0xf9401bb4  LDR X20, [X29, #48] ; Restored Reg: X20 @ FP+48
+ 10794c108 0xf9401fb5  LDR X21, [X29, #56] ; Restored Reg: X21 @ FP+56
+ 10794c10c 0xf94023b6  LDR X22, [X29, #64] ; Restored Reg: X22 @ FP+64
+ 10794c110 0xf94027b7  LDR X23, [X29, #72] ; Restored Reg: X23 @ FP+72
+ 10794c114 0xf9402bb8  LDR X24, [X29, #80] ; Restored Reg: X24 @ FP+80
+ 10794c118 0xf9402fb9  LDR X25, [X29, #88] ; Restored Reg: X25 @ FP+88
+ 10794c11c 0xf94033ba  LDR X26, [X29, #96] ; Restored Reg: X26 @ FP+96
+ 10794c120 0xf94037bb  LDR X27, [X29, #104] ; Restored Reg: X27 @ FP+104
+ 10794c124 0xf9403bbc  LDR X28, [X29, #112] ; Restored Reg: X28 @ FP+112
+ 10794c128 0x910003bf  MOV SP, X29 ; Deallocate frame by moving FP to SP
+ 10794c12c 0xf94003fd  LDR X29, [SP, #0] ; Restore caller's Frame Pointer
+ 10794c130 0xf94007fe  LDR X30, [SP, #8] ; Restore Link Register
+ 10794c134 0x910043ff  ADD SP, SP, #16 ; Deallocate space for saved FP/LR
+ 10794c138 0xd65f03c0  RET
 Point::getX:
- 107d70114 0xf9400400  LDR X0, [X0, #8] ; Optimized accessor load (int/ptr)
- 107d70118 0xd65f03c0  RET
+ 10794c13c 0xa9bd7bfd  STP X29, X30, [SP, #-48]!
+ 10794c140 0x910003fd  MOV X29, SP
+ 10794c144 0xf9000fb3  STR X19, [X29, #24] ; Saved Reg: X19 @ FP+24
+ 10794c148 0xf90013bc  STR X28, [X29, #32] ; Saved Reg: X28 @ FP+32
+ 10794c14c 0xaa0003ef  MOV X15, X0    // Move parameter '_this' from X0 to X15
+Point::getX_Entry_0:
+ 10794c150 0xf94005e9  LDR X9, [X15, #8] ; x
+ 10794c154 0xaa0903e0  MOV X0, X9
+ 10794c158 0x14000003  B .L1    ; Reloc -> '.L1' @ 0x10794c164
+ 10794c15c 0x14000001  B Point::getX_Exit_1    ; Reloc -> 'Point::getX_Exit_1' @ 0x10794c160
+Point::getX_Exit_1:
+ 10794c160 0x14000001  B .L1    ; Reloc -> '.L1' @ 0x10794c164
+.L1:
+ 10794c164 0xf9400fb3  LDR X19, [X29, #24] ; Restored Reg: X19 @ FP+24
+ 10794c168 0xf94013bc  LDR X28, [X29, #32] ; Restored Reg: X28 @ FP+32
+ 10794c16c 0x910003bf  MOV SP, X29 ; Deallocate frame by moving FP to SP
+ 10794c170 0xf94003fd  LDR X29, [SP, #0] ; Restore caller's Frame Pointer
+ 10794c174 0xf94007fe  LDR X30, [SP, #8] ; Restore Link Register
+ 10794c178 0x910043ff  ADD SP, SP, #16 ; Deallocate space for saved FP/LR
+ 10794c17c 0xd65f03c0  RET
 Point::getY:
- 107d7011c 0xf9400800  LDR X0, [X0, #16] ; Optimized accessor load (int/ptr)
- 107d70120 0xd65f03c0  RET
+ 10794c180 0xa9bd7bfd  STP X29, X30, [SP, #-48]!
+ 10794c184 0x910003fd  MOV X29, SP
+ 10794c188 0xf9000fb3  STR X19, [X29, #24] ; Saved Reg: X19 @ FP+24
+ 10794c18c 0xf90013bc  STR X28, [X29, #32] ; Saved Reg: X28 @ FP+32
+ 10794c190 0xaa0003ef  MOV X15, X0    // Move parameter '_this' from X0 to X15
+Point::getY_Entry_0:
+ 10794c194 0xf94009e9  LDR X9, [X15, #16] ; y
+ 10794c198 0xaa0903e0  MOV X0, X9
+ 10794c19c 0x14000003  B .L2    ; Reloc -> '.L2' @ 0x10794c1a8
+ 10794c1a0 0x14000001  B Point::getY_Exit_1    ; Reloc -> 'Point::getY_Exit_1' @ 0x10794c1a4
+Point::getY_Exit_1:
+ 10794c1a4 0x14000001  B .L2    ; Reloc -> '.L2' @ 0x10794c1a8
+.L2:
+ 10794c1a8 0xf9400fb3  LDR X19, [X29, #24] ; Restored Reg: X19 @ FP+24
+ 10794c1ac 0xf94013bc  LDR X28, [X29, #32] ; Restored Reg: X28 @ FP+32
+ 10794c1b0 0x910003bf  MOV SP, X29 ; Deallocate frame by moving FP to SP
+ 10794c1b4 0xf94003fd  LDR X29, [SP, #0] ; Restore caller's Frame Pointer
+ 10794c1b8 0xf94007fe  LDR X30, [SP, #8] ; Restore Link Register
+ 10794c1bc 0x910043ff  ADD SP, SP, #16 ; Deallocate space for saved FP/LR
+ 10794c1c0 0xd65f03c0  RET
 Point::set:
- 107d70124 0xa9ba7bfd  STP X29, X30, [SP, #-96]!
- 107d70128 0x910003fd  MOV X29, SP
- 107d7012c 0xf90017b3  STR X19, [X29, #40] ; Saved Reg: X19 @ FP+40
- 107d70130 0xf9001bb4  STR X20, [X29, #48] ; Saved Reg: X20 @ FP+48
- 107d70134 0xf9001fb9  STR X25, [X29, #56] ; Saved Reg: X25 @ FP+56
- 107d70138 0xf90023ba  STR X26, [X29, #64] ; Saved Reg: X26 @ FP+64
- 107d7013c 0xf90027bb  STR X27, [X29, #72] ; Saved Reg: X27 @ FP+72
- 107d70140 0xf9002bbc  STR X28, [X29, #80] ; Saved Reg: X28 @ FP+80
- 107d70144 0xaa0003fb  MOV X27, X0    // Move parameter '_this' from X0 to X27
- 107d70148 0xaa0103fa  MOV X26, X1    // Move parameter 'newX' from X1 to X26
- 107d7014c 0xaa0203f9  MOV X25, X2    // Move parameter 'newY' from X2 to X25
- 107d70150 0xd280001c  MOVZ X28, #0
- 107d70154 0xf2a0f8fc  MOVK X28, #1991, LSL #16
- 107d70158 0xf2c0003c  MOVK X28, #1, LSL #32
- 107d7015c 0xf2e0001c  MOVK X28, #0, LSL #48
+ 10794c1c4 0xa9b87bfd  STP X29, X30, [SP, #-128]!
+ 10794c1c8 0x910003fd  MOV X29, SP
+ 10794c1cc 0xf90017b3  STR X19, [X29, #40] ; Saved Reg: X19 @ FP+40
+ 10794c1d0 0xf9001bb4  STR X20, [X29, #48] ; Saved Reg: X20 @ FP+48
+ 10794c1d4 0xf9001fb5  STR X21, [X29, #56] ; Saved Reg: X21 @ FP+56
+ 10794c1d8 0xf90023b6  STR X22, [X29, #64] ; Saved Reg: X22 @ FP+64
+ 10794c1dc 0xf90027b7  STR X23, [X29, #72] ; Saved Reg: X23 @ FP+72
+ 10794c1e0 0xf9002bb8  STR X24, [X29, #80] ; Saved Reg: X24 @ FP+80
+ 10794c1e4 0xf9002fb9  STR X25, [X29, #88] ; Saved Reg: X25 @ FP+88
+ 10794c1e8 0xf90033ba  STR X26, [X29, #96] ; Saved Reg: X26 @ FP+96
+ 10794c1ec 0xf90037bb  STR X27, [X29, #104] ; Saved Reg: X27 @ FP+104
+ 10794c1f0 0xf9003bbc  STR X28, [X29, #112] ; Saved Reg: X28 @ FP+112
+ 10794c1f4 0xaa0003fb  MOV X27, X0    // Move parameter '_this' from X0 to X27
+ 10794c1f8 0xaa0103fa  MOV X26, X1    // Move parameter 'newX' from X1 to X26
+ 10794c1fc 0xaa0203f9  MOV X25, X2    // Move parameter 'newY' from X2 to X25
+ 10794c200 0xd290001c  MOVZ X28, #32768
+ 10794c204 0xf2a05e9c  MOVK X28, #756, LSL #16
+ 10794c208 0xf2c0003c  MOVK X28, #1, LSL #32
+ 10794c20c 0xf2e0001c  MOVK X28, #0, LSL #48
 Point::set_Entry_0:
- 107d70160 0xf900077a  STR X26, [X27, #8] ; Store to member x
- 107d70164 0xf9000b79  STR X25, [X27, #16] ; Store to member y
- 107d70168 0xb0000029  ADRP X9, L_str3    ; Reloc -> 'L_str3' @ 0x107d75088
- 107d7016c 0x91022129  ADD X9, X9, #:lo12:L_str3    ; Reloc -> 'L_str3' @ 0x107d75088
- 107d70170 0x91002129  ADD X9, X9, #8
- 107d70174 0xaa0903e0  MOV X0, X9
- 107d70178 0x97ffffaf  BL WRITES_veneer    ; Reloc -> 'WRITES_veneer' @ 0x107d70034
- 107d7017c 0xf9400769  LDR X9, [X27, #8] ; x
- 107d70180 0xaa0903e0  MOV X0, X9
- 107d70184 0x97ffffa8  BL WRITEN_veneer    ; Reloc -> 'WRITEN_veneer' @ 0x107d70024
- 107d70188 0xb0000029  ADRP X9, L_str1    ; Reloc -> 'L_str1' @ 0x107d75058
- 107d7018c 0x91016129  ADD X9, X9, #:lo12:L_str1    ; Reloc -> 'L_str1' @ 0x107d75058
- 107d70190 0x91002129  ADD X9, X9, #8
- 107d70194 0xaa0903e0  MOV X0, X9
- 107d70198 0x97ffffa7  BL WRITES_veneer    ; Reloc -> 'WRITES_veneer' @ 0x107d70034
- 107d7019c 0xf9400b69  LDR X9, [X27, #16] ; y
- 107d701a0 0xaa0903e0  MOV X0, X9
- 107d701a4 0x97ffffa0  BL WRITEN_veneer    ; Reloc -> 'WRITEN_veneer' @ 0x107d70024
- 107d701a8 0xb0000029  ADRP X9, L_str2    ; Reloc -> 'L_str2' @ 0x107d75070
- 107d701ac 0x9101c129  ADD X9, X9, #:lo12:L_str2    ; Reloc -> 'L_str2' @ 0x107d75070
- 107d701b0 0x91002129  ADD X9, X9, #8
- 107d701b4 0xaa0903e0  MOV X0, X9
- 107d701b8 0x97ffff9f  BL WRITES_veneer    ; Reloc -> 'WRITES_veneer' @ 0x107d70034
- 107d701bc 0x14000001  B Point::set_Exit_1    ; Reloc -> 'Point::set_Exit_1' @ 0x107d701c0
+ 10794c210 0xf900077a  STR X26, [X27, #8] ; Store to member x
+ 10794c214 0xaa1a03f8  MOV X24, X26
+ 10794c218 0xf9000b79  STR X25, [X27, #16] ; Store to member y
+ 10794c21c 0xaa1903f7  MOV X23, X25
+ 10794c220 0xb0000029  ADRP X9, L_str3    ; Reloc -> 'L_str3' @ 0x107951088
+ 10794c224 0x91022129  ADD X9, X9, #:lo12:L_str3    ; Reloc -> 'L_str3' @ 0x107951088
+ 10794c228 0x91002129  ADD X9, X9, #8
+ 10794c22c 0xaa0903e0  MOV X0, X9
+ 10794c230 0x97ffff81  BL WRITES_veneer    ; Reloc -> 'WRITES_veneer' @ 0x10794c034
+ 10794c234 0xf9400769  LDR X9, [X27, #8] ; x
+ 10794c238 0xaa0903e0  MOV X0, X9
+ 10794c23c 0x97ffff7a  BL WRITEN_veneer    ; Reloc -> 'WRITEN_veneer' @ 0x10794c024
+ 10794c240 0xb0000029  ADRP X9, L_str1    ; Reloc -> 'L_str1' @ 0x107951058
+ 10794c244 0x91016129  ADD X9, X9, #:lo12:L_str1    ; Reloc -> 'L_str1' @ 0x107951058
+ 10794c248 0x91002129  ADD X9, X9, #8
+ 10794c24c 0xaa0903e0  MOV X0, X9
+ 10794c250 0x97ffff79  BL WRITES_veneer    ; Reloc -> 'WRITES_veneer' @ 0x10794c034
+ 10794c254 0xf9400b69  LDR X9, [X27, #16] ; y
+ 10794c258 0xaa0903e0  MOV X0, X9
+ 10794c25c 0x97ffff72  BL WRITEN_veneer    ; Reloc -> 'WRITEN_veneer' @ 0x10794c024
+ 10794c260 0xb0000029  ADRP X9, L_str2    ; Reloc -> 'L_str2' @ 0x107951070
+ 10794c264 0x9101c129  ADD X9, X9, #:lo12:L_str2    ; Reloc -> 'L_str2' @ 0x107951070
+ 10794c268 0x91002129  ADD X9, X9, #8
+ 10794c26c 0xaa0903e0  MOV X0, X9
+ 10794c270 0x97ffff71  BL WRITES_veneer    ; Reloc -> 'WRITES_veneer' @ 0x10794c034
+ 10794c274 0x14000001  B Point::set_Exit_1    ; Reloc -> 'Point::set_Exit_1' @ 0x10794c278
 Point::set_Exit_1:
- 107d701c0 0x14000001  B .L3    ; Reloc -> '.L3' @ 0x107d701c4
+ 10794c278 0x14000001  B .L3    ; Reloc -> '.L3' @ 0x10794c27c
 .L3:
- 107d701c4 0xf94017b3  LDR X19, [X29, #40] ; Restored Reg: X19 @ FP+40
- 107d701c8 0xf9401bb4  LDR X20, [X29, #48] ; Restored Reg: X20 @ FP+48
- 107d701cc 0xf9401fb9  LDR X25, [X29, #56] ; Restored Reg: X25 @ FP+56
- 107d701d0 0xf94023ba  LDR X26, [X29, #64] ; Restored Reg: X26 @ FP+64
- 107d701d4 0xf94027bb  LDR X27, [X29, #72] ; Restored Reg: X27 @ FP+72
- 107d701d8 0xf9402bbc  LDR X28, [X29, #80] ; Restored Reg: X28 @ FP+80
- 107d701dc 0x910003bf  MOV SP, X29 ; Deallocate frame by moving FP to SP
- 107d701e0 0xf94003fd  LDR X29, [SP, #0] ; Restore caller's Frame Pointer
- 107d701e4 0xf94007fe  LDR X30, [SP, #8] ; Restore Link Register
- 107d701e8 0x910043ff  ADD SP, SP, #16 ; Deallocate space for saved FP/LR
- 107d701ec 0xd65f03c0  RET
+ 10794c27c 0xf94017b3  LDR X19, [X29, #40] ; Restored Reg: X19 @ FP+40
+ 10794c280 0xf9401bb4  LDR X20, [X29, #48] ; Restored Reg: X20 @ FP+48
+ 10794c284 0xf9401fb5  LDR X21, [X29, #56] ; Restored Reg: X21 @ FP+56
+ 10794c288 0xf94023b6  LDR X22, [X29, #64] ; Restored Reg: X22 @ FP+64
+ 10794c28c 0xf94027b7  LDR X23, [X29, #72] ; Restored Reg: X23 @ FP+72
+ 10794c290 0xf9402bb8  LDR X24, [X29, #80] ; Restored Reg: X24 @ FP+80
+ 10794c294 0xf9402fb9  LDR X25, [X29, #88] ; Restored Reg: X25 @ FP+88
+ 10794c298 0xf94033ba  LDR X26, [X29, #96] ; Restored Reg: X26 @ FP+96
+ 10794c29c 0xf94037bb  LDR X27, [X29, #104] ; Restored Reg: X27 @ FP+104
+ 10794c2a0 0xf9403bbc  LDR X28, [X29, #112] ; Restored Reg: X28 @ FP+112
+ 10794c2a4 0x910003bf  MOV SP, X29 ; Deallocate frame by moving FP to SP
+ 10794c2a8 0xf94003fd  LDR X29, [SP, #0] ; Restore caller's Frame Pointer
+ 10794c2ac 0xf94007fe  LDR X30, [SP, #8] ; Restore Link Register
+ 10794c2b0 0x910043ff  ADD SP, SP, #16 ; Deallocate space for saved FP/LR
+ 10794c2b4 0xd65f03c0  RET
 Point::RELEASE:
- 107d701f0 0xa9bd7bfd  STP X29, X30, [SP, #-48]!
- 107d701f4 0x910003fd  MOV X29, SP
- 107d701f8 0xf9000fb3  STR X19, [X29, #24] ; Saved Reg: X19 @ FP+24
- 107d701fc 0xf90013bc  STR X28, [X29, #32] ; Saved Reg: X28 @ FP+32
- 107d70200 0xaa0003ef  MOV X15, X0    // Move parameter '_this' from X0 to X15
+ 10794c2b8 0xa9bd7bfd  STP X29, X30, [SP, #-48]!
+ 10794c2bc 0x910003fd  MOV X29, SP
+ 10794c2c0 0xf9000fb3  STR X19, [X29, #24] ; Saved Reg: X19 @ FP+24
+ 10794c2c4 0xf90013bc  STR X28, [X29, #32] ; Saved Reg: X28 @ FP+32
+ 10794c2c8 0xaa0003ef  MOV X15, X0    // Move parameter '_this' from X0 to X15
 Point::RELEASE_Entry_0:
- 107d70204 0x14000001  B Point::RELEASE_Exit_1    ; Reloc -> 'Point::RELEASE_Exit_1' @ 0x107d70208
+ 10794c2cc 0x14000001  B Point::RELEASE_Exit_1    ; Reloc -> 'Point::RELEASE_Exit_1' @ 0x10794c2d0
 Point::RELEASE_Exit_1:
- 107d70208 0x14000001  B .L4    ; Reloc -> '.L4' @ 0x107d7020c
+ 10794c2d0 0x14000001  B .L4    ; Reloc -> '.L4' @ 0x10794c2d4
 .L4:
- 107d7020c 0xf9400fb3  LDR X19, [X29, #24] ; Restored Reg: X19 @ FP+24
- 107d70210 0xf94013bc  LDR X28, [X29, #32] ; Restored Reg: X28 @ FP+32
- 107d70214 0x910003bf  MOV SP, X29 ; Deallocate frame by moving FP to SP
- 107d70218 0xf94003fd  LDR X29, [SP, #0] ; Restore caller's Frame Pointer
- 107d7021c 0xf94007fe  LDR X30, [SP, #8] ; Restore Link Register
- 107d70220 0x910043ff  ADD SP, SP, #16 ; Deallocate space for saved FP/LR
- 107d70224 0xd65f03c0  RET
+ 10794c2d4 0xf9400fb3  LDR X19, [X29, #24] ; Restored Reg: X19 @ FP+24
+ 10794c2d8 0xf94013bc  LDR X28, [X29, #32] ; Restored Reg: X28 @ FP+32
+ 10794c2dc 0x910003bf  MOV SP, X29 ; Deallocate frame by moving FP to SP
+ 10794c2e0 0xf94003fd  LDR X29, [SP, #0] ; Restore caller's Frame Pointer
+ 10794c2e4 0xf94007fe  LDR X30, [SP, #8] ; Restore Link Register
+ 10794c2e8 0x910043ff  ADD SP, SP, #16 ; Deallocate space for saved FP/LR
+ 10794c2ec 0xd65f03c0  RET
 START:
- 107d70228 0xa9bc7bfd  STP X29, X30, [SP, #-64]!
- 107d7022c 0x910003fd  MOV X29, SP
- 107d70230 0xf90013b3  STR X19, [X29, #32] ; Saved Reg: X19 @ FP+32
- 107d70234 0xf90017ba  STR X26, [X29, #40] ; Saved Reg: X26 @ FP+40
- 107d70238 0xf9001bbb  STR X27, [X29, #48] ; Saved Reg: X27 @ FP+48
- 107d7023c 0xf9001fbc  STR X28, [X29, #56] ; Saved Reg: X28 @ FP+56
- 107d70240 0xd280001c  MOVZ X28, #0
- 107d70244 0xf2a0f8fc  MOVK X28, #1991, LSL #16
- 107d70248 0xf2c0003c  MOVK X28, #1, LSL #32
- 107d7024c 0xf2e0001c  MOVK X28, #0, LSL #48
+ 10794c2f0 0xa9bc7bfd  STP X29, X30, [SP, #-64]!
+ 10794c2f4 0x910003fd  MOV X29, SP
+ 10794c2f8 0xf90013b3  STR X19, [X29, #32] ; Saved Reg: X19 @ FP+32
+ 10794c2fc 0xf90017ba  STR X26, [X29, #40] ; Saved Reg: X26 @ FP+40
+ 10794c300 0xf9001bbb  STR X27, [X29, #48] ; Saved Reg: X27 @ FP+48
+ 10794c304 0xf9001fbc  STR X28, [X29, #56] ; Saved Reg: X28 @ FP+56
+ 10794c308 0xd290001c  MOVZ X28, #32768
+ 10794c30c 0xf2a05e9c  MOVK X28, #756, LSL #16
+ 10794c310 0xf2c0003c  MOVK X28, #1, LSL #32
+ 10794c314 0xf2e0001c  MOVK X28, #0, LSL #48
 START_Entry_0:
- 107d70250 0x97ffff6d  BL HeapManager_enter_scope_veneer    ; Reloc -> 'HeapManager_enter_scope_veneer' @ 0x107d70004
- 107d70254 0xb0000029  ADRP X9, L_str4    ; Reloc -> 'L_str4' @ 0x107d750d8
- 107d70258 0x91036129  ADD X9, X9, #:lo12:L_str4    ; Reloc -> 'L_str4' @ 0x107d750d8
- 107d7025c 0x91002129  ADD X9, X9, #8
- 107d70260 0xaa0903e0  MOV X0, X9
- 107d70264 0x97ffff74  BL WRITES_veneer    ; Reloc -> 'WRITES_veneer' @ 0x107d70034
- 107d70268 0xd2800300  MOVZ X0, #24
- 107d7026c 0x96b7933b  BL OBJECT_HEAP_ALLOC    ; Reloc -> 'OBJECT_HEAP_ALLOC' @ 0x102b54f58
- 107d70270 0xaa0003f4  MOV X20, X0
- 107d70274 0xb0000029  ADRP X9, Point_vtable    ; Reloc -> 'Point_vtable' @ 0x107d752a4
- 107d70278 0x910a9129  ADD X9, X9, #:lo12:Point_vtable    ; Reloc -> 'Point_vtable' @ 0x107d752a4
- 107d7027c 0xf9000289  STR X9, [X20, #0] ; store vtable ptr
- 107d70280 0xaa1403fa  MOV X26, X20
- 107d70284 0xb0000029  ADRP X9, L_str5    ; Reloc -> 'L_str5' @ 0x107d75130
- 107d70288 0x9104c129  ADD X9, X9, #:lo12:L_str5    ; Reloc -> 'L_str5' @ 0x107d75130
- 107d7028c 0x91002129  ADD X9, X9, #8
- 107d70290 0xaa0903e0  MOV X0, X9
- 107d70294 0x97ffff68  BL WRITES_veneer    ; Reloc -> 'WRITES_veneer' @ 0x107d70034
- 107d70298 0xf9400349  LDR X9, [X26, #0] ; Load vtable pointer
- 107d7029c 0xf940092a  LDR X10, [X9, #16] ; Load method address
- 107d702a0 0xaa1a03e0  MOV X0, X26
- 107d702a4 0xd63f0140  BLR X10
- 107d702a8 0xaa0003fb  MOV X27, X0
- 107d702ac 0xaa1b03e0  MOV X0, X27
- 107d702b0 0x97ffff5d  BL WRITEN_veneer    ; Reloc -> 'WRITEN_veneer' @ 0x107d70024
- 107d702b4 0xb0000029  ADRP X9, L_str6    ; Reloc -> 'L_str6' @ 0x107d75188
- 107d702b8 0x91062129  ADD X9, X9, #:lo12:L_str6    ; Reloc -> 'L_str6' @ 0x107d75188
- 107d702bc 0x91002129  ADD X9, X9, #8
- 107d702c0 0xaa0903e0  MOV X0, X9
- 107d702c4 0x97ffff5c  BL WRITES_veneer    ; Reloc -> 'WRITES_veneer' @ 0x107d70034
- 107d702c8 0xaa1b03e0  MOV X0, X27
- 107d702cc 0x97ffff56  BL WRITEN_veneer    ; Reloc -> 'WRITEN_veneer' @ 0x107d70024
- 107d702d0 0xb0000029  ADRP X9, L_str7    ; Reloc -> 'L_str7' @ 0x107d751a8
- 107d702d4 0x9106a129  ADD X9, X9, #:lo12:L_str7    ; Reloc -> 'L_str7' @ 0x107d751a8
- 107d702d8 0x91002129  ADD X9, X9, #8
- 107d702dc 0xaa0903e0  MOV X0, X9
- 107d702e0 0x97ffff55  BL WRITES_veneer    ; Reloc -> 'WRITES_veneer' @ 0x107d70034
- 107d702e4 0xb0000029  ADRP X9, L_str8    ; Reloc -> 'L_str8' @ 0x107d751c0
- 107d702e8 0x91070129  ADD X9, X9, #:lo12:L_str8    ; Reloc -> 'L_str8' @ 0x107d751c0
- 107d702ec 0x91002129  ADD X9, X9, #8
- 107d702f0 0xaa0903e0  MOV X0, X9
- 107d702f4 0x97ffff50  BL WRITES_veneer    ; Reloc -> 'WRITES_veneer' @ 0x107d70034
- 107d702f8 0xd2800c89  MOVZ X9, #100
- 107d702fc 0xaa0903f4  MOV X20, X9
- 107d70300 0xd2801909  MOVZ X9, #200
- 107d70304 0xaa0903f5  MOV X21, X9
- 107d70308 0xaa1a03e0  MOV X0, X26
- 107d7030c 0xaa1403e1  MOV X1, X20
- 107d70310 0xaa1503e2  MOV X2, X21
- 107d70314 0x97ffff84  BL Point::set    ; Reloc -> 'Point::set' @ 0x107d70124
- 107d70318 0xb0000029  ADRP X9, L_str9    ; Reloc -> 'L_str9' @ 0x107d75228
- 107d7031c 0x9108a129  ADD X9, X9, #:lo12:L_str9    ; Reloc -> 'L_str9' @ 0x107d75228
- 107d70320 0x91002129  ADD X9, X9, #8
- 107d70324 0xaa0903e0  MOV X0, X9
- 107d70328 0x97ffff43  BL WRITES_veneer    ; Reloc -> 'WRITES_veneer' @ 0x107d70034
- 107d7032c 0xaa1b03e0  MOV X0, X27
- 107d70330 0x97ffff3d  BL WRITEN_veneer    ; Reloc -> 'WRITEN_veneer' @ 0x107d70024
- 107d70334 0xb0000029  ADRP X9, L_str6    ; Reloc -> 'L_str6' @ 0x107d75188
- 107d70338 0x91062129  ADD X9, X9, #:lo12:L_str6    ; Reloc -> 'L_str6' @ 0x107d75188
- 107d7033c 0x91002129  ADD X9, X9, #8
- 107d70340 0xaa0903e0  MOV X0, X9
- 107d70344 0x97ffff3c  BL WRITES_veneer    ; Reloc -> 'WRITES_veneer' @ 0x107d70034
- 107d70348 0xaa1b03e0  MOV X0, X27
- 107d7034c 0x97ffff36  BL WRITEN_veneer    ; Reloc -> 'WRITEN_veneer' @ 0x107d70024
- 107d70350 0xb0000029  ADRP X9, L_str10    ; Reloc -> 'L_str10' @ 0x107d75290
- 107d70354 0x910a4129  ADD X9, X9, #:lo12:L_str10    ; Reloc -> 'L_str10' @ 0x107d75290
- 107d70358 0x91002129  ADD X9, X9, #8
- 107d7035c 0xaa0903e0  MOV X0, X9
- 107d70360 0x97ffff35  BL WRITES_veneer    ; Reloc -> 'WRITES_veneer' @ 0x107d70034
- 107d70364 0x97ffff2c  BL HeapManager_exit_scope_veneer    ; Reloc -> 'HeapManager_exit_scope_veneer' @ 0x107d70014
- 107d70368 0x14000001  B START_Exit_1    ; Reloc -> 'START_Exit_1' @ 0x107d7036c
+ 10794c318 0x97ffff3b  BL HeapManager_enter_scope_veneer    ; Reloc -> 'HeapManager_enter_scope_veneer' @ 0x10794c004
+ 10794c31c 0xb0000029  ADRP X9, L_str4    ; Reloc -> 'L_str4' @ 0x1079510d8
+ 10794c320 0x91036129  ADD X9, X9, #:lo12:L_str4    ; Reloc -> 'L_str4' @ 0x1079510d8
+ 10794c324 0x91002129  ADD X9, X9, #8
+ 10794c328 0xaa0903e0  MOV X0, X9
+ 10794c32c 0x97ffff42  BL WRITES_veneer    ; Reloc -> 'WRITES_veneer' @ 0x10794c034
+ 10794c330 0xd2800300  MOVZ X0, #24
+ 10794c334 0x96b8d12e  BL OBJECT_HEAP_ALLOC    ; Reloc -> 'OBJECT_HEAP_ALLOC' @ 0x1027807ec
+ 10794c338 0xaa0003f4  MOV X20, X0
+ 10794c33c 0xb0000029  ADRP X9, Point_vtable    ; Reloc -> 'Point_vtable' @ 0x1079512a4
+ 10794c340 0x910a9129  ADD X9, X9, #:lo12:Point_vtable    ; Reloc -> 'Point_vtable' @ 0x1079512a4
+ 10794c344 0xf9000289  STR X9, [X20, #0] ; store vtable ptr
+ 10794c348 0xaa1403e0  MOV X0, X20
+ 10794c34c 0xd2800649  MOVZ X9, #50
+ 10794c350 0xaa0903e1  MOV X1, X9
+ 10794c354 0xd2800969  MOVZ X9, #75
+ 10794c358 0xaa0903e2  MOV X2, X9
+ 10794c35c 0xf9400289  LDR X9, [X20, #0] ; Load vtable pointer for CREATE call
+ 10794c360 0xf940012a  LDR X10, [X9, #0] ; Load CREATE method address
+ 10794c364 0xd63f0140  BLR X10
+ 10794c368 0xaa1403fa  MOV X26, X20
+ 10794c36c 0xb0000029  ADRP X9, L_str5    ; Reloc -> 'L_str5' @ 0x107951130
+ 10794c370 0x9104c129  ADD X9, X9, #:lo12:L_str5    ; Reloc -> 'L_str5' @ 0x107951130
+ 10794c374 0x91002129  ADD X9, X9, #8
+ 10794c378 0xaa0903e0  MOV X0, X9
+ 10794c37c 0x97ffff2e  BL WRITES_veneer    ; Reloc -> 'WRITES_veneer' @ 0x10794c034
+ 10794c380 0xf9400349  LDR X9, [X26, #0] ; Load vtable pointer
+ 10794c384 0xf940092a  LDR X10, [X9, #16] ; Load method address
+ 10794c388 0xaa1a03e0  MOV X0, X26
+ 10794c38c 0xd63f0140  BLR X10
+ 10794c390 0xaa0003fb  MOV X27, X0
+ 10794c394 0xaa1b03e0  MOV X0, X27
+ 10794c398 0x97ffff23  BL WRITEN_veneer    ; Reloc -> 'WRITEN_veneer' @ 0x10794c024
+ 10794c39c 0xb0000029  ADRP X9, L_str6    ; Reloc -> 'L_str6' @ 0x107951188
+ 10794c3a0 0x91062129  ADD X9, X9, #:lo12:L_str6    ; Reloc -> 'L_str6' @ 0x107951188
+ 10794c3a4 0x91002129  ADD X9, X9, #8
+ 10794c3a8 0xaa0903e0  MOV X0, X9
+ 10794c3ac 0x97ffff22  BL WRITES_veneer    ; Reloc -> 'WRITES_veneer' @ 0x10794c034
+ 10794c3b0 0xaa1b03e0  MOV X0, X27
+ 10794c3b4 0x97ffff1c  BL WRITEN_veneer    ; Reloc -> 'WRITEN_veneer' @ 0x10794c024
+ 10794c3b8 0xb0000029  ADRP X9, L_str7    ; Reloc -> 'L_str7' @ 0x1079511a8
+ 10794c3bc 0x9106a129  ADD X9, X9, #:lo12:L_str7    ; Reloc -> 'L_str7' @ 0x1079511a8
+ 10794c3c0 0x91002129  ADD X9, X9, #8
+ 10794c3c4 0xaa0903e0  MOV X0, X9
+ 10794c3c8 0x97ffff1b  BL WRITES_veneer    ; Reloc -> 'WRITES_veneer' @ 0x10794c034
+ 10794c3cc 0xb0000029  ADRP X9, L_str8    ; Reloc -> 'L_str8' @ 0x1079511c0
+ 10794c3d0 0x91070129  ADD X9, X9, #:lo12:L_str8    ; Reloc -> 'L_str8' @ 0x1079511c0
+ 10794c3d4 0x91002129  ADD X9, X9, #8
+ 10794c3d8 0xaa0903e0  MOV X0, X9
+ 10794c3dc 0x97ffff16  BL WRITES_veneer    ; Reloc -> 'WRITES_veneer' @ 0x10794c034
+ 10794c3e0 0xd2800c89  MOVZ X9, #100
+ 10794c3e4 0xaa0903f4  MOV X20, X9
+ 10794c3e8 0xd2801909  MOVZ X9, #200
+ 10794c3ec 0xaa0903f5  MOV X21, X9
+ 10794c3f0 0xaa1a03e0  MOV X0, X26
+ 10794c3f4 0xaa1403e1  MOV X1, X20
+ 10794c3f8 0xaa1503e2  MOV X2, X21
+ 10794c3fc 0x97ffff72  BL Point::set    ; Reloc -> 'Point::set' @ 0x10794c1c4
+ 10794c400 0xb0000029  ADRP X9, L_str9    ; Reloc -> 'L_str9' @ 0x107951228
+ 10794c404 0x9108a129  ADD X9, X9, #:lo12:L_str9    ; Reloc -> 'L_str9' @ 0x107951228
+ 10794c408 0x91002129  ADD X9, X9, #8
+ 10794c40c 0xaa0903e0  MOV X0, X9
+ 10794c410 0x97ffff09  BL WRITES_veneer    ; Reloc -> 'WRITES_veneer' @ 0x10794c034
+ 10794c414 0xaa1b03e0  MOV X0, X27
+ 10794c418 0x97ffff03  BL WRITEN_veneer    ; Reloc -> 'WRITEN_veneer' @ 0x10794c024
+ 10794c41c 0xb0000029  ADRP X9, L_str6    ; Reloc -> 'L_str6' @ 0x107951188
+ 10794c420 0x91062129  ADD X9, X9, #:lo12:L_str6    ; Reloc -> 'L_str6' @ 0x107951188
+ 10794c424 0x91002129  ADD X9, X9, #8
+ 10794c428 0xaa0903e0  MOV X0, X9
+ 10794c42c 0x97ffff02  BL WRITES_veneer    ; Reloc -> 'WRITES_veneer' @ 0x10794c034
+ 10794c430 0xaa1b03e0  MOV X0, X27
+ 10794c434 0x97fffefc  BL WRITEN_veneer    ; Reloc -> 'WRITEN_veneer' @ 0x10794c024
+ 10794c438 0xb0000029  ADRP X9, L_str10    ; Reloc -> 'L_str10' @ 0x107951290
+ 10794c43c 0x910a4129  ADD X9, X9, #:lo12:L_str10    ; Reloc -> 'L_str10' @ 0x107951290
+ 10794c440 0x91002129  ADD X9, X9, #8
+ 10794c444 0xaa0903e0  MOV X0, X9
+ 10794c448 0x97fffefb  BL WRITES_veneer    ; Reloc -> 'WRITES_veneer' @ 0x10794c034
+ 10794c44c 0x97fffef2  BL HeapManager_exit_scope_veneer    ; Reloc -> 'HeapManager_exit_scope_veneer' @ 0x10794c014
+ 10794c450 0x14000001  B START_Exit_1    ; Reloc -> 'START_Exit_1' @ 0x10794c454
 START_Exit_1:
- 107d7036c 0x14000001  B .L5    ; Reloc -> '.L5' @ 0x107d70370
+ 10794c454 0x14000001  B .L5    ; Reloc -> '.L5' @ 0x10794c458
 .L5:
- 107d70370 0xf94013b3  LDR X19, [X29, #32] ; Restored Reg: X19 @ FP+32
- 107d70374 0xf94017ba  LDR X26, [X29, #40] ; Restored Reg: X26 @ FP+40
- 107d70378 0xf9401bbb  LDR X27, [X29, #48] ; Restored Reg: X27 @ FP+48
- 107d7037c 0xf9401fbc  LDR X28, [X29, #56] ; Restored Reg: X28 @ FP+56
- 107d70380 0x910003bf  MOV SP, X29 ; Deallocate frame by moving FP to SP
- 107d70384 0xf94003fd  LDR X29, [SP, #0] ; Restore caller's Frame Pointer
- 107d70388 0xf94007fe  LDR X30, [SP, #8] ; Restore Link Register
- 107d7038c 0x910043ff  ADD SP, SP, #16 ; Deallocate space for saved FP/LR
- 107d70390 0xd65f03c0  RET
+ 10794c458 0xf94013b3  LDR X19, [X29, #32] ; Restored Reg: X19 @ FP+32
+ 10794c45c 0xf94017ba  LDR X26, [X29, #40] ; Restored Reg: X26 @ FP+40
+ 10794c460 0xf9401bbb  LDR X27, [X29, #48] ; Restored Reg: X27 @ FP+48
+ 10794c464 0xf9401fbc  LDR X28, [X29, #56] ; Restored Reg: X28 @ FP+56
+ 10794c468 0x910003bf  MOV SP, X29 ; Deallocate frame by moving FP to SP
+ 10794c46c 0xf94003fd  LDR X29, [SP, #0] ; Restore caller's Frame Pointer
+ 10794c470 0xf94007fe  LDR X30, [SP, #8] ; Restore Link Register
+ 10794c474 0x910043ff  ADD SP, SP, #16 ; Deallocate space for saved FP/LR
+ 10794c478 0xd65f03c0  RET
 L_str0:
- 107d75000 0x12000000  .quad 0x12
- 107d75004 0x00000000  ; (upper half)
- 107d75008 0x50000000  DCD 0x50
- 107d7500c 0x6f000000  DCD 0x6f
- 107d75010 0x69000000  DCD 0x69
- 107d75014 0x6e000000  DCD 0x6e
- 107d75018 0x74000000  DCD 0x74
- 107d7501c 0x20000000  DCD 0x20
- 107d75020 0x63000000  DCD 0x63
- 107d75024 0x72000000  DCD 0x72
- 107d75028 0x65000000  DCD 0x65
- 107d7502c 0x61000000  DCD 0x61
- 107d75030 0x74000000  DCD 0x74
- 107d75034 0x65000000  DCD 0x65
- 107d75038 0x64000000  DCD 0x64
- 107d7503c 0x20000000  DCD 0x20
- 107d75040 0x61000000  DCD 0x61
- 107d75044 0x74000000  DCD 0x74
- 107d75048 0x20000000  DCD 0x20
- 107d7504c 0x28000000  DCD 0x28
- 107d75050 0x00000000  DCD 0x0
- 107d75054 0x00000000  DCD 0x0
+ 107951000 0x12000000  .quad 0x12
+ 107951004 0x00000000  ; (upper half)
+ 107951008 0x50000000  DCD 0x50
+ 10795100c 0x6f000000  DCD 0x6f
+ 107951010 0x69000000  DCD 0x69
+ 107951014 0x6e000000  DCD 0x6e
+ 107951018 0x74000000  DCD 0x74
+ 10795101c 0x20000000  DCD 0x20
+ 107951020 0x63000000  DCD 0x63
+ 107951024 0x72000000  DCD 0x72
+ 107951028 0x65000000  DCD 0x65
+ 10795102c 0x61000000  DCD 0x61
+ 107951030 0x74000000  DCD 0x74
+ 107951034 0x65000000  DCD 0x65
+ 107951038 0x64000000  DCD 0x64
+ 10795103c 0x20000000  DCD 0x20
+ 107951040 0x61000000  DCD 0x61
+ 107951044 0x74000000  DCD 0x74
+ 107951048 0x20000000  DCD 0x20
+ 10795104c 0x28000000  DCD 0x28
+ 107951050 0x00000000  DCD 0x0
+ 107951054 0x00000000  DCD 0x0
 L_str1:
- 107d75058 0x20000000  .quad 0x2
- 107d7505c 0x00000000  ; (upper half)
- 107d75060 0x2c000000  DCD 0x2c
- 107d75064 0x20000000  DCD 0x20
- 107d75068 0x00000000  DCD 0x0
- 107d7506c 0x00000000  DCD 0x0
+ 107951058 0x20000000  .quad 0x2
+ 10795105c 0x00000000  ; (upper half)
+ 107951060 0x2c000000  DCD 0x2c
+ 107951064 0x20000000  DCD 0x20
+ 107951068 0x00000000  DCD 0x0
+ 10795106c 0x00000000  DCD 0x0
 L_str2:
- 107d75070 0x20000000  .quad 0x2
- 107d75074 0x00000000  ; (upper half)
- 107d75078 0x29000000  DCD 0x29
- 107d7507c 0xa0000000  DCD 0xa
- 107d75080 0x00000000  DCD 0x0
- 107d75084 0x00000000  DCD 0x0
+ 107951070 0x20000000  .quad 0x2
+ 107951074 0x00000000  ; (upper half)
+ 107951078 0x29000000  DCD 0x29
+ 10795107c 0xa0000000  DCD 0xa
+ 107951080 0x00000000  DCD 0x0
+ 107951084 0x00000000  DCD 0x0
 L_str3:
- 107d75088 0x10000000  .quad 0x10
- 107d7508c 0x00000000  ; (upper half)
- 107d75090 0x50000000  DCD 0x50
- 107d75094 0x6f000000  DCD 0x6f
- 107d75098 0x69000000  DCD 0x69
- 107d7509c 0x6e000000  DCD 0x6e
- 107d750a0 0x74000000  DCD 0x74
- 107d750a4 0x20000000  DCD 0x20
- 107d750a8 0x6d000000  DCD 0x6d
- 107d750ac 0x6f000000  DCD 0x6f
- 107d750b0 0x76000000  DCD 0x76
- 107d750b4 0x65000000  DCD 0x65
- 107d750b8 0x64000000  DCD 0x64
- 107d750bc 0x20000000  DCD 0x20
- 107d750c0 0x74000000  DCD 0x74
- 107d750c4 0x6f000000  DCD 0x6f
- 107d750c8 0x20000000  DCD 0x20
- 107d750cc 0x28000000  DCD 0x28
- 107d750d0 0x00000000  DCD 0x0
- 107d750d4 0x00000000  DCD 0x0
+ 107951088 0x10000000  .quad 0x10
+ 10795108c 0x00000000  ; (upper half)
+ 107951090 0x50000000  DCD 0x50
+ 107951094 0x6f000000  DCD 0x6f
+ 107951098 0x69000000  DCD 0x69
+ 10795109c 0x6e000000  DCD 0x6e
+ 1079510a0 0x74000000  DCD 0x74
+ 1079510a4 0x20000000  DCD 0x20
+ 1079510a8 0x6d000000  DCD 0x6d
+ 1079510ac 0x6f000000  DCD 0x6f
+ 1079510b0 0x76000000  DCD 0x76
+ 1079510b4 0x65000000  DCD 0x65
+ 1079510b8 0x64000000  DCD 0x64
+ 1079510bc 0x20000000  DCD 0x20
+ 1079510c0 0x74000000  DCD 0x74
+ 1079510c4 0x6f000000  DCD 0x6f
+ 1079510c8 0x20000000  DCD 0x20
+ 1079510cc 0x28000000  DCD 0x28
+ 1079510d0 0x00000000  DCD 0x0
+ 1079510d4 0x00000000  DCD 0x0
 L_str4:
- 107d750d8 0x12000000  .quad 0x12
- 107d750dc 0x00000000  ; (upper half)
- 107d750e0 0x43000000  DCD 0x43
- 107d750e4 0x72000000  DCD 0x72
- 107d750e8 0x65000000  DCD 0x65
- 107d750ec 0x61000000  DCD 0x61
- 107d750f0 0x74000000  DCD 0x74
- 107d750f4 0x69000000  DCD 0x69
- 107d750f8 0x6e000000  DCD 0x6e
- 107d750fc 0x67000000  DCD 0x67
- 107d75100 0x20000000  DCD 0x20
- 107d75104 0x70000000  DCD 0x70
- 107d75108 0x6f000000  DCD 0x6f
- 107d7510c 0x69000000  DCD 0x69
- 107d75110 0x6e000000  DCD 0x6e
- 107d75114 0x74000000  DCD 0x74
- 107d75118 0x2e000000  DCD 0x2e
- 107d7511c 0x2e000000  DCD 0x2e
- 107d75120 0x2e000000  DCD 0x2e
- 107d75124 0xa0000000  DCD 0xa
- 107d75128 0x00000000  DCD 0x0
- 107d7512c 0x00000000  DCD 0x0
+ 1079510d8 0x12000000  .quad 0x12
+ 1079510dc 0x00000000  ; (upper half)
+ 1079510e0 0x43000000  DCD 0x43
+ 1079510e4 0x72000000  DCD 0x72
+ 1079510e8 0x65000000  DCD 0x65
+ 1079510ec 0x61000000  DCD 0x61
+ 1079510f0 0x74000000  DCD 0x74
+ 1079510f4 0x69000000  DCD 0x69
+ 1079510f8 0x6e000000  DCD 0x6e
+ 1079510fc 0x67000000  DCD 0x67
+ 107951100 0x20000000  DCD 0x20
+ 107951104 0x70000000  DCD 0x70
+ 107951108 0x6f000000  DCD 0x6f
+ 10795110c 0x69000000  DCD 0x69
+ 107951110 0x6e000000  DCD 0x6e
+ 107951114 0x74000000  DCD 0x74
+ 107951118 0x2e000000  DCD 0x2e
+ 10795111c 0x2e000000  DCD 0x2e
+ 107951120 0x2e000000  DCD 0x2e
+ 107951124 0xa0000000  DCD 0xa
+ 107951128 0x00000000  DCD 0x0
+ 10795112c 0x00000000  DCD 0x0
 L_str5:
- 107d75130 0x12000000  .quad 0x12
- 107d75134 0x00000000  ; (upper half)
- 107d75138 0x52000000  DCD 0x52
- 107d7513c 0x65000000  DCD 0x65
- 107d75140 0x61000000  DCD 0x61
- 107d75144 0x64000000  DCD 0x64
- 107d75148 0x69000000  DCD 0x69
- 107d7514c 0x6e000000  DCD 0x6e
- 107d75150 0x67000000  DCD 0x67
- 107d75154 0x20000000  DCD 0x20
- 107d75158 0x76000000  DCD 0x76
- 107d7515c 0x61000000  DCD 0x61
- 107d75160 0x6c000000  DCD 0x6c
- 107d75164 0x75000000  DCD 0x75
- 107d75168 0x65000000  DCD 0x65
- 107d7516c 0x73000000  DCD 0x73
- 107d75170 0x3a000000  DCD 0x3a
- 107d75174 0x20000000  DCD 0x20
- 107d75178 0x78000000  DCD 0x78
- 107d7517c 0x3d000000  DCD 0x3d
- 107d75180 0x00000000  DCD 0x0
- 107d75184 0x00000000  DCD 0x0
+ 107951130 0x12000000  .quad 0x12
+ 107951134 0x00000000  ; (upper half)
+ 107951138 0x52000000  DCD 0x52
+ 10795113c 0x65000000  DCD 0x65
+ 107951140 0x61000000  DCD 0x61
+ 107951144 0x64000000  DCD 0x64
+ 107951148 0x69000000  DCD 0x69
+ 10795114c 0x6e000000  DCD 0x6e
+ 107951150 0x67000000  DCD 0x67
+ 107951154 0x20000000  DCD 0x20
+ 107951158 0x76000000  DCD 0x76
+ 10795115c 0x61000000  DCD 0x61
+ 107951160 0x6c000000  DCD 0x6c
+ 107951164 0x75000000  DCD 0x75
+ 107951168 0x65000000  DCD 0x65
+ 10795116c 0x73000000  DCD 0x73
+ 107951170 0x3a000000  DCD 0x3a
+ 107951174 0x20000000  DCD 0x20
+ 107951178 0x78000000  DCD 0x78
+ 10795117c 0x3d000000  DCD 0x3d
+ 107951180 0x00000000  DCD 0x0
+ 107951184 0x00000000  DCD 0x0
 L_str6:
- 107d75188 0x40000000  .quad 0x4
- 107d7518c 0x00000000  ; (upper half)
- 107d75190 0x2c000000  DCD 0x2c
- 107d75194 0x20000000  DCD 0x20
- 107d75198 0x79000000  DCD 0x79
- 107d7519c 0x3d000000  DCD 0x3d
- 107d751a0 0x00000000  DCD 0x0
- 107d751a4 0x00000000  DCD 0x0
+ 107951188 0x40000000  .quad 0x4
+ 10795118c 0x00000000  ; (upper half)
+ 107951190 0x2c000000  DCD 0x2c
+ 107951194 0x20000000  DCD 0x20
+ 107951198 0x79000000  DCD 0x79
+ 10795119c 0x3d000000  DCD 0x3d
+ 1079511a0 0x00000000  DCD 0x0
+ 1079511a4 0x00000000  DCD 0x0
 L_str7:
- 107d751a8 0x20000000  .quad 0x2
- 107d751ac 0x00000000  ; (upper half)
- 107d751b0 0xa0000000  DCD 0xa
- 107d751b4 0xa0000000  DCD 0xa
- 107d751b8 0x00000000  DCD 0x0
- 107d751bc 0x00000000  DCD 0x0
+ 1079511a8 0x20000000  .quad 0x2
+ 1079511ac 0x00000000  ; (upper half)
+ 1079511b0 0xa0000000  DCD 0xa
+ 1079511b4 0xa0000000  DCD 0xa
+ 1079511b8 0x00000000  DCD 0x0
+ 1079511bc 0x00000000  DCD 0x0
 L_str8:
- 107d751c0 0x16000000  .quad 0x16
- 107d751c4 0x00000000  ; (upper half)
- 107d751c8 0x53000000  DCD 0x53
- 107d751cc 0x65000000  DCD 0x65
- 107d751d0 0x74000000  DCD 0x74
- 107d751d4 0x74000000  DCD 0x74
- 107d751d8 0x69000000  DCD 0x69
- 107d751dc 0x6e000000  DCD 0x6e
- 107d751e0 0x67000000  DCD 0x67
- 107d751e4 0x20000000  DCD 0x20
- 107d751e8 0x6e000000  DCD 0x6e
- 107d751ec 0x65000000  DCD 0x65
- 107d751f0 0x77000000  DCD 0x77
- 107d751f4 0x20000000  DCD 0x20
- 107d751f8 0x76000000  DCD 0x76
- 107d751fc 0x61000000  DCD 0x61
- 107d75200 0x6c000000  DCD 0x6c
- 107d75204 0x75000000  DCD 0x75
- 107d75208 0x65000000  DCD 0x65
- 107d7520c 0x73000000  DCD 0x73
- 107d75210 0x2e000000  DCD 0x2e
- 107d75214 0x2e000000  DCD 0x2e
- 107d75218 0x2e000000  DCD 0x2e
- 107d7521c 0xa0000000  DCD 0xa
- 107d75220 0x00000000  DCD 0x0
- 107d75224 0x00000000  DCD 0x0
+ 1079511c0 0x16000000  .quad 0x16
+ 1079511c4 0x00000000  ; (upper half)
+ 1079511c8 0x53000000  DCD 0x53
+ 1079511cc 0x65000000  DCD 0x65
+ 1079511d0 0x74000000  DCD 0x74
+ 1079511d4 0x74000000  DCD 0x74
+ 1079511d8 0x69000000  DCD 0x69
+ 1079511dc 0x6e000000  DCD 0x6e
+ 1079511e0 0x67000000  DCD 0x67
+ 1079511e4 0x20000000  DCD 0x20
+ 1079511e8 0x6e000000  DCD 0x6e
+ 1079511ec 0x65000000  DCD 0x65
+ 1079511f0 0x77000000  DCD 0x77
+ 1079511f4 0x20000000  DCD 0x20
+ 1079511f8 0x76000000  DCD 0x76
+ 1079511fc 0x61000000  DCD 0x61
+ 107951200 0x6c000000  DCD 0x6c
+ 107951204 0x75000000  DCD 0x75
+ 107951208 0x65000000  DCD 0x65
+ 10795120c 0x73000000  DCD 0x73
+ 107951210 0x2e000000  DCD 0x2e
+ 107951214 0x2e000000  DCD 0x2e
+ 107951218 0x2e000000  DCD 0x2e
+ 10795121c 0xa0000000  DCD 0xa
+ 107951220 0x00000000  DCD 0x0
+ 107951224 0x00000000  DCD 0x0
 L_str9:
- 107d75228 0x16000000  .quad 0x16
- 107d7522c 0x00000000  ; (upper half)
- 107d75230 0x52000000  DCD 0x52
- 107d75234 0x65000000  DCD 0x65
- 107d75238 0x61000000  DCD 0x61
- 107d7523c 0x64000000  DCD 0x64
- 107d75240 0x69000000  DCD 0x69
- 107d75244 0x6e000000  DCD 0x6e
- 107d75248 0x67000000  DCD 0x67
- 107d7524c 0x20000000  DCD 0x20
- 107d75250 0x6e000000  DCD 0x6e
- 107d75254 0x65000000  DCD 0x65
- 107d75258 0x77000000  DCD 0x77
- 107d7525c 0x20000000  DCD 0x20
- 107d75260 0x76000000  DCD 0x76
- 107d75264 0x61000000  DCD 0x61
- 107d75268 0x6c000000  DCD 0x6c
- 107d7526c 0x75000000  DCD 0x75
- 107d75270 0x65000000  DCD 0x65
- 107d75274 0x73000000  DCD 0x73
- 107d75278 0x3a000000  DCD 0x3a
- 107d7527c 0x20000000  DCD 0x20
- 107d75280 0x78000000  DCD 0x78
- 107d75284 0x3d000000  DCD 0x3d
- 107d75288 0x00000000  DCD 0x0
- 107d7528c 0x00000000  DCD 0x0
+ 107951228 0x16000000  .quad 0x16
+ 10795122c 0x00000000  ; (upper half)
+ 107951230 0x52000000  DCD 0x52
+ 107951234 0x65000000  DCD 0x65
+ 107951238 0x61000000  DCD 0x61
+ 10795123c 0x64000000  DCD 0x64
+ 107951240 0x69000000  DCD 0x69
+ 107951244 0x6e000000  DCD 0x6e
+ 107951248 0x67000000  DCD 0x67
+ 10795124c 0x20000000  DCD 0x20
+ 107951250 0x6e000000  DCD 0x6e
+ 107951254 0x65000000  DCD 0x65
+ 107951258 0x77000000  DCD 0x77
+ 10795125c 0x20000000  DCD 0x20
+ 107951260 0x76000000  DCD 0x76
+ 107951264 0x61000000  DCD 0x61
+ 107951268 0x6c000000  DCD 0x6c
+ 10795126c 0x75000000  DCD 0x75
+ 107951270 0x65000000  DCD 0x65
+ 107951274 0x73000000  DCD 0x73
+ 107951278 0x3a000000  DCD 0x3a
+ 10795127c 0x20000000  DCD 0x20
+ 107951280 0x78000000  DCD 0x78
+ 107951284 0x3d000000  DCD 0x3d
+ 107951288 0x00000000  DCD 0x0
+ 10795128c 0x00000000  DCD 0x0
 L_str10:
- 107d75290 0x10000000  .quad 0x1
- 107d75294 0x00000000  ; (upper half)
- 107d75298 0xa0000000  DCD 0xa
- 107d7529c 0x00000000  DCD 0x0
- 107d752a0 0x00000000  DCD 0x0
+ 107951290 0x10000000  .quad 0x1
+ 107951294 0x00000000  ; (upper half)
+ 107951298 0xa0000000  DCD 0xa
+ 10795129c 0x00000000  DCD 0x0
+ 1079512a0 0x00000000  DCD 0x0
 Point_vtable:
- 107d752a4 0x7d700480  .quad Point::CREATE    ; Reloc -> 'Point::CREATE' @ 0x107d70048
- 107d752ac 0x7d701f00  .quad Point::RELEASE    ; Reloc -> 'Point::RELEASE' @ 0x107d701f0
- 107d752b4 0x7d701140  .quad Point::getX    ; Reloc -> 'Point::getX' @ 0x107d70114
- 107d752bc 0x7d7011c0  .quad Point::getY    ; Reloc -> 'Point::getY' @ 0x107d7011c
- 107d752c4 0x7d701240  .quad Point::set    ; Reloc -> 'Point::set' @ 0x107d70124
+ 1079512a4 0x794c0480  .quad Point::CREATE    ; Reloc -> 'Point::CREATE' @ 0x10794c048
+ 1079512ac 0x794c2b80  .quad Point::RELEASE    ; Reloc -> 'Point::RELEASE' @ 0x10794c2b8
+ 1079512b4 0x794c13c0  .quad Point::getX    ; Reloc -> 'Point::getX' @ 0x10794c13c
+ 1079512bc 0x794c1800  .quad Point::getY    ; Reloc -> 'Point::getY' @ 0x10794c180
+ 1079512c4 0x794c1c40  .quad Point::set    ; Reloc -> 'Point::set' @ 0x10794c1c4
 
 --------------------------
 
@@ -4085,34 +4177,35 @@ JIT runtime table populated with 123 function pointers.
 Set runtime function table memory to read-only.
 
 --- JIT Execution ---
-JIT execution enabled. Entry point 'START' at 0x107d70228
-[JITExecutor] Starting execution of JIT-compiled function at address: 0x107d70228
+JIT execution enabled. Entry point 'START' at 0x10794c2f0
+[JITExecutor] Starting execution of JIT-compiled function at address: 0x10794c2f0
 SAMM: Entered scope (depth: 2)
 Creating point...
-SAMM: Tracked allocation 0x848cb0000 in scope (depth: 2, scope size: 1)
-DEBUG: ListAtom allocated at 0x848cb0000 (total atoms: 1)
-Reading values: x=0, y=0
+SAMM: Tracked allocation 0x752c380e0 in scope (depth: 2, scope size: 1)
+DEBUG: ListAtom allocated at 0x752c380e0 (total atoms: 1)
+Point created at (50, 75)
+Reading values: x=50, y=50
 
 Setting new values...
 Point moved to (100, 200)
-Reading new values: x=0, y=0
+Reading new values: x=50, y=50
 SAMM: Scope exit - found 1 objects to cleanup (remaining depth: 1)
 SAMM: About to queue 1 objects for cleanup
 SAMM: Queued objects for background cleanup (queue depth: 1)
 SAMM: Notified background worker
-JIT Execution completed with result: 4468440880
-  Same value as double: 2.2077e-314
-[JITExecutor] Execution completed. Result: 4468440880
+JIT Execution completed with result: 4464098944
+  Same value as double: 2.20556e-314
+[JITExecutor] Execution completed. Result: 4464098944
 
---- JIT returned with result: 4468440880 ---
+--- JIT returned with result: 4464098944 ---
 SAMM: Worker woke up, queue size: 1, running: YES
 SAMM: Processing batch of 1 objects
 SAMM: cleanupPointersImmediate called with 1 pointers
-SAMM: Cleaning up pointer 0x848cb0000
-DEBUG: HeapManager::free called with payload=0x848cb0000
-DEBUG: Checking payload 0x848cb0000 in Bloom filter
-DEBUG: Checking base address 0x848cafff8 in Bloom filter
-DEBUG: Adding base address 0x848cb0000 to Bloom filter
+SAMM: Cleaning up pointer 0x752c380e0
+DEBUG: HeapManager::free called with payload=0x752c380e0
+DEBUG: Checking payload 0x752c380e0 in Bloom filter
+DEBUG: Checking base address 0x752c380d8 in Bloom filter
+DEBUG: Adding base address 0x752c380e0 to Bloom filter
 
 --- BCPL Runtime Metrics ---
 Memory allocations: 1 (24 bytes)
@@ -4126,8 +4219,8 @@ Bloom filter statistics:
   Memory usage: 12000000 bytes
   False positives: 0
 DEBUG: Fixed Bloom filter (12MB) now has ~1 items (capacity: 10M, estimated false positive rate: 0.0000%)
-SAMM: Successfully cleaned pointer 0x848cb0000
-SAMM: cleanupPointersImmediate completed 1 items in 42.137 ms
+SAMM: Successfully cleaned pointer 0x752c380e0
+SAMM: cleanupPointersImmediate completed 1 items in 41.093 ms
 SAMM: Background worker processed batch of 1 objects
 SAMM: Worker waiting for cleanup queue (queue size: 0)
   Est. false positive rate: 0.0000%

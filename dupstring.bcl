@@ -1,0 +1,11 @@
+LET START() BE
+$(
+   WRITEF("Hello world*N")
+   WRITES("Hello world*N")
+   LET S = "Hello world*N"
+   WRITEF(S)
+   WRITEF("%s", S)
+   WRITES(S)
+   WRITEF(S)
+   WRITEF("Hello worls*N")
+$)

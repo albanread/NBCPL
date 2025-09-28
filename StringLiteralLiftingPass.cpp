@@ -12,6 +12,26 @@ static std::string generate_temp_var_name(int& counter) {
     return "_strlift_temp_" + std::to_string(counter++);
 }
 
+// Helper to sort and select top N string literals with > min_count
+static std::vector<std::string> select_top_string_literals(
+    const std::map<std::string, int>& counts,
+    int max_literals,
+    int min_count
+) {
+    std::vector<std::pair<std::string, int>> sorted(counts.begin(), counts.end());
+    std::sort(sorted.begin(), sorted.end(), [](const auto& a, const auto& b) {
+        return b.second < a.second ? false : (a.second > b.second ? true : a.first < b.first);
+    });
+    std::vector<std::string> result;
+    for (const auto& pair : sorted) {
+        if (pair.second > min_count) {
+            result.push_back(pair.first);
+            if ((int)result.size() >= max_literals) break;
+        }
+    }
+    return result;
+}
+
 class StringLiteralLifter {
 public:
     StringLiteralLifter(
@@ -20,7 +40,6 @@ public:
         ASTAnalyzer& analyzer,
         const std::string& current_function_name,
         int& temp_var_counter,
-        std::map<std::string, std::string>& string_to_temp,
         std::vector<StmtPtr>& statements
     )
         : string_table_(string_table),
@@ -28,15 +47,70 @@ public:
           analyzer_(analyzer),
           current_function_name_(current_function_name),
           temp_var_counter_(temp_var_counter),
-          string_to_temp_(string_to_temp),
           statements_(statements)
     {}
 
     // Entry point for a statement list
     void process_statement_list() {
-        for (size_t i = 0; i < statements_.size(); ++i) {
-            process_statement(statements_[i], i);
+        // 1. Count all string literal references in the function
+        std::map<std::string, int> literal_counts;
+        for (const auto& stmt : statements_) {
+            count_string_literals_in_statement(stmt, literal_counts);
         }
+
+        // 2. Select up to two most frequent literals with >3 uses
+        std::vector<std::string> to_lift = select_top_string_literals(literal_counts, 2, 3);
+
+        // 3. For each, create temp var and inject assignment at the top
+        std::map<std::string, std::string> lifted_string_to_temp;
+        std::vector<StmtPtr> injected_assignments;
+        for (const auto& value : to_lift) {
+            std::string label = string_table_->get_or_create_label(value);
+            std::string temp_var_name = generate_temp_var_name(temp_var_counter_);
+            lifted_string_to_temp[value] = temp_var_name;
+
+            // Register temp variable in symbol table
+            Symbol temp_symbol(
+                temp_var_name,
+                SymbolKind::LOCAL_VAR,
+                VarType::POINTER_TO_STRING,
+                symbol_table_.getCurrentScopeLevel(),
+                current_function_name_
+            );
+            symbol_table_.addSymbol(temp_symbol);
+
+            // Update function metrics
+            auto metrics_it = analyzer_.get_function_metrics_mut().find(current_function_name_);
+            if (metrics_it != analyzer_.get_function_metrics_mut().end()) {
+                auto& metrics = metrics_it->second;
+                metrics.num_variables++;
+                metrics.variable_types[temp_var_name] = VarType::POINTER_TO_STRING;
+            } else {
+                std::cerr << "StringLiteralLiftingPass Error: Function metrics not found for: " << current_function_name_ << std::endl;
+            }
+
+            // Inject assignment: temp_var := @label
+            std::vector<ExprPtr> lhs_vec;
+            lhs_vec.push_back(std::make_unique<VariableAccess>(temp_var_name));
+            std::vector<ExprPtr> rhs_vec;
+            rhs_vec.push_back(std::make_unique<UnaryOp>(
+                UnaryOp::Operator::AddressOf,
+                std::make_unique<VariableAccess>(label)
+            ));
+            auto assignment = std::make_unique<AssignmentStatement>(
+                std::move(lhs_vec),
+                std::move(rhs_vec)
+            );
+            injected_assignments.push_back(std::move(assignment));
+        }
+
+        // 4. Replace all uses of those literals with temp variable, leave others as-is
+        for (auto& stmt : statements_) {
+            replace_lifted_string_literals_in_statement(stmt, lifted_string_to_temp);
+        }
+
+        // 5. Inject assignments at the top of the function body
+        statements_.insert(statements_.begin(), std::make_move_iterator(injected_assignments.begin()), std::make_move_iterator(injected_assignments.end()));
     }
 
 private:
@@ -45,24 +119,23 @@ private:
     ASTAnalyzer& analyzer_;
     const std::string& current_function_name_;
     int& temp_var_counter_;
-    std::map<std::string, std::string>& string_to_temp_;
     std::vector<StmtPtr>& statements_;
 
-    // Recursively process a statement
-    void process_statement(StmtPtr& stmt, size_t stmt_index) {
+    // Recursively count string literals in a statement
+    void count_string_literals_in_statement(const StmtPtr& stmt, std::map<std::string, int>& literal_counts) {
         if (!stmt) return;
         switch (stmt->getType()) {
             case ASTNode::NodeType::AssignmentStmt: {
                 auto* assign = static_cast<AssignmentStatement*>(stmt.get());
-                for (auto& rhs_expr : assign->rhs) {
-                    process_expression(rhs_expr, stmt_index);
+                for (const auto& rhs_expr : assign->rhs) {
+                    count_string_literals_in_expression(rhs_expr, literal_counts);
                 }
                 break;
             }
             case ASTNode::NodeType::RoutineCallStmt: {
                 auto* routine_call = static_cast<RoutineCallStatement*>(stmt.get());
-                for (auto& arg : routine_call->arguments) {
-                    process_expression(arg, stmt_index);
+                for (const auto& arg : routine_call->arguments) {
+                    count_string_literals_in_expression(arg, literal_counts);
                 }
                 break;
             }
@@ -72,80 +145,92 @@ private:
         }
     }
 
-    // Recursively process an expression, replacing StringLiterals as needed
-    void process_expression(ExprPtr& expr, size_t stmt_index) {
+    // Recursively count string literals in an expression
+    void count_string_literals_in_expression(const ExprPtr& expr, std::map<std::string, int>& literal_counts) {
         if (!expr) return;
         switch (expr->getType()) {
             case ASTNode::NodeType::StringLit: {
                 auto* str_lit = static_cast<StringLiteral*>(expr.get());
-                const std::string& value = str_lit->value;
-                auto it = string_to_temp_.find(value);
-                if (it != string_to_temp_.end()) {
-                    // Cache hit: replace with VariableAccess to existing temp
+                literal_counts[str_lit->value]++;
+                break;
+            }
+            case ASTNode::NodeType::BinaryOpExpr: {
+                auto* bin = static_cast<BinaryOp*>(expr.get());
+                count_string_literals_in_expression(bin->left, literal_counts);
+                count_string_literals_in_expression(bin->right, literal_counts);
+                break;
+            }
+            case ASTNode::NodeType::UnaryOpExpr: {
+                auto* un = static_cast<UnaryOp*>(expr.get());
+                count_string_literals_in_expression(un->operand, literal_counts);
+                break;
+            }
+            case ASTNode::NodeType::FunctionCallExpr: {
+                auto* call = static_cast<FunctionCall*>(expr.get());
+                count_string_literals_in_expression(call->function_expr, literal_counts);
+                for (const auto& arg : call->arguments) {
+                    count_string_literals_in_expression(arg, literal_counts);
+                }
+                break;
+            }
+            // Add more expression types as needed
+            default:
+                break;
+        }
+    }
+
+    // Recursively replace string literals in a statement with temp variable accesses if lifted
+    void replace_lifted_string_literals_in_statement(StmtPtr& stmt, const std::map<std::string, std::string>& lifted_string_to_temp) {
+        if (!stmt) return;
+        switch (stmt->getType()) {
+            case ASTNode::NodeType::AssignmentStmt: {
+                auto* assign = static_cast<AssignmentStatement*>(stmt.get());
+                for (auto& rhs_expr : assign->rhs) {
+                    replace_lifted_string_literals_in_expression(rhs_expr, lifted_string_to_temp);
+                }
+                break;
+            }
+            case ASTNode::NodeType::RoutineCallStmt: {
+                auto* routine_call = static_cast<RoutineCallStatement*>(stmt.get());
+                for (auto& arg : routine_call->arguments) {
+                    replace_lifted_string_literals_in_expression(arg, lifted_string_to_temp);
+                }
+                break;
+            }
+            // Add more statement types as needed
+            default:
+                break;
+        }
+    }
+
+    // Recursively replace string literals in an expression with temp variable accesses if lifted
+    void replace_lifted_string_literals_in_expression(ExprPtr& expr, const std::map<std::string, std::string>& lifted_string_to_temp) {
+        if (!expr) return;
+        switch (expr->getType()) {
+            case ASTNode::NodeType::StringLit: {
+                auto* str_lit = static_cast<StringLiteral*>(expr.get());
+                auto it = lifted_string_to_temp.find(str_lit->value);
+                if (it != lifted_string_to_temp.end()) {
                     expr = std::make_unique<VariableAccess>(it->second);
-                } else {
-                    // Cache miss: create label, temp, assignment, update symbol table/metrics
-                    std::string label = string_table_->get_or_create_label(value);
-                    std::string temp_var_name = generate_temp_var_name(temp_var_counter_);
-                    string_to_temp_[value] = temp_var_name;
-
-                    // Register temp variable in symbol table
-                    Symbol temp_symbol(
-                        temp_var_name,
-                        SymbolKind::LOCAL_VAR,
-                        VarType::POINTER_TO_STRING,
-                        symbol_table_.getCurrentScopeLevel(),
-                        current_function_name_
-                    );
-                    symbol_table_.addSymbol(temp_symbol);
-
-                    // Update function metrics
-                    auto metrics_it = analyzer_.get_function_metrics_mut().find(current_function_name_);
-                    if (metrics_it != analyzer_.get_function_metrics_mut().end()) {
-                        auto& metrics = metrics_it->second;
-                        metrics.num_variables++;
-                        metrics.variable_types[temp_var_name] = VarType::POINTER_TO_STRING;
-                    } else {
-                        std::cerr << "StringLiteralLiftingPass Error: Function metrics not found for: " << current_function_name_ << std::endl;
-                    }
-
-                    // Inject assignment: temp_var := @label
-                    std::vector<ExprPtr> lhs_vec;
-                    lhs_vec.push_back(std::make_unique<VariableAccess>(temp_var_name));
-                    std::vector<ExprPtr> rhs_vec;
-                    rhs_vec.push_back(std::make_unique<UnaryOp>(
-                        UnaryOp::Operator::AddressOf,
-                        std::make_unique<VariableAccess>(label)
-                    ));
-                    auto assignment = std::make_unique<AssignmentStatement>(
-                        std::move(lhs_vec),
-                        std::move(rhs_vec)
-                    );
-                    // Insert before the current statement
-                    statements_.insert(statements_.begin() + stmt_index, std::move(assignment));
-                    ++stmt_index; // Advance index for the inserted assignment
-
-                    // Replace the StringLiteral with VariableAccess(temp_var)
-                    expr = std::make_unique<VariableAccess>(temp_var_name);
                 }
                 break;
             }
             case ASTNode::NodeType::BinaryOpExpr: {
                 auto* bin = static_cast<BinaryOp*>(expr.get());
-                process_expression(bin->left, stmt_index);
-                process_expression(bin->right, stmt_index);
+                replace_lifted_string_literals_in_expression(bin->left, lifted_string_to_temp);
+                replace_lifted_string_literals_in_expression(bin->right, lifted_string_to_temp);
                 break;
             }
             case ASTNode::NodeType::UnaryOpExpr: {
                 auto* un = static_cast<UnaryOp*>(expr.get());
-                process_expression(un->operand, stmt_index);
+                replace_lifted_string_literals_in_expression(un->operand, lifted_string_to_temp);
                 break;
             }
             case ASTNode::NodeType::FunctionCallExpr: {
                 auto* call = static_cast<FunctionCall*>(expr.get());
-                process_expression(call->function_expr, stmt_index);
+                replace_lifted_string_literals_in_expression(call->function_expr, lifted_string_to_temp);
                 for (auto& arg : call->arguments) {
-                    process_expression(arg, stmt_index);
+                    replace_lifted_string_literals_in_expression(arg, lifted_string_to_temp);
                 }
                 break;
             }
@@ -173,7 +258,6 @@ void StringLiteralLiftingPass::run(Program& ast, SymbolTable& symbol_table, ASTA
                     analyzer,
                     func->name,
                     temp_var_counter_,
-                    string_to_temp,
                     compound->statements
                 );
                 lifter.process_statement_list();
@@ -186,7 +270,6 @@ void StringLiteralLiftingPass::run(Program& ast, SymbolTable& symbol_table, ASTA
                     analyzer,
                     routine->name,
                     temp_var_counter_,
-                    string_to_temp,
                     compound->statements
                 );
                 lifter.process_statement_list();
