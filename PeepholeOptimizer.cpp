@@ -154,6 +154,8 @@ bool PeepholeOptimizer::applyOptimizationPass(std::vector<Instruction>& instruct
             continue;
         }
 
+
+
         // Try each pattern
         for (const auto& pattern : patterns_) {
             MatchResult result = pattern->matches(instructions, pos);

@@ -135,17 +135,13 @@ _START:
     ; --- End Veneer Section ---
 
 L_Point_CREATE:
-    STP X29, X30, [SP, #-96]!
+    STP X29, X30, [SP, #-128]!
     MOV X29, SP
-    STR X19, [X29, #40] ; Saved Reg: X19 @ FP+40
-    STR X20, [X29, #48] ; Saved Reg: X20 @ FP+48
-    STR X25, [X29, #56] ; Saved Reg: X25 @ FP+56
-    STR X26, [X29, #64] ; Saved Reg: X26 @ FP+64
-    STR X27, [X29, #72] ; Saved Reg: X27 @ FP+72
-    STR X28, [X29, #80] ; Saved Reg: X28 @ FP+80
-    MOV X27, X0
-    MOV X26, X1
-    MOV X25, X2
+    STP x19, x20, [x29, #40]
+    STP x21, x22, [x29, #56]
+    STP x23, x24, [x29, #72]
+    STP x25, x26, [x29, #88]
+    STP x27, x28, [x29, #104]
     MOV X27, X0    // Move parameter '_this' from X0 to X27
     MOV X26, X1    // Move parameter 'initialX' from X1 to X26
     MOV X25, X2    // Move parameter 'initialY' from X2 to X25
@@ -153,14 +149,15 @@ L_Point_CREATE:
     ADD X28, X28, L__data_segment_base@PAGEOFF
 L_Point_CREATE_Entry_0:
     STR X26, [X27, #8] ; Store to member x
+    MOV X24, X26
     STR X25, [X27, #16] ; Store to member y
+    MOV X23, X25
     ADRP X9, L_str0@PAGE
     ADD X9, X9, L_str0@PAGEOFF
     ADD X9, X9, #8
     MOV X0, X9
     BL _WRITES
     LDR X9, [X27, #8] ; x
-    MOV X0, X9
     BL _WRITEN
     ADRP X9, L_str1@PAGE
     ADD X9, X9, L_str1@PAGEOFF
@@ -168,7 +165,6 @@ L_Point_CREATE_Entry_0:
     MOV X0, X9
     BL _WRITES
     LDR X9, [X27, #16] ; y
-    MOV X0, X9
     BL _WRITEN
     ADRP X9, L_str2@PAGE
     ADD X9, X9, L_str2@PAGEOFF
@@ -179,110 +175,73 @@ L_Point_CREATE_Entry_0:
 L_Point_CREATE_Exit_1:
     B L_0
 L_0:
-    LDR X19, [X29, #40] ; Restored Reg: X19 @ FP+40
-    LDR X20, [X29, #48] ; Restored Reg: X20 @ FP+48
-    LDR X25, [X29, #56] ; Restored Reg: X25 @ FP+56
-    LDR X26, [X29, #64] ; Restored Reg: X26 @ FP+64
-    LDR X27, [X29, #72] ; Restored Reg: X27 @ FP+72
-    LDR X28, [X29, #80] ; Restored Reg: X28 @ FP+80
+    LDP x19, x20, [x29, #40]
+    LDP x21, x22, [x29, #56]
+    LDP x23, x24, [x29, #72]
+    LDP x25, x26, [x29, #88]
+    LDP x27, x28, [x29, #104]
     MOV SP, X29 ; Deallocate frame by moving FP to SP
-    LDR X29, [SP, #0] ; Restore caller's Frame Pointer
-    LDR X30, [SP, #8] ; Restore Link Register
+    LDP x29, x30, [x31]
     ADD SP, SP, #16 ; Deallocate space for saved FP/LR
     RET
 L_Point_getX:
-    LDR X0, [X0, #8] ; Optimized accessor load (int/ptr)
-    RET
-L_Point_getY:
-    LDR X0, [X0, #16] ; Optimized accessor load (int/ptr)
-    RET
-L_Point_set:
-    STP X29, X30, [SP, #-64]!
-    MOV X29, SP
-    STR X19, [X29, #40] ; Saved Reg: X19 @ FP+40
-    STR X20, [X29, #48] ; Saved Reg: X20 @ FP+48
-    STR X28, [X29, #56] ; Saved Reg: X28 @ FP+56
-    MOV X15, X0
-    MOV X14, X1
-    MOV X13, X2
-    MOV X15, X0    // Move parameter '_this' from X0 to X15
-    MOV X14, X1    // Move parameter 'newX' from X1 to X14
-    MOV X13, X2    // Move parameter 'newY' from X2 to X13
-L_Point_set_Entry_0:
-    STR X14, [X15, #8] ; Store to member x
-    STR X13, [X15, #16] ; Store to member y
-    B L_Point_set_Exit_1
-L_Point_set_Exit_1:
-    B L_3
-L_3:
-    LDR X19, [X29, #40] ; Restored Reg: X19 @ FP+40
-    LDR X20, [X29, #48] ; Restored Reg: X20 @ FP+48
-    LDR X28, [X29, #56] ; Restored Reg: X28 @ FP+56
-    MOV SP, X29 ; Deallocate frame by moving FP to SP
-    LDR X29, [SP, #0] ; Restore caller's Frame Pointer
-    LDR X30, [SP, #8] ; Restore Link Register
-    ADD SP, SP, #16 ; Deallocate space for saved FP/LR
-    RET
-L_Point_RELEASE:
     STP X29, X30, [SP, #-48]!
     MOV X29, SP
-    STR X19, [X29, #24] ; Saved Reg: X19 @ FP+24
-    STR X27, [X29, #32] ; Saved Reg: X27 @ FP+32
-    STR X28, [X29, #40] ; Saved Reg: X28 @ FP+40
-    MOV X27, X0
+    STP x19, x28, [x29, #24]
+    MOV X15, X0    // Move parameter '_this' from X0 to X15
+L_Point_getX_Entry_0:
+    LDR X9, [X15, #8] ; x
+    B L_1
+    B L_Point_getX_Exit_1
+L_Point_getX_Exit_1:
+    B L_1
+L_1:
+    LDP x19, x28, [x29, #24]
+    MOV SP, X29 ; Deallocate frame by moving FP to SP
+    LDP x29, x30, [x31]
+    ADD SP, SP, #16 ; Deallocate space for saved FP/LR
+    RET
+L_Point_getY:
+    STP X29, X30, [SP, #-48]!
+    MOV X29, SP
+    STP x19, x28, [x29, #24]
+    MOV X15, X0    // Move parameter '_this' from X0 to X15
+L_Point_getY_Entry_0:
+    LDR X9, [X15, #16] ; y
+    B L_2
+    B L_Point_getY_Exit_1
+L_Point_getY_Exit_1:
+    B L_2
+L_2:
+    LDP x19, x28, [x29, #24]
+    MOV SP, X29 ; Deallocate frame by moving FP to SP
+    LDP x29, x30, [x31]
+    ADD SP, SP, #16 ; Deallocate space for saved FP/LR
+    RET
+L_Point_set:
+    STP X29, X30, [SP, #-128]!
+    MOV X29, SP
+    STP x19, x20, [x29, #40]
+    STP x21, x22, [x29, #56]
+    STP x23, x24, [x29, #72]
+    STP x25, x26, [x29, #88]
+    STP x27, x28, [x29, #104]
+    MOV X27, X0    // Move parameter '_this' from X0 to X27
+    MOV X26, X1    // Move parameter 'newX' from X1 to X26
+    MOV X25, X2    // Move parameter 'newY' from X2 to X25
     ADRP X28, L__data_segment_base@PAGE
     ADD X28, X28, L__data_segment_base@PAGEOFF
-L_Point_RELEASE_Entry_0:
+L_Point_set_Entry_0:
+    STR X26, [X27, #8] ; Store to member x
+    MOV X24, X26
+    STR X25, [X27, #16] ; Store to member y
+    MOV X23, X25
     ADRP X9, L_str3@PAGE
     ADD X9, X9, L_str3@PAGEOFF
     ADD X9, X9, #8
     MOV X0, X9
     BL _WRITES
-    B L_Point_RELEASE_Exit_1
-L_Point_RELEASE_Exit_1:
-    B L_4
-L_4:
-    LDR X19, [X29, #24] ; Restored Reg: X19 @ FP+24
-    LDR X27, [X29, #32] ; Restored Reg: X27 @ FP+32
-    LDR X28, [X29, #40] ; Restored Reg: X28 @ FP+40
-    MOV SP, X29 ; Deallocate frame by moving FP to SP
-    LDR X29, [SP, #0] ; Restore caller's Frame Pointer
-    LDR X30, [SP, #8] ; Restore Link Register
-    ADD SP, SP, #16 ; Deallocate space for saved FP/LR
-    RET
-L_ColorPoint_CREATE:
-    STP X29, X30, [SP, #-96]!
-    MOV X29, SP
-    STR X19, [X29, #48] ; Saved Reg: X19 @ FP+48
-    STR X20, [X29, #56] ; Saved Reg: X20 @ FP+56
-    STR X21, [X29, #64] ; Saved Reg: X21 @ FP+64
-    STR X27, [X29, #72] ; Saved Reg: X27 @ FP+72
-    STR X28, [X29, #80] ; Saved Reg: X28 @ FP+80
-    MOV X27, X0
-    MOV X14, X1
-    MOV X13, X2
-    MOV X15, X3
-    MOV X27, X0    // Move parameter '_this' from X0 to X27
-    MOV X14, X1    // Move parameter 'initialX' from X1 to X14
-    MOV X13, X2    // Move parameter 'initialY' from X2 to X13
-    MOV X15, X3    // Move parameter 'initialColor' from X3 to X15
-    ADRP X28, L__data_segment_base@PAGE
-    ADD X28, X28, L__data_segment_base@PAGEOFF
-L_ColorPoint_CREATE_Entry_0:
-    STR X15, [X27, #24] ; Store to member color
-    MOV X20, X14
-    MOV X21, X13
-    MOV X0, X27
-    MOV X1, X20
-    MOV X2, X21
-    BL L_Point_CREATE
-    ADRP X9, L_str4@PAGE
-    ADD X9, X9, L_str4@PAGEOFF
-    ADD X9, X9, #8
-    MOV X0, X9
-    BL _WRITES
     LDR X9, [X27, #8] ; x
-    MOV X0, X9
     BL _WRITEN
     ADRP X9, L_str1@PAGE
     ADD X9, X9, L_str1@PAGEOFF
@@ -290,84 +249,89 @@ L_ColorPoint_CREATE_Entry_0:
     MOV X0, X9
     BL _WRITES
     LDR X9, [X27, #16] ; y
-    MOV X0, X9
     BL _WRITEN
-    ADRP X9, L_str5@PAGE
-    ADD X9, X9, L_str5@PAGEOFF
+    ADRP X9, L_str2@PAGE
+    ADD X9, X9, L_str2@PAGEOFF
     ADD X9, X9, #8
     MOV X0, X9
     BL _WRITES
-    LDR X9, [X27, #24] ; color
-    MOV X0, X9
-    BL _WRITEN
-    ADRP X9, L_str6@PAGE
-    ADD X9, X9, L_str6@PAGEOFF
-    ADD X9, X9, #8
-    MOV X0, X9
-    BL _WRITES
-    B L_ColorPoint_CREATE_Exit_1
-L_ColorPoint_CREATE_Exit_1:
-    B L_5
-L_5:
-    LDR X19, [X29, #48] ; Restored Reg: X19 @ FP+48
-    LDR X20, [X29, #56] ; Restored Reg: X20 @ FP+56
-    LDR X21, [X29, #64] ; Restored Reg: X21 @ FP+64
-    LDR X27, [X29, #72] ; Restored Reg: X27 @ FP+72
-    LDR X28, [X29, #80] ; Restored Reg: X28 @ FP+80
+    B L_Point_set_Exit_1
+L_Point_set_Exit_1:
+    B L_3
+L_3:
+    LDP x19, x20, [x29, #40]
+    LDP x21, x22, [x29, #56]
+    LDP x23, x24, [x29, #72]
+    LDP x25, x26, [x29, #88]
+    LDP x27, x28, [x29, #104]
     MOV SP, X29 ; Deallocate frame by moving FP to SP
-    LDR X29, [SP, #0] ; Restore caller's Frame Pointer
-    LDR X30, [SP, #8] ; Restore Link Register
+    LDP x29, x30, [x31]
     ADD SP, SP, #16 ; Deallocate space for saved FP/LR
     RET
-L_ColorPoint_setColor:
-    STR X1, [X0, #24] ; Optimized setter store
-    RET
-L_ColorPoint_getColor:
-    LDR X0, [X0, #24] ; Optimized accessor load (int/ptr)
-    RET
-L_makePoint:
+L_Point_RELEASE:
     STP X29, X30, [SP, #-48]!
     MOV X29, SP
-    STR X19, [X29, #24] ; Saved Reg: X19 @ FP+24
-    STR X27, [X29, #32] ; Saved Reg: X27 @ FP+32
+    STP x19, x28, [x29, #24]
+    MOV X15, X0    // Move parameter '_this' from X0 to X15
+L_Point_RELEASE_Entry_0:
+    B L_Point_RELEASE_Exit_1
+L_Point_RELEASE_Exit_1:
+    B L_4
+L_4:
+    LDP x19, x28, [x29, #24]
+    MOV SP, X29 ; Deallocate frame by moving FP to SP
+    LDP x29, x30, [x31]
+    ADD SP, SP, #16 ; Deallocate space for saved FP/LR
+    RET
+L_START:
+    STP X29, X30, [SP, #-48]!
+    MOV X29, SP
+    STP x19, x27, [x29, #24]
     STR X28, [X29, #40] ; Saved Reg: X28 @ FP+40
     ADRP X28, L__data_segment_base@PAGE
     ADD X28, X28, L__data_segment_base@PAGEOFF
-L_makePoint_Entry_0:
+L_START_Entry_0:
     BL _HeapManager_enter_scope
+    ADRP X9, L_str4@PAGE
+    ADD X9, X9, L_str4@PAGEOFF
+    ADD X9, X9, #8
+    MOV X0, X9
+    BL _WRITES
     MOVZ X0, #24
     BL _OBJECT_HEAP_ALLOC
     MOV X20, X0
     ADRP X9, L_Point_vtable@PAGE
     ADD X9, X9, L_Point_vtable@PAGEOFF
     STR X9, [X20, #0] ; store vtable ptr
+    MOV X0, X20
+    MOVZ X9, #50
+    MOV X1, X9
+    MOVZ X9, #75
+    MOV X2, X9
+    LDR X9, [X20, #0] ; Load vtable pointer for CREATE call
+    LDR X10, [X9, #0] ; Load CREATE method address
+    BLR X10
     MOV X27, X20
-    B L_makePoint_ResultisCleanup_1
-L_makePoint_Exit_2:
-    B L_8
-L_makePoint_ResultisCleanup_1:
+    ADRP X9, L_str5@PAGE
+    ADD X9, X9, L_str5@PAGEOFF
+    ADD X9, X9, #8
+    MOV X0, X9
+    BL _WRITES
+    LDR X9, [X27, #0] ; Load vtable pointer
+    LDR X10, [X9, #16] ; Load method address
     MOV X0, X27
-    B L_8
-    B L_makePoint_Exit_2
-L_8:
-    LDR X19, [X29, #24] ; Restored Reg: X19 @ FP+24
-    LDR X27, [X29, #32] ; Restored Reg: X27 @ FP+32
-    LDR X28, [X29, #40] ; Restored Reg: X28 @ FP+40
-    MOV SP, X29 ; Deallocate frame by moving FP to SP
-    LDR X29, [SP, #0] ; Restore caller's Frame Pointer
-    LDR X30, [SP, #8] ; Restore Link Register
-    ADD SP, SP, #16 ; Deallocate space for saved FP/LR
-    RET
-L_START:
-    STP X29, X30, [SP, #-64]!
-    MOV X29, SP
-    STR X19, [X29, #32] ; Saved Reg: X19 @ FP+32
-    STR X27, [X29, #40] ; Saved Reg: X27 @ FP+40
-    STR X28, [X29, #48] ; Saved Reg: X28 @ FP+48
-    ADRP X28, L__data_segment_base@PAGE
-    ADD X28, X28, L__data_segment_base@PAGEOFF
-L_START_Entry_0:
-    BL _HeapManager_enter_scope
+    BLR X10
+    BL _WRITEN
+    ADRP X9, L_str6@PAGE
+    ADD X9, X9, L_str6@PAGEOFF
+    ADD X9, X9, #8
+    MOV X0, X9
+    BL _WRITES
+    LDR X9, [X27, #0] ; Load vtable pointer
+    LDR X10, [X9, #24] ; Load method address
+    MOV X0, X27
+    BLR X10
+    BL _WRITEN
     ADRP X9, L_str7@PAGE
     ADD X9, X9, L_str7@PAGEOFF
     ADD X9, X9, #8
@@ -378,208 +342,51 @@ L_START_Entry_0:
     ADD X9, X9, #8
     MOV X0, X9
     BL _WRITES
+    MOVZ x20, #100
+    MOVZ x21, #200
+    MOV X0, X27
+    MOV X1, X20
+    MOV X2, X21
+    BL L_Point_set
     ADRP X9, L_str9@PAGE
     ADD X9, X9, L_str9@PAGEOFF
     ADD X9, X9, #8
     MOV X0, X9
     BL _WRITES
-    BL L_makePoint
-    MOV X27, X0
+    LDR X9, [X27, #0] ; Load vtable pointer
+    LDR X10, [X9, #16] ; Load method address
+    MOV X0, X27
+    BLR X10
+    BL _WRITEN
+    ADRP X9, L_str6@PAGE
+    ADD X9, X9, L_str6@PAGEOFF
+    ADD X9, X9, #8
+    MOV X0, X9
+    BL _WRITES
+    LDR X9, [X27, #0] ; Load vtable pointer
+    LDR X10, [X9, #24] ; Load method address
+    MOV X0, X27
+    BLR X10
+    BL _WRITEN
     ADRP X9, L_str10@PAGE
     ADD X9, X9, L_str10@PAGEOFF
-    ADD X9, X9, #8
-    MOV X0, X9
-    BL _WRITES
-    LDR X9, [X27, #0] ; Load vtable pointer
-    LDR X10, [X9, #16] ; Load method address
-    MOV X0, X27
-    BLR X10
-    BL _WRITEN
-    ADRP X9, L_str11@PAGE
-    ADD X9, X9, L_str11@PAGEOFF
-    ADD X9, X9, #8
-    MOV X0, X9
-    BL _WRITES
-    LDR X9, [X27, #0] ; Load vtable pointer
-    LDR X10, [X9, #24] ; Load method address
-    MOV X0, X27
-    BLR X10
-    BL _WRITEN
-    ADRP X9, L_str6@PAGE
-    ADD X9, X9, L_str6@PAGEOFF
-    ADD X9, X9, #8
-    MOV X0, X9
-    BL _WRITES
-    ADRP X9, L_str12@PAGE
-    ADD X9, X9, L_str12@PAGEOFF
-    ADD X9, X9, #8
-    MOV X0, X9
-    BL _WRITES
-    MOVZ X9, #100
-    MOV X20, X9
-    MOVZ X9, #200
-    MOV X21, X9
-    MOV X0, X27
-    MOV X1, X20
-    MOV X2, X21
-    BL L_Point_set
-    ADRP X9, L_str13@PAGE
-    ADD X9, X9, L_str13@PAGEOFF
-    ADD X9, X9, #8
-    MOV X0, X9
-    BL _WRITES
-    LDR X9, [X27, #0] ; Load vtable pointer
-    LDR X10, [X9, #16] ; Load method address
-    MOV X0, X27
-    BLR X10
-    BL _WRITEN
-    ADRP X9, L_str11@PAGE
-    ADD X9, X9, L_str11@PAGEOFF
-    ADD X9, X9, #8
-    MOV X0, X9
-    BL _WRITES
-    LDR X9, [X27, #0] ; Load vtable pointer
-    LDR X10, [X9, #24] ; Load method address
-    MOV X0, X27
-    BLR X10
-    BL _WRITEN
-    ADRP X9, L_str14@PAGE
-    ADD X9, X9, L_str14@PAGEOFF
-    ADD X9, X9, #8
-    MOV X0, X9
-    BL _WRITES
-    ADRP X9, L_str15@PAGE
-    ADD X9, X9, L_str15@PAGEOFF
-    ADD X9, X9, #8
-    MOV X0, X9
-    BL _WRITES
-    MOVZ X0, #32
-    BL _OBJECT_HEAP_ALLOC
-    MOV X20, X0
-    ADRP X9, L_ColorPoint_vtable@PAGE
-    ADD X9, X9, L_ColorPoint_vtable@PAGEOFF
-    STR X9, [X20, #0] ; store vtable ptr
-    MOV X27, X20
-    MOVZ X9, #130
-    MOV X20, X9
-    MOVZ X9, #140
-    MOV X21, X9
-    MOVZ X9, #255
-    MOV X22, X9
-    MOV X0, X27
-    MOV X1, X20
-    MOV X2, X21
-    MOV X3, X22
-    BL L_ColorPoint_CREATE
-    ADRP X9, L_str10@PAGE
-    ADD X9, X9, L_str10@PAGEOFF
-    ADD X9, X9, #8
-    MOV X0, X9
-    BL _WRITES
-    LDR X9, [X27, #0] ; Load vtable pointer
-    LDR X10, [X9, #16] ; Load method address
-    MOV X0, X27
-    BLR X10
-    BL _WRITEN
-    ADRP X9, L_str11@PAGE
-    ADD X9, X9, L_str11@PAGEOFF
-    ADD X9, X9, #8
-    MOV X0, X9
-    BL _WRITES
-    LDR X9, [X27, #0] ; Load vtable pointer
-    LDR X10, [X9, #24] ; Load method address
-    MOV X0, X27
-    BLR X10
-    BL _WRITEN
-    ADRP X9, L_str16@PAGE
-    ADD X9, X9, L_str16@PAGEOFF
-    ADD X9, X9, #8
-    MOV X0, X9
-    BL _WRITES
-    LDR X9, [X27, #0] ; Load vtable pointer
-    LDR X10, [X9, #48] ; Load method address
-    MOV X0, X27
-    BLR X10
-    BL _WRITEN
-    ADRP X9, L_str6@PAGE
-    ADD X9, X9, L_str6@PAGEOFF
-    ADD X9, X9, #8
-    MOV X0, X9
-    BL _WRITES
-    ADRP X9, L_str12@PAGE
-    ADD X9, X9, L_str12@PAGEOFF
-    ADD X9, X9, #8
-    MOV X0, X9
-    BL _WRITES
-    MOVZ X9, #60
-    MOV X20, X9
-    MOVZ X9, #80
-    MOV X21, X9
-    MOV X0, X27
-    MOV X1, X20
-    MOV X2, X21
-    BL L_Point_set
-    MOVZ X9, #123
-    MOV X20, X9
-    MOV X0, X27
-    MOV X1, X20
-    BL L_ColorPoint_setColor
-    ADRP X9, L_str13@PAGE
-    ADD X9, X9, L_str13@PAGEOFF
-    ADD X9, X9, #8
-    MOV X0, X9
-    BL _WRITES
-    LDR X9, [X27, #0] ; Load vtable pointer
-    LDR X10, [X9, #16] ; Load method address
-    MOV X0, X27
-    BLR X10
-    BL _WRITEN
-    ADRP X9, L_str11@PAGE
-    ADD X9, X9, L_str11@PAGEOFF
-    ADD X9, X9, #8
-    MOV X0, X9
-    BL _WRITES
-    LDR X9, [X27, #0] ; Load vtable pointer
-    LDR X10, [X9, #24] ; Load method address
-    MOV X0, X27
-    BLR X10
-    BL _WRITEN
-    ADRP X9, L_str16@PAGE
-    ADD X9, X9, L_str16@PAGEOFF
-    ADD X9, X9, #8
-    MOV X0, X9
-    BL _WRITES
-    LDR X9, [X27, #0] ; Load vtable pointer
-    LDR X10, [X9, #48] ; Load method address
-    MOV X0, X27
-    BLR X10
-    BL _WRITEN
-    ADRP X9, L_str6@PAGE
-    ADD X9, X9, L_str6@PAGEOFF
-    ADD X9, X9, #8
-    MOV X0, X9
-    BL _WRITES
-    ADRP X9, L_str17@PAGE
-    ADD X9, X9, L_str17@PAGEOFF
     ADD X9, X9, #8
     MOV X0, X9
     BL _WRITES
     BL _HeapManager_exit_scope
     B L_START_Exit_1
 L_START_Exit_1:
-    B L_9
-L_9:
-    LDR X19, [X29, #32] ; Restored Reg: X19 @ FP+32
-    LDR X27, [X29, #40] ; Restored Reg: X27 @ FP+40
-    LDR X28, [X29, #48] ; Restored Reg: X28 @ FP+48
+    B L_5
+L_5:
+    LDP x19, x27, [x29, #24]
+    LDR X28, [X29, #40] ; Restored Reg: X28 @ FP+40
     MOV SP, X29 ; Deallocate frame by moving FP to SP
-    LDR X29, [SP, #0] ; Restore caller's Frame Pointer
-    LDR X30, [SP, #8] ; Restore Link Register
+    LDP x29, x30, [x31]
     ADD SP, SP, #16 ; Deallocate space for saved FP/LR
     RET
 L___veneer_:
-    movz x16, #40496
-    movk x16, #85, lsl #16
+    movz x16, #29136
+    movk x16, #631, lsl #16
     movk x16, #1, lsl #32
     movk x16, #0, lsl #48
     blr x16
@@ -617,10 +424,11 @@ L_str1:
     .long 0x0
     .long 0x0
 L_str2:
-    .quad 0x2
+    .quad 0x3
     ; (upper half)
     .long 0x29
-    .long 0xa
+    .long 0x2a
+    .long 0x4e
     .long 0x0
     .long 0x0
 L_str3:
@@ -632,222 +440,43 @@ L_str3:
     .long 0x6e
     .long 0x74
     .long 0x20
-    .long 0x64
-    .long 0x65
-    .long 0x73
-    .long 0x74
-    .long 0x72
+    .long 0x6d
     .long 0x6f
-    .long 0x79
-    .long 0x65
-    .long 0x64
-    .long 0xa
-    .long 0x0
-    .long 0x0
-L_str4:
-    .quad 0x17
-    ; (upper half)
-    .long 0x43
-    .long 0x6f
-    .long 0x6c
-    .long 0x6f
-    .long 0x72
-    .long 0x50
-    .long 0x6f
-    .long 0x69
-    .long 0x6e
-    .long 0x74
-    .long 0x20
-    .long 0x63
-    .long 0x72
-    .long 0x65
-    .long 0x61
-    .long 0x74
+    .long 0x76
     .long 0x65
     .long 0x64
     .long 0x20
-    .long 0x61
     .long 0x74
+    .long 0x6f
     .long 0x20
     .long 0x28
     .long 0x0
     .long 0x0
-L_str5:
-    .quad 0xd
+L_str4:
+    .quad 0x13
     ; (upper half)
-    .long 0x29
-    .long 0x20
-    .long 0x77
-    .long 0x69
-    .long 0x74
-    .long 0x68
-    .long 0x20
-    .long 0x63
-    .long 0x6f
-    .long 0x6c
-    .long 0x6f
+    .long 0x43
     .long 0x72
-    .long 0x20
-    .long 0x0
-    .long 0x0
-L_str6:
-    .quad 0x1
-    ; (upper half)
-    .long 0xa
-    .long 0x0
-    .long 0x0
-L_str7:
-    .quad 0x3a
-    ; (upper half)
-    .long 0x54
     .long 0x65
-    .long 0x73
+    .long 0x61
     .long 0x74
     .long 0x69
     .long 0x6e
     .long 0x67
     .long 0x20
-    .long 0x63
-    .long 0x6c
-    .long 0x61
-    .long 0x73
-    .long 0x73
-    .long 0x20
-    .long 0x6d
-    .long 0x65
-    .long 0x6d
-    .long 0x62
-    .long 0x65
-    .long 0x72
-    .long 0x20
-    .long 0x76
-    .long 0x61
-    .long 0x72
-    .long 0x69
-    .long 0x61
-    .long 0x62
-    .long 0x6c
-    .long 0x65
-    .long 0x20
-    .long 0x61
-    .long 0x63
-    .long 0x63
-    .long 0x65
-    .long 0x73
-    .long 0x73
-    .long 0x20
-    .long 0x77
-    .long 0x69
-    .long 0x74
-    .long 0x68
-    .long 0x20
-    .long 0x63
-    .long 0x6f
-    .long 0x72
-    .long 0x72
-    .long 0x65
-    .long 0x63
-    .long 0x74
-    .long 0x20
-    .long 0x6f
-    .long 0x66
-    .long 0x66
-    .long 0x73
-    .long 0x65
-    .long 0x74
-    .long 0x73
-    .long 0xa
-    .long 0x0
-    .long 0x0
-L_str8:
-    .quad 0x33
-    ; (upper half)
-    .long 0x3d
-    .long 0x3d
-    .long 0x3d
-    .long 0x3d
-    .long 0x3d
-    .long 0x3d
-    .long 0x3d
-    .long 0x3d
-    .long 0x3d
-    .long 0x3d
-    .long 0x3d
-    .long 0x3d
-    .long 0x3d
-    .long 0x3d
-    .long 0x3d
-    .long 0x3d
-    .long 0x3d
-    .long 0x3d
-    .long 0x3d
-    .long 0x3d
-    .long 0x3d
-    .long 0x3d
-    .long 0x3d
-    .long 0x3d
-    .long 0x3d
-    .long 0x3d
-    .long 0x3d
-    .long 0x3d
-    .long 0x3d
-    .long 0x3d
-    .long 0x3d
-    .long 0x3d
-    .long 0x3d
-    .long 0x3d
-    .long 0x3d
-    .long 0x3d
-    .long 0x3d
-    .long 0x3d
-    .long 0x3d
-    .long 0x3d
-    .long 0x3d
-    .long 0x3d
-    .long 0x3d
-    .long 0x3d
-    .long 0x3d
-    .long 0x3d
-    .long 0x3d
-    .long 0x3d
-    .long 0x3d
-    .long 0xa
-    .long 0xa
-    .long 0x0
-    .long 0x0
-L_str9:
-    .quad 0x1b
-    ; (upper half)
-    .long 0x31
-    .long 0x2e
-    .long 0x20
-    .long 0x42
-    .long 0x61
-    .long 0x73
-    .long 0x69
-    .long 0x63
-    .long 0x20
-    .long 0x50
+    .long 0x70
     .long 0x6f
     .long 0x69
     .long 0x6e
     .long 0x74
-    .long 0x20
-    .long 0x63
-    .long 0x6c
-    .long 0x61
-    .long 0x73
-    .long 0x73
-    .long 0x20
-    .long 0x74
-    .long 0x65
-    .long 0x73
-    .long 0x74
-    .long 0x3a
-    .long 0xa
+    .long 0x2e
+    .long 0x2e
+    .long 0x2e
+    .long 0x2a
+    .long 0x4e
     .long 0x0
     .long 0x0
-L_str10:
+L_str5:
     .quad 0x12
     ; (upper half)
     .long 0x52
@@ -870,7 +499,7 @@ L_str10:
     .long 0x3d
     .long 0x0
     .long 0x0
-L_str11:
+L_str6:
     .quad 0x4
     ; (upper half)
     .long 0x2c
@@ -879,8 +508,17 @@ L_str11:
     .long 0x3d
     .long 0x0
     .long 0x0
-L_str12:
-    .quad 0x16
+L_str7:
+    .quad 0x4
+    ; (upper half)
+    .long 0x2a
+    .long 0x4e
+    .long 0x2a
+    .long 0x4e
+    .long 0x0
+    .long 0x0
+L_str8:
+    .quad 0x17
     ; (upper half)
     .long 0x53
     .long 0x65
@@ -903,10 +541,11 @@ L_str12:
     .long 0x2e
     .long 0x2e
     .long 0x2e
-    .long 0xa
+    .long 0x2a
+    .long 0x4e
     .long 0x0
     .long 0x0
-L_str13:
+L_str9:
     .quad 0x16
     ; (upper half)
     .long 0x52
@@ -933,109 +572,13 @@ L_str13:
     .long 0x3d
     .long 0x0
     .long 0x0
-L_str14:
+L_str10:
     .quad 0x2
     ; (upper half)
-    .long 0xa
-    .long 0xa
+    .long 0x2a
+    .long 0x4e
     .long 0x0
     .long 0x0
-L_str15:
-    .quad 0x24
-    ; (upper half)
-    .long 0x32
-    .long 0x2e
-    .long 0x20
-    .long 0x49
-    .long 0x6e
-    .long 0x68
-    .long 0x65
-    .long 0x72
-    .long 0x69
-    .long 0x74
-    .long 0x65
-    .long 0x64
-    .long 0x20
-    .long 0x43
-    .long 0x6f
-    .long 0x6c
-    .long 0x6f
-    .long 0x72
-    .long 0x50
-    .long 0x6f
-    .long 0x69
-    .long 0x6e
-    .long 0x74
-    .long 0x20
-    .long 0x63
-    .long 0x6c
-    .long 0x61
-    .long 0x73
-    .long 0x73
-    .long 0x20
-    .long 0x74
-    .long 0x65
-    .long 0x73
-    .long 0x74
-    .long 0x3a
-    .long 0xa
-    .long 0x0
-    .long 0x0
-L_str16:
-    .quad 0x8
-    ; (upper half)
-    .long 0x2c
-    .long 0x20
-    .long 0x63
-    .long 0x6f
-    .long 0x6c
-    .long 0x6f
-    .long 0x72
-    .long 0x3d
-    .long 0x0
-    .long 0x0
-L_str17:
-    .quad 0x1d
-    ; (upper half)
-    .long 0xa
-    .long 0x54
-    .long 0x65
-    .long 0x73
-    .long 0x74
-    .long 0x20
-    .long 0x63
-    .long 0x6f
-    .long 0x6d
-    .long 0x70
-    .long 0x6c
-    .long 0x65
-    .long 0x74
-    .long 0x65
-    .long 0x64
-    .long 0x20
-    .long 0x73
-    .long 0x75
-    .long 0x63
-    .long 0x63
-    .long 0x65
-    .long 0x73
-    .long 0x73
-    .long 0x66
-    .long 0x75
-    .long 0x6c
-    .long 0x6c
-    .long 0x79
-    .long 0xa
-    .long 0x0
-    .long 0x0
-L_ColorPoint_vtable:
-    .quad L_ColorPoint_CREATE
-    .quad L_Point_RELEASE
-    .quad L_Point_getX
-    .quad L_Point_getY
-    .quad L_Point_set
-    .quad L_ColorPoint_setColor
-    .quad L_ColorPoint_getColor
 L_Point_vtable:
     .quad L_Point_CREATE
     .quad L_Point_RELEASE
@@ -1045,10 +588,6 @@ L_Point_vtable:
 
 .section __DATA,__data
 .p2align 3
-    .long 0x0
-    .long 0x0
-    .long 0x0
-    .long 0x0
     .long 0x0
     .long 0x0
     .long 0x0

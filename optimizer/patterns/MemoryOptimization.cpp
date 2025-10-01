@@ -212,6 +212,13 @@ std::unique_ptr<InstructionPattern> createLoadThroughScratchRegisterPattern() {
                 return {false, 0};
             }
 
+            // Conservative safety check: Don't optimize member variable access patterns
+            // Member accesses typically use small positive offsets (8, 16, 24, etc.)
+            if (InstructionDecoder::isMemoryOp(ldr) && InstructionDecoder::getOffset(ldr) > 0 && InstructionDecoder::getOffset(ldr) <= 64) {
+                // This looks like member variable access - be very conservative
+                return {false, 0};
+            }
+
             // Critical liveness check: ensure scratch register is not used after the 2-instruction sequence
             int scratch_reg = ldr.dest_reg;
             for (size_t i = pos + 2; i < instrs.size(); ++i) {
@@ -228,8 +235,8 @@ std::unique_ptr<InstructionPattern> createLoadThroughScratchRegisterPattern() {
                     return {false, 0};
                 }
                 
-                // Stop checking after a reasonable distance (e.g., 10 instructions)
-                if (i - pos > 10) break;
+                // Be more conservative - check more instructions but still limit for performance
+                if (i - pos > 50) break;
             }
 
             return {true, 2};
