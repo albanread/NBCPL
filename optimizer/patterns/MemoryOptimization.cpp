@@ -72,6 +72,26 @@ std::unique_ptr<InstructionPattern> createMovSubMovScratchPattern() {
             // Restrict to scratch registers for mov1.dest_reg (X9/X10/X11)
             if (!(mov1.dest_reg == 9 || mov1.dest_reg == 10 || mov1.dest_reg == 11)) return {false, 0};
 
+            // Critical liveness check: ensure scratch register is not used after the 3-instruction sequence
+            int scratch_reg = mov1.dest_reg;
+            for (size_t i = pos + 3; i < instrs.size(); ++i) {
+                const auto& future_instr = instrs[i];
+                
+                // If scratch register is redefined, it's safe to optimize
+                if (InstructionDecoder::getDestReg(future_instr) == scratch_reg) {
+                    break;
+                }
+                
+                // If scratch register is used as source, we cannot optimize
+                if (InstructionDecoder::getSrcReg1(future_instr) == scratch_reg ||
+                    InstructionDecoder::getSrcReg2(future_instr) == scratch_reg) {
+                    return {false, 0};
+                }
+                
+                // Stop checking after a reasonable distance (e.g., 10 instructions)
+                if (i - pos > 10) break;
+            }
+
             return {true, 3};
         },
         [](const std::vector<Instruction>& instrs, size_t pos) -> std::vector<Instruction> {
@@ -126,13 +146,45 @@ std::unique_ptr<InstructionPattern> createConservativeMovzScratchPattern() {
                 return {false, 0};
             }
 
+            // Critical liveness check: ensure scratch register is not used after the 2-instruction sequence
+            int scratch_reg = movz.dest_reg;
+            for (size_t i = pos + 2; i < instrs.size(); ++i) {
+                const auto& future_instr = instrs[i];
+                
+                // If scratch register is redefined, it's safe to optimize
+                if (InstructionDecoder::getDestReg(future_instr) == scratch_reg) {
+                    break;
+                }
+                
+                // If scratch register is used as source, we cannot optimize
+                if (InstructionDecoder::getSrcReg1(future_instr) == scratch_reg ||
+                    InstructionDecoder::getSrcReg2(future_instr) == scratch_reg) {
+                    return {false, 0};
+                }
+                
+                // Stop checking after a reasonable distance (e.g., 10 instructions)
+                if (i - pos > 10) break;
+            }
+
             return {true, 2};
         },
         [](const std::vector<Instruction>& instrs, size_t pos) -> std::vector<Instruction> {
             auto movz = instrs[pos];
             const auto& mov = instrs[pos + 1];
-            movz.dest_reg = mov.dest_reg; // Change MOVZ destination to MOV's target
-            return { movz };
+            
+            // Change MOVZ destination to MOV's target
+            int new_dest_reg = mov.dest_reg;
+            movz.dest_reg = new_dest_reg;
+            
+            // Update encoding to reflect new destination register (bits 0-4)
+            // Use Encoder to rebuild instruction instead of text manipulation
+            std::string new_dest_reg_name = InstructionDecoder::getRegisterName(new_dest_reg);
+            int64_t immediate = InstructionDecoder::getImmediate(movz);
+            
+            // Rebuild the MOVZ instruction with the new destination register
+            Instruction optimized_movz = Encoder::create_movz_imm(new_dest_reg_name, immediate);
+            
+            return { optimized_movz };
         },
         "Conservative MOVZ+MOV scratch-to-target pattern for X9/X10/X11 to X19-X27"
     );
@@ -160,7 +212,25 @@ std::unique_ptr<InstructionPattern> createLoadThroughScratchRegisterPattern() {
                 return {false, 0};
             }
 
-            // (Optional) Could check for register overlap/aliasing here
+            // Critical liveness check: ensure scratch register is not used after the 2-instruction sequence
+            int scratch_reg = ldr.dest_reg;
+            for (size_t i = pos + 2; i < instrs.size(); ++i) {
+                const auto& future_instr = instrs[i];
+                
+                // If scratch register is redefined, it's safe to optimize
+                if (InstructionDecoder::getDestReg(future_instr) == scratch_reg) {
+                    break;
+                }
+                
+                // If scratch register is used as source, we cannot optimize
+                if (InstructionDecoder::getSrcReg1(future_instr) == scratch_reg ||
+                    InstructionDecoder::getSrcReg2(future_instr) == scratch_reg) {
+                    return {false, 0};
+                }
+                
+                // Stop checking after a reasonable distance (e.g., 10 instructions)
+                if (i - pos > 10) break;
+            }
 
             return {true, 2};
         },

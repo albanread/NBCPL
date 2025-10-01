@@ -1,0 +1,29 @@
+LET FACTORIAL(N) = VALOF
+$(
+  WRITES("FACTORIAL called with N=")
+  WRITEN(N)
+  WRITES("*N")
+
+  IF N = 0 THEN
+  $(
+    WRITES("Base case: returning 1*N")
+    RESULTIS 1
+  $)
+
+  WRITES("Recursive case: N * FACTORIAL(N-1)*N")
+  LET RESULT = N * FACTORIAL(N - 1)
+  WRITES("Returning ")
+  WRITEN(RESULT)
+  WRITES("*N")
+  RESULTIS RESULT
+$)
+
+LET START() BE
+$(
+  WRITES("Testing factorial of 3:*N")
+  LET R = FACTORIAL(3)
+  WRITES("Final result: ")
+  WRITEN(R)
+  WRITES("*N")
+  FINISH
+$)

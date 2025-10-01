@@ -52,16 +52,30 @@ void LivenessAnalysisPass::run_data_flow_analysis() {
 
                     // 2. Calculate in[B] = use[B] U (out[B] - def[B])
                     // CALL INTERVAL FIX: For blocks containing function calls,
-                    // augment use[B] with out[B] to force live-out variables
-                    // across function calls into callee-saved registers
+                    // augment use[B] with variables used across calls within the block
+                    // to force them into callee-saved registers
                     std::set<std::string> effective_use_set = use_sets_[b];
                     if (blocks_with_calls_.count(b)) {
-                        if (trace_enabled_) {
-                            std::cout << "[LivenessAnalysisPass] Applying call interval fix to block " 
-                                      << b->id << " - adding " << new_out_set.size() 
-                                      << " live-out variables to use set" << std::endl;
-                        }
+                        // First, add live-out variables (original fix)
                         effective_use_set.insert(new_out_set.begin(), new_out_set.end());
+                        
+                        // Second, add variables specifically identified as used across calls
+                        if (vars_used_across_calls_per_block_.count(b)) {
+                            const auto& vars_across_calls = vars_used_across_calls_per_block_[b];
+                            effective_use_set.insert(vars_across_calls.begin(), vars_across_calls.end());
+                            if (trace_enabled_) {
+                                std::cout << "[LivenessAnalysisPass] Applying call interval fix to block " 
+                                          << b->id << " - adding " << new_out_set.size() 
+                                          << " live-out variables and " << vars_across_calls.size()
+                                          << " intra-statement call variables to use set" << std::endl;
+                            }
+                        } else {
+                            if (trace_enabled_) {
+                                std::cout << "[LivenessAnalysisPass] Applying call interval fix to block " 
+                                          << b->id << " - adding " << new_out_set.size() 
+                                          << " live-out variables to use set" << std::endl;
+                            }
+                        }
                     }
                     
                     std::set<std::string> out_minus_def = out_sets_[b];

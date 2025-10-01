@@ -3,7 +3,7 @@ $(
  LET F=1
  WRITES("For loop")
  FOR I=1 TO N DO $(
-  WRITEF("%d",N) 
+  WRITEF("%d",I) 
   LET F = I*F
  $)
  WRITEF("F=%d*N", F)

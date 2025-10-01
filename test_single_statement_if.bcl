@@ -1,0 +1,27 @@
+LET TEST_SINGLE_IF(N) = VALOF
+$(
+  WRITES("TEST_SINGLE_IF called with N=")
+  WRITEN(N)
+  WRITES("*N")
+
+  IF N = 0 THEN RESULTIS 100
+  WRITES("After IF statement - should not reach here when N=0*N")
+  RESULTIS 200
+$)
+
+LET START() BE
+$(
+  WRITES("=== Testing single-statement IF with N=0 ===*N")
+  LET R1 = TEST_SINGLE_IF(0)
+  WRITES("Result: ")
+  WRITEN(R1)
+  WRITES("*N*N")
+
+  WRITES("=== Testing single-statement IF with N=5 ===*N")
+  LET R2 = TEST_SINGLE_IF(5)
+  WRITES("Result: ")
+  WRITEN(R2)
+  WRITES("*N*N")
+
+  FINISH
+$)

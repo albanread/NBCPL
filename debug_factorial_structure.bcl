@@ -1,0 +1,31 @@
+LET DEBUG_FACTORIAL(N) = VALOF
+$(
+  WRITES("DEBUG_FACTORIAL called with N=")
+  WRITEN(N)
+  WRITES("*N")
+
+  IF N = 0 THEN RESULTIS 100
+
+  WRITES("About to make recursive call with N-1=")
+  WRITEN(N-1)
+  WRITES("*N")
+
+  RESULTIS 200 + DEBUG_FACTORIAL(N - 1)
+$)
+
+LET START() BE
+$(
+  WRITES("=== Testing DEBUG_FACTORIAL with N=0 ===*N")
+  LET R1 = DEBUG_FACTORIAL(0)
+  WRITES("Result: ")
+  WRITEN(R1)
+  WRITES("*N*N")
+
+  WRITES("=== Testing DEBUG_FACTORIAL with N=2 ===*N")
+  LET R2 = DEBUG_FACTORIAL(2)
+  WRITES("Result: ")
+  WRITEN(R2)
+  WRITES("*N*N")
+
+  FINISH
+$)

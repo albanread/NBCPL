@@ -1,0 +1,66 @@
+LET TEST_PARAM(N) = VALOF
+$(
+  WRITES("TEST_PARAM received N=")
+  WRITEN(N)
+  WRITES("*N")
+  RESULTIS N
+$)
+
+LET FACTORIAL_DEBUG(N) = VALOF
+$(
+  WRITES("FACTORIAL_DEBUG: N parameter = ")
+  WRITEN(N)
+  WRITES("*N")
+
+  WRITES("Testing N = 0 condition...*N")
+  LET TEST_RESULT = N = 0
+  WRITES("N = 0 evaluates to: ")
+  WRITEN(TEST_RESULT)
+  WRITES("*N")
+
+  WRITES("Testing N != 0 condition...*N")
+  LET TEST_RESULT2 = N ~= 0
+  WRITES("N ~= 0 evaluates to: ")
+  WRITEN(TEST_RESULT2)
+  WRITES("*N")
+
+  IF N = 0 THEN
+  $(
+    WRITES("THEN branch taken*N")
+    RESULTIS 1
+  $)
+
+  WRITES("JOIN branch taken*N")
+  RESULTIS 999
+$)
+
+LET START() BE
+$(
+  WRITES("=== Testing parameter passing ===*N")
+  WRITES("Calling TEST_PARAM(5):*N")
+  LET R1 = TEST_PARAM(5)
+  WRITES("Returned: ")
+  WRITEN(R1)
+  WRITES("*N*N")
+
+  WRITES("Calling TEST_PARAM(0):*N")
+  LET R2 = TEST_PARAM(0)
+  WRITES("Returned: ")
+  WRITEN(R2)
+  WRITES("*N*N")
+
+  WRITES("=== Testing factorial debug ===*N")
+  WRITES("Calling FACTORIAL_DEBUG(0):*N")
+  LET R3 = FACTORIAL_DEBUG(0)
+  WRITES("Returned: ")
+  WRITEN(R3)
+  WRITES("*N*N")
+
+  WRITES("Calling FACTORIAL_DEBUG(5):*N")
+  LET R4 = FACTORIAL_DEBUG(5)
+  WRITES("Returned: ")
+  WRITEN(R4)
+  WRITES("*N*N")
+
+  FINISH
+$)

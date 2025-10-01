@@ -225,26 +225,7 @@ std::unique_ptr<InstructionPattern> PeepholeOptimizer::createCompareZeroBranchPa
 
 // Helper to rebuild assembly text without using regex.
 // It finds the first register operand after the mnemonic and replaces it.
-static std::string rebuild_assembly_with_new_dest(const Instruction& instr, const std::string& new_dest_reg_name) {
-    std::string original_text = instr.assembly_text;
-    std::string original_dest_name = InstructionDecoder::getRegisterName(instr.dest_reg);
-
-    // Find the mnemonic (e.g., "MOVZ ")
-    size_t first_space = original_text.find(" ");
-    if (first_space == std::string::npos) {
-        return original_text; // Should not happen
-    }
-
-    // Find the original destination register after the mnemonic
-    size_t dest_pos = original_text.find(original_dest_name, first_space);
-    if (dest_pos == std::string::npos) {
-        return original_text; // Fallback if something is unexpected
-    }
-
-    // Replace the old register name with the new one
-    original_text.replace(dest_pos, original_dest_name.length(), new_dest_reg_name);
-    return original_text;
-}
+// Helper function removed - patterns should use Encoder instead of text manipulation
 
 // Identical sequential MOV elimination pattern
 std::unique_ptr<InstructionPattern> PeepholePatterns::createIdenticalMovePattern() {
@@ -343,10 +324,323 @@ std::unique_ptr<InstructionPattern> PeepholeOptimizer::createRedundantMovePatter
 
             optimized_instr.encoding = patcher.get_value();
             optimized_instr.dest_reg = final_dest_reg_num;
-            optimized_instr.assembly_text = rebuild_assembly_with_new_dest(instr1, InstructionDecoder::getRegisterName(final_dest_reg_num));
+            
+            // Use Encoder to rebuild instruction instead of text manipulation
+            if (InstructionDecoder::getOpcode(instr1) == InstructionDecoder::OpType::MOVZ) {
+                int64_t immediate = InstructionDecoder::getImmediate(instr1);
+                optimized_instr = Encoder::create_movz_imm(InstructionDecoder::getRegisterName(final_dest_reg_num), immediate);
+            } else {
+                // Fallback for other instruction types - just update the encoding as before
+                // The encoding was already updated above by BitPatcher
+            }
 
             return { optimized_instr };
         },
         "Redundant Move Elimination"
+    );
+}
+
+
+
+/**
+ * @brief Creates a pattern to optimize loop comparison operations.
+ * Pattern: MOV X9, X25; CMP X9, X26 -> CMP X25, X26
+ * @return A unique pointer to an InstructionPattern.
+ */
+std::unique_ptr<InstructionPattern> PeepholePatterns::createInPlaceComparisonPattern() {
+    return std::make_unique<InstructionPattern>(
+        2,  // Pattern size: 2 instructions (MOV, CMP)
+        [](const std::vector<Instruction>& instrs, size_t pos) -> MatchResult {
+            // Check if we have at least 2 instructions
+            if (pos + 1 >= instrs.size()) return {false, 0};
+
+            const auto& mov_instr = instrs[pos];
+            const auto& cmp_instr = instrs[pos + 1];
+
+            // Check if first instruction is MOV from register to scratch register
+            if (InstructionDecoder::getOpcode(mov_instr) != InstructionDecoder::OpType::MOV ||
+                InstructionDecoder::usesImmediate(mov_instr)) {
+                return {false, 0};
+            }
+
+            // Check if second instruction is CMP
+            if (InstructionDecoder::getOpcode(cmp_instr) != InstructionDecoder::OpType::CMP) {
+                return {false, 0};
+            }
+
+            // Get register numbers
+            int original_reg = InstructionDecoder::getSrcReg1(mov_instr);  // X25, X27, etc.
+            int scratch_reg = InstructionDecoder::getDestReg(mov_instr);   // X9
+            int cmp_src1 = InstructionDecoder::getSrcReg1(cmp_instr);      // Should be X9
+            int cmp_src2 = InstructionDecoder::getSrcReg2(cmp_instr);      // X26 or immediate
+
+            // Verify the pattern: MOV original -> scratch, CMP scratch, other
+            if (scratch_reg != cmp_src1) {
+                return {false, 0};
+            }
+
+            // Liveness check: ensure scratch register is not used after the 2-instruction sequence
+            for (size_t i = pos + 2; i < instrs.size(); ++i) {
+                const auto& future_instr = instrs[i];
+                
+                // If scratch register is redefined, it's safe to optimize
+                if (InstructionDecoder::getDestReg(future_instr) == scratch_reg) {
+                    break;
+                }
+                
+                // If scratch register is used as source, we cannot optimize
+                if (InstructionDecoder::getSrcReg1(future_instr) == scratch_reg ||
+                    InstructionDecoder::getSrcReg2(future_instr) == scratch_reg) {
+                    return {false, 0};
+                }
+                
+                // Stop checking after a reasonable distance (e.g., 10 instructions)
+                if (i - pos > 10) break;
+            }
+
+            return {true, 2};
+        },
+        [](const std::vector<Instruction>& instrs, size_t pos) -> std::vector<Instruction> {
+            const auto& mov_instr = instrs[pos];
+            const auto& cmp_instr = instrs[pos + 1];
+
+            // Get the original register and operands
+            int original_reg = InstructionDecoder::getSrcReg1(mov_instr);
+            std::string original_reg_name = InstructionDecoder::getRegisterName(original_reg);
+            
+            // Instead of text manipulation, rebuild the CMP instruction using Encoder
+            Instruction optimized_cmp;
+            
+            if (InstructionDecoder::usesImmediate(cmp_instr)) {
+                // CMP with immediate: CMP Xn, #imm
+                int64_t immediate = InstructionDecoder::getImmediate(cmp_instr);
+                optimized_cmp = Encoder::create_cmp_imm(original_reg_name, immediate);
+            } else {
+                // CMP with register: CMP Xn, Xm
+                int second_reg = InstructionDecoder::getSrcReg2(cmp_instr);
+                std::string second_reg_name = InstructionDecoder::getRegisterName(second_reg);
+                optimized_cmp = Encoder::create_cmp_reg(original_reg_name, second_reg_name);
+            }
+
+            return { optimized_cmp };
+        },
+        "In-place comparison optimization (MOV-CMP -> CMP)"
+    );
+}
+
+std::unique_ptr<InstructionPattern> PeepholePatterns::createInPlaceArithmeticPattern() {
+    return std::make_unique<InstructionPattern>(
+        3,  // Pattern size: 3 instructions (MOV, ARITHMETIC_OP, MOV)
+        [](const std::vector<Instruction>& instrs, size_t pos) -> MatchResult {
+            // Check if we have at least 3 instructions
+            if (pos + 2 >= instrs.size()) return {false, 0};
+
+            const auto& mov1 = instrs[pos];
+            const auto& arith_instr = instrs[pos + 1];
+            const auto& mov2 = instrs[pos + 2];
+
+            // Check if first instruction is MOV from register to scratch register
+            if (InstructionDecoder::getOpcode(mov1) != InstructionDecoder::OpType::MOV ||
+                InstructionDecoder::usesImmediate(mov1)) {
+                return {false, 0};
+            }
+
+            // Check if second instruction is a supported arithmetic operation
+            InstructionDecoder::OpType arith_op = InstructionDecoder::getOpcode(arith_instr);
+            bool is_supported_op = (arith_op == InstructionDecoder::OpType::ADD ||
+                                   arith_op == InstructionDecoder::OpType::SUB ||
+                                   arith_op == InstructionDecoder::OpType::MUL ||
+                                   arith_op == InstructionDecoder::OpType::DIV ||
+                                   arith_op == InstructionDecoder::OpType::SDIV ||
+                                   arith_op == InstructionDecoder::OpType::AND ||
+                                   arith_op == InstructionDecoder::OpType::ORR ||
+                                   arith_op == InstructionDecoder::OpType::EOR ||
+                                   arith_op == InstructionDecoder::OpType::LSL ||
+                                   arith_op == InstructionDecoder::OpType::LSR ||
+                                   arith_op == InstructionDecoder::OpType::ASR);
+            
+            if (!is_supported_op) {
+                return {false, 0};
+            }
+
+            // Check if third instruction is MOV from scratch register back to destination
+            if (InstructionDecoder::getOpcode(mov2) != InstructionDecoder::OpType::MOV ||
+                InstructionDecoder::usesImmediate(mov2)) {
+                return {false, 0};
+            }
+
+            // Get register numbers
+            int original_reg = InstructionDecoder::getSrcReg1(mov1);    // X25, X27, etc.
+            int scratch_reg = InstructionDecoder::getDestReg(mov1);     // X9
+            int arith_dest = InstructionDecoder::getDestReg(arith_instr); // Should be X9
+            int arith_src1 = InstructionDecoder::getSrcReg1(arith_instr); // Should be X9
+            int final_dest = InstructionDecoder::getDestReg(mov2);      // X25, X27, etc.
+            int final_src = InstructionDecoder::getSrcReg1(mov2);       // Should be X9
+
+            // Verify the pattern: original -> scratch -> arith on scratch -> move to final destination
+            if (!(scratch_reg == arith_dest && scratch_reg == arith_src1 && 
+                  scratch_reg == final_src)) {
+                return {false, 0};
+            }
+
+            // Additional safety check: ensure operand2 doesn't conflict with our register reassignment
+            int arith_src2 = InstructionDecoder::getSrcReg2(arith_instr);
+            
+            // If the arithmetic operation uses a second source register, ensure it won't conflict
+            if (arith_src2 != -1) {
+                // Check if operand2 is the scratch register (this would be unusual but let's be safe)
+                if (arith_src2 == scratch_reg) {
+                    return {false, 0}; // Can't optimize if operand2 is the scratch register
+                }
+                
+                // For operations where operand2 == final_dest_reg, we need to be extra careful
+                // Example: MUL X9, X9, X27 -> MUL X27, X25, X27 is OK
+                // But: ADD X9, X9, X27 -> ADD X27, X25, X27 changes semantics if X27 was modified
+                // However, since we're in a MOV-OP-MOV sequence, X27 hasn't been modified between
+                // the first MOV and the OP, so this should be safe.
+            }
+
+            // Critical liveness check: ensure scratch register is not used after the 3-instruction sequence
+            for (size_t i = pos + 3; i < instrs.size(); ++i) {
+                const auto& future_instr = instrs[i];
+                
+                // If scratch register is redefined, it's safe to optimize
+                if (InstructionDecoder::getDestReg(future_instr) == scratch_reg) {
+                    break;
+                }
+                
+                // If scratch register is used as source, we cannot optimize
+                if (InstructionDecoder::getSrcReg1(future_instr) == scratch_reg ||
+                    InstructionDecoder::getSrcReg2(future_instr) == scratch_reg) {
+                    return {false, 0};
+                }
+                
+                // Stop checking after a reasonable distance (e.g., 10 instructions)
+                if (i - pos > 10) break;
+            }
+
+            return {true, 3};
+        },
+        [](const std::vector<Instruction>& instrs, size_t pos) -> std::vector<Instruction> {
+            const auto& mov1 = instrs[pos];
+            const auto& arith_instr = instrs[pos + 1];
+            const auto& mov2 = instrs[pos + 2];
+
+            // Get the registers involved in the transformation
+            int original_reg = InstructionDecoder::getSrcReg1(mov1);        // Source of first MOV
+            int final_dest_reg = InstructionDecoder::getDestReg(mov2);      // Destination of final MOV
+            int scratch_reg = InstructionDecoder::getDestReg(mov1);         // Scratch register
+            
+            std::string original_reg_name = InstructionDecoder::getRegisterName(original_reg);
+            std::string final_dest_reg_name = InstructionDecoder::getRegisterName(final_dest_reg);
+            std::string scratch_reg_name = InstructionDecoder::getRegisterName(scratch_reg);
+
+            // Create optimized arithmetic instruction: OP final_dest, original_src, operand2
+            Instruction optimized_arith = arith_instr;
+            
+            // Update registers for the optimized instruction
+            optimized_arith.dest_reg = final_dest_reg;    // Result goes to final destination
+            optimized_arith.src_reg1 = original_reg;      // First operand comes from original source
+            // src_reg2 stays the same (second operand unchanged)
+            
+            // Update machine encoding to reflect new registers
+            // Most arithmetic instructions follow similar encoding patterns:
+            // bits 0-4: destination register (Rd)
+            // bits 5-9: first source register (Rn)
+            // bits 10-15: second source register (Rm) - leave unchanged
+            uint32_t encoding = arith_instr.encoding;
+            encoding = (encoding & ~0x1F) | (final_dest_reg & 0x1F);           // Update Rd (bits 0-4)
+            encoding = (encoding & ~(0x1F << 5)) | ((original_reg & 0x1F) << 5); // Update Rn (bits 5-9)
+            optimized_arith.encoding = encoding;
+            
+            // Instead of text manipulation, rebuild the instruction using Encoder
+            InstructionDecoder::OpType op = InstructionDecoder::getOpcode(arith_instr);
+            
+            // Determine if this is an immediate or register operation
+            if (InstructionDecoder::usesImmediate(arith_instr)) {
+                // Operation with immediate
+                int64_t immediate = InstructionDecoder::getImmediate(arith_instr);
+                
+                switch (op) {
+                    case InstructionDecoder::OpType::ADD:
+                        optimized_arith = Encoder::create_add_imm(final_dest_reg_name, original_reg_name, immediate);
+                        break;
+                    case InstructionDecoder::OpType::SUB:
+                        optimized_arith = Encoder::create_sub_imm(final_dest_reg_name, original_reg_name, immediate);
+                        break;
+                    case InstructionDecoder::OpType::LSL:
+                        optimized_arith = Encoder::create_lsl_imm(final_dest_reg_name, original_reg_name, immediate);
+                        break;
+                    case InstructionDecoder::OpType::ASR:
+                        optimized_arith = Encoder::opt_create_asr_imm(final_dest_reg_name, original_reg_name, immediate);
+                        break;
+                    case InstructionDecoder::OpType::AND:
+                        optimized_arith = Encoder::opt_create_and_imm(final_dest_reg_name, original_reg_name, immediate);
+                        break;
+                    case InstructionDecoder::OpType::ORR:
+                        optimized_arith = Encoder::opt_create_orr_imm(final_dest_reg_name, original_reg_name, immediate);
+                        break;
+                    case InstructionDecoder::OpType::EOR:
+                        optimized_arith = Encoder::opt_create_eor_imm(final_dest_reg_name, original_reg_name, immediate);
+                        break;
+                    default:
+                        // For operations without direct Encoder methods, fall back to manual update
+                        optimized_arith = arith_instr;
+                        optimized_arith.dest_reg = final_dest_reg;
+                        optimized_arith.src_reg1 = original_reg;
+                        // Update encoding
+                        uint32_t encoding = arith_instr.encoding;
+                        encoding = (encoding & ~0x1F) | (final_dest_reg & 0x1F);
+                        encoding = (encoding & ~(0x1F << 5)) | ((original_reg & 0x1F) << 5);
+                        optimized_arith.encoding = encoding;
+                        break;
+                }
+            } else {
+                // Operation with register
+                int second_reg = InstructionDecoder::getSrcReg2(arith_instr);
+                std::string second_reg_name = InstructionDecoder::getRegisterName(second_reg);
+                
+                switch (op) {
+                    case InstructionDecoder::OpType::ADD:
+                        optimized_arith = Encoder::create_add_reg(final_dest_reg_name, original_reg_name, second_reg_name);
+                        break;
+                    case InstructionDecoder::OpType::SUB:
+                        optimized_arith = Encoder::create_sub_reg(final_dest_reg_name, original_reg_name, second_reg_name);
+                        break;
+                    case InstructionDecoder::OpType::MUL:
+                        optimized_arith = Encoder::create_mul_reg(final_dest_reg_name, original_reg_name, second_reg_name);
+                        break;
+                    case InstructionDecoder::OpType::AND:
+                        optimized_arith = Encoder::create_and_reg(final_dest_reg_name, original_reg_name, second_reg_name);
+                        break;
+                    case InstructionDecoder::OpType::ORR:
+                        optimized_arith = Encoder::create_orr_reg(final_dest_reg_name, original_reg_name, second_reg_name);
+                        break;
+                    case InstructionDecoder::OpType::EOR:
+                        optimized_arith = Encoder::create_eor_reg(final_dest_reg_name, original_reg_name, second_reg_name);
+                        break;
+                    case InstructionDecoder::OpType::LSL:
+                        optimized_arith = Encoder::create_lsl_reg(final_dest_reg_name, original_reg_name, second_reg_name);
+                        break;
+                    case InstructionDecoder::OpType::LSR:
+                        optimized_arith = Encoder::create_lsr_reg(final_dest_reg_name, original_reg_name, second_reg_name);
+                        break;
+                    default:
+                        // For operations without direct Encoder methods, fall back to manual update
+                        optimized_arith = arith_instr;
+                        optimized_arith.dest_reg = final_dest_reg;
+                        optimized_arith.src_reg1 = original_reg;
+                        // Update encoding
+                        uint32_t encoding = arith_instr.encoding;
+                        encoding = (encoding & ~0x1F) | (final_dest_reg & 0x1F);
+                        encoding = (encoding & ~(0x1F << 5)) | ((original_reg & 0x1F) << 5);
+                        optimized_arith.encoding = encoding;
+                        break;
+                }
+            }
+
+            return { optimized_arith };
+        },
+        "In-place arithmetic optimization (MOV-ADD/SUB/MUL/DIV/AND/ORR/EOR/LSL/LSR/ASR-MOV -> ARITH)"
     );
 }

@@ -38,4 +38,8 @@ namespace PeepholePatterns {
 
     // Identical sequential MOV elimination
     std::unique_ptr<InstructionPattern> createIdenticalMovePattern();
+
+    // In-place operation optimization patterns
+    std::unique_ptr<InstructionPattern> createInPlaceComparisonPattern();
+    std::unique_ptr<InstructionPattern> createInPlaceArithmeticPattern();
 }

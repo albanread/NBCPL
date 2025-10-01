@@ -1,0 +1,28 @@
+LET FACTORIAL_RECURSIVE(N) = VALOF
+$(
+  IF N = 0 THEN RESULTIS 1
+  RESULTIS N * FACTORIAL_RECURSIVE(N - 1)
+$)
+
+LET START() BE
+$(
+  WRITES("Testing exact original with N=3:*N")
+  LET R = FACTORIAL_RECURSIVE(3)
+  WRITES("Result: ")
+  WRITEN(R)
+  WRITES("*N")
+
+  WRITES("Testing exact original with N=0:*N")
+  LET R0 = FACTORIAL_RECURSIVE(0)
+  WRITES("Result: ")
+  WRITEN(R0)
+  WRITES("*N")
+
+  WRITES("Testing exact original with N=1:*N")
+  LET R1 = FACTORIAL_RECURSIVE(1)
+  WRITES("Result: ")
+  WRITEN(R1)
+  WRITES("*N")
+
+  FINISH
+$)

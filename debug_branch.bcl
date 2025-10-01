@@ -1,0 +1,33 @@
+LET DEBUG_BRANCH(N) = VALOF
+$(
+  WRITES("DEBUG_BRANCH called with N=")
+  WRITEN(N)
+  WRITES("*N")
+
+  WRITES("About to test: N = 0*N")
+  IF N = 0 THEN
+  $(
+    WRITES("THEN branch taken - returning 100*N")
+    RESULTIS 100
+  $)
+
+  WRITES("JOIN branch taken - returning 200*N")
+  RESULTIS 200
+$)
+
+LET START() BE
+$(
+  WRITES("=== Testing DEBUG_BRANCH with N=0 ===*N")
+  LET R1 = DEBUG_BRANCH(0)
+  WRITES("Result: ")
+  WRITEN(R1)
+  WRITES("*N*N")
+
+  WRITES("=== Testing DEBUG_BRANCH with N=5 ===*N")
+  LET R2 = DEBUG_BRANCH(5)
+  WRITES("Result: ")
+  WRITEN(R2)
+  WRITES("*N*N")
+
+  FINISH
+$)

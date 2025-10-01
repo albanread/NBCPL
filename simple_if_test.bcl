@@ -1,0 +1,18 @@
+LET TEST_IF(N) = VALOF
+$(
+  IF N = 0 THEN RESULTIS 42
+  RESULTIS 99
+$)
+
+LET START() BE
+$(
+  WRITES("Testing IF with N=0: ")
+  WRITEN(TEST_IF(0))
+  WRITES("*N")
+
+  WRITES("Testing IF with N=5: ")
+  WRITEN(TEST_IF(5))
+  WRITES("*N")
+
+  FINISH
+$)

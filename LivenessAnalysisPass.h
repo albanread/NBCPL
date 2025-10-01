@@ -136,11 +136,16 @@ private:
     
     // Track which blocks contain function calls (for call interval fix)
     std::set<BasicBlock*> blocks_with_calls_;
+    
+    // Track variables that are used across calls within each block
+    std::map<BasicBlock*, std::set<std::string>> vars_used_across_calls_per_block_;
+    
     BasicBlock* current_block_being_analyzed_;
     
     // Helper methods for intra-block call interval analysis
     void collect_variable_uses(ASTNode* node, std::set<std::string>& vars);
     void collect_statement_variable_uses(ASTNode* stmt, std::set<std::string>& vars);
+    void collect_variables_used_across_calls(ASTNode* expr, std::set<std::string>& vars);
     bool statement_contains_call(ASTNode* stmt);
     bool expression_contains_call(ASTNode* expr);
 };

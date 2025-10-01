@@ -1,0 +1,38 @@
+// Test file specifically for the RESULTIS statement bug fix
+// This test targets the exact pattern that was causing the factorial bug:
+// RESULTIS N * FUNCTION(N - 1)
+
+LET FACTORIAL_RECURSIVE(N) = VALOF
+$(
+    IF N <= 1 THEN RESULTIS 1
+
+    // This is the critical pattern that was failing before the fix:
+    // The variable N is used both before and after the function call
+    // within the same RESULTIS statement
+    RESULTIS N * FACTORIAL_RECURSIVE(N - 1)
+$)
+
+LET START() = VALOF
+$(
+    WRITES("Testing factorial of 3: ")
+    LET result3 = FACTORIAL_RECURSIVE(3)
+    WRITEN(result3)
+    WRITES("*N")
+
+    WRITES("Testing factorial of 2: ")
+    LET result2 = FACTORIAL_RECURSIVE(2)
+    WRITEN(result2)
+    WRITES("*N")
+
+    WRITES("Testing factorial of 1: ")
+    LET result1 = FACTORIAL_RECURSIVE(1)
+    WRITEN(result1)
+    WRITES("*N")
+
+    WRITES("Testing factorial of 0: ")
+    LET result0 = FACTORIAL_RECURSIVE(0)
+    WRITEN(result0)
+    WRITES("*N")
+
+    RESULTIS result3
+$)

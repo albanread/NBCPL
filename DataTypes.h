@@ -7,6 +7,7 @@
 #include <memory>
 #include <optional>
 #include <map>
+#include <set>
 #include <iostream>
 
 // Forward declare Expression class to avoid circular dependency
@@ -174,6 +175,12 @@ struct FunctionMetrics {
 
     // Tracks how many temporary callee-saved registers are required for this function
     int required_callee_saved_temps = 0;
+    
+    // Set of specific callee-saved registers that must be saved for this function
+    std::set<std::string> required_callee_saved_regs;
+    
+    // Track if function has expressions that need callee-saved temps (like N * FUNC(N-1))
+    bool has_call_preserving_expressions = false;
 };
 
 // Structure to hold information about a static variable

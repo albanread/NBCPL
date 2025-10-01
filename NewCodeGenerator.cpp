@@ -2665,6 +2665,8 @@ void NewCodeGenerator::generate_function_like_code(
     }
     current_frame_manager_->reserve_registers_based_on_pressure(max_live);
 
+    // --- ANALYZER-DRIVEN REGISTER RESERVATION ---
+    // Use pre-computed register requirements from the analyzer
     if (!accesses_globals) {
         // Ask the register manager which callee-saved registers it ended up using.
         // This will include X19 or X28 if they were allocated.
@@ -2672,6 +2674,32 @@ void NewCodeGenerator::generate_function_like_code(
         for (const auto& reg : used_callee_regs) {
             // Explicitly tell the frame manager it MUST save and restore this register.
             current_frame_manager_->force_save_register(reg);
+        }
+    }
+
+    // Check for analyzer-computed register requirements
+    if (metrics_it != analyzer_.get_function_metrics().end()) {
+        const auto& metrics = metrics_it->second;
+        
+        // Force save specific registers identified by the analyzer
+        for (const auto& reg : metrics.required_callee_saved_regs) {
+            current_frame_manager_->force_save_register(reg);
+            debug_print("Analyzer-driven register reservation: forcing save of " + reg);
+        }
+        
+        // If the function has call-preserving expressions, ensure we have temp registers
+        if (metrics.has_call_preserving_expressions && metrics.required_callee_saved_temps > 0) {
+            debug_print("Function has call-preserving expressions - reserving " + 
+                       std::to_string(metrics.required_callee_saved_temps) + " callee-saved temp registers");
+            
+            // Reserve additional temp registers if needed
+            std::vector<std::string> temp_regs = {"X20", "X21", "X22", "X23", "X24", "X25"};
+            for (int i = 0; i < metrics.required_callee_saved_temps && i < temp_regs.size(); ++i) {
+                if (metrics.required_callee_saved_regs.find(temp_regs[i]) == metrics.required_callee_saved_regs.end()) {
+                    current_frame_manager_->force_save_register(temp_regs[i]);
+                    debug_print("Additional temp register reservation: forcing save of " + temp_regs[i]);
+                }
+            }
         }
     }
 

@@ -47,7 +47,6 @@ PeepholeOptimizer::PeepholeOptimizer(bool enable_tracing)
         addPattern(PeepholePatterns::createRedundantStorePattern());
         addPattern(PeepholePatterns::createLoadThroughScratchRegisterPattern());
         addPattern(PeepholePatterns::createConservativeMovzScratchPattern());
-       // addPattern(PeepholePatterns::createMovSubMovScratchPattern());
         addPattern(PeepholePatterns::createLdrToLdpXPattern());
         addPattern(PeepholePatterns::createStrToStpXPattern());
 
@@ -58,6 +57,10 @@ PeepholeOptimizer::PeepholeOptimizer(bool enable_tracing)
         // 4. Control Flow Optimization Pass
         addPattern(PeepholePatterns::createCompareZeroBranchPattern());
         addPattern(PeepholePatterns::createBranchChainingPattern());
+
+        // 5. In-place Operation Optimization Pass
+        addPattern(PeepholePatterns::createInPlaceComparisonPattern());
+        addPattern(PeepholePatterns::createInPlaceArithmeticPattern());
 
     // Sort patterns by size (descending) so larger patterns are matched first
     std::sort(patterns_.begin(), patterns_.end(),

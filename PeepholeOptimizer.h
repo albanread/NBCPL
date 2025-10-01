@@ -105,6 +105,8 @@ public:
     static std::unique_ptr<InstructionPattern> createBranchChainingPattern();
     static std::unique_ptr<InstructionPattern> createRedundantLoadEliminationPattern();
 
+
+
 private:
     std::vector<std::unique_ptr<InstructionPattern>> patterns_;
     OptimizationStats stats_;

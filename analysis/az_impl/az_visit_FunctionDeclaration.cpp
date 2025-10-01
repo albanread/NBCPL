@@ -140,6 +140,9 @@ void ASTAnalyzer::visit(FunctionDeclaration& node) {
         node.body->accept(*this);
     }
     
+    // --- CALLEE-SAVED REGISTER ANALYSIS ---
+    // Analyze the function body to determine required callee-saved temporary registers
+    analyze_callee_saved_register_usage(mangled_name, node.body.get());
 
 
     // --- TRIVIAL ACCESSOR DETECTION (TARGETED) ---

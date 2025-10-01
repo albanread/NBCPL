@@ -55,6 +55,34 @@ void LivenessAnalysisPass::analyze_block(BasicBlock* block) {
             std::cout << std::endl;
         }
         
+        // Check if this statement contains a function call
+        bool stmt_contains_call = statement_contains_call(stmt.get());
+        
+        // SPECIAL CASE: Handle intra-statement call intervals
+        // For expressions like "N * FUNC(N-1)", we need to detect that N is used
+        // both before and after the function call within the same statement
+        if (stmt_contains_call) {
+            std::set<std::string> vars_used_across_call;
+            if (auto* resultis_stmt = dynamic_cast<ResultisStatement*>(stmt.get())) {
+                collect_variables_used_across_calls(resultis_stmt->expression.get(), vars_used_across_call);
+            } else if (auto* assignment = dynamic_cast<AssignmentStatement*>(stmt.get())) {
+                for (const auto& rhs_expr : assignment->rhs) {
+                    collect_variables_used_across_calls(rhs_expr.get(), vars_used_across_call);
+                }
+            }
+            
+            if (!vars_used_across_call.empty()) {
+                vars_used_after_calls.insert(vars_used_across_call.begin(), vars_used_across_call.end());
+                if (trace_enabled_) {
+                    std::cout << "[LivenessAnalysisPass] Intra-statement call interval detected - variables live across calls: ";
+                    for (const auto& var : vars_used_across_call) {
+                        std::cout << var << " ";
+                    }
+                    std::cout << std::endl;
+                }
+            }
+        }
+        
         // If we've seen a call, all variables used in this statement are live across calls
         if (found_call) {
             vars_used_after_calls.insert(vars_used_in_stmt.begin(), vars_used_in_stmt.end());
@@ -67,8 +95,7 @@ void LivenessAnalysisPass::analyze_block(BasicBlock* block) {
             }
         }
         
-        // Check if this statement contains a function call
-        if (statement_contains_call(stmt.get())) {
+        if (stmt_contains_call) {
             found_call = true;
             if (trace_enabled_) {
                 std::cout << "[LivenessAnalysisPass] Found call in statement" << std::endl;
@@ -88,6 +115,11 @@ void LivenessAnalysisPass::analyze_block(BasicBlock* block) {
     
     // Add these variables to use set to force them into callee-saved registers
     current_use_set_.insert(vars_used_after_calls.begin(), vars_used_after_calls.end());
+    
+    // Store the variables used across calls for this block for use in data flow analysis
+    if (!vars_used_after_calls.empty()) {
+        vars_used_across_calls_per_block_[block] = vars_used_after_calls;
+    }
 
     // Second pass: Normal forward processing for Use/Def computation
     int stmt_idx = 0;
@@ -191,6 +223,10 @@ void LivenessAnalysisPass::collect_statement_variable_uses(ASTNode* stmt, std::s
         for (const auto& rhs_expr : assignment->rhs) {
             collect_variable_uses(rhs_expr.get(), vars);
         }
+    } else if (auto* resultis_stmt = dynamic_cast<ResultisStatement*>(stmt)) {
+        // CRITICAL FIX: ResultisStatement contains an expression that may use variables
+        // after function calls - we need to analyze it for call interval analysis
+        collect_variable_uses(resultis_stmt->expression.get(), vars);
     } else if (auto* return_stmt = dynamic_cast<ReturnStatement*>(stmt)) {
         // ReturnStatement in this AST doesn't have an expression field
         // It's handled separately in other statement types
@@ -228,7 +264,46 @@ bool LivenessAnalysisPass::statement_contains_call(ASTNode* stmt) {
         }
     }
     
+    // ================== FIX STARTS HERE ==================
+    // Add this block to check inside ResultisStatement expressions.
+    if (auto* resultis_stmt = dynamic_cast<ResultisStatement*>(stmt)) {
+        if (expression_contains_call(resultis_stmt->expression.get())) {
+            return true;
+        }
+    }
+    // =================== FIX ENDS HERE ===================
+    
     return false;
+}
+
+// Helper method to collect variables that are used both before and after function calls
+// within the same expression (e.g., N in "N * FUNC(N-1)")
+void LivenessAnalysisPass::collect_variables_used_across_calls(ASTNode* expr, std::set<std::string>& vars) {
+    if (!expr) return;
+    
+    if (auto* binary_op = dynamic_cast<BinaryOp*>(expr)) {
+        // For binary operations, check if one side contains a call and the other uses variables
+        bool left_has_call = expression_contains_call(binary_op->left.get());
+        bool right_has_call = expression_contains_call(binary_op->right.get());
+        
+        if (left_has_call && !right_has_call) {
+            // Left side has call, right side variables are used after call
+            collect_variable_uses(binary_op->right.get(), vars);
+        } else if (right_has_call && !left_has_call) {
+            // Right side has call, left side variables are used after call  
+            collect_variable_uses(binary_op->left.get(), vars);
+        } else if (left_has_call || right_has_call) {
+            // Recursively analyze both sides
+            collect_variables_used_across_calls(binary_op->left.get(), vars);
+            collect_variables_used_across_calls(binary_op->right.get(), vars);
+        }
+    } else if (auto* unary_op = dynamic_cast<UnaryOp*>(expr)) {
+        collect_variables_used_across_calls(unary_op->operand.get(), vars);
+    } else if (auto* conditional = dynamic_cast<ConditionalExpression*>(expr)) {
+        collect_variables_used_across_calls(conditional->condition.get(), vars);
+        collect_variables_used_across_calls(conditional->true_expr.get(), vars);
+        collect_variables_used_across_calls(conditional->false_expr.get(), vars);
+    }
 }
 
 // Helper method to check if an expression contains a function call

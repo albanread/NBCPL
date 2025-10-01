@@ -1,0 +1,20 @@
+// Test file to verify the liveness analysis fix for variables used across function calls
+// This test specifically targets the bug where variables in RESULTIS statements
+// containing function calls were not properly marked as live across the call
+
+LET SIMPLE_RECURSIVE(N) =
+    (N <= 1) -> 1,
+    N * SIMPLE_RECURSIVE(N - 1)
+
+LET TEST_FACTORIAL() = VALOF
+$(
+    LET result3 = SIMPLE_RECURSIVE(3)
+    LET result5 = SIMPLE_RECURSIVE(5)
+    RESULTIS result3 + result5
+$)
+
+LET START() = VALOF
+$(
+    LET final_result = TEST_FACTORIAL()
+    RESULTIS final_result
+$)

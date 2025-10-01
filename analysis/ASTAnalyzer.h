@@ -81,6 +81,9 @@ class ASTAnalyzer : public ASTVisitor {
     bool is_trivial_setter_method(const std::string& function_name) const;
     // Returns true if a ListExpression contains only literal values
     bool list_contains_only_literals(const ListExpression& node) const;
+    
+    // Analyze expressions for callee-saved register requirements
+    void analyze_callee_saved_register_usage(const std::string& function_name, ASTNode* body);
     // --- End New Public Query Methods ---
 
     VarType get_variable_type(const std::string& function_name, const std::string& var_name) const;
@@ -223,6 +226,14 @@ class ASTAnalyzer : public ASTVisitor {
     
     // Helper method to check if a list type is const/read-only
     bool is_const_list_type(VarType type) const;
+    
+    // Helper methods for register usage analysis
+    int count_callee_saved_temps_in_expression(ASTNode* expr) const;
+    bool expression_needs_call_preservation(ASTNode* expr) const;
+    void analyze_node_for_register_usage(ASTNode* node, FunctionMetrics& metrics);
+    void analyze_binary_op_register_usage(BinaryOp* binary_op, FunctionMetrics& metrics);
+    bool expression_contains_function_call(ASTNode* expr) const;
+    bool has_variables_or_complex_expr(ASTNode* expr) const;
 
     // --- Scope Management ---
     std::string current_function_scope_;
