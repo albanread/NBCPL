@@ -39,10 +39,12 @@ std::unique_ptr<InstructionPattern> createLdrToLdpXPattern() {
             const auto& ldr1 = instrs[pos];
             const auto& ldr2 = instrs[pos + 1];
             // Create LDP Xd1, Xd2, [base, #offset]
+            // For memory operations, register 31 should be SP, not x31
+            std::string base_reg = (ldr1.base_reg == 31) ? "SP" : InstructionDecoder::getRegisterName(ldr1.base_reg);
             Instruction ldp = Encoder::create_ldp_imm(
                 InstructionDecoder::getRegisterName(ldr1.dest_reg),
                 InstructionDecoder::getRegisterName(ldr2.dest_reg),
-                InstructionDecoder::getRegisterName(ldr1.base_reg),
+                base_reg,
                 ldr1.immediate
             );
             return { ldp };
@@ -463,10 +465,12 @@ std::unique_ptr<InstructionPattern> createStrToStpXPattern() {
             const auto& str1 = instrs[pos];
             const auto& str2 = instrs[pos + 1];
             // Create STP Xs1, Xs2, [base, #offset]
+            // For memory operations, register 31 should be SP, not x31
+            std::string base_reg = (str1.base_reg == 31) ? "SP" : InstructionDecoder::getRegisterName(str1.base_reg);
             Instruction stp = Encoder::create_stp_imm(
                 InstructionDecoder::getRegisterName(str1.src_reg1),
                 InstructionDecoder::getRegisterName(str2.src_reg1),
-                InstructionDecoder::getRegisterName(str1.base_reg),
+                base_reg,
                 str1.immediate
             );
             return { stp };

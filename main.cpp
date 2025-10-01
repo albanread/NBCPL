@@ -28,6 +28,7 @@
 #include <cstdlib>
 #include <sys/mman.h>
 #include <unistd.h>
+#include "CodeLister.h"
 #include "StrengthReductionPass.h"
 #include <sys/ucontext.h>
 #include <sys/wait.h>
@@ -165,7 +166,7 @@ bool parse_arguments(int argc, char* argv[], bool& run_jit, bool& generate_asm, 
                     std::string& input_filepath, std::string& call_entry_name, int& offset_instructions,
                     std::vector<std::string>& include_paths, std::string& runtime_mode);
 void handle_static_compilation(bool exec_mode, const std::string& base_name, const InstructionStream& instruction_stream, const DataGenerator& data_generator, bool enable_debug_output, const std::string& runtime_mode, const VeneerManager& veneer_manager);
-void* handle_jit_compilation(void* jit_data_memory_base, InstructionStream& instruction_stream, int offset_instructions, bool enable_debug_output);
+void* handle_jit_compilation(void* jit_data_memory_base, InstructionStream& instruction_stream, int offset_instructions, bool enable_debug_output, std::vector<Instruction>* finalized_instructions = nullptr);
 void handle_jit_execution(void* code_buffer_base, const std::string& call_entry_name, bool dump_jit_stack, bool enable_debug_output);
 
 // =================================================================================
@@ -756,7 +757,7 @@ if (enable_tracing || trace_ast) std::cout << "AST transformation complete.\n";
 
         // --- Initialize Code Buffer for JIT Mode (needed for veneer manager) ---
         void* code_buffer_base = nullptr;
-        if (run_jit) {
+        if (run_jit || trace_codegen) {
             if (!g_jit_code_buffer) {
                 g_jit_code_buffer = std::make_unique<CodeBuffer>(32 * 1024 * 1024, enable_tracing || trace_codegen);
             }
@@ -784,7 +785,7 @@ if (enable_tracing || trace_ast) std::cout << "AST transformation complete.\n";
 
         // --- Initialize veneer manager
         // creates veneers for runtime calls before START
-        if (run_jit && code_buffer_base) {
+        if ((run_jit || trace_codegen) && code_buffer_base) {
             code_generator.initialize_veneer_manager(reinterpret_cast<uint64_t>(code_buffer_base));
         }
 
@@ -810,6 +811,7 @@ if (enable_tracing || trace_ast) std::cout << "AST transformation complete.\n";
         }
 
 
+
         // --exec
         //
         // Generate CLANG compatible .s assembler file, compile and link it
@@ -824,9 +826,12 @@ if (enable_tracing || trace_ast) std::cout << "AST transformation complete.\n";
         // --run
         // RUN generated code
 
-        if (run_jit) {
+        // For --trace-codegen, we need to run the linking process to get proper addresses
+        void* final_code_buffer_base = nullptr;
+        if (trace_codegen || run_jit) {
             // Code buffer was already allocated before code generation for veneer manager
-            void* final_code_buffer_base = handle_jit_compilation(jit_data_memory_base, instruction_stream, g_jit_breakpoint_offset, enable_tracing || trace_codegen);
+            std::vector<Instruction> finalized_instructions;
+            final_code_buffer_base = handle_jit_compilation(jit_data_memory_base, instruction_stream, g_jit_breakpoint_offset, enable_tracing || trace_codegen, &finalized_instructions);
 
             // --- Populate the runtime function pointer table before populating the data segment and executing code ---
             RuntimeManager::instance().populate_function_pointer_table(jit_data_memory_base);
@@ -841,10 +846,26 @@ if (enable_tracing || trace_ast) std::cout << "AST transformation complete.\n";
 
             data_generator.populate_data_segment(jit_data_memory_base, label_manager);
 
-            handle_jit_execution(final_code_buffer_base, call_entry_name, dump_jit_stack, enable_tracing || trace_runtime);
+            if (run_jit) {
+                handle_jit_execution(final_code_buffer_base, call_entry_name, dump_jit_stack, enable_tracing || trace_runtime);
 
-            // --- NEW: Call the listing functions here ---
-            if (enable_tracing || trace_codegen) {
+                // --- NEW: Call the listing functions here for --run ---
+                if (enable_tracing && !trace_codegen) {
+                    std::cout << data_generator.generate_rodata_listing(label_manager);
+                    std::cout << data_generator.generate_data_listing(label_manager, jit_data_memory_base);
+                }
+            }
+
+            // Show assembly listing for --trace-codegen after all linking is complete
+            if (trace_codegen) {
+                CodeLister code_lister;
+                std::string listing = code_lister.generate_code_listing(
+                    finalized_instructions, 
+                    label_manager.get_defined_labels(), 
+                    reinterpret_cast<size_t>(final_code_buffer_base)
+                );
+                std::cout << "\n--- Generated Assembly Code (After Linking) ---\n" << listing << "-----------------------------------------------\n\n";
+                
                 std::cout << data_generator.generate_rodata_listing(label_manager);
                 std::cout << data_generator.generate_data_listing(label_manager, jit_data_memory_base);
             }
@@ -1112,7 +1133,7 @@ void handle_static_compilation(bool exec_mode, const std::string& base_name, con
  * @brief Handles the JIT compilation process: linking, memory population, and final code commit.
  * @return A pointer to the executable code buffer.
  */
-void* handle_jit_compilation(void* jit_data_memory_base, InstructionStream& instruction_stream, int offset_instructions, bool enable_debug_output) {
+void* handle_jit_compilation(void* jit_data_memory_base, InstructionStream& instruction_stream, int offset_instructions, bool enable_debug_output, std::vector<Instruction>* finalized_instructions) {
     // Code buffer should already be allocated by main() for veneer manager
     if (!g_jit_code_buffer) {
         throw std::runtime_error("Code buffer not initialized before JIT compilation");
@@ -1209,6 +1230,11 @@ void* handle_jit_compilation(void* jit_data_memory_base, InstructionStream& inst
         } catch (const std::runtime_error& e) {
             std::cerr << "Error setting breakpoint: " << e.what() << "\n";
         }
+    }
+
+    // Store finalized instructions for caller if requested
+    if (finalized_instructions) {
+        *finalized_instructions = finalized_jit_instructions;
     }
 
     // Now, commit the memory. Pass the instruction list for debug listing purposes.

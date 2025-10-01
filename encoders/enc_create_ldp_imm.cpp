@@ -94,11 +94,7 @@ Instruction Encoder::create_ldp_imm(const std::string& xt1, const std::string& x
     patcher.patch(rn_num, 5, 5);
     patcher.patch(rt1_num, 0, 5);
 
-    std::string assembly_text = "LDP " + xt1 + ", " + xt2 + ", [" + xn;
-    if (immediate != 0) {
-        assembly_text += ", #" + std::to_string(immediate);
-    }
-    assembly_text += "]";
+    std::string assembly_text = "LDP " + xt1 + ", " + xt2 + ", [" + xn + ", #" + std::to_string(immediate) + "]";
 
     Instruction instr(patcher.get_value(), assembly_text);
     instr.opcode = InstructionDecoder::OpType::LDP;

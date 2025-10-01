@@ -207,6 +207,11 @@ void AssemblyWriter::write_to_file(const std::string& path,
     for (size_t i = 0; i < code_instructions.size(); ++i) {
         const auto& instr = code_instructions[i];
         
+        // Filter empty placeholder instructions that would generate DCD 0
+        if (instr.encoding == 0x0 && instr.assembly_text.empty()) {
+            continue; // Skip empty placeholder instructions
+        }
+        
         // Filter Veneer Code: Skip any instruction tagged as JitAddress
         if (instr.jit_attribute == JITAttribute::JitAddress) {
             continue; // Skip veneer instructions completely
