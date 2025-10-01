@@ -608,7 +608,7 @@ void ASTAnalyzer::visit(ForEachStatement& node) {
         } else if (base_type == VarType::FLOAT) {
             element_type = VarType::FLOAT;
         } else if (base_type == VarType::STRING) {
-            element_type = VarType::STRING;
+            element_type = VarType::POINTER_TO_STRING;
         } else {
             // Default for ANY_LIST or other combinations
             element_type = VarType::ANY;

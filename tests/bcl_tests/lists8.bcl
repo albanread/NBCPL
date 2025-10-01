@@ -1,8 +1,8 @@
 LET START() BE
 $(
    LET L = LIST("a", "string", "list")
-   FOREACH S AS ^STRING IN L DO
+   FOREACH S IN L DO
    $( 
             WRITEF("String: %s *N", S)
-    $)
+   $)
 $)

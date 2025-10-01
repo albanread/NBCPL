@@ -39,6 +39,17 @@ public:
     // Returns the current size of the stream in instructions (not bytes).
     size_t size() const { return instructions_.size(); }
 
+    // Returns true if the instruction stream is empty
+    bool empty() const { return instructions_.empty(); }
+
+    // Returns the last instruction in the stream (for duplicate checking)
+    const Instruction& get_last_instruction() const { 
+        if (instructions_.empty()) {
+            throw std::runtime_error("Cannot get last instruction from empty stream");
+        }
+        return instructions_.back(); 
+    }
+
     // Returns an estimation of the current address in bytes for branch distance calculations.
     // This considers instruction sizes (4 bytes each) and data sizes, ignoring labels.
     size_t get_current_address() const;

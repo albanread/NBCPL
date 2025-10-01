@@ -1,0 +1,15 @@
+GET "libhdr"
+
+LET START() BE
+$(
+    LET strings = LIST("Hello", "World", "Test")
+
+    WRITES("Testing FOREACH with strings:*N")
+
+    FOREACH str IN strings DO
+    $(
+        WRITEF("String: %s*N", str)
+    $)
+
+    WRITES("Test completed.*N")
+$)

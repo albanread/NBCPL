@@ -8,7 +8,7 @@ SAMM: ENABLED and background worker started
 SAMM (Scope Aware Memory Management): ENABLED
 SAMM: Background cleanup worker thread started (DEBUG)
 SAMM: Worker waiting for cleanup queue (queue size: 0)
-NewBCPL Compiler Version 1.0.1653
+NewBCPL Compiler Version 1.0.1721
 Compiling this source Code:
 //LINE 1 "/Users/oberon/projects/NewBCPL/tests/bcl_tests/lists8.bcl"
 LET START() BE
@@ -16,107 +16,105 @@ $(
    LET L = LIST("a", "string", "list")
    FOREACH S IN L DO
    $( 
-            WRITES("String: ")
-            WRITES(S)
-            WRITES("*N")
-    $)
+            WRITEF("String: %s *N", S)
+   $)
 $)
 
 BCPL Runtime v1.0.0 initialized
-DEBUG: Registering FREEVEC with bcpl_free at address 0x100a0a054
+DEBUG: Registering FREEVEC with bcpl_free at address 0x102547818
 Registered 91 runtime functions
 === Registered Runtime Functions ===
-  NEWLINE          | address: 0x100a08d88 | args: 0 | table_offset: 712
-  FINISH           | address: 0x100a07b38 | args: 0 | table_offset: 704
-  FABS             | address: 0x100a07ee8 | args: 1 | table_offset: 672
-  FSIN             | address: 0x100a07eac | args: 1 | table_offset: 648
-  FILE_EOF         | address: 0x100a0b1a0 | args: 1 | table_offset: 616
-  RAND             | address: 0x100a07d38 | args: 1 | table_offset: 624
-  FILE_TELL        | address: 0x100a0b148 | args: 1 | table_offset: 608
-  FILE_SEEK        | address: 0x100a0b084 | args: 3 | table_offset: 600
-  FILE_WRITE       | address: 0x100a0af6c | args: 3 | table_offset: 592
-  FIX              | address: 0x100a07f28 | args: 1 | table_offset: 696
-  FILE_READS       | address: 0x100a0a9b8 | args: 1 | table_offset: 576
-  FILE_WRITES      | address: 0x100a0a6dc | args: 2 | table_offset: 568
-  FEXP             | address: 0x100a07f14 | args: 1 | table_offset: 688
-  FILE_CLOSE       | address: 0x100a0a670 | args: 1 | table_offset: 560
-  FILE_OPEN_APPEND | address: 0x100a0a5e0 | args: 1 | table_offset: 552
-  SLURP            | address: 0x100a08610 | args: 1 | table_offset: 520
-  PACKSTRING       | address: 0x100a07f40 | args: 1 | table_offset: 504
-  STRLEN           | address: 0x100a07b48 | args: 1 | table_offset: 496
-  FCOS             | address: 0x100a07ec0 | args: 1 | table_offset: 656
-  STRCMP           | address: 0x100a07ba8 | args: 2 | table_offset: 488
-  STRCOPY          | address: 0x100a07c8c | args: 2 | table_offset: 480
-  FIND             | address: 0x100a0e6c8 | args: 3 | table_offset: 448
-  DEEPCOPYLITERALLIST | address: 0x100a0e340 | args: 1 | table_offset: 432
-  DEEPCOPYLIST     | address: 0x100a0e1a8 | args: 1 | table_offset: 424
-  COPYLIST         | address: 0x100a0e0a8 | args: 1 | table_offset: 416
-  CONCAT           | address: 0x100a0e4e0 | args: 2 | table_offset: 408
-  BCPL_CONCAT_LISTS | address: 0x100a0e4e0 | args: 2 | table_offset: 400
-  SPIT             | address: 0x100a08b3c | args: 2 | table_offset: 528
-  JOIN             | address: 0x100a0d744 | args: 2 | table_offset: 472
-  LPND             | address: 0x100a0dc54 | args: 2 | table_offset: 392
-  SPND             | address: 0x100a0db84 | args: 2 | table_offset: 384
-  FPND             | address: 0x100a0dab4 | args: 2 | table_offset: 376
-  RETURNNODETOFREELIST | address: 0x100a0eb98 | args: 1 | table_offset: 720
-  BCPL_LIST_APPEND_INT | address: 0x100a0d9e4 | args: 2 | table_offset: 344
-  GETVEC           | address: 0x100a0a118 | args: 1 | table_offset: 128
-  HEAPMANAGER_WAITFORSAMM | address: 0x1008e79e0 | args: 0 | table_offset: 312
-  APND             | address: 0x100a0d9e4 | args: 2 | table_offset: 368
-  HEAPMANAGER_ENTER_SCOPE | address: 0x1008e7918 | args: 0 | table_offset: 280
-  HEAPMANAGER_SETSAMMENABLED | address: 0x1008e78c4 | args: 1 | table_offset: 296
-  HEAPMANAGER_EXIT_SCOPE | address: 0x1008e7944 | args: 0 | table_offset: 288
-  PIC_RUNTIME_HELPER | address: 0x100a0a1cc | args: 0 | table_offset: 272
-  OBJECT_HEAP_FREE | address: 0x100a0a190 | args: 1 | table_offset: 256
-  OBJECT_HEAP_ALLOC | address: 0x100a0a16c | args: 1 | table_offset: 248
-  BCPL_LIST_GET_REST | address: 0x100a0df10 | args: 1 | table_offset: 216
-  FRND             | address: 0x100a07dc4 | args: 0 | table_offset: 640
-  BCPL_LIST_GET_HEAD_AS_FLOAT | address: 0x100a0de58 | args: 1 | table_offset: 200
-  BCPL_LIST_GET_HEAD_AS_INT | address: 0x100a0ddf4 | args: 1 | table_offset: 192
-  RUNTIME_METHOD_LOOKUP | address: 0x100a0a1b4 | args: 2 | table_offset: 264
-  FREEVEC          | address: 0x100a0a054 | args: 1 | table_offset: 136
-  BCPL_BOUNDS_ERROR | address: 0x100a06018 | args: 3 | table_offset: 184
-  WRITEF4          | address: 0x100a0766c | args: 5 | table_offset: 56
-  BCPL_FREE_LIST   | address: 0x100a0e86c | args: 1 | table_offset: 144
-  BCPL_ALLOC_CHARS | address: 0x100a09ffc | args: 1 | table_offset: 112
-  BCPL_LIST_APPEND_FLOAT | address: 0x100a0dab4 | args: 2 | table_offset: 352
-  GET_FREE_LIST_HEAD_ADDR | address: 0x100a0eb8c | args: 0 | table_offset: 328
-  BCPL_GET_ATOM_TYPE | address: 0x100a0df74 | args: 1 | table_offset: 224
-  FWRITE           | address: 0x100a07048 | args: 1 | table_offset: 16
-  BCPL_LIST_CREATE_EMPTY | address: 0x100a0d984 | args: 0 | table_offset: 336
-  SPLIT            | address: 0x100a0d3d8 | args: 2 | table_offset: 464
-  BCPL_FREE_CELLS  | address: 0x100a0eb88 | args: 0 | table_offset: 320
-  RND              | address: 0x100a07e18 | args: 1 | table_offset: 632
-  HEAPMANAGER_ISSAMMENABLED | address: 0x1008e78f4 | args: 0 | table_offset: 304
-  WRITEC           | address: 0x100a07928 | args: 1 | table_offset: 88
-  MALLOC           | address: 0x100a09f9c | args: 1 | table_offset: 120
-  BCPL_ALLOC_WORDS | address: 0x100a09f9c | args: 3 | table_offset: 104
-  FTAN             | address: 0x100a07ed4 | args: 1 | table_offset: 664
+  NEWLINE          | address: 0x10254654c | args: 0 | table_offset: 712
+  FINISH           | address: 0x1025452fc | args: 0 | table_offset: 704
+  FABS             | address: 0x1025456ac | args: 1 | table_offset: 672
+  FSIN             | address: 0x102545670 | args: 1 | table_offset: 648
+  FILE_EOF         | address: 0x102548964 | args: 1 | table_offset: 616
+  RAND             | address: 0x1025454fc | args: 1 | table_offset: 624
+  FILE_TELL        | address: 0x10254890c | args: 1 | table_offset: 608
+  FILE_SEEK        | address: 0x102548848 | args: 3 | table_offset: 600
+  FILE_WRITE       | address: 0x102548730 | args: 3 | table_offset: 592
+  FIX              | address: 0x1025456ec | args: 1 | table_offset: 696
+  FILE_READS       | address: 0x10254817c | args: 1 | table_offset: 576
+  FILE_WRITES      | address: 0x102547ea0 | args: 2 | table_offset: 568
+  FEXP             | address: 0x1025456d8 | args: 1 | table_offset: 688
+  FILE_CLOSE       | address: 0x102547e34 | args: 1 | table_offset: 560
+  FILE_OPEN_APPEND | address: 0x102547da4 | args: 1 | table_offset: 552
+  SLURP            | address: 0x102545dd4 | args: 1 | table_offset: 520
+  PACKSTRING       | address: 0x102545704 | args: 1 | table_offset: 504
+  STRLEN           | address: 0x10254530c | args: 1 | table_offset: 496
+  FCOS             | address: 0x102545684 | args: 1 | table_offset: 656
+  STRCMP           | address: 0x10254536c | args: 2 | table_offset: 488
+  STRCOPY          | address: 0x102545450 | args: 2 | table_offset: 480
+  FIND             | address: 0x10254be8c | args: 3 | table_offset: 448
+  DEEPCOPYLITERALLIST | address: 0x10254bb04 | args: 1 | table_offset: 432
+  DEEPCOPYLIST     | address: 0x10254b96c | args: 1 | table_offset: 424
+  COPYLIST         | address: 0x10254b86c | args: 1 | table_offset: 416
+  CONCAT           | address: 0x10254bca4 | args: 2 | table_offset: 408
+  BCPL_CONCAT_LISTS | address: 0x10254bca4 | args: 2 | table_offset: 400
+  SPIT             | address: 0x102546300 | args: 2 | table_offset: 528
+  JOIN             | address: 0x10254af08 | args: 2 | table_offset: 472
+  LPND             | address: 0x10254b418 | args: 2 | table_offset: 392
+  SPND             | address: 0x10254b348 | args: 2 | table_offset: 384
+  FPND             | address: 0x10254b278 | args: 2 | table_offset: 376
+  RETURNNODETOFREELIST | address: 0x10254c35c | args: 1 | table_offset: 720
+  BCPL_LIST_APPEND_INT | address: 0x10254b1a8 | args: 2 | table_offset: 344
+  GETVEC           | address: 0x1025478dc | args: 1 | table_offset: 128
+  HEAPMANAGER_WAITFORSAMM | address: 0x10250e814 | args: 0 | table_offset: 312
+  APND             | address: 0x10254b1a8 | args: 2 | table_offset: 368
+  HEAPMANAGER_ENTER_SCOPE | address: 0x10250e74c | args: 0 | table_offset: 280
+  HEAPMANAGER_SETSAMMENABLED | address: 0x10250e6f8 | args: 1 | table_offset: 296
+  HEAPMANAGER_EXIT_SCOPE | address: 0x10250e778 | args: 0 | table_offset: 288
+  PIC_RUNTIME_HELPER | address: 0x102547990 | args: 0 | table_offset: 272
+  OBJECT_HEAP_FREE | address: 0x102547954 | args: 1 | table_offset: 256
+  OBJECT_HEAP_ALLOC | address: 0x102547930 | args: 1 | table_offset: 248
+  BCPL_LIST_GET_REST | address: 0x10254b6d4 | args: 1 | table_offset: 216
+  FRND             | address: 0x102545588 | args: 0 | table_offset: 640
+  BCPL_LIST_GET_HEAD_AS_FLOAT | address: 0x10254b61c | args: 1 | table_offset: 200
+  BCPL_LIST_GET_HEAD_AS_INT | address: 0x10254b5b8 | args: 1 | table_offset: 192
+  RUNTIME_METHOD_LOOKUP | address: 0x102547978 | args: 2 | table_offset: 264
+  FREEVEC          | address: 0x102547818 | args: 1 | table_offset: 136
+  BCPL_BOUNDS_ERROR | address: 0x1025437dc | args: 3 | table_offset: 184
+  WRITEF4          | address: 0x102544e30 | args: 5 | table_offset: 56
+  BCPL_FREE_LIST   | address: 0x10254c030 | args: 1 | table_offset: 144
+  BCPL_ALLOC_CHARS | address: 0x1025477c0 | args: 1 | table_offset: 112
+  BCPL_LIST_APPEND_FLOAT | address: 0x10254b278 | args: 2 | table_offset: 352
+  GET_FREE_LIST_HEAD_ADDR | address: 0x10254c350 | args: 0 | table_offset: 328
+  BCPL_GET_ATOM_TYPE | address: 0x10254b738 | args: 1 | table_offset: 224
+  FWRITE           | address: 0x10254480c | args: 1 | table_offset: 16
+  BCPL_LIST_CREATE_EMPTY | address: 0x10254b148 | args: 0 | table_offset: 336
+  SPLIT            | address: 0x10254ab9c | args: 2 | table_offset: 464
+  BCPL_FREE_CELLS  | address: 0x10254c34c | args: 0 | table_offset: 320
+  RND              | address: 0x1025455dc | args: 1 | table_offset: 632
+  HEAPMANAGER_ISSAMMENABLED | address: 0x10250e728 | args: 0 | table_offset: 304
+  WRITEC           | address: 0x1025450ec | args: 1 | table_offset: 88
+  MALLOC           | address: 0x102547760 | args: 1 | table_offset: 120
+  BCPL_ALLOC_WORDS | address: 0x102547760 | args: 3 | table_offset: 104
+  FTAN             | address: 0x102545698 | args: 1 | table_offset: 664
   SETTYPE          | address: 0x0 | args: 2 | table_offset: 240
-  BCPL_GET_LAST_ERROR | address: 0x100a05e98 | args: 1 | table_offset: 160
-  RDCH             | address: 0x100a07aec | args: 0 | table_offset: 96
-  FILE_READ        | address: 0x100a0ae58 | args: 3 | table_offset: 584
-  UNPACKSTRING     | address: 0x100a08278 | args: 1 | table_offset: 512
-  WRITEF5          | address: 0x100a076f8 | args: 6 | table_offset: 64
-  FILTER           | address: 0x100a0e7bc | args: 2 | table_offset: 456
-  BCPL_FREE_LIST_SAFE | address: 0x100a0e974 | args: 1 | table_offset: 152
-  FILE_OPEN_WRITE  | address: 0x100a0a550 | args: 1 | table_offset: 544
-  FILE_OPEN_READ   | address: 0x100a0a1d0 | args: 1 | table_offset: 536
-  BCPL_LIST_GET_NTH | address: 0x100a0dfdc | args: 2 | table_offset: 232
-  WRITEF7          | address: 0x100a07834 | args: 8 | table_offset: 80
-  WRITEF3          | address: 0x100a075ec | args: 4 | table_offset: 48
-  WRITEF6          | address: 0x100a07790 | args: 7 | table_offset: 72
-  REVERSE          | address: 0x100a0e5e0 | args: 1 | table_offset: 440
-  WRITEF2          | address: 0x100a07578 | args: 3 | table_offset: 40
-  WRITEF1          | address: 0x100a07510 | args: 2 | table_offset: 32
-  BCPL_LIST_GET_TAIL | address: 0x100a0dec0 | args: 1 | table_offset: 208
-  BCPL_CLEAR_ERRORS | address: 0x100a05f48 | args: 0 | table_offset: 168
-  WRITEF           | address: 0x100a0708c | args: 1 | table_offset: 24
-  BCPL_LIST_APPEND_STRING | address: 0x100a0db84 | args: 2 | table_offset: 360
-  WRITES           | address: 0x100a06dd8 | args: 1 | table_offset: 0
-  BCPL_CHECK_AND_DISPLAY_ERRORS | address: 0x100a0ebe0 | args: 0 | table_offset: 176
-  FLOG             | address: 0x100a07f00 | args: 1 | table_offset: 680
-  WRITEN           | address: 0x100a078e4 | args: 1 | table_offset: 8
+  BCPL_GET_LAST_ERROR | address: 0x10254365c | args: 1 | table_offset: 160
+  RDCH             | address: 0x1025452b0 | args: 0 | table_offset: 96
+  FILE_READ        | address: 0x10254861c | args: 3 | table_offset: 584
+  UNPACKSTRING     | address: 0x102545a3c | args: 1 | table_offset: 512
+  WRITEF5          | address: 0x102544ebc | args: 6 | table_offset: 64
+  FILTER           | address: 0x10254bf80 | args: 2 | table_offset: 456
+  BCPL_FREE_LIST_SAFE | address: 0x10254c138 | args: 1 | table_offset: 152
+  FILE_OPEN_WRITE  | address: 0x102547d14 | args: 1 | table_offset: 544
+  FILE_OPEN_READ   | address: 0x102547994 | args: 1 | table_offset: 536
+  BCPL_LIST_GET_NTH | address: 0x10254b7a0 | args: 2 | table_offset: 232
+  WRITEF7          | address: 0x102544ff8 | args: 8 | table_offset: 80
+  WRITEF3          | address: 0x102544db0 | args: 4 | table_offset: 48
+  WRITEF6          | address: 0x102544f54 | args: 7 | table_offset: 72
+  REVERSE          | address: 0x10254bda4 | args: 1 | table_offset: 440
+  WRITEF2          | address: 0x102544d3c | args: 3 | table_offset: 40
+  WRITEF1          | address: 0x102544cd4 | args: 2 | table_offset: 32
+  BCPL_LIST_GET_TAIL | address: 0x10254b684 | args: 1 | table_offset: 208
+  BCPL_CLEAR_ERRORS | address: 0x10254370c | args: 0 | table_offset: 168
+  WRITEF           | address: 0x102544850 | args: 1 | table_offset: 24
+  BCPL_LIST_APPEND_STRING | address: 0x10254b348 | args: 2 | table_offset: 360
+  WRITES           | address: 0x10254459c | args: 1 | table_offset: 0
+  BCPL_CHECK_AND_DISPLAY_ERRORS | address: 0x10254c3a4 | args: 0 | table_offset: 176
+  FLOG             | address: 0x1025456c4 | args: 1 | table_offset: 680
+  WRITEN           | address: 0x1025450a8 | args: 1 | table_offset: 8
 ====================================
 Core runtime registered. SDL2 registration will follow...
 SDL2 runtime functions registered immediately
@@ -135,6 +133,11 @@ Program:
               LHS:
                 VariableAccess: L
               RHS:
+                ListExpression:
+                  Initializers:
+                    StringLiteral: "a"
+                    StringLiteral: "string"
+                    StringLiteral: "list"
 ----------------------------------
 
 Applying Manifest Resolution Pass...
@@ -151,6 +154,11 @@ Program:
               LHS:
                 VariableAccess: L
               RHS:
+                ListExpression:
+                  Initializers:
+                    StringLiteral: "a"
+                    StringLiteral: "string"
+                    StringLiteral: "list"
 ------------------------------------------
 
 Building symbol table...
@@ -217,14 +225,23 @@ Cleared FOR loop state before analysis to prevent corruption
 [DEBUG get_effective_variable_name] FOR variable aliases size: 0
 [DEBUG get_effective_variable_name] In FOR loop context: NO
 [DEBUG get_effective_variable_name] Not in FOR loop context, returning original: 'L'
+[DEBUG get_variable_type] Looking for 'L' in function 'START'
+[DEBUG get_variable_type] Found function metrics for 'START'
+[DEBUG get_variable_type] Parameter types count: 0
+[DEBUG get_variable_type] Variable types count: 1
+[DEBUG get_variable_type] Found in variable_types: L -> 1050628
+[DEBUG FOREACH] Set variable_types[S] = 4 (STRING) in function START
 [ANALYZER TRACE] Entering block scope: START_block_0_block_1 (Function scope remains: START)
-[ANALYZER TRACE] BlockStatement: Traversing 3 statements.
+[ANALYZER TRACE] BlockStatement: Traversing 1 statements.
 [ANALYZER TRACE] BlockStatement: Calling accept on statement 0 of type 44
-[ANALYZER TRACE] Entered ASTAnalyzer::visit(RoutineCallStatement&) for node at 0xb8f0041b0
-[ANALYZER TRACE]   Detected call to runtime function: WRITES, Type: INTEGER
-[ANALYZER TRACE] BlockStatement: Calling accept on statement 1 of type 44
-[ANALYZER TRACE] Entered ASTAnalyzer::visit(RoutineCallStatement&) for node at 0xb8f0041e0
-[ANALYZER TRACE]   Detected call to runtime function: WRITES, Type: INTEGER
+[ANALYZER TRACE] Entered ASTAnalyzer::visit(RoutineCallStatement&) for node at 0x10349c840
+[ANALYZER TRACE] WRITEF format specifiers detected: [%s] (count = 1)
+[DEBUG get_variable_type] Looking for 'S' in function 'START'
+[DEBUG get_variable_type] Found function metrics for 'START'
+[DEBUG get_variable_type] Parameter types count: 0
+[DEBUG get_variable_type] Variable types count: 2
+[DEBUG get_variable_type] Found in variable_types: S -> 4
+[ANALYZER TRACE]   Detected call to runtime function: WRITEF, Type: INTEGER
 [ANALYZER TRACE] Visiting VariableAccess: S
 [DEBUG get_effective_variable_name] Called with: 'S'
 [DEBUG get_effective_variable_name] Loop context stack size: 1
@@ -232,15 +249,7 @@ Cleared FOR loop state before analysis to prevent corruption
 [DEBUG get_effective_variable_name] FOR variable aliases size: 0
 [DEBUG get_effective_variable_name] In FOR loop context: NO
 [DEBUG get_effective_variable_name] Not in FOR loop context, returning original: 'S'
-[ANALYZER TRACE] BlockStatement: Calling accept on statement 2 of type 44
-[ANALYZER TRACE] Entered ASTAnalyzer::visit(RoutineCallStatement&) for node at 0xb8f004210
-[ANALYZER TRACE]   Detected call to runtime function: WRITES, Type: INTEGER
 [ANALYZER TRACE] Exiting block scope, returning to: START_block_0
-[DEBUG get_variable_type] Looking for 'L' in function 'START'
-[DEBUG get_variable_type] Found function metrics for 'START'
-[DEBUG get_variable_type] Parameter types count: 0
-[DEBUG get_variable_type] Variable types count: 1
-[DEBUG get_variable_type] Found in variable_types: L -> 1050625
 [ANALYZER TRACE] Popped FOREACH loop context. Context stack size: 0
 [ANALYZER TRACE] Exiting block scope, returning to: START
 [SAMM OPTIMIZATION] Starting heap allocation propagation...
@@ -259,7 +268,7 @@ Function: START
   Parameters: 0
   Integer Locals: 2
   Float Locals: 0
-  Runtime Calls: 3
+  Runtime Calls: 1
   Local Function Calls: 0
   Local Routine Calls: 0
   Vector Allocations: no
@@ -293,8 +302,8 @@ Cleared FOR loop state before CFGBuilderPass to prevent corruption
 [CFGBuilderPass] Created new basic block: START_Entry_0
 [CFGBuilderPass] Visiting BlockStatement with SAMM scope management.
 [CFGBuilderPass] SAMM: Injecting HeapManager_enter_scope() call at block start
-[ANALYZER DEBUG] Registered call site at instruction 12 for function 'START'
-[CFGBuilderPass] CFGBuilderPass: Registered HeapManager_enter_scope call site at instruction 12 for function 'START'
+[ANALYZER DEBUG] Registered call site at instruction 5 for function 'START'
+[CFGBuilderPass] CFGBuilderPass: Registered HeapManager_enter_scope call site at instruction 5 for function 'START'
 [CFGBuilderPass] Starting block 1 variable tracking
 [CFGBuilderPass] Tracking variable 'L' in current block
 [CFGBuilderPass] visit(ForEachStatement) entered.
@@ -302,19 +311,19 @@ Cleared FOR loop state before CFGBuilderPass to prevent corruption
 [DEBUG get_variable_type] Found function metrics for 'START'
 [DEBUG get_variable_type] Parameter types count: 0
 [DEBUG get_variable_type] Variable types count: 2
-[DEBUG get_variable_type] Found in variable_types: L -> 1050625
+[DEBUG get_variable_type] Found in variable_types: L -> 1050628
 [CFGBuilderPass] OPTIMIZATION: Using direct variable 'L' for list FOREACH instead of creating a temporary header.
 [CFGBuilderPass] Created new basic block: START_ForEachHeader_1
 [CFGBuilderPass] Created new basic block: START_ForEachBody_2
 [CFGBuilderPass] Created new basic block: START_ForEachExit_3
 [CFGBuilderPass] Visiting BlockStatement with SAMM scope management.
 [CFGBuilderPass] SAMM: Injecting HeapManager_enter_scope() call at block start
-[ANALYZER DEBUG] Registered call site at instruction 13 for function 'START'
-[CFGBuilderPass] CFGBuilderPass: Registered HeapManager_enter_scope call site at instruction 13 for function 'START'
+[ANALYZER DEBUG] Registered call site at instruction 6 for function 'START'
+[CFGBuilderPass] CFGBuilderPass: Registered HeapManager_enter_scope call site at instruction 6 for function 'START'
 [CFGBuilderPass] Starting block 2 variable tracking
 [CFGBuilderPass] SAMM: Injecting HeapManager_exit_scope() call for normal block exit
-[ANALYZER DEBUG] Registered call site at instruction 14 for function 'START'
-[CFGBuilderPass] CFGBuilderPass: Registered HeapManager_exit_scope call site at instruction 14 for function 'START'
+[ANALYZER DEBUG] Registered call site at instruction 7 for function 'START'
+[CFGBuilderPass] CFGBuilderPass: Registered HeapManager_exit_scope call site at instruction 7 for function 'START'
 [CFGBuilderPass] Created new basic block: START_ForEachAdvance_4
 [CFGBuilderPass] Correctly built low-level CFG for list-based FOREACH.
 [CFGBuilderPass] visit(ForEachStatement) exiting.
@@ -322,8 +331,8 @@ Cleared FOR loop state before CFGBuilderPass to prevent corruption
 [CFGBuilderPass] Generating block-end cleanup for: L
 [CFGBuilderPass] Skipping BCPL_FREE_LIST(L) - SAMM is active
 [CFGBuilderPass] SAMM: Injecting HeapManager_exit_scope() call for normal block exit
-[ANALYZER DEBUG] Registered call site at instruction 15 for function 'START'
-[CFGBuilderPass] CFGBuilderPass: Registered HeapManager_exit_scope call site at instruction 15 for function 'START'
+[ANALYZER DEBUG] Registered call site at instruction 8 for function 'START'
+[CFGBuilderPass] CFGBuilderPass: Registered HeapManager_exit_scope call site at instruction 8 for function 'START'
 [CFGBuilderPass] Created new basic block: START_Exit_5
 [CFGBuilderPass] Resolving 0 GOTO statements...
 [CFGBuilderPass] visit(Program) complete.
@@ -362,24 +371,18 @@ Applying CFG Simplification Pass (Branch Chaining)...
 [LivenessAnalysisPass] Exiting analyze_block for block: START_ForEachAdvance_4
 [LivenessAnalysisPass] Analyzing block #3 (id=START_ForEachBody_2) in function 'START'
 [LivenessAnalysisPass] Entering analyze_block for block: START_ForEachBody_2
-[LivenessAnalysisPass] Starting intra-block analysis for START_ForEachBody_2 with 6 statements
-[LivenessAnalysisPass] Found RoutineCallStatement
-[LivenessAnalysisPass] Found call in statement
+[LivenessAnalysisPass] Starting intra-block analysis for START_ForEachBody_2 with 4 statements
 [LivenessAnalysisPass] Found RoutineCallStatement
 [LivenessAnalysisPass] Found call in statement
 [LivenessAnalysisPass] Statement uses variables: S 
+[LivenessAnalysisPass] Found RoutineCallStatement
 [LivenessAnalysisPass] Variables used after call: S 
-[LivenessAnalysisPass] Found RoutineCallStatement
-[LivenessAnalysisPass] Found call in statement
-[LivenessAnalysisPass] Found RoutineCallStatement
 [LivenessAnalysisPass] Found call in statement
 [LivenessAnalysisPass] Found RoutineCallStatement
 [LivenessAnalysisPass] Found call in statement
 [LivenessAnalysisPass] Statement uses variables: _forEach_cursor_0 
 [LivenessAnalysisPass] Variables used after call: _forEach_cursor_0 
 [LivenessAnalysisPass] Intra-block call interval detected in START_ForEachBody_2 - variables live across calls: S _forEach_cursor_0 
-[LivenessAnalysisPass] Block START_ForEachBody_2 contains routine call - marked for call interval fix
-[LivenessAnalysisPass] Block START_ForEachBody_2 contains routine call - marked for call interval fix
 [LivenessAnalysisPass] Block START_ForEachBody_2 contains routine call - marked for call interval fix
 [LivenessAnalysisPass] Block START_ForEachBody_2 contains routine call - marked for call interval fix
 [LivenessAnalysisPass] Block START_ForEachBody_2 contains routine call - marked for call interval fix
@@ -410,7 +413,7 @@ Applying CFG Simplification Pass (Branch Chaining)...
 [LivenessAnalysisPass] Data-flow iteration 1
 [LivenessAnalysisPass] Processing block: START_ForEachAdvance_4 in function: START
 [LivenessAnalysisPass] Processing block: START_ForEachBody_2 in function: START
-[LivenessAnalysisPass] Applying call interval fix to block START_ForEachBody_2 - adding 1 live-out variables to use set
+[LivenessAnalysisPass] Applying call interval fix to block START_ForEachBody_2 - adding 1 live-out variables and 2 intra-statement call variables to use set
 [LivenessAnalysisPass] Processing block: START_Exit_5 in function: START
 [LivenessAnalysisPass] Processing block: START_ForEachExit_3 in function: START
 [LivenessAnalysisPass] Applying call interval fix to block START_ForEachExit_3 - adding 0 live-out variables to use set
@@ -420,7 +423,7 @@ Applying CFG Simplification Pass (Branch Chaining)...
 [LivenessAnalysisPass] Data-flow iteration 2
 [LivenessAnalysisPass] Processing block: START_ForEachAdvance_4 in function: START
 [LivenessAnalysisPass] Processing block: START_ForEachBody_2 in function: START
-[LivenessAnalysisPass] Applying call interval fix to block START_ForEachBody_2 - adding 2 live-out variables to use set
+[LivenessAnalysisPass] Applying call interval fix to block START_ForEachBody_2 - adding 2 live-out variables and 2 intra-statement call variables to use set
 [LivenessAnalysisPass] Processing block: START_Exit_5 in function: START
 [LivenessAnalysisPass] Processing block: START_ForEachExit_3 in function: START
 [LivenessAnalysisPass] Applying call interval fix to block START_ForEachExit_3 - adding 0 live-out variables to use set
@@ -430,7 +433,7 @@ Applying CFG Simplification Pass (Branch Chaining)...
 [LivenessAnalysisPass] Data-flow iteration 3
 [LivenessAnalysisPass] Processing block: START_ForEachAdvance_4 in function: START
 [LivenessAnalysisPass] Processing block: START_ForEachBody_2 in function: START
-[LivenessAnalysisPass] Applying call interval fix to block START_ForEachBody_2 - adding 2 live-out variables to use set
+[LivenessAnalysisPass] Applying call interval fix to block START_ForEachBody_2 - adding 2 live-out variables and 2 intra-statement call variables to use set
 [LivenessAnalysisPass] Processing block: START_Exit_5 in function: START
 [LivenessAnalysisPass] Processing block: START_ForEachExit_3 in function: START
 [LivenessAnalysisPass] Applying call interval fix to block START_ForEachExit_3 - adding 0 live-out variables to use set
@@ -497,8 +500,6 @@ Block ID: START_ForEachBody_2
     - RoutineCallStmt
     - RoutineCallStmt
     - RoutineCallStmt
-    - RoutineCallStmt
-    - RoutineCallStmt
   Successors: START_ForEachAdvance_4
   Predecessors: START_ForEachHeader_1
 
@@ -534,6 +535,11 @@ Program:
               LHS:
                 VariableAccess: L
               RHS:
+                ListExpression:
+                  Initializers:
+                    StringLiteral: "a"
+                    StringLiteral: "string"
+                    StringLiteral: "list"
 ----------------------------------
 
 Updating register pressure from liveness data...
@@ -541,22 +547,22 @@ Updating register pressure from liveness data...
 [INFO] Building Live Intervals for all functions...
 [LiveIntervalPass] Building intervals for function: START
 [LiveIntervalPass] Created 3 intervals for function: START
-  S: [0-17]
-  _forEach_cursor_0: [0-17]
+  S: [0-15]
+  _forEach_cursor_0: [0-15]
   L: [1-2]
 
 [INFO] Performing Linear Scan Register Allocation for ALL functions...
 [Allocator] Starting partitioned linear scan for function: START
 [Allocator] Available integer registers: 16, float registers: 24
-[Allocator] Function has 7 call sites at: 0 4 8 12 13 14 15 
+[Allocator] Function has 5 call sites at: 0 5 6 7 8 
 [Allocator] Partitioned: 2 call-crossing, 1 local-only intervals
 [Allocator] Register pools - Callee-saved INT: 9, Caller-saved INT: 4, Reserved scratch INT: 3
 [Allocator] Register pools - Callee-saved FP: 8, Caller-saved FP: 16
 [Allocator] Stage 1: Allocating call-crossing intervals
-[Allocator] Allocating call-crossing S [0-17]
+[Allocator] Allocating call-crossing S [0-15]
   Assigned callee-saved register X27 to S
 [ALLOC] Updated allocations for S: spilled=0, register='X27'
-[Allocator] Allocating call-crossing _forEach_cursor_0 [0-17]
+[Allocator] Allocating call-crossing _forEach_cursor_0 [0-15]
   Assigned callee-saved register X26 to _forEach_cursor_0
 [ALLOC] Updated allocations for _forEach_cursor_0: spilled=0, register='X26'
 [Allocator] Stage 2: Allocating local-only intervals
@@ -584,7 +590,7 @@ Function: START
   Parameters: 0
   Integer Locals: 3
   Float Locals: 0
-  Runtime Calls: 3
+  Runtime Calls: 1
   Local Function Calls: 0
   Local Routine Calls: 0
   Vector Allocations: no
@@ -594,17 +600,25 @@ Function: START
 --------------------------------------------
 --------------------------------------------------
 
-[DEBUG] Initialized veneer manager with base address: 0x4391944192
+[DEBUG] Initialized veneer manager with base address: 0x4421337088
 [DEBUG] Starting code generation for program.
 [DEBUG] Step 1: Performing pre-analysis scan for external functions...
 [DEBUG] Found 1 unique external functions:
-[DEBUG]   - WRITES
+[DEBUG]   - WRITEF
 [DEBUG] Step 2: Generating veneer section using standard pipeline...
-[VeneerManager] Generating 3 veneers (including function families) using standard pipeline...
+[VeneerManager] WRITEF detected, adding WRITEF1-WRITEF7 variants...
+[VeneerManager] Generating 10 veneers (including function families) using standard pipeline...
 [VeneerManager] Created veneer: HeapManager_enter_scope_veneer for function: HeapManager_enter_scope
 [VeneerManager] Created veneer: HeapManager_exit_scope_veneer for function: HeapManager_exit_scope
-[VeneerManager] Created veneer: WRITES_veneer for function: WRITES
-[VeneerManager] Generated 3 veneers, estimated total size: 60 bytes
+[VeneerManager] Created veneer: WRITEF_veneer for function: WRITEF
+[VeneerManager] Created veneer: WRITEF1_veneer for function: WRITEF1
+[VeneerManager] Created veneer: WRITEF2_veneer for function: WRITEF2
+[VeneerManager] Created veneer: WRITEF3_veneer for function: WRITEF3
+[VeneerManager] Created veneer: WRITEF4_veneer for function: WRITEF4
+[VeneerManager] Created veneer: WRITEF5_veneer for function: WRITEF5
+[VeneerManager] Created veneer: WRITEF6_veneer for function: WRITEF6
+[VeneerManager] Created veneer: WRITEF7_veneer for function: WRITEF7
+[VeneerManager] Generated 10 veneers, estimated total size: 200 bytes
 [DEBUG] Step 3: Generating main function code...
 [DEBUG] Visiting Program node.
 [DEBUG] Moving 'START' routine to the end of the generation queue for JIT compatibility.
@@ -627,13 +641,13 @@ Function: START
 Call Frame Layout for function: START
 [DEBUG] Registering all parameters as locals in CallFrameManager for 'START'.
 [DEBUG] DEBUG: metrics.variable_types size for 'START': 3
-[DEBUG] DEBUG: variable_types['L'] = POINTER_TO|LIST|INTEGER
-[DEBUG] DEBUG: variable_types['S'] = INTEGER
+[DEBUG] DEBUG: variable_types['L'] = POINTER_TO|LIST|STRING
+[DEBUG] DEBUG: variable_types['S'] = STRING
 [DEBUG] DEBUG: variable_types['_forEach_cursor_0'] = POINTER_TO|LIST
 [DEBUG] Registering all local variables from ASTAnalyzer metrics for 'START'.
-Added local variable 'L' of type 1050625 at offset 16 (size 8)
+Added local variable 'L' of type 1050628 at offset 16 (size 8)
 [DEBUG] Registered local 'L' from analyzer metrics.
-Added local variable 'S' of type 1 at offset 24 (size 8)
+Added local variable 'S' of type 4 at offset 24 (size 8)
 [DEBUG] Registered local 'S' from analyzer metrics.
 Added local variable '_forEach_cursor_0' of type 1050624 at offset 32 (size 8)
 [DEBUG] Registered local '_forEach_cursor_0' from analyzer metrics.
@@ -648,8 +662,8 @@ Offset   | Content                               | Type
 ------------------------------------------------------
 +0       | Old Frame Pointer (x29)     <-- FP (x29) points here
 +8       | Return Address (Caller's PC)
-+16      | Local: L                              | POINTER_TO|LIST|INTEGER
-+24      | Local: S                              | INTEGER
++16      | Local: L                              | POINTER_TO|LIST|STRING
++24      | Local: S                              | STRING
 +32      | Local: _forEach_cursor_0              | POINTER_TO|LIST
 +40      | Saved Reg: X19                        | UNKNOWN
 +48      | Saved Reg: X20                        | UNKNOWN
@@ -679,8 +693,8 @@ Offset   | Content                               | Type
 ------------------------------------------------------
 +0       | Old Frame Pointer (x29)     <-- FP (x29) points here
 +8       | Return Address (Caller's PC)
-+16      | Local: L                              | POINTER_TO|LIST|INTEGER
-+24      | Local: S                              | INTEGER
++16      | Local: L                              | POINTER_TO|LIST|STRING
++24      | Local: S                              | STRING
 +32      | Local: _forEach_cursor_0              | POINTER_TO|LIST
 +40      | Saved Reg: X19                        | UNKNOWN
 +48      | Saved Reg: X20                        | UNKNOWN
@@ -717,16 +731,18 @@ Offset   | Content                               | Type
 [DEBUG] Handling assignment for variable: L
 [DEBUG] store_variable_register for 'L' from register 'X0'
 [DEBUG]   [ALLOCATOR HIT] Variable 'L' lives in X15. Emitting MOV.
+[DEBUG]   [LOOP VAR PROTECTION] Extra protection for loop variable: L
 [DEBUG LEVEL 5] Emitting instruction: MOV X15, X0
 [DEBUG]   Updating home register X15 for variable 'L' after store.
 [DEBUG LEVEL 5] Emitting instruction: MOV X15, X0
+[DEBUG LEVEL 3] Skipping duplicate MOV instruction: MOV X15, X0
 [DEBUG] Finished visiting AssignmentStatement node.
 [DEBUG] Visiting AssignmentStatement node.
 [DEBUG]   [CSE DEBUG] *** PROCESSING ASSIGNMENT STATEMENT ***
 [DEBUG]   [CSE DEBUG] LHS count: 1, RHS count: 1
 [DEBUG] Visiting UnaryOp node.
 [DEBUG] Visiting BinaryOp node.
-[DEBUG] BinaryOp type inference: left_type=1050625, right_type=1
+[DEBUG] BinaryOp type inference: left_type=1050628, right_type=1
 [DEBUG] About to evaluate LEFT side of binary operation
 [DEBUG] Visiting VariableAccess node for 'L'.
 [DEBUG]   [DEBUG] About to call get_variable_register for 'L' in function 'START'
@@ -752,6 +768,7 @@ Offset   | Content                               | Type
 [DEBUG LEVEL 5] Emitting instruction: MOV X26, X10
 [DEBUG]   Updating home register X26 for variable '_forEach_cursor_0' after store.
 [DEBUG LEVEL 5] Emitting instruction: MOV X26, X10
+[DEBUG LEVEL 3] Skipping duplicate MOV instruction: MOV X26, X10
 [DEBUG] Finished visiting AssignmentStatement node.
 [DEBUG LEVEL 5] Emitting instruction: B START_ForEachHeader_1
 [DEBUG LEVEL 5] Emitting instruction: B .L0
@@ -779,6 +796,7 @@ Offset   | Content                               | Type
 [DEBUG LEVEL 5] Emitting instruction: MOV X26, X9
 [DEBUG]   Updating home register X26 for variable '_forEach_cursor_0' after store.
 [DEBUG LEVEL 5] Emitting instruction: MOV X26, X9
+[DEBUG LEVEL 3] Skipping duplicate MOV instruction: MOV X26, X9
 [DEBUG] Finished visiting AssignmentStatement node.
 [DEBUG LEVEL 5] Emitting instruction: B START_ForEachHeader_1
 [DEBUG] Visiting AssignmentStatement node.
@@ -802,9 +820,11 @@ Offset   | Content                               | Type
 [DEBUG] Handling assignment for variable: S
 [DEBUG] store_variable_register for 'S' from register 'X9'
 [DEBUG]   [ALLOCATOR HIT] Variable 'S' lives in X27. Emitting MOV.
+[DEBUG]   [LOOP VAR PROTECTION] Extra protection for loop variable: S
 [DEBUG LEVEL 5] Emitting instruction: MOV X27, X9
 [DEBUG]   Updating home register X27 for variable 'S' after store.
 [DEBUG LEVEL 5] Emitting instruction: MOV X27, X9
+[DEBUG LEVEL 3] Skipping duplicate MOV instruction: MOV X27, X9
 [DEBUG] Finished visiting AssignmentStatement node.
 [DEBUG] --- Entering NewCodeGenerator::visit(RoutineCallStatement& node) [ARM64 ABI COMPLIANT] ---
 [DEBUG] Detected a regular function/routine call.
@@ -822,23 +842,9 @@ Offset   | Content                               | Type
 [DEBUG LEVEL 5] Emitting instruction: ADRP X9, L_str3
 [DEBUG LEVEL 5] Emitting instruction: ADD X9, X9, #:lo12:L_str3
 [DEBUG LEVEL 5] Emitting instruction: ADD X9, X9, #8
-[DEBUG] Emitted ADRP/ADD sequence and offset adjustment for string literal 'String: '.
-[DEBUG] === ARM64 ABI Argument Coercion ===
-[DEBUG] Total arguments: 1
-[DEBUG] Arg 0: src=X9 expr_type=POINTER_TO|STRING expected=INTEGER target=INTEGER
-[DEBUG] Integer arg 0 -> X0 (NGRN=0)
-[DEBUG] Queued MOV X0, X9
-[DEBUG] Deferring release of source register: X9
-[DEBUG] Emitting 1 queued operations
+[DEBUG] Emitted ADRP/ADD sequence and offset adjustment for string literal 'String: %s 
+'.
 [DEBUG LEVEL 5] Emitting instruction: MOV X0, X9
-[DEBUG] Executed MOV X0, X9
-[DEBUG] Releasing source register: X9
-[DEBUG] Final register usage: NGRN=1, NSRN=0
-[DEBUG] === END ARM64 ABI Argument Coercion ===
-[DEBUG LEVEL 5] Emitting instruction: BL WRITES_veneer
-[DEBUG] --- Exiting NewCodeGenerator::visit(RoutineCallStatement& node) ---
-[DEBUG] --- Entering NewCodeGenerator::visit(RoutineCallStatement& node) [ARM64 ABI COMPLIANT] ---
-[DEBUG] Detected a regular function/routine call.
 [DEBUG] Visiting VariableAccess node for 'S'.
 [DEBUG]   [DEBUG] About to call get_variable_register for 'S' in function 'START'
 [DEBUG] get_variable_register for: 'S' in function 'START'
@@ -846,42 +852,8 @@ Offset   | Content                               | Type
 [DEBUG]   ✅ REGISTER ALLOCATED: Variable 'S' lives in register X27
 [DEBUG] Variable 'S' value loaded into X27
 [DEBUG]   [DEBUG] get_variable_register returned: 'X27'
-[DEBUG] === ARM64 ABI Argument Coercion ===
-[DEBUG] Total arguments: 1
-[DEBUG] Arg 0: src=X27 expr_type=INTEGER expected=INTEGER target=INTEGER
-[DEBUG] Integer arg 0 -> X0 (NGRN=0)
-[DEBUG] Queued MOV X0, X27
-[DEBUG] Deferring release of source register: X27
-[DEBUG] Emitting 1 queued operations
-[DEBUG LEVEL 5] Emitting instruction: MOV X0, X27
-[DEBUG] Executed MOV X0, X27
-[DEBUG] Releasing source register: X27
-[DEBUG] Final register usage: NGRN=1, NSRN=0
-[DEBUG] === END ARM64 ABI Argument Coercion ===
-[DEBUG LEVEL 5] Emitting instruction: BL WRITES_veneer
-[DEBUG] --- Exiting NewCodeGenerator::visit(RoutineCallStatement& node) ---
-[DEBUG] --- Entering NewCodeGenerator::visit(RoutineCallStatement& node) [ARM64 ABI COMPLIANT] ---
-[DEBUG] Detected a regular function/routine call.
-[DEBUG] Generating code for StringLiteral.
-[DEBUG] Allocated register X9 for the string address.
-[DEBUG LEVEL 5] Emitting instruction: ADRP X9, L_str4
-[DEBUG LEVEL 5] Emitting instruction: ADD X9, X9, #:lo12:L_str4
-[DEBUG LEVEL 5] Emitting instruction: ADD X9, X9, #8
-[DEBUG] Emitted ADRP/ADD sequence and offset adjustment for string literal '
-'.
-[DEBUG] === ARM64 ABI Argument Coercion ===
-[DEBUG] Total arguments: 1
-[DEBUG] Arg 0: src=X9 expr_type=POINTER_TO|STRING expected=INTEGER target=INTEGER
-[DEBUG] Integer arg 0 -> X0 (NGRN=0)
-[DEBUG] Queued MOV X0, X9
-[DEBUG] Deferring release of source register: X9
-[DEBUG] Emitting 1 queued operations
-[DEBUG LEVEL 5] Emitting instruction: MOV X0, X9
-[DEBUG] Executed MOV X0, X9
-[DEBUG] Releasing source register: X9
-[DEBUG] Final register usage: NGRN=1, NSRN=0
-[DEBUG] === END ARM64 ABI Argument Coercion ===
-[DEBUG LEVEL 5] Emitting instruction: BL WRITES_veneer
+[DEBUG LEVEL 5] Emitting instruction: MOV X1, X27
+[DEBUG LEVEL 5] Emitting instruction: BL WRITEF1_veneer
 [DEBUG] --- Exiting NewCodeGenerator::visit(RoutineCallStatement& node) ---
 [DEBUG] --- Entering NewCodeGenerator::visit(RoutineCallStatement& node) [ARM64 ABI COMPLIANT] ---
 [DEBUG] Detected a regular function/routine call.
@@ -925,7 +897,6 @@ Offset   | Content                               | Type
 [InstructionStream TRACE] Adding label definition: L_str1
 [InstructionStream TRACE] Adding label definition: L_str2
 [InstructionStream TRACE] Adding label definition: L_str3
-[InstructionStream TRACE] Adding label definition: L_str4
 [DataGenerator TRACE] Entering generate_rodata_section.
 [DataGenerator TRACE] Size of list_literals_ vector is: 1
 [DataGenerator TRACE] >> Processing header: L_list0_header
@@ -949,8 +920,8 @@ Symbol Table (Persistent, All Symbols)
 Symbol 'HeapManager_enter_scope' (FUNCTION, INTEGER, scope=0, block=0, class_name='', function_name='Global')
 Symbol 'HeapManager_exit_scope' (FUNCTION, INTEGER, scope=0, block=0, class_name='', function_name='Global')
 Symbol 'START' (ROUTINE, INTEGER, scope=0, block=0, class_name='', function_name='START')
-Symbol 'L' (LOCAL_VAR, POINTER_TO|LIST|INTEGER, scope=2, block=0, class_name='', function_name='START')
-Symbol 'S' (LOCAL_VAR, INTEGER, scope=2, block=0, class_name='', function_name='START')
+Symbol 'L' (LOCAL_VAR, POINTER_TO|LIST|STRING, scope=2, block=0, class_name='', function_name='START')
+Symbol 'S' (LOCAL_VAR, STRING, scope=2, block=0, class_name='', function_name='START')
 Symbol 'READN' (RUNTIME_FUNCTION, INTEGER, scope=0, block=0, class_name='', function_name='')
 Symbol 'RND' (RUNTIME_FLOAT_FUNCTION, FLOAT, scope=0, block=0, class_name='', function_name='', parameters=[INTEGER])
 Symbol 'RAND' (RUNTIME_FUNCTION, INTEGER, scope=0, block=0, class_name='', function_name='', parameters=[INTEGER])
@@ -1022,11 +993,11 @@ Symbol '_forEach_cursor_0' (LOCAL_VAR, POINTER_TO|LIST, scope=1, block=0, class_
 Data sections generated.
 
 === Peephole Optimization ===
-Analyzing 177 ARM64 instructions...
+Analyzing 201 ARM64 instructions...
 Maximum optimization passes: 5
 
 [Peephole Optimizer] Applied: Combine adjacent X-register STRs into STP
-  Position: 20
+  Position: 55
   Before:
     STR X19, [X29, #40] ; Saved Reg: X19 @ FP+40  [Opcode=26, Dest=-1, Src1=19, Imm=40, Base=29, Offset=40]
     STR X20, [X29, #48] ; Saved Reg: X20 @ FP+48  [Opcode=26, Dest=-1, Src1=20, Imm=48, Base=29, Offset=48]
@@ -1036,7 +1007,7 @@ Maximum optimization passes: 5
 
 
 [Peephole Optimizer] Applied: Combine adjacent X-register STRs into STP
-  Position: 21
+  Position: 56
   Before:
     STR X26, [X29, #56] ; Saved Reg: X26 @ FP+56  [Opcode=26, Dest=-1, Src1=26, Imm=56, Base=29, Offset=56]
     STR X27, [X29, #64] ; Saved Reg: X27 @ FP+64  [Opcode=26, Dest=-1, Src1=27, Imm=64, Base=29, Offset=64]
@@ -1045,48 +1016,8 @@ Maximum optimization passes: 5
   Instruction count: 2 -> 1
 
 
-[Peephole Optimizer] Applied: Identical sequential move elimination (MOV Xd, Xn; MOV Xd, Xn)
-  Position: 32
-  Before:
-    MOV X15, X0  [Opcode=1, Dest=15, Src1=0]
-    MOV X15, X0  [Opcode=1, Dest=15, Src1=0]
-  After:
-    MOV X15, X0  [Opcode=1, Dest=15, Src1=0]
-  Instruction count: 2 -> 1
-
-
-[Peephole Optimizer] Applied: Eliminate load through scratch register (LDR Xs, [..]; MOV Xt, Xs => LDR Xt, [..])
-  Position: 35
-  Before:
-    LDR X10, [X9, #0]  [Opcode=27, Dest=10, Src1=-1, Imm=0, Base=9, Offset=0]
-    MOV X26, X10  [Opcode=1, Dest=26, Src1=10]
-  After:
-    LDR X10, [X9, #0]  [Opcode=27, Dest=26, Src1=-1, Imm=0, Base=9, Offset=0]
-  Instruction count: 2 -> 1
-
-
-[Peephole Optimizer] Applied: Identical sequential move elimination (MOV Xd, Xn; MOV Xd, Xn)
-  Position: 48
-  Before:
-    MOV X26, X9  [Opcode=1, Dest=26, Src1=9]
-    MOV X26, X9  [Opcode=1, Dest=26, Src1=9]
-  After:
-    MOV X26, X9  [Opcode=1, Dest=26, Src1=9]
-  Instruction count: 2 -> 1
-
-
-[Peephole Optimizer] Applied: Identical sequential move elimination (MOV Xd, Xn; MOV Xd, Xn)
-  Position: 58
-  Before:
-    MOV X27, X9  [Opcode=1, Dest=27, Src1=9]
-    MOV X27, X9  [Opcode=1, Dest=27, Src1=9]
-  After:
-    MOV X27, X9  [Opcode=1, Dest=27, Src1=9]
-  Instruction count: 2 -> 1
-
-
 [Peephole Optimizer] Applied: Combine adjacent X-register LDRs into LDP
-  Position: 82
+  Position: 111
   Before:
     LDR X19, [X29, #40] ; Restored Reg: X19 @ FP+40  [Opcode=27, Dest=19, Src1=-1, Imm=40, Base=29, Offset=40]
     LDR X20, [X29, #48] ; Restored Reg: X20 @ FP+48  [Opcode=27, Dest=20, Src1=-1, Imm=48, Base=29, Offset=48]
@@ -1096,7 +1027,7 @@ Maximum optimization passes: 5
 
 
 [Peephole Optimizer] Applied: Combine adjacent X-register LDRs into LDP
-  Position: 83
+  Position: 112
   Before:
     LDR X26, [X29, #56] ; Restored Reg: X26 @ FP+56  [Opcode=27, Dest=26, Src1=-1, Imm=56, Base=29, Offset=56]
     LDR X27, [X29, #64] ; Restored Reg: X27 @ FP+64  [Opcode=27, Dest=27, Src1=-1, Imm=64, Base=29, Offset=64]
@@ -1106,7 +1037,7 @@ Maximum optimization passes: 5
 
 
 [Peephole Optimizer] Applied: Combine adjacent X-register LDRs into LDP
-  Position: 86
+  Position: 115
   Before:
     LDR X29, [SP, #0] ; Restore caller's Frame Pointer  [Opcode=27, Dest=29, Src1=-1, Imm=0, Base=31, Offset=0]
     LDR X30, [SP, #8] ; Restore Link Register  [Opcode=27, Dest=30, Src1=-1, Imm=8, Base=31, Offset=8]
@@ -1118,180 +1049,205 @@ Maximum optimization passes: 5
 Peephole optimization completed 2 
   Passes with changes: 1
 Peephole optimization completed 2 passes:
-  Instructions before: 177
-  Instructions after:  168
-  Total optimizations: 9
+  Instructions before: 201
+  Instructions after:  196
+  Total optimizations: 5
   Patterns matched:
     - Combine adjacent X-register LDRs into LDP: 3
-    - Eliminate load through scratch register (LDR Xs, [..]; MOV Xt, Xs => LDR Xt, [..]): 1
-    - Identical sequential move elimination (MOV Xd, Xn; MOV Xd, Xn): 3
     - Combine adjacent X-register STRs into STP: 2
 ==============================
 [Peephole Optimizer] Detailed peephole optimization trace complete
 Populating JIT memory according to linker layout...
 
---- CodeBuffer JIT Listing ------ Code Section Listing (Base Address: 0x105c7c000) ---
+--- CodeBuffer JIT Listing ------ Code Section Listing (Base Address: 0x107884000) ---
 Address Hex Code    Assembly
 --------------------------------------------------
- 105c7c000 0x00000000  
+ 107884000 0x00000000  
 ; --- Veneer Section ---
 HeapManager_enter_scope_veneer:
- 105c7c004 0xd28f2310  MOVZ X16, #31000
- 105c7c008 0xf2a011d0  MOVK X16, #142, LSL #16
- 105c7c00c 0xf2c00030  MOVK X16, #1, LSL #32
- 105c7c010 0xd61f0200  BR X16
+ 107884004 0xd29ce990  MOVZ X16, #59212
+ 107884008 0xf2a04a10  MOVK X16, #592, LSL #16
+ 10788400c 0xf2c00030  MOVK X16, #1, LSL #32
+ 107884010 0xd61f0200  BR X16
 HeapManager_exit_scope_veneer:
- 105c7c014 0xd28f2890  MOVZ X16, #31044
- 105c7c018 0xf2a011d0  MOVK X16, #142, LSL #16
- 105c7c01c 0xf2c00030  MOVK X16, #1, LSL #32
- 105c7c020 0xd61f0200  BR X16
-WRITES_veneer:
- 105c7c024 0xd28dbb10  MOVZ X16, #28120
- 105c7c028 0xf2a01410  MOVK X16, #160, LSL #16
- 105c7c02c 0xf2c00030  MOVK X16, #1, LSL #32
- 105c7c030 0xd61f0200  BR X16
- 105c7c034 0x00000000  ; --- End Veneer Section ---
+ 107884014 0xd29cef10  MOVZ X16, #59256
+ 107884018 0xf2a04a10  MOVK X16, #592, LSL #16
+ 10788401c 0xf2c00030  MOVK X16, #1, LSL #32
+ 107884020 0xd61f0200  BR X16
+WRITEF_veneer:
+ 107884024 0xd2890a10  MOVZ X16, #18512
+ 107884028 0xf2a04a90  MOVK X16, #596, LSL #16
+ 10788402c 0xf2c00030  MOVK X16, #1, LSL #32
+ 107884030 0xd61f0200  BR X16
+WRITEF1_veneer:
+ 107884034 0xd2899a90  MOVZ X16, #19668
+ 107884038 0xf2a04a90  MOVK X16, #596, LSL #16
+ 10788403c 0xf2c00030  MOVK X16, #1, LSL #32
+ 107884040 0xd61f0200  BR X16
+WRITEF2_veneer:
+ 107884044 0xd289a790  MOVZ X16, #19772
+ 107884048 0xf2a04a90  MOVK X16, #596, LSL #16
+ 10788404c 0xf2c00030  MOVK X16, #1, LSL #32
+ 107884050 0xd61f0200  BR X16
+WRITEF3_veneer:
+ 107884054 0xd289b610  MOVZ X16, #19888
+ 107884058 0xf2a04a90  MOVK X16, #596, LSL #16
+ 10788405c 0xf2c00030  MOVK X16, #1, LSL #32
+ 107884060 0xd61f0200  BR X16
+WRITEF4_veneer:
+ 107884064 0xd289c610  MOVZ X16, #20016
+ 107884068 0xf2a04a90  MOVK X16, #596, LSL #16
+ 10788406c 0xf2c00030  MOVK X16, #1, LSL #32
+ 107884070 0xd61f0200  BR X16
+WRITEF5_veneer:
+ 107884074 0xd289d790  MOVZ X16, #20156
+ 107884078 0xf2a04a90  MOVK X16, #596, LSL #16
+ 10788407c 0xf2c00030  MOVK X16, #1, LSL #32
+ 107884080 0xd61f0200  BR X16
+WRITEF6_veneer:
+ 107884084 0xd289ea90  MOVZ X16, #20308
+ 107884088 0xf2a04a90  MOVK X16, #596, LSL #16
+ 10788408c 0xf2c00030  MOVK X16, #1, LSL #32
+ 107884090 0xd61f0200  BR X16
+WRITEF7_veneer:
+ 107884094 0xd289ff10  MOVZ X16, #20472
+ 107884098 0xf2a04a90  MOVK X16, #596, LSL #16
+ 10788409c 0xf2c00030  MOVK X16, #1, LSL #32
+ 1078840a0 0xd61f0200  BR X16
+ 1078840a4 0x00000000  ; --- End Veneer Section ---
 
 START:
- 105c7c038 0xa9bb7bfd  STP X29, X30, [SP, #-80]!
- 105c7c03c 0x910003fd  MOV X29, SP
- 105c7c040 0xa902d3b3  STP x19, x20, [x29, #40]
- 105c7c044 0xa903efba  STP x26, x27, [x29, #56]
- 105c7c048 0xf90027bc  STR X28, [X29, #72] ; Saved Reg: X28 @ FP+72
- 105c7c04c 0xd298001c  MOVZ X28, #49152
- 105c7c050 0xf2a0b6fc  MOVK X28, #1463, LSL #16
- 105c7c054 0xf2c0003c  MOVK X28, #1, LSL #32
- 105c7c058 0xf2e0001c  MOVK X28, #0, LSL #48
+ 1078840a8 0xa9bb7bfd  STP X29, X30, [SP, #-80]!
+ 1078840ac 0x910003fd  MOV X29, SP
+ 1078840b0 0xa902d3b3  STP x19, x20, [x29, #40]
+ 1078840b4 0xa903efba  STP x26, x27, [x29, #56]
+ 1078840b8 0xf90027bc  STR X28, [X29, #72] ; Saved Reg: X28 @ FP+72
+ 1078840bc 0xd290001c  MOVZ X28, #32768
+ 1078840c0 0xf2a05a3c  MOVK X28, #721, LSL #16
+ 1078840c4 0xf2c0003c  MOVK X28, #1, LSL #32
+ 1078840c8 0xf2e0001c  MOVK X28, #0, LSL #48
 START_Entry_0:
- 105c7c05c 0x97ffffea  BL HeapManager_enter_scope_veneer    ; Reloc -> 'HeapManager_enter_scope_veneer' @ 0x105c7c004
- 105c7c060 0xb0000020  ADRP X0, L_list0_header    ; Reloc -> 'L_list0_header' @ 0x105c810a0
- 105c7c064 0x91028000  ADD X0, X0, #:lo12:L_list0_header    ; Reloc -> 'L_list0_header' @ 0x105c810a0
- 105c7c068 0x96b648b6  BL DEEPCOPYLITERALLIST    ; Reloc -> 'DEEPCOPYLITERALLIST' @ 0x100a0e340
- 105c7c06c 0xaa0003ef  MOV X15, X0
- 105c7c070 0xaa0f03e9  MOV X9, X15
- 105c7c074 0x91004129  ADD X9, X9, #16
- 105c7c078 0xf940012a  LDR X10, [X9, #0]
- 105c7c07c 0xaa0a03fa  MOV X26, X10
- 105c7c080 0x14000020  B START_ForEachHeader_1    ; Reloc -> 'START_ForEachHeader_1' @ 0x105c7c100
+ 1078840cc 0x97ffffce  BL HeapManager_enter_scope_veneer    ; Reloc -> 'HeapManager_enter_scope_veneer' @ 0x107884004
+ 1078840d0 0xb0000020  ADRP X0, L_list0_header    ; Reloc -> 'L_list0_header' @ 0x10788909c
+ 1078840d4 0x91027000  ADD X0, X0, #:lo12:L_list0_header    ; Reloc -> 'L_list0_header' @ 0x10788909c
+ 1078840d8 0x96b31e8b  BL DEEPCOPYLITERALLIST    ; Reloc -> 'DEEPCOPYLITERALLIST' @ 0x10254bb04
+ 1078840dc 0xaa0003ef  MOV X15, X0
+ 1078840e0 0xaa0f03e9  MOV X9, X15
+ 1078840e4 0x91004129  ADD X9, X9, #16
+ 1078840e8 0xf940012a  LDR X10, [X9, #0]
+ 1078840ec 0xaa0a03fa  MOV X26, X10
+ 1078840f0 0x1400001a  B START_ForEachHeader_1    ; Reloc -> 'START_ForEachHeader_1' @ 0x107884158
 START_Exit_5:
- 105c7c084 0x14000022  B .L0    ; Reloc -> '.L0' @ 0x105c7c10c
+ 1078840f4 0x1400001c  B .L0    ; Reloc -> '.L0' @ 0x107884164
 START_ForEachAdvance_4:
- 105c7c088 0xf100035f  CMP X26, #0
- 105c7c08c 0x54000060  B.EQ .L2    ; Reloc -> '.L2' @ 0x105c7c098
- 105c7c090 0xf9400b49  LDR X9, [X26, #16]
- 105c7c094 0x14000002  B .L1    ; Reloc -> '.L1' @ 0x105c7c09c
+ 1078840f8 0xf100035f  CMP X26, #0
+ 1078840fc 0x54000060  B.EQ .L2    ; Reloc -> '.L2' @ 0x107884108
+ 107884100 0xf9400b49  LDR X9, [X26, #16]
+ 107884104 0x14000002  B .L1    ; Reloc -> '.L1' @ 0x10788410c
 .L2:
- 105c7c098 0xaa1f03e9  MOV X9, XZR
+ 107884108 0xaa1f03e9  MOV X9, XZR
 .L1:
- 105c7c09c 0xaa0903fa  MOV X26, X9
- 105c7c0a0 0x14000018  B START_ForEachHeader_1    ; Reloc -> 'START_ForEachHeader_1' @ 0x105c7c100
+ 10788410c 0xaa0903fa  MOV X26, X9
+ 107884110 0x14000012  B START_ForEachHeader_1    ; Reloc -> 'START_ForEachHeader_1' @ 0x107884158
 START_ForEachBody_2:
- 105c7c0a4 0xf100035f  CMP X26, #0
- 105c7c0a8 0x54000060  B.EQ .L4    ; Reloc -> '.L4' @ 0x105c7c0b4
- 105c7c0ac 0xf9400749  LDR X9, [X26, #8]
- 105c7c0b0 0x14000002  B .L3    ; Reloc -> '.L3' @ 0x105c7c0b8
+ 107884114 0xf100035f  CMP X26, #0
+ 107884118 0x54000060  B.EQ .L4    ; Reloc -> '.L4' @ 0x107884124
+ 10788411c 0xf9400749  LDR X9, [X26, #8]
+ 107884120 0x14000002  B .L3    ; Reloc -> '.L3' @ 0x107884128
 .L4:
- 105c7c0b4 0xaa1f03e9  MOV X9, XZR
+ 107884124 0xaa1f03e9  MOV X9, XZR
 .L3:
- 105c7c0b8 0xaa0903fb  MOV X27, X9
- 105c7c0bc 0x97ffffd2  BL HeapManager_enter_scope_veneer    ; Reloc -> 'HeapManager_enter_scope_veneer' @ 0x105c7c004
- 105c7c0c0 0xb0000029  ADRP X9, L_str3    ; Reloc -> 'L_str3' @ 0x105c8105c
- 105c7c0c4 0x91017129  ADD X9, X9, #:lo12:L_str3    ; Reloc -> 'L_str3' @ 0x105c8105c
- 105c7c0c8 0x91002129  ADD X9, X9, #8
- 105c7c0cc 0xaa0903e0  MOV X0, X9
- 105c7c0d0 0x97ffffd5  BL WRITES_veneer    ; Reloc -> 'WRITES_veneer' @ 0x105c7c024
- 105c7c0d4 0xaa1b03e0  MOV X0, X27
- 105c7c0d8 0x97ffffd3  BL WRITES_veneer    ; Reloc -> 'WRITES_veneer' @ 0x105c7c024
- 105c7c0dc 0xb0000029  ADRP X9, L_str4    ; Reloc -> 'L_str4' @ 0x105c8108c
- 105c7c0e0 0x91023129  ADD X9, X9, #:lo12:L_str4    ; Reloc -> 'L_str4' @ 0x105c8108c
- 105c7c0e4 0x91002129  ADD X9, X9, #8
- 105c7c0e8 0xaa0903e0  MOV X0, X9
- 105c7c0ec 0x97ffffce  BL WRITES_veneer    ; Reloc -> 'WRITES_veneer' @ 0x105c7c024
- 105c7c0f0 0x97ffffc9  BL HeapManager_exit_scope_veneer    ; Reloc -> 'HeapManager_exit_scope_veneer' @ 0x105c7c014
- 105c7c0f4 0x17ffffe5  B START_ForEachAdvance_4    ; Reloc -> 'START_ForEachAdvance_4' @ 0x105c7c088
+ 107884128 0xaa0903fb  MOV X27, X9
+ 10788412c 0x97ffffb6  BL HeapManager_enter_scope_veneer    ; Reloc -> 'HeapManager_enter_scope_veneer' @ 0x107884004
+ 107884130 0xb0000029  ADRP X9, L_str3    ; Reloc -> 'L_str3' @ 0x10788905c
+ 107884134 0x91017129  ADD X9, X9, #:lo12:L_str3    ; Reloc -> 'L_str3' @ 0x10788905c
+ 107884138 0x91002129  ADD X9, X9, #8
+ 10788413c 0xaa0903e0  MOV X0, X9
+ 107884140 0xaa1b03e1  MOV X1, X27
+ 107884144 0x97ffffbc  BL WRITEF1_veneer    ; Reloc -> 'WRITEF1_veneer' @ 0x107884034
+ 107884148 0x97ffffb3  BL HeapManager_exit_scope_veneer    ; Reloc -> 'HeapManager_exit_scope_veneer' @ 0x107884014
+ 10788414c 0x17ffffeb  B START_ForEachAdvance_4    ; Reloc -> 'START_ForEachAdvance_4' @ 0x1078840f8
 START_ForEachExit_3:
- 105c7c0f8 0x97ffffc7  BL HeapManager_exit_scope_veneer    ; Reloc -> 'HeapManager_exit_scope_veneer' @ 0x105c7c014
- 105c7c0fc 0x17ffffe2  B START_Exit_5    ; Reloc -> 'START_Exit_5' @ 0x105c7c084
+ 107884150 0x97ffffb1  BL HeapManager_exit_scope_veneer    ; Reloc -> 'HeapManager_exit_scope_veneer' @ 0x107884014
+ 107884154 0x17ffffe8  B START_Exit_5    ; Reloc -> 'START_Exit_5' @ 0x1078840f4
 START_ForEachHeader_1:
- 105c7c100 0xeb1f035f  CMP X26, XZR
- 105c7c104 0x54ffffa0  B.EQ START_ForEachExit_3    ; Reloc -> 'START_ForEachExit_3' @ 0x105c7c0f8
- 105c7c108 0x17ffffe7  B START_ForEachBody_2    ; Reloc -> 'START_ForEachBody_2' @ 0x105c7c0a4
+ 107884158 0xeb1f035f  CMP X26, XZR
+ 10788415c 0x54ffffa0  B.EQ START_ForEachExit_3    ; Reloc -> 'START_ForEachExit_3' @ 0x107884150
+ 107884160 0x17ffffed  B START_ForEachBody_2    ; Reloc -> 'START_ForEachBody_2' @ 0x107884114
 .L0:
- 105c7c10c 0xa942d3b3  LDP x19, x20, [x29, #40]
- 105c7c110 0xa943efba  LDP x26, x27, [x29, #56]
- 105c7c114 0xf94027bc  LDR X28, [X29, #72] ; Restored Reg: X28 @ FP+72
- 105c7c118 0x910003bf  MOV SP, X29 ; Deallocate frame by moving FP to SP
- 105c7c11c 0xa9407bfd  LDP x29, x30, [x31]
- 105c7c120 0x910043ff  ADD SP, SP, #16 ; Deallocate space for saved FP/LR
- 105c7c124 0xd65f03c0  RET
+ 107884164 0xa942d3b3  LDP x19, x20, [x29, #40]
+ 107884168 0xa943efba  LDP x26, x27, [x29, #56]
+ 10788416c 0xf94027bc  LDR X28, [X29, #72] ; Restored Reg: X28 @ FP+72
+ 107884170 0x910003bf  MOV SP, X29 ; Deallocate frame by moving FP to SP
+ 107884174 0xa9407bfd  LDP x29, x30, [x31]
+ 107884178 0x910043ff  ADD SP, SP, #16 ; Deallocate space for saved FP/LR
+ 10788417c 0xd65f03c0  RET
 L_str0:
- 105c81000 0x10000000  .quad 0x1
- 105c81004 0x00000000  ; (upper half)
- 105c81008 0x61000000  DCD 0x61
- 105c8100c 0x00000000  DCD 0x0
- 105c81010 0x00000000  DCD 0x0
+ 107889000 0x10000000  .quad 0x1
+ 107889004 0x00000000  ; (upper half)
+ 107889008 0x61000000  DCD 0x61
+ 10788900c 0x00000000  DCD 0x0
+ 107889010 0x00000000  DCD 0x0
 L_str1:
- 105c81014 0x60000000  .quad 0x6
- 105c81018 0x00000000  ; (upper half)
- 105c8101c 0x73000000  DCD 0x73
- 105c81020 0x74000000  DCD 0x74
- 105c81024 0x72000000  DCD 0x72
- 105c81028 0x69000000  DCD 0x69
- 105c8102c 0x6e000000  DCD 0x6e
- 105c81030 0x67000000  DCD 0x67
- 105c81034 0x00000000  DCD 0x0
- 105c81038 0x00000000  DCD 0x0
+ 107889014 0x60000000  .quad 0x6
+ 107889018 0x00000000  ; (upper half)
+ 10788901c 0x73000000  DCD 0x73
+ 107889020 0x74000000  DCD 0x74
+ 107889024 0x72000000  DCD 0x72
+ 107889028 0x69000000  DCD 0x69
+ 10788902c 0x6e000000  DCD 0x6e
+ 107889030 0x67000000  DCD 0x67
+ 107889034 0x00000000  DCD 0x0
+ 107889038 0x00000000  DCD 0x0
 L_str2:
- 105c8103c 0x40000000  .quad 0x4
- 105c81040 0x00000000  ; (upper half)
- 105c81044 0x6c000000  DCD 0x6c
- 105c81048 0x69000000  DCD 0x69
- 105c8104c 0x73000000  DCD 0x73
- 105c81050 0x74000000  DCD 0x74
- 105c81054 0x00000000  DCD 0x0
- 105c81058 0x00000000  DCD 0x0
+ 10788903c 0x40000000  .quad 0x4
+ 107889040 0x00000000  ; (upper half)
+ 107889044 0x6c000000  DCD 0x6c
+ 107889048 0x69000000  DCD 0x69
+ 10788904c 0x73000000  DCD 0x73
+ 107889050 0x74000000  DCD 0x74
+ 107889054 0x00000000  DCD 0x0
+ 107889058 0x00000000  DCD 0x0
 L_str3:
- 105c8105c 0x80000000  .quad 0x8
- 105c81060 0x00000000  ; (upper half)
- 105c81064 0x53000000  DCD 0x53
- 105c81068 0x74000000  DCD 0x74
- 105c8106c 0x72000000  DCD 0x72
- 105c81070 0x69000000  DCD 0x69
- 105c81074 0x6e000000  DCD 0x6e
- 105c81078 0x67000000  DCD 0x67
- 105c8107c 0x3a000000  DCD 0x3a
- 105c81080 0x20000000  DCD 0x20
- 105c81084 0x00000000  DCD 0x0
- 105c81088 0x00000000  DCD 0x0
-L_str4:
- 105c8108c 0x10000000  .quad 0x1
- 105c81090 0x00000000  ; (upper half)
- 105c81094 0xa0000000  DCD 0xa
- 105c81098 0x00000000  DCD 0x0
- 105c8109c 0x00000000  DCD 0x0
+ 10788905c 0xc0000000  .quad 0xc
+ 107889060 0x00000000  ; (upper half)
+ 107889064 0x53000000  DCD 0x53
+ 107889068 0x74000000  DCD 0x74
+ 10788906c 0x72000000  DCD 0x72
+ 107889070 0x69000000  DCD 0x69
+ 107889074 0x6e000000  DCD 0x6e
+ 107889078 0x67000000  DCD 0x67
+ 10788907c 0x3a000000  DCD 0x3a
+ 107889080 0x20000000  DCD 0x20
+ 107889084 0x25000000  DCD 0x25
+ 107889088 0x73000000  DCD 0x73
+ 10788908c 0x20000000  DCD 0x20
+ 107889090 0xa0000000  DCD 0xa
+ 107889094 0x00000000  DCD 0x0
+ 107889098 0x00000000  DCD 0x0
 L_list0_header:
- 105c810a0 0x00000000  DCD 0x0
- 105c810a4 0x00000000  DCD 0x0
- 105c810a8 0x5c810f00  .quad L_list0_node_2    ; Reloc -> 'L_list0_node_2' @ 0x105c810f0
- 105c810b0 0x5c810c00  .quad L_list0_node_0    ; Reloc -> 'L_list0_node_0' @ 0x105c810c0
- 105c810b8 0x30000000  .quad 0x3
- 105c810bc 0x00000000  ; (upper half)
+ 10788909c 0x00000000  DCD 0x0
+ 1078890a0 0x00000000  DCD 0x0
+ 1078890a4 0x78890ec0  .quad L_list0_node_2    ; Reloc -> 'L_list0_node_2' @ 0x1078890ec
+ 1078890ac 0x78890bc0  .quad L_list0_node_0    ; Reloc -> 'L_list0_node_0' @ 0x1078890bc
+ 1078890b4 0x30000000  .quad 0x3
+ 1078890b8 0x00000000  ; (upper half)
 L_list0_node_0:
- 105c810c0 0x30000000  DCD 0x3
- 105c810c4 0x00000000  DCD 0x0
- 105c810c8 0x5c810000  .quad L_str0    ; Reloc -> 'L_str0' @ 0x105c81000
- 105c810d0 0x5c810d80  .quad L_list0_node_1    ; Reloc -> 'L_list0_node_1' @ 0x105c810d8
+ 1078890bc 0x30000000  DCD 0x3
+ 1078890c0 0x00000000  DCD 0x0
+ 1078890c4 0x78890000  .quad L_str0    ; Reloc -> 'L_str0' @ 0x107889000
+ 1078890cc 0x78890d40  .quad L_list0_node_1    ; Reloc -> 'L_list0_node_1' @ 0x1078890d4
 L_list0_node_1:
- 105c810d8 0x30000000  DCD 0x3
- 105c810dc 0x00000000  DCD 0x0
- 105c810e0 0x5c810140  .quad L_str1    ; Reloc -> 'L_str1' @ 0x105c81014
- 105c810e8 0x5c810f00  .quad L_list0_node_2    ; Reloc -> 'L_list0_node_2' @ 0x105c810f0
+ 1078890d4 0x30000000  DCD 0x3
+ 1078890d8 0x00000000  DCD 0x0
+ 1078890dc 0x78890140  .quad L_str1    ; Reloc -> 'L_str1' @ 0x107889014
+ 1078890e4 0x78890ec0  .quad L_list0_node_2    ; Reloc -> 'L_list0_node_2' @ 0x1078890ec
 L_list0_node_2:
- 105c810f0 0x30000000  DCD 0x3
- 105c810f4 0x00000000  DCD 0x0
- 105c810f8 0x5c8103c0  .quad L_str2    ; Reloc -> 'L_str2' @ 0x105c8103c
- 105c81100 0x00000000  .quad 0x0
- 105c81104 0x00000000  ; (upper half)
+ 1078890ec 0x30000000  DCD 0x3
+ 1078890f0 0x00000000  DCD 0x0
+ 1078890f4 0x788903c0  .quad L_str2    ; Reloc -> 'L_str2' @ 0x10788903c
+ 1078890fc 0x00000000  .quad 0x0
+ 107889100 0x00000000  ; (upper half)
 
 --------------------------
 
@@ -1299,55 +1255,55 @@ JIT runtime table populated with 123 function pointers.
 Set runtime function table memory to read-only.
 
 --- JIT Execution ---
-JIT execution enabled. Entry point 'START' at 0x105c7c038
-[JITExecutor] Starting execution of JIT-compiled function at address: 0x105c7c038
+JIT execution enabled. Entry point 'START' at 0x1078840a8
+[JITExecutor] Starting execution of JIT-compiled function at address: 0x1078840a8
 SAMM: Entered scope (depth: 2)
-SAMM: Tracked freelist allocation 0x1017951b0 in scope (depth: 2, scope size: 1)
-SAMM: Tracked list allocation 0x1017951b0 in scope (depth: 2, scope size: 2)
+SAMM: Tracked freelist allocation 0x103499e10 in scope (depth: 2, scope size: 1)
+SAMM: Tracked list allocation 0x103499e10 in scope (depth: 2, scope size: 2)
 BCPL String Optimizations: Initialized (pool + SIMD)
-SAMM: Tracked string pool allocation 0xb8ece37dc in scope (depth: 2, scope size: 3)
-SAMM: Tracked string pool allocation 0xb8ece37a0 in scope (depth: 2, scope size: 4)
-SAMM: Tracked string pool allocation 0xb8ece3764 in scope (depth: 2, scope size: 5)
+SAMM: Tracked string pool allocation 0xadb0777dc in scope (depth: 2, scope size: 3)
+SAMM: Tracked string pool allocation 0xadb0777a0 in scope (depth: 2, scope size: 4)
+SAMM: Tracked string pool allocation 0xadb077764 in scope (depth: 2, scope size: 5)
 SAMM: Entered scope (depth: 3)
-String: 
+String:  
 SAMM: Scope exit - found 0 objects to cleanup (remaining depth: 2)
 SAMM: No objects to cleanup in this scope
 SAMM: Entered scope (depth: 3)
-String: 
+String:  
 SAMM: Scope exit - found 0 objects to cleanup (remaining depth: 2)
 SAMM: No objects to cleanup in this scope
 SAMM: Entered scope (depth: 3)
-String: 
+String:  
 SAMM: Scope exit - found 0 objects to cleanup (remaining depth: 2)
 SAMM: No objects to cleanup in this scope
 SAMM: Scope exit - found 5 objects to cleanup (remaining depth: 1)
 SAMM: About to queue 5 objects for cleanup
 SAMM: Queued objects for background cleanup (queue depth: 1)
 SAMM: Notified background worker
-JIT Execution completed with result: 4433887088
-  Same value as double: SAMM: Worker woke up, queue size: 1, running: YES
+JIT Execution completed with result: 4463279984
+  Same value as double: 2.20515e-314
+[JITExecutor] Execution completed. Result: 4463279984
+
+--- JIT returned with result: 4463279984 ---
+SAMM: Worker woke up, queue size: 1, running: YES
 SAMM: Processing batch of 5 objects
 SAMM: cleanupPointersImmediate called with 5 pointers
-SAMM: Cleaning up pointer 0x1017951b0
-SAMM: Freeing list header 0x1017951b0 and returning all atoms to freelist
-2.19063e-314
-[JITExecutor] Execution completed. Result: 4433887088
-SAMM: Successfully cleaned pointer 0x1017951b0
-SAMM: Cleaning up pointer 0x1017951b0
-SAMM: Ignoring free() for 0x1017951b0 - already freed by SAMM
-SAMM: Successfully cleaned pointer 0x1017951b0
-SAMM: Cleaning up pointer 0xb8ece37dc
-
---- JIT returned with result: 4433887088 ---
-SAMM: Returning string pool allocation 0xb8ece37dc to pool for reuse
-SAMM: Successfully cleaned pointer 0xb8ece37dc
-SAMM: Cleaning up pointer 0xb8ece37a0
-SAMM: Returning string pool allocation 0xb8ece37a0 to pool for reuse
-SAMM: Successfully cleaned pointer 0xb8ece37a0
-SAMM: Cleaning up pointer 0xb8ece3764
-SAMM: Returning string pool allocation 0xb8ece3764 to pool for reuse
-SAMM: Successfully cleaned pointer 0xb8ece3764
-SAMM: cleanupPointersImmediate completed 5 items in 0.015 ms
+SAMM: Cleaning up pointer 0x103499e10
+SAMM: Freeing list header 0x103499e10 and returning all atoms to freelist
+SAMM: Successfully cleaned pointer 0x103499e10
+SAMM: Cleaning up pointer 0x103499e10
+SAMM: Ignoring free() for 0x103499e10 - already freed by SAMM
+SAMM: Successfully cleaned pointer 0x103499e10
+SAMM: Cleaning up pointer 0xadb0777dc
+SAMM: Returning string pool allocation 0xadb0777dc to pool for reuse
+SAMM: Successfully cleaned pointer 0xadb0777dc
+SAMM: Cleaning up pointer 0xadb0777a0
+SAMM: Returning string pool allocation 0xadb0777a0 to pool for reuse
+SAMM: Successfully cleaned pointer 0xadb0777a0
+SAMM: Cleaning up pointer 0xadb077764
+SAMM: Returning string pool allocation 0xadb077764 to pool for reuse
+SAMM: Successfully cleaned pointer 0xadb077764
+SAMM: cleanupPointersImmediate completed 5 items in 0.007 ms
 SAMM: Background worker processed batch of 5 objects
 SAMM: Worker waiting for cleanup queue (queue size: 0)
 

@@ -18,6 +18,7 @@
 #include <algorithm>  // For std::sort
 #include <sstream>    // For std::stringstream
 #include <vector>     // For std::vector
+#include "InstructionDecoder.h" // For duplicate MOV detection
 #include <map>        // For std::map
 #include <stack>      // For std::stack
 #include "analysis/LiveInterval.h"
@@ -2153,6 +2154,24 @@ void NewCodeGenerator::emit(const std::vector<Instruction>& instrs) {
 // Emits a single instruction to the instruction stream.
 void NewCodeGenerator::emit(const Instruction& instr) {
     debug_print_level("Emitting instruction: " + instr.assembly_text, 5);
+    
+    // Prevent consecutive identical MOV instructions (unless protected by nopeep)
+    if (!instr.nopeep && !instruction_stream_.empty()) {
+        const Instruction& last_instr = instruction_stream_.get_last_instruction();
+        
+        // Check if both are MOV instructions with same operands
+        if (InstructionDecoder::getOpcode(instr) == InstructionDecoder::OpType::MOV &&
+            InstructionDecoder::getOpcode(last_instr) == InstructionDecoder::OpType::MOV &&
+            !InstructionDecoder::usesImmediate(instr) && 
+            !InstructionDecoder::usesImmediate(last_instr) &&
+            InstructionDecoder::getDestReg(instr) == InstructionDecoder::getDestReg(last_instr) &&
+            InstructionDecoder::getSrcReg1(instr) == InstructionDecoder::getSrcReg1(last_instr)) {
+            
+            debug_print_level("Skipping duplicate MOV instruction: " + instr.assembly_text, 3);
+            return; // Skip adding this duplicate instruction
+        }
+    }
+    
     instruction_stream_.add(instr);
 }
 

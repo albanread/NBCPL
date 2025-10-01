@@ -1,0 +1,6 @@
+LET START() BE {
+    LET x = 42
+    LET y = x
+    LET z = y
+    WRITEF("Result: %d\n", z)
+}

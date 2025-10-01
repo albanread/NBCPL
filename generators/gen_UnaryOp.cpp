@@ -52,7 +52,7 @@ void NewCodeGenerator::visit(UnaryOp& node) {
             } else {
                 emit(Encoder::create_ldr_imm(result_reg, ptr_reg, 8));
                 // For string elements, add 8 to skip the length prefix
-                if (node.element_type == VarType::POINTER_TO_STRING) {
+                if (node.element_type == VarType::POINTER_TO_STRING || node.element_type == VarType::STRING) {
                     emit(Encoder::create_add_imm(result_reg, result_reg, 8));
                 }
             }
