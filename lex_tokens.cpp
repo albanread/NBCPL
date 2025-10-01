@@ -72,7 +72,10 @@ Token Lexer::scan_string() {
         char c = advance();
         if (c == '*') {
             switch (peek_char()) {
-                case 'n': case 'N': value += '\n'; advance(); break;
+                case 'n': case 'N':
+                    value += "*";
+                    value += advance(); // preserve as *N or *n
+                    break;
                 case 't': case 'T': value += '\t'; advance(); break;
                 case 's': case 'S': value += ' '; advance(); break;
                 case 'b': case 'B': value += '\b'; advance(); break;
@@ -107,7 +110,10 @@ Token Lexer::scan_char() {
     char c = advance();
     if (c == '*') {
         switch (peek_char()) {
-            case 'n': case 'N': value += '\n'; advance(); break;
+            case 'n': case 'N':
+                value += '*';
+                value += advance(); // preserve as *N or *n
+                break;
             default: value += advance(); break;
         }
     } else {

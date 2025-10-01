@@ -48,6 +48,7 @@ static void write_utf8_char(int64_t ch) {
 static void write_char_with_escapes(uint32_t** p) {
     uint32_t c = **p;
 
+    // Handle C-style backslash escapes
     if (c == '\\' && *((*p) + 1) != 0) {
         (*p)++; // Skip the backslash
         uint32_t next_char = **p;
@@ -92,7 +93,52 @@ static void write_char_with_escapes(uint32_t** p) {
                 write_utf8_char(next_char);
                 break;
         }
-    } else {
+    }
+    // Handle BCPL-style asterisk escapes
+    else if (c == '*' && *((*p) + 1) != 0) {
+        uint32_t next_char = *((*p) + 1);
+        switch (next_char) {
+            case 'n': case 'N':
+                putchar('\n');
+                (*p)++; // Skip the N
+                break;
+            case 't': case 'T':
+                putchar('\t');
+                (*p)++;
+                break;
+            case 's': case 'S':
+                putchar(' ');
+                (*p)++;
+                break;
+            case 'b': case 'B':
+                putchar('\b');
+                (*p)++;
+                break;
+            case 'p': case 'P':
+                putchar('\f');
+                (*p)++;
+                break;
+            case 'c': case 'C':
+                putchar('\r');
+                (*p)++;
+                break;
+            case '"':
+                putchar('"');
+                (*p)++;
+                break;
+            case '*':
+                putchar('*');
+                (*p)++;
+                break;
+            default:
+                // If not a recognized asterisk escape, print the asterisk and the character
+                putchar('*');
+                write_utf8_char(next_char);
+                (*p)++;
+                break;
+        }
+    }
+    else {
         write_utf8_char(c);
     }
 }

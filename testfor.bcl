@@ -1,8 +1,24 @@
+LET forLoop(N)  BE
+$(
+ LET F=1
+ WRITES("For loop")
+ FOR I=1 TO N DO $(
+  WRITEF("%d",N) 
+  LET F = I*F
+ $)
+ WRITEF("F=%d*N", F)
+
+$)
+
+
 LET START() BE
 $(
 
- FOR I=1 TO 100 DO $(
+ FOR I=1 TO 4 DO $(
   WRITEF("I=%d*N", I)
  $)
+
+ forLoop(7)
+
 
 $)
