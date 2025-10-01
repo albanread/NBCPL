@@ -13,6 +13,11 @@ std::unique_ptr<InstructionPattern> createLdrToLdpXPattern() {
             const auto& ldr1 = instrs[pos];
             const auto& ldr2 = instrs[pos + 1];
 
+            // Check if either instruction has nopeep attribute
+            if (ldr1.nopeep || ldr2.nopeep) {
+                return {false, 0};
+            }
+
             // Both must be LDR, 64-bit (X registers)
             if (InstructionDecoder::getOpcode(ldr1) != InstructionDecoder::OpType::LDR ||
                 InstructionDecoder::getOpcode(ldr2) != InstructionDecoder::OpType::LDR) {
@@ -54,6 +59,11 @@ std::unique_ptr<InstructionPattern> createMovSubMovScratchPattern() {
             const auto& mov1 = instrs[pos];
             const auto& sub  = instrs[pos + 1];
             const auto& mov2 = instrs[pos + 2];
+
+            // Check if any instruction has nopeep attribute
+            if (mov1.nopeep || sub.nopeep || mov2.nopeep) {
+                return {false, 0};
+            }
 
             // MOV Xs, Xt
             if (InstructionDecoder::getOpcode(mov1) != InstructionDecoder::OpType::MOV) return {false, 0};
@@ -119,6 +129,11 @@ std::unique_ptr<InstructionPattern> createConservativeMovzScratchPattern() {
             if (pos + 1 >= instrs.size()) return {false, 0};
             const auto& movz = instrs[pos];
             const auto& mov = instrs[pos + 1];
+
+            // Check if either instruction has nopeep attribute
+            if (movz.nopeep || mov.nopeep) {
+                return {false, 0};
+            }
 
             // Only match MOVZ followed by MOV
             if (InstructionDecoder::getOpcode(movz) != InstructionDecoder::OpType::MOVZ ||
@@ -201,6 +216,11 @@ std::unique_ptr<InstructionPattern> createLoadThroughScratchRegisterPattern() {
             const auto& ldr = instrs[pos];
             const auto& mov = instrs[pos + 1];
 
+            // Check if either instruction has nopeep attribute
+            if (ldr.nopeep || mov.nopeep) {
+                return {false, 0};
+            }
+
             // Check if first is LDR and second is MOV
             if (InstructionDecoder::getOpcode(ldr) != InstructionDecoder::OpType::LDR ||
                 InstructionDecoder::getOpcode(mov) != InstructionDecoder::OpType::MOV) {
@@ -261,6 +281,11 @@ std::unique_ptr<InstructionPattern> createRedundantLoadEliminationPattern() {
             const auto& instr1 = instrs[pos];
             const auto& instr2 = instrs[pos + 1];
 
+            // Check if either instruction has nopeep attribute
+            if (instr1.nopeep || instr2.nopeep) {
+                return {false, 0};
+            }
+
             // 1. Both must be LDR instructions.
             if (instr1.opcode != InstructionDecoder::OpType::LDR ||
                 instr2.opcode != InstructionDecoder::OpType::LDR) {
@@ -306,6 +331,11 @@ std::unique_ptr<InstructionPattern> createLoadAfterStorePattern() {
             const auto& str_instr = instrs[pos];
             const auto& ldr_instr = instrs[pos + 1];
 
+            // Check if either instruction has nopeep attribute
+            if (str_instr.nopeep || ldr_instr.nopeep) {
+                return {false, 0};
+            }
+
             // STR followed by LDR from the same address
             if (str_instr.opcode != InstructionDecoder::OpType::STR ||
                 ldr_instr.opcode != InstructionDecoder::OpType::LDR) {
@@ -338,6 +368,11 @@ std::unique_ptr<InstructionPattern> createDeadStorePattern() {
             const auto& str1 = instrs[pos];
             const auto& str2 = instrs[pos + 1];
 
+            // Check if either instruction has nopeep attribute
+            if (str1.nopeep || str2.nopeep) {
+                return {false, 0};
+            }
+
             if (str1.opcode != InstructionDecoder::OpType::STR ||
                 str2.opcode != InstructionDecoder::OpType::STR) {
                 return {false, 0};
@@ -365,6 +400,11 @@ std::unique_ptr<InstructionPattern> createRedundantStorePattern() {
             if (pos + 1 >= instrs.size()) return {false, 0};
             const auto& str1 = instrs[pos];
             const auto& str2 = instrs[pos + 1];
+
+            // Check if either instruction has nopeep attribute
+            if (str1.nopeep || str2.nopeep) {
+                return {false, 0};
+            }
 
             if (str1.opcode != InstructionDecoder::OpType::STR ||
                 str2.opcode != InstructionDecoder::OpType::STR) {
@@ -396,6 +436,11 @@ std::unique_ptr<InstructionPattern> createStrToStpXPattern() {
             if (pos + 1 >= instrs.size()) return {false, 0};
             const auto& str1 = instrs[pos];
             const auto& str2 = instrs[pos + 1];
+
+            // Check if either instruction has nopeep attribute
+            if (str1.nopeep || str2.nopeep) {
+                return {false, 0};
+            }
 
             // Both must be STR, 64-bit (X registers)
             if (InstructionDecoder::getOpcode(str1) != InstructionDecoder::OpType::STR ||

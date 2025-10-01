@@ -1,0 +1,23 @@
+LET START() BE
+$(
+    MANIFEST { VECSIZE = 10 }
+
+    WRITES("Testing VEC allocation*N")
+
+    LET V1 = VEC VECSIZE
+
+    IF V1 = 0 THEN
+    $(
+        WRITES("VEC allocation failed*N")
+        FINISH
+    $)
+
+    WRITES("VEC allocation succeeded*N")
+    WRITEF("VEC length: %d*N", LEN(V1))
+
+    WRITES("Setting first element*N")
+    V1!0 := 42
+    WRITEF("V1!0 = %d*N", V1!0)
+
+    WRITES("VEC test completed*N")
+$)

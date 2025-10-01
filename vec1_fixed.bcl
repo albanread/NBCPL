@@ -1,0 +1,9 @@
+LET START()  BE $(
+ LET V=GETVEC(100)
+ LET L = LEN(V)
+ WRITEF("LEN V=%d*N", L)
+ FOR I=0 TO L-1 DO $(
+	V!I :=I
+ $)
+ WRITEF(" V!50=%d*N", V!50)
+$)

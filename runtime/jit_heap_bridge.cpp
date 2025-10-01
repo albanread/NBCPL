@@ -70,6 +70,13 @@ void* bcpl_getvec(int64_t num_words) {
     return bcpl_alloc_words(num_words, "GETVEC", "vector");
 }
 
+// Wrapper for FGETVEC that allocates float vectors (num_words * sizeof(double))
+void* bcpl_fgetvec(int64_t num_floats) {
+    // Each float is 8 bytes (double precision), so we need num_floats * 8 bytes
+    // which is equivalent to num_floats words (since each word is 8 bytes in 64-bit)
+    return bcpl_alloc_words(num_floats, "FGETVEC", "float_vector");
+}
+
 // Note: Freelist interface implementations moved to runtime_freelist.c
 // to avoid duplicate symbol definitions
 

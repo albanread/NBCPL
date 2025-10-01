@@ -1,0 +1,33 @@
+GET "libhdr.h"
+
+LET START() = VALOF
+$(
+    WRITES("=== Pointer Debug Test ===*N")
+
+    // Test 1: Allocate vector and check pointer
+    WRITES("Allocating vector*N")
+    LET V = VEC 2
+
+    WRITES("Vector pointer value: ") WRITEN(V) WRITES("*N")
+
+    IF V = 0 THEN
+    $(
+        WRITES("ERROR: Vector is null*N")
+        RESULTIS 1
+    $)
+
+    WRITES("Vector pointer is non-null*N")
+
+    // Test 2: Try to write to first element only
+    WRITES("Attempting to write to V!0*N")
+    V!0 := 123
+    WRITES("Write completed*N")
+
+    // Test 3: Try to read back
+    WRITES("Attempting to read from V!0*N")
+    LET VAL = V!0
+    WRITES("Read completed, value = ") WRITEN(VAL) WRITES("*N")
+
+    WRITES("=== Test completed ===*N")
+    RESULTIS 0
+$)

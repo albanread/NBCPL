@@ -18,6 +18,11 @@ std::unique_ptr<InstructionPattern> createAdrFusionPattern() {
             const auto& adrp_instr = instrs[pos];
             const auto& add_instr = instrs[pos + 1];
 
+            // Check if either instruction has nopeep attribute
+            if (adrp_instr.nopeep || add_instr.nopeep) {
+                return {false, 0};
+            }
+
             // 1. Check for ADRP followed by ADD
             if (InstructionDecoder::getOpcode(adrp_instr) != InstructionDecoder::OpType::ADRP ||
                 InstructionDecoder::getOpcode(add_instr) != InstructionDecoder::OpType::ADD) {
@@ -67,6 +72,11 @@ std::unique_ptr<InstructionPattern> createAdrAddAddFusionPattern() {
             const auto& adrp = instrs[pos];
             const auto& add_lo12 = instrs[pos + 1];
             const auto& add_imm = instrs[pos + 2];
+
+            // Check if any instruction has nopeep attribute
+            if (adrp.nopeep || add_lo12.nopeep || add_imm.nopeep) {
+                return {false, 0};
+            }
 
             // 1. ADRP, ADD (lo12), ADD (imm)
             if (InstructionDecoder::getOpcode(adrp) != InstructionDecoder::OpType::ADRP ||

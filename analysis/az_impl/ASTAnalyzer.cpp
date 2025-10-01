@@ -958,6 +958,7 @@ VarType ASTAnalyzer::infer_function_call_type(const FunctionCall* func_call) con
         
         // Handle specific runtime function return types
         if (func_name == "GETVEC") return VarType::POINTER_TO_INT_VEC;
+        if (func_name == "FGETVEC") return VarType::POINTER_TO_FLOAT_VEC;
         if (func_name == "STRLEN") return VarType::INTEGER;
         if (func_name == "PACKSTRING" || func_name == "UNPACKSTRING") return VarType::POINTER_TO_STRING;
         if (func_name == "SLURP") return VarType::POINTER_TO_STRING;

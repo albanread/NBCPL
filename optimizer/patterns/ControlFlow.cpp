@@ -15,6 +15,11 @@ std::unique_ptr<InstructionPattern> createCompareZeroBranchPattern() {
             const auto& cmp_instr = instrs[pos];
             const auto& branch_instr = instrs[pos + 1];
 
+            // Check if either instruction has nopeep attribute
+            if (cmp_instr.nopeep || branch_instr.nopeep) {
+                return {false, 0};
+            }
+
             if (InstructionDecoder::getOpcode(cmp_instr) != InstructionDecoder::OpType::CMP)
                 return {false, 0};
             if (InstructionDecoder::getOpcode(branch_instr) != InstructionDecoder::OpType::B_COND)
@@ -55,6 +60,12 @@ std::unique_ptr<InstructionPattern> createBranchChainingPattern() {
         // Matcher: Finds a 'B label1' where 'label1' also contains a 'B' instruction
         [](const std::vector<Instruction>& instrs, size_t pos) -> MatchResult {
             const auto& branch_instr = instrs[pos];
+            
+            // Check if instruction has nopeep attribute
+            if (branch_instr.nopeep) {
+                return {false, 0};
+            }
+            
             if (InstructionDecoder::getOpcode(branch_instr) != InstructionDecoder::OpType::B) {
                 return {false, 0};
             }

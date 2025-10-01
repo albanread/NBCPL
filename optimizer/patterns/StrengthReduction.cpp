@@ -13,6 +13,11 @@ std::unique_ptr<InstructionPattern> createMultiplyByPowerOfTwoPattern() {
         [](const std::vector<Instruction>& instrs, size_t pos) -> MatchResult {
             const auto& instr = instrs[pos];
 
+            // Check if instruction has nopeep attribute
+            if (instr.nopeep) {
+                return {false, 0};
+            }
+
             // Check if the instruction is semantically a MUL
             if (InstructionDecoder::getOpcode(instr) != InstructionDecoder::OpType::MUL) {
                 return {false, 0};
@@ -40,6 +45,11 @@ std::unique_ptr<InstructionPattern> createDivideByPowerOfTwoPattern() {
         [](const std::vector<Instruction>& instrs, size_t pos) -> MatchResult {
             const auto& instr = instrs[pos];
 
+            // Check if instruction has nopeep attribute
+            if (instr.nopeep) {
+                return {false, 0};
+            }
+
             if (InstructionDecoder::getOpcode(instr) != InstructionDecoder::OpType::SDIV) {
                 return {false, 0};
             }
@@ -61,7 +71,12 @@ std::unique_ptr<InstructionPattern> createStrengthReductionPattern() {
     // This is a placeholder for more general strength reduction patterns.
     return std::make_unique<InstructionPattern>(
         1,
-        [](const std::vector<Instruction>&, size_t) -> MatchResult {
+        [](const std::vector<Instruction>& instrs, size_t pos) -> MatchResult {
+            // Check if instruction has nopeep attribute
+            if (pos < instrs.size() && instrs[pos].nopeep) {
+                return {false, 0};
+            }
+            
             return {false, 0};
         },
         [](const std::vector<Instruction>& instrs, size_t pos) -> std::vector<Instruction> {

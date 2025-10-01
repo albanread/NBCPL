@@ -11,6 +11,12 @@ std::unique_ptr<InstructionPattern> createConstantFoldingPattern() {
         1, // Pattern size: 1 instruction (could be expanded for multi-instruction folding)
         [](const std::vector<Instruction>& instrs, size_t pos) -> MatchResult {
             const auto& instr = instrs[pos];
+
+            // Check if instruction has nopeep attribute
+            if (instr.nopeep) {
+                return {false, 0};
+            }
+
             // Only fold if both operands are immediate (rare in real code, but possible in generated code)
             // For now, this is a placeholder and will not match.
             return {false, 0};
@@ -29,6 +35,12 @@ std::unique_ptr<InstructionPattern> createIdentityOperationEliminationPattern() 
         1,
         [](const std::vector<Instruction>& instrs, size_t pos) -> MatchResult {
             const auto& instr = instrs[pos];
+
+            // Check if instruction has nopeep attribute
+            if (instr.nopeep) {
+                return {false, 0};
+            }
+
             auto op = InstructionDecoder::getOpcode(instr);
             if ((op == InstructionDecoder::OpType::ADD || op == InstructionDecoder::OpType::SUB) &&
                 InstructionDecoder::usesImmediate(instr) &&
@@ -55,6 +67,12 @@ std::unique_ptr<InstructionPattern> createRedundantMovePattern() {
         1,
         [](const std::vector<Instruction>& instrs, size_t pos) -> MatchResult {
             const auto& instr = instrs[pos];
+
+            // Check if instruction has nopeep attribute
+            if (instr.nopeep) {
+                return {false, 0};
+            }
+
             if (InstructionDecoder::getOpcode(instr) == InstructionDecoder::OpType::MOV &&
                 instr.dest_reg == instr.src_reg1) {
                 return {true, 1};
@@ -75,6 +93,12 @@ std::unique_ptr<InstructionPattern> createSelfMoveEliminationPattern() {
         1,
         [](const std::vector<Instruction>& instrs, size_t pos) -> MatchResult {
             const auto& instr = instrs[pos];
+
+            // Check if instruction has nopeep attribute
+            if (instr.nopeep) {
+                return {false, 0};
+            }
+
             if (InstructionDecoder::getOpcode(instr) == InstructionDecoder::OpType::MOV &&
                 instr.dest_reg == instr.src_reg1) {
                 return {true, 1};

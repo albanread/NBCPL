@@ -1,0 +1,17 @@
+LET START() BE $(
+ LET V = GETVEC(10)
+ LET I = 0
+
+ WRITEF("Vector length: %d*N", LEN(V))
+
+ // Simple loop to assign values
+ FOR I=0 TO 9 DO $(
+    WRITEF("Setting V!%d = %d*N", I, I*10)
+    V!I := I*10
+ $)
+
+ // Read back the values
+ FOR I=0 TO 9 DO $(
+    WRITEF("V!%d = %d*N", I, V!I)
+ $)
+$)

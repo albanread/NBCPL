@@ -180,6 +180,8 @@ void ExternalFunctionScanner::visit(ConditionalExpression& node) {
 }
 
 void ExternalFunctionScanner::visit(VecAllocationExpression& node) {
+    // Vector allocation requires GETVEC runtime function
+    external_functions_.insert("GETVEC");
     if (node.size_expr) node.size_expr->accept(*this);
 }
 
@@ -188,6 +190,8 @@ void ExternalFunctionScanner::visit(StringAllocationExpression& node) {
 }
 
 void ExternalFunctionScanner::visit(FVecAllocationExpression& node) {
+    // Float vector allocation requires FGETVEC runtime function
+    external_functions_.insert("FGETVEC");
     if (node.size_expr) node.size_expr->accept(*this);
 }
 
@@ -204,6 +208,8 @@ void ExternalFunctionScanner::visit(ListExpression& node) {
 }
 
 void ExternalFunctionScanner::visit(VecInitializerExpression& node) {
+    // Vector initialization requires BCPL_ALLOC_WORDS runtime function
+    external_functions_.insert("BCPL_ALLOC_WORDS");
     for (auto& init : node.initializers) {
         if (init) init->accept(*this);
     }

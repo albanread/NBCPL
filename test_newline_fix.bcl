@@ -1,0 +1,29 @@
+GET "libhdr.h"
+
+LET START() = VALOF
+$(
+  // Test 1: Basic *N in string literals
+  WRITES("Test 1: Basic newlines*N")
+  WRITES("Line 1*NLine 2*NLine 3*N*N")
+
+  // Test 2: Mixed escape sequences
+  WRITES("Test 2: Mixed escapes*N")
+  WRITES("Tab:*TSpace:*SBackspace:*BFormfeed:*PCarriage:*C*N")
+
+  // Test 3: *N in WRITEF format strings
+  WRITES("Test 3: WRITEF with newlines*N")
+  WRITEF("Number: %N*NFloat: %F*N", 42, 3.14)
+
+  // Test 4: Character literals with *N
+  WRITES("Test 4: Character literal newline*N")
+  LET NEWLINE_CHAR = '*N'
+  WRITEC(NEWLINE_CHAR)
+  WRITES("After character newline*N")
+
+  // Test 5: Multiple *N sequences
+  WRITES("Test 5: Multiple newlines*N*N*N")
+  WRITES("Should have blank lines above*N")
+
+  WRITES("All tests completed!*N")
+  RESULTIS 0
+$)

@@ -1,0 +1,22 @@
+GET "libhdr.h"
+
+LET START() = VALOF
+$(
+    WRITES("=== Peephole Vector Test ===*N")
+
+    // Simple vector allocation and access to trigger the peephole issue
+    LET V = VEC 1
+
+    WRITES("Allocated vector*N")
+
+    // This should trigger: LDR X9, [X11, #0]; MOV X27, X9 => LDR X27, [X11, #0]
+    V!0 := 999
+    LET RESULT = V!0
+
+    WRITES("Stored 999, read back: ") WRITEN(RESULT) WRITES("*N")
+
+    // Simple check without if-then-else syntax issues
+    WRITES("Test completed*N")
+
+    RESULTIS 0
+$)

@@ -50,6 +50,7 @@ extern "C" {
     void bcpl_free_list(void*);
     void bcpl_free_list_safe(void*);
     void* bcpl_getvec(int64_t num_words);
+    void* bcpl_fgetvec(int64_t num_floats);
     void BCPL_CHECK_AND_DISPLAY_ERRORS(void);
     void BCPL_GET_LAST_ERROR(void*);
     void BCPL_CLEAR_ERRORS(void);
@@ -162,6 +163,7 @@ void register_runtime_functions() {
     register_runtime_function("BCPL_ALLOC_CHARS", 1, reinterpret_cast<void*>(bcpl_alloc_chars));
     register_runtime_function("MALLOC", 1, reinterpret_cast<void*>(bcpl_alloc_words)); // Alias for compatibility
     register_runtime_function("GETVEC", 1, reinterpret_cast<void*>(bcpl_getvec)); // Traditional BCPL vector allocation
+    register_runtime_function("FGETVEC", 1, reinterpret_cast<void*>(bcpl_fgetvec)); // Float vector allocation
     if (RuntimeManager::instance().isTracingEnabled()) {
         printf("DEBUG: Registering FREEVEC with bcpl_free at address %p\n", reinterpret_cast<void*>(bcpl_free));
     }

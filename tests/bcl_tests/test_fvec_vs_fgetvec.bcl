@@ -1,0 +1,139 @@
+// Test program to compare FVEC allocation expressions vs FGETVEC function calls
+// This verifies that both allocation methods work correctly for float vectors
+// and that both can be freed correctly with FREEVEC
+
+LET START() BE
+{
+    WRITEF("=== FVEC vs FGETVEC Allocation Comparison ===*N")
+
+    WRITEF("*NTest 1: FVEC allocation expression*N")
+    test_fvec_allocation()
+
+    WRITEF("*NTest 2: FGETVEC function call*N")
+    test_fgetvec_allocation()
+
+    WRITEF("*NTest 3: FVEC allocation with double-free attempt*N")
+    test_fvec_double_free()
+
+    WRITEF("*NTest 4: FGETVEC allocation with double-free attempt*N")
+    test_fgetvec_double_free()
+
+    WRITEF("*NTest 5: Mixed float vector operations*N")
+    test_mixed_float_ops()
+
+    WRITEF("*N=== All Tests Complete ===*N")
+    WRITEF("Check runtime metrics to verify both paths work identically*N")
+}
+
+// Test FVEC allocation expression
+LET test_fvec_allocation() BE
+{
+    WRITEF("  Allocating with FVEC expression...*N")
+    LET fvec_var = FVEC 5
+
+    // Fill with float values and verify
+    fvec_var%0 := 3.14
+    fvec_var%4 := 2.718
+    WRITEF("  FVEC allocated: fvec_var[0]=%.3f, fvec_var[4]=%.3f*N", fvec_var%0, fvec_var%4)
+
+    // Free normally
+    WRITEF("  Freeing FVEC with FREEVEC...*N")
+    FREEVEC(fvec_var)
+    WRITEF("  FVEC freed successfully*N")
+}
+
+// Test FGETVEC function call
+LET test_fgetvec_allocation() BE
+{
+    WRITEF("  Allocating with FGETVEC function...*N")
+    LET fgetvec_var = FGETVEC(5)
+
+    // Fill with float values and verify
+    fgetvec_var%0 := 1.414
+    fgetvec_var%4 := 1.732
+    WRITEF("  FGETVEC allocated: fgetvec_var[0]=%.3f, fgetvec_var[4]=%.3f*N", fgetvec_var%0, fgetvec_var%4)
+
+    // Free normally
+    WRITEF("  Freeing FGETVEC with FREEVEC...*N")
+    FREEVEC(fgetvec_var)
+    WRITEF("  FGETVEC freed successfully*N")
+}
+
+// Test FVEC allocation with double-free attempt
+LET test_fvec_double_free() BE
+{
+    WRITEF("  Allocating FVEC for double-free test...*N")
+    LET fvec_df = FVEC 3
+
+    fvec_df%0 := 42.0
+    WRITEF("  FVEC allocated: fvec_df[0]=%.1f*N", fvec_df%0)
+
+    // First free (should succeed)
+    WRITEF("  First FREEVEC call...*N")
+    FREEVEC(fvec_df)
+    WRITEF("  First free completed*N")
+
+    // Second free (should be detected as double-free)
+    WRITEF("  Second FREEVEC call (should detect double-free)...*N")
+    FREEVEC(fvec_df)
+    WRITEF("  ERROR: Second free succeeded - double-free not detected!*N")
+}
+
+// Test FGETVEC allocation with double-free attempt
+LET test_fgetvec_double_free() BE
+{
+    WRITEF("  Allocating FGETVEC for double-free test...*N")
+    LET fgetvec_df = FGETVEC(3)
+
+    fgetvec_df%0 := 99.9
+    WRITEF("  FGETVEC allocated: fgetvec_df[0]=%.1f*N", fgetvec_df%0)
+
+    // First free (should succeed)
+    WRITEF("  First FREEVEC call...*N")
+    FREEVEC(fgetvec_df)
+    WRITEF("  First free completed*N")
+
+    // Second free (should be detected as double-free)
+    WRITEF("  Second FREEVEC call (should detect double-free)...*N")
+    FREEVEC(fgetvec_df)
+    WRITEF("  ERROR: Second free succeeded - double-free not detected!*N")
+}
+
+// Test mixed operations with both allocation methods
+LET test_mixed_float_ops() BE
+{
+    WRITEF("  Testing mixed FVEC and FGETVEC operations...*N")
+
+    LET fvec_a = FVEC 4
+    LET fvec_b = FGETVEC(4)
+
+    // Initialize both vectors
+    FOR i = 0 TO 3 DO
+    {
+        fvec_a%i := FLOAT(i + 1) * 1.5
+        fvec_b%i := FLOAT(i + 1) * 2.0
+    }
+
+    // Verify values
+    WRITEF("  FVEC values: ")
+    FOR i = 0 TO 3 DO
+        WRITEF("%.1f ", fvec_a%i)
+    WRITEF("*N")
+
+    WRITEF("  FGETVEC values: ")
+    FOR i = 0 TO 3 DO
+        WRITEF("%.1f ", fvec_b%i)
+    WRITEF("*N")
+
+    // Perform some operations
+    LET sum = 0.0
+    FOR i = 0 TO 3 DO
+        sum := sum + fvec_a%i + fvec_b%i
+
+    WRITEF("  Sum of all elements: %.2f*N", sum)
+
+    // Clean up
+    FREEVEC(fvec_a)
+    FREEVEC(fvec_b)
+    WRITEF("  Both vectors freed successfully*N")
+}

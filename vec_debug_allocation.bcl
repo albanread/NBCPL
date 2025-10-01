@@ -1,0 +1,52 @@
+LET START() BE
+$(
+    MANIFEST { VECSIZE = 10 }
+
+    WRITES("=== Testing VEC allocation ===*N")
+
+    LET V1 = VEC VECSIZE
+
+    IF V1 = 0 THEN
+    $(
+        WRITES("VEC allocation failed*N")
+    $)
+    ELSE
+    $(
+        WRITEF("VEC allocated at: %x*N", V1)
+        WRITEF("VEC length: %d*N", LEN(V1))
+
+        // Try to access the length metadata directly
+        LET TEMP1 = V1-8
+        WRITEF("Metadata at V1-8: %x*N", TEMP1!0)
+
+        // Try setting one element
+        WRITES("Setting V1!0 = 42*N")
+        V1!0 := 42
+        WRITEF("V1!0 = %d*N", V1!0)
+    $)
+
+    WRITES("*N=== Testing GETVEC allocation ===*N")
+
+    LET V2 = GETVEC(VECSIZE)
+
+    IF V2 = 0 THEN
+    $(
+        WRITES("GETVEC allocation failed*N")
+    $)
+    ELSE
+    $(
+        WRITEF("GETVEC allocated at: %x*N", V2)
+        WRITEF("GETVEC length: %d*N", LEN(V2))
+
+        // Try to access the length metadata directly
+        LET TEMP2 = V2-8
+        WRITEF("Metadata at V2-8: %x*N", TEMP2!0)
+
+        // Try setting one element
+        WRITES("Setting V2!0 = 42*N")
+        V2!0 := 42
+        WRITEF("V2!0 = %d*N", V2!0)
+    $)
+
+    WRITES("*N=== Comparison complete ===*N")
+$)

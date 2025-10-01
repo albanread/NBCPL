@@ -1,0 +1,38 @@
+LET START() BE
+$(
+    MANIFEST { VECSIZE = 10 }
+
+    WRITES("Creating vector*N")
+    LET V = VEC VECSIZE
+
+    IF V = 0 THEN
+    $(
+        WRITES("FAIL*N")
+        FINISH
+    $)
+
+    WRITES("Vector created, length = ") WRITEN(LEN(V)) WRITES("*N")
+
+    FOR I = 0 TO LEN(V)-1 DO
+    $(
+        V!I := I * 5
+    $)
+
+    WRITES("Vector initialized*N")
+
+    FOR I = 0 TO LEN(V)-1 DO
+    $(
+        WRITES("V!") WRITEN(I) WRITES(" = ") WRITEN(V!I) WRITES("*N")
+    $)
+
+    WRITES("Length before FOREACH = ") WRITEN(LEN(V)) WRITES("*N")
+
+    WRITES("FOREACH test*N")
+    FOREACH e IN V DO
+    $(
+        WRITEN(e) WRITEC(32)
+    $)
+    WRITES("*N")
+
+    WRITES("Done*N")
+$)

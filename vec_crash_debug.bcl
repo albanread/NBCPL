@@ -1,0 +1,48 @@
+LET START() BE
+$(
+    MANIFEST { VECSIZE = 10 }
+
+    WRITES("Step 1: Starting VEC crash debug*N")
+
+    // Try just the allocation without checking length
+    WRITES("Step 2: About to call VEC allocation*N")
+
+    LET V1 = VEC VECSIZE
+
+    WRITES("Step 3: VEC allocation call completed*N")
+
+    // Check if pointer is null
+    IF V1 = 0 THEN
+    $(
+        WRITES("ERROR: VEC returned null pointer*N")
+        FINISH
+    $)
+
+    WRITES("Step 4: VEC returned non-null pointer*N")
+
+    // Try to print the address (might crash here)
+    WRITES("Step 5: VEC address obtained*N")
+
+    // Try to access LEN (this often crashes with VEC)
+    WRITES("Step 6: About to call LEN(V1)*N")
+
+    LET L = LEN(V1)
+
+    WRITES("Step 7: LEN call succeeded*N")
+
+    // Try simple element access
+    WRITES("Step 8: About to access V1!0*N")
+
+    LET TEMP = V1!0
+
+    WRITES("Step 9: V1!0 access succeeded*N")
+
+    // Try simple assignment
+    WRITES("Step 10: About to assign V1!0 := 999*N")
+
+    V1!0 := 999
+
+    WRITES("Step 11: Assignment succeeded*N")
+
+    WRITES("Step 12: All tests passed!*N")
+$)

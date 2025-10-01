@@ -1,0 +1,26 @@
+LET START()  BE $(
+ LET V=GETVEC(100)
+ LET L = LEN(V)
+ WRITEF("LEN V=%d*N", L)
+
+ // Test writing to V!0
+ V!0 := 999
+ WRITEF("After V!0 := 999, V!0 = %d*N", V!0)
+
+ // Test writing to V!50
+ V!50 := 777
+ WRITEF("After V!50 := 777, V!50 = %d*N", V!50)
+
+ // Test writing to V!99 (last valid index)
+ V!99 := 555
+ WRITEF("After V!99 := 555, V!99 = %d*N", V!99)
+
+ // Now try the original loop with correct bounds
+ FOR I=0 TO L-1 DO $(
+	V!I := I + 100
+ $)
+
+ WRITEF("After loop, V!0 = %d*N", V!0)
+ WRITEF("After loop, V!50 = %d*N", V!50)
+ WRITEF("After loop, V!99 = %d*N", V!99)
+$)

@@ -272,7 +272,9 @@ void NewCodeGenerator::visit(UnaryOp& node) {
             // This logic is now correct for both VEC and TABLE.
             std::string base_addr_reg = register_manager_.acquire_scratch_reg(*this);
             emit(Encoder::create_sub_imm(base_addr_reg, payload_ptr_reg, 8));
-            emit(Encoder::create_ldr_imm(dest_reg, base_addr_reg, 0, "Load vector/table/string length"));
+            Instruction ldr_instr = Encoder::create_ldr_imm(dest_reg, base_addr_reg, 0, "Load vector/table/string length");
+            ldr_instr.nopeep = true; // Protect from peephole optimization
+            emit(ldr_instr);
             register_manager_.release_register(base_addr_reg);
 
         } else if (
@@ -286,7 +288,9 @@ void NewCodeGenerator::visit(UnaryOp& node) {
             operand_type == VarType::CONST_POINTER_TO_STRING_LIST
         ) {
             // It's a list. The length is at offset 24 in the ListHeader struct.
-            emit(Encoder::create_ldr_imm(dest_reg, payload_ptr_reg, 24, "Load list length"));
+            Instruction ldr_instr = Encoder::create_ldr_imm(dest_reg, payload_ptr_reg, 24, "Load list length");
+            ldr_instr.nopeep = true; // Protect from peephole optimization  
+            emit(ldr_instr);
         } else {
             throw std::runtime_error("Code generation for LEN operator failed: operand was not a vector or list.");
         }

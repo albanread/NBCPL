@@ -45,7 +45,8 @@ static void write_utf8_char(int64_t ch) {
 
 // Helper function to process escape sequences
 // Processes current character and advances pointer if needed
-static void write_char_with_escapes(uint32_t** p) {
+// Returns 1 if an escape was handled (and pointer advanced), 0 otherwise
+static int write_char_with_escapes(uint32_t** p) {
     uint32_t c = **p;
 
     // Handle C-style backslash escapes
@@ -93,6 +94,7 @@ static void write_char_with_escapes(uint32_t** p) {
                 write_utf8_char(next_char);
                 break;
         }
+        return 1;
     }
     // Handle BCPL-style asterisk escapes
     else if (c == '*' && *((*p) + 1) != 0) {
@@ -137,9 +139,11 @@ static void write_char_with_escapes(uint32_t** p) {
                 (*p)++;
                 break;
         }
+        return 1;
     }
     else {
         write_utf8_char(c);
+        return 0;
     }
 }
 
@@ -182,14 +186,10 @@ void WRITES(uint32_t* s) {
         return;
     }
 
-    // 2. Start reading from the second word (s[1]), skipping the length at s[0].
     uint32_t* p = s;
-
-    // 3. Loop until a null terminator is found.
     while (*p != 0) {
-        // Process escape sequences
-        write_char_with_escapes(&p);
-        p++; // Move to the next character
+        int handled = write_char_with_escapes(&p);
+        if (!handled) p++;
     }
 
     fflush(stdout);

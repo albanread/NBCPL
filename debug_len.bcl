@@ -1,0 +1,42 @@
+GET "libhdr.h"
+
+LET START() = VALOF
+$(
+    WRITES("=== LEN Debug Test ===*N")
+
+    // Test 1: Allocate vector and check LEN
+    WRITES("Allocating vector of size 3*N")
+    LET V = VEC 3
+
+    IF V = 0 THEN
+    $(
+        WRITES("ERROR: Vector allocation failed*N")
+        RESULTIS 1
+    $)
+
+    WRITES("Vector allocated successfully*N")
+
+    // Test 2: Check LEN operation
+    WRITES("Testing LEN operation*N")
+    LET LENGTH = LEN(V)
+    WRITES("LEN(V) = ") WRITEN(LENGTH) WRITES("*N")
+
+    IF LENGTH ~= 3 THEN
+    $(
+        WRITES("ERROR: Expected length 3, got ") WRITEN(LENGTH) WRITES("*N")
+        RESULTIS 1
+    $)
+
+    WRITES("LEN operation works correctly*N")
+
+    // Test 3: Basic vector operations with correct length
+    WRITES("Testing vector access with bounds*N")
+    FOR I = 0 TO LENGTH-1 DO
+    $(
+        V!I := I * 10
+        WRITES("V!") WRITEN(I) WRITES(" = ") WRITEN(V!I) WRITES("*N")
+    $)
+
+    WRITES("=== All tests passed ===*N")
+    RESULTIS 0
+$)

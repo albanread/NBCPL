@@ -2047,17 +2047,20 @@ void NewCodeGenerator::handle_vector_assignment(VectorAccess* vec_access, const 
     std::string index_reg = expression_result_reg_;
 
     // 3. Calculate the byte offset: index * 8 (for 64-bit words)
-    emit(Encoder::create_lsl_imm(index_reg, index_reg, 3));
+    // FIX: Use a temporary register for the offset calculation to avoid corrupting the loop variable
+    std::string offset_reg = register_manager_.acquire_scratch_reg(*this);
+    emit(Encoder::create_lsl_imm(offset_reg, index_reg, 3));
     debug_print("Calculated byte offset for vector assignment.");
 
     // 4. Calculate the effective memory address: base + offset
     std::string effective_addr_reg = register_manager_.get_free_register(*this);
-    emit(Encoder::create_add_reg(effective_addr_reg, vector_base_reg, index_reg));
+    emit(Encoder::create_add_reg(effective_addr_reg, vector_base_reg, offset_reg));
     debug_print("Calculated effective address for vector assignment.");
 
     // Release registers used for address calculation
     register_manager_.release_register(vector_base_reg);
     register_manager_.release_register(index_reg);
+    register_manager_.release_scratch_reg(offset_reg);
 
     // 5. Store the RHS value to the effective address
     emit(Encoder::create_str_imm(value_to_store_reg, effective_addr_reg, 0));
@@ -3448,3 +3451,5 @@ std::vector<NewCodeGenerator::AtRiskParameterInfo> NewCodeGenerator::find_at_ris
     debug_print("Found " + std::to_string(at_risk_params.size()) + " at-risk parameters");
     return at_risk_params;
 }
+
+

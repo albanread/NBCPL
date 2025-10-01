@@ -62,10 +62,26 @@ void NewCodeGenerator::store_variable_register(const std::string& var_name, cons
                 const std::string& home_reg = allocation.assigned_register;
                 debug_print("  [ALLOCATOR HIT] Variable '" + var_name + "' lives in " + home_reg + ". Emitting MOV.");
                 if (value_reg != home_reg) {
+                     // Check if this is a loop variable that needs extra protection
+                     bool is_loop_var = (var_name.find("_loop_") == 0) || 
+                                       (var_name.find("_foreach_") == 0) ||
+                                       (var_name.find("_for_") == 0) ||
+                                       var_name.length() == 1; // Single letter variables often loop vars
+                     
                      if (register_manager_.is_fp_register(value_reg)) {
-                        emit(Encoder::create_fmov_reg(home_reg, value_reg));
+                        Instruction fmov_instr = Encoder::create_fmov_reg(home_reg, value_reg);
+                        fmov_instr.nopeep = true; // Protect critical variable assignment from optimization
+                        if (is_loop_var) {
+                            debug_print("  [LOOP VAR PROTECTION] Extra protection for loop variable: " + var_name);
+                        }
+                        emit(fmov_instr);
                     } else {
-                        emit(Encoder::create_mov_reg(home_reg, value_reg));
+                        Instruction mov_instr = Encoder::create_mov_reg(home_reg, value_reg);
+                        mov_instr.nopeep = true; // Protect critical variable assignment from optimization
+                        if (is_loop_var) {
+                            debug_print("  [LOOP VAR PROTECTION] Extra protection for loop variable: " + var_name);
+                        }
+                        emit(mov_instr);
                     }
                 }
                 // Mark the home register as dirty since it now holds a new value.
@@ -77,10 +93,27 @@ void NewCodeGenerator::store_variable_register(const std::string& var_name, cons
                 // SPILLED: The variable lives on the stack. Store the value there.
                 debug_print("  [ALLOCATOR SPILLED] Variable '" + var_name + "' lives on the stack. Emitting STR.");
                 int offset = current_frame_manager_->get_offset(var_name);
+                
+                // Check if this is a loop variable that needs extra protection
+                bool is_loop_var = (var_name.find("_loop_") == 0) || 
+                                  (var_name.find("_foreach_") == 0) ||
+                                  (var_name.find("_for_") == 0) ||
+                                  var_name.length() == 1; // Single letter variables often loop vars
+                
                 if (register_manager_.is_fp_register(value_reg)) {
-                    emit(Encoder::create_str_fp_imm(value_reg, "X29", offset));
+                    Instruction str_instr = Encoder::create_str_fp_imm(value_reg, "X29", offset);
+                    if (is_loop_var) {
+                        str_instr.nopeep = true; // Protect loop variable stack stores
+                        debug_print("  [LOOP VAR PROTECTION] Protecting spilled loop variable: " + var_name);
+                    }
+                    emit(str_instr);
                 } else {
-                    emit(Encoder::create_str_imm(value_reg, "X29", offset, var_name));
+                    Instruction str_instr = Encoder::create_str_imm(value_reg, "X29", offset, var_name);
+                    if (is_loop_var) {
+                        str_instr.nopeep = true; // Protect loop variable stack stores
+                        debug_print("  [LOOP VAR PROTECTION] Protecting spilled loop variable: " + var_name);
+                    }
+                    emit(str_instr);
                 }
             }
             return;

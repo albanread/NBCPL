@@ -1,0 +1,36 @@
+GET "libhdr.h"
+
+LET START() = VALOF
+$(
+    WRITES("=== Simple Vector Test ===*N")
+
+    // Test 1: Basic vector allocation
+    WRITES("Allocating vector of size 3*N")
+    LET V = VEC 3
+
+    IF V = 0 THEN
+    $(
+        WRITES("ERROR: Vector allocation failed*N")
+        RESULTIS 1
+    $)
+
+    WRITES("Vector allocated successfully*N")
+
+    // Test 2: Simple assignment and read
+    WRITES("Setting V!0 = 42*N")
+    V!0 := 42
+
+    WRITES("Setting V!1 = 100*N")
+    V!1 := 100
+
+    WRITES("Setting V!2 = 200*N")
+    V!2 := 200
+
+    WRITES("Reading back values:*N")
+    WRITES("V!0 = ") WRITEN(V!0) WRITES("*N")
+    WRITES("V!1 = ") WRITEN(V!1) WRITES("*N")
+    WRITES("V!2 = ") WRITEN(V!2) WRITES("*N")
+
+    WRITES("=== Test completed ===*N")
+    RESULTIS 0
+$)

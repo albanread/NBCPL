@@ -1,0 +1,51 @@
+LET START() BE
+$(
+    MANIFEST { VECSIZE = 10 }
+
+    WRITES("Creating and populating vector*N")
+
+    LET V = GETVEC(VECSIZE)
+
+    FOR I = 0 TO LEN(V)-1 DO
+    $(
+        V!I := I * 5
+    $)
+
+    WRITES("Vector populated successfully*N")
+    WRITES("Testing WRITEN and WRITEC separately*N")
+
+    // Test WRITEN by itself first
+    WRITES("Testing WRITEN alone:*N")
+    WRITEN(42)
+    WRITES("*NEnd of WRITEN test*N")
+
+    // Test WRITEC by itself
+    WRITES("Testing WRITEC alone:*N")
+    WRITEC(65) // Should print 'A'
+    WRITES("*NEnd of WRITEC test*N")
+
+    // Test them together with literal values
+    WRITES("Testing WRITEN + WRITEC with literals:*N")
+    WRITEN(123)
+    WRITEC(32) // Space
+    WRITEN(456)
+    WRITES("*NEnd of literal test*N")
+
+    // Now test with vector elements
+    WRITES("Testing WRITEN + WRITEC with vector elements:*N")
+    WRITEN(V!0)
+    WRITEC(32)
+    WRITEN(V!1)
+    WRITES("*NEnd of vector element test*N")
+
+    // Test the full FOREACH with WRITEN/WRITEC
+    WRITES("Starting FOREACH with WRITEN/WRITEC:*N")
+
+    FOREACH e IN V DO
+    $(
+        WRITEN(e)
+        WRITEC(32)
+    $)
+
+    WRITES("*NFOREACH completed*N")
+$)

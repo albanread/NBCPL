@@ -109,6 +109,9 @@ struct Instruction {
   bool is_mem_op = false;
   // --- END NEW FIELDS ---
 
+  // Peephole optimizer control
+  bool nopeep = false; // If true, this instruction should not be optimized by peephole optimizer
+
 JITAttribute jit_attribute = JITAttribute::None;
 
 

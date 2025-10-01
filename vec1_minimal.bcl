@@ -1,0 +1,10 @@
+LET START() BE $(
+ WRITEF("Starting simple FOR loop test*N")
+ LET I = 0
+
+ FOR I=0 TO 5 DO $(
+    WRITEF("I=%d*N", I)
+ $)
+
+ WRITEF("Loop finished*N")
+$)

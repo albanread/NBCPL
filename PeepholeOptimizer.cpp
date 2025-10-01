@@ -318,6 +318,12 @@ std::unique_ptr<InstructionPattern> PeepholeOptimizer::createBranchChainingPatte
         // Matcher: Finds a 'B label1' where 'label1' also contains a 'B' instruction
         [](const std::vector<Instruction>& instrs, size_t pos) -> MatchResult {
             const auto& branch_instr = instrs[pos];
+            
+            // Check if instruction has nopeep attribute
+            if (branch_instr.nopeep) {
+                return {false, 0};
+            }
+            
             if (InstructionDecoder::getOpcode(branch_instr) != InstructionDecoder::OpType::B) {
                 return {false, 0};
             }
@@ -386,6 +392,11 @@ std::unique_ptr<InstructionPattern> PeepholeOptimizer::createRedundantLoadElimin
             const auto& instr1 = instrs[pos];
             const auto& instr2 = instrs[pos + 1];
 
+            // Check if either instruction has nopeep attribute
+            if (instr1.nopeep || instr2.nopeep) {
+                return {false, 0};
+            }
+
             // 1. Both must be LDR instructions.
             if (instr1.opcode != InstructionDecoder::OpType::LDR ||
                 instr2.opcode != InstructionDecoder::OpType::LDR) {
@@ -434,6 +445,11 @@ std::unique_ptr<InstructionPattern> PeepholeOptimizer::createRedundantMovePatter
         [](const std::vector<Instruction>& instrs, size_t pos) -> MatchResult {
             const auto& instr1 = instrs[pos];
             const auto& instr2 = instrs[pos + 1];
+
+            // Check if either instruction has nopeep attribute
+            if (instr1.nopeep || instr2.nopeep) {
+                return {false, 0};
+            }
 
             // Check if we have two MOV instructions using semantic information
             if (InstructionDecoder::getOpcode(instr1) != InstructionDecoder::OpType::MOV ||
@@ -506,6 +522,11 @@ std::unique_ptr<InstructionPattern> PeepholeOptimizer::createCopyPropagationPatt
             const auto& mov_instr = instrs[pos];
             const auto& next_instr = instrs[pos + 1];
 
+            // Check if either instruction has nopeep attribute
+            if (mov_instr.nopeep || next_instr.nopeep) {
+                return {false, 0};
+            }
+
             // Check if the first instruction is a MOV
             if (InstructionDecoder::getOpcode(mov_instr) != InstructionDecoder::OpType::MOV) {
                 return {false, 0};
@@ -556,6 +577,11 @@ std::unique_ptr<InstructionPattern> PeepholeOptimizer::createLoadAfterStorePatte
         [](const std::vector<Instruction>& instrs, size_t pos) -> MatchResult {
             const auto& instr1 = instrs[pos];
             const auto& instr2 = instrs[pos + 1];
+
+            // Check if either instruction has nopeep attribute
+            if (instr1.nopeep || instr2.nopeep) {
+                return {false, 0};
+            }
 
             // Check if it's a store followed by a load using semantic information
             if (InstructionDecoder::getOpcode(instr1) != InstructionDecoder::OpType::STR ||
@@ -610,6 +636,11 @@ std::unique_ptr<InstructionPattern> PeepholeOptimizer::createDeadStorePattern() 
             const auto& instr1 = instrs[pos];
             const auto& instr2 = instrs[pos + 1];
 
+            // Check if either instruction has nopeep attribute
+            if (instr1.nopeep || instr2.nopeep) {
+                return {false, 0};
+            }
+
             // Check if both instructions are store operations
             if (InstructionDecoder::getOpcode(instr1) != InstructionDecoder::OpType::STR ||
                 InstructionDecoder::getOpcode(instr2) != InstructionDecoder::OpType::STR) {
@@ -642,6 +673,11 @@ std::unique_ptr<InstructionPattern> PeepholeOptimizer::createRedundantComparePat
         [](const std::vector<Instruction>& instrs, size_t pos) -> MatchResult {
             const auto& instr1 = instrs[pos];
             const auto& instr2 = instrs[pos + 1];
+
+            // Check if either instruction has nopeep attribute
+            if (instr1.nopeep || instr2.nopeep) {
+                return {false, 0};
+            }
 
             // Check if both are compare instructions using semantic information
             if (InstructionDecoder::getOpcode(instr1) != InstructionDecoder::OpType::CMP ||
@@ -679,6 +715,11 @@ std::unique_ptr<InstructionPattern> PeepholeOptimizer::createConstantFoldingPatt
         [](const std::vector<Instruction>& instrs, size_t pos) -> MatchResult {
             const auto& instr1 = instrs[pos];
             const auto& instr2 = instrs[pos + 1];
+
+            // Check if either instruction has nopeep attribute
+            if (instr1.nopeep || instr2.nopeep) {
+                return {false, 0};
+            }
 
             // Check if we have a mov followed by an add with immediate
             if (InstructionDecoder::getOpcode(instr1) != InstructionDecoder::OpType::MOV ||
@@ -733,6 +774,11 @@ std::unique_ptr<InstructionPattern> PeepholeOptimizer::createStrengthReductionPa
         [](const std::vector<Instruction>& instrs, size_t pos) -> MatchResult {
             const auto& instr = instrs[pos];
 
+            // Check if instruction has nopeep attribute
+            if (instr.nopeep) {
+                return {false, 0};
+            }
+
             // Check if we have a multiply by 2 using semantic information
             if (InstructionDecoder::getOpcode(instr) == InstructionDecoder::OpType::MUL &&
                 InstructionDecoder::usesImmediate(instr) &&
@@ -775,6 +821,12 @@ std::unique_ptr<InstructionPattern> PeepholeOptimizer::createIdentityOperationEl
         [](const std::vector<Instruction>& instrs, size_t pos) -> MatchResult {
             if (pos >= instrs.size()) return {false, 0};
             const auto& instr = instrs[pos];
+            
+            // Check if instruction has nopeep attribute
+            if (instr.nopeep) {
+                return {false, 0};
+            }
+            
             auto opcode = instr.opcode;
 
             // Case 1: ADD/SUB with zero immediate
@@ -836,6 +888,11 @@ std::unique_ptr<InstructionPattern> PeepholeOptimizer::createRedundantStorePatte
             const auto& instr1 = instrs[pos];
             const auto& instr2 = instrs[pos + 1];
 
+            // Check if either instruction has nopeep attribute
+            if (instr1.nopeep || instr2.nopeep) {
+                return {false, 0};
+            }
+
             if (InstructionDecoder::getOpcode(instr1) == InstructionDecoder::OpType::STR &&
                 InstructionDecoder::getOpcode(instr2) == InstructionDecoder::OpType::STR &&
                 InstructionComparator::haveSameMemoryOperand(instr1, instr2)) {
@@ -858,6 +915,11 @@ std::unique_ptr<InstructionPattern> PeepholeOptimizer::createAdrFusionPattern() 
             if (pos + 1 >= instrs.size()) return {false, 0};
             const auto& instr1 = instrs[pos];
             const auto& instr2 = instrs[pos + 1];
+
+            // Check if either instruction has nopeep attribute
+            if (instr1.nopeep || instr2.nopeep) {
+                return {false, 0};
+            }
 
             if (InstructionDecoder::getOpcode(instr1) == InstructionDecoder::OpType::ADRP &&
                 InstructionDecoder::getOpcode(instr2) == InstructionDecoder::OpType::ADD &&
@@ -885,6 +947,12 @@ std::unique_ptr<InstructionPattern> PeepholeOptimizer::createSelfMoveElimination
         1,
         [](const std::vector<Instruction>& instrs, size_t pos) -> MatchResult {
             const auto& instr = instrs[pos];
+            
+            // Check if instruction has nopeep attribute
+            if (instr.nopeep) {
+                return {false, 0};
+            }
+            
             if (InstructionDecoder::getOpcode(instr) == InstructionDecoder::OpType::MOV &&
                 !InstructionDecoder::usesImmediate(instr) &&
                 InstructionComparator::areSameRegister(instr.dest_reg, instr.src_reg1)) {

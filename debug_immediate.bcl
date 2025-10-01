@@ -1,0 +1,18 @@
+GET "libhdr.h"
+
+LET START() = VALOF
+$(
+    WRITES("=== Immediate Debug Test ===*N")
+
+    // Allocate vector
+    LET V = VEC 1
+
+    // Immediate write and read
+    V!0 := 999
+    LET RESULT = V!0
+
+    WRITES("Stored: 999*N")
+    WRITES("Read back: ") WRITEN(RESULT) WRITES("*N")
+
+    RESULTIS 0
+$)

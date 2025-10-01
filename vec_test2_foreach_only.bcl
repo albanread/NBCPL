@@ -1,0 +1,25 @@
+LET START() BE
+$(
+    MANIFEST { VECSIZE = 10 }
+
+    WRITES("Creating and populating vector*N")
+
+    LET V = GETVEC(VECSIZE)
+
+    FOR I = 0 TO LEN(V)-1 DO
+    $(
+        V!I := I * 5
+    $)
+
+    WRITES("Vector populated successfully*N")
+    WRITEF("Vector length: %d*N", LEN(V))
+
+    WRITES("Starting FOREACH test*N")
+
+    FOREACH e IN V DO
+    $(
+        WRITEF("Element: %d*N", e)
+    $)
+
+    WRITES("FOREACH completed*N")
+$)

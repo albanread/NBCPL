@@ -18,6 +18,11 @@ std::unique_ptr<InstructionPattern> PeepholeOptimizer::createMultiplyByPowerOfTw
         [](const std::vector<Instruction>& instrs, size_t pos) -> MatchResult {
             const auto& instr = instrs[pos];
 
+            // Check if instruction has nopeep attribute
+            if (instr.nopeep) {
+                return {false, 0};
+            }
+
             // Check if the instruction is semantically a MUL
             if (InstructionDecoder::getOpcode(instr) != InstructionDecoder::OpType::MUL) {
                 return {false, 0};
@@ -71,6 +76,11 @@ std::unique_ptr<InstructionPattern> PeepholeOptimizer::createDivideByPowerOfTwoP
 
             const auto& mov_instr = instrs[pos];
             const auto& div_instr = instrs[pos + 1];
+
+            // Check if either instruction has nopeep attribute
+            if (mov_instr.nopeep || div_instr.nopeep) {
+                return {false, 0};
+            }
 
             // Check if first instruction loads a constant (MOVZ)
             if (InstructionDecoder::getOpcode(mov_instr) != InstructionDecoder::OpType::MOV ||
@@ -144,6 +154,11 @@ std::unique_ptr<InstructionPattern> PeepholeOptimizer::createCompareZeroBranchPa
 
             const auto& cmp_instr = instrs[pos];
             const auto& br_instr = instrs[pos + 1];
+
+            // Check if either instruction has nopeep attribute
+            if (cmp_instr.nopeep || br_instr.nopeep) {
+                return {false, 0};
+            }
 
             // Check if first instruction is a compare
             if (InstructionDecoder::getOpcode(cmp_instr) != InstructionDecoder::OpType::CMP) {
@@ -239,6 +254,11 @@ std::unique_ptr<InstructionPattern> PeepholePatterns::createIdenticalMovePattern
             const auto& instr1 = instrs[pos];
             const auto& instr2 = instrs[pos + 1];
 
+            // Check if either instruction has nopeep attribute
+            if (instr1.nopeep || instr2.nopeep) {
+                return {false, 0};
+            }
+
             // Both must be MOV instructions
             if (InstructionDecoder::getOpcode(instr1) != InstructionDecoder::OpType::MOV ||
                 InstructionDecoder::getOpcode(instr2) != InstructionDecoder::OpType::MOV) {
@@ -281,6 +301,11 @@ std::unique_ptr<InstructionPattern> PeepholeOptimizer::createRedundantMovePatter
 
             const auto& instr1 = instrs[pos];
             const auto& instr2 = instrs[pos + 1];
+
+            // Check if either instruction has nopeep attribute
+            if (instr1.nopeep || instr2.nopeep) {
+                return {false, 0};
+            }
 
             // --- The Middle Path Logic ---
             // Heuristic: If instr1 is an ADD that modifies its own source register,
@@ -356,6 +381,11 @@ std::unique_ptr<InstructionPattern> PeepholePatterns::createInPlaceComparisonPat
 
             const auto& mov_instr = instrs[pos];
             const auto& cmp_instr = instrs[pos + 1];
+
+            // Check if either instruction has nopeep attribute
+            if (mov_instr.nopeep || cmp_instr.nopeep) {
+                return {false, 0};
+            }
 
             // Check if first instruction is MOV from register to scratch register
             if (InstructionDecoder::getOpcode(mov_instr) != InstructionDecoder::OpType::MOV ||
@@ -439,6 +469,12 @@ std::unique_ptr<InstructionPattern> PeepholePatterns::createInPlaceArithmeticPat
             const auto& arith_instr = instrs[pos + 1];
             const auto& mov2 = instrs[pos + 2];
 
+            // Check if any instruction has nopeep attribute
+            if (mov1.nopeep || arith_instr.nopeep || mov2.nopeep) {
+                return {false, 0};
+            }
+
+            // ALL three instructions must be from the CODE segment
             // Check if first instruction is MOV from register to scratch register
             if (InstructionDecoder::getOpcode(mov1) != InstructionDecoder::OpType::MOV ||
                 InstructionDecoder::usesImmediate(mov1)) {

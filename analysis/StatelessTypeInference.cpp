@@ -223,6 +223,9 @@ VarType StatelessTypeInference::infer_function_call_type(const FunctionCall* fun
         if (func_name == "READS" || func_name == "NEWVEC" || func_name == "GETVEC") {
             return VarType::POINTER_TO_INT;
         }
+        if (func_name == "FGETVEC") {
+            return VarType::POINTER_TO_FLOAT_VEC;
+        }
 
         // For user-defined functions, we'd need function return type information
         // which would typically come from the ASTAnalyzer's function_return_types_

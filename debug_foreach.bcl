@@ -1,0 +1,41 @@
+LET START() BE
+$(
+    MANIFEST { VECSIZE = 3 }
+
+    WRITES("Creating vector with size 3*N")
+    LET V = VEC VECSIZE
+
+    IF V = 0 THEN
+    $(
+        WRITES("Vector allocation failed!*N")
+        FINISH
+    $)
+
+    WRITES("Vector allocated successfully*N")
+    WRITES("LEN(V) = ") WRITEN(LEN(V)) WRITES("*N")
+
+    WRITES("Initializing vector elements*N")
+    FOR I = 0 TO LEN(V)-1 DO
+    $(
+        V!I := I * 10
+        WRITES("V!") WRITEN(I) WRITES(" = ") WRITEN(V!I) WRITES("*N")
+    $)
+
+    WRITES("Checking LEN(V) again: ") WRITEN(LEN(V)) WRITES("*N")
+
+    WRITES("Reading back vector elements*N")
+    FOR I = 0 TO LEN(V)-1 DO
+    $(
+        WRITES("V!") WRITEN(I) WRITES(" = ") WRITEN(V!I) WRITES("*N")
+    $)
+
+    WRITES("LEN(V) before FOREACH: ") WRITEN(LEN(V)) WRITES("*N")
+
+    WRITES("FOREACH test:*N")
+    FOREACH e IN V DO
+    $(
+        WRITES("Element: ") WRITEN(e) WRITES("*N")
+    $)
+
+    WRITES("Done!*N")
+$)

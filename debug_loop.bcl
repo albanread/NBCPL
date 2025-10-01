@@ -1,0 +1,41 @@
+GET "libhdr.h"
+
+LET START() = VALOF
+$(
+    WRITES("=== Loop Debug Test ===*N")
+
+    // Test 1: Basic loop without vectors
+    WRITES("Testing basic loop*N")
+    FOR I = 0 TO 2 DO
+    $(
+        WRITES("Loop iteration I = ") WRITEN(I) WRITES("*N")
+    $)
+
+    // Test 2: Vector allocation and LEN
+    WRITES("Allocating vector of size 3*N")
+    LET V = VEC 3
+    LET LENGTH = LEN(V)
+    WRITES("Vector length = ") WRITEN(LENGTH) WRITES("*N")
+
+    // Test 3: Manual vector assignment without loop
+    WRITES("Manual vector assignment*N")
+    V!0 := 100
+    V!1 := 200
+    V!2 := 300
+
+    WRITES("V!0 = ") WRITEN(V!0) WRITES("*N")
+    WRITES("V!1 = ") WRITEN(V!1) WRITES("*N")
+    WRITES("V!2 = ") WRITEN(V!2) WRITES("*N")
+
+    // Test 4: Loop with vector assignment
+    WRITES("Loop with vector assignment*N")
+    FOR J = 0 TO 2 DO
+    $(
+        WRITES("Setting V!") WRITEN(J) WRITES(" := ") WRITEN(J * 50) WRITES("*N")
+        V!J := J * 50
+        WRITES("Reading back V!") WRITEN(J) WRITES(" = ") WRITEN(V!J) WRITES("*N")
+    $)
+
+    WRITES("=== Test completed ===*N")
+    RESULTIS 0
+$)

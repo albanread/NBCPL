@@ -1,0 +1,45 @@
+LET START() BE
+$(
+    MANIFEST { VECSIZE = 10 }
+
+    WRITES("Step 1: Starting test*N")
+
+    LET V = GETVEC(VECSIZE)
+
+    WRITES("Step 2: Vector allocated*N")
+
+    IF V = 0 THEN
+    $(
+        WRITES("FAIL: Vector allocation failed*N")
+        FINISH
+    $)
+
+    WRITES("Step 3: Vector allocation succeeded*N")
+    WRITEF("Vector length: %d*N", LEN(V))
+
+    WRITES("Step 4: Starting FOR loop*N")
+
+    FOR I = 0 TO LEN(V)-1 DO
+    $(
+        WRITEF("Setting V!%d = %d*N", I, I * 5)
+        V!I := I * 5
+    $)
+
+    WRITES("Step 5: FOR loop completed*N")
+
+    WRITES("Step 6: Reading back values*N")
+    FOR I = 0 TO LEN(V)-1 DO
+    $(
+        WRITEF("V!%d = %d*N", I, V!I)
+    $)
+
+    WRITES("Step 7: About to start FOREACH*N")
+
+    // Comment out FOREACH for now to see if that's where it crashes
+    // FOREACH e IN V DO
+    // $(
+    //     WRITEN(e) WRITEC(32)
+    // $)
+
+    WRITES("Step 8: Test completed successfully*N")
+$)

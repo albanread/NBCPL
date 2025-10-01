@@ -1,0 +1,39 @@
+LET START() BE
+$(
+
+    MANIFEST { VECSIZE = 10 }
+
+    WRITES("Debug 1: About to allocate VEC*N")
+
+    LET V = VEC VECSIZE
+
+    WRITES("Debug 2: VEC allocation completed*N")
+
+    IF V = 0 THEN
+    $(
+        WRITES("FAIL*N")
+        FINISH
+    $)
+
+    WRITES("Debug 3: VEC allocation succeeded*N")
+
+    FOR I = 0 TO LEN(V)-1 DO
+    $(
+        V!I := I * 5
+    $)
+
+    WRITES("Debug 4: FOR loop completed*N")
+
+    WRITES("Foreach test*N")
+
+    WRITES("Debug 5: About to start FOREACH*N")
+
+    FOREACH e IN V DO
+    $(
+        WRITES("Debug 6: Inside FOREACH iteration*N")
+	WRITEN(e) WRITEC(32)
+    $)
+
+    WRITES("Debug 7: FOREACH completed*N")
+
+$)

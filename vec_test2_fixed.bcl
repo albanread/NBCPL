@@ -1,0 +1,26 @@
+LET START() BE
+$(
+
+    MANIFEST { VECSIZE = 10 }
+
+    LET V = GETVEC(VECSIZE)
+
+    IF V = 0 THEN
+    $(
+        WRITES("FAIL*N")
+        FINISH
+    $)
+
+    FOR I = 0 TO LEN(V)-1 DO
+    $(
+        V!I := I * 5
+    $)
+
+    WRITES("Foreach test*N")
+
+    FOREACH e IN V DO
+    $(
+	WRITEN(e) WRITEC(32)
+    $)
+
+$)

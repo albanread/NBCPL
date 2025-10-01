@@ -62,7 +62,9 @@ void NewCodeGenerator::visit(VectorAccess& node) {
         std::string length_addr_reg = register_manager.get_free_register(*this);
         
         emit(Encoder::create_sub_imm(length_addr_reg, vector_base_reg, 8));
-        emit(Encoder::create_ldr_imm(length_reg, length_addr_reg, 0, "Load vector length for bounds check"));
+        Instruction bounds_ldr_instr = Encoder::create_ldr_imm(length_reg, length_addr_reg, 0, "Load vector length for bounds check");
+        bounds_ldr_instr.nopeep = true; // Protect from peephole optimization
+        emit(bounds_ldr_instr);
         register_manager.release_register(length_addr_reg);
         
         // Compare index with length (unsigned comparison)
@@ -111,12 +113,16 @@ void NewCodeGenerator::visit(VectorAccess& node) {
     if (use_float_load) {
         // It's a float vector, so use a floating-point load into a D register.
         std::string dest_reg = register_manager_.acquire_fp_scratch_reg();
-        emit(Encoder::create_ldr_fp_imm(dest_reg, effective_addr_reg, 0));
+        Instruction ldr_instr = Encoder::create_ldr_fp_imm(dest_reg, effective_addr_reg, 0);
+        ldr_instr.nopeep = true; // Protect from peephole optimization
+        emit(ldr_instr);
         expression_result_reg_ = dest_reg;
     } else {
         // It's an integer vector, so use the existing general-purpose load into an X register.
         std::string dest_reg = register_manager_.get_free_register(*this);
-        emit(Encoder::create_ldr_imm(dest_reg, effective_addr_reg, 0));
+        Instruction ldr_instr = Encoder::create_ldr_imm(dest_reg, effective_addr_reg, 0);
+        ldr_instr.nopeep = true; // Protect from peephole optimization
+        emit(ldr_instr);
         expression_result_reg_ = dest_reg;
     }
     
