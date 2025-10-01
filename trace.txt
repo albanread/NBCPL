@@ -1,6 +1,6 @@
 Debug: Processing argument 3: --trace-codegen
 Debug: Processing argument 4: --run
-Debug: parse_arguments successful, input_filepath=tests/bcl_tests/test_facts.bcl
+Debug: parse_arguments successful, input_filepath=tests/bcl_tests/lists8.bcl
 Debug: Arguments parsed successfully
 DEBUG: HeapManager constructor called
 SAMM: Background worker thread created and started
@@ -8,145 +8,115 @@ SAMM: ENABLED and background worker started
 SAMM (Scope Aware Memory Management): ENABLED
 SAMM: Background cleanup worker thread started (DEBUG)
 SAMM: Worker waiting for cleanup queue (queue size: 0)
-NewBCPL Compiler Version 1.0.1625
+NewBCPL Compiler Version 1.0.1653
 Compiling this source Code:
-//LINE 1 "/Users/oberon/projects/NewBCPL/tests/bcl_tests/test_facts.bcl"
-
-
-LET FACTORIAL_RECURSIVE(N) = VALOF
+//LINE 1 "/Users/oberon/projects/NewBCPL/tests/bcl_tests/lists8.bcl"
+LET START() BE
 $(
-  IF N = 0 THEN RESULTIS 1
-  RESULTIS N * FACTORIAL_RECURSIVE(N - 1)
-$)
-
-LET FACTORIAL_ITERATIVE(N) = VALOF
-$(
-  LET F = 1
-  FOR I = 1 TO N DO F := F * I
-  RESULTIS F
-$)
-
-LET START()  BE
-$(
-
-
-  WRITES("Hello*N")
-  LET N = 18
-
-  LET R = FACTORIAL_RECURSIVE(N)
-
-  LET I = FACTORIAL_ITERATIVE(N)
-
-
-  WRITES("Calculating recursive Factorial of ")
-
-  WRITEN(N)
-
-  WRITES(" = ") WRITEN(R)   WRITES(" AND = ") WRITEN(I)
-
-
-
-  WRITES("BYE")
-
-  FINISH
-
+   LET L = LIST("a", "string", "list")
+   FOREACH S IN L DO
+   $( 
+            WRITES("String: ")
+            WRITES(S)
+            WRITES("*N")
+    $)
 $)
 
 BCPL Runtime v1.0.0 initialized
-DEBUG: Registering FREEVEC with bcpl_free at address 0x104e5fe34
+DEBUG: Registering FREEVEC with bcpl_free at address 0x100a0a054
 Registered 91 runtime functions
 === Registered Runtime Functions ===
-  NEWLINE          | address: 0x104e5eb68 | args: 0 | table_offset: 712
-  FINISH           | address: 0x104e5d918 | args: 0 | table_offset: 704
-  FABS             | address: 0x104e5dcc8 | args: 1 | table_offset: 672
-  FSIN             | address: 0x104e5dc8c | args: 1 | table_offset: 648
-  FILE_EOF         | address: 0x104e60f80 | args: 1 | table_offset: 616
-  RAND             | address: 0x104e5db18 | args: 1 | table_offset: 624
-  FILE_TELL        | address: 0x104e60f28 | args: 1 | table_offset: 608
-  FILE_SEEK        | address: 0x104e60e64 | args: 3 | table_offset: 600
-  FILE_WRITE       | address: 0x104e60d4c | args: 3 | table_offset: 592
-  FIX              | address: 0x104e5dd08 | args: 1 | table_offset: 696
-  FILE_READS       | address: 0x104e60798 | args: 1 | table_offset: 576
-  FILE_WRITES      | address: 0x104e604bc | args: 2 | table_offset: 568
-  FEXP             | address: 0x104e5dcf4 | args: 1 | table_offset: 688
-  FILE_CLOSE       | address: 0x104e60450 | args: 1 | table_offset: 560
-  FILE_OPEN_APPEND | address: 0x104e603c0 | args: 1 | table_offset: 552
-  SLURP            | address: 0x104e5e3f0 | args: 1 | table_offset: 520
-  PACKSTRING       | address: 0x104e5dd20 | args: 1 | table_offset: 504
-  STRLEN           | address: 0x104e5d928 | args: 1 | table_offset: 496
-  FCOS             | address: 0x104e5dca0 | args: 1 | table_offset: 656
-  STRCMP           | address: 0x104e5d988 | args: 2 | table_offset: 488
-  STRCOPY          | address: 0x104e5da6c | args: 2 | table_offset: 480
-  FIND             | address: 0x104e644a8 | args: 3 | table_offset: 448
-  DEEPCOPYLITERALLIST | address: 0x104e64120 | args: 1 | table_offset: 432
-  DEEPCOPYLIST     | address: 0x104e63f88 | args: 1 | table_offset: 424
-  COPYLIST         | address: 0x104e63e88 | args: 1 | table_offset: 416
-  CONCAT           | address: 0x104e642c0 | args: 2 | table_offset: 408
-  BCPL_CONCAT_LISTS | address: 0x104e642c0 | args: 2 | table_offset: 400
-  SPIT             | address: 0x104e5e91c | args: 2 | table_offset: 528
-  JOIN             | address: 0x104e63524 | args: 2 | table_offset: 472
-  LPND             | address: 0x104e63a34 | args: 2 | table_offset: 392
-  SPND             | address: 0x104e63964 | args: 2 | table_offset: 384
-  FPND             | address: 0x104e63894 | args: 2 | table_offset: 376
-  RETURNNODETOFREELIST | address: 0x104e64978 | args: 1 | table_offset: 720
-  BCPL_LIST_APPEND_INT | address: 0x104e637c4 | args: 2 | table_offset: 344
-  GETVEC           | address: 0x104e5fef8 | args: 1 | table_offset: 128
-  HEAPMANAGER_WAITFORSAMM | address: 0x104d4b984 | args: 0 | table_offset: 312
-  APND             | address: 0x104e637c4 | args: 2 | table_offset: 368
-  HEAPMANAGER_ENTER_SCOPE | address: 0x104d4b8bc | args: 0 | table_offset: 280
-  HEAPMANAGER_SETSAMMENABLED | address: 0x104d4b868 | args: 1 | table_offset: 296
-  HEAPMANAGER_EXIT_SCOPE | address: 0x104d4b8e8 | args: 0 | table_offset: 288
-  PIC_RUNTIME_HELPER | address: 0x104e5ffac | args: 0 | table_offset: 272
-  OBJECT_HEAP_FREE | address: 0x104e5ff70 | args: 1 | table_offset: 256
-  OBJECT_HEAP_ALLOC | address: 0x104e5ff4c | args: 1 | table_offset: 248
-  BCPL_LIST_GET_REST | address: 0x104e63cf0 | args: 1 | table_offset: 216
-  FRND             | address: 0x104e5dba4 | args: 0 | table_offset: 640
-  BCPL_LIST_GET_HEAD_AS_FLOAT | address: 0x104e63c38 | args: 1 | table_offset: 200
-  BCPL_LIST_GET_HEAD_AS_INT | address: 0x104e63bd4 | args: 1 | table_offset: 192
-  RUNTIME_METHOD_LOOKUP | address: 0x104e5ff94 | args: 2 | table_offset: 264
-  FREEVEC          | address: 0x104e5fe34 | args: 1 | table_offset: 136
-  BCPL_BOUNDS_ERROR | address: 0x104e5bdf8 | args: 3 | table_offset: 184
-  WRITEF4          | address: 0x104e5d44c | args: 5 | table_offset: 56
-  BCPL_FREE_LIST   | address: 0x104e6464c | args: 1 | table_offset: 144
-  BCPL_ALLOC_CHARS | address: 0x104e5fddc | args: 1 | table_offset: 112
-  BCPL_LIST_APPEND_FLOAT | address: 0x104e63894 | args: 2 | table_offset: 352
-  GET_FREE_LIST_HEAD_ADDR | address: 0x104e6496c | args: 0 | table_offset: 328
-  BCPL_GET_ATOM_TYPE | address: 0x104e63d54 | args: 1 | table_offset: 224
-  FWRITE           | address: 0x104e5ce28 | args: 1 | table_offset: 16
-  BCPL_LIST_CREATE_EMPTY | address: 0x104e63764 | args: 0 | table_offset: 336
-  SPLIT            | address: 0x104e631b8 | args: 2 | table_offset: 464
-  BCPL_FREE_CELLS  | address: 0x104e64968 | args: 0 | table_offset: 320
-  RND              | address: 0x104e5dbf8 | args: 1 | table_offset: 632
-  HEAPMANAGER_ISSAMMENABLED | address: 0x104d4b898 | args: 0 | table_offset: 304
-  WRITEC           | address: 0x104e5d708 | args: 1 | table_offset: 88
-  MALLOC           | address: 0x104e5fd7c | args: 1 | table_offset: 120
-  BCPL_ALLOC_WORDS | address: 0x104e5fd7c | args: 3 | table_offset: 104
-  FTAN             | address: 0x104e5dcb4 | args: 1 | table_offset: 664
+  NEWLINE          | address: 0x100a08d88 | args: 0 | table_offset: 712
+  FINISH           | address: 0x100a07b38 | args: 0 | table_offset: 704
+  FABS             | address: 0x100a07ee8 | args: 1 | table_offset: 672
+  FSIN             | address: 0x100a07eac | args: 1 | table_offset: 648
+  FILE_EOF         | address: 0x100a0b1a0 | args: 1 | table_offset: 616
+  RAND             | address: 0x100a07d38 | args: 1 | table_offset: 624
+  FILE_TELL        | address: 0x100a0b148 | args: 1 | table_offset: 608
+  FILE_SEEK        | address: 0x100a0b084 | args: 3 | table_offset: 600
+  FILE_WRITE       | address: 0x100a0af6c | args: 3 | table_offset: 592
+  FIX              | address: 0x100a07f28 | args: 1 | table_offset: 696
+  FILE_READS       | address: 0x100a0a9b8 | args: 1 | table_offset: 576
+  FILE_WRITES      | address: 0x100a0a6dc | args: 2 | table_offset: 568
+  FEXP             | address: 0x100a07f14 | args: 1 | table_offset: 688
+  FILE_CLOSE       | address: 0x100a0a670 | args: 1 | table_offset: 560
+  FILE_OPEN_APPEND | address: 0x100a0a5e0 | args: 1 | table_offset: 552
+  SLURP            | address: 0x100a08610 | args: 1 | table_offset: 520
+  PACKSTRING       | address: 0x100a07f40 | args: 1 | table_offset: 504
+  STRLEN           | address: 0x100a07b48 | args: 1 | table_offset: 496
+  FCOS             | address: 0x100a07ec0 | args: 1 | table_offset: 656
+  STRCMP           | address: 0x100a07ba8 | args: 2 | table_offset: 488
+  STRCOPY          | address: 0x100a07c8c | args: 2 | table_offset: 480
+  FIND             | address: 0x100a0e6c8 | args: 3 | table_offset: 448
+  DEEPCOPYLITERALLIST | address: 0x100a0e340 | args: 1 | table_offset: 432
+  DEEPCOPYLIST     | address: 0x100a0e1a8 | args: 1 | table_offset: 424
+  COPYLIST         | address: 0x100a0e0a8 | args: 1 | table_offset: 416
+  CONCAT           | address: 0x100a0e4e0 | args: 2 | table_offset: 408
+  BCPL_CONCAT_LISTS | address: 0x100a0e4e0 | args: 2 | table_offset: 400
+  SPIT             | address: 0x100a08b3c | args: 2 | table_offset: 528
+  JOIN             | address: 0x100a0d744 | args: 2 | table_offset: 472
+  LPND             | address: 0x100a0dc54 | args: 2 | table_offset: 392
+  SPND             | address: 0x100a0db84 | args: 2 | table_offset: 384
+  FPND             | address: 0x100a0dab4 | args: 2 | table_offset: 376
+  RETURNNODETOFREELIST | address: 0x100a0eb98 | args: 1 | table_offset: 720
+  BCPL_LIST_APPEND_INT | address: 0x100a0d9e4 | args: 2 | table_offset: 344
+  GETVEC           | address: 0x100a0a118 | args: 1 | table_offset: 128
+  HEAPMANAGER_WAITFORSAMM | address: 0x1008e79e0 | args: 0 | table_offset: 312
+  APND             | address: 0x100a0d9e4 | args: 2 | table_offset: 368
+  HEAPMANAGER_ENTER_SCOPE | address: 0x1008e7918 | args: 0 | table_offset: 280
+  HEAPMANAGER_SETSAMMENABLED | address: 0x1008e78c4 | args: 1 | table_offset: 296
+  HEAPMANAGER_EXIT_SCOPE | address: 0x1008e7944 | args: 0 | table_offset: 288
+  PIC_RUNTIME_HELPER | address: 0x100a0a1cc | args: 0 | table_offset: 272
+  OBJECT_HEAP_FREE | address: 0x100a0a190 | args: 1 | table_offset: 256
+  OBJECT_HEAP_ALLOC | address: 0x100a0a16c | args: 1 | table_offset: 248
+  BCPL_LIST_GET_REST | address: 0x100a0df10 | args: 1 | table_offset: 216
+  FRND             | address: 0x100a07dc4 | args: 0 | table_offset: 640
+  BCPL_LIST_GET_HEAD_AS_FLOAT | address: 0x100a0de58 | args: 1 | table_offset: 200
+  BCPL_LIST_GET_HEAD_AS_INT | address: 0x100a0ddf4 | args: 1 | table_offset: 192
+  RUNTIME_METHOD_LOOKUP | address: 0x100a0a1b4 | args: 2 | table_offset: 264
+  FREEVEC          | address: 0x100a0a054 | args: 1 | table_offset: 136
+  BCPL_BOUNDS_ERROR | address: 0x100a06018 | args: 3 | table_offset: 184
+  WRITEF4          | address: 0x100a0766c | args: 5 | table_offset: 56
+  BCPL_FREE_LIST   | address: 0x100a0e86c | args: 1 | table_offset: 144
+  BCPL_ALLOC_CHARS | address: 0x100a09ffc | args: 1 | table_offset: 112
+  BCPL_LIST_APPEND_FLOAT | address: 0x100a0dab4 | args: 2 | table_offset: 352
+  GET_FREE_LIST_HEAD_ADDR | address: 0x100a0eb8c | args: 0 | table_offset: 328
+  BCPL_GET_ATOM_TYPE | address: 0x100a0df74 | args: 1 | table_offset: 224
+  FWRITE           | address: 0x100a07048 | args: 1 | table_offset: 16
+  BCPL_LIST_CREATE_EMPTY | address: 0x100a0d984 | args: 0 | table_offset: 336
+  SPLIT            | address: 0x100a0d3d8 | args: 2 | table_offset: 464
+  BCPL_FREE_CELLS  | address: 0x100a0eb88 | args: 0 | table_offset: 320
+  RND              | address: 0x100a07e18 | args: 1 | table_offset: 632
+  HEAPMANAGER_ISSAMMENABLED | address: 0x1008e78f4 | args: 0 | table_offset: 304
+  WRITEC           | address: 0x100a07928 | args: 1 | table_offset: 88
+  MALLOC           | address: 0x100a09f9c | args: 1 | table_offset: 120
+  BCPL_ALLOC_WORDS | address: 0x100a09f9c | args: 3 | table_offset: 104
+  FTAN             | address: 0x100a07ed4 | args: 1 | table_offset: 664
   SETTYPE          | address: 0x0 | args: 2 | table_offset: 240
-  BCPL_GET_LAST_ERROR | address: 0x104e5bc78 | args: 1 | table_offset: 160
-  RDCH             | address: 0x104e5d8cc | args: 0 | table_offset: 96
-  FILE_READ        | address: 0x104e60c38 | args: 3 | table_offset: 584
-  UNPACKSTRING     | address: 0x104e5e058 | args: 1 | table_offset: 512
-  WRITEF5          | address: 0x104e5d4d8 | args: 6 | table_offset: 64
-  FILTER           | address: 0x104e6459c | args: 2 | table_offset: 456
-  BCPL_FREE_LIST_SAFE | address: 0x104e64754 | args: 1 | table_offset: 152
-  FILE_OPEN_WRITE  | address: 0x104e60330 | args: 1 | table_offset: 544
-  FILE_OPEN_READ   | address: 0x104e5ffb0 | args: 1 | table_offset: 536
-  BCPL_LIST_GET_NTH | address: 0x104e63dbc | args: 2 | table_offset: 232
-  WRITEF7          | address: 0x104e5d614 | args: 8 | table_offset: 80
-  WRITEF3          | address: 0x104e5d3cc | args: 4 | table_offset: 48
-  WRITEF6          | address: 0x104e5d570 | args: 7 | table_offset: 72
-  REVERSE          | address: 0x104e643c0 | args: 1 | table_offset: 440
-  WRITEF2          | address: 0x104e5d358 | args: 3 | table_offset: 40
-  WRITEF1          | address: 0x104e5d2f0 | args: 2 | table_offset: 32
-  BCPL_LIST_GET_TAIL | address: 0x104e63ca0 | args: 1 | table_offset: 208
-  BCPL_CLEAR_ERRORS | address: 0x104e5bd28 | args: 0 | table_offset: 168
-  WRITEF           | address: 0x104e5ce6c | args: 1 | table_offset: 24
-  BCPL_LIST_APPEND_STRING | address: 0x104e63964 | args: 2 | table_offset: 360
-  WRITES           | address: 0x104e5cbb8 | args: 1 | table_offset: 0
-  BCPL_CHECK_AND_DISPLAY_ERRORS | address: 0x104e649c0 | args: 0 | table_offset: 176
-  FLOG             | address: 0x104e5dce0 | args: 1 | table_offset: 680
-  WRITEN           | address: 0x104e5d6c4 | args: 1 | table_offset: 8
+  BCPL_GET_LAST_ERROR | address: 0x100a05e98 | args: 1 | table_offset: 160
+  RDCH             | address: 0x100a07aec | args: 0 | table_offset: 96
+  FILE_READ        | address: 0x100a0ae58 | args: 3 | table_offset: 584
+  UNPACKSTRING     | address: 0x100a08278 | args: 1 | table_offset: 512
+  WRITEF5          | address: 0x100a076f8 | args: 6 | table_offset: 64
+  FILTER           | address: 0x100a0e7bc | args: 2 | table_offset: 456
+  BCPL_FREE_LIST_SAFE | address: 0x100a0e974 | args: 1 | table_offset: 152
+  FILE_OPEN_WRITE  | address: 0x100a0a550 | args: 1 | table_offset: 544
+  FILE_OPEN_READ   | address: 0x100a0a1d0 | args: 1 | table_offset: 536
+  BCPL_LIST_GET_NTH | address: 0x100a0dfdc | args: 2 | table_offset: 232
+  WRITEF7          | address: 0x100a07834 | args: 8 | table_offset: 80
+  WRITEF3          | address: 0x100a075ec | args: 4 | table_offset: 48
+  WRITEF6          | address: 0x100a07790 | args: 7 | table_offset: 72
+  REVERSE          | address: 0x100a0e5e0 | args: 1 | table_offset: 440
+  WRITEF2          | address: 0x100a07578 | args: 3 | table_offset: 40
+  WRITEF1          | address: 0x100a07510 | args: 2 | table_offset: 32
+  BCPL_LIST_GET_TAIL | address: 0x100a0dec0 | args: 1 | table_offset: 208
+  BCPL_CLEAR_ERRORS | address: 0x100a05f48 | args: 0 | table_offset: 168
+  WRITEF           | address: 0x100a0708c | args: 1 | table_offset: 24
+  BCPL_LIST_APPEND_STRING | address: 0x100a0db84 | args: 2 | table_offset: 360
+  WRITES           | address: 0x100a06dd8 | args: 1 | table_offset: 0
+  BCPL_CHECK_AND_DISPLAY_ERRORS | address: 0x100a0ebe0 | args: 0 | table_offset: 176
+  FLOG             | address: 0x100a07f00 | args: 1 | table_offset: 680
+  WRITEN           | address: 0x100a078e4 | args: 1 | table_offset: 8
 ====================================
 Core runtime registered. SDL2 registration will follow...
 SDL2 runtime functions registered immediately
@@ -157,125 +127,14 @@ Parsing complete. AST built.
 --- Initial Abstract Syntax Tree ---
 Program:
   Declarations:
-    FunctionDeclaration: FACTORIAL_RECURSIVE
-      Parameters: N 
-      Body:
-        ValofExpression:
-          BlockStatement:
-            Statements:
-              IfStatement:
-                Condition:
-                  BinaryOp: Equal
-                    VariableAccess: N
-                    NumberLiteral: 0
-                Then:
-                  ResultisStatement:
-                    NumberLiteral: 1
-              ResultisStatement:
-                BinaryOp: Multiply
-                  VariableAccess: N
-                  FunctionCall:
-                    Callee:
-                      VariableAccess: FACTORIAL_RECURSIVE
-                    Arguments:
-                      BinaryOp: Subtract
-                        VariableAccess: N
-                        NumberLiteral: 1
-    FunctionDeclaration: FACTORIAL_ITERATIVE
-      Parameters: N 
-      Body:
-        ValofExpression:
-          BlockStatement:
-            Statements:
-              AssignmentStatement:
-                LHS:
-                  VariableAccess: F
-                RHS:
-                  NumberLiteral: 1
-              ForStatement: I
-                Start:
-                  NumberLiteral: 1
-                End:
-                  VariableAccess: N
-                Body:
-                  AssignmentStatement:
-                    LHS:
-                      VariableAccess: F
-                    RHS:
-                      BinaryOp: Multiply
-                        VariableAccess: F
-                        VariableAccess: I
-              ResultisStatement:
-                VariableAccess: F
     RoutineDeclaration: START
       Body:
         BlockStatement:
           Statements:
-            RoutineCallStatement:
-              Callee:
-                VariableAccess: WRITES
-              Arguments:
-                StringLiteral: "Hello
-"
             AssignmentStatement:
               LHS:
-                VariableAccess: N
+                VariableAccess: L
               RHS:
-                NumberLiteral: 18
-            AssignmentStatement:
-              LHS:
-                VariableAccess: R
-              RHS:
-                FunctionCall:
-                  Callee:
-                    VariableAccess: FACTORIAL_RECURSIVE
-                  Arguments:
-                    VariableAccess: N
-            AssignmentStatement:
-              LHS:
-                VariableAccess: I
-              RHS:
-                FunctionCall:
-                  Callee:
-                    VariableAccess: FACTORIAL_ITERATIVE
-                  Arguments:
-                    VariableAccess: N
-            RoutineCallStatement:
-              Callee:
-                VariableAccess: WRITES
-              Arguments:
-                StringLiteral: "Calculating recursive Factorial of "
-            RoutineCallStatement:
-              Callee:
-                VariableAccess: WRITEN
-              Arguments:
-                VariableAccess: N
-            RoutineCallStatement:
-              Callee:
-                VariableAccess: WRITES
-              Arguments:
-                StringLiteral: " = "
-            RoutineCallStatement:
-              Callee:
-                VariableAccess: WRITEN
-              Arguments:
-                VariableAccess: R
-            RoutineCallStatement:
-              Callee:
-                VariableAccess: WRITES
-              Arguments:
-                StringLiteral: " AND = "
-            RoutineCallStatement:
-              Callee:
-                VariableAccess: WRITEN
-              Arguments:
-                VariableAccess: I
-            RoutineCallStatement:
-              Callee:
-                VariableAccess: WRITES
-              Arguments:
-                StringLiteral: "BYE"
-            FinishStatement
 ----------------------------------
 
 Applying Manifest Resolution Pass...
@@ -284,169 +143,35 @@ Applying Global Initializer Pass...
 --- AST After Global Initializer Injection ---
 Program:
   Declarations:
-    FunctionDeclaration: FACTORIAL_RECURSIVE
-      Parameters: N 
-      Body:
-        ValofExpression:
-          BlockStatement:
-            Statements:
-              IfStatement:
-                Condition:
-                  BinaryOp: Equal
-                    VariableAccess: N
-                    NumberLiteral: 0
-                Then:
-                  ResultisStatement:
-                    NumberLiteral: 1
-              ResultisStatement:
-                BinaryOp: Multiply
-                  VariableAccess: N
-                  FunctionCall:
-                    Callee:
-                      VariableAccess: FACTORIAL_RECURSIVE
-                    Arguments:
-                      BinaryOp: Subtract
-                        VariableAccess: N
-                        NumberLiteral: 1
-    FunctionDeclaration: FACTORIAL_ITERATIVE
-      Parameters: N 
-      Body:
-        ValofExpression:
-          BlockStatement:
-            Statements:
-              AssignmentStatement:
-                LHS:
-                  VariableAccess: F
-                RHS:
-                  NumberLiteral: 1
-              ForStatement: I
-                Start:
-                  NumberLiteral: 1
-                End:
-                  VariableAccess: N
-                Body:
-                  AssignmentStatement:
-                    LHS:
-                      VariableAccess: F
-                    RHS:
-                      BinaryOp: Multiply
-                        VariableAccess: F
-                        VariableAccess: I
-              ResultisStatement:
-                VariableAccess: F
     RoutineDeclaration: START
       Body:
         BlockStatement:
           Statements:
-            RoutineCallStatement:
-              Callee:
-                VariableAccess: WRITES
-              Arguments:
-                StringLiteral: "Hello
-"
             AssignmentStatement:
               LHS:
-                VariableAccess: N
+                VariableAccess: L
               RHS:
-                NumberLiteral: 18
-            AssignmentStatement:
-              LHS:
-                VariableAccess: R
-              RHS:
-                FunctionCall:
-                  Callee:
-                    VariableAccess: FACTORIAL_RECURSIVE
-                  Arguments:
-                    VariableAccess: N
-            AssignmentStatement:
-              LHS:
-                VariableAccess: I
-              RHS:
-                FunctionCall:
-                  Callee:
-                    VariableAccess: FACTORIAL_ITERATIVE
-                  Arguments:
-                    VariableAccess: N
-            RoutineCallStatement:
-              Callee:
-                VariableAccess: WRITES
-              Arguments:
-                StringLiteral: "Calculating recursive Factorial of "
-            RoutineCallStatement:
-              Callee:
-                VariableAccess: WRITEN
-              Arguments:
-                VariableAccess: N
-            RoutineCallStatement:
-              Callee:
-                VariableAccess: WRITES
-              Arguments:
-                StringLiteral: " = "
-            RoutineCallStatement:
-              Callee:
-                VariableAccess: WRITEN
-              Arguments:
-                VariableAccess: R
-            RoutineCallStatement:
-              Callee:
-                VariableAccess: WRITES
-              Arguments:
-                StringLiteral: " AND = "
-            RoutineCallStatement:
-              Callee:
-                VariableAccess: WRITEN
-              Arguments:
-                VariableAccess: I
-            RoutineCallStatement:
-              Callee:
-                VariableAccess: WRITES
-              Arguments:
-                StringLiteral: "BYE"
-            FinishStatement
 ------------------------------------------
 
 Building symbol table...
 [SymbolDiscoveryPass] Entering global scope
-[SymbolDiscoveryPass] Processing function declaration: FACTORIAL_RECURSIVE
-[SymbolDiscoveryPass] Added parameter 'N' as UNKNOWN (parameter type will be determined at call sites)
-[SymbolDiscoveryPass] Added function: FACTORIAL_RECURSIVE returns INTEGER with 1 parameters
-[SymbolDiscoveryPass] Added parameter variable: N in function FACTORIAL_RECURSIVE
-[SymbolDiscoveryPass] Entering ValofExpression block
-[SymbolDiscoveryPass] Entering block scope
-[SymbolDiscoveryPass] Processing if statement
-[SymbolDiscoveryPass] Processing function declaration: FACTORIAL_ITERATIVE
-[SymbolDiscoveryPass] Added parameter 'N' as UNKNOWN (parameter type will be determined at call sites)
-[SymbolDiscoveryPass] Added function: FACTORIAL_ITERATIVE returns INTEGER with 1 parameters
-[SymbolDiscoveryPass] Added parameter variable: N in function FACTORIAL_ITERATIVE
-[SymbolDiscoveryPass] Entering ValofExpression block
-[SymbolDiscoveryPass] Entering block scope
-[SymbolDiscoveryPass] Processing let declaration
-[SymbolDiscoveryPass] Added let variable: F as INTEGER (default INTEGER)
-[SymbolDiscoveryPass] Processing for statement with loop variable: I
-[SymbolDiscoveryPass] Added for-loop variable: I
 [SymbolDiscoveryPass] Processing routine declaration: START
 [SymbolDiscoveryPass] Added routine: START
 [SymbolDiscoveryPass] Entering block scope
 [SymbolDiscoveryPass] Processing let declaration
-[SymbolDiscoveryPass] Added let variable: N as INTEGER (default INTEGER)
-[SymbolDiscoveryPass] Processing let declaration
-[SymbolDiscoveryPass] Added let variable: R as INTEGER (default INTEGER)
-[SymbolDiscoveryPass] Processing let declaration
-[SymbolDiscoveryPass] Added let variable: I as INTEGER (default INTEGER)
+[SymbolDiscoveryPass] Added let variable: L as INTEGER (default INTEGER)
+[SymbolDiscoveryPass] Processing foreach statement, loop variable: S
+[SymbolDiscoveryPass] Added foreach loop variable: S
+[SymbolDiscoveryPass] Entering block scope
 
 === SYMBOL TABLE DUMP AFTER SYMBOL DISCOVERY ===
 Symbol Table (Persistent, All Symbols)
 ==================================================
-Symbol 'FACTORIAL_RECURSIVE' (FUNCTION, INTEGER, scope=0, block=0, class_name='', function_name='FACTORIAL_RECURSIVE', parameters=[UNKNOWN])
-Symbol 'N' (PARAMETER, UNKNOWN, scope=1, block=0, class_name='', function_name='FACTORIAL_RECURSIVE')
-Symbol 'FACTORIAL_ITERATIVE' (FUNCTION, INTEGER, scope=0, block=0, class_name='', function_name='FACTORIAL_ITERATIVE', parameters=[UNKNOWN])
-Symbol 'N' (PARAMETER, UNKNOWN, scope=1, block=0, class_name='', function_name='FACTORIAL_ITERATIVE')
-Symbol 'F' (LOCAL_VAR, INTEGER, scope=3, block=0, class_name='', function_name='FACTORIAL_ITERATIVE')
-Symbol 'I' (LOCAL_VAR, INTEGER, scope=3, block=0, class_name='', function_name='FACTORIAL_ITERATIVE')
+Symbol 'HeapManager_enter_scope' (FUNCTION, INTEGER, scope=0, block=0, class_name='', function_name='Global')
+Symbol 'HeapManager_exit_scope' (FUNCTION, INTEGER, scope=0, block=0, class_name='', function_name='Global')
 Symbol 'START' (ROUTINE, INTEGER, scope=0, block=0, class_name='', function_name='START')
-Symbol 'N' (LOCAL_VAR, INTEGER, scope=2, block=0, class_name='', function_name='START')
-Symbol 'R' (LOCAL_VAR, INTEGER, scope=2, block=0, class_name='', function_name='START')
-Symbol 'I' (LOCAL_VAR, INTEGER, scope=2, block=0, class_name='', function_name='START')
+Symbol 'L' (LOCAL_VAR, INTEGER, scope=2, block=0, class_name='', function_name='START')
+Symbol 'S' (LOCAL_VAR, UNKNOWN, scope=2, block=0, class_name='', function_name='START')
 
 ================================================
 
@@ -458,305 +183,84 @@ SKIPPED: Boolean Short-Circuiting Pass (startup crash)...
 Pass 1: Analyzing function signatures...
 [SignatureAnalysis] Starting signature analysis pass...
 [SignatureAnalysis] Analyzing program signatures...
-[SignatureAnalysis] Analyzing function signature: FACTORIAL_RECURSIVE
-[SignatureAnalysis] Processing function signature: FACTORIAL_RECURSIVE
-[SignatureAnalysis] Simple type inference for parameter: N -> INTEGER (default)
-[SignatureAnalysis] Registered parameter: N (type: 1)
-[SignatureAnalysis] Analyzing function signature: FACTORIAL_ITERATIVE
-[SignatureAnalysis] Processing function signature: FACTORIAL_ITERATIVE
-[SignatureAnalysis] Simple type inference for parameter: N -> INTEGER (default)
-[SignatureAnalysis] Registered parameter: N (type: 1)
 [SignatureAnalysis] Analyzing routine signature: START
 [SignatureAnalysis] Processing routine signature: START
 [SignatureAnalysis] Signature analysis complete.
 Debug: Checking function metrics after signature analysis...
-Function: FACTORIAL_ITERATIVE
-  Parameter: N -> 1
-Function: FACTORIAL_RECURSIVE
-  Parameter: N -> 1
 Function: START
 Pass 2: Full AST analysis...
 Cleared FOR loop state before analysis to prevent corruption
 [ANALYZER TRACE] Starting analysis...
 [ANALYZER TRACE] Skipping reset - signature analysis already complete.
 [ANALYZER TRACE] --- PASS 1: Discovering all function definitions ---
-[ANALYZER] Checking FACTORIAL_RECURSIVE: is_float_function=0, has_FloatValofExpression=0
-[ANALYZER] Set FACTORIAL_RECURSIVE return type to INTEGER
-[ANALYZER] Checking FACTORIAL_ITERATIVE: is_float_function=0, has_FloatValofExpression=0
-[ANALYZER] Set FACTORIAL_ITERATIVE return type to INTEGER
 [ANALYZER TRACE] Visiting Program.
-[ANALYZER TRACE] Visiting FunctionDeclaration: FACTORIAL_RECURSIVE
-[ANALYZER TRACE] Preserving existing parameter type for N in FACTORIAL_RECURSIVE (type: 1)
-[ANALYZER] Starting parameter type inference for function: FACTORIAL_RECURSIVE
-[ANALYZER] Analyzing parameter: N
-[ANALYZER] Parameter 'N' already has type from Pass 1: 1. Preserving it.
-[ANALYZER] Preserving existing parameter type from Pass 1: N in FACTORIAL_RECURSIVE (type: 1) - ignoring new type: 0
-[ANALYZER TRACE] Updated parameter type for N in FACTORIAL_RECURSIVE to 0 after inference
-[ANALYZER TRACE] Entering block scope: FACTORIAL_RECURSIVE_block_1 (Function scope remains: FACTORIAL_RECURSIVE)
-[ANALYZER TRACE] BlockStatement: Traversing 2 statements.
-[ANALYZER TRACE] BlockStatement: Calling accept on statement 0 of type 45
-[ANALYZER TRACE] Visiting VariableAccess: N
-[DEBUG get_effective_variable_name] Called with: 'N'
-[DEBUG get_effective_variable_name] Loop context stack size: 0
-[DEBUG get_effective_variable_name] Active FOR loop scopes size: 0
-[DEBUG get_effective_variable_name] FOR variable aliases size: 0
-[DEBUG get_effective_variable_name] In FOR loop context: NO
-[DEBUG get_effective_variable_name] Not in FOR loop context, returning original: 'N'
-[ANALYZER TRACE] BlockStatement: Calling accept on statement 1 of type 60
-[ANALYZER TRACE] Visiting VariableAccess: N
-[DEBUG get_effective_variable_name] Called with: 'N'
-[DEBUG get_effective_variable_name] Loop context stack size: 0
-[DEBUG get_effective_variable_name] Active FOR loop scopes size: 0
-[DEBUG get_effective_variable_name] FOR variable aliases size: 0
-[DEBUG get_effective_variable_name] In FOR loop context: NO
-[DEBUG get_effective_variable_name] Not in FOR loop context, returning original: 'N'
-[CALL GRAPH] FACTORIAL_RECURSIVE calls FACTORIAL_RECURSIVE
-[ANALYZER TRACE]   Detected call to local function: FACTORIAL_RECURSIVE
-[ANALYZER TRACE] Visiting VariableAccess: N
-[DEBUG get_effective_variable_name] Called with: 'N'
-[DEBUG get_effective_variable_name] Loop context stack size: 0
-[DEBUG get_effective_variable_name] Active FOR loop scopes size: 0
-[DEBUG get_effective_variable_name] FOR variable aliases size: 0
-[DEBUG get_effective_variable_name] In FOR loop context: NO
-[DEBUG get_effective_variable_name] Not in FOR loop context, returning original: 'N'
-[DEBUG get_variable_type] Looking for 'N' in function 'FACTORIAL_RECURSIVE'
-[DEBUG get_variable_type] Found function metrics for 'FACTORIAL_RECURSIVE'
-[DEBUG get_variable_type] Parameter types count: 1
-[DEBUG get_variable_type] Variable types count: 1
-[DEBUG get_variable_type] Found in parameter_types: N -> 1
-[ANALYZER TRACE] Exiting block scope, returning to: FACTORIAL_RECURSIVE
-[DEBUG get_variable_type] Looking for 'N' in function 'FACTORIAL_RECURSIVE'
-[DEBUG get_variable_type] Found function metrics for 'FACTORIAL_RECURSIVE'
-[DEBUG get_variable_type] Parameter types count: 1
-[DEBUG get_variable_type] Variable types count: 1
-[DEBUG get_variable_type] Found in parameter_types: N -> 1
-[ANALYZER TRACE] Visiting FunctionDeclaration: FACTORIAL_ITERATIVE
-[ANALYZER TRACE] Preserving existing parameter type for N in FACTORIAL_ITERATIVE (type: 1)
-[ANALYZER] Starting parameter type inference for function: FACTORIAL_ITERATIVE
-[ANALYZER] Analyzing parameter: N
-[ANALYZER] Parameter 'N' already has type from Pass 1: 1. Preserving it.
-[ANALYZER] Preserving existing parameter type from Pass 1: N in FACTORIAL_ITERATIVE (type: 1) - ignoring new type: 0
-[ANALYZER TRACE] Updated parameter type for N in FACTORIAL_ITERATIVE to 0 after inference
-[ANALYZER TRACE] Entering block scope: FACTORIAL_ITERATIVE_block_1 (Function scope remains: FACTORIAL_ITERATIVE)
-[ANALYZER TRACE] BlockStatement: Traversing 3 statements.
-[ANALYZER TRACE] BlockStatement: Calling accept on statement 0 of type 43
-[ANALYZER TRACE] Visiting VariableAccess: F
-[DEBUG get_effective_variable_name] Called with: 'F'
-[DEBUG get_effective_variable_name] Loop context stack size: 0
-[DEBUG get_effective_variable_name] Active FOR loop scopes size: 0
-[DEBUG get_effective_variable_name] FOR variable aliases size: 0
-[DEBUG get_effective_variable_name] In FOR loop context: NO
-[DEBUG get_effective_variable_name] Not in FOR loop context, returning original: 'F'
-[ANALYZER TRACE] BlockStatement: Calling accept on statement 1 of type 51
-[ANALYZER TRACE] Visiting ForStatement for variable: I
-[ANALYZER TRACE] Pushed FOR loop context. Context stack size: 1
-[ANALYZER TRACE]   Created NEW unique loop var 'I_for_var_0' for original 'I'. Defined for stack space. Incremented var count.
-[ANALYZER TRACE] Attempting to register loop variable 'I_for_var_0' in symbol table. symbol_table_=valid, current_function_scope_='FACTORIAL_ITERATIVE'
-[ANALYZER TRACE] Successfully added loop variable 'I_for_var_0' to symbol table.
-[ANALYZER TRACE] End expression is variable, will create backing variable.
-[ANALYZER TRACE] OPTIMIZATION: Step expression is constant: 1
-[ANALYZER TRACE] Pushed FOR loop scope for 'I' -> 'I_for_var_0'. Stack size: 1
-[ANALYZER TRACE] OPTIMIZATION: Skipped creating step backing variable (constant: 1)
-[ANALYZER TRACE]   Created backing var for hoisted end value: 'I_for_var_0_end_inst_0'
-[ANALYZER TRACE] Visiting VariableAccess: N
-[DEBUG get_effective_variable_name] Called with: 'N'
-[DEBUG get_effective_variable_name] Loop context stack size: 1
-[DEBUG get_effective_variable_name] Active FOR loop scopes size: 1
-[DEBUG get_effective_variable_name] FOR variable aliases size: 1
-[DEBUG get_effective_variable_name] In FOR loop context: YES
-[DEBUG get_effective_variable_name] No renaming needed, returning: 'N'
-[ANALYZER TRACE] Visiting VariableAccess: F
-[DEBUG get_effective_variable_name] Called with: 'F'
-[DEBUG get_effective_variable_name] Loop context stack size: 1
-[DEBUG get_effective_variable_name] Active FOR loop scopes size: 1
-[DEBUG get_effective_variable_name] FOR variable aliases size: 1
-[DEBUG get_effective_variable_name] In FOR loop context: YES
-[DEBUG get_effective_variable_name] No renaming needed, returning: 'F'
-[ANALYZER TRACE] Visiting VariableAccess: I
-[DEBUG get_effective_variable_name] Called with: 'I'
-[DEBUG get_effective_variable_name] Loop context stack size: 1
-[DEBUG get_effective_variable_name] Active FOR loop scopes size: 1
-[DEBUG get_effective_variable_name] FOR variable aliases size: 1
-[DEBUG get_effective_variable_name] In FOR loop context: YES
-[DEBUG get_effective_variable_name] Found in active scope: 'I' -> 'I_for_var_0'
-[ANALYZER TRACE] Renaming variable: 'I' -> 'I_for_var_0'
-[DEBUG get_variable_type] Looking for 'F' in function 'FACTORIAL_ITERATIVE'
-[DEBUG get_variable_type] Found function metrics for 'FACTORIAL_ITERATIVE'
-[DEBUG get_variable_type] Parameter types count: 1
-[DEBUG get_variable_type] Variable types count: 3
-[DEBUG get_variable_type] Found in variable_types: F -> 1
-[DEBUG get_variable_type] Looking for 'I_for_var_0' in function 'FACTORIAL_ITERATIVE'
-[DEBUG get_variable_type] Found function metrics for 'FACTORIAL_ITERATIVE'
-[DEBUG get_variable_type] Parameter types count: 1
-[DEBUG get_variable_type] Variable types count: 3
-[DEBUG get_variable_type] Found in variable_types: I_for_var_0 -> 1
-[ANALYZER TRACE] Visiting VariableAccess: F
-[DEBUG get_effective_variable_name] Called with: 'F'
-[DEBUG get_effective_variable_name] Loop context stack size: 1
-[DEBUG get_effective_variable_name] Active FOR loop scopes size: 1
-[DEBUG get_effective_variable_name] FOR variable aliases size: 1
-[DEBUG get_effective_variable_name] In FOR loop context: YES
-[DEBUG get_effective_variable_name] No renaming needed, returning: 'F'
-[ANALYZER TRACE] Popped FOR loop scope. Stack size: 0
-[ANALYZER TRACE] Popped FOR loop context. Context stack size: 0
-[ANALYZER TRACE] OPTIMIZATION SUMMARY: Saved 1 backing variables for FOR loop 'I'
-[ANALYZER TRACE] BlockStatement: Calling accept on statement 2 of type 60
-[ANALYZER TRACE] Visiting VariableAccess: F
-[DEBUG get_effective_variable_name] Called with: 'F'
-[DEBUG get_effective_variable_name] Loop context stack size: 0
-[DEBUG get_effective_variable_name] Active FOR loop scopes size: 0
-[DEBUG get_effective_variable_name] FOR variable aliases size: 1
-[DEBUG get_effective_variable_name] In FOR loop context: NO
-[DEBUG get_effective_variable_name] Not in FOR loop context, returning original: 'F'
-[DEBUG get_variable_type] Looking for 'F' in function 'FACTORIAL_ITERATIVE'
-[DEBUG get_variable_type] Found function metrics for 'FACTORIAL_ITERATIVE'
-[DEBUG get_variable_type] Parameter types count: 1
-[DEBUG get_variable_type] Variable types count: 3
-[DEBUG get_variable_type] Found in variable_types: F -> 1
-[ANALYZER TRACE] Exiting block scope, returning to: FACTORIAL_ITERATIVE
-[DEBUG get_variable_type] Looking for 'F' in function 'FACTORIAL_ITERATIVE'
-[DEBUG get_variable_type] Found function metrics for 'FACTORIAL_ITERATIVE'
-[DEBUG get_variable_type] Parameter types count: 1
-[DEBUG get_variable_type] Variable types count: 3
-[DEBUG get_variable_type] Found in variable_types: F -> 1
 [ANALYZER TRACE] Visiting RoutineDeclaration: START
 [ANALYZER] Starting parameter type inference for function: START
 [ANALYZER TRACE] ASTAnalyzer::visit(RoutineDeclaration&) is traversing body for routine: START
-[ANALYZER TRACE] Entering block scope: START_block_4 (Function scope remains: START)
-[ANALYZER TRACE] BlockStatement: Traversing 12 statements.
+[ANALYZER TRACE] Entering block scope: START_block_0 (Function scope remains: START)
+[ANALYZER TRACE] BlockStatement: Traversing 2 statements.
+[ANALYZER TRACE] BlockStatement: Calling accept on statement 0 of type 43
+[DEBUG] ListExpression: contains_literals = true, num_initializers = 3
+[ANALYZER TRACE] Visiting VariableAccess: L
+[DEBUG get_effective_variable_name] Called with: 'L'
+[DEBUG get_effective_variable_name] Loop context stack size: 0
+[DEBUG get_effective_variable_name] Active FOR loop scopes size: 0
+[DEBUG get_effective_variable_name] FOR variable aliases size: 0
+[DEBUG get_effective_variable_name] In FOR loop context: NO
+[DEBUG get_effective_variable_name] Not in FOR loop context, returning original: 'L'
+[ANALYZER TRACE] BlockStatement: Calling accept on statement 1 of type 52
+[ANALYZER TRACE] Pushed FOREACH loop context. Context stack size: 1
+[ANALYZER TRACE] Visiting VariableAccess: L
+[DEBUG get_effective_variable_name] Called with: 'L'
+[DEBUG get_effective_variable_name] Loop context stack size: 1
+[DEBUG get_effective_variable_name] Active FOR loop scopes size: 0
+[DEBUG get_effective_variable_name] FOR variable aliases size: 0
+[DEBUG get_effective_variable_name] In FOR loop context: NO
+[DEBUG get_effective_variable_name] Not in FOR loop context, returning original: 'L'
+[ANALYZER TRACE] Entering block scope: START_block_0_block_1 (Function scope remains: START)
+[ANALYZER TRACE] BlockStatement: Traversing 3 statements.
 [ANALYZER TRACE] BlockStatement: Calling accept on statement 0 of type 44
-[ANALYZER TRACE] Entered ASTAnalyzer::visit(RoutineCallStatement&) for node at 0x105d720d0
+[ANALYZER TRACE] Entered ASTAnalyzer::visit(RoutineCallStatement&) for node at 0xb8f0041b0
 [ANALYZER TRACE]   Detected call to runtime function: WRITES, Type: INTEGER
-[ANALYZER TRACE] BlockStatement: Calling accept on statement 1 of type 43
-[ANALYZER TRACE] Visiting VariableAccess: N
-[DEBUG get_effective_variable_name] Called with: 'N'
-[DEBUG get_effective_variable_name] Loop context stack size: 0
-[DEBUG get_effective_variable_name] Active FOR loop scopes size: 0
-[DEBUG get_effective_variable_name] FOR variable aliases size: 0
-[DEBUG get_effective_variable_name] In FOR loop context: NO
-[DEBUG get_effective_variable_name] Not in FOR loop context, returning original: 'N'
-[ANALYZER TRACE] BlockStatement: Calling accept on statement 2 of type 43
-[CALL GRAPH] START calls FACTORIAL_RECURSIVE
-[ANALYZER TRACE]   Detected call to local function: FACTORIAL_RECURSIVE
-[ANALYZER TRACE] Visiting VariableAccess: N
-[DEBUG get_effective_variable_name] Called with: 'N'
-[DEBUG get_effective_variable_name] Loop context stack size: 0
-[DEBUG get_effective_variable_name] Active FOR loop scopes size: 0
-[DEBUG get_effective_variable_name] FOR variable aliases size: 0
-[DEBUG get_effective_variable_name] In FOR loop context: NO
-[DEBUG get_effective_variable_name] Not in FOR loop context, returning original: 'N'
-[ANALYZER TRACE] Visiting VariableAccess: R
-[DEBUG get_effective_variable_name] Called with: 'R'
-[DEBUG get_effective_variable_name] Loop context stack size: 0
-[DEBUG get_effective_variable_name] Active FOR loop scopes size: 0
-[DEBUG get_effective_variable_name] FOR variable aliases size: 0
-[DEBUG get_effective_variable_name] In FOR loop context: NO
-[DEBUG get_effective_variable_name] Not in FOR loop context, returning original: 'R'
-[ANALYZER TRACE] BlockStatement: Calling accept on statement 3 of type 43
-[CALL GRAPH] START calls FACTORIAL_ITERATIVE
-[ANALYZER TRACE]   Detected call to local function: FACTORIAL_ITERATIVE
-[ANALYZER TRACE] Visiting VariableAccess: N
-[DEBUG get_effective_variable_name] Called with: 'N'
-[DEBUG get_effective_variable_name] Loop context stack size: 0
-[DEBUG get_effective_variable_name] Active FOR loop scopes size: 0
-[DEBUG get_effective_variable_name] FOR variable aliases size: 0
-[DEBUG get_effective_variable_name] In FOR loop context: NO
-[DEBUG get_effective_variable_name] Not in FOR loop context, returning original: 'N'
-[ANALYZER TRACE] Visiting VariableAccess: I
-[DEBUG get_effective_variable_name] Called with: 'I'
-[DEBUG get_effective_variable_name] Loop context stack size: 0
-[DEBUG get_effective_variable_name] Active FOR loop scopes size: 0
-[DEBUG get_effective_variable_name] FOR variable aliases size: 0
-[DEBUG get_effective_variable_name] In FOR loop context: NO
-[DEBUG get_effective_variable_name] Not in FOR loop context, returning original: 'I'
-[ANALYZER TRACE] BlockStatement: Calling accept on statement 4 of type 44
-[ANALYZER TRACE] Entered ASTAnalyzer::visit(RoutineCallStatement&) for node at 0x105d744f0
+[ANALYZER TRACE] BlockStatement: Calling accept on statement 1 of type 44
+[ANALYZER TRACE] Entered ASTAnalyzer::visit(RoutineCallStatement&) for node at 0xb8f0041e0
 [ANALYZER TRACE]   Detected call to runtime function: WRITES, Type: INTEGER
-[ANALYZER TRACE] BlockStatement: Calling accept on statement 5 of type 44
-[ANALYZER TRACE] Entered ASTAnalyzer::visit(RoutineCallStatement&) for node at 0x105d745a0
-[ANALYZER TRACE]   Detected call to runtime function: WRITEN, Type: INTEGER
-[ANALYZER TRACE] Visiting VariableAccess: N
-[DEBUG get_effective_variable_name] Called with: 'N'
-[DEBUG get_effective_variable_name] Loop context stack size: 0
+[ANALYZER TRACE] Visiting VariableAccess: S
+[DEBUG get_effective_variable_name] Called with: 'S'
+[DEBUG get_effective_variable_name] Loop context stack size: 1
 [DEBUG get_effective_variable_name] Active FOR loop scopes size: 0
 [DEBUG get_effective_variable_name] FOR variable aliases size: 0
 [DEBUG get_effective_variable_name] In FOR loop context: NO
-[DEBUG get_effective_variable_name] Not in FOR loop context, returning original: 'N'
-[ANALYZER TRACE] BlockStatement: Calling accept on statement 6 of type 44
-[ANALYZER TRACE] Entered ASTAnalyzer::visit(RoutineCallStatement&) for node at 0x105d74640
+[DEBUG get_effective_variable_name] Not in FOR loop context, returning original: 'S'
+[ANALYZER TRACE] BlockStatement: Calling accept on statement 2 of type 44
+[ANALYZER TRACE] Entered ASTAnalyzer::visit(RoutineCallStatement&) for node at 0xb8f004210
 [ANALYZER TRACE]   Detected call to runtime function: WRITES, Type: INTEGER
-[ANALYZER TRACE] BlockStatement: Calling accept on statement 7 of type 44
-[ANALYZER TRACE] Entered ASTAnalyzer::visit(RoutineCallStatement&) for node at 0x105d746c0
-[ANALYZER TRACE]   Detected call to runtime function: WRITEN, Type: INTEGER
-[ANALYZER TRACE] Visiting VariableAccess: R
-[DEBUG get_effective_variable_name] Called with: 'R'
-[DEBUG get_effective_variable_name] Loop context stack size: 0
-[DEBUG get_effective_variable_name] Active FOR loop scopes size: 0
-[DEBUG get_effective_variable_name] FOR variable aliases size: 0
-[DEBUG get_effective_variable_name] In FOR loop context: NO
-[DEBUG get_effective_variable_name] Not in FOR loop context, returning original: 'R'
-[ANALYZER TRACE] BlockStatement: Calling accept on statement 8 of type 44
-[ANALYZER TRACE] Entered ASTAnalyzer::visit(RoutineCallStatement&) for node at 0x105d74770
-[ANALYZER TRACE]   Detected call to runtime function: WRITES, Type: INTEGER
-[ANALYZER TRACE] BlockStatement: Calling accept on statement 9 of type 44
-[ANALYZER TRACE] Entered ASTAnalyzer::visit(RoutineCallStatement&) for node at 0x105d747e0
-[ANALYZER TRACE]   Detected call to runtime function: WRITEN, Type: INTEGER
-[ANALYZER TRACE] Visiting VariableAccess: I
-[DEBUG get_effective_variable_name] Called with: 'I'
-[DEBUG get_effective_variable_name] Loop context stack size: 0
-[DEBUG get_effective_variable_name] Active FOR loop scopes size: 0
-[DEBUG get_effective_variable_name] FOR variable aliases size: 0
-[DEBUG get_effective_variable_name] In FOR loop context: NO
-[DEBUG get_effective_variable_name] Not in FOR loop context, returning original: 'I'
-[ANALYZER TRACE] BlockStatement: Calling accept on statement 10 of type 44
-[ANALYZER TRACE] Entered ASTAnalyzer::visit(RoutineCallStatement&) for node at 0x105d74880
-[ANALYZER TRACE]   Detected call to runtime function: WRITES, Type: INTEGER
-[ANALYZER TRACE] BlockStatement: Calling accept on statement 11 of type 56
+[ANALYZER TRACE] Exiting block scope, returning to: START_block_0
+[DEBUG get_variable_type] Looking for 'L' in function 'START'
+[DEBUG get_variable_type] Found function metrics for 'START'
+[DEBUG get_variable_type] Parameter types count: 0
+[DEBUG get_variable_type] Variable types count: 1
+[DEBUG get_variable_type] Found in variable_types: L -> 1050625
+[ANALYZER TRACE] Popped FOREACH loop context. Context stack size: 0
 [ANALYZER TRACE] Exiting block scope, returning to: START
 [SAMM OPTIMIZATION] Starting heap allocation propagation...
 [SAMM OPTIMIZATION] Propagation iteration 1
 [SAMM OPTIMIZATION] Propagation completed after 1 iterations
 [SAMM OPTIMIZATION] Results:
-  Total functions: 3
-  Allocation-free functions: 3
-  Allocation-free leaf functions: 1
-  Allocation-free non-leaf functions: 2
+  Total functions: 1
+  Allocation-free functions: 0
+  Allocation-free leaf functions: 0
+  Allocation-free non-leaf functions: 0
 [ANALYZER TRACE] Analysis complete.
 Initial AST analysis complete.
 ==== ASTAnalyzer Function Metrics Report ====
-Function: FACTORIAL_ITERATIVE
-  Type: int
-  Parameters: 1
-  Integer Locals: 4
-  Float Locals: 0
-  Runtime Calls: 0
-  Local Function Calls: 0
-  Local Routine Calls: 0
-  Vector Allocations: no
-  Accesses Globals: no
-  Max Live Variables (Register Pressure): 0
-  Required Callee-Saved Temps: 0
---------------------------------------------
-Function: FACTORIAL_RECURSIVE
-  Type: int
-  Parameters: 1
-  Integer Locals: 0
-  Float Locals: 0
-  Runtime Calls: 0
-  Local Function Calls: 1
-  Local Routine Calls: 0
-  Vector Allocations: no
-  Accesses Globals: no
-  Max Live Variables (Register Pressure): 0
-  Required Callee-Saved Temps: 1
---------------------------------------------
 Function: START
   Type: int
   Parameters: 0
-  Integer Locals: 5
+  Integer Locals: 2
   Float Locals: 0
-  Runtime Calls: 8
-  Local Function Calls: 2
+  Runtime Calls: 3
+  Local Function Calls: 0
   Local Routine Calls: 0
   Vector Allocations: no
   Accesses Globals: yes
@@ -783,60 +287,44 @@ Cleared FOR loop state before CFGBuilderPass to prevent corruption
 [CFGBuilderPass] About to accept(Program)
 [CFGBuilderPass] visit(Program) called.
 [CFGBuilderPass] Processing declaration #0
-[CFGBuilderPass] Found FunctionDecl at index 0
-[CFGBuilderPass] visit(FunctionDeclaration) for function: FACTORIAL_RECURSIVE
-[CFGBuilderPass] Created CFG for function: FACTORIAL_RECURSIVE
-[CFGBuilderPass] Created new basic block: FACTORIAL_RECURSIVE_Entry_0
-[CFGBuilderPass] Visiting BlockStatement with SAMM scope management.
-[SAMM OPTIMIZATION] Skipping scope calls for allocation-free function: FACTORIAL_RECURSIVE (call tree)
-[CFGBuilderPass] Starting optimized block 1 variable tracking
-[CFGBuilderPass] Created new basic block: FACTORIAL_RECURSIVE_Then_1
-[CFGBuilderPass] Created new basic block: FACTORIAL_RECURSIVE_Join_2
-[CFGBuilderPass] SAMM: Visiting ResultisStatement - SAMM disabled, no scope exit call injected.
-[CFGBuilderPass] Visiting ResultisStatement - injecting scope cleanup.
-[CFGBuilderPass] Created new basic block: FACTORIAL_RECURSIVE_Exit_3
-[CFGBuilderPass] SAMM: Visiting ResultisStatement - SAMM disabled, no scope exit call injected.
-[CFGBuilderPass] Visiting ResultisStatement - injecting scope cleanup.
-[CFGBuilderPass] Resolving 0 GOTO statements...
-[CFGBuilderPass] visit(FunctionDeclaration) complete for function: FACTORIAL_RECURSIVE
-[CFGBuilderPass] Processing declaration #1
-[CFGBuilderPass] Found FunctionDecl at index 1
-[CFGBuilderPass] visit(FunctionDeclaration) for function: FACTORIAL_ITERATIVE
-[CFGBuilderPass] Created CFG for function: FACTORIAL_ITERATIVE
-[CFGBuilderPass] Created new basic block: FACTORIAL_ITERATIVE_Entry_0
-[CFGBuilderPass] Visiting BlockStatement with SAMM scope management.
-[SAMM OPTIMIZATION] Skipping scope calls for allocation-free function: FACTORIAL_ITERATIVE (leaf)
-[CFGBuilderPass] Starting optimized block 2 variable tracking
-[CFGBuilderPass] Tracking variable 'F' in current block
-[CFGBuilderPass] visit(ForStatement) entered.
-[CFGBuilderPass] Created new basic block: FACTORIAL_ITERATIVE_ForHeader_1
-[CFGBuilderPass] Created new basic block: FACTORIAL_ITERATIVE_ForBody_2
-[CFGBuilderPass] Created new basic block: FACTORIAL_ITERATIVE_ForIncrement_3
-[CFGBuilderPass] Created new basic block: FACTORIAL_ITERATIVE_ForExit_4
-[CFGBuilderPass] Created increment block: FACTORIAL_ITERATIVE_ForIncrement_3 for loop variable: I_for_var_0
-[CFGBuilderPass] visit(ForStatement) exiting.
-[CFGBuilderPass] SAMM: Visiting ResultisStatement - SAMM disabled, no scope exit call injected.
-[CFGBuilderPass] Visiting ResultisStatement - injecting scope cleanup.
-[CFGBuilderPass] Created new basic block: FACTORIAL_ITERATIVE_ResultisCleanup_5
-[CFGBuilderPass] Created new basic block: FACTORIAL_ITERATIVE_Exit_6
-[CFGBuilderPass] Resolving 0 GOTO statements...
-[CFGBuilderPass] visit(FunctionDeclaration) complete for function: FACTORIAL_ITERATIVE
-[CFGBuilderPass] Processing declaration #2
-[CFGBuilderPass] Found RoutineDecl at index 2
+[CFGBuilderPass] Found RoutineDecl at index 0
 [CFGBuilderPass] Creating CFG for routine: START
 [CFGBuilderPass] Created CFG for routine: START
 [CFGBuilderPass] Created new basic block: START_Entry_0
 [CFGBuilderPass] Visiting BlockStatement with SAMM scope management.
-[SAMM OPTIMIZATION] Skipping scope calls for allocation-free function: START (call tree)
-[CFGBuilderPass] Starting optimized block 3 variable tracking
-[CFGBuilderPass] Tracking variable 'N' in current block
-[CFGBuilderPass] Tracking variable 'R' in current block
-[CFGBuilderPass] Tracking variable 'I' in current block
-[CFGBuilderPass] SAMM: Visiting FinishStatement - injecting scope exit call.
-[ANALYZER DEBUG] Registered call site at instruction 40 for function 'START'
-[CFGBuilderPass] CFGBuilderPass: Registered HeapManager_exit_scope call site at instruction 40 for function 'START'
-[CFGBuilderPass] Visiting FinishStatement - injecting scope cleanup.
-[CFGBuilderPass] Created new basic block: START_FinishCleanup_1
+[CFGBuilderPass] SAMM: Injecting HeapManager_enter_scope() call at block start
+[ANALYZER DEBUG] Registered call site at instruction 12 for function 'START'
+[CFGBuilderPass] CFGBuilderPass: Registered HeapManager_enter_scope call site at instruction 12 for function 'START'
+[CFGBuilderPass] Starting block 1 variable tracking
+[CFGBuilderPass] Tracking variable 'L' in current block
+[CFGBuilderPass] visit(ForEachStatement) entered.
+[DEBUG get_variable_type] Looking for 'L' in function 'START'
+[DEBUG get_variable_type] Found function metrics for 'START'
+[DEBUG get_variable_type] Parameter types count: 0
+[DEBUG get_variable_type] Variable types count: 2
+[DEBUG get_variable_type] Found in variable_types: L -> 1050625
+[CFGBuilderPass] OPTIMIZATION: Using direct variable 'L' for list FOREACH instead of creating a temporary header.
+[CFGBuilderPass] Created new basic block: START_ForEachHeader_1
+[CFGBuilderPass] Created new basic block: START_ForEachBody_2
+[CFGBuilderPass] Created new basic block: START_ForEachExit_3
+[CFGBuilderPass] Visiting BlockStatement with SAMM scope management.
+[CFGBuilderPass] SAMM: Injecting HeapManager_enter_scope() call at block start
+[ANALYZER DEBUG] Registered call site at instruction 13 for function 'START'
+[CFGBuilderPass] CFGBuilderPass: Registered HeapManager_enter_scope call site at instruction 13 for function 'START'
+[CFGBuilderPass] Starting block 2 variable tracking
+[CFGBuilderPass] SAMM: Injecting HeapManager_exit_scope() call for normal block exit
+[ANALYZER DEBUG] Registered call site at instruction 14 for function 'START'
+[CFGBuilderPass] CFGBuilderPass: Registered HeapManager_exit_scope call site at instruction 14 for function 'START'
+[CFGBuilderPass] Created new basic block: START_ForEachAdvance_4
+[CFGBuilderPass] Correctly built low-level CFG for list-based FOREACH.
+[CFGBuilderPass] visit(ForEachStatement) exiting.
+[CFGBuilderPass] Generating normal block-end cleanup for 1 variables
+[CFGBuilderPass] Generating block-end cleanup for: L
+[CFGBuilderPass] Skipping BCPL_FREE_LIST(L) - SAMM is active
+[CFGBuilderPass] SAMM: Injecting HeapManager_exit_scope() call for normal block exit
+[ANALYZER DEBUG] Registered call site at instruction 15 for function 'START'
+[CFGBuilderPass] CFGBuilderPass: Registered HeapManager_exit_scope call site at instruction 15 for function 'START'
+[CFGBuilderPass] Created new basic block: START_Exit_5
 [CFGBuilderPass] Resolving 0 GOTO statements...
 [CFGBuilderPass] visit(Program) complete.
 [CFGBuilderPass] Finished accept(Program)
@@ -844,43 +332,17 @@ Cleared FOR loop state before CFGBuilderPass to prevent corruption
 
 [CFGBuilderPass] --- DUMPING ALL CFGs ---
 [CFGBuilderPass] CFG found for: START
-[CFGBuilderPass] CFG found for: FACTORIAL_ITERATIVE
-[CFGBuilderPass] CFG found for: FACTORIAL_RECURSIVE
 [CFGBuilderPass] --- END CFG DUMP ---
 Applying CFG Simplification Pass (Branch Chaining)...
 [CFGSimplificationPass] Starting CFG Simplification Pass
 [CFGSimplificationPass] Processing function: START
 [CFGSimplificationPass]   Iteration 1
 [CFGSimplificationPass]   Simplification completed after 1 iterations
-[CFGSimplificationPass] Processing function: FACTORIAL_ITERATIVE
-[CFGSimplificationPass]   Iteration 1
-[CFGSimplificationPass]     Found jump-only block: FACTORIAL_ITERATIVE_ResultisCleanup_5 -> FACTORIAL_ITERATIVE_Exit_6
-[CFGSimplificationPass]       Redirected edge: FACTORIAL_ITERATIVE_ForExit_4 -> FACTORIAL_ITERATIVE_Exit_6
-[CFGSimplificationPass]     Eliminated block: FACTORIAL_ITERATIVE_ResultisCleanup_5
-[CFGSimplificationPass]     Found jump-only block: FACTORIAL_ITERATIVE_ForExit_4 -> FACTORIAL_ITERATIVE_Exit_6
-[CFGSimplificationPass]       Redirected edge: FACTORIAL_ITERATIVE_ForHeader_1 -> FACTORIAL_ITERATIVE_Exit_6
-[CFGSimplificationPass]     Eliminated block: FACTORIAL_ITERATIVE_ForExit_4
-[CFGSimplificationPass]     Removing unreachable block: FACTORIAL_ITERATIVE_ResultisCleanup_5
-[CFGSimplificationPass]     Removing unreachable block: FACTORIAL_ITERATIVE_ForExit_4
-[CFGSimplificationPass]   Iteration 2
-[CFGSimplificationPass]   Simplification completed after 2 iterations
-[CFGSimplificationPass] Processing function: FACTORIAL_RECURSIVE
-[CFGSimplificationPass]   Iteration 1
-[CFGSimplificationPass]     Found jump-only block: FACTORIAL_RECURSIVE_Join_2 -> FACTORIAL_RECURSIVE_Exit_3
-[CFGSimplificationPass]       Redirected edge: FACTORIAL_RECURSIVE_Entry_0 -> FACTORIAL_RECURSIVE_Exit_3
-[CFGSimplificationPass]     Eliminated block: FACTORIAL_RECURSIVE_Join_2
-[CFGSimplificationPass]     Found jump-only block: FACTORIAL_RECURSIVE_Then_1 -> FACTORIAL_RECURSIVE_Exit_3
-[CFGSimplificationPass]       Redirected edge: FACTORIAL_RECURSIVE_Entry_0 -> FACTORIAL_RECURSIVE_Exit_3
-[CFGSimplificationPass]     Eliminated block: FACTORIAL_RECURSIVE_Then_1
-[CFGSimplificationPass]     Removing unreachable block: FACTORIAL_RECURSIVE_Join_2
-[CFGSimplificationPass]     Removing unreachable block: FACTORIAL_RECURSIVE_Then_1
-[CFGSimplificationPass]   Iteration 2
-[CFGSimplificationPass]   Simplification completed after 2 iterations
 
 [CFGSimplificationPass] Statistics:
-  Functions processed: 3
-  Blocks eliminated: 4
-  Edges redirected: 4
+  Functions processed: 1
+  Blocks eliminated: 0
+  Edges redirected: 0
   Unnecessary jumps removed: 0
 [CFGSimplificationPass] CFG Simplification Pass completed
 
@@ -888,871 +350,267 @@ Applying CFG Simplification Pass (Branch Chaining)...
 --- Running Liveness Analysis ---
 [LivenessAnalysisPass] Calling compute_use_def_sets()
 [LivenessAnalysisPass] Entering compute_use_def_sets()
-[LivenessAnalysisPass] CFG #1 for function 'START' has 2 blocks.
-[LivenessAnalysisPass] Analyzing block #1 (id=START_FinishCleanup_1) in function 'START'
-[LivenessAnalysisPass] Entering analyze_block for block: START_FinishCleanup_1
-[LivenessAnalysisPass] Starting intra-block analysis for START_FinishCleanup_1 with 1 statements
-[LivenessAnalysisPass] Exiting analyze_block for block: START_FinishCleanup_1
-[LivenessAnalysisPass] Analyzing block #2 (id=START_Entry_0) in function 'START'
+[LivenessAnalysisPass] CFG #1 for function 'START' has 6 blocks.
+[LivenessAnalysisPass] Analyzing block #1 (id=START_Exit_5) in function 'START'
+[LivenessAnalysisPass] Entering analyze_block for block: START_Exit_5
+[LivenessAnalysisPass] Starting intra-block analysis for START_Exit_5 with 0 statements
+[LivenessAnalysisPass] Exiting analyze_block for block: START_Exit_5
+[LivenessAnalysisPass] Analyzing block #2 (id=START_ForEachAdvance_4) in function 'START'
+[LivenessAnalysisPass] Entering analyze_block for block: START_ForEachAdvance_4
+[LivenessAnalysisPass] Starting intra-block analysis for START_ForEachAdvance_4 with 1 statements
+[LivenessAnalysisPass] Statement uses variables: _forEach_cursor_0 
+[LivenessAnalysisPass] Exiting analyze_block for block: START_ForEachAdvance_4
+[LivenessAnalysisPass] Analyzing block #3 (id=START_ForEachBody_2) in function 'START'
+[LivenessAnalysisPass] Entering analyze_block for block: START_ForEachBody_2
+[LivenessAnalysisPass] Starting intra-block analysis for START_ForEachBody_2 with 6 statements
+[LivenessAnalysisPass] Found RoutineCallStatement
+[LivenessAnalysisPass] Found call in statement
+[LivenessAnalysisPass] Found RoutineCallStatement
+[LivenessAnalysisPass] Found call in statement
+[LivenessAnalysisPass] Statement uses variables: S 
+[LivenessAnalysisPass] Variables used after call: S 
+[LivenessAnalysisPass] Found RoutineCallStatement
+[LivenessAnalysisPass] Found call in statement
+[LivenessAnalysisPass] Found RoutineCallStatement
+[LivenessAnalysisPass] Found call in statement
+[LivenessAnalysisPass] Found RoutineCallStatement
+[LivenessAnalysisPass] Found call in statement
+[LivenessAnalysisPass] Statement uses variables: _forEach_cursor_0 
+[LivenessAnalysisPass] Variables used after call: _forEach_cursor_0 
+[LivenessAnalysisPass] Intra-block call interval detected in START_ForEachBody_2 - variables live across calls: S _forEach_cursor_0 
+[LivenessAnalysisPass] Block START_ForEachBody_2 contains routine call - marked for call interval fix
+[LivenessAnalysisPass] Block START_ForEachBody_2 contains routine call - marked for call interval fix
+[LivenessAnalysisPass] Block START_ForEachBody_2 contains routine call - marked for call interval fix
+[LivenessAnalysisPass] Block START_ForEachBody_2 contains routine call - marked for call interval fix
+[LivenessAnalysisPass] Block START_ForEachBody_2 contains routine call - marked for call interval fix
+[LivenessAnalysisPass] Exiting analyze_block for block: START_ForEachBody_2
+[LivenessAnalysisPass] Analyzing block #4 (id=START_ForEachHeader_1) in function 'START'
+[LivenessAnalysisPass] Entering analyze_block for block: START_ForEachHeader_1
+[LivenessAnalysisPass] Starting intra-block analysis for START_ForEachHeader_1 with 1 statements
+[LivenessAnalysisPass] Exiting analyze_block for block: START_ForEachHeader_1
+[LivenessAnalysisPass] Analyzing block #5 (id=START_ForEachExit_3) in function 'START'
+[LivenessAnalysisPass] Entering analyze_block for block: START_ForEachExit_3
+[LivenessAnalysisPass] Starting intra-block analysis for START_ForEachExit_3 with 1 statements
+[LivenessAnalysisPass] Found RoutineCallStatement
+[LivenessAnalysisPass] Found call in statement
+[LivenessAnalysisPass] Block START_ForEachExit_3 contains routine call - marked for call interval fix
+[LivenessAnalysisPass] Exiting analyze_block for block: START_ForEachExit_3
+[LivenessAnalysisPass] Analyzing block #6 (id=START_Entry_0) in function 'START'
 [LivenessAnalysisPass] Entering analyze_block for block: START_Entry_0
-[LivenessAnalysisPass] Starting intra-block analysis for START_Entry_0 with 13 statements
+[LivenessAnalysisPass] Starting intra-block analysis for START_Entry_0 with 3 statements
+[LivenessAnalysisPass] Statement uses variables: L 
 [LivenessAnalysisPass] Found RoutineCallStatement
 [LivenessAnalysisPass] Found call in statement
-[LivenessAnalysisPass] Found RoutineCallStatement
-[LivenessAnalysisPass] Found call in statement
-[LivenessAnalysisPass] Statement uses variables: I 
-[LivenessAnalysisPass] Variables used after call: I 
-[LivenessAnalysisPass] Found RoutineCallStatement
-[LivenessAnalysisPass] Found call in statement
-[LivenessAnalysisPass] Found RoutineCallStatement
-[LivenessAnalysisPass] Found call in statement
-[LivenessAnalysisPass] Statement uses variables: R 
-[LivenessAnalysisPass] Variables used after call: R 
-[LivenessAnalysisPass] Found RoutineCallStatement
-[LivenessAnalysisPass] Found call in statement
-[LivenessAnalysisPass] Found RoutineCallStatement
-[LivenessAnalysisPass] Found call in statement
-[LivenessAnalysisPass] Statement uses variables: N 
-[LivenessAnalysisPass] Variables used after call: N 
-[LivenessAnalysisPass] Found RoutineCallStatement
-[LivenessAnalysisPass] Found call in statement
-[LivenessAnalysisPass] Found RoutineCallStatement
-[LivenessAnalysisPass] Found call in statement
-[LivenessAnalysisPass] Statement uses variables: _cse_temp_0 
-[LivenessAnalysisPass] Variables used after call: _cse_temp_0 
-[LivenessAnalysisPass] Statement uses variables: _cse_temp_0 
-[LivenessAnalysisPass] Variables used after call: _cse_temp_0 
-[LivenessAnalysisPass] Statement uses variables: N 
-[LivenessAnalysisPass] Variables used after call: N 
-[LivenessAnalysisPass] Found call in statement
-[LivenessAnalysisPass] Found RoutineCallStatement
-[LivenessAnalysisPass] Found call in statement
-[LivenessAnalysisPass] Intra-block call interval detected in START_Entry_0 - variables live across calls: I N R _cse_temp_0 
 [LivenessAnalysisPass] Block START_Entry_0 contains routine call - marked for call interval fix
-[LivenessAnalysisPass] Block START_Entry_0 contains function call - marked for call interval fix
-[LivenessAnalysisPass] Block START_Entry_0 contains routine call - marked for call interval fix
-[LivenessAnalysisPass] Block START_Entry_0 contains routine call - marked for call interval fix
-[LivenessAnalysisPass] Block START_Entry_0 contains routine call - marked for call interval fix
-[LivenessAnalysisPass] Block START_Entry_0 contains routine call - marked for call interval fix
-[LivenessAnalysisPass] Block START_Entry_0 contains routine call - marked for call interval fix
-[LivenessAnalysisPass] Block START_Entry_0 contains routine call - marked for call interval fix
-[LivenessAnalysisPass] Block START_Entry_0 contains routine call - marked for call interval fix
-[LivenessAnalysisPass] Block START_Entry_0 contains routine call - marked for call interval fix
-[SYMBOL TABLE TRACE] Lookup FAILED for symbol: 'HeapManager_exit_scope'
 [LivenessAnalysisPass] Exiting analyze_block for block: START_Entry_0
-[LivenessAnalysisPass] CFG #2 for function 'FACTORIAL_ITERATIVE' has 5 blocks.
-[LivenessAnalysisPass] Analyzing block #1 (id=FACTORIAL_ITERATIVE_Exit_6) in function 'FACTORIAL_ITERATIVE'
-[LivenessAnalysisPass] Entering analyze_block for block: FACTORIAL_ITERATIVE_Exit_6
-[LivenessAnalysisPass] Starting intra-block analysis for FACTORIAL_ITERATIVE_Exit_6 with 0 statements
-[LivenessAnalysisPass] Exiting analyze_block for block: FACTORIAL_ITERATIVE_Exit_6
-[LivenessAnalysisPass] Analyzing block #2 (id=FACTORIAL_ITERATIVE_Entry_0) in function 'FACTORIAL_ITERATIVE'
-[LivenessAnalysisPass] Entering analyze_block for block: FACTORIAL_ITERATIVE_Entry_0
-[LivenessAnalysisPass] Starting intra-block analysis for FACTORIAL_ITERATIVE_Entry_0 with 2 statements
-[LivenessAnalysisPass] Exiting analyze_block for block: FACTORIAL_ITERATIVE_Entry_0
-[LivenessAnalysisPass] Analyzing block #3 (id=FACTORIAL_ITERATIVE_ForIncrement_3) in function 'FACTORIAL_ITERATIVE'
-[LivenessAnalysisPass] Entering analyze_block for block: FACTORIAL_ITERATIVE_ForIncrement_3
-[LivenessAnalysisPass] Starting intra-block analysis for FACTORIAL_ITERATIVE_ForIncrement_3 with 1 statements
-[LivenessAnalysisPass] Statement uses variables: I_for_var_0 
-[LivenessAnalysisPass] Exiting analyze_block for block: FACTORIAL_ITERATIVE_ForIncrement_3
-[LivenessAnalysisPass] Analyzing block #4 (id=FACTORIAL_ITERATIVE_ForBody_2) in function 'FACTORIAL_ITERATIVE'
-[LivenessAnalysisPass] Entering analyze_block for block: FACTORIAL_ITERATIVE_ForBody_2
-[LivenessAnalysisPass] Starting intra-block analysis for FACTORIAL_ITERATIVE_ForBody_2 with 1 statements
-[LivenessAnalysisPass] Statement uses variables: F I_for_var_0 
-[LivenessAnalysisPass] Exiting analyze_block for block: FACTORIAL_ITERATIVE_ForBody_2
-[LivenessAnalysisPass] Analyzing block #5 (id=FACTORIAL_ITERATIVE_ForHeader_1) in function 'FACTORIAL_ITERATIVE'
-[LivenessAnalysisPass] Entering analyze_block for block: FACTORIAL_ITERATIVE_ForHeader_1
-[LivenessAnalysisPass] Starting intra-block analysis for FACTORIAL_ITERATIVE_ForHeader_1 with 1 statements
-[LivenessAnalysisPass] Exiting analyze_block for block: FACTORIAL_ITERATIVE_ForHeader_1
-[LivenessAnalysisPass] CFG #3 for function 'FACTORIAL_RECURSIVE' has 2 blocks.
-[LivenessAnalysisPass] Analyzing block #1 (id=FACTORIAL_RECURSIVE_Exit_3) in function 'FACTORIAL_RECURSIVE'
-[LivenessAnalysisPass] Entering analyze_block for block: FACTORIAL_RECURSIVE_Exit_3
-[LivenessAnalysisPass] Starting intra-block analysis for FACTORIAL_RECURSIVE_Exit_3 with 0 statements
-[LivenessAnalysisPass] Exiting analyze_block for block: FACTORIAL_RECURSIVE_Exit_3
-[LivenessAnalysisPass] Analyzing block #2 (id=FACTORIAL_RECURSIVE_Entry_0) in function 'FACTORIAL_RECURSIVE'
-[LivenessAnalysisPass] Entering analyze_block for block: FACTORIAL_RECURSIVE_Entry_0
-[LivenessAnalysisPass] Starting intra-block analysis for FACTORIAL_RECURSIVE_Entry_0 with 1 statements
-[LivenessAnalysisPass] Exiting analyze_block for block: FACTORIAL_RECURSIVE_Entry_0
 [LivenessAnalysisPass] Exiting compute_use_def_sets()
 [LivenessAnalysisPass] Finished compute_use_def_sets()
 [LivenessAnalysisPass] Calling run_data_flow_analysis()
 [LivenessAnalysisPass] Entering run_data_flow_analysis()
 [LivenessAnalysisPass] Data-flow iteration 1
-[LivenessAnalysisPass] Processing block: START_FinishCleanup_1 in function: START
+[LivenessAnalysisPass] Processing block: START_ForEachAdvance_4 in function: START
+[LivenessAnalysisPass] Processing block: START_ForEachBody_2 in function: START
+[LivenessAnalysisPass] Applying call interval fix to block START_ForEachBody_2 - adding 1 live-out variables to use set
+[LivenessAnalysisPass] Processing block: START_Exit_5 in function: START
+[LivenessAnalysisPass] Processing block: START_ForEachExit_3 in function: START
+[LivenessAnalysisPass] Applying call interval fix to block START_ForEachExit_3 - adding 0 live-out variables to use set
+[LivenessAnalysisPass] Processing block: START_ForEachHeader_1 in function: START
 [LivenessAnalysisPass] Processing block: START_Entry_0 in function: START
-[LivenessAnalysisPass] Applying call interval fix to block START_Entry_0 - adding 0 live-out variables to use set
-[LivenessAnalysisPass] Processing block: FACTORIAL_ITERATIVE_ForIncrement_3 in function: FACTORIAL_ITERATIVE
-[LivenessAnalysisPass] Processing block: FACTORIAL_ITERATIVE_ForBody_2 in function: FACTORIAL_ITERATIVE
-[LivenessAnalysisPass] Processing block: FACTORIAL_ITERATIVE_Exit_6 in function: FACTORIAL_ITERATIVE
-[LivenessAnalysisPass] Processing block: FACTORIAL_ITERATIVE_ForHeader_1 in function: FACTORIAL_ITERATIVE
-[LivenessAnalysisPass] Processing block: FACTORIAL_ITERATIVE_Entry_0 in function: FACTORIAL_ITERATIVE
-[LivenessAnalysisPass] Processing block: FACTORIAL_RECURSIVE_Exit_3 in function: FACTORIAL_RECURSIVE
-[LivenessAnalysisPass] Processing block: FACTORIAL_RECURSIVE_Entry_0 in function: FACTORIAL_RECURSIVE
+[LivenessAnalysisPass] Applying call interval fix to block START_Entry_0 - adding 2 live-out variables to use set
 [LivenessAnalysisPass] Data-flow iteration 2
-[LivenessAnalysisPass] Processing block: START_FinishCleanup_1 in function: START
+[LivenessAnalysisPass] Processing block: START_ForEachAdvance_4 in function: START
+[LivenessAnalysisPass] Processing block: START_ForEachBody_2 in function: START
+[LivenessAnalysisPass] Applying call interval fix to block START_ForEachBody_2 - adding 2 live-out variables to use set
+[LivenessAnalysisPass] Processing block: START_Exit_5 in function: START
+[LivenessAnalysisPass] Processing block: START_ForEachExit_3 in function: START
+[LivenessAnalysisPass] Applying call interval fix to block START_ForEachExit_3 - adding 0 live-out variables to use set
+[LivenessAnalysisPass] Processing block: START_ForEachHeader_1 in function: START
 [LivenessAnalysisPass] Processing block: START_Entry_0 in function: START
-[LivenessAnalysisPass] Applying call interval fix to block START_Entry_0 - adding 0 live-out variables to use set
-[LivenessAnalysisPass] Processing block: FACTORIAL_ITERATIVE_ForIncrement_3 in function: FACTORIAL_ITERATIVE
-[LivenessAnalysisPass] Processing block: FACTORIAL_ITERATIVE_ForBody_2 in function: FACTORIAL_ITERATIVE
-[LivenessAnalysisPass] Processing block: FACTORIAL_ITERATIVE_Exit_6 in function: FACTORIAL_ITERATIVE
-[LivenessAnalysisPass] Processing block: FACTORIAL_ITERATIVE_ForHeader_1 in function: FACTORIAL_ITERATIVE
-[LivenessAnalysisPass] Processing block: FACTORIAL_ITERATIVE_Entry_0 in function: FACTORIAL_ITERATIVE
-[LivenessAnalysisPass] Processing block: FACTORIAL_RECURSIVE_Exit_3 in function: FACTORIAL_RECURSIVE
-[LivenessAnalysisPass] Processing block: FACTORIAL_RECURSIVE_Entry_0 in function: FACTORIAL_RECURSIVE
+[LivenessAnalysisPass] Applying call interval fix to block START_Entry_0 - adding 2 live-out variables to use set
 [LivenessAnalysisPass] Data-flow iteration 3
-[LivenessAnalysisPass] Processing block: START_FinishCleanup_1 in function: START
+[LivenessAnalysisPass] Processing block: START_ForEachAdvance_4 in function: START
+[LivenessAnalysisPass] Processing block: START_ForEachBody_2 in function: START
+[LivenessAnalysisPass] Applying call interval fix to block START_ForEachBody_2 - adding 2 live-out variables to use set
+[LivenessAnalysisPass] Processing block: START_Exit_5 in function: START
+[LivenessAnalysisPass] Processing block: START_ForEachExit_3 in function: START
+[LivenessAnalysisPass] Applying call interval fix to block START_ForEachExit_3 - adding 0 live-out variables to use set
+[LivenessAnalysisPass] Processing block: START_ForEachHeader_1 in function: START
 [LivenessAnalysisPass] Processing block: START_Entry_0 in function: START
-[LivenessAnalysisPass] Applying call interval fix to block START_Entry_0 - adding 0 live-out variables to use set
-[LivenessAnalysisPass] Processing block: FACTORIAL_ITERATIVE_ForIncrement_3 in function: FACTORIAL_ITERATIVE
-[LivenessAnalysisPass] Processing block: FACTORIAL_ITERATIVE_ForBody_2 in function: FACTORIAL_ITERATIVE
-[LivenessAnalysisPass] Processing block: FACTORIAL_ITERATIVE_Exit_6 in function: FACTORIAL_ITERATIVE
-[LivenessAnalysisPass] Processing block: FACTORIAL_ITERATIVE_ForHeader_1 in function: FACTORIAL_ITERATIVE
-[LivenessAnalysisPass] Processing block: FACTORIAL_ITERATIVE_Entry_0 in function: FACTORIAL_ITERATIVE
-[LivenessAnalysisPass] Processing block: FACTORIAL_RECURSIVE_Exit_3 in function: FACTORIAL_RECURSIVE
-[LivenessAnalysisPass] Processing block: FACTORIAL_RECURSIVE_Entry_0 in function: FACTORIAL_RECURSIVE
+[LivenessAnalysisPass] Applying call interval fix to block START_Entry_0 - adding 2 live-out variables to use set
 [LivenessAnalysisPass] Exiting run_data_flow_analysis()
 [LivenessAnalysisPass] Finished run_data_flow_analysis()
 --- Liveness Analysis Complete ---
 
 Liveness Analysis for function: START
 -------------------------------------------
-Block ID: START_FinishCleanup_1
+Block ID: START_Exit_5
+  Use: { }
+  Def: { }
+  In : { }
+  Out: { }
+Block ID: START_ForEachAdvance_4
+  Use: { _forEach_cursor_0 }
+  Def: { _forEach_cursor_0 }
+  In : { S _forEach_cursor_0 }
+  Out: { S _forEach_cursor_0 }
+Block ID: START_ForEachBody_2
+  Use: { S _forEach_cursor_0 }
+  Def: { S }
+  In : { S _forEach_cursor_0 }
+  Out: { S _forEach_cursor_0 }
+Block ID: START_ForEachHeader_1
+  Use: { _forEach_cursor_0 }
+  Def: { }
+  In : { S _forEach_cursor_0 }
+  Out: { S _forEach_cursor_0 }
+Block ID: START_ForEachExit_3
   Use: { }
   Def: { }
   In : { }
   Out: { }
 Block ID: START_Entry_0
-  Use: { I N R _cse_temp_0 }
-  Def: { I N R _cse_temp_0 }
-  In : { I N R _cse_temp_0 }
-  Out: { }
-
-Liveness Analysis for function: FACTORIAL_ITERATIVE
--------------------------------------------
-Block ID: FACTORIAL_ITERATIVE_Exit_6
   Use: { }
-  Def: { }
-  In : { }
-  Out: { }
-Block ID: FACTORIAL_ITERATIVE_Entry_0
-  Use: { }
-  Def: { F I_for_var_0 }
-  In : { N }
-  Out: { F N }
-Block ID: FACTORIAL_ITERATIVE_ForIncrement_3
-  Use: { I_for_var_0 }
-  Def: { I_for_var_0 }
-  In : { F I_for_var_0 N }
-  Out: { F N }
-Block ID: FACTORIAL_ITERATIVE_ForBody_2
-  Use: { F I_for_var_0 }
-  Def: { F }
-  In : { F I_for_var_0 N }
-  Out: { F I_for_var_0 N }
-Block ID: FACTORIAL_ITERATIVE_ForHeader_1
-  Use: { N }
-  Def: { I_for_var_0 }
-  In : { F N }
-  Out: { F I_for_var_0 N }
-
-Liveness Analysis for function: FACTORIAL_RECURSIVE
--------------------------------------------
-Block ID: FACTORIAL_RECURSIVE_Exit_3
-  Use: { }
-  Def: { }
-  In : { }
-  Out: { }
-Block ID: FACTORIAL_RECURSIVE_Entry_0
-  Use: { N }
-  Def: { }
-  In : { N }
-  Out: { }
+  Def: { L _forEach_cursor_0 }
+  In : { S _forEach_cursor_0 }
+  Out: { S _forEach_cursor_0 }
 
 CFG for function: START
 ----------------------------------------
 Entry Block: START_Entry_0
+Exit Block: START_Exit_5 (conceptual)
 
-Block ID: START_FinishCleanup_1
+Block ID: START_Exit_5 (Exit)
   Statements:
-    - FinishStmt
+    (empty)
   Successors: (none)
-  Predecessors: START_Entry_0
+  Predecessors: START_ForEachExit_3
+
+Block ID: START_ForEachAdvance_4
+  Statements:
+    - AssignmentStmt
+  Successors: START_ForEachHeader_1
+  Predecessors: START_ForEachBody_2
+
+Block ID: START_ForEachBody_2
+  Statements:
+    - AssignmentStmt
+    - RoutineCallStmt
+    - RoutineCallStmt
+    - RoutineCallStmt
+    - RoutineCallStmt
+    - RoutineCallStmt
+  Successors: START_ForEachAdvance_4
+  Predecessors: START_ForEachHeader_1
+
+Block ID: START_ForEachHeader_1
+  Statements:
+    - ConditionalBranchStmt
+  Successors: START_ForEachBody_2, START_ForEachExit_3
+  Predecessors: START_Entry_0, START_ForEachAdvance_4
+
+Block ID: START_ForEachExit_3
+  Statements:
+    - RoutineCallStmt
+  Successors: START_Exit_5
+  Predecessors: START_ForEachHeader_1
 
 Block ID: START_Entry_0 (Entry)
   Statements:
     - RoutineCallStmt
     - AssignmentStmt
     - AssignmentStmt
-    - AssignmentStmt
-    - AssignmentStmt
-    - RoutineCallStmt
-    - RoutineCallStmt
-    - RoutineCallStmt
-    - RoutineCallStmt
-    - RoutineCallStmt
-    - RoutineCallStmt
-    - RoutineCallStmt
-    - RoutineCallStmt
-  Successors: START_FinishCleanup_1
-  Predecessors: (none)
-----------------------------------------
-
-CFG for function: FACTORIAL_ITERATIVE
-----------------------------------------
-Entry Block: FACTORIAL_ITERATIVE_Entry_0
-Exit Block: FACTORIAL_ITERATIVE_Exit_6 (conceptual)
-
-Block ID: FACTORIAL_ITERATIVE_Exit_6 (Exit)
-  Statements:
-    (empty)
-  Successors: (none)
-  Predecessors: FACTORIAL_ITERATIVE_ForHeader_1
-
-Block ID: FACTORIAL_ITERATIVE_Entry_0 (Entry)
-  Statements:
-    - AssignmentStmt
-    - AssignmentStmt
-  Successors: FACTORIAL_ITERATIVE_ForHeader_1
-  Predecessors: (none)
-
-Block ID: FACTORIAL_ITERATIVE_ForIncrement_3
-  Statements:
-    - AssignmentStmt
-  Successors: FACTORIAL_ITERATIVE_ForHeader_1
-  Predecessors: FACTORIAL_ITERATIVE_ForBody_2
-
-Block ID: FACTORIAL_ITERATIVE_ForBody_2
-  Statements:
-    - AssignmentStmt
-  Successors: FACTORIAL_ITERATIVE_ForIncrement_3
-  Predecessors: FACTORIAL_ITERATIVE_ForHeader_1
-
-Block ID: FACTORIAL_ITERATIVE_ForHeader_1
-  Statements:
-    - ForStmt
-  Successors: FACTORIAL_ITERATIVE_ForBody_2, FACTORIAL_ITERATIVE_Exit_6
-  Predecessors: FACTORIAL_ITERATIVE_Entry_0, FACTORIAL_ITERATIVE_ForIncrement_3
-----------------------------------------
-
-CFG for function: FACTORIAL_RECURSIVE
-----------------------------------------
-Entry Block: FACTORIAL_RECURSIVE_Entry_0
-Exit Block: FACTORIAL_RECURSIVE_Exit_3 (conceptual)
-
-Block ID: FACTORIAL_RECURSIVE_Exit_3 (Exit)
-  Statements:
-    (empty)
-  Successors: (none)
-  Predecessors: FACTORIAL_RECURSIVE_Entry_0
-
-Block ID: FACTORIAL_RECURSIVE_Entry_0 (Entry)
-  Statements:
-    - IfStmt
-  Successors: FACTORIAL_RECURSIVE_Exit_3, FACTORIAL_RECURSIVE_Exit_3
+  Successors: START_ForEachHeader_1
   Predecessors: (none)
 ----------------------------------------
 
 --- AST Dump Immediately Before Code Generation ---
 Program:
   Declarations:
-    FunctionDeclaration: FACTORIAL_RECURSIVE
-      Parameters: N 
-      Body:
-        ValofExpression:
-          BlockStatement:
-            Statements:
-              IfStatement:
-                Condition:
-                  BinaryOp: Equal
-                    VariableAccess: N
-                    NumberLiteral: 0
-                Then:
-                  ResultisStatement:
-                    NumberLiteral: 1
-              ResultisStatement:
-                BinaryOp: Multiply
-                  VariableAccess: N
-                  FunctionCall:
-                    Callee:
-                      VariableAccess: FACTORIAL_RECURSIVE
-                    Arguments:
-                      BinaryOp: Subtract
-                        VariableAccess: N
-                        NumberLiteral: 1
-    FunctionDeclaration: FACTORIAL_ITERATIVE
-      Parameters: N 
-      Body:
-        ValofExpression:
-          BlockStatement:
-            Statements:
-              AssignmentStatement:
-                LHS:
-                  VariableAccess: F
-                RHS:
-                  NumberLiteral: 1
-              ForStatement: I
-                Start:
-                  NumberLiteral: 1
-                End:
-                  VariableAccess: N
-                Body:
-                  AssignmentStatement:
-                    LHS:
-                      VariableAccess: F
-                    RHS:
-                      BinaryOp: Multiply
-                        VariableAccess: F
-                        VariableAccess: I_for_var_0
-              ResultisStatement:
-                VariableAccess: F
     RoutineDeclaration: START
       Body:
         BlockStatement:
           Statements:
-            RoutineCallStatement:
-              Callee:
-                VariableAccess: WRITES
-              Arguments:
-                StringLiteral: "Hello
-"
             AssignmentStatement:
               LHS:
-                VariableAccess: N
+                VariableAccess: L
               RHS:
-                NumberLiteral: 18
-            AssignmentStatement:
-              LHS:
-                VariableAccess: _cse_temp_0
-              RHS:
-                FunctionCall:
-                  Callee:
-                    VariableAccess: FACTORIAL_RECURSIVE
-                  Arguments:
-                    VariableAccess: N
-            AssignmentStatement:
-              LHS:
-                VariableAccess: R
-              RHS:
-                VariableAccess: _cse_temp_0
-            AssignmentStatement:
-              LHS:
-                VariableAccess: I
-              RHS:
-                VariableAccess: _cse_temp_0
-            RoutineCallStatement:
-              Callee:
-                VariableAccess: WRITES
-              Arguments:
-                StringLiteral: "Calculating recursive Factorial of "
-            RoutineCallStatement:
-              Callee:
-                VariableAccess: WRITEN
-              Arguments:
-                VariableAccess: N
-            RoutineCallStatement:
-              Callee:
-                VariableAccess: WRITES
-              Arguments:
-                StringLiteral: " = "
-            RoutineCallStatement:
-              Callee:
-                VariableAccess: WRITEN
-              Arguments:
-                VariableAccess: R
-            RoutineCallStatement:
-              Callee:
-                VariableAccess: WRITES
-              Arguments:
-                StringLiteral: " AND = "
-            RoutineCallStatement:
-              Callee:
-                VariableAccess: WRITEN
-              Arguments:
-                VariableAccess: I
-            RoutineCallStatement:
-              Callee:
-                VariableAccess: WRITES
-              Arguments:
-                StringLiteral: "BYE"
-            FinishStatement
 ----------------------------------
 
 Updating register pressure from liveness data...
 
 [INFO] Building Live Intervals for all functions...
 [LiveIntervalPass] Building intervals for function: START
-[SYMBOL TABLE TRACE] Lookup FAILED for symbol: 'HeapManager_exit_scope'
-[LiveIntervalPass] Created 4 intervals for function: START
-  I: [0-10]
-  N: [0-6]
-  R: [0-8]
-  _cse_temp_0: [0-4]
-[LiveIntervalPass] Building intervals for function: FACTORIAL_ITERATIVE
-[LiveIntervalPass] Created 4 intervals for function: FACTORIAL_ITERATIVE
-  F: [0-9]
-  N: [0-9]
-  I_for_var_0: [1-8]
-  I: [3-3]
-[LiveIntervalPass] Building intervals for function: FACTORIAL_RECURSIVE
-[LiveIntervalPass] Created 1 intervals for function: FACTORIAL_RECURSIVE
-  N: [0-0]
+[LiveIntervalPass] Created 3 intervals for function: START
+  S: [0-17]
+  _forEach_cursor_0: [0-17]
+  L: [1-2]
 
 [INFO] Performing Linear Scan Register Allocation for ALL functions...
 [Allocator] Starting partitioned linear scan for function: START
 [Allocator] Available integer registers: 16, float registers: 24
-[Allocator] Function has 11 call sites at: 0 4 8 12 16 20 24 28 32 36 40 
-[Allocator] Partitioned: 4 call-crossing, 0 local-only intervals
+[Allocator] Function has 7 call sites at: 0 4 8 12 13 14 15 
+[Allocator] Partitioned: 2 call-crossing, 1 local-only intervals
 [Allocator] Register pools - Callee-saved INT: 9, Caller-saved INT: 4, Reserved scratch INT: 3
 [Allocator] Register pools - Callee-saved FP: 8, Caller-saved FP: 16
 [Allocator] Stage 1: Allocating call-crossing intervals
-[Allocator] Allocating call-crossing I [0-10]
-  Assigned callee-saved register X27 to I
-[ALLOC] Updated allocations for I: spilled=0, register='X27'
-[Allocator] Allocating call-crossing N [0-6]
-  Assigned callee-saved register X26 to N
-[ALLOC] Updated allocations for N: spilled=0, register='X26'
-[Allocator] Allocating call-crossing R [0-8]
-  Assigned callee-saved register X25 to R
-[ALLOC] Updated allocations for R: spilled=0, register='X25'
-[Allocator] Allocating call-crossing _cse_temp_0 [0-4]
-  Assigned callee-saved register X24 to _cse_temp_0
-[ALLOC] Updated allocations for _cse_temp_0: spilled=0, register='X24'
+[Allocator] Allocating call-crossing S [0-17]
+  Assigned callee-saved register X27 to S
+[ALLOC] Updated allocations for S: spilled=0, register='X27'
+[Allocator] Allocating call-crossing _forEach_cursor_0 [0-17]
+  Assigned callee-saved register X26 to _forEach_cursor_0
+[ALLOC] Updated allocations for _forEach_cursor_0: spilled=0, register='X26'
 [Allocator] Stage 2: Allocating local-only intervals
+[Allocator] Allocating local-only L [1-2]
+  Assigned register X15 to L
+[ALLOC] Updated allocations for L: spilled=0, register='X15'
 [Allocator] Partitioned allocation complete for START
 [Allocator] Reserved 3 scratch registers for code generation: X9 X10 X11 
 [Allocator] Final state validation:
-  Active intervals remaining: 4
-  Free integer registers: 9
+  Active intervals remaining: 3
+  Free integer registers: 10
   Free float registers: 24
   ✓ No register conflicts detected
 [Allocator] Results:
-  I: reg X27 (callee-saved) [call-crossing]
-  N: reg X26 (callee-saved) [call-crossing]
-  R: reg X25 (callee-saved) [call-crossing]
-  _cse_temp_0: reg X24 (callee-saved) [call-crossing]
-[Allocator] Starting partitioned linear scan for function: FACTORIAL_ITERATIVE
-[Allocator] Available integer registers: 16, float registers: 24
-[Allocator] Function has 0 call sites at: 
-[Allocator] Partitioned: 0 call-crossing, 4 local-only intervals
-[Allocator] Register pools - Callee-saved INT: 9, Caller-saved INT: 4, Reserved scratch INT: 3
-[Allocator] Register pools - Callee-saved FP: 8, Caller-saved FP: 16
-[Allocator] Stage 1: Allocating call-crossing intervals
-[Allocator] Stage 2: Allocating local-only intervals
-[Allocator] Allocating local-only F [0-9]
-  Assigned register X15 to F
-[ALLOC] Updated allocations for F: spilled=0, register='X15'
-[Allocator] Allocating local-only N [0-9]
-  Assigned register X14 to N
-[ALLOC] Updated allocations for N: spilled=0, register='X14'
-[Allocator] Allocating local-only I_for_var_0 [1-8]
-  Assigned register X13 to I_for_var_0
-[ALLOC] Updated allocations for I_for_var_0: spilled=0, register='X13'
-[Allocator] Allocating local-only I [3-3]
-  Assigned register X12 to I
-[ALLOC] Updated allocations for I: spilled=0, register='X12'
-[Allocator] Partitioned allocation complete for FACTORIAL_ITERATIVE
-[Allocator] Reserved 3 scratch registers for code generation: X9 X10 X11 
-[Allocator] Final state validation:
-  Active intervals remaining: 4
-  Free integer registers: 9
-  Free float registers: 24
-  ✓ No register conflicts detected
-[Allocator] Results:
-  F: reg X15 (caller-saved) [local-only]
-  I: reg X12 (caller-saved) [local-only]
-  I_for_var_0: reg X13 (caller-saved) [local-only]
-  N: reg X14 (caller-saved) [local-only]
-[Allocator] Starting partitioned linear scan for function: FACTORIAL_RECURSIVE
-[Allocator] Available integer registers: 16, float registers: 24
-[Allocator] Function has 1 call sites at: 0 
-[Allocator] Partitioned: 1 call-crossing, 0 local-only intervals
-[Allocator] Register pools - Callee-saved INT: 9, Caller-saved INT: 4, Reserved scratch INT: 3
-[Allocator] Register pools - Callee-saved FP: 8, Caller-saved FP: 16
-[Allocator] Stage 1: Allocating call-crossing intervals
-[Allocator] Allocating call-crossing N [0-0]
-  Assigned callee-saved register X27 to N
-[ALLOC] Updated allocations for N: spilled=0, register='X27'
-[Allocator] Stage 2: Allocating local-only intervals
-[Allocator] Partitioned allocation complete for FACTORIAL_RECURSIVE
-[Allocator] Reserved 3 scratch registers for code generation: X9 X10 X11 
-[Allocator] Final state validation:
-  Active intervals remaining: 1
-  Free integer registers: 12
-  Free float registers: 24
-  ✓ No register conflicts detected
-[Allocator] Results:
-  N: reg X27 (callee-saved) [call-crossing]
+  L: reg X15 (caller-saved) [local-only]
+  S: reg X27 (callee-saved) [call-crossing]
+  _forEach_cursor_0: reg X26 (callee-saved) [call-crossing]
 
 [INFO] Synchronizing RegisterManager with LinearScanAllocator decisions...
 
 --- Final Metrics State Before Code Generation ---
 ==== ASTAnalyzer Function Metrics Report ====
-Function: FACTORIAL_ITERATIVE
-  Type: int
-  Parameters: 1
-  Integer Locals: 4
-  Float Locals: 0
-  Runtime Calls: 0
-  Local Function Calls: 0
-  Local Routine Calls: 0
-  Vector Allocations: no
-  Accesses Globals: no
-  Max Live Variables (Register Pressure): 3
-  Required Callee-Saved Temps: 0
---------------------------------------------
-Function: FACTORIAL_RECURSIVE
-  Type: int
-  Parameters: 1
-  Integer Locals: 0
-  Float Locals: 0
-  Runtime Calls: 0
-  Local Function Calls: 1
-  Local Routine Calls: 0
-  Vector Allocations: no
-  Accesses Globals: no
-  Max Live Variables (Register Pressure): 1
-  Required Callee-Saved Temps: 1
---------------------------------------------
 Function: START
   Type: int
   Parameters: 0
-  Integer Locals: 6
+  Integer Locals: 3
   Float Locals: 0
-  Runtime Calls: 8
-  Local Function Calls: 2
+  Runtime Calls: 3
+  Local Function Calls: 0
   Local Routine Calls: 0
   Vector Allocations: no
   Accesses Globals: yes
-  Max Live Variables (Register Pressure): 4
+  Max Live Variables (Register Pressure): 2
   Required Callee-Saved Temps: 0
 --------------------------------------------
 --------------------------------------------------
 
-[DEBUG] Initialized veneer manager with base address: 0x4464148480
+[DEBUG] Initialized veneer manager with base address: 0x4391944192
 [DEBUG] Starting code generation for program.
 [DEBUG] Step 1: Performing pre-analysis scan for external functions...
-[DEBUG] Found 2 unique external functions:
-[DEBUG]   - WRITEN
+[DEBUG] Found 1 unique external functions:
 [DEBUG]   - WRITES
 [DEBUG] Step 2: Generating veneer section using standard pipeline...
-[VeneerManager] Generating 4 veneers (including function families) using standard pipeline...
+[VeneerManager] Generating 3 veneers (including function families) using standard pipeline...
 [VeneerManager] Created veneer: HeapManager_enter_scope_veneer for function: HeapManager_enter_scope
 [VeneerManager] Created veneer: HeapManager_exit_scope_veneer for function: HeapManager_exit_scope
-[VeneerManager] Created veneer: WRITEN_veneer for function: WRITEN
 [VeneerManager] Created veneer: WRITES_veneer for function: WRITES
-[VeneerManager] Generated 4 veneers, estimated total size: 80 bytes
+[VeneerManager] Generated 3 veneers, estimated total size: 60 bytes
 [DEBUG] Step 3: Generating main function code...
 [DEBUG] Visiting Program node.
 [DEBUG] Moving 'START' routine to the end of the generation queue for JIT compatibility.
 [DEBUG] Code Generator: Registering global data declarations.
 [DEBUG] Code Generator: Global data offsets calculated.
 [DEBUG] Code Generator: Generating code for functions and routines.
-[DEBUG] Visiting FunctionDeclaration node (Name: FACTORIAL_RECURSIVE).
-[DEBUG] Function metrics for FACTORIAL_RECURSIVE: runtime_calls=0, local_function_calls=1, local_routine_calls=0
-[DEBUG] Using name as-is for metrics lookup: FACTORIAL_RECURSIVE
-[DEBUG] DEBUG: generate_function_like_code called for: FACTORIAL_RECURSIVE
-[DEBUG] Generating function-like code for: FACTORIAL_RECURSIVE
-[DEBUG] Clearing local value tracking for function: FACTORIAL_RECURSIVE
-[SYNC] Resetting all LinearScanAllocator reservations
-[SYNC] Syncing RegisterManager with LinearScanAllocator for function: FACTORIAL_RECURSIVE
-[SYNC] Found 1 variable allocations
-[SYNC] Reserved register X27 for variable N
-[DEBUG] Synced RegisterManager with LinearScanAllocator for function: FACTORIAL_RECURSIVE
-[DEBUG] Using name as-is for lookup: FACTORIAL_RECURSIVE
-Call Frame Layout for function: FACTORIAL_RECURSIVE
-Added X19 to callee_saved_registers_to_save list.
-[DEBUG] Registering all parameters as locals in CallFrameManager for 'FACTORIAL_RECURSIVE'.
-[DEBUG] DEBUG: metrics.variable_types size for 'FACTORIAL_RECURSIVE': 1
-[DEBUG] DEBUG: variable_types['N'] = UNKNOWN
-[DEBUG] DEBUG: Parameter 'N' type from metrics: UNKNOWN
-Added local variable 'N' of type 0 at offset 16 (size 8)
-[DEBUG] Added parameter 'N' to CallFrameManager locals.
-[DEBUG] Registering all local variables from ASTAnalyzer metrics for 'FACTORIAL_RECURSIVE'.
-[DEBUG] Added parameter 'N' to CallFrameManager locals.
-[DEBUG] Entered new scope. Scope stack size: 1
-[DEBUG] Using pre-computed register allocation for 'FACTORIAL_RECURSIVE'.
-[DEBUG] No spills needed - all variables fit in registers.
-Added X27 to callee_saved_registers_to_save list.
-Added X28 to callee_saved_registers_to_save list.
-[DEBUG] Attempting to generate prologue for 'FACTORIAL_RECURSIVE'.
---- Call Frame Layout for function: FACTORIAL_RECURSIVE (Total Size: 48 bytes) ---
-Offset   | Content                               | Type
-------------------------------------------------------
-+0       | Old Frame Pointer (x29)     <-- FP (x29) points here
-+8       | Return Address (Caller's PC)
-+16      | Local: N                              | UNKNOWN
-+24      | Saved Reg: X19                        | UNKNOWN
-+32      | Saved Reg: X27                        | UNKNOWN
-+40      | Saved Reg: X28                        | UNKNOWN
-------------------------------------------------------
-                                     <-- SP (+48 from FP)
-
-[DEBUG LEVEL 5] Emitting instruction: STP X29, X30, [SP, #-48]!
-[DEBUG LEVEL 5] Emitting instruction: MOV X29, SP
-[DEBUG LEVEL 5] Emitting instruction: STR X19, [X29, #24] ; Saved Reg: X19 @ FP+24
-[DEBUG LEVEL 5] Emitting instruction: STR X27, [X29, #32] ; Saved Reg: X27 @ FP+32
-[DEBUG LEVEL 5] Emitting instruction: STR X28, [X29, #40] ; Saved Reg: X28 @ FP+40
-[DEBUG] Mapping incoming parameters to home registers or stack slots as per allocation plan.
-[DEBUG]   Moving 'N' from arg reg X0 to home reg X27.
-[DEBUG LEVEL 5] Emitting instruction: MOV X27, X0    // Move parameter 'N' from X0 to X27
-[DEBUG] Registered local variable 'X27' with the allocation system (spilled)
-[DEBUG] Registered local variable 'X28' with the allocation system (spilled)
-[DEBUG] Registered local variable 'X19' with the allocation system (spilled)
-[DEBUG] Skipping duplicate parameter storage
-[DEBUG] --- Call Frame Layout for function: FACTORIAL_RECURSIVE (Total Size: 48 bytes) ---
-Offset   | Content                               | Type
-------------------------------------------------------
-+0       | Old Frame Pointer (x29)     <-- FP (x29) points here
-+8       | Return Address (Caller's PC)
-+16      | Local: N                              | UNKNOWN
-+24      | Saved Reg: X19                        | UNKNOWN
-+32      | Saved Reg: X27                        | UNKNOWN
-+40      | Saved Reg: X28                        | UNKNOWN
-------------------------------------------------------
-                                     <-- SP (+48 from FP)
-
-[DEBUG] --- DEBUG: Available CFGs in the map ---
-[DEBUG]   Available CFG: 'START'
-[DEBUG]   Available CFG: 'FACTORIAL_ITERATIVE'
-[DEBUG]   Available CFG: 'FACTORIAL_RECURSIVE'
-[DEBUG] --- End of CFG list ---
-[DEBUG] Found CFG using lookup_name: FACTORIAL_RECURSIVE
-[DEBUG] Visiting IfStatement node (NOTE: branching is handled by block epilogue).
-[DEBUG] Visiting BinaryOp node.
-[DEBUG] BinaryOp type inference: left_type=1, right_type=1
-[DEBUG] About to evaluate LEFT side of binary operation
-[DEBUG] Visiting VariableAccess node for 'N'.
-[DEBUG]   [DEBUG] About to call get_variable_register for 'N' in function 'FACTORIAL_RECURSIVE'
-[DEBUG] get_variable_register for: 'N' in function 'FACTORIAL_RECURSIVE'
-[DEBUG]   [DEBUG] Current function allocations exist: YES
-[DEBUG]   ✅ REGISTER ALLOCATED: Variable 'N' lives in register X27
-[DEBUG] Variable 'N' value loaded into X27
-[DEBUG]   [DEBUG] get_variable_register returned: 'X27'
-[DEBUG] LEFT side evaluation complete. left_reg = 'X27'
-[DEBUG] OPTIMIZATION: Right operand is constant: 0
-[DEBUG] Checking type promotion: left_reg=X27, right_reg=
-[DEBUG] NO PROMOTION NEEDED or both same type or constant operand
-[DEBUG LEVEL 5] Emitting instruction: MOV X9, X27
-[DEBUG] Protected variable home register by copying to scratch register.
-[DEBUG LEVEL 5] Emitting instruction: CMP X9, #0
-[DEBUG LEVEL 5] Emitting instruction: CSET X10, EQ
-[DEBUG] OPTIMIZATION: No right register to release (used immediate value)
-[DEBUG] Finished visiting BinaryOp node. Result in X10
-[DEBUG LEVEL 5] Emitting instruction: CMP X10, XZR
-[DEBUG LEVEL 5] Emitting instruction: B.EQ FACTORIAL_RECURSIVE_Exit_3
-[DEBUG LEVEL 5] Emitting instruction: B FACTORIAL_RECURSIVE_Exit_3
-[DEBUG LEVEL 5] Emitting instruction: B .L0
-[DEBUG] Performing end-of-function scope cleanup for 'FACTORIAL_RECURSIVE'.
-[DEBUG] Defining epilogue label: .L0
-[DEBUG] Attempting to generate epilogue for 'FACTORIAL_RECURSIVE'.
-[DEBUG] Exited scope. Scope stack size: 0
-[DEBUG] Finished visiting FunctionDeclaration node.
-[DEBUG] Visiting FunctionDeclaration node (Name: FACTORIAL_ITERATIVE).
-[DEBUG] Function metrics for FACTORIAL_ITERATIVE: runtime_calls=0, local_function_calls=0, local_routine_calls=0
-[DEBUG] Using name as-is for metrics lookup: FACTORIAL_ITERATIVE
-[DEBUG] DEBUG: generate_function_like_code called for: FACTORIAL_ITERATIVE
-[DEBUG] Generating function-like code for: FACTORIAL_ITERATIVE
-[DEBUG] Clearing local value tracking for function: FACTORIAL_ITERATIVE
-[SYNC] Resetting all LinearScanAllocator reservations
-[SYNC] Syncing RegisterManager with LinearScanAllocator for function: FACTORIAL_ITERATIVE
-[SYNC] Found 4 variable allocations
-[SYNC] Reserved register X15 for variable F
-[SYNC] Reserved register X12 for variable I
-[SYNC] Reserved register X13 for variable I_for_var_0
-[SYNC] Reserved register X14 for variable N
-[DEBUG] Synced RegisterManager with LinearScanAllocator for function: FACTORIAL_ITERATIVE
-[DEBUG] Using name as-is for lookup: FACTORIAL_ITERATIVE
-Call Frame Layout for function: FACTORIAL_ITERATIVE
-[DEBUG] Registering all parameters as locals in CallFrameManager for 'FACTORIAL_ITERATIVE'.
-[DEBUG] DEBUG: metrics.variable_types size for 'FACTORIAL_ITERATIVE': 3
-[DEBUG] DEBUG: variable_types['F'] = INTEGER
-[DEBUG] DEBUG: variable_types['I_for_var_0'] = INTEGER
-[DEBUG] DEBUG: variable_types['N'] = UNKNOWN
-[DEBUG] DEBUG: Parameter 'N' type from metrics: UNKNOWN
-Added local variable 'N' of type 0 at offset 16 (size 8)
-[DEBUG] Added parameter 'N' to CallFrameManager locals.
-[DEBUG] Registering all local variables from ASTAnalyzer metrics for 'FACTORIAL_ITERATIVE'.
-[DEBUG] Added parameter 'N' to CallFrameManager locals.
-Added local variable 'F' of type 1 at offset 24 (size 8)
-[DEBUG] Registered local 'F' from analyzer metrics.
-Added local variable 'I_for_var_0' of type 1 at offset 32 (size 8)
-[DEBUG] Registered local 'I_for_var_0' from analyzer metrics.
-[DEBUG] Entered new scope. Scope stack size: 1
-[DEBUG] Using pre-computed register allocation for 'FACTORIAL_ITERATIVE'.
-[DEBUG] No spills needed - all variables fit in registers.
-Added X28 to callee_saved_registers_to_save list.
-[DEBUG] Attempting to generate prologue for 'FACTORIAL_ITERATIVE'.
---- Call Frame Layout for function: FACTORIAL_ITERATIVE (Total Size: 80 bytes) ---
-Offset   | Content                               | Type
-------------------------------------------------------
-+0       | Old Frame Pointer (x29)     <-- FP (x29) points here
-+8       | Return Address (Caller's PC)
-+16      | Local: N                              | UNKNOWN
-+24      | Local: F                              | INTEGER
-+32      | Local: I_for_var_0                    | INTEGER
-+40      | Saved Reg: X19                        | UNKNOWN
-+48      | Saved Reg: X20                        | UNKNOWN
-+56      | Saved Reg: X21                        | UNKNOWN
-+64      | Saved Reg: X28                        | UNKNOWN
-------------------------------------------------------
-                                     <-- SP (+80 from FP)
-
-[DEBUG LEVEL 5] Emitting instruction: STP X29, X30, [SP, #-80]!
-[DEBUG LEVEL 5] Emitting instruction: MOV X29, SP
-[DEBUG LEVEL 5] Emitting instruction: STR X19, [X29, #40] ; Saved Reg: X19 @ FP+40
-[DEBUG LEVEL 5] Emitting instruction: STR X20, [X29, #48] ; Saved Reg: X20 @ FP+48
-[DEBUG LEVEL 5] Emitting instruction: STR X21, [X29, #56] ; Saved Reg: X21 @ FP+56
-[DEBUG LEVEL 5] Emitting instruction: STR X28, [X29, #64] ; Saved Reg: X28 @ FP+64
-[DEBUG] Mapping incoming parameters to home registers or stack slots as per allocation plan.
-[DEBUG]   Moving 'N' from arg reg X0 to home reg X14.
-[DEBUG LEVEL 5] Emitting instruction: MOV X14, X0    // Move parameter 'N' from X0 to X14
-[DEBUG] Registered local variable 'X28' with the allocation system (spilled)
-[DEBUG] Registered local variable 'X19' with the allocation system (spilled)
-[DEBUG] Registered local variable 'X21' with the allocation system (spilled)
-[DEBUG] Registered local variable 'X20' with the allocation system (spilled)
-[DEBUG] Skipping duplicate parameter storage
-[DEBUG] --- Call Frame Layout for function: FACTORIAL_ITERATIVE (Total Size: 80 bytes) ---
-Offset   | Content                               | Type
-------------------------------------------------------
-+0       | Old Frame Pointer (x29)     <-- FP (x29) points here
-+8       | Return Address (Caller's PC)
-+16      | Local: N                              | UNKNOWN
-+24      | Local: F                              | INTEGER
-+32      | Local: I_for_var_0                    | INTEGER
-+40      | Saved Reg: X19                        | UNKNOWN
-+48      | Saved Reg: X20                        | UNKNOWN
-+56      | Saved Reg: X21                        | UNKNOWN
-+64      | Saved Reg: X28                        | UNKNOWN
-------------------------------------------------------
-                                     <-- SP (+80 from FP)
-
-[DEBUG] --- DEBUG: Available CFGs in the map ---
-[DEBUG]   Available CFG: 'START'
-[DEBUG]   Available CFG: 'FACTORIAL_ITERATIVE'
-[DEBUG]   Available CFG: 'FACTORIAL_RECURSIVE'
-[DEBUG] --- End of CFG list ---
-[DEBUG] Found CFG using lookup_name: FACTORIAL_ITERATIVE
-[DEBUG] Visiting AssignmentStatement node.
-[DEBUG]   [CSE DEBUG] *** PROCESSING ASSIGNMENT STATEMENT ***
-[DEBUG]   [CSE DEBUG] LHS count: 1, RHS count: 1
-[DEBUG] Visiting NumberLiteral node.
-[DEBUG LEVEL 5] Emitting instruction: MOVZ X9, #1
-[DEBUG] Loaded integer literal 1 into X9 using MOVZ.
-[DEBUG] Registering canonical address: F = NUMBER_LITERAL:1
-[DEBUG] Registered canonical address: F = NUMBER_LITERAL:1
-[DEBUG]   [CSE INTEGRATION] This variable now holds a known address
-[DEBUG] Handling assignment for variable: F
-[DEBUG] store_variable_register for 'F' from register 'X9'
-[DEBUG]   [ALLOCATOR HIT] Variable 'F' lives in X15. Emitting MOV.
-[DEBUG LEVEL 5] Emitting instruction: MOV X15, X9
-[DEBUG]   Updating home register X15 for variable 'F' after store.
-[DEBUG LEVEL 5] Emitting instruction: MOV X15, X9
-[DEBUG] Finished visiting AssignmentStatement node.
-[DEBUG] Visiting AssignmentStatement node.
-[DEBUG]   [CSE DEBUG] *** PROCESSING ASSIGNMENT STATEMENT ***
-[DEBUG]   [CSE DEBUG] LHS count: 1, RHS count: 1
-[DEBUG] Visiting NumberLiteral node.
-[DEBUG LEVEL 5] Emitting instruction: MOVZ X9, #1
-[DEBUG] Loaded integer literal 1 into X9 using MOVZ.
-[DEBUG] Registering canonical address: I_for_var_0 = NUMBER_LITERAL:1
-[DEBUG] Registered canonical address: I_for_var_0 = NUMBER_LITERAL:1
-[DEBUG]   [CSE INTEGRATION] This variable now holds a known address
-[DEBUG] Handling assignment for variable: I_for_var_0
-[DEBUG] store_variable_register for 'I_for_var_0' from register 'X9'
-[DEBUG]   [ALLOCATOR HIT] Variable 'I_for_var_0' lives in X13. Emitting MOV.
-[DEBUG LEVEL 5] Emitting instruction: MOV X13, X9
-[DEBUG]   Updating home register X13 for variable 'I_for_var_0' after store.
-[DEBUG LEVEL 5] Emitting instruction: MOV X13, X9
-[DEBUG] Finished visiting AssignmentStatement node.
-[DEBUG LEVEL 5] Emitting instruction: B FACTORIAL_ITERATIVE_ForHeader_1
-[DEBUG LEVEL 5] Emitting instruction: B .L1
-[DEBUG] Visiting AssignmentStatement node.
-[DEBUG]   [CSE DEBUG] *** PROCESSING ASSIGNMENT STATEMENT ***
-[DEBUG]   [CSE DEBUG] LHS count: 1, RHS count: 1
-[DEBUG] Visiting BinaryOp node.
-[DEBUG] BinaryOp type inference: left_type=1, right_type=1
-[DEBUG] About to evaluate LEFT side of binary operation
-[DEBUG] Visiting VariableAccess node for 'F'.
-[DEBUG]   [DEBUG] About to call get_variable_register for 'F' in function 'FACTORIAL_ITERATIVE'
-[DEBUG] get_variable_register for: 'F' in function 'FACTORIAL_ITERATIVE'
-[DEBUG]   [DEBUG] Current function allocations exist: YES
-[DEBUG]   ✅ REGISTER ALLOCATED: Variable 'F' lives in register X15
-[DEBUG] Variable 'F' value loaded into X15
-[DEBUG]   [DEBUG] get_variable_register returned: 'X15'
-[DEBUG] LEFT side evaluation complete. left_reg = 'X15'
-[DEBUG] About to evaluate RIGHT side of binary operation
-[DEBUG] Visiting VariableAccess node for 'I_for_var_0'.
-[DEBUG]   [DEBUG] About to call get_variable_register for 'I_for_var_0' in function 'FACTORIAL_ITERATIVE'
-[DEBUG] get_variable_register for: 'I_for_var_0' in function 'FACTORIAL_ITERATIVE'
-[DEBUG]   [DEBUG] Current function allocations exist: YES
-[DEBUG]   ✅ REGISTER ALLOCATED: Variable 'I_for_var_0' lives in register X13
-[DEBUG] Variable 'I_for_var_0' value loaded into X13
-[DEBUG]   [DEBUG] get_variable_register returned: 'X13'
-[DEBUG] RIGHT side evaluation complete. right_reg = 'X13'
-[DEBUG] Checking type promotion: left_reg=X15, right_reg=X13
-[DEBUG] NO PROMOTION NEEDED or both same type or constant operand
-[DEBUG LEVEL 5] Emitting instruction: MOV X9, X15
-[DEBUG] Protected variable home register by copying to scratch register.
-[DEBUG LEVEL 5] Emitting instruction: MUL X9, X9, X13
-[DEBUG] Released right-hand operand register: X13
-[DEBUG] Finished visiting BinaryOp node. Result in X9
-[DEBUG] Invalidating tracking for variable: F (was NUMBER_LITERAL:1)
-[DEBUG] Handling assignment for variable: F
-[DEBUG] store_variable_register for 'F' from register 'X9'
-[DEBUG]   [ALLOCATOR HIT] Variable 'F' lives in X15. Emitting MOV.
-[DEBUG LEVEL 5] Emitting instruction: MOV X15, X9
-[DEBUG]   Updating home register X15 for variable 'F' after store.
-[DEBUG LEVEL 5] Emitting instruction: MOV X15, X9
-[DEBUG] Finished visiting AssignmentStatement node.
-[DEBUG LEVEL 5] Emitting instruction: B FACTORIAL_ITERATIVE_ForIncrement_3
-[DEBUG] Visiting ForStatement node (NOTE: branching is handled by block epilogue).
-[DEBUG LEVEL 5] Emitting instruction: MOV X9, X13
-[DEBUG] Visiting VariableAccess node for 'N'.
-[DEBUG]   [DEBUG] About to call get_variable_register for 'N' in function 'FACTORIAL_ITERATIVE'
-[DEBUG] get_variable_register for: 'N' in function 'FACTORIAL_ITERATIVE'
-[DEBUG]   [DEBUG] Current function allocations exist: YES
-[DEBUG]   ✅ REGISTER ALLOCATED: Variable 'N' lives in register X14
-[DEBUG] Variable 'N' value loaded into X14
-[DEBUG]   [DEBUG] get_variable_register returned: 'X14'
-[DEBUG LEVEL 5] Emitting instruction: CMP X9, X14
-[DEBUG LEVEL 5] Emitting instruction: B.GT FACTORIAL_ITERATIVE_Exit_6
-[DEBUG LEVEL 5] Emitting instruction: B FACTORIAL_ITERATIVE_ForBody_2
-[DEBUG] Visiting AssignmentStatement node.
-[DEBUG]   [CSE DEBUG] *** PROCESSING ASSIGNMENT STATEMENT ***
-[DEBUG]   [CSE DEBUG] LHS count: 1, RHS count: 1
-[DEBUG] Visiting BinaryOp node.
-[DEBUG] BinaryOp type inference: left_type=1, right_type=1
-[DEBUG] About to evaluate LEFT side of binary operation
-[DEBUG] Visiting VariableAccess node for 'I_for_var_0'.
-[DEBUG]   [DEBUG] About to call get_variable_register for 'I_for_var_0' in function 'FACTORIAL_ITERATIVE'
-[DEBUG] get_variable_register for: 'I_for_var_0' in function 'FACTORIAL_ITERATIVE'
-[DEBUG]   [DEBUG] Current function allocations exist: YES
-[DEBUG]   ✅ REGISTER ALLOCATED: Variable 'I_for_var_0' lives in register X13
-[DEBUG] Variable 'I_for_var_0' value loaded into X13
-[DEBUG]   [DEBUG] get_variable_register returned: 'X13'
-[DEBUG] LEFT side evaluation complete. left_reg = 'X13'
-[DEBUG] OPTIMIZATION: Right operand is constant: 1
-[DEBUG] Checking type promotion: left_reg=X13, right_reg=
-[DEBUG] NO PROMOTION NEEDED or both same type or constant operand
-[DEBUG LEVEL 5] Emitting instruction: MOV X9, X13
-[DEBUG] Protected variable home register by copying to scratch register.
-[DEBUG LEVEL 5] Emitting instruction: ADD X9, X9, #1
-[DEBUG] OPTIMIZATION: Generated ADD with immediate: 1
-[DEBUG] OPTIMIZATION: No right register to release (used immediate value)
-[DEBUG] Finished visiting BinaryOp node. Result in X9
-[DEBUG] Invalidating tracking for variable: I_for_var_0 (was NUMBER_LITERAL:1)
-[DEBUG] Handling assignment for variable: I_for_var_0
-[DEBUG] store_variable_register for 'I_for_var_0' from register 'X9'
-[DEBUG]   [ALLOCATOR HIT] Variable 'I_for_var_0' lives in X13. Emitting MOV.
-[DEBUG LEVEL 5] Emitting instruction: MOV X13, X9
-[DEBUG]   Updating home register X13 for variable 'I_for_var_0' after store.
-[DEBUG LEVEL 5] Emitting instruction: MOV X13, X9
-[DEBUG] Finished visiting AssignmentStatement node.
-[DEBUG LEVEL 5] Emitting instruction: B FACTORIAL_ITERATIVE_ForHeader_1
-[DEBUG] Performing end-of-function scope cleanup for 'FACTORIAL_ITERATIVE'.
-[DEBUG] Defining epilogue label: .L1
-[DEBUG] Attempting to generate epilogue for 'FACTORIAL_ITERATIVE'.
-[DEBUG] Exited scope. Scope stack size: 0
-[DEBUG] Finished visiting FunctionDeclaration node.
 [DEBUG] DEBUG: Visiting RoutineDeclaration node (Name: START).
 [DEBUG] Using name as-is for metrics lookup: START
 [DEBUG] DEBUG: generate_function_like_code called for: START
@@ -1760,117 +618,256 @@ Offset   | Content                               | Type
 [DEBUG] Clearing local value tracking for function: START
 [SYNC] Resetting all LinearScanAllocator reservations
 [SYNC] Syncing RegisterManager with LinearScanAllocator for function: START
-[SYNC] Found 4 variable allocations
-[SYNC] Reserved register X27 for variable I
-[SYNC] Reserved register X26 for variable N
-[SYNC] Reserved register X25 for variable R
-[SYNC] Reserved register X24 for variable _cse_temp_0
+[SYNC] Found 3 variable allocations
+[SYNC] Reserved register X15 for variable L
+[SYNC] Reserved register X27 for variable S
+[SYNC] Reserved register X26 for variable _forEach_cursor_0
 [DEBUG] Synced RegisterManager with LinearScanAllocator for function: START
 [DEBUG] Using name as-is for lookup: START
 Call Frame Layout for function: START
-[SYMBOL TABLE TRACE] Warning: Found symbol 'FACTORIAL_RECURSIVE' in different context 'FACTORIAL_RECURSIVE' (requested context was 'START')
 [DEBUG] Registering all parameters as locals in CallFrameManager for 'START'.
-[DEBUG] DEBUG: metrics.variable_types size for 'START': 4
-[DEBUG] DEBUG: variable_types['I'] = INTEGER
-[DEBUG] DEBUG: variable_types['N'] = INTEGER
-[DEBUG] DEBUG: variable_types['R'] = INTEGER
-[DEBUG] DEBUG: variable_types['_cse_temp_0'] = INTEGER
+[DEBUG] DEBUG: metrics.variable_types size for 'START': 3
+[DEBUG] DEBUG: variable_types['L'] = POINTER_TO|LIST|INTEGER
+[DEBUG] DEBUG: variable_types['S'] = INTEGER
+[DEBUG] DEBUG: variable_types['_forEach_cursor_0'] = POINTER_TO|LIST
 [DEBUG] Registering all local variables from ASTAnalyzer metrics for 'START'.
-Added local variable 'I' of type 1 at offset 16 (size 8)
-[DEBUG] Registered local 'I' from analyzer metrics.
-Added local variable 'N' of type 1 at offset 24 (size 8)
-[DEBUG] Registered local 'N' from analyzer metrics.
-Added local variable 'R' of type 1 at offset 32 (size 8)
-[DEBUG] Registered local 'R' from analyzer metrics.
-Added local variable '_cse_temp_0' of type 1 at offset 40 (size 8)
-[DEBUG] Registered local '_cse_temp_0' from analyzer metrics.
+Added local variable 'L' of type 1050625 at offset 16 (size 8)
+[DEBUG] Registered local 'L' from analyzer metrics.
+Added local variable 'S' of type 1 at offset 24 (size 8)
+[DEBUG] Registered local 'S' from analyzer metrics.
+Added local variable '_forEach_cursor_0' of type 1050624 at offset 32 (size 8)
+[DEBUG] Registered local '_forEach_cursor_0' from analyzer metrics.
 [DEBUG] Entered new scope. Scope stack size: 1
 [DEBUG] Using pre-computed register allocation for 'START'.
 [DEBUG] No spills needed - all variables fit in registers.
-Added X24 to callee_saved_registers_to_save list.
-Added X25 to callee_saved_registers_to_save list.
 Added X26 to callee_saved_registers_to_save list.
 Added X27 to callee_saved_registers_to_save list.
 [DEBUG] Attempting to generate prologue for 'START'.
---- Call Frame Layout for function: START (Total Size: 128 bytes) ---
+--- Call Frame Layout for function: START (Total Size: 80 bytes) ---
 Offset   | Content                               | Type
 ------------------------------------------------------
 +0       | Old Frame Pointer (x29)     <-- FP (x29) points here
 +8       | Return Address (Caller's PC)
-+16      | Local: I                              | INTEGER
-+24      | Local: N                              | INTEGER
-+32      | Local: R                              | INTEGER
-+40      | Local: _cse_temp_0                    | INTEGER
-+48      | Saved Reg: X19                        | UNKNOWN
-+56      | Saved Reg: X20                        | UNKNOWN
-+64      | Saved Reg: X21                        | UNKNOWN
-+72      | Saved Reg: X22                        | UNKNOWN
-+80      | Saved Reg: X24                        | UNKNOWN
-+88      | Saved Reg: X25                        | UNKNOWN
-+96      | Saved Reg: X26                        | UNKNOWN
-+104     | Saved Reg: X27                        | UNKNOWN
-+112     | Saved Reg: X28                        | UNKNOWN
++16      | Local: L                              | POINTER_TO|LIST|INTEGER
++24      | Local: S                              | INTEGER
++32      | Local: _forEach_cursor_0              | POINTER_TO|LIST
++40      | Saved Reg: X19                        | UNKNOWN
++48      | Saved Reg: X20                        | UNKNOWN
++56      | Saved Reg: X26                        | UNKNOWN
++64      | Saved Reg: X27                        | UNKNOWN
++72      | Saved Reg: X28                        | UNKNOWN
 ------------------------------------------------------
-                                     <-- SP (+128 from FP)
+                                     <-- SP (+80 from FP)
 
-[DEBUG LEVEL 5] Emitting instruction: STP X29, X30, [SP, #-128]!
+[DEBUG LEVEL 5] Emitting instruction: STP X29, X30, [SP, #-80]!
 [DEBUG LEVEL 5] Emitting instruction: MOV X29, SP
-[DEBUG LEVEL 5] Emitting instruction: STR X19, [X29, #48] ; Saved Reg: X19 @ FP+48
-[DEBUG LEVEL 5] Emitting instruction: STR X20, [X29, #56] ; Saved Reg: X20 @ FP+56
-[DEBUG LEVEL 5] Emitting instruction: STR X21, [X29, #64] ; Saved Reg: X21 @ FP+64
-[DEBUG LEVEL 5] Emitting instruction: STR X22, [X29, #72] ; Saved Reg: X22 @ FP+72
-[DEBUG LEVEL 5] Emitting instruction: STR X24, [X29, #80] ; Saved Reg: X24 @ FP+80
-[DEBUG LEVEL 5] Emitting instruction: STR X25, [X29, #88] ; Saved Reg: X25 @ FP+88
-[DEBUG LEVEL 5] Emitting instruction: STR X26, [X29, #96] ; Saved Reg: X26 @ FP+96
-[DEBUG LEVEL 5] Emitting instruction: STR X27, [X29, #104] ; Saved Reg: X27 @ FP+104
-[DEBUG LEVEL 5] Emitting instruction: STR X28, [X29, #112] ; Saved Reg: X28 @ FP+112
+[DEBUG LEVEL 5] Emitting instruction: STR X19, [X29, #40] ; Saved Reg: X19 @ FP+40
+[DEBUG LEVEL 5] Emitting instruction: STR X20, [X29, #48] ; Saved Reg: X20 @ FP+48
+[DEBUG LEVEL 5] Emitting instruction: STR X26, [X29, #56] ; Saved Reg: X26 @ FP+56
+[DEBUG LEVEL 5] Emitting instruction: STR X27, [X29, #64] ; Saved Reg: X27 @ FP+64
+[DEBUG LEVEL 5] Emitting instruction: STR X28, [X29, #72] ; Saved Reg: X28 @ FP+72
 [DEBUG] Mapping incoming parameters to home registers or stack slots as per allocation plan.
 [DEBUG] Registered local variable 'X27' with the allocation system (spilled)
-[DEBUG] Registered local variable 'X25' with the allocation system (spilled)
-[DEBUG] Registered local variable 'X26' with the allocation system (spilled)
-[DEBUG] Registered local variable 'X22' with the allocation system (spilled)
-[DEBUG] Registered local variable 'X28' with the allocation system (spilled)
-[DEBUG] Registered local variable 'X21' with the allocation system (spilled)
 [DEBUG] Registered local variable 'X20' with the allocation system (spilled)
-[DEBUG] Registered local variable 'X24' with the allocation system (spilled)
 [DEBUG] Registered local variable 'X19' with the allocation system (spilled)
+[DEBUG] Registered local variable 'X28' with the allocation system (spilled)
+[DEBUG] Registered local variable 'X26' with the allocation system (spilled)
 [DEBUG] Emitted JIT address load sequence for global base pointer (X28).
 [DEBUG] Skipping duplicate parameter storage
-[DEBUG] --- Call Frame Layout for function: START (Total Size: 128 bytes) ---
+[DEBUG] --- Call Frame Layout for function: START (Total Size: 80 bytes) ---
 Offset   | Content                               | Type
 ------------------------------------------------------
 +0       | Old Frame Pointer (x29)     <-- FP (x29) points here
 +8       | Return Address (Caller's PC)
-+16      | Local: I                              | INTEGER
-+24      | Local: N                              | INTEGER
-+32      | Local: R                              | INTEGER
-+40      | Local: _cse_temp_0                    | INTEGER
-+48      | Saved Reg: X19                        | UNKNOWN
-+56      | Saved Reg: X20                        | UNKNOWN
-+64      | Saved Reg: X21                        | UNKNOWN
-+72      | Saved Reg: X22                        | UNKNOWN
-+80      | Saved Reg: X24                        | UNKNOWN
-+88      | Saved Reg: X25                        | UNKNOWN
-+96      | Saved Reg: X26                        | UNKNOWN
-+104     | Saved Reg: X27                        | UNKNOWN
-+112     | Saved Reg: X28                        | UNKNOWN
++16      | Local: L                              | POINTER_TO|LIST|INTEGER
++24      | Local: S                              | INTEGER
++32      | Local: _forEach_cursor_0              | POINTER_TO|LIST
++40      | Saved Reg: X19                        | UNKNOWN
++48      | Saved Reg: X20                        | UNKNOWN
++56      | Saved Reg: X26                        | UNKNOWN
++64      | Saved Reg: X27                        | UNKNOWN
++72      | Saved Reg: X28                        | UNKNOWN
 ------------------------------------------------------
-                                     <-- SP (+128 from FP)
+                                     <-- SP (+80 from FP)
 
 [DEBUG] --- DEBUG: Available CFGs in the map ---
 [DEBUG]   Available CFG: 'START'
-[DEBUG]   Available CFG: 'FACTORIAL_ITERATIVE'
-[DEBUG]   Available CFG: 'FACTORIAL_RECURSIVE'
 [DEBUG] --- End of CFG list ---
 [DEBUG] Found CFG using lookup_name: START
 [DEBUG] --- Entering NewCodeGenerator::visit(RoutineCallStatement& node) [ARM64 ABI COMPLIANT] ---
 [DEBUG] Detected a regular function/routine call.
+[DEBUG] === ARM64 ABI Argument Coercion ===
+[DEBUG] Total arguments: 0
+[DEBUG] Emitting 0 queued operations
+[DEBUG] Final register usage: NGRN=0, NSRN=0
+[DEBUG] === END ARM64 ABI Argument Coercion ===
+[DEBUG LEVEL 5] Emitting instruction: BL HeapManager_enter_scope_veneer
+[DEBUG] --- Exiting NewCodeGenerator::visit(RoutineCallStatement& node) ---
+[DEBUG] Visiting AssignmentStatement node.
+[DEBUG]   [CSE DEBUG] *** PROCESSING ASSIGNMENT STATEMENT ***
+[DEBUG]   [CSE DEBUG] LHS count: 1, RHS count: 1
+[DEBUG] Visiting ListExpression node.
+[DEBUG] List is constant. Using static template generation.
+[DataGenerator TRACE] add_list_literal called. Generated Key: "list[string(a),string(string),string(list)]"
+[DataGenerator TRACE] >> Cache MISS. Generating new labels.
+[DEBUG LEVEL 5] Emitting instruction: ADRP X0, L_list0_header
+[DEBUG LEVEL 5] Emitting instruction: ADD X0, X0, #:lo12:L_list0_header
+[DEBUG LEVEL 5] Emitting instruction: BL DEEPCOPYLITERALLIST
+[DEBUG] Emitted deep copy logic for LIST.
+[DEBUG] Handling assignment for variable: L
+[DEBUG] store_variable_register for 'L' from register 'X0'
+[DEBUG]   [ALLOCATOR HIT] Variable 'L' lives in X15. Emitting MOV.
+[DEBUG LEVEL 5] Emitting instruction: MOV X15, X0
+[DEBUG]   Updating home register X15 for variable 'L' after store.
+[DEBUG LEVEL 5] Emitting instruction: MOV X15, X0
+[DEBUG] Finished visiting AssignmentStatement node.
+[DEBUG] Visiting AssignmentStatement node.
+[DEBUG]   [CSE DEBUG] *** PROCESSING ASSIGNMENT STATEMENT ***
+[DEBUG]   [CSE DEBUG] LHS count: 1, RHS count: 1
+[DEBUG] Visiting UnaryOp node.
+[DEBUG] Visiting BinaryOp node.
+[DEBUG] BinaryOp type inference: left_type=1050625, right_type=1
+[DEBUG] About to evaluate LEFT side of binary operation
+[DEBUG] Visiting VariableAccess node for 'L'.
+[DEBUG]   [DEBUG] About to call get_variable_register for 'L' in function 'START'
+[DEBUG] get_variable_register for: 'L' in function 'START'
+[DEBUG]   [DEBUG] Current function allocations exist: YES
+[DEBUG]   ✅ REGISTER ALLOCATED: Variable 'L' lives in register X15
+[DEBUG] Variable 'L' value loaded into X15
+[DEBUG]   [DEBUG] get_variable_register returned: 'X15'
+[DEBUG] LEFT side evaluation complete. left_reg = 'X15'
+[DEBUG] OPTIMIZATION: Right operand is constant: 16
+[DEBUG] Checking type promotion: left_reg=X15, right_reg=
+[DEBUG] NO PROMOTION NEEDED or both same type or constant operand
+[DEBUG LEVEL 5] Emitting instruction: MOV X9, X15
+[DEBUG] Protected variable home register by copying to scratch register.
+[DEBUG LEVEL 5] Emitting instruction: ADD X9, X9, #16
+[DEBUG] OPTIMIZATION: Generated ADD with immediate: 16
+[DEBUG] OPTIMIZATION: No right register to release (used immediate value)
+[DEBUG] Finished visiting BinaryOp node. Result in X9
+[DEBUG LEVEL 5] Emitting instruction: LDR X10, [X9, #0]
+[DEBUG] Handling assignment for variable: _forEach_cursor_0
+[DEBUG] store_variable_register for '_forEach_cursor_0' from register 'X10'
+[DEBUG]   [ALLOCATOR HIT] Variable '_forEach_cursor_0' lives in X26. Emitting MOV.
+[DEBUG LEVEL 5] Emitting instruction: MOV X26, X10
+[DEBUG]   Updating home register X26 for variable '_forEach_cursor_0' after store.
+[DEBUG LEVEL 5] Emitting instruction: MOV X26, X10
+[DEBUG] Finished visiting AssignmentStatement node.
+[DEBUG LEVEL 5] Emitting instruction: B START_ForEachHeader_1
+[DEBUG LEVEL 5] Emitting instruction: B .L0
+[DEBUG] Visiting AssignmentStatement node.
+[DEBUG]   [CSE DEBUG] *** PROCESSING ASSIGNMENT STATEMENT ***
+[DEBUG]   [CSE DEBUG] LHS count: 1, RHS count: 1
+[DEBUG] Visiting UnaryOp node.
+[DEBUG] Generating INLINE code for hybrid static/runtime REST operation.
+[DEBUG] Visiting VariableAccess node for '_forEach_cursor_0'.
+[DEBUG]   [DEBUG] About to call get_variable_register for '_forEach_cursor_0' in function 'START'
+[DEBUG] get_variable_register for: '_forEach_cursor_0' in function 'START'
+[DEBUG]   [DEBUG] Current function allocations exist: YES
+[DEBUG]   ✅ REGISTER ALLOCATED: Variable '_forEach_cursor_0' lives in register X26
+[DEBUG] Variable '_forEach_cursor_0' value loaded into X26
+[DEBUG]   [DEBUG] get_variable_register returned: 'X26'
+[DEBUG] REST operand is statically known as a List Node. Generating direct next-ptr load.
+[DEBUG LEVEL 5] Emitting instruction: CMP X26, #0
+[DEBUG LEVEL 5] Emitting instruction: B.EQ .L2
+[DEBUG LEVEL 5] Emitting instruction: LDR X9, [X26, #16]
+[DEBUG LEVEL 5] Emitting instruction: B .L1
+[DEBUG LEVEL 5] Emitting instruction: MOV X9, XZR
+[DEBUG] Handling assignment for variable: _forEach_cursor_0
+[DEBUG] store_variable_register for '_forEach_cursor_0' from register 'X9'
+[DEBUG]   [ALLOCATOR HIT] Variable '_forEach_cursor_0' lives in X26. Emitting MOV.
+[DEBUG LEVEL 5] Emitting instruction: MOV X26, X9
+[DEBUG]   Updating home register X26 for variable '_forEach_cursor_0' after store.
+[DEBUG LEVEL 5] Emitting instruction: MOV X26, X9
+[DEBUG] Finished visiting AssignmentStatement node.
+[DEBUG LEVEL 5] Emitting instruction: B START_ForEachHeader_1
+[DEBUG] Visiting AssignmentStatement node.
+[DEBUG]   [CSE DEBUG] *** PROCESSING ASSIGNMENT STATEMENT ***
+[DEBUG]   [CSE DEBUG] LHS count: 1, RHS count: 1
+[DEBUG] Visiting UnaryOp node.
+[DEBUG] Generating INLINE code for hybrid static/runtime HD operation.
+[DEBUG] Visiting VariableAccess node for '_forEach_cursor_0'.
+[DEBUG]   [DEBUG] About to call get_variable_register for '_forEach_cursor_0' in function 'START'
+[DEBUG] get_variable_register for: '_forEach_cursor_0' in function 'START'
+[DEBUG]   [DEBUG] Current function allocations exist: YES
+[DEBUG]   ✅ REGISTER ALLOCATED: Variable '_forEach_cursor_0' lives in register X26
+[DEBUG] Variable '_forEach_cursor_0' value loaded into X26
+[DEBUG]   [DEBUG] get_variable_register returned: 'X26'
+[DEBUG] HD operand is statically known as a List Node. Generating direct load.
+[DEBUG LEVEL 5] Emitting instruction: CMP X26, #0
+[DEBUG LEVEL 5] Emitting instruction: B.EQ .L4
+[DEBUG LEVEL 5] Emitting instruction: LDR X9, [X26, #8]
+[DEBUG LEVEL 5] Emitting instruction: B .L3
+[DEBUG LEVEL 5] Emitting instruction: MOV X9, XZR
+[DEBUG] Handling assignment for variable: S
+[DEBUG] store_variable_register for 'S' from register 'X9'
+[DEBUG]   [ALLOCATOR HIT] Variable 'S' lives in X27. Emitting MOV.
+[DEBUG LEVEL 5] Emitting instruction: MOV X27, X9
+[DEBUG]   Updating home register X27 for variable 'S' after store.
+[DEBUG LEVEL 5] Emitting instruction: MOV X27, X9
+[DEBUG] Finished visiting AssignmentStatement node.
+[DEBUG] --- Entering NewCodeGenerator::visit(RoutineCallStatement& node) [ARM64 ABI COMPLIANT] ---
+[DEBUG] Detected a regular function/routine call.
+[DEBUG] === ARM64 ABI Argument Coercion ===
+[DEBUG] Total arguments: 0
+[DEBUG] Emitting 0 queued operations
+[DEBUG] Final register usage: NGRN=0, NSRN=0
+[DEBUG] === END ARM64 ABI Argument Coercion ===
+[DEBUG LEVEL 5] Emitting instruction: BL HeapManager_enter_scope_veneer
+[DEBUG] --- Exiting NewCodeGenerator::visit(RoutineCallStatement& node) ---
+[DEBUG] --- Entering NewCodeGenerator::visit(RoutineCallStatement& node) [ARM64 ABI COMPLIANT] ---
+[DEBUG] Detected a regular function/routine call.
 [DEBUG] Generating code for StringLiteral.
 [DEBUG] Allocated register X9 for the string address.
-[DEBUG LEVEL 5] Emitting instruction: ADRP X9, L_str0
-[DEBUG LEVEL 5] Emitting instruction: ADD X9, X9, #:lo12:L_str0
+[DEBUG LEVEL 5] Emitting instruction: ADRP X9, L_str3
+[DEBUG LEVEL 5] Emitting instruction: ADD X9, X9, #:lo12:L_str3
 [DEBUG LEVEL 5] Emitting instruction: ADD X9, X9, #8
-[DEBUG] Emitted ADRP/ADD sequence and offset adjustment for string literal 'Hello
+[DEBUG] Emitted ADRP/ADD sequence and offset adjustment for string literal 'String: '.
+[DEBUG] === ARM64 ABI Argument Coercion ===
+[DEBUG] Total arguments: 1
+[DEBUG] Arg 0: src=X9 expr_type=POINTER_TO|STRING expected=INTEGER target=INTEGER
+[DEBUG] Integer arg 0 -> X0 (NGRN=0)
+[DEBUG] Queued MOV X0, X9
+[DEBUG] Deferring release of source register: X9
+[DEBUG] Emitting 1 queued operations
+[DEBUG LEVEL 5] Emitting instruction: MOV X0, X9
+[DEBUG] Executed MOV X0, X9
+[DEBUG] Releasing source register: X9
+[DEBUG] Final register usage: NGRN=1, NSRN=0
+[DEBUG] === END ARM64 ABI Argument Coercion ===
+[DEBUG LEVEL 5] Emitting instruction: BL WRITES_veneer
+[DEBUG] --- Exiting NewCodeGenerator::visit(RoutineCallStatement& node) ---
+[DEBUG] --- Entering NewCodeGenerator::visit(RoutineCallStatement& node) [ARM64 ABI COMPLIANT] ---
+[DEBUG] Detected a regular function/routine call.
+[DEBUG] Visiting VariableAccess node for 'S'.
+[DEBUG]   [DEBUG] About to call get_variable_register for 'S' in function 'START'
+[DEBUG] get_variable_register for: 'S' in function 'START'
+[DEBUG]   [DEBUG] Current function allocations exist: YES
+[DEBUG]   ✅ REGISTER ALLOCATED: Variable 'S' lives in register X27
+[DEBUG] Variable 'S' value loaded into X27
+[DEBUG]   [DEBUG] get_variable_register returned: 'X27'
+[DEBUG] === ARM64 ABI Argument Coercion ===
+[DEBUG] Total arguments: 1
+[DEBUG] Arg 0: src=X27 expr_type=INTEGER expected=INTEGER target=INTEGER
+[DEBUG] Integer arg 0 -> X0 (NGRN=0)
+[DEBUG] Queued MOV X0, X27
+[DEBUG] Deferring release of source register: X27
+[DEBUG] Emitting 1 queued operations
+[DEBUG LEVEL 5] Emitting instruction: MOV X0, X27
+[DEBUG] Executed MOV X0, X27
+[DEBUG] Releasing source register: X27
+[DEBUG] Final register usage: NGRN=1, NSRN=0
+[DEBUG] === END ARM64 ABI Argument Coercion ===
+[DEBUG LEVEL 5] Emitting instruction: BL WRITES_veneer
+[DEBUG] --- Exiting NewCodeGenerator::visit(RoutineCallStatement& node) ---
+[DEBUG] --- Entering NewCodeGenerator::visit(RoutineCallStatement& node) [ARM64 ABI COMPLIANT] ---
+[DEBUG] Detected a regular function/routine call.
+[DEBUG] Generating code for StringLiteral.
+[DEBUG] Allocated register X9 for the string address.
+[DEBUG LEVEL 5] Emitting instruction: ADRP X9, L_str4
+[DEBUG LEVEL 5] Emitting instruction: ADD X9, X9, #:lo12:L_str4
+[DEBUG LEVEL 5] Emitting instruction: ADD X9, X9, #8
+[DEBUG] Emitted ADRP/ADD sequence and offset adjustment for string literal '
 '.
 [DEBUG] === ARM64 ABI Argument Coercion ===
 [DEBUG] Total arguments: 1
@@ -1886,259 +883,8 @@ Offset   | Content                               | Type
 [DEBUG] === END ARM64 ABI Argument Coercion ===
 [DEBUG LEVEL 5] Emitting instruction: BL WRITES_veneer
 [DEBUG] --- Exiting NewCodeGenerator::visit(RoutineCallStatement& node) ---
-[DEBUG] Visiting AssignmentStatement node.
-[DEBUG]   [CSE DEBUG] *** PROCESSING ASSIGNMENT STATEMENT ***
-[DEBUG]   [CSE DEBUG] LHS count: 1, RHS count: 1
-[DEBUG] Visiting NumberLiteral node.
-[DEBUG LEVEL 5] Emitting instruction: MOVZ X9, #18
-[DEBUG] Loaded integer literal 18 into X9 using MOVZ.
-[DEBUG] Registering canonical address: N = NUMBER_LITERAL:18
-[DEBUG] Registered canonical address: N = NUMBER_LITERAL:18
-[DEBUG]   [CSE INTEGRATION] This variable now holds a known address
-[DEBUG] Handling assignment for variable: N
-[DEBUG] store_variable_register for 'N' from register 'X9'
-[DEBUG]   [ALLOCATOR HIT] Variable 'N' lives in X26. Emitting MOV.
-[DEBUG LEVEL 5] Emitting instruction: MOV X26, X9
-[DEBUG]   Updating home register X26 for variable 'N' after store.
-[DEBUG LEVEL 5] Emitting instruction: MOV X26, X9
-[DEBUG] Finished visiting AssignmentStatement node.
-[DEBUG] Visiting AssignmentStatement node.
-[DEBUG]   [CSE DEBUG] *** PROCESSING ASSIGNMENT STATEMENT ***
-[DEBUG]   [CSE DEBUG] LHS count: 1, RHS count: 1
-[DEBUG]   [CSE DEBUG] *** CSE-GENERATED ASSIGNMENT DETECTED: _cse_temp_0 ***
-[DEBUG] Visiting FunctionCall node (Refactored Dispatcher).
-[DEBUG] Visiting VariableAccess node for 'N'.
-[DEBUG]   [DEBUG] About to call get_variable_register for 'N' in function 'START'
-[DEBUG] get_variable_register for: 'N' in function 'START'
-[DEBUG]   [DEBUG] Current function allocations exist: YES
-[DEBUG]   ✅ REGISTER ALLOCATED: Variable 'N' lives in register X26
-[DEBUG] Variable 'N' value loaded into X26
-[DEBUG]   [DEBUG] get_variable_register returned: 'X26'
-[DEBUG LEVEL 5] Emitting instruction: MOV X20, X26
-[DEBUG] Found function symbol: FACTORIAL_RECURSIVE with 1 parameters
-[DEBUG]   Parameter 0 type: UNKNOWN
-[DEBUG] === ARM64 ABI Argument Coercion ===
-[DEBUG] Total arguments: 1
-[DEBUG] Arg 0: src=X20 expr_type=INTEGER expected=UNKNOWN target=INTEGER
-[DEBUG] Integer arg 0 -> X0 (NGRN=0)
-[DEBUG] Queued MOV X0, X20
-[DEBUG] Deferring release of source register: X20
-[DEBUG] Emitting 1 queued operations
-[DEBUG LEVEL 5] Emitting instruction: MOV X0, X20
-[DEBUG] Executed MOV X0, X20
-[DEBUG] Releasing source register: X20
-[DEBUG] Final register usage: NGRN=1, NSRN=0
-[DEBUG] === END ARM64 ABI Argument Coercion ===
-[DEBUG LEVEL 5] Emitting instruction: BL FACTORIAL_RECURSIVE
-[DEBUG] Handling assignment for variable: _cse_temp_0
-[DEBUG] store_variable_register for '_cse_temp_0' from register 'X0'
-[DEBUG]   [ALLOCATOR HIT] Variable '_cse_temp_0' lives in X24. Emitting MOV.
-[DEBUG LEVEL 5] Emitting instruction: MOV X24, X0
-[DEBUG]   Updating home register X24 for variable '_cse_temp_0' after store.
-[DEBUG LEVEL 5] Emitting instruction: MOV X24, X0
-[DEBUG] Finished visiting AssignmentStatement node.
-[DEBUG] Visiting AssignmentStatement node.
-[DEBUG]   [CSE DEBUG] *** PROCESSING ASSIGNMENT STATEMENT ***
-[DEBUG]   [CSE DEBUG] LHS count: 1, RHS count: 1
-[DEBUG] Visiting VariableAccess node for '_cse_temp_0'.
-[DEBUG]   [DEBUG] About to call get_variable_register for '_cse_temp_0' in function 'START'
-[DEBUG]   [CSE DEBUG] *** PROCESSING CSE TEMP VARIABLE: _cse_temp_0 ***
-[DEBUG] get_variable_register for: '_cse_temp_0' in function 'START'
-[DEBUG]   [DEBUG] Current function allocations exist: YES
-[DEBUG]   ✅ REGISTER ALLOCATED: Variable '_cse_temp_0' lives in register X24
-[DEBUG] Variable '_cse_temp_0' value loaded into X24
-[DEBUG]   [DEBUG] get_variable_register returned: 'X24'
-[DEBUG] Registering canonical address: R = VARIABLE:_cse_temp_0
-[DEBUG] Registered canonical address: R = VARIABLE:_cse_temp_0
-[DEBUG]   [CSE INTEGRATION] This variable now holds a known address
-[DEBUG] Handling assignment for variable: R
-[DEBUG] store_variable_register for 'R' from register 'X24'
-[DEBUG]   [ALLOCATOR HIT] Variable 'R' lives in X25. Emitting MOV.
-[DEBUG LEVEL 5] Emitting instruction: MOV X25, X24
-[DEBUG]   Updating home register X25 for variable 'R' after store.
-[DEBUG LEVEL 5] Emitting instruction: MOV X25, X24
-[DEBUG] Finished visiting AssignmentStatement node.
-[DEBUG] Visiting AssignmentStatement node.
-[DEBUG]   [CSE DEBUG] *** PROCESSING ASSIGNMENT STATEMENT ***
-[DEBUG]   [CSE DEBUG] LHS count: 1, RHS count: 1
-[DEBUG] Visiting VariableAccess node for '_cse_temp_0'.
-[DEBUG]   [DEBUG] About to call get_variable_register for '_cse_temp_0' in function 'START'
-[DEBUG]   [CSE DEBUG] *** PROCESSING CSE TEMP VARIABLE: _cse_temp_0 ***
-[DEBUG] get_variable_register for: '_cse_temp_0' in function 'START'
-[DEBUG]   [DEBUG] Current function allocations exist: YES
-[DEBUG]   ✅ REGISTER ALLOCATED: Variable '_cse_temp_0' lives in register X24
-[DEBUG] Variable '_cse_temp_0' value loaded into X24
-[DEBUG]   [DEBUG] get_variable_register returned: 'X24'
-[DEBUG] Registering canonical address: I = VARIABLE:_cse_temp_0
-[DEBUG] Registered canonical address: I = VARIABLE:_cse_temp_0
-[DEBUG]   [CSE INTEGRATION] This variable now holds a known address
-[DEBUG] Handling assignment for variable: I
-[DEBUG] store_variable_register for 'I' from register 'X24'
-[DEBUG]   [ALLOCATOR HIT] Variable 'I' lives in X27. Emitting MOV.
-[DEBUG LEVEL 5] Emitting instruction: MOV X27, X24
-[DEBUG]   Updating home register X27 for variable 'I' after store.
-[DEBUG LEVEL 5] Emitting instruction: MOV X27, X24
-[DEBUG] Finished visiting AssignmentStatement node.
 [DEBUG] --- Entering NewCodeGenerator::visit(RoutineCallStatement& node) [ARM64 ABI COMPLIANT] ---
 [DEBUG] Detected a regular function/routine call.
-[DEBUG] Generating code for StringLiteral.
-[DEBUG] Allocated register X9 for the string address.
-[DEBUG LEVEL 5] Emitting instruction: ADRP X9, L_str1
-[DEBUG LEVEL 5] Emitting instruction: ADD X9, X9, #:lo12:L_str1
-[DEBUG LEVEL 5] Emitting instruction: ADD X9, X9, #8
-[DEBUG] Emitted ADRP/ADD sequence and offset adjustment for string literal 'Calculating recursive Factorial of '.
-[DEBUG] === ARM64 ABI Argument Coercion ===
-[DEBUG] Total arguments: 1
-[DEBUG] Arg 0: src=X9 expr_type=POINTER_TO|STRING expected=INTEGER target=INTEGER
-[DEBUG] Integer arg 0 -> X0 (NGRN=0)
-[DEBUG] Queued MOV X0, X9
-[DEBUG] Deferring release of source register: X9
-[DEBUG] Emitting 1 queued operations
-[DEBUG LEVEL 5] Emitting instruction: MOV X0, X9
-[DEBUG] Executed MOV X0, X9
-[DEBUG] Releasing source register: X9
-[DEBUG] Final register usage: NGRN=1, NSRN=0
-[DEBUG] === END ARM64 ABI Argument Coercion ===
-[DEBUG LEVEL 5] Emitting instruction: BL WRITES_veneer
-[DEBUG] --- Exiting NewCodeGenerator::visit(RoutineCallStatement& node) ---
-[DEBUG] --- Entering NewCodeGenerator::visit(RoutineCallStatement& node) [ARM64 ABI COMPLIANT] ---
-[DEBUG] Detected a regular function/routine call.
-[DEBUG] Visiting VariableAccess node for 'N'.
-[DEBUG]   [DEBUG] About to call get_variable_register for 'N' in function 'START'
-[DEBUG] get_variable_register for: 'N' in function 'START'
-[DEBUG]   [DEBUG] Current function allocations exist: YES
-[DEBUG]   ✅ REGISTER ALLOCATED: Variable 'N' lives in register X26
-[DEBUG] Variable 'N' value loaded into X26
-[DEBUG]   [DEBUG] get_variable_register returned: 'X26'
-[DEBUG] === ARM64 ABI Argument Coercion ===
-[DEBUG] Total arguments: 1
-[DEBUG] Arg 0: src=X26 expr_type=INTEGER expected=INTEGER target=INTEGER
-[DEBUG] Integer arg 0 -> X0 (NGRN=0)
-[DEBUG] Queued MOV X0, X26
-[DEBUG] Deferring release of source register: X26
-[DEBUG] Emitting 1 queued operations
-[DEBUG LEVEL 5] Emitting instruction: MOV X0, X26
-[DEBUG] Executed MOV X0, X26
-[DEBUG] Releasing source register: X26
-[DEBUG] Final register usage: NGRN=1, NSRN=0
-[DEBUG] === END ARM64 ABI Argument Coercion ===
-[DEBUG LEVEL 5] Emitting instruction: BL WRITEN_veneer
-[DEBUG] --- Exiting NewCodeGenerator::visit(RoutineCallStatement& node) ---
-[DEBUG] --- Entering NewCodeGenerator::visit(RoutineCallStatement& node) [ARM64 ABI COMPLIANT] ---
-[DEBUG] Detected a regular function/routine call.
-[DEBUG] Generating code for StringLiteral.
-[DEBUG] Allocated register X9 for the string address.
-[DEBUG LEVEL 5] Emitting instruction: ADRP X9, L_str2
-[DEBUG LEVEL 5] Emitting instruction: ADD X9, X9, #:lo12:L_str2
-[DEBUG LEVEL 5] Emitting instruction: ADD X9, X9, #8
-[DEBUG] Emitted ADRP/ADD sequence and offset adjustment for string literal ' = '.
-[DEBUG] === ARM64 ABI Argument Coercion ===
-[DEBUG] Total arguments: 1
-[DEBUG] Arg 0: src=X9 expr_type=POINTER_TO|STRING expected=INTEGER target=INTEGER
-[DEBUG] Integer arg 0 -> X0 (NGRN=0)
-[DEBUG] Queued MOV X0, X9
-[DEBUG] Deferring release of source register: X9
-[DEBUG] Emitting 1 queued operations
-[DEBUG LEVEL 5] Emitting instruction: MOV X0, X9
-[DEBUG] Executed MOV X0, X9
-[DEBUG] Releasing source register: X9
-[DEBUG] Final register usage: NGRN=1, NSRN=0
-[DEBUG] === END ARM64 ABI Argument Coercion ===
-[DEBUG LEVEL 5] Emitting instruction: BL WRITES_veneer
-[DEBUG] --- Exiting NewCodeGenerator::visit(RoutineCallStatement& node) ---
-[DEBUG] --- Entering NewCodeGenerator::visit(RoutineCallStatement& node) [ARM64 ABI COMPLIANT] ---
-[DEBUG] Detected a regular function/routine call.
-[DEBUG] Visiting VariableAccess node for 'R'.
-[DEBUG]   [DEBUG] About to call get_variable_register for 'R' in function 'START'
-[DEBUG] get_variable_register for: 'R' in function 'START'
-[DEBUG]   [DEBUG] Current function allocations exist: YES
-[DEBUG]   ✅ REGISTER ALLOCATED: Variable 'R' lives in register X25
-[DEBUG] Variable 'R' value loaded into X25
-[DEBUG]   [DEBUG] get_variable_register returned: 'X25'
-[DEBUG] === ARM64 ABI Argument Coercion ===
-[DEBUG] Total arguments: 1
-[DEBUG] Arg 0: src=X25 expr_type=INTEGER expected=INTEGER target=INTEGER
-[DEBUG] Integer arg 0 -> X0 (NGRN=0)
-[DEBUG] Queued MOV X0, X25
-[DEBUG] Deferring release of source register: X25
-[DEBUG] Emitting 1 queued operations
-[DEBUG LEVEL 5] Emitting instruction: MOV X0, X25
-[DEBUG] Executed MOV X0, X25
-[DEBUG] Releasing source register: X25
-[DEBUG] Final register usage: NGRN=1, NSRN=0
-[DEBUG] === END ARM64 ABI Argument Coercion ===
-[DEBUG LEVEL 5] Emitting instruction: BL WRITEN_veneer
-[DEBUG] --- Exiting NewCodeGenerator::visit(RoutineCallStatement& node) ---
-[DEBUG] --- Entering NewCodeGenerator::visit(RoutineCallStatement& node) [ARM64 ABI COMPLIANT] ---
-[DEBUG] Detected a regular function/routine call.
-[DEBUG] Generating code for StringLiteral.
-[DEBUG] Allocated register X9 for the string address.
-[DEBUG LEVEL 5] Emitting instruction: ADRP X9, L_str3
-[DEBUG LEVEL 5] Emitting instruction: ADD X9, X9, #:lo12:L_str3
-[DEBUG LEVEL 5] Emitting instruction: ADD X9, X9, #8
-[DEBUG] Emitted ADRP/ADD sequence and offset adjustment for string literal ' AND = '.
-[DEBUG] === ARM64 ABI Argument Coercion ===
-[DEBUG] Total arguments: 1
-[DEBUG] Arg 0: src=X9 expr_type=POINTER_TO|STRING expected=INTEGER target=INTEGER
-[DEBUG] Integer arg 0 -> X0 (NGRN=0)
-[DEBUG] Queued MOV X0, X9
-[DEBUG] Deferring release of source register: X9
-[DEBUG] Emitting 1 queued operations
-[DEBUG LEVEL 5] Emitting instruction: MOV X0, X9
-[DEBUG] Executed MOV X0, X9
-[DEBUG] Releasing source register: X9
-[DEBUG] Final register usage: NGRN=1, NSRN=0
-[DEBUG] === END ARM64 ABI Argument Coercion ===
-[DEBUG LEVEL 5] Emitting instruction: BL WRITES_veneer
-[DEBUG] --- Exiting NewCodeGenerator::visit(RoutineCallStatement& node) ---
-[DEBUG] --- Entering NewCodeGenerator::visit(RoutineCallStatement& node) [ARM64 ABI COMPLIANT] ---
-[DEBUG] Detected a regular function/routine call.
-[DEBUG] Visiting VariableAccess node for 'I'.
-[DEBUG]   [DEBUG] About to call get_variable_register for 'I' in function 'START'
-[DEBUG] get_variable_register for: 'I' in function 'START'
-[DEBUG]   [DEBUG] Current function allocations exist: YES
-[DEBUG]   ✅ REGISTER ALLOCATED: Variable 'I' lives in register X27
-[DEBUG] Variable 'I' value loaded into X27
-[DEBUG]   [DEBUG] get_variable_register returned: 'X27'
-[DEBUG] === ARM64 ABI Argument Coercion ===
-[DEBUG] Total arguments: 1
-[DEBUG] Arg 0: src=X27 expr_type=INTEGER expected=INTEGER target=INTEGER
-[DEBUG] Integer arg 0 -> X0 (NGRN=0)
-[DEBUG] Queued MOV X0, X27
-[DEBUG] Deferring release of source register: X27
-[DEBUG] Emitting 1 queued operations
-[DEBUG LEVEL 5] Emitting instruction: MOV X0, X27
-[DEBUG] Executed MOV X0, X27
-[DEBUG] Releasing source register: X27
-[DEBUG] Final register usage: NGRN=1, NSRN=0
-[DEBUG] === END ARM64 ABI Argument Coercion ===
-[DEBUG LEVEL 5] Emitting instruction: BL WRITEN_veneer
-[DEBUG] --- Exiting NewCodeGenerator::visit(RoutineCallStatement& node) ---
-[DEBUG] --- Entering NewCodeGenerator::visit(RoutineCallStatement& node) [ARM64 ABI COMPLIANT] ---
-[DEBUG] Detected a regular function/routine call.
-[DEBUG] Generating code for StringLiteral.
-[DEBUG] Allocated register X9 for the string address.
-[DEBUG LEVEL 5] Emitting instruction: ADRP X9, L_str4
-[DEBUG LEVEL 5] Emitting instruction: ADD X9, X9, #:lo12:L_str4
-[DEBUG LEVEL 5] Emitting instruction: ADD X9, X9, #8
-[DEBUG] Emitted ADRP/ADD sequence and offset adjustment for string literal 'BYE'.
-[DEBUG] === ARM64 ABI Argument Coercion ===
-[DEBUG] Total arguments: 1
-[DEBUG] Arg 0: src=X9 expr_type=POINTER_TO|STRING expected=INTEGER target=INTEGER
-[DEBUG] Integer arg 0 -> X0 (NGRN=0)
-[DEBUG] Queued MOV X0, X9
-[DEBUG] Deferring release of source register: X9
-[DEBUG] Emitting 1 queued operations
-[DEBUG LEVEL 5] Emitting instruction: MOV X0, X9
-[DEBUG] Executed MOV X0, X9
-[DEBUG] Releasing source register: X9
-[DEBUG] Final register usage: NGRN=1, NSRN=0
-[DEBUG] === END ARM64 ABI Argument Coercion ===
-[DEBUG LEVEL 5] Emitting instruction: BL WRITES_veneer
-[DEBUG] --- Exiting NewCodeGenerator::visit(RoutineCallStatement& node) ---
-[DEBUG] --- Entering NewCodeGenerator::visit(RoutineCallStatement& node) [ARM64 ABI COMPLIANT] ---
-[DEBUG] Detected a regular function/routine call.
-[SYMBOL TABLE TRACE] Lookup FAILED for symbol: 'HeapManager_exit_scope'
 [DEBUG] === ARM64 ABI Argument Coercion ===
 [DEBUG] Total arguments: 0
 [DEBUG] Emitting 0 queued operations
@@ -2146,23 +892,30 @@ Offset   | Content                               | Type
 [DEBUG] === END ARM64 ABI Argument Coercion ===
 [DEBUG LEVEL 5] Emitting instruction: BL HeapManager_exit_scope_veneer
 [DEBUG] --- Exiting NewCodeGenerator::visit(RoutineCallStatement& node) ---
-[DEBUG LEVEL 5] Emitting instruction: B START_FinishCleanup_1
-[DEBUG] Visiting FinishStatement node.
-[DEBUG] Visiting SysCall node for macOS.
-[DEBUG] Visiting NumberLiteral node.
-[DEBUG LEVEL 5] Emitting instruction: MOVZ X9, #0
-[DEBUG] Loaded integer literal 0 into X9 using MOVZ.
-[DEBUG LEVEL 5] Emitting instruction: MOV X0, X9
-[DEBUG] Evaluating syscall number expression.
-[DEBUG] Visiting NumberLiteral node.
-[DEBUG] Loaded large integer literal 33554433 into X9 using MOVZ/MOVK.
-[DEBUG] Moving syscall number to X16.
-[DEBUG LEVEL 5] Emitting instruction: MOV X16, X9
-[DEBUG] Emitting SVC #0x80 instruction.
-[DEBUG LEVEL 5] Emitting instruction: SVC #128
-[DEBUG] Syscall result is in X0.
+[DEBUG LEVEL 5] Emitting instruction: B START_ForEachAdvance_4
+[DEBUG] --- Entering NewCodeGenerator::visit(RoutineCallStatement& node) [ARM64 ABI COMPLIANT] ---
+[DEBUG] Detected a regular function/routine call.
+[DEBUG] === ARM64 ABI Argument Coercion ===
+[DEBUG] Total arguments: 0
+[DEBUG] Emitting 0 queued operations
+[DEBUG] Final register usage: NGRN=0, NSRN=0
+[DEBUG] === END ARM64 ABI Argument Coercion ===
+[DEBUG LEVEL 5] Emitting instruction: BL HeapManager_exit_scope_veneer
+[DEBUG] --- Exiting NewCodeGenerator::visit(RoutineCallStatement& node) ---
+[DEBUG LEVEL 5] Emitting instruction: B START_Exit_5
+[DEBUG] Visiting ConditionalBranchStatement (codegen is handled by block epilogue).
+[DEBUG] Visiting VariableAccess node for '_forEach_cursor_0'.
+[DEBUG]   [DEBUG] About to call get_variable_register for '_forEach_cursor_0' in function 'START'
+[DEBUG] get_variable_register for: '_forEach_cursor_0' in function 'START'
+[DEBUG]   [DEBUG] Current function allocations exist: YES
+[DEBUG]   ✅ REGISTER ALLOCATED: Variable '_forEach_cursor_0' lives in register X26
+[DEBUG] Variable '_forEach_cursor_0' value loaded into X26
+[DEBUG]   [DEBUG] get_variable_register returned: 'X26'
+[DEBUG LEVEL 5] Emitting instruction: CMP X26, XZR
+[DEBUG LEVEL 5] Emitting instruction: B.EQ START_ForEachExit_3
+[DEBUG LEVEL 5] Emitting instruction: B START_ForEachBody_2
 [DEBUG] Performing end-of-function scope cleanup for 'START'.
-[DEBUG] Defining epilogue label: .L2
+[DEBUG] Defining epilogue label: .L0
 [DEBUG] Attempting to generate epilogue for 'START'.
 [DEBUG] Exited scope. Scope stack size: 0
 [DEBUG] Finished visiting RoutineDeclaration node.
@@ -2174,7 +927,18 @@ Offset   | Content                               | Type
 [InstructionStream TRACE] Adding label definition: L_str3
 [InstructionStream TRACE] Adding label definition: L_str4
 [DataGenerator TRACE] Entering generate_rodata_section.
-[DataGenerator TRACE] Size of list_literals_ vector is: 0
+[DataGenerator TRACE] Size of list_literals_ vector is: 1
+[DataGenerator TRACE] >> Processing header: L_list0_header
+[DataGenerator TRACE]   Internal nodes vector size: 3
+[DataGenerator TRACE]   --- Dumping Node Labels ---
+[DataGenerator TRACE]     -> L_list0_node_0
+[DataGenerator TRACE]     -> L_list0_node_1
+[DataGenerator TRACE]     -> L_list0_node_2
+[DataGenerator TRACE]   --- End Dump ---
+[InstructionStream TRACE] Adding label definition: L_list0_header
+[InstructionStream TRACE] Adding label definition: L_list0_node_0
+[InstructionStream TRACE] Adding label definition: L_list0_node_1
+[InstructionStream TRACE] Adding label definition: L_list0_node_2
 [InstructionStream TRACE] Adding label definition: L__data_segment_base
 [DEBUG] Code generation finished.
 Code generation complete.
@@ -2182,16 +946,11 @@ Code generation complete.
 --- Symbol Table After Code Generation ---
 Symbol Table (Persistent, All Symbols)
 ==================================================
-Symbol 'FACTORIAL_RECURSIVE' (FUNCTION, INTEGER, scope=0, block=0, class_name='', function_name='FACTORIAL_RECURSIVE', parameters=[UNKNOWN])
-Symbol 'N' (PARAMETER, UNKNOWN, scope=1, block=0, class_name='', function_name='FACTORIAL_RECURSIVE')
-Symbol 'FACTORIAL_ITERATIVE' (FUNCTION, INTEGER, scope=0, block=0, class_name='', function_name='FACTORIAL_ITERATIVE', parameters=[UNKNOWN])
-Symbol 'N' (PARAMETER, UNKNOWN, scope=1, block=0, class_name='', function_name='FACTORIAL_ITERATIVE')
-Symbol 'F' (LOCAL_VAR, INTEGER, scope=2, block=0, class_name='', function_name='FACTORIAL_ITERATIVE')
-Symbol 'I' (LOCAL_VAR, INTEGER, scope=3, block=0, class_name='', function_name='FACTORIAL_ITERATIVE')
+Symbol 'HeapManager_enter_scope' (FUNCTION, INTEGER, scope=0, block=0, class_name='', function_name='Global')
+Symbol 'HeapManager_exit_scope' (FUNCTION, INTEGER, scope=0, block=0, class_name='', function_name='Global')
 Symbol 'START' (ROUTINE, INTEGER, scope=0, block=0, class_name='', function_name='START')
-Symbol 'N' (LOCAL_VAR, INTEGER, scope=2, block=0, class_name='', function_name='START')
-Symbol 'R' (LOCAL_VAR, INTEGER, scope=2, block=0, class_name='', function_name='START')
-Symbol 'I' (LOCAL_VAR, INTEGER, scope=2, block=0, class_name='', function_name='START')
+Symbol 'L' (LOCAL_VAR, POINTER_TO|LIST|INTEGER, scope=2, block=0, class_name='', function_name='START')
+Symbol 'S' (LOCAL_VAR, INTEGER, scope=2, block=0, class_name='', function_name='START')
 Symbol 'READN' (RUNTIME_FUNCTION, INTEGER, scope=0, block=0, class_name='', function_name='')
 Symbol 'RND' (RUNTIME_FLOAT_FUNCTION, FLOAT, scope=0, block=0, class_name='', function_name='', parameters=[INTEGER])
 Symbol 'RAND' (RUNTIME_FUNCTION, INTEGER, scope=0, block=0, class_name='', function_name='', parameters=[INTEGER])
@@ -2258,57 +1017,56 @@ Symbol 'SDL2_GET_VIDEO_DRIVERS' (RUNTIME_FUNCTION, INTEGER, scope=0, block=0, cl
 Symbol 'SDL2_GET_CURRENT_VIDEO_DRIVER' (RUNTIME_FUNCTION, INTEGER, scope=0, block=0, class_name='', function_name='')
 Symbol 'SDL2_GET_DISPLAY_MODES' (RUNTIME_FUNCTION, INTEGER, scope=0, block=0, class_name='', function_name='')
 Symbol 'SDL2_TEST_BASIC' (RUNTIME_FUNCTION, INTEGER, scope=0, block=0, class_name='', function_name='')
-Symbol 'I_for_var_0' (LOCAL_VAR, INTEGER, scope=2, block=0, class_name='', function_name='FACTORIAL_ITERATIVE')
-Symbol '_cse_temp_0' (LOCAL_VAR, INTEGER, scope=0, block=0, class_name='', function_name='START')
+Symbol '_forEach_cursor_0' (LOCAL_VAR, POINTER_TO|LIST, scope=1, block=0, class_name='', function_name='START')
 
 Data sections generated.
 
 === Peephole Optimization ===
-Analyzing 257 ARM64 instructions...
+Analyzing 177 ARM64 instructions...
 Maximum optimization passes: 5
 
-[Peephole Optimizer] Applied: Identical sequential move elimination (MOV Xd, Xn; MOV Xd, Xn)
-  Position: 57
+[Peephole Optimizer] Applied: Combine adjacent X-register STRs into STP
+  Position: 20
   Before:
-    MOV X15, X9  [Opcode=1, Dest=15, Src1=9]
-    MOV X15, X9  [Opcode=1, Dest=15, Src1=9]
+    STR X19, [X29, #40] ; Saved Reg: X19 @ FP+40  [Opcode=26, Dest=-1, Src1=19, Imm=40, Base=29, Offset=40]
+    STR X20, [X29, #48] ; Saved Reg: X20 @ FP+48  [Opcode=26, Dest=-1, Src1=20, Imm=48, Base=29, Offset=48]
   After:
-    MOV X15, X9  [Opcode=1, Dest=15, Src1=9]
+    STP x19, x20, [x29, #40]  [Opcode=30, Dest=-1, Src1=19, Imm=40, Base=29, Offset=40]
+  Instruction count: 2 -> 1
+
+
+[Peephole Optimizer] Applied: Combine adjacent X-register STRs into STP
+  Position: 21
+  Before:
+    STR X26, [X29, #56] ; Saved Reg: X26 @ FP+56  [Opcode=26, Dest=-1, Src1=26, Imm=56, Base=29, Offset=56]
+    STR X27, [X29, #64] ; Saved Reg: X27 @ FP+64  [Opcode=26, Dest=-1, Src1=27, Imm=64, Base=29, Offset=64]
+  After:
+    STP x26, x27, [x29, #56]  [Opcode=30, Dest=-1, Src1=26, Imm=56, Base=29, Offset=56]
   Instruction count: 2 -> 1
 
 
 [Peephole Optimizer] Applied: Identical sequential move elimination (MOV Xd, Xn; MOV Xd, Xn)
-  Position: 59
+  Position: 32
   Before:
-    MOV X13, X9  [Opcode=1, Dest=13, Src1=9]
-    MOV X13, X9  [Opcode=1, Dest=13, Src1=9]
+    MOV X15, X0  [Opcode=1, Dest=15, Src1=0]
+    MOV X15, X0  [Opcode=1, Dest=15, Src1=0]
   After:
-    MOV X13, X9  [Opcode=1, Dest=13, Src1=9]
+    MOV X15, X0  [Opcode=1, Dest=15, Src1=0]
+  Instruction count: 2 -> 1
+
+
+[Peephole Optimizer] Applied: Eliminate load through scratch register (LDR Xs, [..]; MOV Xt, Xs => LDR Xt, [..])
+  Position: 35
+  Before:
+    LDR X10, [X9, #0]  [Opcode=27, Dest=10, Src1=-1, Imm=0, Base=9, Offset=0]
+    MOV X26, X10  [Opcode=1, Dest=26, Src1=10]
+  After:
+    LDR X10, [X9, #0]  [Opcode=27, Dest=26, Src1=-1, Imm=0, Base=9, Offset=0]
   Instruction count: 2 -> 1
 
 
 [Peephole Optimizer] Applied: Identical sequential move elimination (MOV Xd, Xn; MOV Xd, Xn)
-  Position: 66
-  Before:
-    MOV X15, X9  [Opcode=1, Dest=15, Src1=9]
-    MOV X15, X9  [Opcode=1, Dest=15, Src1=9]
-  After:
-    MOV X15, X9  [Opcode=1, Dest=15, Src1=9]
-  Instruction count: 2 -> 1
-
-
-[Peephole Optimizer] Applied: Identical sequential move elimination (MOV Xd, Xn; MOV Xd, Xn)
-  Position: 76
-  Before:
-    MOV X13, X9  [Opcode=1, Dest=13, Src1=9]
-    MOV X13, X9  [Opcode=1, Dest=13, Src1=9]
-  After:
-    MOV X13, X9  [Opcode=1, Dest=13, Src1=9]
-  Instruction count: 2 -> 1
-
-
-[Peephole Optimizer] Applied: Identical sequential move elimination (MOV Xd, Xn; MOV Xd, Xn)
-  Position: 111
+  Position: 48
   Before:
     MOV X26, X9  [Opcode=1, Dest=26, Src1=9]
     MOV X26, X9  [Opcode=1, Dest=26, Src1=9]
@@ -2318,299 +1076,222 @@ Maximum optimization passes: 5
 
 
 [Peephole Optimizer] Applied: Identical sequential move elimination (MOV Xd, Xn; MOV Xd, Xn)
-  Position: 115
+  Position: 58
   Before:
-    MOV X24, X0  [Opcode=1, Dest=24, Src1=0]
-    MOV X24, X0  [Opcode=1, Dest=24, Src1=0]
+    MOV X27, X9  [Opcode=1, Dest=27, Src1=9]
+    MOV X27, X9  [Opcode=1, Dest=27, Src1=9]
   After:
-    MOV X24, X0  [Opcode=1, Dest=24, Src1=0]
+    MOV X27, X9  [Opcode=1, Dest=27, Src1=9]
   Instruction count: 2 -> 1
 
 
-[Peephole Optimizer] Applied: Identical sequential move elimination (MOV Xd, Xn; MOV Xd, Xn)
-  Position: 116
+[Peephole Optimizer] Applied: Combine adjacent X-register LDRs into LDP
+  Position: 82
   Before:
-    MOV X25, X24  [Opcode=1, Dest=25, Src1=24]
-    MOV X25, X24  [Opcode=1, Dest=25, Src1=24]
+    LDR X19, [X29, #40] ; Restored Reg: X19 @ FP+40  [Opcode=27, Dest=19, Src1=-1, Imm=40, Base=29, Offset=40]
+    LDR X20, [X29, #48] ; Restored Reg: X20 @ FP+48  [Opcode=27, Dest=20, Src1=-1, Imm=48, Base=29, Offset=48]
   After:
-    MOV X25, X24  [Opcode=1, Dest=25, Src1=24]
+    LDP x19, x20, [x29, #40]  [Opcode=31, Dest=19, Src1=20, Imm=40, Base=29, Offset=40]
   Instruction count: 2 -> 1
 
 
-[Peephole Optimizer] Applied: Identical sequential move elimination (MOV Xd, Xn; MOV Xd, Xn)
-  Position: 117
+[Peephole Optimizer] Applied: Combine adjacent X-register LDRs into LDP
+  Position: 83
   Before:
-    MOV X27, X24  [Opcode=1, Dest=27, Src1=24]
-    MOV X27, X24  [Opcode=1, Dest=27, Src1=24]
+    LDR X26, [X29, #56] ; Restored Reg: X26 @ FP+56  [Opcode=27, Dest=26, Src1=-1, Imm=56, Base=29, Offset=56]
+    LDR X27, [X29, #64] ; Restored Reg: X27 @ FP+64  [Opcode=27, Dest=27, Src1=-1, Imm=64, Base=29, Offset=64]
   After:
-    MOV X27, X24  [Opcode=1, Dest=27, Src1=24]
+    LDP x26, x27, [x29, #56]  [Opcode=31, Dest=26, Src1=27, Imm=56, Base=29, Offset=56]
+  Instruction count: 2 -> 1
+
+
+[Peephole Optimizer] Applied: Combine adjacent X-register LDRs into LDP
+  Position: 86
+  Before:
+    LDR X29, [SP, #0] ; Restore caller's Frame Pointer  [Opcode=27, Dest=29, Src1=-1, Imm=0, Base=31, Offset=0]
+    LDR X30, [SP, #8] ; Restore Link Register  [Opcode=27, Dest=30, Src1=-1, Imm=8, Base=31, Offset=8]
+  After:
+    LDP x29, x30, [x31]  [Opcode=31, Dest=29, Src1=30, Imm=0, Base=31, Offset=0]
   Instruction count: 2 -> 1
 
 [Peephole Optimizer] Completed pass 1/5, changes made: yes
 Peephole optimization completed 2 
   Passes with changes: 1
 Peephole optimization completed 2 passes:
-  Instructions before: 257
-  Instructions after:  249
-  Total optimizations: 8
+  Instructions before: 177
+  Instructions after:  168
+  Total optimizations: 9
   Patterns matched:
-    - Identical sequential move elimination (MOV Xd, Xn; MOV Xd, Xn): 8
+    - Combine adjacent X-register LDRs into LDP: 3
+    - Eliminate load through scratch register (LDR Xs, [..]; MOV Xt, Xs => LDR Xt, [..]): 1
+    - Identical sequential move elimination (MOV Xd, Xn; MOV Xd, Xn): 3
+    - Combine adjacent X-register STRs into STP: 2
 ==============================
 [Peephole Optimizer] Detailed peephole optimization trace complete
 Populating JIT memory according to linker layout...
 
---- CodeBuffer JIT Listing ------ Code Section Listing (Base Address: 0x10a158000) ---
+--- CodeBuffer JIT Listing ------ Code Section Listing (Base Address: 0x105c7c000) ---
 Address Hex Code    Assembly
 --------------------------------------------------
- 10a158000 0x00000000  
+ 105c7c000 0x00000000  
 ; --- Veneer Section ---
 HeapManager_enter_scope_veneer:
- 10a158004 0xd2971790  MOVZ X16, #47292
- 10a158008 0xf2a09a90  MOVK X16, #1236, LSL #16
- 10a15800c 0xf2c00030  MOVK X16, #1, LSL #32
- 10a158010 0xd61f0200  BR X16
+ 105c7c004 0xd28f2310  MOVZ X16, #31000
+ 105c7c008 0xf2a011d0  MOVK X16, #142, LSL #16
+ 105c7c00c 0xf2c00030  MOVK X16, #1, LSL #32
+ 105c7c010 0xd61f0200  BR X16
 HeapManager_exit_scope_veneer:
- 10a158014 0xd2971d10  MOVZ X16, #47336
- 10a158018 0xf2a09a90  MOVK X16, #1236, LSL #16
- 10a15801c 0xf2c00030  MOVK X16, #1, LSL #32
- 10a158020 0xd61f0200  BR X16
-WRITEN_veneer:
- 10a158024 0xd29ad890  MOVZ X16, #54980
- 10a158028 0xf2a09cb0  MOVK X16, #1253, LSL #16
- 10a15802c 0xf2c00030  MOVK X16, #1, LSL #32
- 10a158030 0xd61f0200  BR X16
+ 105c7c014 0xd28f2890  MOVZ X16, #31044
+ 105c7c018 0xf2a011d0  MOVK X16, #142, LSL #16
+ 105c7c01c 0xf2c00030  MOVK X16, #1, LSL #32
+ 105c7c020 0xd61f0200  BR X16
 WRITES_veneer:
- 10a158034 0xd2997710  MOVZ X16, #52152
- 10a158038 0xf2a09cb0  MOVK X16, #1253, LSL #16
- 10a15803c 0xf2c00030  MOVK X16, #1, LSL #32
- 10a158040 0xd61f0200  BR X16
- 10a158044 0x00000000  ; --- End Veneer Section ---
+ 105c7c024 0xd28dbb10  MOVZ X16, #28120
+ 105c7c028 0xf2a01410  MOVK X16, #160, LSL #16
+ 105c7c02c 0xf2c00030  MOVK X16, #1, LSL #32
+ 105c7c030 0xd61f0200  BR X16
+ 105c7c034 0x00000000  ; --- End Veneer Section ---
 
-FACTORIAL_RECURSIVE:
- 10a158048 0xa9bd7bfd  STP X29, X30, [SP, #-48]!
- 10a15804c 0x910003fd  MOV X29, SP
- 10a158050 0xf9000fb3  STR X19, [X29, #24] ; Saved Reg: X19 @ FP+24
- 10a158054 0xf90013bb  STR X27, [X29, #32] ; Saved Reg: X27 @ FP+32
- 10a158058 0xf90017bc  STR X28, [X29, #40] ; Saved Reg: X28 @ FP+40
- 10a15805c 0xaa0003fb  MOV X27, X0    // Move parameter 'N' from X0 to X27
-FACTORIAL_RECURSIVE_Entry_0:
- 10a158060 0xaa1b03e9  MOV X9, X27
- 10a158064 0xf100013f  CMP X9, #0
- 10a158068 0x9a9f17ea  CSET X10, EQ
- 10a15806c 0xeb1f015f  CMP X10, XZR
- 10a158070 0x54000040  B.EQ FACTORIAL_RECURSIVE_Exit_3    ; Reloc -> 'FACTORIAL_RECURSIVE_Exit_3' @ 0x10a158078
- 10a158074 0x14000001  B FACTORIAL_RECURSIVE_Exit_3    ; Reloc -> 'FACTORIAL_RECURSIVE_Exit_3' @ 0x10a158078
-FACTORIAL_RECURSIVE_Exit_3:
- 10a158078 0x14000001  B .L0    ; Reloc -> '.L0' @ 0x10a15807c
-.L0:
- 10a15807c 0xf9400fb3  LDR X19, [X29, #24] ; Restored Reg: X19 @ FP+24
- 10a158080 0xf94013bb  LDR X27, [X29, #32] ; Restored Reg: X27 @ FP+32
- 10a158084 0xf94017bc  LDR X28, [X29, #40] ; Restored Reg: X28 @ FP+40
- 10a158088 0x910003bf  MOV SP, X29 ; Deallocate frame by moving FP to SP
- 10a15808c 0xf94003fd  LDR X29, [SP, #0] ; Restore caller's Frame Pointer
- 10a158090 0xf94007fe  LDR X30, [SP, #8] ; Restore Link Register
- 10a158094 0x910043ff  ADD SP, SP, #16 ; Deallocate space for saved FP/LR
- 10a158098 0xd65f03c0  RET
-FACTORIAL_ITERATIVE:
- 10a15809c 0xa9bb7bfd  STP X29, X30, [SP, #-80]!
- 10a1580a0 0x910003fd  MOV X29, SP
- 10a1580a4 0xf90017b3  STR X19, [X29, #40] ; Saved Reg: X19 @ FP+40
- 10a1580a8 0xf9001bb4  STR X20, [X29, #48] ; Saved Reg: X20 @ FP+48
- 10a1580ac 0xf9001fb5  STR X21, [X29, #56] ; Saved Reg: X21 @ FP+56
- 10a1580b0 0xf90023bc  STR X28, [X29, #64] ; Saved Reg: X28 @ FP+64
- 10a1580b4 0xaa0003ee  MOV X14, X0    // Move parameter 'N' from X0 to X14
-FACTORIAL_ITERATIVE_Entry_0:
- 10a1580b8 0xd2800029  MOVZ X9, #1
- 10a1580bc 0xaa0903ef  MOV X15, X9
- 10a1580c0 0xd2800029  MOVZ X9, #1
- 10a1580c4 0xaa0903ed  MOV X13, X9
- 10a1580c8 0x14000006  B FACTORIAL_ITERATIVE_ForHeader_1    ; Reloc -> 'FACTORIAL_ITERATIVE_ForHeader_1' @ 0x10a1580e0
-FACTORIAL_ITERATIVE_Exit_6:
- 10a1580cc 0x1400000d  B .L1    ; Reloc -> '.L1' @ 0x10a158100
-FACTORIAL_ITERATIVE_ForBody_2:
- 10a1580d0 0xaa0f03e9  MOV X9, X15
- 10a1580d4 0x9b0d7d29  MUL X9, X9, X13
- 10a1580d8 0xaa0903ef  MOV X15, X9
- 10a1580dc 0x14000005  B FACTORIAL_ITERATIVE_ForIncrement_3    ; Reloc -> 'FACTORIAL_ITERATIVE_ForIncrement_3' @ 0x10a1580f0
-FACTORIAL_ITERATIVE_ForHeader_1:
- 10a1580e0 0xaa0d03e9  MOV X9, X13
- 10a1580e4 0xeb0e013f  CMP X9, X14
- 10a1580e8 0x54ffff2c  B.GT FACTORIAL_ITERATIVE_Exit_6    ; Reloc -> 'FACTORIAL_ITERATIVE_Exit_6' @ 0x10a1580cc
- 10a1580ec 0x17fffff9  B FACTORIAL_ITERATIVE_ForBody_2    ; Reloc -> 'FACTORIAL_ITERATIVE_ForBody_2' @ 0x10a1580d0
-FACTORIAL_ITERATIVE_ForIncrement_3:
- 10a1580f0 0xaa0d03e9  MOV X9, X13
- 10a1580f4 0x91000529  ADD X9, X9, #1
- 10a1580f8 0xaa0903ed  MOV X13, X9
- 10a1580fc 0x17fffff9  B FACTORIAL_ITERATIVE_ForHeader_1    ; Reloc -> 'FACTORIAL_ITERATIVE_ForHeader_1' @ 0x10a1580e0
-.L1:
- 10a158100 0xf94017b3  LDR X19, [X29, #40] ; Restored Reg: X19 @ FP+40
- 10a158104 0xf9401bb4  LDR X20, [X29, #48] ; Restored Reg: X20 @ FP+48
- 10a158108 0xf9401fb5  LDR X21, [X29, #56] ; Restored Reg: X21 @ FP+56
- 10a15810c 0xf94023bc  LDR X28, [X29, #64] ; Restored Reg: X28 @ FP+64
- 10a158110 0x910003bf  MOV SP, X29 ; Deallocate frame by moving FP to SP
- 10a158114 0xf94003fd  LDR X29, [SP, #0] ; Restore caller's Frame Pointer
- 10a158118 0xf94007fe  LDR X30, [SP, #8] ; Restore Link Register
- 10a15811c 0x910043ff  ADD SP, SP, #16 ; Deallocate space for saved FP/LR
- 10a158120 0xd65f03c0  RET
 START:
- 10a158124 0xa9b87bfd  STP X29, X30, [SP, #-128]!
- 10a158128 0x910003fd  MOV X29, SP
- 10a15812c 0xf9001bb3  STR X19, [X29, #48] ; Saved Reg: X19 @ FP+48
- 10a158130 0xf9001fb4  STR X20, [X29, #56] ; Saved Reg: X20 @ FP+56
- 10a158134 0xf90023b5  STR X21, [X29, #64] ; Saved Reg: X21 @ FP+64
- 10a158138 0xf90027b6  STR X22, [X29, #72] ; Saved Reg: X22 @ FP+72
- 10a15813c 0xf9002bb8  STR X24, [X29, #80] ; Saved Reg: X24 @ FP+80
- 10a158140 0xf9002fb9  STR X25, [X29, #88] ; Saved Reg: X25 @ FP+88
- 10a158144 0xf90033ba  STR X26, [X29, #96] ; Saved Reg: X26 @ FP+96
- 10a158148 0xf90037bb  STR X27, [X29, #104] ; Saved Reg: X27 @ FP+104
- 10a15814c 0xf9003bbc  STR X28, [X29, #112] ; Saved Reg: X28 @ FP+112
- 10a158150 0xd298001c  MOVZ X28, #49152
- 10a158154 0xf2a0ac5c  MOVK X28, #1378, LSL #16
- 10a158158 0xf2c0003c  MOVK X28, #1, LSL #32
- 10a15815c 0xf2e0001c  MOVK X28, #0, LSL #48
+ 105c7c038 0xa9bb7bfd  STP X29, X30, [SP, #-80]!
+ 105c7c03c 0x910003fd  MOV X29, SP
+ 105c7c040 0xa902d3b3  STP x19, x20, [x29, #40]
+ 105c7c044 0xa903efba  STP x26, x27, [x29, #56]
+ 105c7c048 0xf90027bc  STR X28, [X29, #72] ; Saved Reg: X28 @ FP+72
+ 105c7c04c 0xd298001c  MOVZ X28, #49152
+ 105c7c050 0xf2a0b6fc  MOVK X28, #1463, LSL #16
+ 105c7c054 0xf2c0003c  MOVK X28, #1, LSL #32
+ 105c7c058 0xf2e0001c  MOVK X28, #0, LSL #48
 START_Entry_0:
- 10a158160 0xb0000029  ADRP X9, L_str0    ; Reloc -> 'L_str0' @ 0x10a15d000
- 10a158164 0x91000129  ADD X9, X9, #:lo12:L_str0    ; Reloc -> 'L_str0' @ 0x10a15d000
- 10a158168 0x91002129  ADD X9, X9, #8
- 10a15816c 0xaa0903e0  MOV X0, X9
- 10a158170 0x97ffffb1  BL WRITES_veneer    ; Reloc -> 'WRITES_veneer' @ 0x10a158034
- 10a158174 0xd2800249  MOVZ X9, #18
- 10a158178 0xaa0903fa  MOV X26, X9
- 10a15817c 0xaa1a03f4  MOV X20, X26
- 10a158180 0xaa1403e0  MOV X0, X20
- 10a158184 0x97ffffb1  BL FACTORIAL_RECURSIVE    ; Reloc -> 'FACTORIAL_RECURSIVE' @ 0x10a158048
- 10a158188 0xaa0003f8  MOV X24, X0
- 10a15818c 0xaa1803f9  MOV X25, X24
- 10a158190 0xaa1803fb  MOV X27, X24
- 10a158194 0xb0000029  ADRP X9, L_str1    ; Reloc -> 'L_str1' @ 0x10a15d028
- 10a158198 0x9100a129  ADD X9, X9, #:lo12:L_str1    ; Reloc -> 'L_str1' @ 0x10a15d028
- 10a15819c 0x91002129  ADD X9, X9, #8
- 10a1581a0 0xaa0903e0  MOV X0, X9
- 10a1581a4 0x97ffffa4  BL WRITES_veneer    ; Reloc -> 'WRITES_veneer' @ 0x10a158034
- 10a1581a8 0xaa1a03e0  MOV X0, X26
- 10a1581ac 0x97ffff9e  BL WRITEN_veneer    ; Reloc -> 'WRITEN_veneer' @ 0x10a158024
- 10a1581b0 0xb0000029  ADRP X9, L_str2    ; Reloc -> 'L_str2' @ 0x10a15d0c4
- 10a1581b4 0x91031129  ADD X9, X9, #:lo12:L_str2    ; Reloc -> 'L_str2' @ 0x10a15d0c4
- 10a1581b8 0x91002129  ADD X9, X9, #8
- 10a1581bc 0xaa0903e0  MOV X0, X9
- 10a1581c0 0x97ffff9d  BL WRITES_veneer    ; Reloc -> 'WRITES_veneer' @ 0x10a158034
- 10a1581c4 0xaa1903e0  MOV X0, X25
- 10a1581c8 0x97ffff97  BL WRITEN_veneer    ; Reloc -> 'WRITEN_veneer' @ 0x10a158024
- 10a1581cc 0xb0000029  ADRP X9, L_str3    ; Reloc -> 'L_str3' @ 0x10a15d0e0
- 10a1581d0 0x91038129  ADD X9, X9, #:lo12:L_str3    ; Reloc -> 'L_str3' @ 0x10a15d0e0
- 10a1581d4 0x91002129  ADD X9, X9, #8
- 10a1581d8 0xaa0903e0  MOV X0, X9
- 10a1581dc 0x97ffff96  BL WRITES_veneer    ; Reloc -> 'WRITES_veneer' @ 0x10a158034
- 10a1581e0 0xaa1b03e0  MOV X0, X27
- 10a1581e4 0x97ffff90  BL WRITEN_veneer    ; Reloc -> 'WRITEN_veneer' @ 0x10a158024
- 10a1581e8 0xb0000029  ADRP X9, L_str4    ; Reloc -> 'L_str4' @ 0x10a15d10c
- 10a1581ec 0x91043129  ADD X9, X9, #:lo12:L_str4    ; Reloc -> 'L_str4' @ 0x10a15d10c
- 10a1581f0 0x91002129  ADD X9, X9, #8
- 10a1581f4 0xaa0903e0  MOV X0, X9
- 10a1581f8 0x97ffff8f  BL WRITES_veneer    ; Reloc -> 'WRITES_veneer' @ 0x10a158034
- 10a1581fc 0x97ffff86  BL HeapManager_exit_scope_veneer    ; Reloc -> 'HeapManager_exit_scope_veneer' @ 0x10a158014
- 10a158200 0x14000001  B START_FinishCleanup_1    ; Reloc -> 'START_FinishCleanup_1' @ 0x10a158204
-START_FinishCleanup_1:
- 10a158204 0xd2800009  MOVZ X9, #0
- 10a158208 0xaa0903e0  MOV X0, X9
- 10a15820c 0xd2800029  MOVZ X9, #1
- 10a158210 0xf2a04009  MOVK X9, #512, LSL #16
- 10a158214 0xaa0903f0  MOV X16, X9
- 10a158218 0xd4001001  SVC #128
+ 105c7c05c 0x97ffffea  BL HeapManager_enter_scope_veneer    ; Reloc -> 'HeapManager_enter_scope_veneer' @ 0x105c7c004
+ 105c7c060 0xb0000020  ADRP X0, L_list0_header    ; Reloc -> 'L_list0_header' @ 0x105c810a0
+ 105c7c064 0x91028000  ADD X0, X0, #:lo12:L_list0_header    ; Reloc -> 'L_list0_header' @ 0x105c810a0
+ 105c7c068 0x96b648b6  BL DEEPCOPYLITERALLIST    ; Reloc -> 'DEEPCOPYLITERALLIST' @ 0x100a0e340
+ 105c7c06c 0xaa0003ef  MOV X15, X0
+ 105c7c070 0xaa0f03e9  MOV X9, X15
+ 105c7c074 0x91004129  ADD X9, X9, #16
+ 105c7c078 0xf940012a  LDR X10, [X9, #0]
+ 105c7c07c 0xaa0a03fa  MOV X26, X10
+ 105c7c080 0x14000020  B START_ForEachHeader_1    ; Reloc -> 'START_ForEachHeader_1' @ 0x105c7c100
+START_Exit_5:
+ 105c7c084 0x14000022  B .L0    ; Reloc -> '.L0' @ 0x105c7c10c
+START_ForEachAdvance_4:
+ 105c7c088 0xf100035f  CMP X26, #0
+ 105c7c08c 0x54000060  B.EQ .L2    ; Reloc -> '.L2' @ 0x105c7c098
+ 105c7c090 0xf9400b49  LDR X9, [X26, #16]
+ 105c7c094 0x14000002  B .L1    ; Reloc -> '.L1' @ 0x105c7c09c
 .L2:
- 10a15821c 0xf9401bb3  LDR X19, [X29, #48] ; Restored Reg: X19 @ FP+48
- 10a158220 0xf9401fb4  LDR X20, [X29, #56] ; Restored Reg: X20 @ FP+56
- 10a158224 0xf94023b5  LDR X21, [X29, #64] ; Restored Reg: X21 @ FP+64
- 10a158228 0xf94027b6  LDR X22, [X29, #72] ; Restored Reg: X22 @ FP+72
- 10a15822c 0xf9402bb8  LDR X24, [X29, #80] ; Restored Reg: X24 @ FP+80
- 10a158230 0xf9402fb9  LDR X25, [X29, #88] ; Restored Reg: X25 @ FP+88
- 10a158234 0xf94033ba  LDR X26, [X29, #96] ; Restored Reg: X26 @ FP+96
- 10a158238 0xf94037bb  LDR X27, [X29, #104] ; Restored Reg: X27 @ FP+104
- 10a15823c 0xf9403bbc  LDR X28, [X29, #112] ; Restored Reg: X28 @ FP+112
- 10a158240 0x910003bf  MOV SP, X29 ; Deallocate frame by moving FP to SP
- 10a158244 0xf94003fd  LDR X29, [SP, #0] ; Restore caller's Frame Pointer
- 10a158248 0xf94007fe  LDR X30, [SP, #8] ; Restore Link Register
- 10a15824c 0x910043ff  ADD SP, SP, #16 ; Deallocate space for saved FP/LR
- 10a158250 0xd65f03c0  RET
+ 105c7c098 0xaa1f03e9  MOV X9, XZR
+.L1:
+ 105c7c09c 0xaa0903fa  MOV X26, X9
+ 105c7c0a0 0x14000018  B START_ForEachHeader_1    ; Reloc -> 'START_ForEachHeader_1' @ 0x105c7c100
+START_ForEachBody_2:
+ 105c7c0a4 0xf100035f  CMP X26, #0
+ 105c7c0a8 0x54000060  B.EQ .L4    ; Reloc -> '.L4' @ 0x105c7c0b4
+ 105c7c0ac 0xf9400749  LDR X9, [X26, #8]
+ 105c7c0b0 0x14000002  B .L3    ; Reloc -> '.L3' @ 0x105c7c0b8
+.L4:
+ 105c7c0b4 0xaa1f03e9  MOV X9, XZR
+.L3:
+ 105c7c0b8 0xaa0903fb  MOV X27, X9
+ 105c7c0bc 0x97ffffd2  BL HeapManager_enter_scope_veneer    ; Reloc -> 'HeapManager_enter_scope_veneer' @ 0x105c7c004
+ 105c7c0c0 0xb0000029  ADRP X9, L_str3    ; Reloc -> 'L_str3' @ 0x105c8105c
+ 105c7c0c4 0x91017129  ADD X9, X9, #:lo12:L_str3    ; Reloc -> 'L_str3' @ 0x105c8105c
+ 105c7c0c8 0x91002129  ADD X9, X9, #8
+ 105c7c0cc 0xaa0903e0  MOV X0, X9
+ 105c7c0d0 0x97ffffd5  BL WRITES_veneer    ; Reloc -> 'WRITES_veneer' @ 0x105c7c024
+ 105c7c0d4 0xaa1b03e0  MOV X0, X27
+ 105c7c0d8 0x97ffffd3  BL WRITES_veneer    ; Reloc -> 'WRITES_veneer' @ 0x105c7c024
+ 105c7c0dc 0xb0000029  ADRP X9, L_str4    ; Reloc -> 'L_str4' @ 0x105c8108c
+ 105c7c0e0 0x91023129  ADD X9, X9, #:lo12:L_str4    ; Reloc -> 'L_str4' @ 0x105c8108c
+ 105c7c0e4 0x91002129  ADD X9, X9, #8
+ 105c7c0e8 0xaa0903e0  MOV X0, X9
+ 105c7c0ec 0x97ffffce  BL WRITES_veneer    ; Reloc -> 'WRITES_veneer' @ 0x105c7c024
+ 105c7c0f0 0x97ffffc9  BL HeapManager_exit_scope_veneer    ; Reloc -> 'HeapManager_exit_scope_veneer' @ 0x105c7c014
+ 105c7c0f4 0x17ffffe5  B START_ForEachAdvance_4    ; Reloc -> 'START_ForEachAdvance_4' @ 0x105c7c088
+START_ForEachExit_3:
+ 105c7c0f8 0x97ffffc7  BL HeapManager_exit_scope_veneer    ; Reloc -> 'HeapManager_exit_scope_veneer' @ 0x105c7c014
+ 105c7c0fc 0x17ffffe2  B START_Exit_5    ; Reloc -> 'START_Exit_5' @ 0x105c7c084
+START_ForEachHeader_1:
+ 105c7c100 0xeb1f035f  CMP X26, XZR
+ 105c7c104 0x54ffffa0  B.EQ START_ForEachExit_3    ; Reloc -> 'START_ForEachExit_3' @ 0x105c7c0f8
+ 105c7c108 0x17ffffe7  B START_ForEachBody_2    ; Reloc -> 'START_ForEachBody_2' @ 0x105c7c0a4
+.L0:
+ 105c7c10c 0xa942d3b3  LDP x19, x20, [x29, #40]
+ 105c7c110 0xa943efba  LDP x26, x27, [x29, #56]
+ 105c7c114 0xf94027bc  LDR X28, [X29, #72] ; Restored Reg: X28 @ FP+72
+ 105c7c118 0x910003bf  MOV SP, X29 ; Deallocate frame by moving FP to SP
+ 105c7c11c 0xa9407bfd  LDP x29, x30, [x31]
+ 105c7c120 0x910043ff  ADD SP, SP, #16 ; Deallocate space for saved FP/LR
+ 105c7c124 0xd65f03c0  RET
 L_str0:
- 10a15d000 0x60000000  .quad 0x6
- 10a15d004 0x00000000  ; (upper half)
- 10a15d008 0x48000000  DCD 0x48
- 10a15d00c 0x65000000  DCD 0x65
- 10a15d010 0x6c000000  DCD 0x6c
- 10a15d014 0x6c000000  DCD 0x6c
- 10a15d018 0x6f000000  DCD 0x6f
- 10a15d01c 0xa0000000  DCD 0xa
- 10a15d020 0x00000000  DCD 0x0
- 10a15d024 0x00000000  DCD 0x0
+ 105c81000 0x10000000  .quad 0x1
+ 105c81004 0x00000000  ; (upper half)
+ 105c81008 0x61000000  DCD 0x61
+ 105c8100c 0x00000000  DCD 0x0
+ 105c81010 0x00000000  DCD 0x0
 L_str1:
- 10a15d028 0x23000000  .quad 0x23
- 10a15d02c 0x00000000  ; (upper half)
- 10a15d030 0x43000000  DCD 0x43
- 10a15d034 0x61000000  DCD 0x61
- 10a15d038 0x6c000000  DCD 0x6c
- 10a15d03c 0x63000000  DCD 0x63
- 10a15d040 0x75000000  DCD 0x75
- 10a15d044 0x6c000000  DCD 0x6c
- 10a15d048 0x61000000  DCD 0x61
- 10a15d04c 0x74000000  DCD 0x74
- 10a15d050 0x69000000  DCD 0x69
- 10a15d054 0x6e000000  DCD 0x6e
- 10a15d058 0x67000000  DCD 0x67
- 10a15d05c 0x20000000  DCD 0x20
- 10a15d060 0x72000000  DCD 0x72
- 10a15d064 0x65000000  DCD 0x65
- 10a15d068 0x63000000  DCD 0x63
- 10a15d06c 0x75000000  DCD 0x75
- 10a15d070 0x72000000  DCD 0x72
- 10a15d074 0x73000000  DCD 0x73
- 10a15d078 0x69000000  DCD 0x69
- 10a15d07c 0x76000000  DCD 0x76
- 10a15d080 0x65000000  DCD 0x65
- 10a15d084 0x20000000  DCD 0x20
- 10a15d088 0x46000000  DCD 0x46
- 10a15d08c 0x61000000  DCD 0x61
- 10a15d090 0x63000000  DCD 0x63
- 10a15d094 0x74000000  DCD 0x74
- 10a15d098 0x6f000000  DCD 0x6f
- 10a15d09c 0x72000000  DCD 0x72
- 10a15d0a0 0x69000000  DCD 0x69
- 10a15d0a4 0x61000000  DCD 0x61
- 10a15d0a8 0x6c000000  DCD 0x6c
- 10a15d0ac 0x20000000  DCD 0x20
- 10a15d0b0 0x6f000000  DCD 0x6f
- 10a15d0b4 0x66000000  DCD 0x66
- 10a15d0b8 0x20000000  DCD 0x20
- 10a15d0bc 0x00000000  DCD 0x0
- 10a15d0c0 0x00000000  DCD 0x0
+ 105c81014 0x60000000  .quad 0x6
+ 105c81018 0x00000000  ; (upper half)
+ 105c8101c 0x73000000  DCD 0x73
+ 105c81020 0x74000000  DCD 0x74
+ 105c81024 0x72000000  DCD 0x72
+ 105c81028 0x69000000  DCD 0x69
+ 105c8102c 0x6e000000  DCD 0x6e
+ 105c81030 0x67000000  DCD 0x67
+ 105c81034 0x00000000  DCD 0x0
+ 105c81038 0x00000000  DCD 0x0
 L_str2:
- 10a15d0c4 0x30000000  .quad 0x3
- 10a15d0c8 0x00000000  ; (upper half)
- 10a15d0cc 0x20000000  DCD 0x20
- 10a15d0d0 0x3d000000  DCD 0x3d
- 10a15d0d4 0x20000000  DCD 0x20
- 10a15d0d8 0x00000000  DCD 0x0
- 10a15d0dc 0x00000000  DCD 0x0
+ 105c8103c 0x40000000  .quad 0x4
+ 105c81040 0x00000000  ; (upper half)
+ 105c81044 0x6c000000  DCD 0x6c
+ 105c81048 0x69000000  DCD 0x69
+ 105c8104c 0x73000000  DCD 0x73
+ 105c81050 0x74000000  DCD 0x74
+ 105c81054 0x00000000  DCD 0x0
+ 105c81058 0x00000000  DCD 0x0
 L_str3:
- 10a15d0e0 0x70000000  .quad 0x7
- 10a15d0e4 0x00000000  ; (upper half)
- 10a15d0e8 0x20000000  DCD 0x20
- 10a15d0ec 0x41000000  DCD 0x41
- 10a15d0f0 0x4e000000  DCD 0x4e
- 10a15d0f4 0x44000000  DCD 0x44
- 10a15d0f8 0x20000000  DCD 0x20
- 10a15d0fc 0x3d000000  DCD 0x3d
- 10a15d100 0x20000000  DCD 0x20
- 10a15d104 0x00000000  DCD 0x0
- 10a15d108 0x00000000  DCD 0x0
+ 105c8105c 0x80000000  .quad 0x8
+ 105c81060 0x00000000  ; (upper half)
+ 105c81064 0x53000000  DCD 0x53
+ 105c81068 0x74000000  DCD 0x74
+ 105c8106c 0x72000000  DCD 0x72
+ 105c81070 0x69000000  DCD 0x69
+ 105c81074 0x6e000000  DCD 0x6e
+ 105c81078 0x67000000  DCD 0x67
+ 105c8107c 0x3a000000  DCD 0x3a
+ 105c81080 0x20000000  DCD 0x20
+ 105c81084 0x00000000  DCD 0x0
+ 105c81088 0x00000000  DCD 0x0
 L_str4:
- 10a15d10c 0x30000000  .quad 0x3
- 10a15d110 0x00000000  ; (upper half)
- 10a15d114 0x42000000  DCD 0x42
- 10a15d118 0x59000000  DCD 0x59
- 10a15d11c 0x45000000  DCD 0x45
- 10a15d120 0x00000000  DCD 0x0
- 10a15d124 0x00000000  DCD 0x0
+ 105c8108c 0x10000000  .quad 0x1
+ 105c81090 0x00000000  ; (upper half)
+ 105c81094 0xa0000000  DCD 0xa
+ 105c81098 0x00000000  DCD 0x0
+ 105c8109c 0x00000000  DCD 0x0
+L_list0_header:
+ 105c810a0 0x00000000  DCD 0x0
+ 105c810a4 0x00000000  DCD 0x0
+ 105c810a8 0x5c810f00  .quad L_list0_node_2    ; Reloc -> 'L_list0_node_2' @ 0x105c810f0
+ 105c810b0 0x5c810c00  .quad L_list0_node_0    ; Reloc -> 'L_list0_node_0' @ 0x105c810c0
+ 105c810b8 0x30000000  .quad 0x3
+ 105c810bc 0x00000000  ; (upper half)
+L_list0_node_0:
+ 105c810c0 0x30000000  DCD 0x3
+ 105c810c4 0x00000000  DCD 0x0
+ 105c810c8 0x5c810000  .quad L_str0    ; Reloc -> 'L_str0' @ 0x105c81000
+ 105c810d0 0x5c810d80  .quad L_list0_node_1    ; Reloc -> 'L_list0_node_1' @ 0x105c810d8
+L_list0_node_1:
+ 105c810d8 0x30000000  DCD 0x3
+ 105c810dc 0x00000000  DCD 0x0
+ 105c810e0 0x5c810140  .quad L_str1    ; Reloc -> 'L_str1' @ 0x105c81014
+ 105c810e8 0x5c810f00  .quad L_list0_node_2    ; Reloc -> 'L_list0_node_2' @ 0x105c810f0
+L_list0_node_2:
+ 105c810f0 0x30000000  DCD 0x3
+ 105c810f4 0x00000000  DCD 0x0
+ 105c810f8 0x5c8103c0  .quad L_str2    ; Reloc -> 'L_str2' @ 0x105c8103c
+ 105c81100 0x00000000  .quad 0x0
+ 105c81104 0x00000000  ; (upper half)
 
 --------------------------
 
@@ -2618,7 +1299,81 @@ JIT runtime table populated with 123 function pointers.
 Set runtime function table memory to read-only.
 
 --- JIT Execution ---
-JIT execution enabled. Entry point 'START' at 0x10a158124
-[JITExecutor] Starting execution of JIT-compiled function at address: 0x10a158124
-Hello
-Calculating recursive Factorial of 18 = 18 AND = 18BYE
+JIT execution enabled. Entry point 'START' at 0x105c7c038
+[JITExecutor] Starting execution of JIT-compiled function at address: 0x105c7c038
+SAMM: Entered scope (depth: 2)
+SAMM: Tracked freelist allocation 0x1017951b0 in scope (depth: 2, scope size: 1)
+SAMM: Tracked list allocation 0x1017951b0 in scope (depth: 2, scope size: 2)
+BCPL String Optimizations: Initialized (pool + SIMD)
+SAMM: Tracked string pool allocation 0xb8ece37dc in scope (depth: 2, scope size: 3)
+SAMM: Tracked string pool allocation 0xb8ece37a0 in scope (depth: 2, scope size: 4)
+SAMM: Tracked string pool allocation 0xb8ece3764 in scope (depth: 2, scope size: 5)
+SAMM: Entered scope (depth: 3)
+String: 
+SAMM: Scope exit - found 0 objects to cleanup (remaining depth: 2)
+SAMM: No objects to cleanup in this scope
+SAMM: Entered scope (depth: 3)
+String: 
+SAMM: Scope exit - found 0 objects to cleanup (remaining depth: 2)
+SAMM: No objects to cleanup in this scope
+SAMM: Entered scope (depth: 3)
+String: 
+SAMM: Scope exit - found 0 objects to cleanup (remaining depth: 2)
+SAMM: No objects to cleanup in this scope
+SAMM: Scope exit - found 5 objects to cleanup (remaining depth: 1)
+SAMM: About to queue 5 objects for cleanup
+SAMM: Queued objects for background cleanup (queue depth: 1)
+SAMM: Notified background worker
+JIT Execution completed with result: 4433887088
+  Same value as double: SAMM: Worker woke up, queue size: 1, running: YES
+SAMM: Processing batch of 5 objects
+SAMM: cleanupPointersImmediate called with 5 pointers
+SAMM: Cleaning up pointer 0x1017951b0
+SAMM: Freeing list header 0x1017951b0 and returning all atoms to freelist
+2.19063e-314
+[JITExecutor] Execution completed. Result: 4433887088
+SAMM: Successfully cleaned pointer 0x1017951b0
+SAMM: Cleaning up pointer 0x1017951b0
+SAMM: Ignoring free() for 0x1017951b0 - already freed by SAMM
+SAMM: Successfully cleaned pointer 0x1017951b0
+SAMM: Cleaning up pointer 0xb8ece37dc
+
+--- JIT returned with result: 4433887088 ---
+SAMM: Returning string pool allocation 0xb8ece37dc to pool for reuse
+SAMM: Successfully cleaned pointer 0xb8ece37dc
+SAMM: Cleaning up pointer 0xb8ece37a0
+SAMM: Returning string pool allocation 0xb8ece37a0 to pool for reuse
+SAMM: Successfully cleaned pointer 0xb8ece37a0
+SAMM: Cleaning up pointer 0xb8ece3764
+SAMM: Returning string pool allocation 0xb8ece3764 to pool for reuse
+SAMM: Successfully cleaned pointer 0xb8ece3764
+SAMM: cleanupPointersImmediate completed 5 items in 0.015 ms
+SAMM: Background worker processed batch of 5 objects
+SAMM: Worker waiting for cleanup queue (queue size: 0)
+
+--- BCPL Runtime Metrics ---
+Memory allocations: 0 (0 bytes)
+Memory frees: 0 (0 bytes)
+Vector allocations: 0
+String allocations: 0
+Double-free attempts: 0
+Current active allocations: 0 (0 bytes)
+Bloom filter statistics:
+  Items tracked: 0
+  Memory usage: 12000000 bytes
+  False positives: 0
+  Est. false positive rate: 0.0000%
+File I/O operations:
+  Files opened: 0
+  Files closed: 0
+  Bytes read: 0
+  Bytes written: 0
+  Open files: 0
+--------------------------
+SAMM: Processed all pending cleanup operations
+SAMM: Worker woke up, queue size: 0, running: NO
+SAMM: Background cleanup worker thread stopped (DEBUG)
+SAMM: Background worker stopped
+SAMM: cleanupPointersImmediate called with 0 pointers
+SAMM: cleanupPointersImmediate completed 0 items in 0.000 ms
+SAMM: Shutdown complete

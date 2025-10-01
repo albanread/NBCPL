@@ -326,6 +326,20 @@ void DebugPrinter::visit(TableExpression& node) {
     }
 }
 
+void DebugPrinter::visit(ListExpression& node) {
+    print_line("ListExpression:");
+    indent_level_++;
+    if (!node.initializers.empty()) {
+        print_line("Initializers:");
+        for (const auto& expr : node.initializers) {
+            print_child(expr);
+        }
+    } else {
+        print_line("(empty)");
+    }
+    indent_level_--;
+}
+
 void DebugPrinter::visit(AssignmentStatement& node) {
     print_line("AssignmentStatement:");
     indent_level_++;

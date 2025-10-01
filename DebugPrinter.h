@@ -54,6 +54,7 @@ public:
     void visit(VecAllocationExpression& node) override;
     void visit(StringAllocationExpression& node) override;
     void visit(TableExpression& node) override;
+    void visit(ListExpression& node) override;
     void visit(AssignmentStatement& node) override;
     void visit(RoutineCallStatement& node) override;
     void visit(IfStatement& node) override;

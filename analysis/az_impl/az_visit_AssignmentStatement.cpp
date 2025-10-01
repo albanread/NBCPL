@@ -200,6 +200,11 @@ void ASTAnalyzer::visit(AssignmentStatement& node) {
 
                     // 4. Update the symbol in the table with all new information.
                     symbol_table_->updateSymbol(var->name, symbol);
+
+                    // Debug output for variable type using vartype_to_string
+                    if (trace_enabled_) {
+                        std::cerr << "[DEBUG] Updated variable '" << var->name << "' type to " << vartype_to_string(symbol.type) << std::endl;
+                    }
                 }
             }
             // Attribute variable to current function/routine if not already present

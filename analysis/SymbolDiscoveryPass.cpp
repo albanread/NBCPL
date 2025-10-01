@@ -24,6 +24,27 @@ void SymbolDiscoveryPass::build_into(Program& program, SymbolTable& symbol_table
 void SymbolDiscoveryPass::visit(Program& node) {
     trace("Entering global scope");
 
+    // Register required runtime functions (HeapManager_enter_scope, HeapManager_exit_scope)
+    {
+        Symbol enter_scope_symbol(
+            "HeapManager_enter_scope",
+            SymbolKind::FUNCTION,
+            VarType::INTEGER,
+            0, // global scope
+            "Global"
+        );
+        symbol_table_->addSymbol(enter_scope_symbol);
+
+        Symbol exit_scope_symbol(
+            "HeapManager_exit_scope",
+            SymbolKind::FUNCTION,
+            VarType::INTEGER,
+            0, // global scope
+            "Global"
+        );
+        symbol_table_->addSymbol(exit_scope_symbol);
+    }
+
     // Process all declarations first to ensure forward references work
     for (auto& decl : node.declarations) {
         if (decl) decl->accept(*this);

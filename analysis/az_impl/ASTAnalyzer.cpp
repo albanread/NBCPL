@@ -540,7 +540,6 @@ void ASTAnalyzer::visit(ForEachStatement& node) {
     if (trace_enabled_) std::cout << "[ANALYZER TRACE] Pushed FOREACH loop context. Context stack size: " << loop_context_stack_.size() << std::endl;
 
     if (node.collection_expression) node.collection_expression->accept(*this);
-    if (node.body) node.body->accept(*this);
 
     VarType collection_type = infer_expression_type(node.collection_expression.get());
 
@@ -556,7 +555,7 @@ void ASTAnalyzer::visit(ForEachStatement& node) {
                        == (static_cast<int64_t>(VarType::POINTER_TO) | static_cast<int64_t>(VarType::LIST));
         
         if (!is_list) {
-            std::string error_msg = "Destructuring FOREACH requires a list collection, got " + var_type_to_string(collection_type);
+            std::string error_msg = "Destructuring FOREACH requires a list collection, got " + vartype_to_string(collection_type);
             std::cerr << "[SEMANTIC ERROR] " << error_msg << std::endl;
             semantic_errors_.push_back(error_msg);
         }
@@ -609,7 +608,7 @@ void ASTAnalyzer::visit(ForEachStatement& node) {
         } else if (base_type == VarType::FLOAT) {
             element_type = VarType::FLOAT;
         } else if (base_type == VarType::STRING) {
-            element_type = VarType::POINTER_TO_STRING;
+            element_type = VarType::STRING;
         } else {
             // Default for ANY_LIST or other combinations
             element_type = VarType::ANY;
@@ -657,6 +656,11 @@ void ASTAnalyzer::visit(ForEachStatement& node) {
             }
             metrics.variable_types[node.loop_variable_name] = element_type;
 
+            if (trace_enabled_) {
+                std::cout << "[DEBUG FOREACH] Set variable_types[" << node.loop_variable_name << "] = " << static_cast<int>(element_type)
+                          << " (" << vartype_to_string(element_type) << ") in function " << current_function_scope_ << std::endl;
+            }
+
             // --- FIX IS HERE ---
             // Also update the symbol table with the correct inferred type.
             if (symbol_table_) {
@@ -666,6 +670,8 @@ void ASTAnalyzer::visit(ForEachStatement& node) {
         }
     }
     node.inferred_element_type = element_type;
+
+    if (node.body) node.body->accept(*this);
 
     // Pop FOREACH loop context
     loop_context_stack_.pop();
@@ -1180,12 +1186,22 @@ VarType ASTAnalyzer::infer_collection_type(const Expression* expr) const {
         }
         
         if (all_match) {
+            VarType inferred_type;
             if (first_element_type == VarType::FLOAT) {
-                return VarType::POINTER_TO_FLOAT_LIST;
+                inferred_type = VarType::POINTER_TO_FLOAT_LIST;
+            } else if (first_element_type == VarType::STRING || first_element_type == VarType::POINTER_TO_STRING) {
+                inferred_type = VarType::POINTER_TO_STRING_LIST;
             } else {
-                return VarType::POINTER_TO_INT_LIST;
+                inferred_type = VarType::POINTER_TO_INT_LIST;
             }
+            if (trace_enabled_) {
+                std::cerr << "DEBUG: infer_collection_type inferred list type: " << static_cast<int>(inferred_type) << std::endl;
+            }
+            return inferred_type;
         } else {
+            if (trace_enabled_) {
+                std::cerr << "DEBUG: infer_collection_type inferred list type: POINTER_TO_ANY_LIST (mixed types)" << std::endl;
+            }
             return VarType::POINTER_TO_ANY_LIST; // Mixed types
         }
     }

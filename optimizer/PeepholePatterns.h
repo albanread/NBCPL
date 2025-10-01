@@ -24,9 +24,14 @@ namespace PeepholePatterns {
     std::unique_ptr<InstructionPattern> createRedundantLoadEliminationPattern();
     std::unique_ptr<InstructionPattern> createDeadStorePattern();
     std::unique_ptr<InstructionPattern> createRedundantStorePattern();
-
-    // Control Flow Optimization
-    std::unique_ptr<InstructionPattern> createCompareZeroBranchPattern();
+    std::unique_ptr<InstructionPattern> createLoadThroughScratchRegisterPattern();
+    std::unique_ptr<InstructionPattern> createConservativeMovzScratchPattern();
+    std::unique_ptr<InstructionPattern> createMovSubMovScratchPattern();
+    std::unique_ptr<InstructionPattern> createLdrToLdpXPattern();
+    std::unique_ptr<InstructionPattern> createStrToStpXPattern();
+  
+     // Control Flow Optimization
+     std::unique_ptr<InstructionPattern> createCompareZeroBranchPattern();
     std::unique_ptr<InstructionPattern> createBranchChainingPattern();
 
     // ...add more pattern declarations as needed...

@@ -104,7 +104,7 @@ void ASTAnalyzer::visit(LetDeclaration& node) {
         } else {
             // Invalid destructuring: initializer is not a PAIR/FPAIR
             std::string error_msg = "Invalid destructuring LET declaration: initializer must be PAIR or FPAIR type, got " + 
-                                  var_type_to_string(initializer_type);
+                                  vartype_to_string(initializer_type);
             std::cerr << "[SEMANTIC ERROR] " << error_msg << std::endl;
             semantic_errors_.push_back(error_msg);
         }
@@ -120,7 +120,7 @@ void ASTAnalyzer::visit(LetDeclaration& node) {
         if (trace_enabled_) {
             std::cerr << "DEBUG: Variable '" << name << "' initializer is " << (initializer ? "present" : "null") << std::endl;
             if (initializer) {
-                std::cerr << "DEBUG: Variable '" << name << "' initializer type: " << static_cast<int>(initializer->getType()) << std::endl;
+                std::cerr << "DEBUG: Variable '" << name << "' initializer type: " << vartype_to_string(infer_expression_type(initializer)) << std::endl;
             }
             std::cerr << "DEBUG: Variable '" << name << "' current_function_scope_='" << current_function_scope_ << "'" << std::endl;
         }
@@ -186,42 +186,42 @@ void ASTAnalyzer::visit(LetDeclaration& node) {
         if (node.explicit_type != VarType::UNKNOWN) {
             determined_type = node.explicit_type;
             std::cerr << "DEBUG: Variable '" << name << "' using explicit type annotation: " 
-                      << static_cast<int>(determined_type) << std::endl;
+                      << vartype_to_string(determined_type) << std::endl;
         }
         // --- HANDLE NEW expressions and CAPTURE class_name ---
         else if (initializer && dynamic_cast<NewExpression*>(initializer)) {
             auto* new_expr = static_cast<NewExpression*>(initializer);
             determined_type = VarType::POINTER_TO_OBJECT;
             determined_class_name = new_expr->class_name;
-            std::cerr << "DEBUG: Variable '" << name << "' is NewExpression for class: " << determined_class_name << std::endl;
+            std::cerr << "DEBUG: Variable '" << name << "' is NewExpression for class: " << determined_class_name << " with type: " << vartype_to_string(determined_type) << std::endl;
         }
         else if (initializer) {
             // First, check for explicit vector allocations which have unambiguous types.
             if (dynamic_cast<FVecAllocationExpression*>(initializer)) {
                 determined_type = VarType::POINTER_TO_FLOAT_VEC;
-                std::cerr << "DEBUG: Variable '" << name << "' is FVecAllocation" << std::endl;
+                std::cerr << "DEBUG: Variable '" << name << "' is FVecAllocation with type: " << vartype_to_string(determined_type) << std::endl;
             } else if (dynamic_cast<VecAllocationExpression*>(initializer)) {
                 determined_type = VarType::POINTER_TO_INT_VEC;
-                std::cerr << "DEBUG: Variable '" << name << "' is VecAllocation" << std::endl;
+                std::cerr << "DEBUG: Variable '" << name << "' is VecAllocation with type: " << vartype_to_string(determined_type) << std::endl;
             } else {
                 // For all other expressions, use the primary type inferencer.
                 VarType inferred_type = infer_expression_type(initializer);
                 std::cerr << "DEBUG: Variable '" << name << "' inference returned type: " 
-                          << static_cast<int>(inferred_type) << std::endl;
+                          << vartype_to_string(inferred_type) << std::endl;
 
                 // PRIORITIZE INFERENCE FROM INITIALIZER:
                 // If the inferencer returns any concrete type (including complex types), use it directly.
                 if (inferred_type != VarType::UNKNOWN) {
                     determined_type = inferred_type;
                     std::cerr << "DEBUG: Variable '" << name << "' type from inference: " 
-                              << static_cast<int>(determined_type) << " (inference-based)" << std::endl;
+                              << vartype_to_string(determined_type) << " (inference-based)" << std::endl;
                 } else {
                     // SCOPING FIX: Don't rely on symbol table lookup during ASTAnalyzer traversal
                     // SymbolDiscoveryPass already populated the symbol table correctly
                     // Use declaration type directly when inference fails
                     determined_type = node.is_float_declaration ? VarType::FLOAT : VarType::INTEGER;
                     std::cerr << "DEBUG: Variable '" << name << "' using declaration type (no lookup): " 
-                              << static_cast<int>(determined_type) << " (declaration-based)" << std::endl;
+                              << vartype_to_string(determined_type) << " (declaration-based)" << std::endl;
                 }
             }
         } else {
@@ -235,7 +235,7 @@ void ASTAnalyzer::visit(LetDeclaration& node) {
 
         if (trace_enabled_) {
             std::cerr << "DEBUG: Variable '" << name << "' final determined_type: " 
-                      << static_cast<int>(determined_type) << " before symbol table update" << std::endl;
+                      << vartype_to_string(determined_type) << " before symbol table update" << std::endl;
         }
 
         // --- Set owns_heap_memory flag if initializer is a heap allocation ---

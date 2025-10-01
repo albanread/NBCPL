@@ -1,0 +1,8 @@
+LET START() BE
+$(
+
+ FOR I=1 TO 100 DO $(
+  WRITEF("I=%d*N", I)
+ $)
+
+$)
