@@ -1,0 +1,5 @@
+LET Start() BE $(
+    LET items = LIST(1, 2, 3)  // Integer list
+    FOREACH item IN items DO
+        WRITEF("Item: %N*N", item)
+)$

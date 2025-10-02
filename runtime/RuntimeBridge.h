@@ -29,7 +29,8 @@ void register_runtime_function(
     const std::string& name, 
     int num_args, 
     void* address, 
-    FunctionType type = FunctionType::STANDARD);
+    FunctionType type = FunctionType::STANDARD,
+    VarType return_type = VarType::INTEGER);
 
 /**
  * Initializes the runtime system for JIT execution.

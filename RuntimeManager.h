@@ -13,10 +13,11 @@ struct RuntimeFunction {
     int num_args; // Number of arguments the function expects
     void* address; 
     FunctionType type;
+    VarType return_type; // The actual return type (e.g., POINTER_TO_STRING_LIST)
     size_t table_offset; // <-- ADD THIS LINE
 
-    RuntimeFunction(std::string n, int args, void* addr, FunctionType t = FunctionType::STANDARD)
-        : name(std::move(n)), num_args(args), address(addr), type(t), table_offset(0) {} // <-- INITIALIZE IN CONSTRUCTOR
+    RuntimeFunction(std::string n, int args, void* addr, FunctionType t = FunctionType::STANDARD, VarType ret_type = VarType::INTEGER)
+        : name(std::move(n)), num_args(args), address(addr), type(t), return_type(ret_type), table_offset(0) {} // <-- INITIALIZE IN CONSTRUCTOR
 };
 
 // Manages information about external runtime functions
@@ -35,7 +36,7 @@ public:
     bool isTracingEnabled() const { return trace_enabled_; }
 
     // Registers a new runtime function.
-    void register_function(const std::string& name, int num_args, void* address, FunctionType type = FunctionType::STANDARD);
+    void register_function(const std::string& name, int num_args, void* address, FunctionType type = FunctionType::STANDARD, VarType return_type = VarType::INTEGER);
 
     // Retrieves information about a registered runtime function.
     const RuntimeFunction& get_function(const std::string& name) const;

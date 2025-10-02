@@ -1,0 +1,43 @@
+// Test program to verify SPLIT function return type inference
+// This should demonstrate that SPLIT returns a pointer to a list of strings
+
+MANIFEST {
+    MAXLEN = 100
+}
+
+LET START() BE
+{
+    LET text = "hello,world,test"
+    LET delimiter = ","
+
+    // Test SPLIT function - should return pointer to list of strings
+    LET result = SPLIT(text, delimiter)
+
+    // Test that we can treat result as a list
+    IF result ~= 0 THEN
+    {
+        WRITES("SPLIT returned a non-null result*N")
+
+        // Try to get length of the list
+        LET len = LENGTH(result)
+        WRITEF("List length: %N*N", len)
+
+        // Try to access list elements
+        FOR i = 0 TO len-1 DO
+        {
+            LET item = result!i
+            IF item ~= 0 THEN
+            {
+                WRITEF("Item %N: ", i)
+                WRITES(item)
+                WRITES("*N")
+            }
+        }
+    }
+    ELSE
+    {
+        WRITES("SPLIT returned null*N")
+    }
+
+    WRITES("Test completed*N")
+}

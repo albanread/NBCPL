@@ -229,8 +229,8 @@ void register_runtime_functions() {
 
     // --- Register SPLIT and JOIN string/list functions ---
     register_runtime_function("APND", 2, reinterpret_cast<void*>(BCPL_LIST_APPEND_INT));
-    register_runtime_function("SPLIT", 2, reinterpret_cast<void*>(BCPL_SPLIT_STRING));
-    register_runtime_function("JOIN", 2, reinterpret_cast<void*>(BCPL_JOIN_LIST));
+    register_runtime_function("SPLIT", 2, reinterpret_cast<void*>(BCPL_SPLIT_STRING), FunctionType::STANDARD, VarType::POINTER_TO_STRING_LIST);
+    register_runtime_function("JOIN", 2, reinterpret_cast<void*>(BCPL_JOIN_LIST), FunctionType::STANDARD, VarType::POINTER_TO_STRING);
     
     // String functions
     register_runtime_function("STRCOPY", 2, reinterpret_cast<void*>(STRCOPY));
@@ -311,10 +311,11 @@ void register_runtime_function(
     const std::string& name, 
     int num_args, 
     void* address, 
-    FunctionType type) {
+    FunctionType type,
+    VarType return_type) {
     
     try {
-        RuntimeManager::instance().register_function(name, num_args, address, type);
+        RuntimeManager::instance().register_function(name, num_args, address, type, return_type);
     } catch (const std::exception& e) {
         // Function might already be registered - this is often fine during development
         if (RuntimeManager::instance().isTracingEnabled()) {

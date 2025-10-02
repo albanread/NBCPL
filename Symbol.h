@@ -24,6 +24,7 @@ enum class SymbolKind {
     MANIFEST,             // Manifest constant
     RUNTIME_FUNCTION,     // Runtime function (returns an integer value)
     RUNTIME_FLOAT_FUNCTION, // Runtime function (returns a float value)
+    RUNTIME_LIST_FUNCTION, // Runtime function (returns a pointer to list)
     RUNTIME_ROUTINE,      // Runtime routine (doesn't return a value)
     RUNTIME_FLOAT_ROUTINE // Runtime routine (handles float parameters)
 };
@@ -162,13 +163,15 @@ FunctionType get_function_type() const {
         bool is_runtime() const {
             return kind == SymbolKind::RUNTIME_FUNCTION || 
                    kind == SymbolKind::RUNTIME_FLOAT_FUNCTION || 
+                   kind == SymbolKind::RUNTIME_LIST_FUNCTION ||
                    kind == SymbolKind::RUNTIME_ROUTINE ||
                    kind == SymbolKind::RUNTIME_FLOAT_ROUTINE;
         }
     
         bool is_runtime_function() const {
             return kind == SymbolKind::RUNTIME_FUNCTION || 
-                   kind == SymbolKind::RUNTIME_FLOAT_FUNCTION;
+                   kind == SymbolKind::RUNTIME_FLOAT_FUNCTION ||
+                   kind == SymbolKind::RUNTIME_LIST_FUNCTION;
         }
     
         bool is_runtime_routine() const {

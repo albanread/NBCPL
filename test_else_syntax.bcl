@@ -1,0 +1,18 @@
+LET START() BE
+$(
+   LET x = 5
+
+   TEST x > 3 THEN $(
+       WRITES("x is greater than 3*N")
+   $) ELSE $(
+       WRITES("x is not greater than 3*N")
+   $)
+
+   LET y = 1
+
+   TEST y > 3 THEN $(
+       WRITES("y is greater than 3*N")
+   $) ELSE $(
+       WRITES("y is not greater than 3*N")
+   $)
+$)

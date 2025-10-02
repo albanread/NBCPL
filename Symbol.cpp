@@ -78,6 +78,9 @@ std::string Symbol::to_string() const {
         case SymbolKind::RUNTIME_FLOAT_FUNCTION:
             oss << "RUNTIME_FLOAT_FUNCTION";
             break;
+        case SymbolKind::RUNTIME_LIST_FUNCTION:
+            oss << "RUNTIME_LIST_FUNCTION";
+            break;
         case SymbolKind::RUNTIME_ROUTINE:
             oss << "RUNTIME_ROUTINE";
             break;

@@ -1,0 +1,23 @@
+LET START() BE
+$(
+   LET S = "hello world"
+   LET L = SPLIT(S," ")
+
+   WRITEF("L address: %X*N", L)
+
+   IF L ~= 0 THEN
+   $(
+       LET first = L!0
+       WRITEF("First element: %X*N", first)
+
+       FOREACH item IN L DO
+       $(
+           WRITEF("Item address: %X*N", item)
+           IF item ~= 0 THEN
+           $(
+               WRITES(item)
+               WRITES("*N")
+           $)
+       $)
+   $)
+$)

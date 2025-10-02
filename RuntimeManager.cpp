@@ -15,7 +15,7 @@ std::string RuntimeManager::to_upper(const std::string& s) {
     return result;
 }
 
-void RuntimeManager::register_function(const std::string& name, int num_args, void* address, FunctionType type) {
+void RuntimeManager::register_function(const std::string& name, int num_args, void* address, FunctionType type, VarType return_type) {
     std::string upper_name = to_upper(name);
     if (functions_.count(upper_name)) {
         throw std::runtime_error("Runtime function '" + name + "' already registered.");
@@ -26,7 +26,7 @@ void RuntimeManager::register_function(const std::string& name, int num_args, vo
     if ((offset / 8) >= 65536) {
         throw std::runtime_error("Exceeded pre-allocated runtime function table size (65536 entries).");
     }
-    RuntimeFunction func(upper_name, num_args, address, type);
+    RuntimeFunction func(upper_name, num_args, address, type, return_type);
     func.table_offset = offset;
     functions_.emplace(upper_name, func);
     // --- END OF MODIFICATION ---

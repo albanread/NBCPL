@@ -1,0 +1,48 @@
+LET START() BE $(
+   WRITES("Testing SPLIT function step by step...*N")
+
+   LET S = "hello world"
+   WRITES("Input string: ")
+   WRITES(S)
+   WRITES("*N")
+
+   LET delimiter = " "
+   WRITES("Delimiter: '")
+   WRITES(delimiter)
+   WRITES("'*N")
+
+   WRITES("Calling SPLIT...*N")
+   LET L = SPLIT(S, delimiter)
+
+   TEST L = 0 THEN $(
+       WRITES("ERROR: SPLIT returned null*N")
+   $) ELSE $(
+       WRITES("SPLIT returned non-null list*N")
+
+       // Check if it's a proper list structure
+       LET len = LEN(L)
+       WRITES("List length: ")
+       WRITEN(len)
+       WRITES("*N")
+
+       TEST len = 0 THEN $(
+           WRITES("List is empty*N")
+       $) ELSE $(
+           WRITES("List has elements, trying to access them...*N")
+
+           FOR i = 0 TO len-1 DO $(
+               LET element = L!i
+               WRITES("Element ")
+               WRITEN(i)
+               WRITES(": ")
+               TEST element = 0 THEN $(
+                   WRITES("(null)*N")
+               $) ELSE $(
+                   WRITES("'")
+                   WRITES(element)
+                   WRITES("'*N")
+               $)
+           $)
+       $)
+   $)
+$)

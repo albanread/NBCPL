@@ -213,7 +213,17 @@ VarType StatelessTypeInference::infer_function_call_type(const FunctionCall* fun
     if (const auto* var_access = dynamic_cast<const VariableAccess*>(func_call->function_expr.get())) {
         const std::string& func_name = var_access->name;
 
-        // Check for known runtime functions
+        // First check symbol table for runtime functions if available
+        if (symbol_table) {
+            Symbol symbol;
+            if (symbol_table->lookup(func_name, symbol)) {
+                if (symbol.is_runtime_function()) {
+                    return symbol.type;
+                }
+            }
+        }
+
+        // Fallback to hardcoded runtime functions for compatibility
         if (func_name == "READN" || func_name == "LENGTH" || func_name == "STRCMP") {
             return VarType::INTEGER;
         }
@@ -225,6 +235,9 @@ VarType StatelessTypeInference::infer_function_call_type(const FunctionCall* fun
         }
         if (func_name == "FGETVEC") {
             return VarType::POINTER_TO_FLOAT_VEC;
+        }
+        if (func_name == "SPLIT") {
+            return VarType::POINTER_TO_STRING_LIST;
         }
 
         // For user-defined functions, we'd need function return type information

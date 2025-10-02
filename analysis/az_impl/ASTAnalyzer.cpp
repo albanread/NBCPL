@@ -952,11 +952,18 @@ VarType ASTAnalyzer::infer_function_call_type(const FunctionCall* func_call) con
     // Check runtime functions
     if (RuntimeManager::instance().is_function_registered(func_name)) {
         const RuntimeFunction& runtime_func = RuntimeManager::instance().get_function(func_name);
+        
+        // Use the registered return type if it's not UNKNOWN, otherwise fall back to legacy logic
+        if (runtime_func.return_type != VarType::UNKNOWN) {
+            return runtime_func.return_type;
+        }
+        
+        // Legacy fallback for functions not yet updated with return types
         if (runtime_func.type == FunctionType::FLOAT) {
             return VarType::FLOAT;
         }
         
-        // Handle specific runtime function return types
+        // Handle specific runtime function return types (legacy fallback)
         if (func_name == "GETVEC") return VarType::POINTER_TO_INT_VEC;
         if (func_name == "FGETVEC") return VarType::POINTER_TO_FLOAT_VEC;
         if (func_name == "STRLEN") return VarType::INTEGER;

@@ -93,6 +93,12 @@ void RuntimeSymbols::registerAll(SymbolTable& symbol_table) {
     registerRuntimeRoutine(symbol_table, "NEWLINE");
     registerRuntimeRoutine(symbol_table, "NEWPAGE");
     
+    // List/String operations
+    registerRuntimeListFunction(symbol_table, "SPLIT", {
+        {VarType::STRING, false},  // source string
+        {VarType::STRING, false}   // delimiter string
+    });
+    
     // FILE_ API functions
     registerRuntimeFunction(symbol_table, "FILE_OPEN_READ", {
         {VarType::STRING, false}   // filename
@@ -218,6 +224,24 @@ void RuntimeSymbols::registerRuntimeFloatRoutine(
     // Register in the global scope
     if (!symbol_table.addSymbol(symbol)) {
         std::cerr << "Warning: Could not register runtime float routine " << name 
+                  << " (duplicate symbol)" << std::endl;
+    }
+}
+
+void RuntimeSymbols::registerRuntimeListFunction(
+    SymbolTable& symbol_table, 
+    const std::string& name,
+    const std::vector<Symbol::ParameterInfo>& params
+) {
+    // Create a new symbol for this list-returning runtime function
+    Symbol symbol(name, SymbolKind::RUNTIME_LIST_FUNCTION, VarType::POINTER_TO_STRING_LIST, 0, "");
+    
+    // Add parameter information
+    symbol.parameters = params;
+    
+    // Register in the global scope
+    if (!symbol_table.addSymbol(symbol)) {
+        std::cerr << "Warning: Could not register runtime list function " << name 
                   << " (duplicate symbol)" << std::endl;
     }
 }

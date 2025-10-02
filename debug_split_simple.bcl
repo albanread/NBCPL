@@ -1,0 +1,35 @@
+LET START() BE
+$(
+   LET S = "hello world"
+   LET L = SPLIT(S," ")
+
+   WRITES("Testing SPLIT function...*N")
+
+   TEST L = 0 THEN $(
+       WRITES("ERROR: SPLIT returned null*N")
+   $) ELSE $(
+       WRITES("SPLIT returned a list*N")
+
+       // Try direct access
+       LET first = L!0
+       TEST first = 0 THEN $(
+           WRITES("First element is null*N")
+       $) ELSE $(
+           WRITES("First element: ")
+           WRITES(first)
+           WRITES("*N")
+       $)
+
+       // Now try forEach
+       WRITES("Starting forEach:*N")
+       FOREACH item IN L DO $(
+           TEST item = 0 THEN $(
+               WRITES("  Item: (null)*N")
+           $) ELSE $(
+               WRITES("  Item: ")
+               WRITES(item)
+               WRITES("*N")
+           $)
+       $)
+   $)
+$)

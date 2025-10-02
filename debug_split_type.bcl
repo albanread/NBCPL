@@ -1,0 +1,39 @@
+LET START() BE
+$(
+   LET S = "This is the age of the train"
+
+   // Test what type SPLIT returns
+   LET L = SPLIT(S," ")
+
+   WRITEF("L has address: %X*N", L)
+   WRITEF("L[0] has address: %X*N", L!0)
+
+   // Try to access first element directly
+   IF L ~= 0 THEN
+   $(
+       LET first_element = L!0
+       WRITEF("First element address: %X*N", first_element)
+
+       IF first_element ~= 0 THEN
+       $(
+           WRITES("First string: ")
+           WRITES(first_element)
+           WRITES("*N")
+       $)
+   $)
+
+   // Now try FOREACH
+   WRITEF("Starting FOREACH:*N")
+   FOREACH SE IN L DO
+   $(
+       WRITEF("SE address: %X*N", SE)
+       IF SE ~= 0 THEN
+       $(
+           WRITES("String: ")
+           WRITES(SE)
+           WRITES("*N")
+       $)
+       ELSE
+           WRITES("String: (null)*N")
+   $)
+$)

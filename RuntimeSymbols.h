@@ -82,6 +82,19 @@ private:
         const std::vector<Symbol::ParameterInfo>& params = {}
     );
 
+    /**
+     * @brief Register a runtime function that returns a pointer to list
+     * 
+     * @param symbol_table The symbol table to update
+     * @param name Function name
+     * @param params Vector of parameter information
+     */
+    static void registerRuntimeListFunction(
+        SymbolTable& symbol_table, 
+        const std::string& name,
+        const std::vector<Symbol::ParameterInfo>& params = {}
+    );
+
 #ifdef SDL2_RUNTIME_ENABLED
     /**
      * @brief Register SDL2 runtime functions in the symbol table
