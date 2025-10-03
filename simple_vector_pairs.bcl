@@ -1,0 +1,12 @@
+LET START() BE $(
+    // Create a vector of 3 pairs
+    LET pairs = VEC 3
+    pairs!0 := PAIR(10, 20)
+    pairs!1 := PAIR(30, 40)
+    pairs!2 := PAIR(50, 60)
+
+    // Print each pair using %P format
+    FOR i = 0 TO 2 DO $(
+        WRITEF1("pairs!%N = %P*N", i, pairs!i)
+    $)
+$)

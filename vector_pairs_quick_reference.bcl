@@ -1,0 +1,103 @@
+// Quick Reference: Vector of Pairs in NewBCPL
+// Common patterns and idioms for working with vectors containing PAIR elements
+
+LET start() BE {
+    writef("=== Vector of Pairs Quick Reference ===\n\n")
+
+    // PATTERN 1: Basic Creation and Access
+    writef("1. Basic Creation:\n")
+    LET points = VEC 3
+    points!0 := PAIR(10, 20)
+    points!1 := PAIR(30, 40)
+    points!2 := PAIR(50, 60)
+
+    writef("   Access: points!1 = PAIR(%d, %d)\n", points!1.first, points!1.second)
+
+    // PATTERN 2: Initialization Loop
+    writef("\n2. Loop Initialization:\n")
+    LET coords = VEC 5
+    FOR i = 0 TO 4 DO {
+        coords!i := PAIR(i * 10, i * 20)
+        writef("   coords!%d = PAIR(%d, %d)\n", i, coords!i.first, coords!i.second)
+    }
+
+    // PATTERN 3: Processing All Elements
+    writef("\n3. Processing All Elements:\n")
+    LET sum_x = 0
+    LET sum_y = 0
+    FOR i = 0 TO 4 DO {
+        sum_x := sum_x + coords!i.first
+        sum_y := sum_y + coords!i.second
+    }
+    writef("   Totals: x=%d, y=%d\n", sum_x, sum_y)
+
+    // PATTERN 4: Search Pattern
+    writef("\n4. Search for Specific Pair:\n")
+    LET target = PAIR(20, 40)
+    LET found_at = -1
+    FOR i = 0 TO 4 DO {
+        LET current = coords!i
+        TEST current.first = target.first AND current.second = target.second THEN {
+            found_at := i
+            writef("   Found PAIR(%d, %d) at index %d\n", target.first, target.second, i)
+        }
+    }
+
+    // PATTERN 5: Modification Pattern
+    writef("\n5. Conditional Modification:\n")
+    FOR i = 0 TO 4 DO {
+        LET p = coords!i
+        TEST p.first > 25 THEN {
+            coords!i := PAIR(p.first * 2, p.second * 2)
+            writef("   Modified coords!%d to PAIR(%d, %d)\n", i, coords!i.first, coords!i.second)
+        }
+    }
+
+    // PATTERN 6: Vector to List Conversion (for FOREACH)
+    writef("\n6. Converting to List for FOREACH:\n")
+    LET sample_vec = VEC 3
+    sample_vec!0 := PAIR(1, 2)
+    sample_vec!1 := PAIR(3, 4)
+    sample_vec!2 := PAIR(5, 6)
+
+    LET sample_list = LIST(sample_vec!0, sample_vec!1, sample_vec!2)
+    FOREACH (x, y) IN sample_list DO {
+        writef("   Destructured: x=%d, y=%d\n", x, y)
+    }
+
+    // PATTERN 7: Pair Arithmetic
+    writef("\n7. Arithmetic Operations:\n")
+    LET math_vec = VEC 2
+    math_vec!0 := PAIR(10, 15)
+    math_vec!1 := PAIR(20, 25)
+
+    // Element-wise addition
+    LET result = PAIR(math_vec!0.first + math_vec!1.first,
+                     math_vec!0.second + math_vec!1.second)
+    writef("   Sum: PAIR(%d, %d)\n", result.first, result.second)
+
+    // PATTERN 8: Edge Case Handling
+    writef("\n8. Edge Cases:\n")
+    LET edge_vec = VEC 1  // Single element
+    edge_vec!0 := PAIR(0, 0)
+    writef("   Single element: PAIR(%d, %d)\n", edge_vec!0.first, edge_vec!0.second)
+
+    LET negative_vec = VEC 2
+    negative_vec!0 := PAIR(-10, -20)
+    negative_vec!1 := PAIR(0, 0)
+    writef("   Negative values: PAIR(%d, %d)\n", negative_vec!0.first, negative_vec!0.second)
+
+    writef("\n=== Common Use Cases ===\n")
+    writef("• Coordinate systems (x,y points)\n")
+    writef("• Key-value storage\n")
+    writef("• Min/max ranges\n")
+    writef("• Complex number representations\n")
+    writef("• 2D game entity positions\n")
+    writef("• Statistical data pairs\n")
+
+    writef("\n=== Performance Notes ===\n")
+    writef("• Direct indexing: O(1) access time\n")
+    writef("• Sequential access: Cache-friendly\n")
+    writef("• PAIR operations: Efficient bit manipulation\n")
+    writef("• Memory: Contiguous allocation\n")
+}

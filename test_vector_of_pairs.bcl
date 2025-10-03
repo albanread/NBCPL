@@ -1,0 +1,367 @@
+// Comprehensive test for vectors of PAIRs in NewBCPL
+// Tests creation, access, modification, and iteration over vectors containing PAIR elements
+
+LET create_test_pairs() BE {
+    writef("=== Test 1: Basic Vector of Pairs Creation ===\n")
+
+    // Method 1: Create vector and assign pairs individually
+    LET pair_vec = VEC 5
+    pair_vec!0 := PAIR(10, 20)
+    pair_vec!1 := PAIR(30, 40)
+    pair_vec!2 := PAIR(50, 60)
+    pair_vec!3 := PAIR(70, 80)
+    pair_vec!4 := PAIR(90, 100)
+
+    writef("Created vector with 5 pairs:\n")
+    FOR i = 0 TO 4 DO {
+        LET p = pair_vec!i
+        writef("  [%d]: PAIR(%d, %d)\n", i, p.first, p.second)
+    }
+
+    // Verify values
+    LET p0 = pair_vec!0
+    LET p4 = pair_vec!4
+    TEST p0.first = 10 AND p0.second = 20 AND p4.first = 90 AND p4.second = 100 THEN
+        writef("✓ Basic vector creation test PASSED\n")
+    ELSE
+        writef("✗ Basic vector creation test FAILED\n")
+}
+
+LET test_pair_modification() BE {
+    writef("\n=== Test 2: Vector Pair Modification ===\n")
+
+    LET coords = VEC 3
+    coords!0 := PAIR(0, 0)
+    coords!1 := PAIR(1, 1)
+    coords!2 := PAIR(2, 2)
+
+    writef("Before modification:\n")
+    FOR i = 0 TO 2 DO {
+        LET p = coords!i
+        writef("  coords[%d] = PAIR(%d, %d)\n", i, p.first, p.second)
+    }
+
+    // Modify pairs in the vector
+    coords!0 := PAIR(100, 200)
+    coords!1 := PAIR(300, 400)
+    coords!2 := PAIR(500, 600)
+
+    writef("After modification:\n")
+    FOR i = 0 TO 2 DO {
+        LET p = coords!i
+        writef("  coords[%d] = PAIR(%d, %d)\n", i, p.first, p.second)
+    }
+
+    LET modified_p1 = coords!1
+    TEST modified_p1.first = 300 AND modified_p1.second = 400 THEN
+        writef("✓ Pair modification test PASSED\n")
+    ELSE
+        writef("✗ Pair modification test FAILED\n")
+}
+
+LET test_pair_arithmetic() BE {
+    writef("\n=== Test 3: Arithmetic Operations on Vector Pairs ===\n")
+
+    LET numbers = VEC 4
+    numbers!0 := PAIR(1, 2)
+    numbers!1 := PAIR(3, 4)
+    numbers!2 := PAIR(5, 6)
+    numbers!3 := PAIR(7, 8)
+
+    LET sums = VEC 4
+    LET products = VEC 4
+
+    writef("Computing sums and products:\n")
+    FOR i = 0 TO 3 DO {
+        LET p = numbers!i
+        LET sum_val = p.first + p.second
+        LET prod_val = p.first * p.second
+
+        sums!i := PAIR(sum_val, i)  // Store sum with index
+        products!i := PAIR(prod_val, i)  // Store product with index
+
+        writef("  PAIR(%d,%d): sum=%d, product=%d\n",
+               p.first, p.second, sum_val, prod_val)
+    }
+
+    // Verify calculations
+    LET sum_pair_0 = sums!0
+    LET prod_pair_2 = products!2
+    TEST sum_pair_0.first = 3 AND prod_pair_2.first = 30 THEN
+        writef("✓ Arithmetic operations test PASSED\n")
+    ELSE
+        writef("✗ Arithmetic operations test FAILED\n")
+}
+
+LET test_nested_access() BE {
+    writef("\n=== Test 4: Nested Vector Access with Pairs ===\n")
+
+    // Create a "matrix" using vectors and pairs
+    LET matrix = VEC 3
+    matrix!0 := PAIR(11, 12)  // Row 0: columns 0,1
+    matrix!1 := PAIR(21, 22)  // Row 1: columns 0,1
+    matrix!2 := PAIR(31, 32)  // Row 2: columns 0,1
+
+    writef("2x3 Matrix represented as vector of pairs:\n")
+    FOR row = 0 TO 2 DO {
+        LET row_pair = matrix!row
+        writef("  Row %d: [%d, %d]\n", row, row_pair.first, row_pair.second)
+    }
+
+    // Access specific elements
+    LET element_1_1 = matrix!1.second  // Row 1, Column 1
+    writef("Element at [1,1]: %d\n", element_1_1)
+
+    TEST element_1_1 = 22 THEN
+        writef("✓ Nested access test PASSED\n")
+    ELSE
+        writef("✗ Nested access test FAILED\n")
+}
+
+LET test_pair_search() BE {
+    writef("\n=== Test 5: Search Operations in Vector of Pairs ===\n")
+
+    LET points = VEC 6
+    points!0 := PAIR(10, 20)
+    points!1 := PAIR(15, 25)
+    points!2 := PAIR(30, 40)
+    points!3 := PAIR(15, 25)  // Duplicate for testing
+    points!4 := PAIR(50, 60)
+    points!5 := PAIR(70, 80)
+
+    // Search for a specific pair
+    LET target = PAIR(15, 25)
+    LET found_index = -1
+    LET found_count = 0
+
+    writef("Searching for PAIR(%d, %d):\n", target.first, target.second)
+    FOR i = 0 TO 5 DO {
+        LET current = points!i
+        TEST current.first = target.first AND current.second = target.second THEN {
+            writef("  Found at index %d\n", i)
+            TEST found_index = -1 THEN found_index := i
+            found_count := found_count + 1
+        }
+    }
+
+    writef("Search results: first_index=%d, count=%d\n", found_index, found_count)
+
+    TEST found_index = 1 AND found_count = 2 THEN
+        writef("✓ Search operations test PASSED\n")
+    ELSE
+        writef("✗ Search operations test FAILED\n")
+}
+
+LET test_pair_statistics() BE {
+    writef("\n=== Test 6: Statistical Operations on Vector Pairs ===\n")
+
+    LET data = VEC 5
+    data!0 := PAIR(100, 150)
+    data!1 := PAIR(200, 250)
+    data!2 := PAIR(300, 350)
+    data!3 := PAIR(400, 450)
+    data!4 := PAIR(500, 550)
+
+    LET sum_first = 0
+    LET sum_second = 0
+    LET max_first = -999999
+    LET min_first = 999999
+
+    writef("Data points:\n")
+    FOR i = 0 TO 4 DO {
+        LET p = data!i
+        writef("  Point %d: (%d, %d)\n", i, p.first, p.second)
+
+        sum_first := sum_first + p.first
+        sum_second := sum_second + p.second
+
+        TEST p.first > max_first THEN max_first := p.first
+        TEST p.first < min_first THEN min_first := p.first
+    }
+
+    LET avg_first = sum_first / 5
+    LET avg_second = sum_second / 5
+
+    writef("Statistics:\n")
+    writef("  Sum: first=%d, second=%d\n", sum_first, sum_second)
+    writef("  Avg: first=%d, second=%d\n", avg_first, avg_second)
+    writef("  Range (first): min=%d, max=%d\n", min_first, max_first)
+
+    TEST sum_first = 1500 AND avg_first = 300 AND max_first = 500 AND min_first = 100 THEN
+        writef("✓ Statistical operations test PASSED\n")
+    ELSE
+        writef("✗ Statistical operations test FAILED\n")
+}
+
+LET test_dynamic_resizing() BE {
+    writef("\n=== Test 7: Dynamic Operations (Simulation) ===\n")
+
+    // Simulate dynamic behavior using multiple fixed-size vectors
+    writef("Simulating dynamic vector growth:\n")
+
+    // Start with small vector
+    LET vec1 = VEC 2
+    vec1!0 := PAIR(1, 10)
+    vec1!1 := PAIR(2, 20)
+
+    writef("Initial vector (size 2):\n")
+    FOR i = 0 TO 1 DO {
+        LET p = vec1!i
+        writef("  [%d]: PAIR(%d, %d)\n", i, p.first, p.second)
+    }
+
+    // "Resize" by creating larger vector and copying
+    LET vec2 = VEC 4
+    vec2!0 := vec1!0  // Copy existing
+    vec2!1 := vec1!1  // Copy existing
+    vec2!2 := PAIR(3, 30)  // Add new
+    vec2!3 := PAIR(4, 40)  // Add new
+
+    writef("Expanded vector (size 4):\n")
+    FOR i = 0 TO 3 DO {
+        LET p = vec2!i
+        writef("  [%d]: PAIR(%d, %d)\n", i, p.first, p.second)
+    }
+
+    LET last_pair = vec2!3
+    TEST last_pair.first = 4 AND last_pair.second = 40 THEN
+        writef("✓ Dynamic operations simulation test PASSED\n")
+    ELSE
+        writef("✗ Dynamic operations simulation test FAILED\n")
+}
+
+LET test_edge_cases() BE {
+    writef("\n=== Test 8: Edge Cases and Boundary Conditions ===\n")
+
+    // Test with single element
+    LET single = VEC 1
+    single!0 := PAIR(0, 0)
+    writef("Single element vector: PAIR(%d, %d)\n", single!0.first, single!0.second)
+
+    // Test with negative values
+    LET negatives = VEC 3
+    negatives!0 := PAIR(-10, -20)
+    negatives!1 := PAIR(0, 0)
+    negatives!2 := PAIR(10, 20)
+
+    writef("Vector with negative pairs:\n")
+    FOR i = 0 TO 2 DO {
+        LET p = negatives!i
+        writef("  [%d]: PAIR(%d, %d)\n", i, p.first, p.second)
+    }
+
+    // Test large values (within 32-bit signed range)
+    LET large_vals = VEC 2
+    large_vals!0 := PAIR(2000000000, 1000000000)
+    large_vals!1 := PAIR(-2000000000, -1000000000)
+
+    writef("Vector with large values:\n")
+    FOR i = 0 TO 1 DO {
+        LET p = large_vals!i
+        writef("  [%d]: PAIR(%d, %d)\n", i, p.first, p.second)
+    }
+
+    LET neg_test = negatives!0
+    LET large_test = large_vals!0
+    TEST neg_test.first = -10 AND neg_test.second = -20 AND
+         large_test.first = 2000000000 AND large_test.second = 1000000000 THEN
+        writef("✓ Edge cases test PASSED\n")
+    ELSE
+        writef("✗ Edge cases test FAILED\n")
+}
+
+LET test_foreach_compatibility() BE {
+    writef("\n=== Test 9: FOREACH Loop Compatibility ===\n")
+
+    // Create a list from vector pairs for FOREACH testing
+    LET pair_data = VEC 4
+    pair_data!0 := PAIR(100, 200)
+    pair_data!1 := PAIR(300, 400)
+    pair_data!2 := PAIR(500, 600)
+    pair_data!3 := PAIR(700, 800)
+
+    writef("Converting vector pairs to list for FOREACH:\n")
+    LET pair_list = LIST(pair_data!0, pair_data!1, pair_data!2, pair_data!3)
+
+    // Test non-destructuring FOREACH
+    writef("Non-destructuring FOREACH:\n")
+    FOREACH p IN pair_list DO {
+        writef("  Found PAIR(%d, %d)\n", p.first, p.second)
+    }
+
+    // Test destructuring FOREACH
+    writef("Destructuring FOREACH:\n")
+    FOREACH (x, y) IN pair_list DO {
+        writef("  Destructured: x=%d, y=%d\n", x, y)
+    }
+
+    writef("✓ FOREACH compatibility test completed\n")
+}
+
+LET test_performance_simulation() BE {
+    writef("\n=== Test 10: Performance Characteristics ===\n")
+
+    // Simulate operations on larger vector
+    LET large_vec = VEC 10
+
+    writef("Initializing large vector (10 elements):\n")
+    FOR i = 0 TO 9 DO {
+        large_vec!i := PAIR(i * 10, i * 20)
+    }
+
+    // Test random access performance
+    writef("Random access test:\n")
+    LET indices = VEC 5
+    indices!0 := 9
+    indices!1 := 3
+    indices!2 := 7
+    indices!3 := 1
+    indices!4 := 5
+
+    FOR i = 0 TO 4 DO {
+        LET idx = indices!i
+        LET p = large_vec!idx
+        writef("  Access [%d]: PAIR(%d, %d)\n", idx, p.first, p.second)
+    }
+
+    // Test sequential processing
+    LET total_sum = 0
+    FOR i = 0 TO 9 DO {
+        LET p = large_vec!i
+        total_sum := total_sum + p.first + p.second
+    }
+
+    writef("Sequential processing sum: %d\n", total_sum)
+
+    TEST total_sum = 1350 THEN  // 10*15*(0+1+...+9)/2 = 10*15*45/2 = 1350
+        writef("✓ Performance simulation test PASSED\n")
+    ELSE
+        writef("✗ Performance simulation test FAILED (expected 1350, got %d)\n", total_sum)
+}
+
+LET start() BE {
+    writef("=== COMPREHENSIVE VECTOR OF PAIRS TEST SUITE ===\n")
+    writef("Testing vectors containing PAIR elements in NewBCPL\n\n")
+
+    create_test_pairs()
+    test_pair_modification()
+    test_pair_arithmetic()
+    test_nested_access()
+    test_pair_search()
+    test_pair_statistics()
+    test_dynamic_resizing()
+    test_edge_cases()
+    test_foreach_compatibility()
+    test_performance_simulation()
+
+    writef("\n=== TEST SUITE COMPLETED ===\n")
+    writef("All vector of pairs functionality has been tested.\n")
+    writef("This demonstrates:\n")
+    writef("  - Vector creation and initialization with pairs\n")
+    writef("  - Element access and modification\n")
+    writef("  - Arithmetic operations on pair elements\n")
+    writef("  - Search and statistical operations\n")
+    writef("  - Edge cases and boundary conditions\n")
+    writef("  - Integration with FOREACH loops\n")
+    writef("  - Performance characteristics\n")
+}

@@ -1,0 +1,8 @@
+LET START() BE $(
+    LET pairs = VEC 2
+    pairs!0 := PAIR(1, 2)
+    pairs!1 := PAIR(3, 4)
+
+    WRITEF1("pairs!0 = %P*N", pairs!0)
+    WRITEF1("pairs!1 = %P*N", pairs!1)
+$)

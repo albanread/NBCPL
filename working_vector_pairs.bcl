@@ -1,0 +1,30 @@
+LET START() BE $(
+    WRITEF("Vector of Pairs Test*N")
+
+    // Create a vector of pairs
+    LET coords = VEC 3
+    coords!0 := PAIR(10, 20)
+    coords!1 := PAIR(30, 40)
+    coords!2 := PAIR(50, 60)
+
+    // Method 1: Print using %P format
+    WRITEF("Method 1 - Using %%P format:*N")
+    FOR i = 0 TO 2 DO $(
+        WRITEF1("  coords!%N = %P*N", i, coords!i)
+    $)
+
+    // Method 2: Extract components properly (assign to variable first)
+    WRITEF("*NMethod 2 - Accessing components:*N")
+    FOR i = 0 TO 2 DO $(
+        LET pair = coords!i
+        WRITEF("  coords!%N = (%N, %N)*N", i, pair.first, pair.second)
+    $)
+
+    // Method 3: Simple assignment and modification
+    WRITEF("*NMethod 3 - Modification test:*N")
+    coords!1 := PAIR(99, 88)
+    LET modified = coords!1
+    WRITEF("  Modified coords!1 = (%N, %N)*N", modified.first, modified.second)
+
+    WRITEF("*NTest completed successfully!*N")
+$)
