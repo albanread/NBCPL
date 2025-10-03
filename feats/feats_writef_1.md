@@ -112,8 +112,16 @@ WRITEF(format, 42)  // Non-literal format string - validation skipped
 | Specifier | Expected Type | Notes |
 |-----------|---------------|--------|
 | `%d` | INTEGER | Standard integer formatting |
-| `%f` | FLOAT | Accepts INTEGER (promotion allowed) |
+| `%N` | INTEGER | Alias for %d (BCPL style) |
+| `%x` | INTEGER | Lowercase hexadecimal formatting |
+| `%X` | INTEGER | Uppercase hexadecimal formatting |
+| `%o` | INTEGER | Octal formatting |
+| `%c` | INTEGER | Character formatting |
+| `%f` | FLOAT | Standard float formatting |
+| `%F` | FLOAT | Alias for %f (accepts INTEGER promotion) |
 | `%s` | STRING/POINTER_TO_STRING | String formatting |
+| `%P` | PAIR | Pair formatting: (first, second) |
+| `%Q` | FPAIR | Float pair formatting: (first, second) |
 
 ## Error Message Examples
 

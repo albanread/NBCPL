@@ -1004,14 +1004,15 @@ void NewCodeGenerator::visit(BinaryOp& node) {
     }
 
     // Handle PAIR arithmetic operations using NEON SIMD instructions
-    if (is_pair_op) {
+    // Skip this section for comparison operations
+    if (is_pair_op && node.op != BinaryOp::Operator::Equal && node.op != BinaryOp::Operator::NotEqual) {
         debug_print("Generating PAIR arithmetic using NEON SIMD instructions");
         
         // Check if we support this operation for PAIRs
         if (node.op != BinaryOp::Operator::Add && 
             node.op != BinaryOp::Operator::Subtract && 
             node.op != BinaryOp::Operator::Multiply) {
-            throw std::runtime_error("Unsupported binary operation on PAIR types: only +, -, * are supported (division not supported for integer PAIRs)");
+            throw std::runtime_error("Unsupported binary operation on PAIR types: only +, -, *, ==, ~= are supported (division not supported for integer PAIRs)");
         }
         
         // NEON SIMD approach for optimal performance:
@@ -1184,7 +1185,22 @@ void NewCodeGenerator::visit(BinaryOp& node) {
         case BinaryOp::Operator::Equal:
             {
                 std::string dest_reg = register_manager_.acquire_scratch_reg(*this);
-                if (is_float_op) {
+                
+                // Optimized PAIR comparison: treat as 64-bit integer
+                if (is_pair_op) {
+                    // For integer PAIRs, we can do a single 64-bit comparison
+                    // This is safe because both 32-bit components are laid out contiguously
+                    if (right_is_constant) {
+                        emit(Encoder::create_cmp_imm(left_reg, static_cast<int>(constant_value)));
+                    } else {
+                        emit(Encoder::create_cmp_reg(left_reg, right_reg));
+                        register_manager_.release_register(right_reg);
+                    }
+                    emit(Encoder::create_cset(dest_reg, "EQ"));
+                    register_manager_.release_register(left_reg);
+                    expression_result_reg_ = dest_reg;
+                }
+                else if (is_float_op) {
                     if (right_is_constant) {
                         // Load constant into temp register for float comparison
                         std::string temp_reg = register_manager_.acquire_fp_scratch_reg();
@@ -1212,7 +1228,21 @@ void NewCodeGenerator::visit(BinaryOp& node) {
         case BinaryOp::Operator::NotEqual:
             {
                 std::string dest_reg = register_manager_.acquire_scratch_reg(*this);
-                if (is_float_op) {
+                
+                // Optimized PAIR comparison: treat as 64-bit integer
+                if (is_pair_op) {
+                    // For integer PAIRs, we can do a single 64-bit comparison
+                    if (right_is_constant) {
+                        emit(Encoder::create_cmp_imm(left_reg, static_cast<int>(constant_value)));
+                    } else {
+                        emit(Encoder::create_cmp_reg(left_reg, right_reg));
+                        register_manager_.release_register(right_reg);
+                    }
+                    emit(Encoder::create_cset(dest_reg, "NE"));
+                    register_manager_.release_register(left_reg);
+                    expression_result_reg_ = dest_reg;
+                }
+                else if (is_float_op) {
                     if (right_is_constant) {
                         // Load constant into temp register for float comparison
                         std::string temp_reg = register_manager_.acquire_fp_scratch_reg();

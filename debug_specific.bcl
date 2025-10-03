@@ -1,0 +1,22 @@
+LET START() BE $(
+
+// Debug the specific failing case
+LET P1 = PAIR(10,10)
+LET P4 = PAIR(5,20)
+
+WRITEF("P1 = PAIR(10,10)*N")
+WRITEF("P4 = PAIR(5,20)*N")
+
+// Test the specific case that failed
+LET result6 = P1 ~= P4
+WRITEF("P1 ~= P4 result: %d*N", result6)
+
+// Double check with equality
+LET eq_result = P1 = P4
+WRITEF("P1 = P4 result: %d*N", eq_result)
+
+// Test the reverse
+LET rev_result = P4 ~= P1
+WRITEF("P4 ~= P1 result: %d*N", rev_result)
+
+$)

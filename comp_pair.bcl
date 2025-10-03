@@ -1,0 +1,21 @@
+LET START() BE $(
+
+LET P1 = PAIR(10,10)
+LET P2 = PAIR(10,-10)
+LET P3 = PAIR(11,10)
+
+WRITEF("P1=%P, P2=%P, P3=%P*N", P1, P2, P3)
+
+LET X1 = P1 = P2
+WRITEF("P1=P2 %d*N", X1)
+WRITEF("P1=P3 %d*N", P3=P1)
+WRITEF("P1~=P2 %d*N", P1~=P2)
+WRITEF("P2~=P3 %d*N", P2~=P3)
+
+LET px1, py1 = P3
+WRITEF("x1=%d, y1=%d*N", px1, py1)
+
+WRITEF("P1 hex %X first = %d, second=%d*N", P1, P1.first, P1.second)
+WRITEF("P2 hex %X first = %d, second=%d*N", P2, P2.first, P2.second)
+
+$)

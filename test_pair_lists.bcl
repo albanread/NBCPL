@@ -1,0 +1,43 @@
+LET START() BE
+$(
+    WRITES("Testing PAIR lists functionality*N")
+
+    // Test 1: Create a list of PAIRs using list literal syntax
+    WRITES("Test 1: Creating list of PAIRs*N")
+    LET my_pairs = LIST( PAIR(1, 2), PAIR(3, 4), PAIR(5, 6) )
+
+    // Test 2: Non-destructuring forEach over PAIR list
+    WRITES("Test 2: Non-destructuring forEach*N")
+    FOREACH pair IN my_pairs DO
+    $(
+        WRITES("PAIR: ")
+        WRITEN(pair!0)
+        WRITES(",")
+        WRITEN(pair!1)
+        WRITES("*N")
+    $)
+
+    // Test 3: Destructuring forEach over PAIR list
+    WRITES("Test 3: Destructuring forEach*N")
+    FOREACH (x, y) IN my_pairs DO
+    $(
+        WRITES("x = ") WRITEN(x)
+        WRITES(", y = ") WRITEN(y)
+        WRITES("*N")
+    $)
+
+    // Test 4: Create a list of FPAIRs (float pairs)
+    WRITES("Test 4: Creating list of FPAIRs*N")
+    LET my_fpairs = LIST( FPAIR(1.5, 2.5), FPAIR(3.5, 4.5), FPAIR(5.5, 6.5) )
+
+    // Test 5: Destructuring forEach over FPAIR list
+    WRITES("Test 5: Destructuring FPAIR forEach*N")
+    FOREACH (fx, fy) IN my_fpairs DO
+    $(
+        WRITES("fx = ") FWRITE(fx)
+        WRITES(", fy = ") FWRITE(fy)
+        WRITES("*N")
+    $)
+
+    WRITES("All PAIR list tests completed!*N")
+$)

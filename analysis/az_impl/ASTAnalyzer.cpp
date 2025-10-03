@@ -999,13 +999,42 @@ VarType ASTAnalyzer::infer_binary_op_type(const BinaryOp* bin_op) const {
                   << ", right type: " << static_cast<int>(right_type) << std::endl;
     }
     
-    // Comparison operators always return INTEGER (boolean)
+    // Handle equality comparison operators with type validation
     if (bin_op->op == BinaryOp::Operator::Equal ||
-        bin_op->op == BinaryOp::Operator::NotEqual ||
-        bin_op->op == BinaryOp::Operator::Less ||
+        bin_op->op == BinaryOp::Operator::NotEqual) {
+        
+        // For PAIR types, both operands must be PAIR
+        if (left_type == VarType::PAIR && right_type == VarType::PAIR) {
+            return VarType::INTEGER;
+        }
+        
+        // For scalar types, allow standard comparisons
+        if ((left_type == VarType::INTEGER || left_type == VarType::FLOAT) &&
+            (right_type == VarType::INTEGER || right_type == VarType::FLOAT)) {
+            return VarType::INTEGER;
+        }
+        
+        // For other compatible types (STRING, etc.)
+        if (left_type == right_type) {
+            return VarType::INTEGER;
+        }
+        
+        // Incompatible types for equality comparison
+        throw std::runtime_error("Cannot compare " + vartype_to_string(left_type) + 
+                                " with " + vartype_to_string(right_type) + " using equality operators");
+    }
+    
+    // Other comparison operators (ordering) - don't allow PAIR types
+    if (bin_op->op == BinaryOp::Operator::Less ||
         bin_op->op == BinaryOp::Operator::LessEqual ||
         bin_op->op == BinaryOp::Operator::Greater ||
         bin_op->op == BinaryOp::Operator::GreaterEqual) {
+        
+        // PAIR types don't support ordering comparisons
+        if (left_type == VarType::PAIR || right_type == VarType::PAIR) {
+            throw std::runtime_error("PAIR types do not support ordering comparisons (<, <=, >, >=)");
+        }
+        
         return VarType::INTEGER;
     }
     

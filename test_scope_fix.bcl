@@ -1,0 +1,11 @@
+LET START() BE {
+    LET pair_list = LIST(PAIR(1, 2), PAIR(3, 4), PAIR(5, 6))
+
+    WRITEF("Testing destructuring forEach with PAIR list:*N")
+
+    FOREACH (x, y) IN pair_list DO {
+        WRITEF("x=%N, y=%N*N", x, y)
+    }
+
+    WRITEF("Test completed successfully!*N")
+}

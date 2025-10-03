@@ -31,10 +31,10 @@ void NewCodeGenerator::visit(PairAccessExpression& node) {
         emit(Encoder::opt_create_ubfx(result_reg, pair_reg, 0, 32));
         debug_print("Extracted first (bits 0-31) from pair using UBFX");
     } else { // SECOND
-        // Extract upper 32 bits (bits 32-63) using UBFX
-        // Extract 32 bits starting from bit 32
-        emit(Encoder::opt_create_ubfx(result_reg, pair_reg, 32, 32));
-        debug_print("Extracted second (bits 32-63) from pair using UBFX");
+        // Extract upper 32 bits (bits 32-63) using SBFX for signed values
+        // SBFX rd, rn, #lsb, #width - Sign-extends the extracted field
+        emit(Encoder::opt_create_sbfx(result_reg, pair_reg, 32, 32));
+        debug_print("Extracted second (bits 32-63) from pair using SBFX for sign extension");
     }
     
     // Release the pair register

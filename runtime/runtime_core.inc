@@ -268,7 +268,7 @@ static void WRITEF_impl(uint32_t* format_str, int64_t* args, int argc) {
                         printf("%llx", (unsigned long long)args[args_used]);
                         break;
                     case 'X':
-                        printf("%llX", (unsigned long long)args[args_used]);
+                        printf("%016llX", (unsigned long long)args[args_used]);
                         break;
                     case 'o':
                         printf("%llo", (unsigned long long)args[args_used]);
@@ -280,7 +280,8 @@ static void WRITEF_impl(uint32_t* format_str, int64_t* args, int argc) {
                         break;
                     case 'P': { // PAIR: two 32-bit signed ints packed in int64_t
                         int32_t x = (int32_t)(args[args_used] & 0xFFFFFFFF);
-                        int32_t y = (int32_t)((args[args_used] >> 32) & 0xFFFFFFFF);
+                        // Use arithmetic shift right to preserve sign for negative values
+                        int32_t y = (int32_t)(args[args_used] >> 32);
                         printf("(%d, %d)", x, y);
                         break;
                     }

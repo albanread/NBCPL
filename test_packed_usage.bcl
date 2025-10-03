@@ -1,0 +1,14 @@
+LET START() BE {
+    LET pair_list = LIST(PAIR(1, 2), PAIR(3, 4), PAIR(5, 6))
+
+    WRITEF("Testing destructuring forEach with PAIR list and explicit packed usage:*N")
+
+    FOREACH (x, y) IN pair_list DO {
+        // First, let's see if we can access the packed value directly
+        // This should force the packed variable to appear in the Use set
+        LET packed_copy = _forEach_packed_0  // Explicit usage
+        WRITEF("packed=0x%X, x=%N, y=%N*N", packed_copy, x, y)
+    }
+
+    WRITEF("Test completed successfully!*N")
+}

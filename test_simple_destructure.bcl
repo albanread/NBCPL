@@ -1,0 +1,11 @@
+LET START() BE {
+    LET pair_list = LIST(PAIR(10, 20), PAIR(30, 40))
+
+    WRITEF("Simple destructuring test:*N")
+
+    FOREACH (a, b) IN pair_list DO {
+        WRITEF("a=%N, b=%N*N", a, b)
+    }
+
+    WRITEF("Done.*N")
+}

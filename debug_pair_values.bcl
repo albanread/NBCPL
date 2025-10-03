@@ -1,0 +1,71 @@
+LET START() BE $(
+
+WRITEF("=== PAIR VALUE DEBUG WITH %%P ===*N*N")
+
+// Test literal pairs
+WRITEF("LITERAL PAIRS:*N")
+LET literal1 = PAIR(1, 2)
+LET literal2 = PAIR(1, 2)
+LET literal_neg = PAIR(-1, -2)
+
+WRITEF("literal1 = PAIR(1, 2) = %P*N", literal1)
+WRITEF("literal2 = PAIR(1, 2) = %P*N", literal2)
+WRITEF("literal_neg = PAIR(-1, -2) = %P*N", literal_neg)
+
+// Test computed pairs
+WRITEF("*NCOMPUTED PAIRS:*N")
+LET val1 = 1
+LET val2 = 2
+LET computed1 = PAIR(val1, val2)
+LET computed2 = PAIR(val1, val2)
+
+LET neg_val1 = -1
+LET neg_val2 = -2
+LET computed_neg = PAIR(neg_val1, neg_val2)
+
+WRITEF("computed1 = PAIR(val1, val2) = %P*N", computed1)
+WRITEF("  where val1=%d, val2=%d*N", val1, val2)
+WRITEF("computed2 = PAIR(val1, val2) = %P*N", computed2)
+WRITEF("  where val1=%d, val2=%d*N", val1, val2)
+WRITEF("computed_neg = PAIR(neg_val1, neg_val2) = %P*N", computed_neg)
+WRITEF("  where neg_val1=%d, neg_val2=%d*N", neg_val1, neg_val2)
+
+// Test equality between them
+WRITEF("*NEQUALITY TEST RESULTS:*N")
+LET eq1 = literal1 = computed1
+LET eq2 = literal_neg = computed_neg
+WRITEF("literal1 = computed1: %d*N", eq1)
+WRITEF("literal_neg = computed_neg: %d*N", eq2)
+
+// Test some more edge cases
+WRITEF("*NEDGE CASES:*N")
+LET zero_literal = PAIR(0, 0)
+LET zero_val1 = 0
+LET zero_val2 = 0
+LET zero_computed = PAIR(zero_val1, zero_val2)
+
+WRITEF("zero_literal = PAIR(0, 0) = %P*N", zero_literal)
+WRITEF("zero_computed = PAIR(zero_val1, zero_val2) = %P*N", zero_computed)
+WRITEF("  where zero_val1=%d, zero_val2=%d*N", zero_val1, zero_val2)
+
+LET zero_eq = zero_literal = zero_computed
+WRITEF("zero_literal = zero_computed: %d*N", zero_eq)
+
+// Test large numbers
+WRITEF("*NLARGE NUMBER TEST:*N")
+LET large_literal = PAIR(1000, 2000)
+LET large_val1 = 1000
+LET large_val2 = 2000
+LET large_computed = PAIR(large_val1, large_val2)
+
+WRITEF("large_literal = PAIR(1000, 2000) = %P*N", large_literal)
+WRITEF("large_computed = PAIR(large_val1, large_val2) = %P*N", large_computed)
+WRITEF("  where large_val1=%d, large_val2=%d*N", large_val1, large_val2)
+
+LET large_eq = large_literal = large_computed
+WRITEF("large_literal = large_computed: %d*N", large_eq)
+
+WRITEF("*N=== END DEBUG ===*N")
+WRITEF("Compare the %P values to see if literal and computed pairs have identical bit patterns.*N")
+
+$)

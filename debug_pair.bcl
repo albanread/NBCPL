@@ -1,0 +1,17 @@
+LET START() BE $(
+
+// Simple debug test for PAIR equality
+LET P1 = PAIR(5,20)
+LET P2 = PAIR(10,10)
+
+WRITEF("P1 = PAIR(5,20)*N")
+WRITEF("P2 = PAIR(10,10)*N")
+
+LET result = P1 ~= P2
+WRITEF("P1 ~= P2 result: %d*N", result)
+
+// Test the reverse too
+LET result2 = P2 ~= P1
+WRITEF("P2 ~= P1 result: %d*N", result2)
+
+$)

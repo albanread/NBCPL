@@ -1,0 +1,50 @@
+LET START() BE $(
+
+WRITEF("=== PAIR CREATION DEBUG TEST ===*N*N")
+
+// Test 1: Simple positive integers
+WRITEF("Test 1: Simple positive integers*N")
+LET P1 = PAIR(1, 2)
+WRITEF("Created PAIR(1, 2)*N")
+
+// Test 2: Zero values
+WRITEF("*NTest 2: Zero values*N")
+LET P2 = PAIR(0, 0)
+WRITEF("Created PAIR(0, 0)*N")
+
+// Test 3: One zero, one non-zero
+WRITEF("*NTest 3: Mixed zero/non-zero*N")
+LET P3 = PAIR(0, 5)
+LET P4 = PAIR(7, 0)
+WRITEF("Created PAIR(0, 5) and PAIR(7, 0)*N")
+
+// Test 4: Small negative numbers
+WRITEF("*NTest 4: Small negative numbers*N")
+LET P5 = PAIR(-1, -2)
+WRITEF("Created PAIR(-1, -2)*N")
+
+// Test 5: Mixed positive/negative
+WRITEF("*NTest 5: Mixed positive/negative*N")
+LET P6 = PAIR(-3, 4)
+LET P7 = PAIR(5, -6)
+WRITEF("Created PAIR(-3, 4) and PAIR(5, -6)*N")
+
+// Test 6: Larger numbers
+WRITEF("*NTest 6: Larger numbers*N")
+LET P8 = PAIR(100, 200)
+WRITEF("Created PAIR(100, 200)*N")
+
+// Test 7: Very simple equality test
+WRITEF("*NTest 7: Simple equality tests*N")
+LET simple1 = PAIR(1, 1)
+LET simple2 = PAIR(1, 1)
+LET simple3 = PAIR(1, 2)
+
+LET eq1 = simple1 = simple2
+LET eq2 = simple1 = simple3
+WRITEF("PAIR(1,1) = PAIR(1,1): %d*N", eq1)
+WRITEF("PAIR(1,1) = PAIR(1,2): %d*N", eq2)
+
+WRITEF("*N=== PAIR CREATION DEBUG COMPLETE ===*N")
+
+$)

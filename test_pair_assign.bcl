@@ -1,0 +1,14 @@
+LET START() BE {
+    WRITEF("Testing PAIR assignment and destructuring:*N")
+
+    // Test 1: Basic PAIR creation and assignment
+    LET p = PAIR(10, 20)
+    WRITEF("Created PAIR(10, 20)*N")
+
+    // Test 2: Try destructuring assignment (if supported)
+    LET (x, y) = p
+    WRITEF("Attempted destructuring assignment*N")
+    WRITEF("x=%N, y=%N*N", x, y)
+
+    WRITEF("Test completed.*N")
+}

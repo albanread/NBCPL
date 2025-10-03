@@ -1000,13 +1000,42 @@ VarType ASTAnalyzer::infer_binary_op_type(const BinaryOp* bin_op) const {
                   << ", right type: " << static_cast<int>(right_type) << std::endl;
     }
     
-    // Comparison operators always return INTEGER (boolean)
+    // Handle equality comparison operators with type validation
     if (bin_op->op == BinaryOp::Operator::Equal ||
-        bin_op->op == BinaryOp::Operator::NotEqual ||
-        bin_op->op == BinaryOp::Operator::Less ||
+        bin_op->op == BinaryOp::Operator::NotEqual) {
+        
+        // For PAIR types, both operands must be PAIR
+        if (left_type == VarType::PAIR && right_type == VarType::PAIR) {
+            return VarType::INTEGER;
+        }
+        
+        // For scalar types, allow standard comparisons
+        if ((left_type == VarType::INTEGER || left_type == VarType::FLOAT) &&
+            (right_type == VarType::INTEGER || right_type == VarType::FLOAT)) {
+            return VarType::INTEGER;
+        }
+        
+        // For other compatible types (STRING, etc.)
+        if (left_type == right_type) {
+            return VarType::INTEGER;
+        }
+        
+        // Incompatible types for equality comparison
+        throw std::runtime_error("Cannot compare " + vartype_to_string(left_type) + 
+                                " with " + vartype_to_string(right_type) + " using equality operators");
+    }
+    
+    // Other comparison operators (ordering) - don't allow PAIR types
+    if (bin_op->op == BinaryOp::Operator::Less ||
         bin_op->op == BinaryOp::Operator::LessEqual ||
         bin_op->op == BinaryOp::Operator::Greater ||
         bin_op->op == BinaryOp::Operator::GreaterEqual) {
+        
+        // PAIR types don't support ordering comparisons
+        if (left_type == VarType::PAIR || right_type == VarType::PAIR) {
+            throw std::runtime_error("PAIR types do not support ordering comparisons (<, <=, >, >=)");
+        }
+        
         return VarType::INTEGER;
     }
     
@@ -4754,7 +4783,8 @@ std::vector<char> ASTAnalyzer::parse_writef_format_string(const std::string& for
             // List of all recognized specifiers that require a corresponding value argument.
             // This is the CRITICAL fix ensuring %P is counted.
             if (spec == 'd' || spec == 'f' || spec == 's' || spec == 'P' || spec == 'Q' ||
-                spec == 'S' || spec == 'N' || spec == 'F') {
+                spec == 'S' || spec == 'N' || spec == 'F' || spec == 'x' || spec == 'X' ||
+                spec == 'o' || spec == 'c') {
 
                 // Pushes the character as seen, letting the type checker handle its meaning.
                 specifiers.push_back(spec);
@@ -4773,6 +4803,10 @@ VarType ASTAnalyzer::get_expected_type_for_writef_specifier(char specifier) {
     switch (specifier) {
         case 'd': return VarType::INTEGER;
         case 'N': return VarType::INTEGER;
+        case 'x': return VarType::INTEGER;
+        case 'X': return VarType::ANY;  // %X accepts any value type for hex formatting
+        case 'o': return VarType::INTEGER;
+        case 'c': return VarType::INTEGER;
         case 'f': return VarType::FLOAT;
         case 'F': return VarType::FLOAT;
         case 's': return VarType::STRING;
@@ -4787,6 +4821,11 @@ VarType ASTAnalyzer::get_expected_type_for_writef_specifier(char specifier) {
  */
 bool ASTAnalyzer::are_types_compatible_for_writef(VarType actual, VarType expected) {
     if (actual == expected) {
+        return true;
+    }
+
+    // %X (%ANY) accepts any value type for hexadecimal formatting
+    if (expected == VarType::ANY) {
         return true;
     }
 
@@ -28330,10 +28369,10 @@ void NewCodeGenerator::visit(PairAccessExpression& node) {
         emit(Encoder::opt_create_ubfx(result_reg, pair_reg, 0, 32));
         debug_print("Extracted first (bits 0-31) from pair using UBFX");
     } else { // SECOND
-        // Extract upper 32 bits (bits 32-63) using UBFX
-        // Extract 32 bits starting from bit 32
-        emit(Encoder::opt_create_ubfx(result_reg, pair_reg, 32, 32));
-        debug_print("Extracted second (bits 32-63) from pair using UBFX");
+        // Extract upper 32 bits (bits 32-63) using SBFX for signed values
+        // SBFX rd, rn, #lsb, #width - Sign-extends the extracted field
+        emit(Encoder::opt_create_sbfx(result_reg, pair_reg, 32, 32));
+        debug_print("Extracted second (bits 32-63) from pair using SBFX for sign extension");
     }
     
     // Release the pair register
@@ -28402,13 +28441,12 @@ void NewCodeGenerator::visit(PairExpression& node) {
         node.first_expr->accept(*this);
         std::string first_reg = expression_result_reg_;
         
-        // Use BFI to insert first value into bits 0-31 of result
-        // BFI rd, rn, #lsb, #width
-        // Insert 32 bits from first_reg starting at bit 0
-        emit(Encoder::opt_create_bfxil(result_reg, first_reg, 0, 32));
+        // Use BFI to insert the lower 32 bits of first_reg into bits 0-31 of result
+        // BFI will take the lower 32 bits from first_reg (treating it as signed 32-bit value)
+        emit(Encoder::opt_create_bfi(result_reg, first_reg, 0, 32));
         
         register_manager.release_register(first_reg);
-        debug_print("Inserted first expression into bits 0-31 using BFXIL");
+        debug_print("Inserted lower 32 bits into bits 0-31 using BFI");
     }
     
     // Generate code for second expression (bits 32-63)
@@ -28416,12 +28454,12 @@ void NewCodeGenerator::visit(PairExpression& node) {
         node.second_expr->accept(*this);
         std::string second_reg = expression_result_reg_;
         
-        // Use BFI to insert second value into bits 32-63 of result
-        // Insert 32 bits from second_reg starting at bit 32
+        // Use BFI to insert the lower 32 bits of second_reg into bits 32-63 of result
+        // BFI will take the lower 32 bits from second_reg (treating it as signed 32-bit value)
         emit(Encoder::opt_create_bfi(result_reg, second_reg, 32, 32));
         
         register_manager.release_register(second_reg);
-        debug_print("Inserted second expression into bits 32-63 using BFI");
+        debug_print("Inserted lower 32 bits into bits 32-63 using BFI");
     }
     
     // The combined 64-bit value is our result
@@ -38332,14 +38370,15 @@ void NewCodeGenerator::visit(BinaryOp& node) {
     }
 
     // Handle PAIR arithmetic operations using NEON SIMD instructions
-    if (is_pair_op) {
+    // Skip this section for comparison operations
+    if (is_pair_op && node.op != BinaryOp::Operator::Equal && node.op != BinaryOp::Operator::NotEqual) {
         debug_print("Generating PAIR arithmetic using NEON SIMD instructions");
         
         // Check if we support this operation for PAIRs
         if (node.op != BinaryOp::Operator::Add && 
             node.op != BinaryOp::Operator::Subtract && 
             node.op != BinaryOp::Operator::Multiply) {
-            throw std::runtime_error("Unsupported binary operation on PAIR types: only +, -, * are supported (division not supported for integer PAIRs)");
+            throw std::runtime_error("Unsupported binary operation on PAIR types: only +, -, *, ==, ~= are supported (division not supported for integer PAIRs)");
         }
         
         // NEON SIMD approach for optimal performance:
@@ -38512,7 +38551,22 @@ void NewCodeGenerator::visit(BinaryOp& node) {
         case BinaryOp::Operator::Equal:
             {
                 std::string dest_reg = register_manager_.acquire_scratch_reg(*this);
-                if (is_float_op) {
+                
+                // Optimized PAIR comparison: treat as 64-bit integer
+                if (is_pair_op) {
+                    // For integer PAIRs, we can do a single 64-bit comparison
+                    // This is safe because both 32-bit components are laid out contiguously
+                    if (right_is_constant) {
+                        emit(Encoder::create_cmp_imm(left_reg, static_cast<int>(constant_value)));
+                    } else {
+                        emit(Encoder::create_cmp_reg(left_reg, right_reg));
+                        register_manager_.release_register(right_reg);
+                    }
+                    emit(Encoder::create_cset(dest_reg, "EQ"));
+                    register_manager_.release_register(left_reg);
+                    expression_result_reg_ = dest_reg;
+                }
+                else if (is_float_op) {
                     if (right_is_constant) {
                         // Load constant into temp register for float comparison
                         std::string temp_reg = register_manager_.acquire_fp_scratch_reg();
@@ -38540,7 +38594,21 @@ void NewCodeGenerator::visit(BinaryOp& node) {
         case BinaryOp::Operator::NotEqual:
             {
                 std::string dest_reg = register_manager_.acquire_scratch_reg(*this);
-                if (is_float_op) {
+                
+                // Optimized PAIR comparison: treat as 64-bit integer
+                if (is_pair_op) {
+                    // For integer PAIRs, we can do a single 64-bit comparison
+                    if (right_is_constant) {
+                        emit(Encoder::create_cmp_imm(left_reg, static_cast<int>(constant_value)));
+                    } else {
+                        emit(Encoder::create_cmp_reg(left_reg, right_reg));
+                        register_manager_.release_register(right_reg);
+                    }
+                    emit(Encoder::create_cset(dest_reg, "NE"));
+                    register_manager_.release_register(left_reg);
+                    expression_result_reg_ = dest_reg;
+                }
+                else if (is_float_op) {
                     if (right_is_constant) {
                         // Load constant into temp register for float comparison
                         std::string temp_reg = register_manager_.acquire_fp_scratch_reg();

@@ -53,13 +53,12 @@ void NewCodeGenerator::visit(PairExpression& node) {
         node.first_expr->accept(*this);
         std::string first_reg = expression_result_reg_;
         
-        // Use BFI to insert first value into bits 0-31 of result
-        // BFI rd, rn, #lsb, #width
-        // Insert 32 bits from first_reg starting at bit 0
-        emit(Encoder::opt_create_bfxil(result_reg, first_reg, 0, 32));
+        // Use BFI to insert the lower 32 bits of first_reg into bits 0-31 of result
+        // BFI will take the lower 32 bits from first_reg (treating it as signed 32-bit value)
+        emit(Encoder::opt_create_bfi(result_reg, first_reg, 0, 32));
         
         register_manager.release_register(first_reg);
-        debug_print("Inserted first expression into bits 0-31 using BFXIL");
+        debug_print("Inserted lower 32 bits into bits 0-31 using BFI");
     }
     
     // Generate code for second expression (bits 32-63)
@@ -67,12 +66,12 @@ void NewCodeGenerator::visit(PairExpression& node) {
         node.second_expr->accept(*this);
         std::string second_reg = expression_result_reg_;
         
-        // Use BFI to insert second value into bits 32-63 of result
-        // Insert 32 bits from second_reg starting at bit 32
+        // Use BFI to insert the lower 32 bits of second_reg into bits 32-63 of result
+        // BFI will take the lower 32 bits from second_reg (treating it as signed 32-bit value)
         emit(Encoder::opt_create_bfi(result_reg, second_reg, 32, 32));
         
         register_manager.release_register(second_reg);
-        debug_print("Inserted second expression into bits 32-63 using BFI");
+        debug_print("Inserted lower 32 bits into bits 32-63 using BFI");
     }
     
     // The combined 64-bit value is our result

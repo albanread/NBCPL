@@ -1,0 +1,29 @@
+// Test that %X format specifier accepts any value type without analyzer errors
+
+LET START() BE $(
+    WRITEF("Testing %%X with different value types:*N")
+
+    // Integer values
+    LET int_val = 42
+    WRITEF1("Integer 42: %X*N", int_val)
+
+    // Float values
+    LET float_val = 3.14
+    WRITEF1("Float 3.14: %X*N", float_val)
+
+    // String values
+    LET str_val = "hello"
+    WRITEF1("String hello: %X*N", str_val)
+
+    // Pair values
+    LET pair_val = PAIR(10, 20)
+    WRITEF1("PAIR(10, 20): %X*N", pair_val)
+
+    // Pointer values (address of a variable)
+    WRITEF1("Address of int_val: %X*N", @int_val)
+
+    // Multiple %X in one format string with different types
+    WRITEF3("Mixed types: int=%X, float=%X, pair=%X*N", int_val, float_val, pair_val)
+
+    WRITEF("All %%X tests completed - no analyzer errors should occur!*N")
+$)

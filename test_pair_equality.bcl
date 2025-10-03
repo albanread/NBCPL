@@ -1,0 +1,59 @@
+LET START() BE $(
+
+// Test basic PAIR equality
+LET P1 = PAIR(10,10)
+LET P2 = PAIR(10,10)
+LET P3 = PAIR(10,11)
+LET P4 = PAIR(5,20)
+
+WRITEF("=== PAIR EQUALITY TESTS ===*N")
+
+// Test P1 = P2 (should be true/non-zero)
+LET result1 = P1 = P2
+WRITEF("PAIR(10,10) = PAIR(10,10): %d*N", result1)
+
+// Test P1 = P3 (should be false/zero)
+LET result2 = P1 = P3
+WRITEF("PAIR(10,10) = PAIR(10,11): %d*N", result2)
+
+// Test P1 = P4 (should be false/zero)
+LET result3 = P1 = P4
+WRITEF("PAIR(10,10) = PAIR(5,20): %d*N", result3)
+
+WRITEF("*N=== PAIR INEQUALITY TESTS ===*N")
+
+// Test P1 ~= P2 (should be false/zero)
+LET result4 = P1 ~= P2
+WRITEF("PAIR(10,10) ~= PAIR(10,10): %d*N", result4)
+
+// Test P1 ~= P3 (should be true/non-zero)
+LET result5 = P1 ~= P3
+WRITEF("PAIR(10,10) ~= PAIR(10,11): %d*N", result5)
+
+// Test P1 ~= P4 (should be true/non-zero)
+LET result6 = P1 ~= P4
+WRITEF("PAIR(10,10) ~= PAIR(5,20): %d*N", result6)
+
+WRITEF("*N=== EDGE CASE TESTS ===*N")
+
+// Test with zero values
+LET P_zero1 = PAIR(0,0)
+LET P_zero2 = PAIR(0,0)
+LET result7 = P_zero1 = P_zero2
+WRITEF("PAIR(0,0) = PAIR(0,0): %d*N", result7)
+
+// Test with negative values
+LET P_neg1 = PAIR(-5, 10)
+LET P_neg2 = PAIR(-5, 10)
+LET result8 = P_neg1 = P_neg2
+WRITEF("PAIR(-5,10) = PAIR(-5,10): %d*N", result8)
+
+// Test mixed positive/negative
+LET P_mixed1 = PAIR(-1, -2)
+LET P_mixed2 = PAIR(-1, -2)
+LET result9 = P_mixed1 = P_mixed2
+WRITEF("PAIR(-1,-2) = PAIR(-1,-2): %d*N", result9)
+
+WRITEF("*NAll PAIR equality tests completed!*N")
+
+$)

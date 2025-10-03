@@ -161,7 +161,8 @@ std::vector<char> ASTAnalyzer::parse_writef_format_string(const std::string& for
             // List of all recognized specifiers that require a corresponding value argument.
             // This is the CRITICAL fix ensuring %P is counted.
             if (spec == 'd' || spec == 'f' || spec == 's' || spec == 'P' || spec == 'Q' ||
-                spec == 'S' || spec == 'N' || spec == 'F') {
+                spec == 'S' || spec == 'N' || spec == 'F' || spec == 'x' || spec == 'X' ||
+                spec == 'o' || spec == 'c') {
 
                 // Pushes the character as seen, letting the type checker handle its meaning.
                 specifiers.push_back(spec);
@@ -180,6 +181,10 @@ VarType ASTAnalyzer::get_expected_type_for_writef_specifier(char specifier) {
     switch (specifier) {
         case 'd': return VarType::INTEGER;
         case 'N': return VarType::INTEGER;
+        case 'x': return VarType::INTEGER;
+        case 'X': return VarType::ANY;  // %X accepts any value type for hex formatting
+        case 'o': return VarType::INTEGER;
+        case 'c': return VarType::INTEGER;
         case 'f': return VarType::FLOAT;
         case 'F': return VarType::FLOAT;
         case 's': return VarType::STRING;
@@ -194,6 +199,11 @@ VarType ASTAnalyzer::get_expected_type_for_writef_specifier(char specifier) {
  */
 bool ASTAnalyzer::are_types_compatible_for_writef(VarType actual, VarType expected) {
     if (actual == expected) {
+        return true;
+    }
+
+    // %X (%ANY) accepts any value type for hexadecimal formatting
+    if (expected == VarType::ANY) {
         return true;
     }
 

@@ -1,0 +1,92 @@
+LET START() BE $(
+
+WRITEF("=== COMPREHENSIVE PAIR EQUALITY TEST ===*N*N")
+
+// Basic equality tests
+LET P1 = PAIR(10, 20)
+LET P2 = PAIR(10, 20)
+LET P3 = PAIR(10, 21)
+
+WRITEF("Basic Equality Tests:*N")
+LET test1 = P1 = P2
+WRITEF("  PAIR(10,20) = PAIR(10,20): %d (expected: non-zero)*N", test1)
+
+LET test2 = P1 = P3
+WRITEF("  PAIR(10,20) = PAIR(10,21): %d (expected: 0)*N", test2)
+
+// Basic inequality tests
+WRITEF("*NBasic Inequality Tests:*N")
+LET test3 = P1 ~= P2
+WRITEF("  PAIR(10,20) ~= PAIR(10,20): %d (expected: 0)*N", test3)
+
+LET test4 = P1 ~= P3
+WRITEF("  PAIR(10,20) ~= PAIR(10,21): %d (expected: non-zero)*N", test4)
+
+// Edge cases with zero
+WRITEF("*NZero Value Tests:*N")
+LET P_zero1 = PAIR(0, 0)
+LET P_zero2 = PAIR(0, 0)
+LET P_partial_zero = PAIR(0, 1)
+
+LET test5 = P_zero1 = P_zero2
+WRITEF("  PAIR(0,0) = PAIR(0,0): %d (expected: non-zero)*N", test5)
+
+LET test6 = P_zero1 = P_partial_zero
+WRITEF("  PAIR(0,0) = PAIR(0,1): %d (expected: 0)*N", test6)
+
+// Negative value tests
+WRITEF("*NNegative Value Tests:*N")
+LET P_neg1 = PAIR(-5, -10)
+LET P_neg2 = PAIR(-5, -10)
+LET P_neg3 = PAIR(-5, 10)
+
+LET test7 = P_neg1 = P_neg2
+WRITEF("  PAIR(-5,-10) = PAIR(-5,-10): %d (expected: non-zero)*N", test7)
+
+LET test8 = P_neg1 = P_neg3
+WRITEF("  PAIR(-5,-10) = PAIR(-5,10): %d (expected: 0)*N", test8)
+
+LET test9 = P_neg1 ~= P_neg3
+WRITEF("  PAIR(-5,-10) ~= PAIR(-5,10): %d (expected: non-zero)*N", test9)
+
+// Large value tests
+WRITEF("*NLarge Value Tests:*N")
+LET P_large1 = PAIR(1000000, 2000000)
+LET P_large2 = PAIR(1000000, 2000000)
+LET P_large3 = PAIR(1000001, 2000000)
+
+LET test10 = P_large1 = P_large2
+WRITEF("  PAIR(1000000,2000000) = PAIR(1000000,2000000): %d (expected: non-zero)*N", test10)
+
+LET test11 = P_large1 ~= P_large3
+WRITEF("  PAIR(1000000,2000000) ~= PAIR(1000001,2000000): %d (expected: non-zero)*N", test11)
+
+// Mixed sign tests
+WRITEF("*NMixed Sign Tests:*N")
+LET P_mixed1 = PAIR(-100, 200)
+LET P_mixed2 = PAIR(-100, 200)
+LET P_mixed3 = PAIR(100, -200)
+
+LET test12 = P_mixed1 = P_mixed2
+WRITEF("  PAIR(-100,200) = PAIR(-100,200): %d (expected: non-zero)*N", test12)
+
+LET test13 = P_mixed1 = P_mixed3
+WRITEF("  PAIR(-100,200) = PAIR(100,-200): %d (expected: 0)*N", test13)
+
+// Component difference tests
+WRITEF("*NComponent Difference Tests:*N")
+LET P_diff_first = PAIR(1, 100)
+LET P_diff_second = PAIR(2, 100)
+LET P_diff_both = PAIR(2, 101)
+
+LET test14 = P_diff_first ~= P_diff_second
+WRITEF("  PAIR(1,100) ~= PAIR(2,100): %d (expected: non-zero)*N", test14)
+
+LET test15 = P_diff_first ~= P_diff_both
+WRITEF("  PAIR(1,100) ~= PAIR(2,101): %d (expected: non-zero)*N", test15)
+
+WRITEF("*N=== TEST SUMMARY ===*N")
+WRITEF("All tests completed. Check that results match expected values.*N")
+WRITEF("Non-zero means TRUE, 0 means FALSE in BCPL.*N")
+
+$)

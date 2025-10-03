@@ -1,0 +1,26 @@
+LET START() BE $(
+
+// Debug zero case specifically
+LET P_zero1 = PAIR(0,0)
+LET P_zero2 = PAIR(0,0)
+
+WRITEF("P_zero1 = PAIR(0,0)*N")
+WRITEF("P_zero2 = PAIR(0,0)*N")
+
+// Test equality
+LET eq_result = P_zero1 = P_zero2
+WRITEF("PAIR(0,0) = PAIR(0,0): %d*N", eq_result)
+
+// Test inequality
+LET neq_result = P_zero1 ~= P_zero2
+WRITEF("PAIR(0,0) ~= PAIR(0,0): %d*N", neq_result)
+
+// Test against non-zero
+LET P_nonzero = PAIR(1,1)
+LET eq_result2 = P_zero1 = P_nonzero
+WRITEF("PAIR(0,0) = PAIR(1,1): %d*N", eq_result2)
+
+LET neq_result2 = P_zero1 ~= P_nonzero
+WRITEF("PAIR(0,0) ~= PAIR(1,1): %d*N", neq_result2)
+
+$)

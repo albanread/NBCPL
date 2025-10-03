@@ -1,0 +1,37 @@
+LET START() BE $(
+
+WRITEF("=== SIMPLE PAIR DEBUG TEST ===*N*N")
+
+// Test the simplest possible case
+LET literal_pair = PAIR(1, 2)
+LET var1 = 1
+LET var2 = 2
+LET computed_pair = PAIR(var1, var2)
+
+WRITEF("literal_pair = PAIR(1, 2)*N")
+WRITEF("computed_pair = PAIR(var1, var2) where var1=1, var2=2*N*N")
+
+// Test equality
+LET result = literal_pair = computed_pair
+WRITEF("literal_pair = computed_pair: %d*N", result)
+
+// Test inequality
+LET result2 = literal_pair ~= computed_pair
+WRITEF("literal_pair ~= computed_pair: %d*N", result2)
+
+// Test with negative numbers
+WRITEF("*N--- Testing with negative numbers ---*N")
+LET literal_neg = PAIR(-1, -2)
+LET neg_var1 = -1
+LET neg_var2 = -2
+LET computed_neg = PAIR(neg_var1, neg_var2)
+
+WRITEF("literal_neg = PAIR(-1, -2)*N")
+WRITEF("computed_neg = PAIR(neg_var1, neg_var2) where neg_var1=-1, neg_var2=-2*N*N")
+
+LET neg_result = literal_neg = computed_neg
+WRITEF("literal_neg = computed_neg: %d*N", neg_result)
+
+WRITEF("*N=== END DEBUG TEST ===*N")
+
+$)

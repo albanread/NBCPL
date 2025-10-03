@@ -1,0 +1,64 @@
+LET START() BE $(
+
+WRITEF("=== LITERAL vs COMPUTED PAIR TEST ===*N*N")
+
+// Test literal pairs (both values are constants)
+WRITEF("Testing LITERAL pairs:*N")
+LET literal1 = PAIR(10, 20)
+LET literal2 = PAIR(10, 20)
+LET literal3 = PAIR(-5, -10)
+LET literal4 = PAIR(-5, -10)
+
+WRITEF("literal1 = PAIR(10, 20)*N")
+WRITEF("literal2 = PAIR(10, 20)*N")
+WRITEF("literal3 = PAIR(-5, -10)*N")
+WRITEF("literal4 = PAIR(-5, -10)*N")
+
+LET lit_eq1 = literal1 = literal2
+LET lit_eq2 = literal3 = literal4
+WRITEF("literal1 = literal2: %d*N", lit_eq1)
+WRITEF("literal3 = literal4: %d*N", lit_eq2)
+
+// Test computed pairs (values come from variables)
+WRITEF("*NTesting COMPUTED pairs:*N")
+LET val1 = 10
+LET val2 = 20
+LET val3 = -5
+LET val4 = -10
+
+LET computed1 = PAIR(val1, val2)
+LET computed2 = PAIR(val1, val2)
+LET computed3 = PAIR(val3, val4)
+LET computed4 = PAIR(val3, val4)
+
+WRITEF("computed1 = PAIR(val1, val2) where val1=10, val2=20*N")
+WRITEF("computed2 = PAIR(val1, val2) where val1=10, val2=20*N")
+WRITEF("computed3 = PAIR(val3, val4) where val3=-5, val4=-10*N")
+WRITEF("computed4 = PAIR(val3, val4) where val3=-5, val4=-10*N")
+
+LET comp_eq1 = computed1 = computed2
+LET comp_eq2 = computed3 = computed4
+WRITEF("computed1 = computed2: %d*N", comp_eq1)
+WRITEF("computed3 = computed4: %d*N", comp_eq2)
+
+// Test mixed literal and computed pairs
+WRITEF("*NTesting MIXED literal vs computed:*N")
+LET mixed_eq1 = literal1 = computed1
+LET mixed_eq2 = literal3 = computed3
+WRITEF("literal1 = computed1: %d*N", mixed_eq1)
+WRITEF("literal3 = computed3: %d*N", mixed_eq2)
+
+// Test with expressions
+WRITEF("*NTesting pairs with EXPRESSIONS:*N")
+LET expr_pair1 = PAIR(5 + 5, 10 + 10)
+LET expr_pair2 = PAIR(5 + 5, 10 + 10)
+LET expr_eq = expr_pair1 = expr_pair2
+WRITEF("PAIR(5+5, 10+10) = PAIR(5+5, 10+10): %d*N", expr_eq)
+
+WRITEF("*N=== SUMMARY ===*N")
+WRITEF("This test helps identify if the issue is with:*N")
+WRITEF("1. Literal pair creation (rodata path)*N")
+WRITEF("2. Computed pair creation (bit field path)*N")
+WRITEF("3. Expression-based pair creation*N")
+
+$)

@@ -1,0 +1,15 @@
+LET START() BE {
+    LET p = PAIR(42, 84)
+    LET x = 0
+    LET y = 0
+
+    WRITEF("Testing minimal PAIR operations:*N")
+    WRITEF("Created PAIR(42, 84)*N")
+
+    // Simple assignment without forEach - just test basic PAIR unpacking
+    x := UBFX(p, 0, 32)
+    y := UBFX(p, 32, 32)
+
+    WRITEF("x=%N, y=%N*N", x, y)
+    WRITEF("Test completed.*N")
+}

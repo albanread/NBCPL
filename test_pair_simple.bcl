@@ -1,0 +1,16 @@
+// Simple test for PAIR negative values
+
+LET START() BE $(
+    WRITEF("Testing PAIR with negative values*N")
+
+    LET p1 = PAIR(-5, 15)
+    WRITEF1("PAIR(-5, 15) = %P*N", p1)
+
+    LET p2 = PAIR(25, -10)
+    WRITEF1("PAIR(25, -10) = %P*N", p2)
+
+    LET p3 = PAIR(-30, -40)
+    WRITEF1("PAIR(-30, -40) = %P*N", p3)
+
+    WRITEF("Test complete*N")
+$)

@@ -1,0 +1,14 @@
+LET START() BE {
+    WRITEF("Testing non-destructuring forEach with PAIR list:*N")
+
+    // Create a list of PAIRs
+    LET pair_list = LIST(PAIR(10, 20), PAIR(30, 40))
+    WRITEF("Created list with 2 PAIRs*N")
+
+    // Test non-destructuring forEach - iterate over the PAIRs themselves
+    FOREACH p IN pair_list DO {
+        WRITEF("Found PAIR: %P*N", p)
+    }
+
+    WRITEF("Non-destructuring forEach completed.*N")
+}

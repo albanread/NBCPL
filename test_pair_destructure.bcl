@@ -1,0 +1,22 @@
+LET START() BE
+$(
+    WRITES("Testing destructuring PAIR lists*N")
+
+    // Test 1: Create a simple list of PAIRs
+    WRITES("Test 1: Creating list of PAIRs*N")
+    LET my_pairs = LIST( PAIR(1, 2), PAIR(3, 4) )
+    WRITES("List created successfully*N")
+
+    // Test 2: Destructuring forEach over PAIR list
+    WRITES("Test 2: Destructuring forEach*N")
+    FOREACH (x, y) IN my_pairs DO
+    $(
+        WRITES("x = ")
+        WRITEN(x)
+        WRITES(", y = ")
+        WRITEN(y)
+        WRITES("*N")
+    $)
+
+    WRITES("Destructuring test completed*N")
+$)

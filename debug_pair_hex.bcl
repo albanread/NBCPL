@@ -1,0 +1,68 @@
+LET START() BE $(
+
+WRITEF("=== PAIR VALUE DEBUG WITH HEX ===*N*N")
+
+// Test literal pairs
+WRITEF("LITERAL PAIRS:*N")
+LET literal1 = PAIR(1, 2)
+LET literal2 = PAIR(1, 2)
+LET literal_neg = PAIR(-1, -2)
+
+WRITEF("literal1 = PAIR(1, 2) = %X*N", literal1)
+WRITEF("literal2 = PAIR(1, 2) = %X*N", literal2)
+WRITEF("literal_neg = PAIR(-1, -2) = %X*N", literal_neg)
+
+// Test computed pairs
+WRITEF("*NCOMPUTED PAIRS:*N")
+LET val1 = 1
+LET val2 = 2
+LET computed1 = PAIR(val1, val2)
+LET computed2 = PAIR(val1, val2)
+
+LET neg_val1 = -1
+LET neg_val2 = -2
+LET computed_neg = PAIR(neg_val1, neg_val2)
+
+WRITEF("computed1 = PAIR(val1, val2) = %X where val1=%d, val2=%d*N", computed1, val1, val2)
+WRITEF("computed2 = PAIR(val1, val2) = %X where val1=%d, val2=%d*N", computed2, val1, val2)
+WRITEF("computed_neg = PAIR(neg_val1, neg_val2) = %X where neg_val1=%d, neg_val2=%d*N", computed_neg, neg_val1, neg_val2)
+
+// Test equality between them
+WRITEF("*NEQUALITY TEST RESULTS:*N")
+LET eq1 = literal1 = computed1
+LET eq2 = literal_neg = computed_neg
+WRITEF("literal1 = computed1: %d*N", eq1)
+WRITEF("literal_neg = computed_neg: %d*N", eq2)
+
+// Test some more edge cases
+WRITEF("*NEDGE CASES:*N")
+LET zero_literal = PAIR(0, 0)
+LET zero_val1 = 0
+LET zero_val2 = 0
+LET zero_computed = PAIR(zero_val1, zero_val2)
+
+WRITEF("zero_literal = PAIR(0, 0) = %X*N", zero_literal)
+WRITEF("zero_computed = PAIR(zero_val1, zero_val2) = %X where zero_val1=%d, zero_val2=%d*N", zero_computed, zero_val1, zero_val2)
+
+LET zero_eq = zero_literal = zero_computed
+WRITEF("zero_literal = zero_computed: %d*N", zero_eq)
+
+// Test large numbers
+WRITEF("*NLARGE NUMBER TEST:*N")
+LET large_literal = PAIR(1000, 2000)
+LET large_val1 = 1000
+LET large_val2 = 2000
+LET large_computed = PAIR(large_val1, large_val2)
+
+WRITEF("large_literal = PAIR(1000, 2000) = %X*N", large_literal)
+WRITEF("large_computed = PAIR(large_val1, large_val2) = %X where large_val1=%d, large_val2=%d*N", large_computed, large_val1, large_val2)
+
+LET large_eq = large_literal = large_computed
+WRITEF("large_literal = large_computed: %d*N", large_eq)
+
+WRITEF("*N=== ANALYSIS ===*N")
+WRITEF("Expected hex for PAIR(1,2): 0x0000000200000001 (1 in low 32 bits, 2 in high 32 bits)*N")
+WRITEF("Expected hex for PAIR(-1,-2): 0xFFFFFFFEFFFFFFFF (-1 and -2 as 32-bit values)*N")
+WRITEF("If literal and computed show different hex values, we found the bug!*N")
+
+$)

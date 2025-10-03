@@ -1,0 +1,58 @@
+// Test %X hex format and %P pair display with negative values
+
+LET START() BE $(
+    // Test basic hex formatting with %X
+    WRITEF("Testing %%X hex format:*N")
+    WRITEF1("Decimal 255 = 0x%X*N", 255)
+    WRITEF1("Decimal 4096 = 0x%X*N", 4096)
+    WRITEF1("Decimal -1 = 0x%X*N", -1)
+    WRITEF1("Decimal 0 = 0x%X*N", 0)
+    NEWLINE()
+
+    // Test lowercase hex with %x
+    WRITEF("Testing %%x hex format:*N")
+    WRITEF1("Decimal 255 = 0x%x*N", 255)
+    WRITEF1("Decimal 4096 = 0x%x*N", 4096)
+    WRITEF1("Decimal -1 = 0x%x*N", -1)
+    WRITEF1("Decimal 0 = 0x%x*N", 0)
+    NEWLINE()
+
+    // Test PAIR display with positive values
+    WRITEF("Testing %%P pair format with positive values:*N")
+    LET p1 = PAIR(10, 20)
+    WRITEF1("PAIR(10, 20) = %P*N", p1)
+
+    LET p2 = PAIR(0, 100)
+    WRITEF1("PAIR(0, 100) = %P*N", p2)
+    NEWLINE()
+
+    // Test PAIR display with negative values (this should now work correctly)
+    WRITEF("Testing %%P pair format with negative values:*N")
+    LET p3 = PAIR(-5, 15)
+    WRITEF1("PAIR(-5, 15) = %P*N", p3)
+
+    LET p4 = PAIR(25, -10)
+    WRITEF1("PAIR(25, -10) = %P*N", p4)
+
+    LET p5 = PAIR(-30, -40)
+    WRITEF1("PAIR(-30, -40) = %P*N", p5)
+    NEWLINE()
+
+    // Test edge cases with large positive and negative numbers
+    WRITEF("Testing %%P pair format with edge cases:*N")
+    LET p6 = PAIR(2147483647, -2147483648)  // INT32_MAX, INT32_MIN
+    WRITEF1("PAIR(INT32_MAX, INT32_MIN) = %P*N", p6)
+
+    LET p7 = PAIR(-1, 1)
+    WRITEF1("PAIR(-1, 1) = %P*N", p7)
+    NEWLINE()
+
+    // Combine hex and pair formats
+    WRITEF("Combining hex and pair formats:*N")
+    LET val = 42
+    LET p8 = PAIR(val, val * 2)
+    WRITEF2("Value %d (0x%X) in pair: %P*N", val, val, p8)
+    NEWLINE()
+
+    WRITEF("All tests completed successfully!*N")
+$)
