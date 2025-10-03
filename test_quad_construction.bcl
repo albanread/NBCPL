@@ -1,0 +1,33 @@
+LET START() BE {
+    // Test 1: Literal QUAD construction
+    WRITEF("=== Test 1: Literal QUAD ===*N")
+    LET q1 = QUAD(1, 2, 3, 4)
+    WRITEF("q1 hex: %X*N", q1)
+    WRITEF("q1.first: %N*N", q1.first)
+    WRITEF("q1.second: %N*N", q1.second)
+    WRITEF("q1.third: %N*N", q1.third)
+    WRITEF("q1.fourth: %N*N", q1.fourth)
+
+    // Test 2: Non-literal QUAD construction using variables
+    WRITEF("=== Test 2: Variable QUAD ===*N")
+    LET a = 1
+    LET b = 2
+    LET c = 3
+    LET d = 4
+    LET q2 = QUAD(a, b, c, d)
+    WRITEF("q2 hex: %X*N", q2)
+    WRITEF("q2.first: %N*N", q2.first)
+    WRITEF("q2.second: %N*N", q2.second)
+    WRITEF("q2.third: %N*N", q2.third)
+    WRITEF("q2.fourth: %N*N", q2.fourth)
+
+    // Test 3: Mixed literal/expression QUAD
+    WRITEF("=== Test 3: Mixed QUAD ===*N")
+    LET x = 10
+    LET q3 = QUAD(1, x + 1, 3, x - 6)
+    WRITEF("q3 hex: %X*N", q3)
+    WRITEF("q3.first: %N*N", q3.first)
+    WRITEF("q3.second: %N*N", q3.second)
+    WRITEF("q3.third: %N*N", q3.third)
+    WRITEF("q3.fourth: %N*N", q3.fourth)
+}

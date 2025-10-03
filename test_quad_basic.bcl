@@ -1,0 +1,37 @@
+LET main() BE {
+    // Test basic QUAD construction
+    LET q1 = QUAD(1, 2, 3, 4)
+    WRITEF("Basic QUAD: %R*N", q1)
+
+    // Test QUAD destructuring assignment
+    LET a, b, c, d = q1
+    WRITEF("Destructured: a=%N, b=%N, c=%N, d=%N*N", a, b, c, d)
+
+    // Test QUAD component access
+    WRITEF("Components: first=%N, second=%N, third=%N, fourth=%N*N",
+           q1.first, q1.second, q1.third, q1.fourth)
+
+    // Test QUAD arithmetic
+    LET q2 = QUAD(10, 20, 30, 40)
+    LET q3 = q1 + q2
+    WRITEF("Addition: %R + %R = %R*N", q1, q2, q3)
+
+    // Test QUAD with negative values
+    LET q4 = QUAD(-1, -2, -3, -4)
+    WRITEF("Negative QUAD: %R*N", q4)
+
+    // Test QUAD hex display
+    WRITEF("Hex representation: %X*N", q1)
+
+    // Test scalar-QUAD operations
+    LET q5 = q1 + 5
+    WRITEF("Scalar addition: %R + 5 = %R*N", q1, q5)
+
+    // Test QUAD subtraction
+    LET q6 = q2 - q1
+    WRITEF("Subtraction: %R - %R = %R*N", q2, q1, q6)
+
+    // Test boundary values (16-bit signed integers)
+    LET q_max = QUAD(32767, -32768, 0, 1)
+    WRITEF("Boundary values: %R*N", q_max)
+}

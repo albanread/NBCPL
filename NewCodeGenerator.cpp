@@ -623,6 +623,7 @@ void NewCodeGenerator::visit(BinaryOp& node) {
     bool is_float_op = (left_type == VarType::FLOAT || right_type == VarType::FLOAT);
     bool is_pair_op = (left_type == VarType::PAIR && right_type == VarType::PAIR);
     bool is_fpair_op = (left_type == VarType::FPAIR && right_type == VarType::FPAIR);
+    bool is_quad_op = (left_type == VarType::QUAD && right_type == VarType::QUAD);
     
     // Scalar-PAIR operations: PAIR + scalar or scalar + PAIR
     bool is_scalar_pair_op = ((left_type == VarType::PAIR && right_type == VarType::INTEGER) ||
@@ -635,6 +636,12 @@ void NewCodeGenerator::visit(BinaryOp& node) {
                                (left_type == VarType::FLOAT && right_type == VarType::FPAIR) ||
                                (left_type == VarType::FPAIR && right_type == VarType::INTEGER) ||
                                (left_type == VarType::INTEGER && right_type == VarType::FPAIR));
+    
+    // Scalar-QUAD operations: QUAD + scalar or scalar + QUAD
+    bool is_scalar_quad_op = ((left_type == VarType::QUAD && right_type == VarType::INTEGER) ||
+                              (left_type == VarType::INTEGER && right_type == VarType::QUAD) ||
+                              (left_type == VarType::QUAD && right_type == VarType::FLOAT) ||
+                              (left_type == VarType::FLOAT && right_type == VarType::QUAD));
 
     // ====================== START OF FIX ======================
     // Check if left_reg is a variable's home register from the LinearScanAllocator.
@@ -1071,6 +1078,181 @@ void NewCodeGenerator::visit(BinaryOp& node) {
         
         expression_result_reg_ = left_reg;
         debug_print("PAIR SIMD arithmetic complete. Result in " + expression_result_reg_);
+        return;
+    }
+
+    // Handle QUAD arithmetic operations using NEON SIMD instructions
+    if (is_quad_op && node.op != BinaryOp::Operator::Equal && node.op != BinaryOp::Operator::NotEqual) {
+        debug_print("Generating QUAD arithmetic using NEON SIMD instructions");
+        
+        // Check if we support this operation for QUADs
+        if (node.op != BinaryOp::Operator::Add && 
+            node.op != BinaryOp::Operator::Subtract && 
+            node.op != BinaryOp::Operator::Multiply) {
+            throw std::runtime_error("Unsupported binary operation on QUAD types: only +, -, *, ==, ~= are supported (division not supported for integer QUADs)");
+        }
+        
+        // NEON SIMD approach for optimal performance:
+        // 1. Move QUAD (X register) to NEON D register
+        // 2. Perform SIMD arithmetic using 4H (4x16-bit) format
+        // 3. Move result back to X register
+        
+        // Move left QUAD (X register) to NEON D register
+        std::string left_neon_reg = register_manager_.acquire_fp_scratch_reg();
+        emit(Encoder::create_fmov_x_to_d(left_neon_reg, left_reg));
+        debug_print("Moved left QUAD from " + left_reg + " to NEON register " + left_neon_reg);
+        
+        // Move right QUAD (X register) to NEON D register
+        std::string right_neon_reg = register_manager_.acquire_fp_scratch_reg();
+        emit(Encoder::create_fmov_x_to_d(right_neon_reg, right_reg));
+        debug_print("Moved right QUAD from " + right_reg + " to NEON register " + right_neon_reg);
+        
+        // Perform component-wise arithmetic using 4H (4x16-bit signed integers)
+        switch (node.op) {
+            case BinaryOp::Operator::Add:
+                emit(Encoder::create_add_vector_reg(left_neon_reg, left_neon_reg, right_neon_reg, "4H"));
+                debug_print("QUAD addition: " + left_neon_reg + ".4H + " + right_neon_reg + ".4H");
+                break;
+            case BinaryOp::Operator::Subtract:
+                emit(Encoder::create_sub_vector_reg(left_neon_reg, left_neon_reg, right_neon_reg, "4H"));
+                debug_print("QUAD subtraction: " + left_neon_reg + ".4H - " + right_neon_reg + ".4H");
+                break;
+            case BinaryOp::Operator::Multiply:
+                emit(Encoder::create_mul_vector_reg(left_neon_reg, left_neon_reg, right_neon_reg, "4H"));
+                debug_print("QUAD multiplication: " + left_neon_reg + ".4H * " + right_neon_reg + ".4H");
+                break;
+            default:
+                throw std::runtime_error("Unsupported QUAD operation");
+                break;
+        }
+        
+        // Move result back to X register
+        emit(Encoder::create_fmov_d_to_x(left_reg, left_neon_reg));
+        debug_print("Moved QUAD result from NEON register " + left_neon_reg + " back to " + left_reg);
+        
+        // Release NEON registers
+        register_manager_.release_register(left_neon_reg);
+        register_manager_.release_register(right_neon_reg);
+        register_manager_.release_register(right_reg);
+        
+        expression_result_reg_ = left_reg;
+        debug_print("QUAD SIMD arithmetic complete. Result in " + expression_result_reg_);
+        return;
+    }
+
+    // Handle scalar-QUAD arithmetic operations using NEON SIMD instructions
+    if (is_scalar_quad_op) {
+        debug_print("Generating scalar-QUAD arithmetic using NEON SIMD with DUP instruction");
+        
+        // Check if we support this operation for scalar-QUAD
+        if (node.op != BinaryOp::Operator::Add && 
+            node.op != BinaryOp::Operator::Subtract && 
+            node.op != BinaryOp::Operator::Multiply) {
+            throw std::runtime_error("Unsupported scalar-QUAD operation: only +, -, * are supported");
+        }
+        
+        // Determine which operand is the QUAD and which is the scalar
+        bool quad_is_left = (left_type == VarType::QUAD);
+        std::string quad_reg = quad_is_left ? left_reg : right_reg;
+        std::string scalar_reg;
+        VarType scalar_type = quad_is_left ? right_type : left_type;
+        
+        // Handle constant optimization and scalar register acquisition
+        // Use the constant detection logic from earlier in the function
+        bool quad_right_is_constant = false;
+        int64_t quad_constant_value = 0;
+        if (auto* number_lit = dynamic_cast<NumberLiteral*>(node.right.get())) {
+            if (number_lit->literal_type == NumberLiteral::LiteralType::Integer) {
+                quad_right_is_constant = true;
+                quad_constant_value = number_lit->int_value;
+                debug_print("Right operand is constant: " + std::to_string(quad_constant_value));
+            }
+        }
+        
+        if (quad_is_left && quad_right_is_constant) {
+            // QUAD op constant: load constant into register
+            scalar_reg = register_manager_.get_free_register(*this);
+            emit(Encoder::create_movz_imm(scalar_reg, static_cast<uint64_t>(quad_constant_value)));
+            debug_print("Loaded constant " + std::to_string(quad_constant_value) + " into " + scalar_reg);
+        } else if (!quad_is_left && quad_right_is_constant) {
+            // This shouldn't happen (constant op QUAD), but handle it
+            throw std::runtime_error("Constant-QUAD operations not supported (non-commutative)");
+        } else {
+            // Both are variables/expressions - right_reg is already the scalar register
+            scalar_reg = right_reg;
+        }
+        
+        // Validate scalar type
+        if (scalar_type == VarType::FLOAT) {
+            // For QUAD + FLOAT, we need to convert float to integer for integer vector operations
+            debug_print("Converting QUAD+FLOAT operation requires special handling");
+            throw std::runtime_error("QUAD+FLOAT operations need special type promotion handling");
+        }
+        
+        // Convert scalar to 4H vector using DUP
+        std::string scalar_vector_name = register_manager_.acquire_fp_scratch_reg();
+        std::string scalar_vector_reg = "V" + scalar_vector_name.substr(1);
+        
+        // Convert X register to W register for 16-bit DUP operation
+        std::string scalar_for_dup = scalar_reg;
+        if (scalar_for_dup[0] == 'X') {
+            scalar_for_dup[0] = 'W';
+            debug_print("Converted X register to W register for DUP: " + scalar_for_dup);
+        }
+        
+        emit(Encoder::enc_create_dup_scalar(scalar_vector_reg, scalar_for_dup, "4H"));
+        debug_print("Duplicated scalar " + scalar_for_dup + " to vector " + scalar_vector_reg + ".4H");
+        
+        // Move QUAD to NEON register
+        std::string quad_vector_reg = register_manager_.acquire_fp_scratch_reg();
+        emit(Encoder::create_fmov_x_to_d(quad_vector_reg, quad_reg));
+        debug_print("Moved QUAD from " + quad_reg + " to NEON register " + quad_vector_reg);
+        
+        // Perform component-wise arithmetic
+        // Handle non-commutative operations (subtraction) properly
+        if (!quad_is_left && node.op == BinaryOp::Operator::Subtract) {
+            // scalar - quad: need to swap operands in the vector operation
+            std::string quad_vector_name = "V" + quad_vector_reg.substr(1);
+            emit(Encoder::create_sub_vector_reg(scalar_vector_reg, scalar_vector_reg, quad_vector_name, "4H"));
+            debug_print("Scalar-QUAD subtraction: " + scalar_vector_reg + ".4H - " + quad_vector_name + ".4H");
+            quad_vector_reg = scalar_vector_name; // Result is in scalar vector register
+        } else {
+            // quad op scalar or commutative operations (addition, multiplication)
+            std::string quad_vector_name = "V" + quad_vector_reg.substr(1);
+            switch (node.op) {
+                case BinaryOp::Operator::Add:
+                    emit(Encoder::create_add_vector_reg(quad_vector_name, quad_vector_name, scalar_vector_reg, "4H"));
+                    debug_print("Scalar-QUAD addition: " + quad_vector_name + ".4H + " + scalar_vector_reg + ".4H");
+                    break;
+                case BinaryOp::Operator::Subtract:
+                    emit(Encoder::create_sub_vector_reg(quad_vector_name, quad_vector_name, scalar_vector_reg, "4H"));
+                    debug_print("Scalar-QUAD subtraction: " + quad_vector_name + ".4H - " + scalar_vector_reg + ".4H");
+                    break;
+                case BinaryOp::Operator::Multiply:
+                    emit(Encoder::create_mul_vector_reg(quad_vector_name, quad_vector_name, scalar_vector_reg, "4H"));
+                    debug_print("Scalar-QUAD multiplication: " + quad_vector_name + ".4H * " + scalar_vector_reg + ".4H");
+                    break;
+                default:
+                    throw std::runtime_error("Unsupported operation for QUAD-scalar operations");
+                    break;
+            }
+        }
+        
+        // Move result back to X register
+        emit(Encoder::create_fmov_d_to_x(left_reg, quad_vector_reg));
+        debug_print("Moved scalar-QUAD result from NEON register " + quad_vector_reg + " back to " + left_reg);
+        
+        // Release registers
+        register_manager_.release_register(scalar_vector_name);
+        register_manager_.release_register(quad_vector_reg);
+        if (quad_right_is_constant) {
+            register_manager_.release_register(scalar_reg);
+        } else if (!quad_is_left) {
+            register_manager_.release_register(right_reg);
+        }
+        
+        expression_result_reg_ = left_reg;
+        debug_print("Scalar-QUAD SIMD arithmetic complete. Result in " + expression_result_reg_);
         return;
     }
 

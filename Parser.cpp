@@ -155,11 +155,13 @@ DeclPtr Parser::parse_toplevel_let_declaration() {
     } while (match(TokenType::Comma));
 
     // Allow destructuring assignment: 2 names, 1 initializer (for PAIR/FPAIR unpacking)
+    // or 4 names, 1 initializer (for QUAD unpacking)
     if (names.size() != initializers.size()) {
-      if (names.size() == 2 && initializers.size() == 1) {
+      if ((names.size() == 2 && initializers.size() == 1) || 
+          (names.size() == 4 && initializers.size() == 1)) {
         // This is potentially a destructuring LET declaration - semantic analysis will validate
-        // that the single initializer expression is a PAIR or FPAIR type
-        // Detected potential destructuring LET declaration (2 names, 1 initializer)
+        // that the single initializer expression is a PAIR/FPAIR type (for 2 names) or QUAD type (for 4 names)
+        // Detected potential destructuring LET declaration (2/4 names, 1 initializer)
       } else {
         error("[ERROR-004] Mismatch between number of names and initializers in LET/FLET "
               "declaration.");
@@ -243,13 +245,15 @@ void Parser::parse_let_construct() {
     } while (match(TokenType::Comma));
 
     // Allow destructuring assignment: 2 names, 1 initializer (for PAIR/FPAIR unpacking)
+    // or 4 names, 1 initializer (for QUAD unpacking)
     if (names.size() != initializers.size()) {
-      if (names.size() == 2 && initializers.size() == 1) {
+      if ((names.size() == 2 && initializers.size() == 1) || 
+          (names.size() == 4 && initializers.size() == 1)) {
         // This is potentially a destructuring LET declaration - semantic analysis will validate
-        // that the single initializer expression is a PAIR or FPAIR type
-        // Detected potential destructuring LET declaration (2 names, 1 initializer)
+        // that the single initializer expression is a PAIR/FPAIR type (for 2 names) or QUAD type (for 4 names)
+        // Detected potential destructuring LET declaration (2/4 names, 1 initializer)
       } else {
-        error("[ERROR-001] Mismatch between number of names and initializers in LET/FLET "
+        error("[ERROR-004] Mismatch between number of names and initializers in LET/FLET "
               "declaration.");
         return;
       }

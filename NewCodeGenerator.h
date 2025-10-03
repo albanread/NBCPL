@@ -191,6 +191,8 @@ private:
     void visit(PairAccessExpression& node) override; // New: for PAIR access (.first/.second)
     void visit(FPairExpression& node) override; // New: for FPAIR expressions
     void visit(FPairAccessExpression& node) override; // New: for FPAIR access (.first/.second)
+    void visit(QuadExpression& node) override; // New: for QUAD expressions
+    void visit(QuadAccessExpression& node) override; // New: for QUAD access (.first/.second/.third/.fourth)
 
     void visit(FreeStatement& node) override;
 

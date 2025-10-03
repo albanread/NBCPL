@@ -18,6 +18,8 @@ std::string to_string(ASTNode::NodeType type) {
         case ASTNode::NodeType::PairAccessExpr: return "PairAccessExpression";
         case ASTNode::NodeType::FPairExpr: return "FPairExpression";
         case ASTNode::NodeType::FPairAccessExpr: return "FPairAccessExpression";
+        case ASTNode::NodeType::QuadExpr: return "QuadExpression";
+        case ASTNode::NodeType::QuadAccessExpr: return "QuadAccessExpression";
         // --- ADDED CASES END HERE ---
 
         case ASTNode::NodeType::RetainStmt: return "RetainStatement";

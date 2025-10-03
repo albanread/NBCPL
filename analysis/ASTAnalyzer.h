@@ -168,6 +168,8 @@ class ASTAnalyzer : public ASTVisitor {
     void visit(PairAccessExpression& node) override; // New: for p.first/p.second access
     void visit(FPairExpression& node) override; // New: for fpair(x,y) expressions
     void visit(FPairAccessExpression& node) override; // New: for fp.first/fp.second access
+    void visit(QuadExpression& node) override; // New: for quad(a,b,c,d) expressions
+    void visit(QuadAccessExpression& node) override; // New: for q.first/q.second/q.third/q.fourth access
 
   private:
     std::string current_class_name_; // Tracks the current class context for mangling method names

@@ -14,20 +14,24 @@ void ASTAnalyzer::visit(AssignmentStatement& node) {
     }
 
     // Check for destructuring assignment pattern
-    if (node.lhs.size() == 2 && node.rhs.size() == 1) {
+    if ((node.lhs.size() == 2 && node.rhs.size() == 1) || 
+        (node.lhs.size() == 4 && node.rhs.size() == 1)) {
         // This is potentially a destructuring assignment
         VarType rhs_type = infer_expression_type(node.rhs[0].get());
         
-        if (rhs_type == VarType::PAIR || rhs_type == VarType::FPAIR) {
+        if (rhs_type == VarType::PAIR || rhs_type == VarType::FPAIR || rhs_type == VarType::QUAD) {
             if (trace_enabled_) {
-                std::cerr << "[ASSIGNMENT VISITOR] Processing destructuring assignment for " 
-                          << (rhs_type == VarType::PAIR ? "PAIR" : "FPAIR") << std::endl;
+                std::string type_name = (rhs_type == VarType::PAIR) ? "PAIR" : 
+                                       (rhs_type == VarType::FPAIR) ? "FPAIR" : "QUAD";
+                std::cerr << "[ASSIGNMENT VISITOR] Processing destructuring assignment for " << type_name << std::endl;
             }
             
-            // Handle destructuring: both LHS variables get the component type
-            VarType component_type = (rhs_type == VarType::PAIR) ? VarType::INTEGER : VarType::FLOAT;
+            // Handle destructuring: LHS variables get the component type
+            VarType component_type = (rhs_type == VarType::PAIR) ? VarType::INTEGER : 
+                                   (rhs_type == VarType::FPAIR) ? VarType::FLOAT : VarType::INTEGER;
+            size_t num_components = (rhs_type == VarType::QUAD) ? 4 : 2;
             
-            for (size_t i = 0; i < 2; ++i) {
+            for (size_t i = 0; i < num_components; ++i) {
                 auto* var = dynamic_cast<VariableAccess*>(node.lhs[i].get());
                 if (var) {
                     // Check if this is a class member
@@ -71,8 +75,8 @@ void ASTAnalyzer::visit(AssignmentStatement& node) {
             }
             return; // Early return for destructuring case
         } else {
-            // Invalid destructuring: RHS is not a PAIR/FPAIR
-            std::string error_msg = "Invalid destructuring assignment: RHS must be PAIR or FPAIR type, got " + 
+            // Invalid destructuring: RHS is not a PAIR/FPAIR/QUAD
+            std::string error_msg = "Invalid destructuring assignment: RHS must be PAIR, FPAIR, or QUAD type, got " + 
                                   var_type_to_string(rhs_type);
             std::cerr << "[SEMANTIC ERROR] " << error_msg << std::endl;
             semantic_errors_.push_back(error_msg);

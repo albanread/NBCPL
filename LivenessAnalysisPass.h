@@ -95,6 +95,8 @@ public:
     void visit(PairAccessExpression& node) override;
     void visit(FPairExpression& node) override;
     void visit(FPairAccessExpression& node) override;
+    void visit(QuadExpression& node) override;
+    void visit(QuadAccessExpression& node) override;
     void visit(MemberAccessExpression& node) override;
     void visit(SuperMethodCallExpression& node) override;
     void visit(NewExpression& node) override;

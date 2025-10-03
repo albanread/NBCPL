@@ -187,13 +187,16 @@ ExprPtr Parser::parse_expression(int precedence) {
             std::string member_name = current_token_.value;
             consume(TokenType::Identifier, "Expect member name after '.' operator.");
             
-            // Special handling for .first and .second on pairs and fpairs
-            if (member_name == "first" || member_name == "second") {
-                // For now, use PairAccessExpression for both PAIR and FPAIR
-                // Type analysis will distinguish between them later
-                PairAccessExpression::AccessType access_type = 
-                    (member_name == "first") ? PairAccessExpression::FIRST : PairAccessExpression::SECOND;
-                left = std::make_unique<PairAccessExpression>(std::move(left), access_type);
+            // Special handling for component access on packed types
+            if (member_name == "first" || member_name == "second" || member_name == "third" || member_name == "fourth") {
+                // Use QuadAccessExpression for all component access - it can handle both PAIR and QUAD
+                // Semantic analysis will validate that only valid components are accessed for each type
+                QuadAccessExpression::AccessType access_type;
+                if (member_name == "first") access_type = QuadAccessExpression::FIRST;
+                else if (member_name == "second") access_type = QuadAccessExpression::SECOND;
+                else if (member_name == "third") access_type = QuadAccessExpression::THIRD;
+                else access_type = QuadAccessExpression::FOURTH;
+                left = std::make_unique<QuadAccessExpression>(std::move(left), access_type);
             } else {
                 // Regular member access
                 auto member_access_expr = std::make_unique<MemberAccessExpression>(std::move(left), member_name);
@@ -277,6 +280,21 @@ ExprPtr Parser::parse_primary_expression() {
         ExprPtr second_expr = parse_expression();
         consume(TokenType::RParen, "Expect ')' after fpair elements");
         return std::make_unique<FPairExpression>(std::move(first_expr), std::move(second_expr));
+    }
+
+    // --- QUAD expression parsing ---
+    if (match(TokenType::Quad)) {
+        consume(TokenType::LParen, "Expect '(' after 'quad'");
+        ExprPtr first_expr = parse_expression();
+        consume(TokenType::Comma, "Expect ',' between quad elements");
+        ExprPtr second_expr = parse_expression();
+        consume(TokenType::Comma, "Expect ',' between quad elements");
+        ExprPtr third_expr = parse_expression();
+        consume(TokenType::Comma, "Expect ',' between quad elements");
+        ExprPtr fourth_expr = parse_expression();
+        consume(TokenType::RParen, "Expect ')' after quad elements");
+        return std::make_unique<QuadExpression>(std::move(first_expr), std::move(second_expr), 
+                                               std::move(third_expr), std::move(fourth_expr));
     }
 
     // --- NEW LOGIC FOR BUILT-IN TYPE CONSTANTS ---

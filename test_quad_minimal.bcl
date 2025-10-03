@@ -1,0 +1,8 @@
+LET START() BE {
+    // Test basic QUAD construction
+    LET q1 = QUAD(1, 2, 3, 4)
+    WRITEF("Basic QUAD: %R*N", q1)
+
+    // Test QUAD hex display
+    WRITEF("Hex representation: %X*N", q1)
+}

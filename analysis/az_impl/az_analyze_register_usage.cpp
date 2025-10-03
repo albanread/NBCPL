@@ -79,6 +79,11 @@ void ASTAnalyzer::analyze_node_for_register_usage(ASTNode* node, FunctionMetrics
     } else if (auto* fpair_expr = dynamic_cast<FPairExpression*>(node)) {
         analyze_node_for_register_usage(fpair_expr->first_expr.get(), metrics);
         analyze_node_for_register_usage(fpair_expr->second_expr.get(), metrics);
+    } else if (auto* quad_expr = dynamic_cast<QuadExpression*>(node)) {
+        analyze_node_for_register_usage(quad_expr->first_expr.get(), metrics);
+        analyze_node_for_register_usage(quad_expr->second_expr.get(), metrics);
+        analyze_node_for_register_usage(quad_expr->third_expr.get(), metrics);
+        analyze_node_for_register_usage(quad_expr->fourth_expr.get(), metrics);
     }
     // Function calls don't need analysis here - they're the terminators we're looking for
 }
@@ -158,12 +163,23 @@ bool ASTAnalyzer::expression_contains_function_call(ASTNode* expr) const {
                expression_contains_function_call(fpair_expr->second_expr.get());
     }
     
+    if (auto* quad_expr = dynamic_cast<QuadExpression*>(expr)) {
+        return expression_contains_function_call(quad_expr->first_expr.get()) ||
+               expression_contains_function_call(quad_expr->second_expr.get()) ||
+               expression_contains_function_call(quad_expr->third_expr.get()) ||
+               expression_contains_function_call(quad_expr->fourth_expr.get());
+    }
+    
     if (auto* pair_access = dynamic_cast<PairAccessExpression*>(expr)) {
         return expression_contains_function_call(pair_access->pair_expr.get());
     }
     
     if (auto* fpair_access = dynamic_cast<FPairAccessExpression*>(expr)) {
         return expression_contains_function_call(fpair_access->pair_expr.get());
+    }
+    
+    if (auto* quad_access = dynamic_cast<QuadAccessExpression*>(expr)) {
+        return expression_contains_function_call(quad_access->quad_expr.get());
     }
     
     if (auto* member_access = dynamic_cast<MemberAccessExpression*>(expr)) {

@@ -1,0 +1,31 @@
+LET START() BE {
+    // Test 1: Basic QUAD construction with literals
+    WRITEF("=== QUAD Debug Test ===%N")
+
+    // Test 2: Simple QUAD with small values
+    LET q1 = QUAD(1, 2, 3, 4)
+    WRITEF("Created QUAD(1, 2, 3, 4)%N")
+
+    // Test 3: Check hex representation first
+    WRITEF("q1 hex: %X%N", q1)
+
+    // Test 4: Try component access
+    WRITEF("Testing component access:%N")
+    LET a = q1.first
+    WRITEF("q1.first = %N%N", a)
+
+    LET b = q1.second
+    WRITEF("q1.second = %N%N", b)
+
+    LET c = q1.third
+    WRITEF("q1.third = %N%N", c)
+
+    LET d = q1.fourth
+    WRITEF("q1.fourth = %N%N", d)
+
+    // Test 5: Try the R format last
+    WRITEF("Attempting %%R format:%N")
+    WRITEF("q1 = %R%N", q1)
+
+    WRITEF("=== End Test ===%N")
+}

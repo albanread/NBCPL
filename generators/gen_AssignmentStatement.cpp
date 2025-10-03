@@ -21,61 +21,87 @@ void NewCodeGenerator::visit(AssignmentStatement& node) {
         }
     }
 
-    // Check for destructuring assignment pattern (2 LHS, 1 RHS with PAIR/FPAIR)
-    if (node.lhs.size() == 2 && node.rhs.size() == 1) {
+    // Check for destructuring assignment pattern (2/4 LHS, 1 RHS with PAIR/FPAIR/QUAD)
+    if ((node.lhs.size() == 2 && node.rhs.size() == 1) || 
+        (node.lhs.size() == 4 && node.rhs.size() == 1)) {
         VarType rhs_type = infer_expression_type_local(node.rhs[0].get());
         
-        if (rhs_type == VarType::PAIR || rhs_type == VarType::FPAIR) {
-            std::string type_name = (rhs_type == VarType::PAIR ? "PAIR" : "FPAIR");
+        if (rhs_type == VarType::PAIR || rhs_type == VarType::FPAIR || rhs_type == VarType::QUAD) {
+            std::string type_name = (rhs_type == VarType::PAIR) ? "PAIR" : 
+                                   (rhs_type == VarType::FPAIR) ? "FPAIR" : "QUAD";
             debug_print("Processing destructuring assignment for " + type_name);
             
-            // Evaluate the single RHS expression (PAIR/FPAIR)
+            // Evaluate the single RHS expression (PAIR/FPAIR/QUAD)
             generate_expression_code(*node.rhs[0]);
             std::string packed_reg = expression_result_reg_;
             
-            // Extract the first component (lower 32 bits)
-            std::string first_component_reg = register_manager_.acquire_scratch_reg(*this);
-            emit(Encoder::opt_create_ubfx(first_component_reg, packed_reg, 0, 32));
-            
-            // Extract the second component (upper 32 bits)
-            std::string second_component_reg = register_manager_.acquire_scratch_reg(*this);
-            emit(Encoder::opt_create_ubfx(second_component_reg, packed_reg, 32, 32));
-            
-            // If FPAIR, convert bit patterns to floating-point registers
-            if (rhs_type == VarType::FPAIR) {
-                std::string first_fp_reg = register_manager_.acquire_fp_scratch_reg();
-                std::string second_fp_reg = register_manager_.acquire_fp_scratch_reg();
+            if (rhs_type == VarType::QUAD) {
+                // QUAD destructuring: extract four 16-bit components
+                std::vector<std::string> component_regs;
                 
-                emit(Encoder::create_fmov_w_to_s(first_fp_reg, first_component_reg));
-                emit(Encoder::create_fmov_w_to_s(second_fp_reg, second_component_reg));
+                for (int i = 0; i < 4; i++) {
+                    std::string component_reg = register_manager_.acquire_scratch_reg(*this);
+                    emit(Encoder::opt_create_sbfx(component_reg, packed_reg, i * 16, 16));
+                    component_regs.push_back(component_reg);
+                }
                 
+                // Assign to LHS variables
+                for (int i = 0; i < 4; i++) {
+                    if (auto* var = dynamic_cast<VariableAccess*>(node.lhs[i].get())) {
+                        handle_variable_assignment(var, component_regs[i]);
+                    } else {
+                        throw std::runtime_error("Destructuring assignment: LHS element " + std::to_string(i) + " must be a variable");
+                    }
+                    register_manager_.release_register(component_regs[i]);
+                }
+                
+                register_manager_.release_register(packed_reg);
+                debug_print("Finished QUAD destructuring assignment");
+                return;
+            } else {
+                // PAIR/FPAIR destructuring: extract two 32-bit components
+                std::string first_component_reg = register_manager_.acquire_scratch_reg(*this);
+                emit(Encoder::opt_create_sbfx(first_component_reg, packed_reg, 0, 32));
+                
+                std::string second_component_reg = register_manager_.acquire_scratch_reg(*this);
+                emit(Encoder::opt_create_sbfx(second_component_reg, packed_reg, 32, 32));
+                
+                // If FPAIR, convert bit patterns to floating-point registers
+                if (rhs_type == VarType::FPAIR) {
+                    std::string first_fp_reg = register_manager_.acquire_fp_scratch_reg();
+                    std::string second_fp_reg = register_manager_.acquire_fp_scratch_reg();
+                    
+                    emit(Encoder::create_fmov_w_to_s(first_fp_reg, first_component_reg));
+                    emit(Encoder::create_fmov_w_to_s(second_fp_reg, second_component_reg));
+                    
+                    register_manager_.release_register(first_component_reg);
+                    register_manager_.release_register(second_component_reg);
+                    
+                    first_component_reg = first_fp_reg;
+                    second_component_reg = second_fp_reg;
+                }
+                
+                // Assign to LHS variables
+                if (auto* var1 = dynamic_cast<VariableAccess*>(node.lhs[0].get())) {
+                    handle_variable_assignment(var1, first_component_reg);
+                } else {
+                    throw std::runtime_error("Destructuring assignment: first LHS must be a variable");
+                }
+                
+                if (auto* var2 = dynamic_cast<VariableAccess*>(node.lhs[1].get())) {
+                    handle_variable_assignment(var2, second_component_reg);
+                } else {
+                    throw std::runtime_error("Destructuring assignment: second LHS must be a variable");
+                }
+                
+                // Clean up registers
+                register_manager_.release_register(packed_reg);
                 register_manager_.release_register(first_component_reg);
                 register_manager_.release_register(second_component_reg);
                 
-                first_component_reg = first_fp_reg;
-                second_component_reg = second_fp_reg;
+                debug_print("Finished PAIR/FPAIR destructuring assignment");
+                return;
             }
-            
-            // Assign to LHS variables
-            if (auto* var1 = dynamic_cast<VariableAccess*>(node.lhs[0].get())) {
-                handle_variable_assignment(var1, first_component_reg);
-            } else {
-                throw std::runtime_error("Destructuring assignment: first LHS must be a variable");
-            }
-            
-            if (auto* var2 = dynamic_cast<VariableAccess*>(node.lhs[1].get())) {
-                handle_variable_assignment(var2, second_component_reg);
-            } else {
-                throw std::runtime_error("Destructuring assignment: second LHS must be a variable");
-            }
-            
-            // Clean up registers
-            register_manager_.release_register(packed_reg);
-            register_manager_.release_register(first_component_reg);
-            register_manager_.release_register(second_component_reg);
-            
-            debug_print("Finished destructuring assignment");
-            return;
         }
     }
     

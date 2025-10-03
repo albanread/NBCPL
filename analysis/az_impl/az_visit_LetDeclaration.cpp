@@ -38,20 +38,24 @@ void ASTAnalyzer::visit(LetDeclaration& node) {
     }
     
     // Check for destructuring LET declaration pattern
-    if (node.names.size() == 2 && node.initializers.size() == 1) {
+    if ((node.names.size() == 2 && node.initializers.size() == 1) || 
+        (node.names.size() == 4 && node.initializers.size() == 1)) {
         // This is potentially a destructuring LET declaration
         VarType initializer_type = infer_expression_type(node.initializers[0].get());
         
-        if (initializer_type == VarType::PAIR || initializer_type == VarType::FPAIR) {
+        if (initializer_type == VarType::PAIR || initializer_type == VarType::FPAIR || initializer_type == VarType::QUAD) {
             if (trace_enabled_) {
-                std::cerr << "[LET DECLARATION VISITOR] Processing destructuring declaration for " 
-                          << (initializer_type == VarType::PAIR ? "PAIR" : "FPAIR") << std::endl;
+                std::string type_name = (initializer_type == VarType::PAIR) ? "PAIR" : 
+                                       (initializer_type == VarType::FPAIR) ? "FPAIR" : "QUAD";
+                std::cerr << "[LET DECLARATION VISITOR] Processing destructuring declaration for " << type_name << std::endl;
             }
             
-            // Handle destructuring: both variables get the component type
-            VarType component_type = (initializer_type == VarType::PAIR) ? VarType::INTEGER : VarType::FLOAT;
+            // Handle destructuring: variables get the component type
+            VarType component_type = (initializer_type == VarType::PAIR) ? VarType::INTEGER : 
+                                   (initializer_type == VarType::FPAIR) ? VarType::FLOAT : VarType::INTEGER;
+            size_t num_components = (initializer_type == VarType::QUAD) ? 4 : 2;
             
-            for (size_t i = 0; i < 2; ++i) {
+            for (size_t i = 0; i < num_components; ++i) {
                 const std::string& name = node.names[i];
                 
                 // Check if we're in a class method context and this is a class member
@@ -102,8 +106,8 @@ void ASTAnalyzer::visit(LetDeclaration& node) {
             }
             return; // Early return for destructuring case
         } else {
-            // Invalid destructuring: initializer is not a PAIR/FPAIR
-            std::string error_msg = "Invalid destructuring LET declaration: initializer must be PAIR or FPAIR type, got " + 
+            // Invalid destructuring: initializer is not a PAIR/FPAIR/QUAD
+            std::string error_msg = "Invalid destructuring LET declaration: initializer must be PAIR, FPAIR, or QUAD type, got " + 
                                   vartype_to_string(initializer_type);
             std::cerr << "[SEMANTIC ERROR] " << error_msg << std::endl;
             semantic_errors_.push_back(error_msg);

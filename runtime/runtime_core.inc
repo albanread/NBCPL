@@ -291,6 +291,14 @@ static void WRITEF_impl(uint32_t* format_str, int64_t* args, int argc) {
                         printf("(%g, %g)", u.f[0], u.f[1]);
                         break;
                     }
+                    case 'R': { // QUAD: four 16-bit signed ints packed in int64_t
+                        int16_t a = (int16_t)(args[args_used] & 0xFFFF);
+                        int16_t b = (int16_t)((args[args_used] >> 16) & 0xFFFF);
+                        int16_t c = (int16_t)((args[args_used] >> 32) & 0xFFFF);
+                        int16_t d = (int16_t)((args[args_used] >> 48) & 0xFFFF);
+                        printf("(%d, %d, %d, %d)", a, b, c, d);
+                        break;
+                    }
                     case 'c':
                         write_utf8_char(args[args_used]);
                         break;

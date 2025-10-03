@@ -16,7 +16,7 @@ enum class TokenType {
     Virtual, Final,
     Class, Extends, New, Decl, // Added Decl for DECL keyword
     Public, Private, Protected, // Added for visibility modifiers
-    Vec, FVec, Pair, FPair, If, Unless, Test, While, Until, Repeat, For, ForEach, FForeach, In, Switchon,
+    Vec, FVec, Pair, FPair, Quad, If, Unless, Test, While, Until, Repeat, For, ForEach, FForeach, In, Switchon,
     Case, Default, Goto, Return, Finish, Loop, Endcase, Resultis,
     Valof, FValof, Be, To, By, Into, Do, Or, Break, Get, FLet,
     Then, Else,

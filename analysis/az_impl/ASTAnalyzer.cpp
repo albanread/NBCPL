@@ -770,11 +770,17 @@ VarType ASTAnalyzer::infer_expression_type(const Expression* expr) const {
             case ASTNode::NodeType::FPairExpr:
                 return VarType::FPAIR;
                 
+            case ASTNode::NodeType::QuadExpr:
+                return VarType::QUAD;
+                
             case ASTNode::NodeType::PairAccessExpr:
                 return VarType::INTEGER;  // .first and .second return integers
                 
             case ASTNode::NodeType::FPairAccessExpr:
                 return VarType::FLOAT;  // .first and .second return floats for FPAIR
+                
+            case ASTNode::NodeType::QuadAccessExpr:
+                return VarType::INTEGER;  // .first/.second/.third/.fourth return integers for QUAD
                 
             default:
                 if (trace_enabled_) {
@@ -1008,6 +1014,11 @@ VarType ASTAnalyzer::infer_binary_op_type(const BinaryOp* bin_op) const {
             return VarType::INTEGER;
         }
         
+        // For QUAD types, both operands must be QUAD
+        if (left_type == VarType::QUAD && right_type == VarType::QUAD) {
+            return VarType::INTEGER;
+        }
+        
         // For scalar types, allow standard comparisons
         if ((left_type == VarType::INTEGER || left_type == VarType::FLOAT) &&
             (right_type == VarType::INTEGER || right_type == VarType::FLOAT)) {
@@ -1030,9 +1041,10 @@ VarType ASTAnalyzer::infer_binary_op_type(const BinaryOp* bin_op) const {
         bin_op->op == BinaryOp::Operator::Greater ||
         bin_op->op == BinaryOp::Operator::GreaterEqual) {
         
-        // PAIR types don't support ordering comparisons
-        if (left_type == VarType::PAIR || right_type == VarType::PAIR) {
-            throw std::runtime_error("PAIR types do not support ordering comparisons (<, <=, >, >=)");
+        // PAIR and QUAD types don't support ordering comparisons
+        if (left_type == VarType::PAIR || right_type == VarType::PAIR || 
+            left_type == VarType::QUAD || right_type == VarType::QUAD) {
+            throw std::runtime_error("PAIR and QUAD types do not support ordering comparisons (<, <=, >, >=)");
         }
         
         return VarType::INTEGER;
@@ -1055,6 +1067,17 @@ VarType ASTAnalyzer::infer_binary_op_type(const BinaryOp* bin_op) const {
         }
     }
     
+    // For arithmetic operations with QUAD types: QUAD OP QUAD = QUAD
+    if (left_type == VarType::QUAD && right_type == VarType::QUAD) {
+        // Only allow arithmetic operations on QUADs
+        if (bin_op->op == BinaryOp::Operator::Add ||
+            bin_op->op == BinaryOp::Operator::Subtract ||
+            bin_op->op == BinaryOp::Operator::Multiply ||
+            bin_op->op == BinaryOp::Operator::Divide) {
+            return VarType::QUAD;
+        }
+    }
+    
     // For arithmetic operations with FPAIR types: FPAIR OP FPAIR = FPAIR
     if (left_type == VarType::FPAIR && right_type == VarType::FPAIR) {
         // Only allow arithmetic operations on FPAIRs
@@ -1074,6 +1097,17 @@ VarType ASTAnalyzer::infer_binary_op_type(const BinaryOp* bin_op) const {
             bin_op->op == BinaryOp::Operator::Multiply ||
             bin_op->op == BinaryOp::Operator::Divide) {
             return VarType::PAIR;
+        }
+    }
+    
+    // For scalar-QUAD operations: QUAD OP INTEGER = QUAD, INTEGER OP QUAD = QUAD
+    if ((left_type == VarType::QUAD && right_type == VarType::INTEGER) ||
+        (left_type == VarType::INTEGER && right_type == VarType::QUAD)) {
+        if (bin_op->op == BinaryOp::Operator::Add ||
+            bin_op->op == BinaryOp::Operator::Subtract ||
+            bin_op->op == BinaryOp::Operator::Multiply ||
+            bin_op->op == BinaryOp::Operator::Divide) {
+            return VarType::QUAD;
         }
     }
     

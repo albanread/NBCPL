@@ -1,0 +1,15 @@
+LET START() BE {
+    LET q1 = QUAD(1, 2, 3, 4)
+
+    LET a = q1.first
+    LET b = q1.second
+    LET c = q1.third
+    LET d = q1.fourth
+
+    WRITEF("First: %N*N", a)
+    WRITEF("Second: %N*N", b)
+    WRITEF("Third: %N*N", c)
+    WRITEF("Fourth: %N*N", d)
+
+    WRITEF("Hex: %X*N", q1)
+}

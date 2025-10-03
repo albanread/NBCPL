@@ -71,6 +71,7 @@ public:
         SuperMethodAccessExpr, // New: For SUPER.method access
         PairExpr, PairAccessExpr, // New: For pair(x,y) and p.first/p.second
         FPairExpr, FPairAccessExpr, // New: For fpair(x,y) and fp.first/fp.second
+        QuadExpr, QuadAccessExpr, // New: For quad(a,b,c,d) and q.first/q.second/q.third/q.fourth
         ConditionalExpr, ValofExpr, FloatValofExpr, VecAllocationExpr, FVecAllocationExpr, StringAllocationExpr, TableExpr,
         VecInitializerExpr, // Add this new type
         AssignmentStmt, RoutineCallStmt, IfStmt, UnlessStmt, TestStmt, WhileStmt, UntilStmt,
@@ -708,6 +709,41 @@ public:
     
     FPairExpression(ExprPtr first, ExprPtr second) 
         : Expression(NodeType::FPairExpr), first_expr(std::move(first)), second_expr(std::move(second)) {}
+        
+    void accept(ASTVisitor& visitor) override;
+    ASTNodePtr clone() const override;
+};
+
+class QuadExpression : public Expression {
+public:
+    ExprPtr first_expr;
+    ExprPtr second_expr;
+    ExprPtr third_expr;
+    ExprPtr fourth_expr;
+    
+    QuadExpression(ExprPtr first, ExprPtr second, ExprPtr third, ExprPtr fourth) 
+        : Expression(NodeType::QuadExpr), first_expr(std::move(first)), second_expr(std::move(second)), 
+          third_expr(std::move(third)), fourth_expr(std::move(fourth)) {}
+        
+    bool is_literal() const override { 
+        return first_expr && second_expr && third_expr && fourth_expr &&
+               first_expr->is_literal() && second_expr->is_literal() && 
+               third_expr->is_literal() && fourth_expr->is_literal(); 
+    }
+        
+    void accept(ASTVisitor& visitor) override;
+    ASTNodePtr clone() const override;
+};
+
+class QuadAccessExpression : public Expression {
+public:
+    enum AccessType { FIRST, SECOND, THIRD, FOURTH };
+    
+    ExprPtr quad_expr;
+    AccessType access_type;
+    
+    QuadAccessExpression(ExprPtr quad, AccessType type) 
+        : Expression(NodeType::QuadAccessExpr), quad_expr(std::move(quad)), access_type(type) {}
         
     void accept(ASTVisitor& visitor) override;
     ASTNodePtr clone() const override;

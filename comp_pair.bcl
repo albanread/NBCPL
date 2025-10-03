@@ -3,6 +3,8 @@ LET START() BE $(
 LET P1 = PAIR(10,10)
 LET P2 = PAIR(10,-10)
 LET P3 = PAIR(11,10)
+LET P4 = PAIR(-2, -2)
+
 
 WRITEF("P1=%P, P2=%P, P3=%P*N", P1, P2, P3)
 
@@ -17,5 +19,19 @@ WRITEF("x1=%d, y1=%d*N", px1, py1)
 
 WRITEF("P1 hex %X first = %d, second=%d*N", P1, P1.first, P1.second)
 WRITEF("P2 hex %X first = %d, second=%d*N", P2, P2.first, P2.second)
+WRITEF("P4 hex %X first = %d, second=%d*N", P4, P4.first, P4.second)
 
+LET P5 = P3 + P4
+// WRITEF("P4 hex %X first = %d, second=%d*N", P4, P4.first, P4.second)
+
+WRITES("P5 = P3 + P4*N")
+WRITEF("P5 hex %X first = %d, second=%d*N", P5, P5.first, P5.second)
+
+LET a,b = P1
+
+WRITEF("a=%d, b=%d*N", a,b)
+
+LET c, d = P2
+
+WRITEF("c=%d, d=%d*N", c,d)
 $)

@@ -41,6 +41,17 @@ public:
         std::u32string value;
     };
 
+    // Hash function for std::tuple to use in unordered_map for quads
+    struct QuadHash {
+        std::size_t operator()(const std::tuple<int64_t, int64_t, int64_t, int64_t>& q) const {
+            auto h1 = std::hash<int64_t>{}(std::get<0>(q));
+            auto h2 = std::hash<int64_t>{}(std::get<1>(q));
+            auto h3 = std::hash<int64_t>{}(std::get<2>(q));
+            auto h4 = std::hash<int64_t>{}(std::get<3>(q));
+            return h1 ^ (h2 << 1) ^ (h3 << 2) ^ (h4 << 3);
+        }
+    };
+
     // Hash function for std::pair to use in unordered_map
     struct PairHash {
         std::size_t operator()(const std::pair<int64_t, int64_t>& p) const {
@@ -75,6 +86,20 @@ public:
         size_t length;
     };
 
+    struct PairLiteralInfo {
+        std::string label;
+        int64_t first_value;
+        int64_t second_value;
+    };
+
+    struct QuadLiteralInfo {
+        std::string label;
+        int64_t first_value;
+        int64_t second_value;
+        int64_t third_value;
+        int64_t fourth_value;
+    };
+
     // Memoization: map canonical string key to generated header label
     std::unordered_map<std::string, std::string> list_literal_label_map;
 
@@ -88,6 +113,7 @@ public:
     std::string add_string_literal(const std::string& value);
     std::string add_float_literal(double value);
     std::string add_pair_literal(int64_t first_value, int64_t second_value);
+    std::string add_quad_literal(int64_t first_value, int64_t second_value, int64_t third_value, int64_t fourth_value);
 
     // Emit all interned strings from the string table
     void emit_interned_strings();
@@ -145,6 +171,10 @@ private:
     size_t next_pair_id_ = 0;
     std::unordered_map<std::pair<int64_t, int64_t>, std::string, PairHash> pair_literal_map_;
     std::vector<PairLiteralInfo> pair_literals_;
+
+    size_t next_quad_id_ = 0;
+    std::unordered_map<std::tuple<int64_t, int64_t, int64_t, int64_t>, std::string, QuadHash> quad_literal_map_;
+    std::vector<QuadLiteralInfo> quad_literals_;
 
     // String interning: map string content to generated label
     std::map<std::string, std::string> interned_strings_;

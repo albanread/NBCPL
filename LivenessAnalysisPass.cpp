@@ -362,6 +362,19 @@ void LivenessAnalysisPass::visit(FPairAccessExpression& node) {
     if (node.pair_expr) node.pair_expr->accept(*this);
 }
 
+void LivenessAnalysisPass::visit(QuadExpression& node) {
+    if (node.first_expr) node.first_expr->accept(*this);
+    if (node.second_expr) node.second_expr->accept(*this);
+    if (node.third_expr) node.third_expr->accept(*this);
+    if (node.fourth_expr) node.fourth_expr->accept(*this);
+}
+
+void LivenessAnalysisPass::visit(QuadAccessExpression& node) {
+    // When accessing .first/.second/.third/.fourth,
+    // we must visit the underlying quad expression to mark it as live
+    if (node.quad_expr) node.quad_expr->accept(*this);
+}
+
 void LivenessAnalysisPass::visit(MemberAccessExpression& node) {
     if (node.object_expr) node.object_expr->accept(*this);
 }

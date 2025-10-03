@@ -167,6 +167,22 @@ std::string DataGenerator::add_pair_literal(int64_t first_value, int64_t second_
     return label;
 }
 
+std::string DataGenerator::add_quad_literal(int64_t first_value, int64_t second_value, int64_t third_value, int64_t fourth_value) {
+    std::tuple<int64_t, int64_t, int64_t, int64_t> quad_key = {first_value, second_value, third_value, fourth_value};
+    
+    // Check if we've already generated this quad literal
+    auto it = quad_literal_map_.find(quad_key);
+    if (it != quad_literal_map_.end()) {
+        return it->second;
+    }
+    
+    // Generate new label and store the quad literal
+    std::string label = "L_quad" + std::to_string(next_quad_id_++);
+    quad_literal_map_[quad_key] = label;
+    quad_literals_.push_back({label, first_value, second_value, third_value, fourth_value});
+    return label;
+}
+
 // Other add methods like add_table_literal...
 std::string DataGenerator::add_table_literal(const std::vector<ExprPtr>& initializers) {
     std::string label = "L_tbl" + std::to_string(next_table_id_++);
@@ -336,6 +352,18 @@ void DataGenerator::generate_rodata_section(InstructionStream& stream) {
             std::memcpy(&float_bits, &v, sizeof(uint64_t));
             stream.add_data64(float_bits, "", SegmentType::RODATA);
         }
+    }
+
+    // Emit Quad Literals
+    for (const auto& info : quad_literals_) {
+        stream.add(Instruction::as_label(info.label, SegmentType::RODATA));
+        // Pack four 16-bit values into a single 64-bit word
+        // First value in bits 0-15, second in 16-31, third in 32-47, fourth in 48-63
+        uint64_t packed_quad = (static_cast<uint64_t>(info.first_value) & 0xFFFF) |
+                               ((static_cast<uint64_t>(info.second_value) & 0xFFFF) << 16) |
+                               ((static_cast<uint64_t>(info.third_value) & 0xFFFF) << 32) |
+                               ((static_cast<uint64_t>(info.fourth_value) & 0xFFFF) << 48);
+        stream.add_data64(packed_quad, "", SegmentType::RODATA);
     }
 
     // Emit Pair Literals

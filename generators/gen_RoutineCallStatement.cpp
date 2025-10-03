@@ -78,6 +78,9 @@ std::vector<FormatSpecifier> parse_format_string(const std::string& format_str) 
                     case 'Q':
                         expected_type = VarType::FPAIR;
                         break;
+                    case 'R':
+                        expected_type = VarType::QUAD;
+                        break;
                     case '%':
                         // %% is literal % - doesn't consume an argument
                         expected_type = VarType::UNKNOWN;

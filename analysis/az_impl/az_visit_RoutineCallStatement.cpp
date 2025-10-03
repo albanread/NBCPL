@@ -162,7 +162,7 @@ std::vector<char> ASTAnalyzer::parse_writef_format_string(const std::string& for
             // This is the CRITICAL fix ensuring %P is counted.
             if (spec == 'd' || spec == 'f' || spec == 's' || spec == 'P' || spec == 'Q' ||
                 spec == 'S' || spec == 'N' || spec == 'F' || spec == 'x' || spec == 'X' ||
-                spec == 'o' || spec == 'c') {
+                spec == 'o' || spec == 'c' || spec == 'R') {
 
                 // Pushes the character as seen, letting the type checker handle its meaning.
                 specifiers.push_back(spec);
@@ -190,6 +190,7 @@ VarType ASTAnalyzer::get_expected_type_for_writef_specifier(char specifier) {
         case 's': return VarType::STRING;
         case 'P': return VarType::PAIR;
         case 'Q': return VarType::FPAIR;
+        case 'R': return VarType::QUAD;
         default: return VarType::UNKNOWN;
     }
 }
@@ -254,6 +255,7 @@ std::string ASTAnalyzer::var_type_to_string(VarType type) {
         case VarType::ANY:          base_type_str = "ANY"; break;
         case VarType::PAIR:         base_type_str = "PAIR"; break;
         case VarType::FPAIR:        base_type_str = "FPAIR"; break;
+        case VarType::QUAD:         base_type_str = "QUAD"; break;
 
         // Container Types
         case VarType::VEC:          base_type_str = "VEC"; break;

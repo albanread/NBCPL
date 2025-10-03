@@ -115,6 +115,8 @@ public:
     virtual void visit(PairAccessExpression& node) {} // New: for p.first/p.second access
     virtual void visit(FPairExpression& node) {} // New: for fpair(x,y) expressions
     virtual void visit(FPairAccessExpression& node) {} // New: for fp.first/fp.second access
+    virtual void visit(QuadExpression& node) {} // New: for quad(a,b,c,d) expressions
+    virtual void visit(QuadAccessExpression& node) {} // New: for q.first/q.second/q.third/q.fourth access
 
     // --- Statements ---
     virtual void visit(AssignmentStatement& node) {}

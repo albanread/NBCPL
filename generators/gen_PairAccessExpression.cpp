@@ -25,11 +25,11 @@ void NewCodeGenerator::visit(PairAccessExpression& node) {
     std::string result_reg = register_manager.get_free_register(*this);
     
     if (node.access_type == PairAccessExpression::FIRST) {
-        // Extract lower 32 bits (bits 0-31) using UBFX
-        // UBFX rd, rn, #lsb, #width
-        // Extract 32 bits starting from bit 0
-        emit(Encoder::opt_create_ubfx(result_reg, pair_reg, 0, 32));
-        debug_print("Extracted first (bits 0-31) from pair using UBFX");
+        // Extract lower 32 bits (bits 0-31) using SBFX for signed values
+        // SBFX rd, rn, #lsb, #width - Sign-extends the extracted field
+        // Both first and second values are signed 32-bit integers
+        emit(Encoder::opt_create_sbfx(result_reg, pair_reg, 0, 32));
+        debug_print("Extracted first (bits 0-31) from pair using SBFX for sign extension");
     } else { // SECOND
         // Extract upper 32 bits (bits 32-63) using SBFX for signed values
         // SBFX rd, rn, #lsb, #width - Sign-extends the extracted field

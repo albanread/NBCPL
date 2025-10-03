@@ -1,0 +1,47 @@
+LET START() BE {
+    // Test different variable patterns to isolate register reuse issues
+
+    WRITEF("=== QUAD Variable Construction Test ===*N")
+
+    // Test 1: Simple variables
+    WRITEF("Test 1: Simple variables*N")
+    LET a = 1
+    LET b = 2
+    LET c = 3
+    LET d = 4
+    LET q1 = QUAD(a, b, c, d)
+    WRITEF("Variables: a=%N b=%N c=%N d=%N*N", a, b, c, d)
+    WRITEF("QUAD hex: %X*N", q1)
+    WRITEF("Components: %N %N %N %N*N", q1.first, q1.second, q1.third, q1.fourth)
+
+    // Test 2: Different variable names
+    WRITEF("Test 2: Different variable names*N")
+    LET x = 10
+    LET y = 20
+    LET z = 30
+    LET w = 40
+    LET q2 = QUAD(x, y, z, w)
+    WRITEF("Variables: x=%N y=%N z=%N w=%N*N", x, y, z, w)
+    WRITEF("QUAD hex: %X*N", q2)
+    WRITEF("Components: %N %N %N %N*N", q2.first, q2.second, q2.third, q2.fourth)
+
+    // Test 3: Variables declared just before use
+    WRITEF("Test 3: Variables declared inline*N")
+    LET p = 100
+    LET q = 200
+    LET r = 300
+    LET s = 400
+    LET q3 = QUAD(p, q, r, s)
+    WRITEF("Variables: p=%N q=%N r=%N s=%N*N", p, q, r, s)
+    WRITEF("QUAD hex: %X*N", q3)
+    WRITEF("Components: %N %N %N %N*N", q3.first, q3.second, q3.third, q3.fourth)
+
+    // Test 4: Mixed literals and variables
+    WRITEF("Test 4: Mixed literals and variables*N")
+    LET v1 = 5
+    LET v2 = 7
+    LET q4 = QUAD(v1, 6, v2, 8)
+    WRITEF("Variables: v1=%N v2=%N*N", v1, v2)
+    WRITEF("QUAD hex: %X*N", q4)
+    WRITEF("Components: %N %N %N %N*N", q4.first, q4.second, q4.third, q4.fourth)
+}
