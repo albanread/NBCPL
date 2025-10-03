@@ -1,0 +1,35 @@
+LET START() = VALOF {
+    // Test basic float literal with %f
+    WRITEF("Float literal: %f*N", 3.14159)
+
+    // Test float variable with %f
+    FLET x = 2.71828
+    WRITEF("Float variable: %f*N", x)
+
+    // Test double precision value
+    FLET big_pi = 3.141592653589793
+    WRITEF("Double precision: %f*N", big_pi)
+
+    // Test negative float
+    FLET negative = -1.23456789
+    WRITEF("Negative float: %f*N", negative)
+
+    // Test zero
+    FLET zero = 0.0
+    WRITEF("Zero float: %f*N", zero)
+
+    // Test very small number
+    FLET tiny = 0.000001
+    WRITEF("Tiny float: %f*N", tiny)
+
+    // Test very large number
+    FLET huge = 1234567890.123456
+    WRITEF("Huge float: %f*N", huge)
+
+    // Test multiple float arguments
+    FLET a = 1.1
+    FLET b = 2.2
+    WRITEF("Two floats: %f and %f*N", a, b)
+
+    RESULTIS 0
+}

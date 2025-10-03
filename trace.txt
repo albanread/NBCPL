@@ -1,6 +1,6 @@
 Debug: Processing argument 3: --trace-codegen
 Debug: Processing argument 4: --run
-Debug: parse_arguments successful, input_filepath=tests/bcl_tests/lists8.bcl
+Debug: parse_arguments successful, input_filepath=tests/bcl_tests/vec_test3.bcl
 Debug: Arguments parsed successfully
 DEBUG: HeapManager constructor called
 SAMM: Background worker thread created and started
@@ -8,113 +8,132 @@ SAMM: ENABLED and background worker started
 SAMM (Scope Aware Memory Management): ENABLED
 SAMM: Background cleanup worker thread started (DEBUG)
 SAMM: Worker waiting for cleanup queue (queue size: 0)
-NewBCPL Compiler Version 1.0.1721
+NewBCPL Compiler Version 1.0.1778
 Compiling this source Code:
-//LINE 1 "/Users/oberon/projects/NewBCPL/tests/bcl_tests/lists8.bcl"
+//LINE 1 "/Users/oberon/projects/NewBCPL/tests/bcl_tests/vec_test3.bcl"
 LET START() BE
 $(
-   LET L = LIST("a", "string", "list")
-   FOREACH S IN L DO
-   $( 
-            WRITEF("String: %s *N", S)
-   $)
+    
+
+    FLET V = FVEC 5
+    IF V = 0 THEN
+    $(
+        WRITES("FAIL: VEC allocation failed*N")
+        FINISH
+    $)
+
+
+    FOR I = 0 TO 4 DO
+    $(
+        V!I := FLOAT(I * 2)
+    $)
+
+
+    WRITES("Foreach float test:*N")
+
+    FOREACH e IN V DO
+    $(
+        WRITEF("%f - ", e)
+    $)
+   
 $)
 
 BCPL Runtime v1.0.0 initialized
-DEBUG: Registering FREEVEC with bcpl_free at address 0x102547818
-Registered 91 runtime functions
+DEBUG: Registering FREEVEC with bcpl_free at address 0x100bb82dc
+Registered 92 runtime functions
 === Registered Runtime Functions ===
-  NEWLINE          | address: 0x10254654c | args: 0 | table_offset: 712
-  FINISH           | address: 0x1025452fc | args: 0 | table_offset: 704
-  FABS             | address: 0x1025456ac | args: 1 | table_offset: 672
-  FSIN             | address: 0x102545670 | args: 1 | table_offset: 648
-  FILE_EOF         | address: 0x102548964 | args: 1 | table_offset: 616
-  RAND             | address: 0x1025454fc | args: 1 | table_offset: 624
-  FILE_TELL        | address: 0x10254890c | args: 1 | table_offset: 608
-  FILE_SEEK        | address: 0x102548848 | args: 3 | table_offset: 600
-  FILE_WRITE       | address: 0x102548730 | args: 3 | table_offset: 592
-  FIX              | address: 0x1025456ec | args: 1 | table_offset: 696
-  FILE_READS       | address: 0x10254817c | args: 1 | table_offset: 576
-  FILE_WRITES      | address: 0x102547ea0 | args: 2 | table_offset: 568
-  FEXP             | address: 0x1025456d8 | args: 1 | table_offset: 688
-  FILE_CLOSE       | address: 0x102547e34 | args: 1 | table_offset: 560
-  FILE_OPEN_APPEND | address: 0x102547da4 | args: 1 | table_offset: 552
-  SLURP            | address: 0x102545dd4 | args: 1 | table_offset: 520
-  PACKSTRING       | address: 0x102545704 | args: 1 | table_offset: 504
-  STRLEN           | address: 0x10254530c | args: 1 | table_offset: 496
-  FCOS             | address: 0x102545684 | args: 1 | table_offset: 656
-  STRCMP           | address: 0x10254536c | args: 2 | table_offset: 488
-  STRCOPY          | address: 0x102545450 | args: 2 | table_offset: 480
-  FIND             | address: 0x10254be8c | args: 3 | table_offset: 448
-  DEEPCOPYLITERALLIST | address: 0x10254bb04 | args: 1 | table_offset: 432
-  DEEPCOPYLIST     | address: 0x10254b96c | args: 1 | table_offset: 424
-  COPYLIST         | address: 0x10254b86c | args: 1 | table_offset: 416
-  CONCAT           | address: 0x10254bca4 | args: 2 | table_offset: 408
-  BCPL_CONCAT_LISTS | address: 0x10254bca4 | args: 2 | table_offset: 400
-  SPIT             | address: 0x102546300 | args: 2 | table_offset: 528
-  JOIN             | address: 0x10254af08 | args: 2 | table_offset: 472
-  LPND             | address: 0x10254b418 | args: 2 | table_offset: 392
-  SPND             | address: 0x10254b348 | args: 2 | table_offset: 384
-  FPND             | address: 0x10254b278 | args: 2 | table_offset: 376
-  RETURNNODETOFREELIST | address: 0x10254c35c | args: 1 | table_offset: 720
-  BCPL_LIST_APPEND_INT | address: 0x10254b1a8 | args: 2 | table_offset: 344
-  GETVEC           | address: 0x1025478dc | args: 1 | table_offset: 128
-  HEAPMANAGER_WAITFORSAMM | address: 0x10250e814 | args: 0 | table_offset: 312
-  APND             | address: 0x10254b1a8 | args: 2 | table_offset: 368
-  HEAPMANAGER_ENTER_SCOPE | address: 0x10250e74c | args: 0 | table_offset: 280
-  HEAPMANAGER_SETSAMMENABLED | address: 0x10250e6f8 | args: 1 | table_offset: 296
-  HEAPMANAGER_EXIT_SCOPE | address: 0x10250e778 | args: 0 | table_offset: 288
-  PIC_RUNTIME_HELPER | address: 0x102547990 | args: 0 | table_offset: 272
-  OBJECT_HEAP_FREE | address: 0x102547954 | args: 1 | table_offset: 256
-  OBJECT_HEAP_ALLOC | address: 0x102547930 | args: 1 | table_offset: 248
-  BCPL_LIST_GET_REST | address: 0x10254b6d4 | args: 1 | table_offset: 216
-  FRND             | address: 0x102545588 | args: 0 | table_offset: 640
-  BCPL_LIST_GET_HEAD_AS_FLOAT | address: 0x10254b61c | args: 1 | table_offset: 200
-  BCPL_LIST_GET_HEAD_AS_INT | address: 0x10254b5b8 | args: 1 | table_offset: 192
-  RUNTIME_METHOD_LOOKUP | address: 0x102547978 | args: 2 | table_offset: 264
-  FREEVEC          | address: 0x102547818 | args: 1 | table_offset: 136
-  BCPL_BOUNDS_ERROR | address: 0x1025437dc | args: 3 | table_offset: 184
-  WRITEF4          | address: 0x102544e30 | args: 5 | table_offset: 56
-  BCPL_FREE_LIST   | address: 0x10254c030 | args: 1 | table_offset: 144
-  BCPL_ALLOC_CHARS | address: 0x1025477c0 | args: 1 | table_offset: 112
-  BCPL_LIST_APPEND_FLOAT | address: 0x10254b278 | args: 2 | table_offset: 352
-  GET_FREE_LIST_HEAD_ADDR | address: 0x10254c350 | args: 0 | table_offset: 328
-  BCPL_GET_ATOM_TYPE | address: 0x10254b738 | args: 1 | table_offset: 224
-  FWRITE           | address: 0x10254480c | args: 1 | table_offset: 16
-  BCPL_LIST_CREATE_EMPTY | address: 0x10254b148 | args: 0 | table_offset: 336
-  SPLIT            | address: 0x10254ab9c | args: 2 | table_offset: 464
-  BCPL_FREE_CELLS  | address: 0x10254c34c | args: 0 | table_offset: 320
-  RND              | address: 0x1025455dc | args: 1 | table_offset: 632
-  HEAPMANAGER_ISSAMMENABLED | address: 0x10250e728 | args: 0 | table_offset: 304
-  WRITEC           | address: 0x1025450ec | args: 1 | table_offset: 88
-  MALLOC           | address: 0x102547760 | args: 1 | table_offset: 120
-  BCPL_ALLOC_WORDS | address: 0x102547760 | args: 3 | table_offset: 104
-  FTAN             | address: 0x102545698 | args: 1 | table_offset: 664
-  SETTYPE          | address: 0x0 | args: 2 | table_offset: 240
-  BCPL_GET_LAST_ERROR | address: 0x10254365c | args: 1 | table_offset: 160
-  RDCH             | address: 0x1025452b0 | args: 0 | table_offset: 96
-  FILE_READ        | address: 0x10254861c | args: 3 | table_offset: 584
-  UNPACKSTRING     | address: 0x102545a3c | args: 1 | table_offset: 512
-  WRITEF5          | address: 0x102544ebc | args: 6 | table_offset: 64
-  FILTER           | address: 0x10254bf80 | args: 2 | table_offset: 456
-  BCPL_FREE_LIST_SAFE | address: 0x10254c138 | args: 1 | table_offset: 152
-  FILE_OPEN_WRITE  | address: 0x102547d14 | args: 1 | table_offset: 544
-  FILE_OPEN_READ   | address: 0x102547994 | args: 1 | table_offset: 536
-  BCPL_LIST_GET_NTH | address: 0x10254b7a0 | args: 2 | table_offset: 232
-  WRITEF7          | address: 0x102544ff8 | args: 8 | table_offset: 80
-  WRITEF3          | address: 0x102544db0 | args: 4 | table_offset: 48
-  WRITEF6          | address: 0x102544f54 | args: 7 | table_offset: 72
-  REVERSE          | address: 0x10254bda4 | args: 1 | table_offset: 440
-  WRITEF2          | address: 0x102544d3c | args: 3 | table_offset: 40
-  WRITEF1          | address: 0x102544cd4 | args: 2 | table_offset: 32
-  BCPL_LIST_GET_TAIL | address: 0x10254b684 | args: 1 | table_offset: 208
-  BCPL_CLEAR_ERRORS | address: 0x10254370c | args: 0 | table_offset: 168
-  WRITEF           | address: 0x102544850 | args: 1 | table_offset: 24
-  BCPL_LIST_APPEND_STRING | address: 0x10254b348 | args: 2 | table_offset: 360
-  WRITES           | address: 0x10254459c | args: 1 | table_offset: 0
-  BCPL_CHECK_AND_DISPLAY_ERRORS | address: 0x10254c3a4 | args: 0 | table_offset: 176
-  FLOG             | address: 0x1025456c4 | args: 1 | table_offset: 680
-  WRITEN           | address: 0x1025450a8 | args: 1 | table_offset: 8
+  NEWLINE          | address: 0x100bb7010 | args: 0 | table_offset: 720
+  FINISH           | address: 0x100bb5dc0 | args: 0 | table_offset: 712
+  FABS             | address: 0x100bb6170 | args: 1 | table_offset: 680
+  FSIN             | address: 0x100bb6134 | args: 1 | table_offset: 656
+  FILE_EOF         | address: 0x100bb945c | args: 1 | table_offset: 624
+  RAND             | address: 0x100bb5fc0 | args: 1 | table_offset: 632
+  FILE_TELL        | address: 0x100bb9404 | args: 1 | table_offset: 616
+  FILE_SEEK        | address: 0x100bb9340 | args: 3 | table_offset: 608
+  FILE_WRITE       | address: 0x100bb9228 | args: 3 | table_offset: 600
+  FIX              | address: 0x100bb61b0 | args: 1 | table_offset: 704
+  FILE_READS       | address: 0x100bb8c74 | args: 1 | table_offset: 584
+  FILE_WRITES      | address: 0x100bb8998 | args: 2 | table_offset: 576
+  FEXP             | address: 0x100bb619c | args: 1 | table_offset: 696
+  FILE_CLOSE       | address: 0x100bb892c | args: 1 | table_offset: 568
+  FILE_OPEN_APPEND | address: 0x100bb889c | args: 1 | table_offset: 560
+  PACKSTRING       | address: 0x100bb61c8 | args: 1 | table_offset: 512
+  STRLEN           | address: 0x100bb5dd0 | args: 1 | table_offset: 504
+  FCOS             | address: 0x100bb6148 | args: 1 | table_offset: 664
+  STRCMP           | address: 0x100bb5e30 | args: 2 | table_offset: 496
+  STRCOPY          | address: 0x100bb5f14 | args: 2 | table_offset: 488
+  FIND             | address: 0x100bbcb58 | args: 3 | table_offset: 456
+  DEEPCOPYLITERALLIST | address: 0x100bbc7d0 | args: 1 | table_offset: 440
+  DEEPCOPYLIST     | address: 0x100bbc638 | args: 1 | table_offset: 432
+  COPYLIST         | address: 0x100bbc538 | args: 1 | table_offset: 424
+  CONCAT           | address: 0x100bbc970 | args: 2 | table_offset: 416
+  BCPL_CONCAT_LISTS | address: 0x100bbc970 | args: 2 | table_offset: 408
+  SPIT             | address: 0x100bb6dc4 | args: 2 | table_offset: 536
+  JOIN             | address: 0x100bbbbd4 | args: 2 | table_offset: 480
+  LPND             | address: 0x100bbc0e4 | args: 2 | table_offset: 400
+  SPND             | address: 0x100bbc014 | args: 2 | table_offset: 392
+  FPND             | address: 0x100bbbf44 | args: 2 | table_offset: 384
+  APND             | address: 0x100bbbe74 | args: 2 | table_offset: 376
+  RETURNNODETOFREELIST | address: 0x100bbd028 | args: 1 | table_offset: 728
+  BCPL_LIST_APPEND_INT | address: 0x100bbbe74 | args: 2 | table_offset: 352
+  GETVEC           | address: 0x100bb83a0 | args: 1 | table_offset: 128
+  HEAPMANAGER_WAITFORSAMM | address: 0x100b7e920 | args: 0 | table_offset: 320
+  HEAPMANAGER_ENTER_SCOPE | address: 0x100b7e858 | args: 0 | table_offset: 288
+  HEAPMANAGER_SETSAMMENABLED | address: 0x100b7e804 | args: 1 | table_offset: 304
+  HEAPMANAGER_EXIT_SCOPE | address: 0x100b7e884 | args: 0 | table_offset: 296
+  PIC_RUNTIME_HELPER | address: 0x100bb8488 | args: 0 | table_offset: 280
+  OBJECT_HEAP_FREE | address: 0x100bb844c | args: 1 | table_offset: 264
+  OBJECT_HEAP_ALLOC | address: 0x100bb8428 | args: 1 | table_offset: 256
+  BCPL_LIST_GET_REST | address: 0x100bbc3a0 | args: 1 | table_offset: 224
+  FRND             | address: 0x100bb604c | args: 0 | table_offset: 648
+  BCPL_LIST_GET_HEAD_AS_FLOAT | address: 0x100bbc2e8 | args: 1 | table_offset: 208
+  BCPL_LIST_GET_HEAD_AS_INT | address: 0x100bbc284 | args: 1 | table_offset: 200
+  RUNTIME_METHOD_LOOKUP | address: 0x100bb8470 | args: 2 | table_offset: 272
+  FREEVEC          | address: 0x100bb82dc | args: 1 | table_offset: 144
+  BCPL_BOUNDS_ERROR | address: 0x100bb3f18 | args: 3 | table_offset: 192
+  BCPL_CHECK_AND_DISPLAY_ERRORS | address: 0x100bbd070 | args: 0 | table_offset: 184
+  WRITEF4          | address: 0x100bb58f4 | args: 5 | table_offset: 56
+  BCPL_FREE_LIST   | address: 0x100bbccfc | args: 1 | table_offset: 152
+  BCPL_ALLOC_CHARS | address: 0x100bb8284 | args: 1 | table_offset: 112
+  BCPL_LIST_APPEND_FLOAT | address: 0x100bbbf44 | args: 2 | table_offset: 360
+  GET_FREE_LIST_HEAD_ADDR | address: 0x100bbd01c | args: 0 | table_offset: 336
+  BCPL_GET_ATOM_TYPE | address: 0x100bbc404 | args: 1 | table_offset: 232
+  FWRITE           | address: 0x100bb5234 | args: 1 | table_offset: 16
+  BCPL_LIST_CREATE_EMPTY | address: 0x100bbbe14 | args: 0 | table_offset: 344
+  SPLIT            | address: 0x100bbb868 | args: 2 | table_offset: 472
+  BCPL_FREE_CELLS  | address: 0x100bbd018 | args: 0 | table_offset: 328
+  RND              | address: 0x100bb60a0 | args: 1 | table_offset: 640
+  HEAPMANAGER_ISSAMMENABLED | address: 0x100b7e834 | args: 0 | table_offset: 312
+  WRITEC           | address: 0x100bb5bb0 | args: 1 | table_offset: 88
+  MALLOC           | address: 0x100bb8224 | args: 1 | table_offset: 120
+  BCPL_ALLOC_WORDS | address: 0x100bb8224 | args: 3 | table_offset: 104
+  FTAN             | address: 0x100bb615c | args: 1 | table_offset: 672
+  SETTYPE          | address: 0x0 | args: 2 | table_offset: 248
+  BCPL_GET_LAST_ERROR | address: 0x100bb3d98 | args: 1 | table_offset: 168
+  RDCH             | address: 0x100bb5d74 | args: 0 | table_offset: 96
+  FILE_READ        | address: 0x100bb9114 | args: 3 | table_offset: 592
+  UNPACKSTRING     | address: 0x100bb6500 | args: 1 | table_offset: 520
+  WRITEF5          | address: 0x100bb5980 | args: 6 | table_offset: 64
+  FILTER           | address: 0x100bbcc4c | args: 2 | table_offset: 464
+  BCPL_FREE_LIST_SAFE | address: 0x100bbce04 | args: 1 | table_offset: 160
+  FILE_OPEN_WRITE  | address: 0x100bb880c | args: 1 | table_offset: 552
+  FILE_OPEN_READ   | address: 0x100bb848c | args: 1 | table_offset: 544
+  BCPL_LIST_GET_NTH | address: 0x100bbc46c | args: 2 | table_offset: 240
+  WRITEF7          | address: 0x100bb5abc | args: 8 | table_offset: 80
+  WRITEF3          | address: 0x100bb5874 | args: 4 | table_offset: 48
+  WRITEF6          | address: 0x100bb5a18 | args: 7 | table_offset: 72
+  REVERSE          | address: 0x100bbca70 | args: 1 | table_offset: 448
+  WRITEF2          | address: 0x100bb5800 | args: 3 | table_offset: 40
+  WRITEF1          | address: 0x100bb5798 | args: 2 | table_offset: 32
+  BCPL_LIST_GET_TAIL | address: 0x100bbc350 | args: 1 | table_offset: 216
+  BCPL_CLEAR_ERRORS | address: 0x100bb3e48 | args: 0 | table_offset: 176
+  WRITEF           | address: 0x100bb5278 | args: 1 | table_offset: 24
+  BCPL_LIST_APPEND_STRING | address: 0x100bbc014 | args: 2 | table_offset: 368
+  WRITES           | address: 0x100bb4cd8 | args: 1 | table_offset: 0
+  SLURP            | address: 0x100bb6898 | args: 1 | table_offset: 528
+  FGETVEC          | address: 0x100bb83d4 | args: 1 | table_offset: 136
+  FLOG             | address: 0x100bb6188 | args: 1 | table_offset: 688
+  WRITEN           | address: 0x100bb5b6c | args: 1 | table_offset: 8
 ====================================
 Core runtime registered. SDL2 registration will follow...
 SDL2 runtime functions registered immediately
@@ -131,13 +150,47 @@ Program:
           Statements:
             AssignmentStatement:
               LHS:
-                VariableAccess: L
+                VariableAccess: V
               RHS:
-                ListExpression:
-                  Initializers:
-                    StringLiteral: "a"
-                    StringLiteral: "string"
-                    StringLiteral: "list"
+            IfStatement:
+              Condition:
+                BinaryOp: Equal
+                  VariableAccess: V
+                  NumberLiteral: 0
+              Then:
+                BlockStatement:
+                  Statements:
+                    RoutineCallStatement:
+                      Callee:
+                        VariableAccess: WRITES
+                      Arguments:
+                        StringLiteral: "FAIL: VEC allocation failed
+"
+                    FinishStatement
+            ForStatement: I
+              Start:
+                NumberLiteral: 0
+              End:
+                NumberLiteral: 4
+              Body:
+                BlockStatement:
+                  Statements:
+                    AssignmentStatement:
+                      LHS:
+                        VectorAccess (!):
+                          VariableAccess: V
+                          VariableAccess: I
+                      RHS:
+                        UnaryOp: FloatConvert
+                          BinaryOp: Multiply
+                            VariableAccess: I
+                            NumberLiteral: 2
+            RoutineCallStatement:
+              Callee:
+                VariableAccess: WRITES
+              Arguments:
+                StringLiteral: "Foreach float test:
+"
 ----------------------------------
 
 Applying Manifest Resolution Pass...
@@ -152,13 +205,47 @@ Program:
           Statements:
             AssignmentStatement:
               LHS:
-                VariableAccess: L
+                VariableAccess: V
               RHS:
-                ListExpression:
-                  Initializers:
-                    StringLiteral: "a"
-                    StringLiteral: "string"
-                    StringLiteral: "list"
+            IfStatement:
+              Condition:
+                BinaryOp: Equal
+                  VariableAccess: V
+                  NumberLiteral: 0
+              Then:
+                BlockStatement:
+                  Statements:
+                    RoutineCallStatement:
+                      Callee:
+                        VariableAccess: WRITES
+                      Arguments:
+                        StringLiteral: "FAIL: VEC allocation failed
+"
+                    FinishStatement
+            ForStatement: I
+              Start:
+                NumberLiteral: 0
+              End:
+                NumberLiteral: 4
+              Body:
+                BlockStatement:
+                  Statements:
+                    AssignmentStatement:
+                      LHS:
+                        VectorAccess (!):
+                          VariableAccess: V
+                          VariableAccess: I
+                      RHS:
+                        UnaryOp: FloatConvert
+                          BinaryOp: Multiply
+                            VariableAccess: I
+                            NumberLiteral: 2
+            RoutineCallStatement:
+              Callee:
+                VariableAccess: WRITES
+              Arguments:
+                StringLiteral: "Foreach float test:
+"
 ------------------------------------------
 
 Building symbol table...
@@ -167,9 +254,14 @@ Building symbol table...
 [SymbolDiscoveryPass] Added routine: START
 [SymbolDiscoveryPass] Entering block scope
 [SymbolDiscoveryPass] Processing let declaration
-[SymbolDiscoveryPass] Added let variable: L as INTEGER (default INTEGER)
-[SymbolDiscoveryPass] Processing foreach statement, loop variable: S
-[SymbolDiscoveryPass] Added foreach loop variable: S
+[SymbolDiscoveryPass] Added let variable: V as FLOAT (from FLET)
+[SymbolDiscoveryPass] Processing if statement
+[SymbolDiscoveryPass] Entering block scope
+[SymbolDiscoveryPass] Processing for statement with loop variable: I
+[SymbolDiscoveryPass] Added for-loop variable: I
+[SymbolDiscoveryPass] Entering block scope
+[SymbolDiscoveryPass] Processing foreach statement, loop variable: e
+[SymbolDiscoveryPass] Added foreach loop variable: e
 [SymbolDiscoveryPass] Entering block scope
 
 === SYMBOL TABLE DUMP AFTER SYMBOL DISCOVERY ===
@@ -178,8 +270,9 @@ Symbol Table (Persistent, All Symbols)
 Symbol 'HeapManager_enter_scope' (FUNCTION, INTEGER, scope=0, block=0, class_name='', function_name='Global')
 Symbol 'HeapManager_exit_scope' (FUNCTION, INTEGER, scope=0, block=0, class_name='', function_name='Global')
 Symbol 'START' (ROUTINE, INTEGER, scope=0, block=0, class_name='', function_name='START')
-Symbol 'L' (LOCAL_VAR, INTEGER, scope=2, block=0, class_name='', function_name='START')
-Symbol 'S' (LOCAL_VAR, UNKNOWN, scope=2, block=0, class_name='', function_name='START')
+Symbol 'V' (LOCAL_VAR, FLOAT, scope=2, block=0, class_name='', function_name='START')
+Symbol 'I' (LOCAL_VAR, INTEGER, scope=2, block=0, class_name='', function_name='START')
+Symbol 'e' (LOCAL_VAR, UNKNOWN, scope=2, block=0, class_name='', function_name='START')
 
 ================================================
 
@@ -206,49 +299,107 @@ Cleared FOR loop state before analysis to prevent corruption
 [ANALYZER] Starting parameter type inference for function: START
 [ANALYZER TRACE] ASTAnalyzer::visit(RoutineDeclaration&) is traversing body for routine: START
 [ANALYZER TRACE] Entering block scope: START_block_0 (Function scope remains: START)
-[ANALYZER TRACE] BlockStatement: Traversing 2 statements.
-[ANALYZER TRACE] BlockStatement: Calling accept on statement 0 of type 43
-[DEBUG] ListExpression: contains_literals = true, num_initializers = 3
-[ANALYZER TRACE] Visiting VariableAccess: L
-[DEBUG get_effective_variable_name] Called with: 'L'
+[ANALYZER TRACE] BlockStatement: Traversing 5 statements.
+[ANALYZER TRACE] BlockStatement: Calling accept on statement 0 of type 45
+[ANALYZER TRACE] Visiting VariableAccess: V
+[DEBUG get_effective_variable_name] Called with: 'V'
 [DEBUG get_effective_variable_name] Loop context stack size: 0
 [DEBUG get_effective_variable_name] Active FOR loop scopes size: 0
 [DEBUG get_effective_variable_name] FOR variable aliases size: 0
 [DEBUG get_effective_variable_name] In FOR loop context: NO
-[DEBUG get_effective_variable_name] Not in FOR loop context, returning original: 'L'
-[ANALYZER TRACE] BlockStatement: Calling accept on statement 1 of type 52
-[ANALYZER TRACE] Pushed FOREACH loop context. Context stack size: 1
-[ANALYZER TRACE] Visiting VariableAccess: L
-[DEBUG get_effective_variable_name] Called with: 'L'
-[DEBUG get_effective_variable_name] Loop context stack size: 1
+[DEBUG get_effective_variable_name] Not in FOR loop context, returning original: 'V'
+[ANALYZER TRACE] BlockStatement: Calling accept on statement 1 of type 47
+[ANALYZER TRACE] Visiting VariableAccess: V
+[DEBUG get_effective_variable_name] Called with: 'V'
+[DEBUG get_effective_variable_name] Loop context stack size: 0
 [DEBUG get_effective_variable_name] Active FOR loop scopes size: 0
 [DEBUG get_effective_variable_name] FOR variable aliases size: 0
 [DEBUG get_effective_variable_name] In FOR loop context: NO
-[DEBUG get_effective_variable_name] Not in FOR loop context, returning original: 'L'
-[DEBUG get_variable_type] Looking for 'L' in function 'START'
-[DEBUG get_variable_type] Found function metrics for 'START'
-[DEBUG get_variable_type] Parameter types count: 0
-[DEBUG get_variable_type] Variable types count: 1
-[DEBUG get_variable_type] Found in variable_types: L -> 1050628
-[DEBUG FOREACH] Set variable_types[S] = 4 (STRING) in function START
+[DEBUG get_effective_variable_name] Not in FOR loop context, returning original: 'V'
 [ANALYZER TRACE] Entering block scope: START_block_0_block_1 (Function scope remains: START)
+[ANALYZER TRACE] BlockStatement: Traversing 2 statements.
+[ANALYZER TRACE] BlockStatement: Calling accept on statement 0 of type 46
+[ANALYZER TRACE] Entered ASTAnalyzer::visit(RoutineCallStatement&) for node at 0x7790181e0
+[ANALYZER TRACE]   Detected call to runtime function: WRITES, Type: INTEGER
+[ANALYZER TRACE] BlockStatement: Calling accept on statement 1 of type 58
+[ANALYZER TRACE] Exiting block scope, returning to: START_block_0
+[ANALYZER TRACE] BlockStatement: Calling accept on statement 2 of type 53
+[ANALYZER TRACE] Visiting ForStatement for variable: I
+[ANALYZER TRACE] Pushed FOR loop context. Context stack size: 1
+[ANALYZER TRACE]   Created NEW unique loop var 'I_for_var_0' for original 'I'. Defined for stack space. Incremented var count.
+[ANALYZER TRACE] Attempting to register loop variable 'I_for_var_0' in symbol table. symbol_table_=valid, current_function_scope_='START'
+[ANALYZER TRACE] Successfully added loop variable 'I_for_var_0' to symbol table.
+[ANALYZER TRACE] OPTIMIZATION: End expression is constant: 4
+[ANALYZER TRACE] OPTIMIZATION: Step expression is constant: 1
+[ANALYZER TRACE] Pushed FOR loop scope for 'I' -> 'I_for_var_0'. Stack size: 1
+[ANALYZER TRACE] OPTIMIZATION: Skipped creating step backing variable (constant: 1)
+[ANALYZER TRACE] OPTIMIZATION: Skipped creating end backing variable (constant: 4)
+[ANALYZER TRACE] Entering block scope: START_block_0_block_2 (Function scope remains: START)
 [ANALYZER TRACE] BlockStatement: Traversing 1 statements.
-[ANALYZER TRACE] BlockStatement: Calling accept on statement 0 of type 44
-[ANALYZER TRACE] Entered ASTAnalyzer::visit(RoutineCallStatement&) for node at 0x10349c840
-[ANALYZER TRACE] WRITEF format specifiers detected: [%s] (count = 1)
-[DEBUG get_variable_type] Looking for 'S' in function 'START'
+[ANALYZER TRACE] BlockStatement: Calling accept on statement 0 of type 45
+[ANALYZER TRACE] Visiting VariableAccess: I
+[DEBUG get_effective_variable_name] Called with: 'I'
+[DEBUG get_effective_variable_name] Loop context stack size: 1
+[DEBUG get_effective_variable_name] Active FOR loop scopes size: 1
+[DEBUG get_effective_variable_name] FOR variable aliases size: 1
+[DEBUG get_effective_variable_name] In FOR loop context: YES
+[DEBUG get_effective_variable_name] Found in active scope: 'I' -> 'I_for_var_0'
+[ANALYZER TRACE] Renaming variable: 'I' -> 'I_for_var_0'
+[ANALYZER TRACE] Visiting VariableAccess: V
+[DEBUG get_effective_variable_name] Called with: 'V'
+[DEBUG get_effective_variable_name] Loop context stack size: 1
+[DEBUG get_effective_variable_name] Active FOR loop scopes size: 1
+[DEBUG get_effective_variable_name] FOR variable aliases size: 1
+[DEBUG get_effective_variable_name] In FOR loop context: YES
+[DEBUG get_effective_variable_name] No renaming needed, returning: 'V'
+[ANALYZER TRACE] Visiting VariableAccess: I
+[DEBUG get_effective_variable_name] Called with: 'I'
+[DEBUG get_effective_variable_name] Loop context stack size: 1
+[DEBUG get_effective_variable_name] Active FOR loop scopes size: 1
+[DEBUG get_effective_variable_name] FOR variable aliases size: 1
+[DEBUG get_effective_variable_name] In FOR loop context: YES
+[DEBUG get_effective_variable_name] Found in active scope: 'I' -> 'I_for_var_0'
+[ANALYZER TRACE] Renaming variable: 'I' -> 'I_for_var_0'
+[ANALYZER TRACE] Exiting block scope, returning to: START_block_0
+[ANALYZER TRACE] Popped FOR loop scope. Stack size: 0
+[ANALYZER TRACE] Popped FOR loop context. Context stack size: 0
+[ANALYZER TRACE] OPTIMIZATION SUMMARY: Saved 2 backing variables for FOR loop 'I'
+[ANALYZER TRACE] BlockStatement: Calling accept on statement 3 of type 46
+[ANALYZER TRACE] Entered ASTAnalyzer::visit(RoutineCallStatement&) for node at 0x779018210
+[ANALYZER TRACE]   Detected call to runtime function: WRITES, Type: INTEGER
+[ANALYZER TRACE] BlockStatement: Calling accept on statement 4 of type 54
+[ANALYZER TRACE] Pushed FOREACH loop context. Context stack size: 1
+[ANALYZER TRACE] Visiting VariableAccess: V
+[DEBUG get_effective_variable_name] Called with: 'V'
+[DEBUG get_effective_variable_name] Loop context stack size: 1
+[DEBUG get_effective_variable_name] Active FOR loop scopes size: 0
+[DEBUG get_effective_variable_name] FOR variable aliases size: 1
+[DEBUG get_effective_variable_name] In FOR loop context: NO
+[DEBUG get_effective_variable_name] Not in FOR loop context, returning original: 'V'
+[DEBUG get_variable_type] Looking for 'V' in function 'START'
 [DEBUG get_variable_type] Found function metrics for 'START'
 [DEBUG get_variable_type] Parameter types count: 0
 [DEBUG get_variable_type] Variable types count: 2
-[DEBUG get_variable_type] Found in variable_types: S -> 4
+[DEBUG get_variable_type] Found in variable_types: V -> 1049602
+[DEBUG FOREACH] Set variable_types[e] = 2 (FLOAT) in function START
+[ANALYZER TRACE] Entering block scope: START_block_0_block_2 (Function scope remains: START)
+[ANALYZER TRACE] BlockStatement: Traversing 1 statements.
+[ANALYZER TRACE] BlockStatement: Calling accept on statement 0 of type 46
+[ANALYZER TRACE] Entered ASTAnalyzer::visit(RoutineCallStatement&) for node at 0x779018240
+[ANALYZER TRACE] WRITEF format specifiers detected: [%f] (count = 1)
+[DEBUG get_variable_type] Looking for 'e' in function 'START'
+[DEBUG get_variable_type] Found function metrics for 'START'
+[DEBUG get_variable_type] Parameter types count: 0
+[DEBUG get_variable_type] Variable types count: 3
+[DEBUG get_variable_type] Found in variable_types: e -> 2
 [ANALYZER TRACE]   Detected call to runtime function: WRITEF, Type: INTEGER
-[ANALYZER TRACE] Visiting VariableAccess: S
-[DEBUG get_effective_variable_name] Called with: 'S'
+[ANALYZER TRACE] Visiting VariableAccess: e
+[DEBUG get_effective_variable_name] Called with: 'e'
 [DEBUG get_effective_variable_name] Loop context stack size: 1
 [DEBUG get_effective_variable_name] Active FOR loop scopes size: 0
-[DEBUG get_effective_variable_name] FOR variable aliases size: 0
+[DEBUG get_effective_variable_name] FOR variable aliases size: 1
 [DEBUG get_effective_variable_name] In FOR loop context: NO
-[DEBUG get_effective_variable_name] Not in FOR loop context, returning original: 'S'
+[DEBUG get_effective_variable_name] Not in FOR loop context, returning original: 'e'
 [ANALYZER TRACE] Exiting block scope, returning to: START_block_0
 [ANALYZER TRACE] Popped FOREACH loop context. Context stack size: 0
 [ANALYZER TRACE] Exiting block scope, returning to: START
@@ -267,8 +418,8 @@ Function: START
   Type: int
   Parameters: 0
   Integer Locals: 2
-  Float Locals: 0
-  Runtime Calls: 1
+  Float Locals: 1
+  Runtime Calls: 3
   Local Function Calls: 0
   Local Routine Calls: 0
   Vector Allocations: no
@@ -302,38 +453,77 @@ Cleared FOR loop state before CFGBuilderPass to prevent corruption
 [CFGBuilderPass] Created new basic block: START_Entry_0
 [CFGBuilderPass] Visiting BlockStatement with SAMM scope management.
 [CFGBuilderPass] SAMM: Injecting HeapManager_enter_scope() call at block start
-[ANALYZER DEBUG] Registered call site at instruction 5 for function 'START'
-[CFGBuilderPass] CFGBuilderPass: Registered HeapManager_enter_scope call site at instruction 5 for function 'START'
+[ANALYZER DEBUG] Registered call site at instruction 13 for function 'START'
+[CFGBuilderPass] CFGBuilderPass: Registered HeapManager_enter_scope call site at instruction 13 for function 'START'
 [CFGBuilderPass] Starting block 1 variable tracking
-[CFGBuilderPass] Tracking variable 'L' in current block
-[CFGBuilderPass] visit(ForEachStatement) entered.
-[DEBUG get_variable_type] Looking for 'L' in function 'START'
-[DEBUG get_variable_type] Found function metrics for 'START'
-[DEBUG get_variable_type] Parameter types count: 0
-[DEBUG get_variable_type] Variable types count: 2
-[DEBUG get_variable_type] Found in variable_types: L -> 1050628
-[CFGBuilderPass] OPTIMIZATION: Using direct variable 'L' for list FOREACH instead of creating a temporary header.
-[CFGBuilderPass] Created new basic block: START_ForEachHeader_1
-[CFGBuilderPass] Created new basic block: START_ForEachBody_2
-[CFGBuilderPass] Created new basic block: START_ForEachExit_3
+[CFGBuilderPass] Tracking variable 'V' in current block
+[CFGBuilderPass] Created new basic block: START_Then_1
+[CFGBuilderPass] Created new basic block: START_Join_2
 [CFGBuilderPass] Visiting BlockStatement with SAMM scope management.
 [CFGBuilderPass] SAMM: Injecting HeapManager_enter_scope() call at block start
-[ANALYZER DEBUG] Registered call site at instruction 6 for function 'START'
-[CFGBuilderPass] CFGBuilderPass: Registered HeapManager_enter_scope call site at instruction 6 for function 'START'
+[ANALYZER DEBUG] Registered call site at instruction 14 for function 'START'
+[CFGBuilderPass] CFGBuilderPass: Registered HeapManager_enter_scope call site at instruction 14 for function 'START'
 [CFGBuilderPass] Starting block 2 variable tracking
+[CFGBuilderPass] SAMM: Visiting FinishStatement - injecting scope exit call.
+[ANALYZER DEBUG] Registered call site at instruction 15 for function 'START'
+[CFGBuilderPass] CFGBuilderPass: Registered HeapManager_exit_scope call site at instruction 15 for function 'START'
+[CFGBuilderPass] Visiting FinishStatement - injecting scope cleanup.
+[CFGBuilderPass] Created new basic block: START_FinishCleanup_3
+[CFGBuilderPass] visit(ForStatement) entered.
+[CFGBuilderPass] Created new basic block: START_ForHeader_4
+[CFGBuilderPass] Created new basic block: START_ForBody_5
+[CFGBuilderPass] Created new basic block: START_ForIncrement_6
+[CFGBuilderPass] Created new basic block: START_ForExit_7
+[CFGBuilderPass] Visiting BlockStatement with SAMM scope management.
+[CFGBuilderPass] SAMM: Injecting HeapManager_enter_scope() call at block start
+[ANALYZER DEBUG] Registered call site at instruction 16 for function 'START'
+[CFGBuilderPass] CFGBuilderPass: Registered HeapManager_enter_scope call site at instruction 16 for function 'START'
+[CFGBuilderPass] Starting block 3 variable tracking
 [CFGBuilderPass] SAMM: Injecting HeapManager_exit_scope() call for normal block exit
-[ANALYZER DEBUG] Registered call site at instruction 7 for function 'START'
-[CFGBuilderPass] CFGBuilderPass: Registered HeapManager_exit_scope call site at instruction 7 for function 'START'
-[CFGBuilderPass] Created new basic block: START_ForEachAdvance_4
-[CFGBuilderPass] Correctly built low-level CFG for list-based FOREACH.
+[ANALYZER DEBUG] Registered call site at instruction 17 for function 'START'
+[CFGBuilderPass] CFGBuilderPass: Registered HeapManager_exit_scope call site at instruction 17 for function 'START'
+[CFGBuilderPass] Created increment block: START_ForIncrement_6 for loop variable: I_for_var_0
+[CFGBuilderPass] visit(ForStatement) exiting.
+[CFGBuilderPass] visit(ForEachStatement) entered.
+[DEBUG get_variable_type] Looking for 'V' in function 'START'
+[DEBUG get_variable_type] Found function metrics for 'START'
+[DEBUG get_variable_type] Parameter types count: 0
+[DEBUG get_variable_type] Variable types count: 3
+[DEBUG get_variable_type] Found in variable_types: V -> 1049602
+[CFGBuilderPass] Building CFG for vector-based FOREACH.
+[CFGBuilderPass] OPTIMIZATION: Reusing existing variable 'V' for FOREACH collection.
+[CFGBuilderPass] is_constant_size_collection: Analyzing expression...
+[CFGBuilderPass] Expression is not a constant-size collection
+[DEBUG get_variable_type] Looking for 'V' in function 'START'
+[DEBUG get_variable_type] Found function metrics for 'START'
+[DEBUG get_variable_type] Parameter types count: 0
+[DEBUG get_variable_type] Variable types count: 3
+[DEBUG get_variable_type] Found in variable_types: V -> 1049602
+[CFGBuilderPass] OPTIMIZATION: Skipped collection temporary creation, reusing: V
+[CFGBuilderPass] Created new basic block: START_ForEachHeader_8
+[CFGBuilderPass] Created new basic block: START_ForEachBody_9
+[CFGBuilderPass] Created new basic block: START_ForEachIncrement_10
+[CFGBuilderPass] Created new basic block: START_ForEachExit_11
+[DEBUG get_variable_type] Looking for 'V' in function 'START'
+[DEBUG get_variable_type] Found function metrics for 'START'
+[DEBUG get_variable_type] Parameter types count: 0
+[DEBUG get_variable_type] Variable types count: 5
+[DEBUG get_variable_type] Found in variable_types: V -> 1049602
+[CFGBuilderPass] Visiting BlockStatement with SAMM scope management.
+[CFGBuilderPass] SAMM: Injecting HeapManager_enter_scope() call at block start
+[ANALYZER DEBUG] Registered call site at instruction 18 for function 'START'
+[CFGBuilderPass] CFGBuilderPass: Registered HeapManager_enter_scope call site at instruction 18 for function 'START'
+[CFGBuilderPass] Starting block 4 variable tracking
+[CFGBuilderPass] SAMM: Injecting HeapManager_exit_scope() call for normal block exit
+[ANALYZER DEBUG] Registered call site at instruction 19 for function 'START'
+[CFGBuilderPass] CFGBuilderPass: Registered HeapManager_exit_scope call site at instruction 19 for function 'START'
+[CFGBuilderPass] Correctly built low-level CFG for vector-based FOREACH.
 [CFGBuilderPass] visit(ForEachStatement) exiting.
 [CFGBuilderPass] Generating normal block-end cleanup for 1 variables
-[CFGBuilderPass] Generating block-end cleanup for: L
-[CFGBuilderPass] Skipping BCPL_FREE_LIST(L) - SAMM is active
 [CFGBuilderPass] SAMM: Injecting HeapManager_exit_scope() call for normal block exit
-[ANALYZER DEBUG] Registered call site at instruction 8 for function 'START'
-[CFGBuilderPass] CFGBuilderPass: Registered HeapManager_exit_scope call site at instruction 8 for function 'START'
-[CFGBuilderPass] Created new basic block: START_Exit_5
+[ANALYZER DEBUG] Registered call site at instruction 20 for function 'START'
+[CFGBuilderPass] CFGBuilderPass: Registered HeapManager_exit_scope call site at instruction 20 for function 'START'
+[CFGBuilderPass] Created new basic block: START_Exit_12
 [CFGBuilderPass] Resolving 0 GOTO statements...
 [CFGBuilderPass] visit(Program) complete.
 [CFGBuilderPass] Finished accept(Program)
@@ -359,49 +549,97 @@ Applying CFG Simplification Pass (Branch Chaining)...
 --- Running Liveness Analysis ---
 [LivenessAnalysisPass] Calling compute_use_def_sets()
 [LivenessAnalysisPass] Entering compute_use_def_sets()
-[LivenessAnalysisPass] CFG #1 for function 'START' has 6 blocks.
-[LivenessAnalysisPass] Analyzing block #1 (id=START_Exit_5) in function 'START'
-[LivenessAnalysisPass] Entering analyze_block for block: START_Exit_5
-[LivenessAnalysisPass] Starting intra-block analysis for START_Exit_5 with 0 statements
-[LivenessAnalysisPass] Exiting analyze_block for block: START_Exit_5
-[LivenessAnalysisPass] Analyzing block #2 (id=START_ForEachAdvance_4) in function 'START'
-[LivenessAnalysisPass] Entering analyze_block for block: START_ForEachAdvance_4
-[LivenessAnalysisPass] Starting intra-block analysis for START_ForEachAdvance_4 with 1 statements
-[LivenessAnalysisPass] Statement uses variables: _forEach_cursor_0 
-[LivenessAnalysisPass] Exiting analyze_block for block: START_ForEachAdvance_4
-[LivenessAnalysisPass] Analyzing block #3 (id=START_ForEachBody_2) in function 'START'
-[LivenessAnalysisPass] Entering analyze_block for block: START_ForEachBody_2
-[LivenessAnalysisPass] Starting intra-block analysis for START_ForEachBody_2 with 4 statements
+[LivenessAnalysisPass] CFG #1 for function 'START' has 13 blocks.
+[LivenessAnalysisPass] Analyzing block #1 (id=START_ForEachIncrement_10) in function 'START'
+[LivenessAnalysisPass] Entering analyze_block for block: START_ForEachIncrement_10
+[LivenessAnalysisPass] Starting intra-block analysis for START_ForEachIncrement_10 with 1 statements
+[LivenessAnalysisPass] Statement uses variables: _forEach_idx_1 
+[LivenessAnalysisPass] Exiting analyze_block for block: START_ForEachIncrement_10
+[LivenessAnalysisPass] Analyzing block #2 (id=START_ForExit_7) in function 'START'
+[LivenessAnalysisPass] Entering analyze_block for block: START_ForExit_7
+[LivenessAnalysisPass] Starting intra-block analysis for START_ForExit_7 with 3 statements
+[LivenessAnalysisPass] Statement uses variables: V 
 [LivenessAnalysisPass] Found RoutineCallStatement
 [LivenessAnalysisPass] Found call in statement
-[LivenessAnalysisPass] Statement uses variables: S 
+[LivenessAnalysisPass] Block START_ForExit_7 contains routine call - marked for call interval fix
+[LivenessAnalysisPass] Exiting analyze_block for block: START_ForExit_7
+[LivenessAnalysisPass] Analyzing block #3 (id=START_ForIncrement_6) in function 'START'
+[LivenessAnalysisPass] Entering analyze_block for block: START_ForIncrement_6
+[LivenessAnalysisPass] Starting intra-block analysis for START_ForIncrement_6 with 1 statements
+[LivenessAnalysisPass] Statement uses variables: I_for_var_0 
+[LivenessAnalysisPass] Exiting analyze_block for block: START_ForIncrement_6
+[LivenessAnalysisPass] Analyzing block #4 (id=START_ForHeader_4) in function 'START'
+[LivenessAnalysisPass] Entering analyze_block for block: START_ForHeader_4
+[LivenessAnalysisPass] Starting intra-block analysis for START_ForHeader_4 with 1 statements
+[LivenessAnalysisPass] Exiting analyze_block for block: START_ForHeader_4
+[LivenessAnalysisPass] Analyzing block #5 (id=START_ForBody_5) in function 'START'
+[LivenessAnalysisPass] Entering analyze_block for block: START_ForBody_5
+[LivenessAnalysisPass] Starting intra-block analysis for START_ForBody_5 with 3 statements
 [LivenessAnalysisPass] Found RoutineCallStatement
-[LivenessAnalysisPass] Variables used after call: S 
+[LivenessAnalysisPass] Found call in statement
+[LivenessAnalysisPass] Statement uses variables: I_for_var_0 
+[LivenessAnalysisPass] Variables used after call: I_for_var_0 
+[LivenessAnalysisPass] Found RoutineCallStatement
+[LivenessAnalysisPass] Found call in statement
+[LivenessAnalysisPass] Intra-block call interval detected in START_ForBody_5 - variables live across calls: I_for_var_0 
+[LivenessAnalysisPass] Block START_ForBody_5 contains routine call - marked for call interval fix
+[LivenessAnalysisPass] Block START_ForBody_5 contains routine call - marked for call interval fix
+[LivenessAnalysisPass] Exiting analyze_block for block: START_ForBody_5
+[LivenessAnalysisPass] Analyzing block #6 (id=START_FinishCleanup_3) in function 'START'
+[LivenessAnalysisPass] Entering analyze_block for block: START_FinishCleanup_3
+[LivenessAnalysisPass] Starting intra-block analysis for START_FinishCleanup_3 with 1 statements
+[LivenessAnalysisPass] Exiting analyze_block for block: START_FinishCleanup_3
+[LivenessAnalysisPass] Analyzing block #7 (id=START_Exit_12) in function 'START'
+[LivenessAnalysisPass] Entering analyze_block for block: START_Exit_12
+[LivenessAnalysisPass] Starting intra-block analysis for START_Exit_12 with 0 statements
+[LivenessAnalysisPass] Exiting analyze_block for block: START_Exit_12
+[LivenessAnalysisPass] Analyzing block #8 (id=START_ForEachBody_9) in function 'START'
+[LivenessAnalysisPass] Entering analyze_block for block: START_ForEachBody_9
+[LivenessAnalysisPass] Starting intra-block analysis for START_ForEachBody_9 with 4 statements
+[LivenessAnalysisPass] Found RoutineCallStatement
+[LivenessAnalysisPass] Found call in statement
+[LivenessAnalysisPass] Statement uses variables: e 
+[LivenessAnalysisPass] Found RoutineCallStatement
+[LivenessAnalysisPass] Variables used after call: e 
 [LivenessAnalysisPass] Found call in statement
 [LivenessAnalysisPass] Found RoutineCallStatement
 [LivenessAnalysisPass] Found call in statement
-[LivenessAnalysisPass] Statement uses variables: _forEach_cursor_0 
-[LivenessAnalysisPass] Variables used after call: _forEach_cursor_0 
-[LivenessAnalysisPass] Intra-block call interval detected in START_ForEachBody_2 - variables live across calls: S _forEach_cursor_0 
-[LivenessAnalysisPass] Block START_ForEachBody_2 contains routine call - marked for call interval fix
-[LivenessAnalysisPass] Block START_ForEachBody_2 contains routine call - marked for call interval fix
-[LivenessAnalysisPass] Block START_ForEachBody_2 contains routine call - marked for call interval fix
-[LivenessAnalysisPass] Exiting analyze_block for block: START_ForEachBody_2
-[LivenessAnalysisPass] Analyzing block #4 (id=START_ForEachHeader_1) in function 'START'
-[LivenessAnalysisPass] Entering analyze_block for block: START_ForEachHeader_1
-[LivenessAnalysisPass] Starting intra-block analysis for START_ForEachHeader_1 with 1 statements
-[LivenessAnalysisPass] Exiting analyze_block for block: START_ForEachHeader_1
-[LivenessAnalysisPass] Analyzing block #5 (id=START_ForEachExit_3) in function 'START'
-[LivenessAnalysisPass] Entering analyze_block for block: START_ForEachExit_3
-[LivenessAnalysisPass] Starting intra-block analysis for START_ForEachExit_3 with 1 statements
+[LivenessAnalysisPass] Intra-block call interval detected in START_ForEachBody_9 - variables live across calls: e 
+[LivenessAnalysisPass] Block START_ForEachBody_9 contains routine call - marked for call interval fix
+[LivenessAnalysisPass] Block START_ForEachBody_9 contains routine call - marked for call interval fix
+[LivenessAnalysisPass] Block START_ForEachBody_9 contains routine call - marked for call interval fix
+[LivenessAnalysisPass] Exiting analyze_block for block: START_ForEachBody_9
+[LivenessAnalysisPass] Analyzing block #9 (id=START_ForEachExit_11) in function 'START'
+[LivenessAnalysisPass] Entering analyze_block for block: START_ForEachExit_11
+[LivenessAnalysisPass] Starting intra-block analysis for START_ForEachExit_11 with 1 statements
 [LivenessAnalysisPass] Found RoutineCallStatement
 [LivenessAnalysisPass] Found call in statement
-[LivenessAnalysisPass] Block START_ForEachExit_3 contains routine call - marked for call interval fix
-[LivenessAnalysisPass] Exiting analyze_block for block: START_ForEachExit_3
-[LivenessAnalysisPass] Analyzing block #6 (id=START_Entry_0) in function 'START'
+[LivenessAnalysisPass] Block START_ForEachExit_11 contains routine call - marked for call interval fix
+[LivenessAnalysisPass] Exiting analyze_block for block: START_ForEachExit_11
+[LivenessAnalysisPass] Analyzing block #10 (id=START_ForEachHeader_8) in function 'START'
+[LivenessAnalysisPass] Entering analyze_block for block: START_ForEachHeader_8
+[LivenessAnalysisPass] Starting intra-block analysis for START_ForEachHeader_8 with 1 statements
+[LivenessAnalysisPass] Exiting analyze_block for block: START_ForEachHeader_8
+[LivenessAnalysisPass] Analyzing block #11 (id=START_Then_1) in function 'START'
+[LivenessAnalysisPass] Entering analyze_block for block: START_Then_1
+[LivenessAnalysisPass] Starting intra-block analysis for START_Then_1 with 3 statements
+[LivenessAnalysisPass] Found RoutineCallStatement
+[LivenessAnalysisPass] Found call in statement
+[LivenessAnalysisPass] Found RoutineCallStatement
+[LivenessAnalysisPass] Found call in statement
+[LivenessAnalysisPass] Found RoutineCallStatement
+[LivenessAnalysisPass] Found call in statement
+[LivenessAnalysisPass] Block START_Then_1 contains routine call - marked for call interval fix
+[LivenessAnalysisPass] Block START_Then_1 contains routine call - marked for call interval fix
+[LivenessAnalysisPass] Block START_Then_1 contains routine call - marked for call interval fix
+[LivenessAnalysisPass] Exiting analyze_block for block: START_Then_1
+[LivenessAnalysisPass] Analyzing block #12 (id=START_Join_2) in function 'START'
+[LivenessAnalysisPass] Entering analyze_block for block: START_Join_2
+[LivenessAnalysisPass] Starting intra-block analysis for START_Join_2 with 1 statements
+[LivenessAnalysisPass] Exiting analyze_block for block: START_Join_2
+[LivenessAnalysisPass] Analyzing block #13 (id=START_Entry_0) in function 'START'
 [LivenessAnalysisPass] Entering analyze_block for block: START_Entry_0
 [LivenessAnalysisPass] Starting intra-block analysis for START_Entry_0 with 3 statements
-[LivenessAnalysisPass] Statement uses variables: L 
 [LivenessAnalysisPass] Found RoutineCallStatement
 [LivenessAnalysisPass] Found call in statement
 [LivenessAnalysisPass] Block START_Entry_0 contains routine call - marked for call interval fix
@@ -411,116 +649,229 @@ Applying CFG Simplification Pass (Branch Chaining)...
 [LivenessAnalysisPass] Calling run_data_flow_analysis()
 [LivenessAnalysisPass] Entering run_data_flow_analysis()
 [LivenessAnalysisPass] Data-flow iteration 1
-[LivenessAnalysisPass] Processing block: START_ForEachAdvance_4 in function: START
-[LivenessAnalysisPass] Processing block: START_ForEachBody_2 in function: START
-[LivenessAnalysisPass] Applying call interval fix to block START_ForEachBody_2 - adding 1 live-out variables and 2 intra-statement call variables to use set
-[LivenessAnalysisPass] Processing block: START_Exit_5 in function: START
-[LivenessAnalysisPass] Processing block: START_ForEachExit_3 in function: START
-[LivenessAnalysisPass] Applying call interval fix to block START_ForEachExit_3 - adding 0 live-out variables to use set
-[LivenessAnalysisPass] Processing block: START_ForEachHeader_1 in function: START
+[LivenessAnalysisPass] Processing block: START_FinishCleanup_3 in function: START
+[LivenessAnalysisPass] Processing block: START_Then_1 in function: START
+[LivenessAnalysisPass] Applying call interval fix to block START_Then_1 - adding 0 live-out variables to use set
+[LivenessAnalysisPass] Processing block: START_ForIncrement_6 in function: START
+[LivenessAnalysisPass] Processing block: START_ForBody_5 in function: START
+[LivenessAnalysisPass] Applying call interval fix to block START_ForBody_5 - adding 1 live-out variables and 1 intra-statement call variables to use set
+[LivenessAnalysisPass] Processing block: START_Exit_12 in function: START
+[LivenessAnalysisPass] Processing block: START_ForEachExit_11 in function: START
+[LivenessAnalysisPass] Applying call interval fix to block START_ForEachExit_11 - adding 0 live-out variables to use set
+[LivenessAnalysisPass] Processing block: START_ForEachIncrement_10 in function: START
+[LivenessAnalysisPass] Processing block: START_ForEachBody_9 in function: START
+[LivenessAnalysisPass] Applying call interval fix to block START_ForEachBody_9 - adding 1 live-out variables and 1 intra-statement call variables to use set
+[LivenessAnalysisPass] Processing block: START_ForEachHeader_8 in function: START
+[LivenessAnalysisPass] Processing block: START_ForExit_7 in function: START
+[LivenessAnalysisPass] Applying call interval fix to block START_ForExit_7 - adding 4 live-out variables to use set
+[LivenessAnalysisPass] Processing block: START_ForHeader_4 in function: START
+[LivenessAnalysisPass] Processing block: START_Join_2 in function: START
 [LivenessAnalysisPass] Processing block: START_Entry_0 in function: START
-[LivenessAnalysisPass] Applying call interval fix to block START_Entry_0 - adding 2 live-out variables to use set
+[LivenessAnalysisPass] Applying call interval fix to block START_Entry_0 - adding 4 live-out variables to use set
 [LivenessAnalysisPass] Data-flow iteration 2
-[LivenessAnalysisPass] Processing block: START_ForEachAdvance_4 in function: START
-[LivenessAnalysisPass] Processing block: START_ForEachBody_2 in function: START
-[LivenessAnalysisPass] Applying call interval fix to block START_ForEachBody_2 - adding 2 live-out variables and 2 intra-statement call variables to use set
-[LivenessAnalysisPass] Processing block: START_Exit_5 in function: START
-[LivenessAnalysisPass] Processing block: START_ForEachExit_3 in function: START
-[LivenessAnalysisPass] Applying call interval fix to block START_ForEachExit_3 - adding 0 live-out variables to use set
-[LivenessAnalysisPass] Processing block: START_ForEachHeader_1 in function: START
+[LivenessAnalysisPass] Processing block: START_FinishCleanup_3 in function: START
+[LivenessAnalysisPass] Processing block: START_Then_1 in function: START
+[LivenessAnalysisPass] Applying call interval fix to block START_Then_1 - adding 0 live-out variables to use set
+[LivenessAnalysisPass] Processing block: START_ForIncrement_6 in function: START
+[LivenessAnalysisPass] Processing block: START_ForBody_5 in function: START
+[LivenessAnalysisPass] Applying call interval fix to block START_ForBody_5 - adding 5 live-out variables and 1 intra-statement call variables to use set
+[LivenessAnalysisPass] Processing block: START_Exit_12 in function: START
+[LivenessAnalysisPass] Processing block: START_ForEachExit_11 in function: START
+[LivenessAnalysisPass] Applying call interval fix to block START_ForEachExit_11 - adding 0 live-out variables to use set
+[LivenessAnalysisPass] Processing block: START_ForEachIncrement_10 in function: START
+[LivenessAnalysisPass] Processing block: START_ForEachBody_9 in function: START
+[LivenessAnalysisPass] Applying call interval fix to block START_ForEachBody_9 - adding 4 live-out variables and 1 intra-statement call variables to use set
+[LivenessAnalysisPass] Processing block: START_ForEachHeader_8 in function: START
+[LivenessAnalysisPass] Processing block: START_ForExit_7 in function: START
+[LivenessAnalysisPass] Applying call interval fix to block START_ForExit_7 - adding 4 live-out variables to use set
+[LivenessAnalysisPass] Processing block: START_ForHeader_4 in function: START
+[LivenessAnalysisPass] Processing block: START_Join_2 in function: START
 [LivenessAnalysisPass] Processing block: START_Entry_0 in function: START
-[LivenessAnalysisPass] Applying call interval fix to block START_Entry_0 - adding 2 live-out variables to use set
+[LivenessAnalysisPass] Applying call interval fix to block START_Entry_0 - adding 4 live-out variables to use set
 [LivenessAnalysisPass] Data-flow iteration 3
-[LivenessAnalysisPass] Processing block: START_ForEachAdvance_4 in function: START
-[LivenessAnalysisPass] Processing block: START_ForEachBody_2 in function: START
-[LivenessAnalysisPass] Applying call interval fix to block START_ForEachBody_2 - adding 2 live-out variables and 2 intra-statement call variables to use set
-[LivenessAnalysisPass] Processing block: START_Exit_5 in function: START
-[LivenessAnalysisPass] Processing block: START_ForEachExit_3 in function: START
-[LivenessAnalysisPass] Applying call interval fix to block START_ForEachExit_3 - adding 0 live-out variables to use set
-[LivenessAnalysisPass] Processing block: START_ForEachHeader_1 in function: START
+[LivenessAnalysisPass] Processing block: START_FinishCleanup_3 in function: START
+[LivenessAnalysisPass] Processing block: START_Then_1 in function: START
+[LivenessAnalysisPass] Applying call interval fix to block START_Then_1 - adding 0 live-out variables to use set
+[LivenessAnalysisPass] Processing block: START_ForIncrement_6 in function: START
+[LivenessAnalysisPass] Processing block: START_ForBody_5 in function: START
+[LivenessAnalysisPass] Applying call interval fix to block START_ForBody_5 - adding 5 live-out variables and 1 intra-statement call variables to use set
+[LivenessAnalysisPass] Processing block: START_Exit_12 in function: START
+[LivenessAnalysisPass] Processing block: START_ForEachExit_11 in function: START
+[LivenessAnalysisPass] Applying call interval fix to block START_ForEachExit_11 - adding 0 live-out variables to use set
+[LivenessAnalysisPass] Processing block: START_ForEachIncrement_10 in function: START
+[LivenessAnalysisPass] Processing block: START_ForEachBody_9 in function: START
+[LivenessAnalysisPass] Applying call interval fix to block START_ForEachBody_9 - adding 4 live-out variables and 1 intra-statement call variables to use set
+[LivenessAnalysisPass] Processing block: START_ForEachHeader_8 in function: START
+[LivenessAnalysisPass] Processing block: START_ForExit_7 in function: START
+[LivenessAnalysisPass] Applying call interval fix to block START_ForExit_7 - adding 4 live-out variables to use set
+[LivenessAnalysisPass] Processing block: START_ForHeader_4 in function: START
+[LivenessAnalysisPass] Processing block: START_Join_2 in function: START
 [LivenessAnalysisPass] Processing block: START_Entry_0 in function: START
-[LivenessAnalysisPass] Applying call interval fix to block START_Entry_0 - adding 2 live-out variables to use set
+[LivenessAnalysisPass] Applying call interval fix to block START_Entry_0 - adding 4 live-out variables to use set
 [LivenessAnalysisPass] Exiting run_data_flow_analysis()
 [LivenessAnalysisPass] Finished run_data_flow_analysis()
 --- Liveness Analysis Complete ---
 
 Liveness Analysis for function: START
 -------------------------------------------
-Block ID: START_Exit_5
+Block ID: START_ForEachIncrement_10
+  Use: { _forEach_idx_1 }
+  Def: { _forEach_idx_1 }
+  In : { V _forEach_idx_1 _forEach_len_0 e }
+  Out: { V _forEach_idx_1 _forEach_len_0 e }
+Block ID: START_ForExit_7
+  Use: { V }
+  Def: { _forEach_idx_1 _forEach_len_0 }
+  In : { V _forEach_idx_1 _forEach_len_0 e }
+  Out: { V _forEach_idx_1 _forEach_len_0 e }
+Block ID: START_ForIncrement_6
+  Use: { I_for_var_0 }
+  Def: { I_for_var_0 }
+  In : { I_for_var_0 V _forEach_idx_1 _forEach_len_0 e }
+  Out: { V _forEach_idx_1 _forEach_len_0 e }
+Block ID: START_ForHeader_4
+  Use: { }
+  Def: { I_for_var_0 }
+  In : { V _forEach_idx_1 _forEach_len_0 e }
+  Out: { I_for_var_0 V _forEach_idx_1 _forEach_len_0 e }
+Block ID: START_ForBody_5
+  Use: { I_for_var_0 }
+  Def: { }
+  In : { I_for_var_0 V _forEach_idx_1 _forEach_len_0 e }
+  Out: { I_for_var_0 V _forEach_idx_1 _forEach_len_0 e }
+Block ID: START_FinishCleanup_3
   Use: { }
   Def: { }
   In : { }
   Out: { }
-Block ID: START_ForEachAdvance_4
-  Use: { _forEach_cursor_0 }
-  Def: { _forEach_cursor_0 }
-  In : { S _forEach_cursor_0 }
-  Out: { S _forEach_cursor_0 }
-Block ID: START_ForEachBody_2
-  Use: { S _forEach_cursor_0 }
-  Def: { S }
-  In : { S _forEach_cursor_0 }
-  Out: { S _forEach_cursor_0 }
-Block ID: START_ForEachHeader_1
-  Use: { _forEach_cursor_0 }
-  Def: { }
-  In : { S _forEach_cursor_0 }
-  Out: { S _forEach_cursor_0 }
-Block ID: START_ForEachExit_3
+Block ID: START_Exit_12
   Use: { }
   Def: { }
   In : { }
   Out: { }
+Block ID: START_ForEachBody_9
+  Use: { V _forEach_idx_1 e }
+  Def: { e }
+  In : { V _forEach_idx_1 _forEach_len_0 e }
+  Out: { V _forEach_idx_1 _forEach_len_0 e }
+Block ID: START_ForEachExit_11
+  Use: { }
+  Def: { }
+  In : { }
+  Out: { }
+Block ID: START_ForEachHeader_8
+  Use: { _forEach_idx_1 _forEach_len_0 }
+  Def: { }
+  In : { V _forEach_idx_1 _forEach_len_0 e }
+  Out: { V _forEach_idx_1 _forEach_len_0 e }
+Block ID: START_Then_1
+  Use: { }
+  Def: { }
+  In : { }
+  Out: { }
+Block ID: START_Join_2
+  Use: { }
+  Def: { I_for_var_0 }
+  In : { V _forEach_idx_1 _forEach_len_0 e }
+  Out: { V _forEach_idx_1 _forEach_len_0 e }
 Block ID: START_Entry_0
   Use: { }
-  Def: { L _forEach_cursor_0 }
-  In : { S _forEach_cursor_0 }
-  Out: { S _forEach_cursor_0 }
+  Def: { V }
+  In : { V _forEach_idx_1 _forEach_len_0 e }
+  Out: { V _forEach_idx_1 _forEach_len_0 e }
 
 CFG for function: START
 ----------------------------------------
 Entry Block: START_Entry_0
-Exit Block: START_Exit_5 (conceptual)
+Exit Block: START_Exit_12 (conceptual)
 
-Block ID: START_Exit_5 (Exit)
+Block ID: START_ForEachIncrement_10
+  Statements:
+    - AssignmentStmt
+  Successors: START_ForEachHeader_8
+  Predecessors: START_ForEachBody_9
+
+Block ID: START_ForExit_7
+  Statements:
+    - RoutineCallStmt
+    - AssignmentStmt
+    - AssignmentStmt
+  Successors: START_ForEachHeader_8
+  Predecessors: START_ForHeader_4
+
+Block ID: START_ForIncrement_6
+  Statements:
+    - AssignmentStmt
+  Successors: START_ForHeader_4
+  Predecessors: START_ForBody_5
+
+Block ID: START_ForHeader_4
+  Statements:
+    - ForStmt
+  Successors: START_ForBody_5, START_ForExit_7
+  Predecessors: START_Join_2, START_ForIncrement_6
+
+Block ID: START_ForBody_5
+  Statements:
+    - RoutineCallStmt
+    - AssignmentStmt
+    - RoutineCallStmt
+  Successors: START_ForIncrement_6
+  Predecessors: START_ForHeader_4
+
+Block ID: START_FinishCleanup_3
+  Statements:
+    - FinishStmt
+  Successors: (none)
+  Predecessors: START_Then_1
+
+Block ID: START_Exit_12 (Exit)
   Statements:
     (empty)
   Successors: (none)
-  Predecessors: START_ForEachExit_3
+  Predecessors: START_ForEachExit_11
 
-Block ID: START_ForEachAdvance_4
-  Statements:
-    - AssignmentStmt
-  Successors: START_ForEachHeader_1
-  Predecessors: START_ForEachBody_2
-
-Block ID: START_ForEachBody_2
+Block ID: START_ForEachBody_9
   Statements:
     - AssignmentStmt
     - RoutineCallStmt
     - RoutineCallStmt
     - RoutineCallStmt
-  Successors: START_ForEachAdvance_4
-  Predecessors: START_ForEachHeader_1
+  Successors: START_ForEachIncrement_10
+  Predecessors: START_ForEachHeader_8
 
-Block ID: START_ForEachHeader_1
+Block ID: START_ForEachExit_11
+  Statements:
+    - RoutineCallStmt
+  Successors: START_Exit_12
+  Predecessors: START_ForEachHeader_8
+
+Block ID: START_ForEachHeader_8
   Statements:
     - ConditionalBranchStmt
-  Successors: START_ForEachBody_2, START_ForEachExit_3
-  Predecessors: START_Entry_0, START_ForEachAdvance_4
+  Successors: START_ForEachExit_11, START_ForEachBody_9
+  Predecessors: START_ForExit_7, START_ForEachIncrement_10
 
-Block ID: START_ForEachExit_3
+Block ID: START_Then_1
   Statements:
     - RoutineCallStmt
-  Successors: START_Exit_5
-  Predecessors: START_ForEachHeader_1
+    - RoutineCallStmt
+    - RoutineCallStmt
+  Successors: START_FinishCleanup_3
+  Predecessors: START_Entry_0
+
+Block ID: START_Join_2
+  Statements:
+    - AssignmentStmt
+  Successors: START_ForHeader_4
+  Predecessors: START_Entry_0
 
 Block ID: START_Entry_0 (Entry)
   Statements:
     - RoutineCallStmt
     - AssignmentStmt
-    - AssignmentStmt
-  Successors: START_ForEachHeader_1
+    - IfStmt
+  Successors: START_Then_1, START_Join_2
   Predecessors: (none)
 ----------------------------------------
 
@@ -533,53 +884,102 @@ Program:
           Statements:
             AssignmentStatement:
               LHS:
-                VariableAccess: L
+                VariableAccess: V
               RHS:
-                ListExpression:
-                  Initializers:
-                    StringLiteral: "a"
-                    StringLiteral: "string"
-                    StringLiteral: "list"
+            IfStatement:
+              Condition:
+                BinaryOp: Equal
+                  VariableAccess: V
+                  NumberLiteral: 0
+              Then:
+                BlockStatement:
+                  Statements:
+                    RoutineCallStatement:
+                      Callee:
+                        VariableAccess: WRITES
+                      Arguments:
+                        StringLiteral: "FAIL: VEC allocation failed
+"
+                    FinishStatement
+            ForStatement: I
+              Start:
+                NumberLiteral: 0
+              End:
+                NumberLiteral: 4
+              Body:
+                BlockStatement:
+                  Statements:
+                    AssignmentStatement:
+                      LHS:
+                        VectorAccess (!):
+                          VariableAccess: V
+                          VariableAccess: I_for_var_0
+                      RHS:
+                        UnaryOp: FloatConvert
+                          BinaryOp: Multiply
+                            VariableAccess: I_for_var_0
+                            NumberLiteral: 2
+            RoutineCallStatement:
+              Callee:
+                VariableAccess: WRITES
+              Arguments:
+                StringLiteral: "Foreach float test:
+"
 ----------------------------------
 
 Updating register pressure from liveness data...
 
 [INFO] Building Live Intervals for all functions...
 [LiveIntervalPass] Building intervals for function: START
-[LiveIntervalPass] Created 3 intervals for function: START
-  S: [0-15]
-  _forEach_cursor_0: [0-15]
-  L: [1-2]
+[LiveIntervalPass] Created 6 intervals for function: START
+  V: [0-29]
+  _forEach_idx_1: [0-29]
+  _forEach_len_0: [0-29]
+  e: [0-29]
+  I_for_var_0: [4-28]
+  I: [6-6]
 
 [INFO] Performing Linear Scan Register Allocation for ALL functions...
 [Allocator] Starting partitioned linear scan for function: START
 [Allocator] Available integer registers: 16, float registers: 24
-[Allocator] Function has 5 call sites at: 0 5 6 7 8 
-[Allocator] Partitioned: 2 call-crossing, 1 local-only intervals
+[Allocator] Function has 11 call sites at: 0 4 8 13 14 15 16 17 18 19 20 
+[Allocator] Partitioned: 5 call-crossing, 1 local-only intervals
 [Allocator] Register pools - Callee-saved INT: 9, Caller-saved INT: 4, Reserved scratch INT: 3
 [Allocator] Register pools - Callee-saved FP: 8, Caller-saved FP: 16
 [Allocator] Stage 1: Allocating call-crossing intervals
-[Allocator] Allocating call-crossing S [0-15]
-  Assigned callee-saved register X27 to S
-[ALLOC] Updated allocations for S: spilled=0, register='X27'
-[Allocator] Allocating call-crossing _forEach_cursor_0 [0-15]
-  Assigned callee-saved register X26 to _forEach_cursor_0
-[ALLOC] Updated allocations for _forEach_cursor_0: spilled=0, register='X26'
+[Allocator] Allocating call-crossing V [0-29]
+  Assigned callee-saved register X27 to V
+[ALLOC] Updated allocations for V: spilled=0, register='X27'
+[Allocator] Allocating call-crossing _forEach_idx_1 [0-29]
+  Assigned callee-saved register X26 to _forEach_idx_1
+[ALLOC] Updated allocations for _forEach_idx_1: spilled=0, register='X26'
+[Allocator] Allocating call-crossing _forEach_len_0 [0-29]
+  Assigned callee-saved register X25 to _forEach_len_0
+[ALLOC] Updated allocations for _forEach_len_0: spilled=0, register='X25'
+[Allocator] Allocating call-crossing e [0-29]
+  Assigned callee-saved register D15 to e
+[ALLOC] Updated allocations for e: spilled=0, register='D15'
+[Allocator] Allocating call-crossing I_for_var_0 [4-28]
+  Assigned callee-saved register X24 to I_for_var_0
+[ALLOC] Updated allocations for I_for_var_0: spilled=0, register='X24'
 [Allocator] Stage 2: Allocating local-only intervals
-[Allocator] Allocating local-only L [1-2]
-  Assigned register X15 to L
-[ALLOC] Updated allocations for L: spilled=0, register='X15'
+[Allocator] Allocating local-only I [6-6]
+  Assigned register X15 to I
+[ALLOC] Updated allocations for I: spilled=0, register='X15'
 [Allocator] Partitioned allocation complete for START
 [Allocator] Reserved 3 scratch registers for code generation: X9 X10 X11 
 [Allocator] Final state validation:
-  Active intervals remaining: 3
-  Free integer registers: 10
-  Free float registers: 24
+  Active intervals remaining: 6
+  Free integer registers: 8
+  Free float registers: 23
   ✓ No register conflicts detected
 [Allocator] Results:
-  L: reg X15 (caller-saved) [local-only]
-  S: reg X27 (callee-saved) [call-crossing]
-  _forEach_cursor_0: reg X26 (callee-saved) [call-crossing]
+  I: reg X15 (caller-saved) [local-only]
+  I_for_var_0: reg X24 (callee-saved) [call-crossing]
+  V: reg X27 (callee-saved) [call-crossing]
+  _forEach_idx_1: reg X26 (callee-saved) [call-crossing]
+  _forEach_len_0: reg X25 (callee-saved) [call-crossing]
+  e: reg D15 (caller-saved) [call-crossing]
 
 [INFO] Synchronizing RegisterManager with LinearScanAllocator decisions...
 
@@ -588,26 +988,29 @@ Updating register pressure from liveness data...
 Function: START
   Type: int
   Parameters: 0
-  Integer Locals: 3
-  Float Locals: 0
-  Runtime Calls: 1
+  Integer Locals: 4
+  Float Locals: 1
+  Runtime Calls: 3
   Local Function Calls: 0
   Local Routine Calls: 0
   Vector Allocations: no
   Accesses Globals: yes
-  Max Live Variables (Register Pressure): 2
+  Max Live Variables (Register Pressure): 5
   Required Callee-Saved Temps: 0
 --------------------------------------------
 --------------------------------------------------
 
-[DEBUG] Initialized veneer manager with base address: 0x4421337088
+[DEBUG] Initialized veneer manager with base address: 0x4393844736
 [DEBUG] Starting code generation for program.
 [DEBUG] Step 1: Performing pre-analysis scan for external functions...
-[DEBUG] Found 1 unique external functions:
+[DEBUG] Found 3 unique external functions:
+[DEBUG]   - FGETVEC
 [DEBUG]   - WRITEF
+[DEBUG]   - WRITES
 [DEBUG] Step 2: Generating veneer section using standard pipeline...
 [VeneerManager] WRITEF detected, adding WRITEF1-WRITEF7 variants...
-[VeneerManager] Generating 10 veneers (including function families) using standard pipeline...
+[VeneerManager] Generating 12 veneers (including function families) using standard pipeline...
+[VeneerManager] Created veneer: FGETVEC_veneer for function: FGETVEC
 [VeneerManager] Created veneer: HeapManager_enter_scope_veneer for function: HeapManager_enter_scope
 [VeneerManager] Created veneer: HeapManager_exit_scope_veneer for function: HeapManager_exit_scope
 [VeneerManager] Created veneer: WRITEF_veneer for function: WRITEF
@@ -618,7 +1021,8 @@ Function: START
 [VeneerManager] Created veneer: WRITEF5_veneer for function: WRITEF5
 [VeneerManager] Created veneer: WRITEF6_veneer for function: WRITEF6
 [VeneerManager] Created veneer: WRITEF7_veneer for function: WRITEF7
-[VeneerManager] Generated 10 veneers, estimated total size: 200 bytes
+[VeneerManager] Created veneer: WRITES_veneer for function: WRITES
+[VeneerManager] Generated 12 veneers, estimated total size: 240 bytes
 [DEBUG] Step 3: Generating main function code...
 [DEBUG] Visiting Program node.
 [DEBUG] Moving 'START' routine to the end of the generation queue for JIT compatibility.
@@ -632,77 +1036,117 @@ Function: START
 [DEBUG] Clearing local value tracking for function: START
 [SYNC] Resetting all LinearScanAllocator reservations
 [SYNC] Syncing RegisterManager with LinearScanAllocator for function: START
-[SYNC] Found 3 variable allocations
-[SYNC] Reserved register X15 for variable L
-[SYNC] Reserved register X27 for variable S
-[SYNC] Reserved register X26 for variable _forEach_cursor_0
+[SYNC] Found 6 variable allocations
+[SYNC] Reserved register X15 for variable I
+[SYNC] Reserved register X24 for variable I_for_var_0
+[SYNC] Reserved register X27 for variable V
+[SYNC] Reserved register X26 for variable _forEach_idx_1
+[SYNC] Reserved register X25 for variable _forEach_len_0
+[SYNC] Reserved register D15 for variable e
 [DEBUG] Synced RegisterManager with LinearScanAllocator for function: START
 [DEBUG] Using name as-is for lookup: START
 Call Frame Layout for function: START
 [DEBUG] Registering all parameters as locals in CallFrameManager for 'START'.
-[DEBUG] DEBUG: metrics.variable_types size for 'START': 3
-[DEBUG] DEBUG: variable_types['L'] = POINTER_TO|LIST|STRING
-[DEBUG] DEBUG: variable_types['S'] = STRING
-[DEBUG] DEBUG: variable_types['_forEach_cursor_0'] = POINTER_TO|LIST
+[DEBUG] DEBUG: metrics.variable_types size for 'START': 5
+[DEBUG] DEBUG: variable_types['I_for_var_0'] = INTEGER
+[DEBUG] DEBUG: variable_types['V'] = POINTER_TO|VEC|FLOAT
+[DEBUG] DEBUG: variable_types['_forEach_idx_1'] = INTEGER
+[DEBUG] DEBUG: variable_types['_forEach_len_0'] = INTEGER
+[DEBUG] DEBUG: variable_types['e'] = FLOAT
 [DEBUG] Registering all local variables from ASTAnalyzer metrics for 'START'.
-Added local variable 'L' of type 1050628 at offset 16 (size 8)
-[DEBUG] Registered local 'L' from analyzer metrics.
-Added local variable 'S' of type 4 at offset 24 (size 8)
-[DEBUG] Registered local 'S' from analyzer metrics.
-Added local variable '_forEach_cursor_0' of type 1050624 at offset 32 (size 8)
-[DEBUG] Registered local '_forEach_cursor_0' from analyzer metrics.
+Added local variable 'I_for_var_0' of type 1 at offset 16 (size 8)
+[DEBUG] Registered local 'I_for_var_0' from analyzer metrics.
+Added local variable 'V' of type 1049602 at offset 24 (size 16)
+[DEBUG] Registered local 'V' from analyzer metrics.
+Added local variable '_forEach_idx_1' of type 1 at offset 40 (size 8)
+[DEBUG] Registered local '_forEach_idx_1' from analyzer metrics.
+Added local variable '_forEach_len_0' of type 1 at offset 48 (size 8)
+[DEBUG] Registered local '_forEach_len_0' from analyzer metrics.
+Added local variable 'e' of type 2 at offset 56 (size 8)
+[DEBUG] Registered local 'e' from analyzer metrics.
 [DEBUG] Entered new scope. Scope stack size: 1
 [DEBUG] Using pre-computed register allocation for 'START'.
 [DEBUG] No spills needed - all variables fit in registers.
+Added D15 to callee_saved_registers_to_save list.
+Added X24 to callee_saved_registers_to_save list.
+Added X25 to callee_saved_registers_to_save list.
 Added X26 to callee_saved_registers_to_save list.
 Added X27 to callee_saved_registers_to_save list.
 [DEBUG] Attempting to generate prologue for 'START'.
---- Call Frame Layout for function: START (Total Size: 80 bytes) ---
+--- Call Frame Layout for function: START (Total Size: 160 bytes) ---
 Offset   | Content                               | Type
 ------------------------------------------------------
 +0       | Old Frame Pointer (x29)     <-- FP (x29) points here
 +8       | Return Address (Caller's PC)
-+16      | Local: L                              | POINTER_TO|LIST|STRING
-+24      | Local: S                              | STRING
-+32      | Local: _forEach_cursor_0              | POINTER_TO|LIST
-+40      | Saved Reg: X19                        | UNKNOWN
-+48      | Saved Reg: X20                        | UNKNOWN
-+56      | Saved Reg: X26                        | UNKNOWN
-+64      | Saved Reg: X27                        | UNKNOWN
-+72      | Saved Reg: X28                        | UNKNOWN
++16      | Local: I_for_var_0                    | INTEGER
++24      | Local: V                              | POINTER_TO|VEC|FLOAT
++40      | Local: _forEach_idx_1                 | INTEGER
++48      | Local: _forEach_len_0                 | INTEGER
++56      | Local: e                              | FLOAT
++64      | Saved Reg: D15                        | UNKNOWN
++72      | Saved Reg: X19                        | UNKNOWN
++80      | Saved Reg: X20                        | UNKNOWN
++88      | Saved Reg: X21                        | UNKNOWN
++96      | Saved Reg: X22                        | UNKNOWN
++104     | Saved Reg: X23                        | UNKNOWN
++112     | Saved Reg: X24                        | UNKNOWN
++120     | Saved Reg: X25                        | UNKNOWN
++128     | Saved Reg: X26                        | UNKNOWN
++136     | Saved Reg: X27                        | UNKNOWN
++144     | Saved Reg: X28                        | UNKNOWN
 ------------------------------------------------------
-                                     <-- SP (+80 from FP)
+                                     <-- SP (+160 from FP)
 
-[DEBUG LEVEL 5] Emitting instruction: STP X29, X30, [SP, #-80]!
+[DEBUG LEVEL 5] Emitting instruction: STP X29, X30, [SP, #-160]!
 [DEBUG LEVEL 5] Emitting instruction: MOV X29, SP
-[DEBUG LEVEL 5] Emitting instruction: STR X19, [X29, #40] ; Saved Reg: X19 @ FP+40
-[DEBUG LEVEL 5] Emitting instruction: STR X20, [X29, #48] ; Saved Reg: X20 @ FP+48
-[DEBUG LEVEL 5] Emitting instruction: STR X26, [X29, #56] ; Saved Reg: X26 @ FP+56
-[DEBUG LEVEL 5] Emitting instruction: STR X27, [X29, #64] ; Saved Reg: X27 @ FP+64
-[DEBUG LEVEL 5] Emitting instruction: STR X28, [X29, #72] ; Saved Reg: X28 @ FP+72
+[DEBUG LEVEL 5] Emitting instruction: STR D15, [X29, #64] ; Saved Reg: D15 @ FP+64
+[DEBUG LEVEL 5] Emitting instruction: STR X19, [X29, #72] ; Saved Reg: X19 @ FP+72
+[DEBUG LEVEL 5] Emitting instruction: STR X20, [X29, #80] ; Saved Reg: X20 @ FP+80
+[DEBUG LEVEL 5] Emitting instruction: STR X21, [X29, #88] ; Saved Reg: X21 @ FP+88
+[DEBUG LEVEL 5] Emitting instruction: STR X22, [X29, #96] ; Saved Reg: X22 @ FP+96
+[DEBUG LEVEL 5] Emitting instruction: STR X23, [X29, #104] ; Saved Reg: X23 @ FP+104
+[DEBUG LEVEL 5] Emitting instruction: STR X24, [X29, #112] ; Saved Reg: X24 @ FP+112
+[DEBUG LEVEL 5] Emitting instruction: STR X25, [X29, #120] ; Saved Reg: X25 @ FP+120
+[DEBUG LEVEL 5] Emitting instruction: STR X26, [X29, #128] ; Saved Reg: X26 @ FP+128
+[DEBUG LEVEL 5] Emitting instruction: STR X27, [X29, #136] ; Saved Reg: X27 @ FP+136
+[DEBUG LEVEL 5] Emitting instruction: STR X28, [X29, #144] ; Saved Reg: X28 @ FP+144
 [DEBUG] Mapping incoming parameters to home registers or stack slots as per allocation plan.
-[DEBUG] Registered local variable 'X27' with the allocation system (spilled)
-[DEBUG] Registered local variable 'X20' with the allocation system (spilled)
-[DEBUG] Registered local variable 'X19' with the allocation system (spilled)
-[DEBUG] Registered local variable 'X28' with the allocation system (spilled)
 [DEBUG] Registered local variable 'X26' with the allocation system (spilled)
+[DEBUG] Registered local variable 'X25' with the allocation system (spilled)
+[DEBUG] Registered local variable 'X24' with the allocation system (spilled)
+[DEBUG] Registered local variable 'X22' with the allocation system (spilled)
+[DEBUG] Registered local variable 'X20' with the allocation system (spilled)
+[DEBUG] Registered local variable 'X23' with the allocation system (spilled)
+[DEBUG] Registered local variable 'D15' with the allocation system (spilled)
+[DEBUG] Registered local variable 'X28' with the allocation system (spilled)
+[DEBUG] Registered local variable 'X21' with the allocation system (spilled)
+[DEBUG] Registered local variable 'X27' with the allocation system (spilled)
+[DEBUG] Registered local variable 'X19' with the allocation system (spilled)
 [DEBUG] Emitted JIT address load sequence for global base pointer (X28).
 [DEBUG] Skipping duplicate parameter storage
-[DEBUG] --- Call Frame Layout for function: START (Total Size: 80 bytes) ---
+[DEBUG] --- Call Frame Layout for function: START (Total Size: 160 bytes) ---
 Offset   | Content                               | Type
 ------------------------------------------------------
 +0       | Old Frame Pointer (x29)     <-- FP (x29) points here
 +8       | Return Address (Caller's PC)
-+16      | Local: L                              | POINTER_TO|LIST|STRING
-+24      | Local: S                              | STRING
-+32      | Local: _forEach_cursor_0              | POINTER_TO|LIST
-+40      | Saved Reg: X19                        | UNKNOWN
-+48      | Saved Reg: X20                        | UNKNOWN
-+56      | Saved Reg: X26                        | UNKNOWN
-+64      | Saved Reg: X27                        | UNKNOWN
-+72      | Saved Reg: X28                        | UNKNOWN
++16      | Local: I_for_var_0                    | INTEGER
++24      | Local: V                              | POINTER_TO|VEC|FLOAT
++40      | Local: _forEach_idx_1                 | INTEGER
++48      | Local: _forEach_len_0                 | INTEGER
++56      | Local: e                              | FLOAT
++64      | Saved Reg: D15                        | UNKNOWN
++72      | Saved Reg: X19                        | UNKNOWN
++80      | Saved Reg: X20                        | UNKNOWN
++88      | Saved Reg: X21                        | UNKNOWN
++96      | Saved Reg: X22                        | UNKNOWN
++104     | Saved Reg: X23                        | UNKNOWN
++112     | Saved Reg: X24                        | UNKNOWN
++120     | Saved Reg: X25                        | UNKNOWN
++128     | Saved Reg: X26                        | UNKNOWN
++136     | Saved Reg: X27                        | UNKNOWN
++144     | Saved Reg: X28                        | UNKNOWN
 ------------------------------------------------------
-                                     <-- SP (+80 from FP)
+                                     <-- SP (+160 from FP)
 
 [DEBUG] --- DEBUG: Available CFGs in the map ---
 [DEBUG]   Available CFG: 'START'
@@ -720,111 +1164,153 @@ Offset   | Content                               | Type
 [DEBUG] Visiting AssignmentStatement node.
 [DEBUG]   [CSE DEBUG] *** PROCESSING ASSIGNMENT STATEMENT ***
 [DEBUG]   [CSE DEBUG] LHS count: 1, RHS count: 1
-[DEBUG] Visiting ListExpression node.
-[DEBUG] List is constant. Using static template generation.
-[DataGenerator TRACE] add_list_literal called. Generated Key: "list[string(a),string(string),string(list)]"
-[DataGenerator TRACE] >> Cache MISS. Generating new labels.
-[DEBUG LEVEL 5] Emitting instruction: ADRP X0, L_list0_header
-[DEBUG LEVEL 5] Emitting instruction: ADD X0, X0, #:lo12:L_list0_header
-[DEBUG LEVEL 5] Emitting instruction: BL DEEPCOPYLITERALLIST
-[DEBUG] Emitted deep copy logic for LIST.
-[DEBUG] Handling assignment for variable: L
-[DEBUG] store_variable_register for 'L' from register 'X0'
-[DEBUG]   [ALLOCATOR HIT] Variable 'L' lives in X15. Emitting MOV.
-[DEBUG]   [LOOP VAR PROTECTION] Extra protection for loop variable: L
-[DEBUG LEVEL 5] Emitting instruction: MOV X15, X0
-[DEBUG]   Updating home register X15 for variable 'L' after store.
-[DEBUG LEVEL 5] Emitting instruction: MOV X15, X0
-[DEBUG LEVEL 3] Skipping duplicate MOV instruction: MOV X15, X0
+[DEBUG] Visiting FVecAllocationExpression node.
+[DEBUG] Visiting NumberLiteral node.
+[DEBUG LEVEL 5] Emitting instruction: MOVZ X9, #5
+[DEBUG] Loaded integer literal 5 into X9 using MOVZ.
+[DEBUG LEVEL 5] Emitting instruction: MOV X0, X9
+[DEBUG LEVEL 5] Emitting instruction: BL FGETVEC_veneer
+[DEBUG LEVEL 5] Emitting instruction: MOV X9, X0
+[DEBUG] Finished visiting FVecAllocationExpression node.
+[DEBUG] Handling assignment for variable: V
+[DEBUG] store_variable_register for 'V' from register 'X9'
+[DEBUG]   [ALLOCATOR HIT] Variable 'V' lives in X27. Emitting MOV.
+[DEBUG]   [LOOP VAR PROTECTION] Extra protection for loop variable: V
+[DEBUG LEVEL 5] Emitting instruction: MOV X27, X9
+[DEBUG]   Updating home register X27 for variable 'V' after store.
+[DEBUG LEVEL 5] Emitting instruction: MOV X27, X9
+[DEBUG LEVEL 3] Skipping duplicate MOV instruction: MOV X27, X9
 [DEBUG] Finished visiting AssignmentStatement node.
+[DEBUG] Visiting IfStatement node (NOTE: branching is handled by block epilogue).
+[DEBUG] Visiting BinaryOp node.
+[DEBUG] BinaryOp type inference: left_type=1049602, right_type=1
+[DEBUG] About to evaluate LEFT side of binary operation
+[DEBUG] Visiting VariableAccess node for 'V'.
+[DEBUG]   [DEBUG] About to call get_variable_register for 'V' in function 'START'
+[DEBUG] get_variable_register for: 'V' in function 'START'
+[DEBUG]   [DEBUG] Current function allocations exist: YES
+[DEBUG]   ✅ REGISTER ALLOCATED: Variable 'V' lives in register X27
+[DEBUG] Variable 'V' value loaded into X27
+[DEBUG]   [DEBUG] get_variable_register returned: 'X27'
+[DEBUG] LEFT side evaluation complete. left_reg = 'X27'
+[DEBUG] OPTIMIZATION: Right operand is constant: 0
+[DEBUG] Checking type promotion: left_reg=X27, right_reg=
+[DEBUG] NO PROMOTION NEEDED or both same type or constant operand
+[DEBUG LEVEL 5] Emitting instruction: MOV X9, X27
+[DEBUG] Protected variable home register by copying to scratch register.
+[DEBUG LEVEL 5] Emitting instruction: CMP X9, #0
+[DEBUG LEVEL 5] Emitting instruction: CSET X10, EQ
+[DEBUG] OPTIMIZATION: No right register to release (used immediate value)
+[DEBUG] Finished visiting BinaryOp node. Result in X10
+[DEBUG LEVEL 5] Emitting instruction: CMP X10, XZR
+[DEBUG LEVEL 5] Emitting instruction: B.EQ START_Join_2
+[DEBUG LEVEL 5] Emitting instruction: B START_Then_1
+[DEBUG LEVEL 5] Emitting instruction: B .L0
+[DEBUG] Visiting FinishStatement node.
+[DEBUG] Visiting SysCall node for macOS.
+[DEBUG] Visiting NumberLiteral node.
+[DEBUG LEVEL 5] Emitting instruction: MOVZ X9, #0
+[DEBUG] Loaded integer literal 0 into X9 using MOVZ.
+[DEBUG LEVEL 5] Emitting instruction: MOV X0, X9
+[DEBUG] Evaluating syscall number expression.
+[DEBUG] Visiting NumberLiteral node.
+[DEBUG] Loaded large integer literal 33554433 into X9 using MOVZ/MOVK.
+[DEBUG] Moving syscall number to X16.
+[DEBUG LEVEL 5] Emitting instruction: MOV X16, X9
+[DEBUG] Emitting SVC #0x80 instruction.
+[DEBUG LEVEL 5] Emitting instruction: SVC #128
+[DEBUG] Syscall result is in X0.
+[DEBUG] --- Entering NewCodeGenerator::visit(RoutineCallStatement& node) [ARM64 ABI COMPLIANT] ---
+[DEBUG] Detected a regular function/routine call.
+[DEBUG] === ARM64 ABI Argument Coercion ===
+[DEBUG] Total arguments: 0
+[DEBUG] Emitting 0 queued operations
+[DEBUG] Final register usage: NGRN=0, NSRN=0
+[DEBUG] === END ARM64 ABI Argument Coercion ===
+[DEBUG LEVEL 5] Emitting instruction: BL HeapManager_enter_scope_veneer
+[DEBUG] --- Exiting NewCodeGenerator::visit(RoutineCallStatement& node) ---
 [DEBUG] Visiting AssignmentStatement node.
 [DEBUG]   [CSE DEBUG] *** PROCESSING ASSIGNMENT STATEMENT ***
 [DEBUG]   [CSE DEBUG] LHS count: 1, RHS count: 1
 [DEBUG] Visiting UnaryOp node.
 [DEBUG] Visiting BinaryOp node.
-[DEBUG] BinaryOp type inference: left_type=1050628, right_type=1
+[DEBUG] BinaryOp type inference: left_type=1, right_type=1
 [DEBUG] About to evaluate LEFT side of binary operation
-[DEBUG] Visiting VariableAccess node for 'L'.
-[DEBUG]   [DEBUG] About to call get_variable_register for 'L' in function 'START'
-[DEBUG] get_variable_register for: 'L' in function 'START'
+[DEBUG] Visiting VariableAccess node for 'I_for_var_0'.
+[DEBUG]   [DEBUG] About to call get_variable_register for 'I_for_var_0' in function 'START'
+[DEBUG] get_variable_register for: 'I_for_var_0' in function 'START'
 [DEBUG]   [DEBUG] Current function allocations exist: YES
-[DEBUG]   ✅ REGISTER ALLOCATED: Variable 'L' lives in register X15
-[DEBUG] Variable 'L' value loaded into X15
-[DEBUG]   [DEBUG] get_variable_register returned: 'X15'
-[DEBUG] LEFT side evaluation complete. left_reg = 'X15'
-[DEBUG] OPTIMIZATION: Right operand is constant: 16
-[DEBUG] Checking type promotion: left_reg=X15, right_reg=
+[DEBUG]   ✅ REGISTER ALLOCATED: Variable 'I_for_var_0' lives in register X24
+[DEBUG] Variable 'I_for_var_0' value loaded into X24
+[DEBUG]   [DEBUG] get_variable_register returned: 'X24'
+[DEBUG] LEFT side evaluation complete. left_reg = 'X24'
+[DEBUG] OPTIMIZATION: Right operand is constant: 2
+[DEBUG] Checking type promotion: left_reg=X24, right_reg=
 [DEBUG] NO PROMOTION NEEDED or both same type or constant operand
-[DEBUG LEVEL 5] Emitting instruction: MOV X9, X15
+[DEBUG LEVEL 5] Emitting instruction: MOV X9, X24
 [DEBUG] Protected variable home register by copying to scratch register.
-[DEBUG LEVEL 5] Emitting instruction: ADD X9, X9, #16
-[DEBUG] OPTIMIZATION: Generated ADD with immediate: 16
+[DEBUG LEVEL 5] Emitting instruction: MUL X9, X9, X10
 [DEBUG] OPTIMIZATION: No right register to release (used immediate value)
 [DEBUG] Finished visiting BinaryOp node. Result in X9
-[DEBUG LEVEL 5] Emitting instruction: LDR X10, [X9, #0]
-[DEBUG] Handling assignment for variable: _forEach_cursor_0
-[DEBUG] store_variable_register for '_forEach_cursor_0' from register 'X10'
-[DEBUG]   [ALLOCATOR HIT] Variable '_forEach_cursor_0' lives in X26. Emitting MOV.
-[DEBUG LEVEL 5] Emitting instruction: MOV X26, X10
-[DEBUG]   Updating home register X26 for variable '_forEach_cursor_0' after store.
-[DEBUG LEVEL 5] Emitting instruction: MOV X26, X10
-[DEBUG LEVEL 3] Skipping duplicate MOV instruction: MOV X26, X10
+[DEBUG LEVEL 5] Emitting instruction: SCVTF D0, X9
+[DEBUG] Visiting VariableAccess node for 'V'.
+[DEBUG]   [DEBUG] About to call get_variable_register for 'V' in function 'START'
+[DEBUG] get_variable_register for: 'V' in function 'START'
+[DEBUG]   [DEBUG] Current function allocations exist: YES
+[DEBUG]   ✅ REGISTER ALLOCATED: Variable 'V' lives in register X27
+[DEBUG] Variable 'V' value loaded into X27
+[DEBUG]   [DEBUG] get_variable_register returned: 'X27'
+[DEBUG] Visiting VariableAccess node for 'I_for_var_0'.
+[DEBUG]   [DEBUG] About to call get_variable_register for 'I_for_var_0' in function 'START'
+[DEBUG] get_variable_register for: 'I_for_var_0' in function 'START'
+[DEBUG]   [DEBUG] Current function allocations exist: YES
+[DEBUG]   ✅ REGISTER ALLOCATED: Variable 'I_for_var_0' lives in register X24
+[DEBUG] Variable 'I_for_var_0' value loaded into X24
+[DEBUG]   [DEBUG] get_variable_register returned: 'X24'
+[DEBUG LEVEL 5] Emitting instruction: LSL X24, X24, #3
+[DEBUG LEVEL 5] Emitting instruction: ADD X9, X27, X24
+[DEBUG LEVEL 5] Emitting instruction: STR D0, [X9, #0]
 [DEBUG] Finished visiting AssignmentStatement node.
-[DEBUG LEVEL 5] Emitting instruction: B START_ForEachHeader_1
-[DEBUG LEVEL 5] Emitting instruction: B .L0
+[DEBUG] --- Entering NewCodeGenerator::visit(RoutineCallStatement& node) [ARM64 ABI COMPLIANT] ---
+[DEBUG] Detected a regular function/routine call.
+[DEBUG] === ARM64 ABI Argument Coercion ===
+[DEBUG] Total arguments: 0
+[DEBUG] Emitting 0 queued operations
+[DEBUG] Final register usage: NGRN=0, NSRN=0
+[DEBUG] === END ARM64 ABI Argument Coercion ===
+[DEBUG LEVEL 5] Emitting instruction: BL HeapManager_exit_scope_veneer
+[DEBUG] --- Exiting NewCodeGenerator::visit(RoutineCallStatement& node) ---
+[DEBUG LEVEL 5] Emitting instruction: B START_ForIncrement_6
 [DEBUG] Visiting AssignmentStatement node.
 [DEBUG]   [CSE DEBUG] *** PROCESSING ASSIGNMENT STATEMENT ***
 [DEBUG]   [CSE DEBUG] LHS count: 1, RHS count: 1
-[DEBUG] Visiting UnaryOp node.
-[DEBUG] Generating INLINE code for hybrid static/runtime REST operation.
-[DEBUG] Visiting VariableAccess node for '_forEach_cursor_0'.
-[DEBUG]   [DEBUG] About to call get_variable_register for '_forEach_cursor_0' in function 'START'
-[DEBUG] get_variable_register for: '_forEach_cursor_0' in function 'START'
+[DEBUG] Visiting FloatVectorIndirection node.
+[DEBUG] Visiting VariableAccess node for 'V'.
+[DEBUG]   [DEBUG] About to call get_variable_register for 'V' in function 'START'
+[DEBUG] get_variable_register for: 'V' in function 'START'
 [DEBUG]   [DEBUG] Current function allocations exist: YES
-[DEBUG]   ✅ REGISTER ALLOCATED: Variable '_forEach_cursor_0' lives in register X26
-[DEBUG] Variable '_forEach_cursor_0' value loaded into X26
-[DEBUG]   [DEBUG] get_variable_register returned: 'X26'
-[DEBUG] REST operand is statically known as a List Node. Generating direct next-ptr load.
-[DEBUG LEVEL 5] Emitting instruction: CMP X26, #0
-[DEBUG LEVEL 5] Emitting instruction: B.EQ .L2
-[DEBUG LEVEL 5] Emitting instruction: LDR X9, [X26, #16]
-[DEBUG LEVEL 5] Emitting instruction: B .L1
-[DEBUG LEVEL 5] Emitting instruction: MOV X9, XZR
-[DEBUG] Handling assignment for variable: _forEach_cursor_0
-[DEBUG] store_variable_register for '_forEach_cursor_0' from register 'X9'
-[DEBUG]   [ALLOCATOR HIT] Variable '_forEach_cursor_0' lives in X26. Emitting MOV.
-[DEBUG LEVEL 5] Emitting instruction: MOV X26, X9
-[DEBUG]   Updating home register X26 for variable '_forEach_cursor_0' after store.
-[DEBUG LEVEL 5] Emitting instruction: MOV X26, X9
-[DEBUG LEVEL 3] Skipping duplicate MOV instruction: MOV X26, X9
-[DEBUG] Finished visiting AssignmentStatement node.
-[DEBUG LEVEL 5] Emitting instruction: B START_ForEachHeader_1
-[DEBUG] Visiting AssignmentStatement node.
-[DEBUG]   [CSE DEBUG] *** PROCESSING ASSIGNMENT STATEMENT ***
-[DEBUG]   [CSE DEBUG] LHS count: 1, RHS count: 1
-[DEBUG] Visiting UnaryOp node.
-[DEBUG] Generating INLINE code for hybrid static/runtime HD operation.
-[DEBUG] Visiting VariableAccess node for '_forEach_cursor_0'.
-[DEBUG]   [DEBUG] About to call get_variable_register for '_forEach_cursor_0' in function 'START'
-[DEBUG] get_variable_register for: '_forEach_cursor_0' in function 'START'
+[DEBUG]   ✅ REGISTER ALLOCATED: Variable 'V' lives in register X27
+[DEBUG] Variable 'V' value loaded into X27
+[DEBUG]   [DEBUG] get_variable_register returned: 'X27'
+[DEBUG] Visiting VariableAccess node for '_forEach_idx_1'.
+[DEBUG]   [DEBUG] About to call get_variable_register for '_forEach_idx_1' in function 'START'
+[DEBUG] get_variable_register for: '_forEach_idx_1' in function 'START'
 [DEBUG]   [DEBUG] Current function allocations exist: YES
-[DEBUG]   ✅ REGISTER ALLOCATED: Variable '_forEach_cursor_0' lives in register X26
-[DEBUG] Variable '_forEach_cursor_0' value loaded into X26
+[DEBUG]   ✅ REGISTER ALLOCATED: Variable '_forEach_idx_1' lives in register X26
+[DEBUG] Variable '_forEach_idx_1' value loaded into X26
 [DEBUG]   [DEBUG] get_variable_register returned: 'X26'
-[DEBUG] HD operand is statically known as a List Node. Generating direct load.
-[DEBUG LEVEL 5] Emitting instruction: CMP X26, #0
-[DEBUG LEVEL 5] Emitting instruction: B.EQ .L4
-[DEBUG LEVEL 5] Emitting instruction: LDR X9, [X26, #8]
-[DEBUG LEVEL 5] Emitting instruction: B .L3
-[DEBUG LEVEL 5] Emitting instruction: MOV X9, XZR
-[DEBUG] Handling assignment for variable: S
-[DEBUG] store_variable_register for 'S' from register 'X9'
-[DEBUG]   [ALLOCATOR HIT] Variable 'S' lives in X27. Emitting MOV.
-[DEBUG]   [LOOP VAR PROTECTION] Extra protection for loop variable: S
-[DEBUG LEVEL 5] Emitting instruction: MOV X27, X9
-[DEBUG]   Updating home register X27 for variable 'S' after store.
-[DEBUG LEVEL 5] Emitting instruction: MOV X27, X9
-[DEBUG LEVEL 3] Skipping duplicate MOV instruction: MOV X27, X9
+[DEBUG LEVEL 5] Emitting instruction: MOV X9, X26
+[DEBUG LEVEL 5] Emitting instruction: LSL X9, X9, #3
+[DEBUG LEVEL 5] Emitting instruction: ADD X10, X27, X9
+[DEBUG LEVEL 5] Emitting instruction: LDR D0, [X10, #0]
+[DEBUG] Finished visiting FloatVectorIndirection node.
+[DEBUG] Handling assignment for variable: e
+[DEBUG] store_variable_register for 'e' from register 'D0'
+[DEBUG]   [ALLOCATOR HIT] Variable 'e' lives in D15. Emitting MOV.
+[DEBUG]   [LOOP VAR PROTECTION] Extra protection for loop variable: e
+[DEBUG LEVEL 5] Emitting instruction: FMOV D15, D0
+[DEBUG]   Updating home register D15 for variable 'e' after store.
+[DEBUG LEVEL 5] Emitting instruction: FMOV D15, D0
 [DEBUG] Finished visiting AssignmentStatement node.
 [DEBUG] --- Entering NewCodeGenerator::visit(RoutineCallStatement& node) [ARM64 ABI COMPLIANT] ---
 [DEBUG] Detected a regular function/routine call.
@@ -839,20 +1325,20 @@ Offset   | Content                               | Type
 [DEBUG] Detected a regular function/routine call.
 [DEBUG] Generating code for StringLiteral.
 [DEBUG] Allocated register X9 for the string address.
-[DEBUG LEVEL 5] Emitting instruction: ADRP X9, L_str3
-[DEBUG LEVEL 5] Emitting instruction: ADD X9, X9, #:lo12:L_str3
+[DEBUG LEVEL 5] Emitting instruction: ADRP X9, L_str0
+[DEBUG LEVEL 5] Emitting instruction: ADD X9, X9, #:lo12:L_str0
 [DEBUG LEVEL 5] Emitting instruction: ADD X9, X9, #8
-[DEBUG] Emitted ADRP/ADD sequence and offset adjustment for string literal 'String: %s 
-'.
+[DEBUG] Emitted ADRP/ADD sequence and offset adjustment for string literal '%f - '.
 [DEBUG LEVEL 5] Emitting instruction: MOV X0, X9
-[DEBUG] Visiting VariableAccess node for 'S'.
-[DEBUG]   [DEBUG] About to call get_variable_register for 'S' in function 'START'
-[DEBUG] get_variable_register for: 'S' in function 'START'
+[DEBUG] Visiting VariableAccess node for 'e'.
+[DEBUG]   [DEBUG] About to call get_variable_register for 'e' in function 'START'
+[DEBUG] get_variable_register for: 'e' in function 'START'
 [DEBUG]   [DEBUG] Current function allocations exist: YES
-[DEBUG]   ✅ REGISTER ALLOCATED: Variable 'S' lives in register X27
-[DEBUG] Variable 'S' value loaded into X27
-[DEBUG]   [DEBUG] get_variable_register returned: 'X27'
-[DEBUG LEVEL 5] Emitting instruction: MOV X1, X27
+[DEBUG]   ✅ REGISTER ALLOCATED: Variable 'e' lives in register D15
+[DEBUG] Variable 'e' value loaded into D15
+[DEBUG]   [DEBUG] get_variable_register returned: 'D15'
+[DEBUG LEVEL 5] Emitting instruction: FMOV X9, D15
+[DEBUG LEVEL 5] Emitting instruction: MOV X1, X9
 [DEBUG LEVEL 5] Emitting instruction: BL WRITEF1_veneer
 [DEBUG] --- Exiting NewCodeGenerator::visit(RoutineCallStatement& node) ---
 [DEBUG] --- Entering NewCodeGenerator::visit(RoutineCallStatement& node) [ARM64 ABI COMPLIANT] ---
@@ -864,7 +1350,7 @@ Offset   | Content                               | Type
 [DEBUG] === END ARM64 ABI Argument Coercion ===
 [DEBUG LEVEL 5] Emitting instruction: BL HeapManager_exit_scope_veneer
 [DEBUG] --- Exiting NewCodeGenerator::visit(RoutineCallStatement& node) ---
-[DEBUG LEVEL 5] Emitting instruction: B START_ForEachAdvance_4
+[DEBUG LEVEL 5] Emitting instruction: B START_ForEachIncrement_10
 [DEBUG] --- Entering NewCodeGenerator::visit(RoutineCallStatement& node) [ARM64 ABI COMPLIANT] ---
 [DEBUG] Detected a regular function/routine call.
 [DEBUG] === ARM64 ABI Argument Coercion ===
@@ -874,18 +1360,235 @@ Offset   | Content                               | Type
 [DEBUG] === END ARM64 ABI Argument Coercion ===
 [DEBUG LEVEL 5] Emitting instruction: BL HeapManager_exit_scope_veneer
 [DEBUG] --- Exiting NewCodeGenerator::visit(RoutineCallStatement& node) ---
-[DEBUG LEVEL 5] Emitting instruction: B START_Exit_5
+[DEBUG LEVEL 5] Emitting instruction: B START_Exit_12
 [DEBUG] Visiting ConditionalBranchStatement (codegen is handled by block epilogue).
-[DEBUG] Visiting VariableAccess node for '_forEach_cursor_0'.
-[DEBUG]   [DEBUG] About to call get_variable_register for '_forEach_cursor_0' in function 'START'
-[DEBUG] get_variable_register for: '_forEach_cursor_0' in function 'START'
+[DEBUG] Visiting BinaryOp node.
+[DEBUG] BinaryOp type inference: left_type=1, right_type=1
+[DEBUG] About to evaluate LEFT side of binary operation
+[DEBUG] Visiting VariableAccess node for '_forEach_idx_1'.
+[DEBUG]   [DEBUG] About to call get_variable_register for '_forEach_idx_1' in function 'START'
+[DEBUG] get_variable_register for: '_forEach_idx_1' in function 'START'
 [DEBUG]   [DEBUG] Current function allocations exist: YES
-[DEBUG]   ✅ REGISTER ALLOCATED: Variable '_forEach_cursor_0' lives in register X26
-[DEBUG] Variable '_forEach_cursor_0' value loaded into X26
+[DEBUG]   ✅ REGISTER ALLOCATED: Variable '_forEach_idx_1' lives in register X26
+[DEBUG] Variable '_forEach_idx_1' value loaded into X26
 [DEBUG]   [DEBUG] get_variable_register returned: 'X26'
-[DEBUG LEVEL 5] Emitting instruction: CMP X26, XZR
-[DEBUG LEVEL 5] Emitting instruction: B.EQ START_ForEachExit_3
-[DEBUG LEVEL 5] Emitting instruction: B START_ForEachBody_2
+[DEBUG] LEFT side evaluation complete. left_reg = 'X26'
+[DEBUG] About to evaluate RIGHT side of binary operation
+[DEBUG] Visiting VariableAccess node for '_forEach_len_0'.
+[DEBUG]   [DEBUG] About to call get_variable_register for '_forEach_len_0' in function 'START'
+[DEBUG] get_variable_register for: '_forEach_len_0' in function 'START'
+[DEBUG]   [DEBUG] Current function allocations exist: YES
+[DEBUG]   ✅ REGISTER ALLOCATED: Variable '_forEach_len_0' lives in register X25
+[DEBUG] Variable '_forEach_len_0' value loaded into X25
+[DEBUG]   [DEBUG] get_variable_register returned: 'X25'
+[DEBUG] RIGHT side evaluation complete. right_reg = 'X25'
+[DEBUG] Checking type promotion: left_reg=X26, right_reg=X25
+[DEBUG] NO PROMOTION NEEDED or both same type or constant operand
+[DEBUG LEVEL 5] Emitting instruction: MOV X9, X26
+[DEBUG] Protected variable home register by copying to scratch register.
+[DEBUG LEVEL 5] Emitting instruction: CMP X9, X25
+[DEBUG LEVEL 5] Emitting instruction: CSET X10, LT
+[DEBUG] Released right-hand operand register: X25
+[DEBUG] Finished visiting BinaryOp node. Result in X10
+[DEBUG LEVEL 5] Emitting instruction: CMP X10, XZR
+[DEBUG LEVEL 5] Emitting instruction: B.NE START_ForEachBody_9
+[DEBUG LEVEL 5] Emitting instruction: B START_ForEachExit_11
+[DEBUG] Visiting AssignmentStatement node.
+[DEBUG]   [CSE DEBUG] *** PROCESSING ASSIGNMENT STATEMENT ***
+[DEBUG]   [CSE DEBUG] LHS count: 1, RHS count: 1
+[DEBUG] Visiting BinaryOp node.
+[DEBUG] BinaryOp type inference: left_type=1, right_type=1
+[DEBUG] About to evaluate LEFT side of binary operation
+[DEBUG] Visiting VariableAccess node for '_forEach_idx_1'.
+[DEBUG]   [DEBUG] About to call get_variable_register for '_forEach_idx_1' in function 'START'
+[DEBUG] get_variable_register for: '_forEach_idx_1' in function 'START'
+[DEBUG]   [DEBUG] Current function allocations exist: YES
+[DEBUG]   ✅ REGISTER ALLOCATED: Variable '_forEach_idx_1' lives in register X26
+[DEBUG] Variable '_forEach_idx_1' value loaded into X26
+[DEBUG]   [DEBUG] get_variable_register returned: 'X26'
+[DEBUG] LEFT side evaluation complete. left_reg = 'X26'
+[DEBUG] OPTIMIZATION: Right operand is constant: 1
+[DEBUG] Checking type promotion: left_reg=X26, right_reg=
+[DEBUG] NO PROMOTION NEEDED or both same type or constant operand
+[DEBUG LEVEL 5] Emitting instruction: MOV X9, X26
+[DEBUG] Protected variable home register by copying to scratch register.
+[DEBUG LEVEL 5] Emitting instruction: ADD X9, X9, #1
+[DEBUG] OPTIMIZATION: Generated ADD with immediate: 1
+[DEBUG] OPTIMIZATION: No right register to release (used immediate value)
+[DEBUG] Finished visiting BinaryOp node. Result in X9
+[DEBUG] Handling assignment for variable: _forEach_idx_1
+[DEBUG] store_variable_register for '_forEach_idx_1' from register 'X9'
+[DEBUG]   [ALLOCATOR HIT] Variable '_forEach_idx_1' lives in X26. Emitting MOV.
+[DEBUG LEVEL 5] Emitting instruction: MOV X26, X9
+[DEBUG]   Updating home register X26 for variable '_forEach_idx_1' after store.
+[DEBUG LEVEL 5] Emitting instruction: MOV X26, X9
+[DEBUG LEVEL 3] Skipping duplicate MOV instruction: MOV X26, X9
+[DEBUG] Finished visiting AssignmentStatement node.
+[DEBUG LEVEL 5] Emitting instruction: B START_ForEachHeader_8
+[DEBUG] --- Entering NewCodeGenerator::visit(RoutineCallStatement& node) [ARM64 ABI COMPLIANT] ---
+[DEBUG] Detected a regular function/routine call.
+[DEBUG] Generating code for StringLiteral.
+[DEBUG] Allocated register X9 for the string address.
+[DEBUG LEVEL 5] Emitting instruction: ADRP X9, L_str1
+[DEBUG LEVEL 5] Emitting instruction: ADD X9, X9, #:lo12:L_str1
+[DEBUG LEVEL 5] Emitting instruction: ADD X9, X9, #8
+[DEBUG] Emitted ADRP/ADD sequence and offset adjustment for string literal 'Foreach float test:
+'.
+[DEBUG] === ARM64 ABI Argument Coercion ===
+[DEBUG] Total arguments: 1
+[DEBUG] Arg 0: src=X9 expr_type=POINTER_TO|STRING expected=INTEGER target=INTEGER
+[DEBUG] Integer arg 0 -> X0 (NGRN=0)
+[DEBUG] Queued MOV X0, X9
+[DEBUG] Deferring release of source register: X9
+[DEBUG] Emitting 1 queued operations
+[DEBUG LEVEL 5] Emitting instruction: MOV X0, X9
+[DEBUG] Executed MOV X0, X9
+[DEBUG] Releasing source register: X9
+[DEBUG] Final register usage: NGRN=1, NSRN=0
+[DEBUG] === END ARM64 ABI Argument Coercion ===
+[DEBUG LEVEL 5] Emitting instruction: BL WRITES_veneer
+[DEBUG] --- Exiting NewCodeGenerator::visit(RoutineCallStatement& node) ---
+[DEBUG] Visiting AssignmentStatement node.
+[DEBUG]   [CSE DEBUG] *** PROCESSING ASSIGNMENT STATEMENT ***
+[DEBUG]   [CSE DEBUG] LHS count: 1, RHS count: 1
+[DEBUG] Visiting UnaryOp node.
+[DEBUG] Generating code for LEN operator.
+[DEBUG] Visiting VariableAccess node for 'V'.
+[DEBUG]   [DEBUG] About to call get_variable_register for 'V' in function 'START'
+[DEBUG] get_variable_register for: 'V' in function 'START'
+[DEBUG]   [DEBUG] Current function allocations exist: YES
+[DEBUG]   ✅ REGISTER ALLOCATED: Variable 'V' lives in register X27
+[DEBUG] Variable 'V' value loaded into X27
+[DEBUG]   [DEBUG] get_variable_register returned: 'X27'
+[DEBUG LEVEL 5] Emitting instruction: SUB X10, X27, #8
+[DEBUG LEVEL 5] Emitting instruction: LDR X9, [X10, #0] ; Load vector/table/string length
+[DEBUG] Finished LEN operator. Result in X9
+[DEBUG] Handling assignment for variable: _forEach_len_0
+[DEBUG] store_variable_register for '_forEach_len_0' from register 'X9'
+[DEBUG]   [ALLOCATOR HIT] Variable '_forEach_len_0' lives in X25. Emitting MOV.
+[DEBUG LEVEL 5] Emitting instruction: MOV X25, X9
+[DEBUG]   Updating home register X25 for variable '_forEach_len_0' after store.
+[DEBUG LEVEL 5] Emitting instruction: MOV X25, X9
+[DEBUG LEVEL 3] Skipping duplicate MOV instruction: MOV X25, X9
+[DEBUG] Finished visiting AssignmentStatement node.
+[DEBUG] Visiting AssignmentStatement node.
+[DEBUG]   [CSE DEBUG] *** PROCESSING ASSIGNMENT STATEMENT ***
+[DEBUG]   [CSE DEBUG] LHS count: 1, RHS count: 1
+[DEBUG] Visiting NumberLiteral node.
+[DEBUG LEVEL 5] Emitting instruction: MOVZ X9, #0
+[DEBUG] Loaded integer literal 0 into X9 using MOVZ.
+[DEBUG] Registering canonical address: _forEach_idx_1 = NUMBER_LITERAL:0
+[DEBUG] Registered canonical address: _forEach_idx_1 = NUMBER_LITERAL:0
+[DEBUG]   [CSE INTEGRATION] This variable now holds a known address
+[DEBUG] Handling assignment for variable: _forEach_idx_1
+[DEBUG] store_variable_register for '_forEach_idx_1' from register 'X9'
+[DEBUG]   [ALLOCATOR HIT] Variable '_forEach_idx_1' lives in X26. Emitting MOV.
+[DEBUG LEVEL 5] Emitting instruction: MOV X26, X9
+[DEBUG]   Updating home register X26 for variable '_forEach_idx_1' after store.
+[DEBUG LEVEL 5] Emitting instruction: MOV X26, X9
+[DEBUG LEVEL 3] Skipping duplicate MOV instruction: MOV X26, X9
+[DEBUG] Finished visiting AssignmentStatement node.
+[DEBUG LEVEL 5] Emitting instruction: B START_ForEachHeader_8
+[DEBUG] Visiting ForStatement node (NOTE: branching is handled by block epilogue).
+[DEBUG LEVEL 5] Emitting instruction: MOV X9, X24
+[DEBUG] Visiting NumberLiteral node.
+[DEBUG LEVEL 5] Emitting instruction: MOVZ X10, #4
+[DEBUG] Loaded integer literal 4 into X10 using MOVZ.
+[DEBUG LEVEL 5] Emitting instruction: CMP X9, X10
+[DEBUG LEVEL 5] Emitting instruction: B.GT START_ForExit_7
+[DEBUG LEVEL 5] Emitting instruction: B START_ForBody_5
+[DEBUG] Visiting AssignmentStatement node.
+[DEBUG]   [CSE DEBUG] *** PROCESSING ASSIGNMENT STATEMENT ***
+[DEBUG]   [CSE DEBUG] LHS count: 1, RHS count: 1
+[DEBUG] Visiting BinaryOp node.
+[DEBUG] BinaryOp type inference: left_type=1, right_type=1
+[DEBUG] About to evaluate LEFT side of binary operation
+[DEBUG] Visiting VariableAccess node for 'I_for_var_0'.
+[DEBUG]   [DEBUG] About to call get_variable_register for 'I_for_var_0' in function 'START'
+[DEBUG] get_variable_register for: 'I_for_var_0' in function 'START'
+[DEBUG]   [DEBUG] Current function allocations exist: YES
+[DEBUG]   ✅ REGISTER ALLOCATED: Variable 'I_for_var_0' lives in register X24
+[DEBUG] Variable 'I_for_var_0' value loaded into X24
+[DEBUG]   [DEBUG] get_variable_register returned: 'X24'
+[DEBUG] LEFT side evaluation complete. left_reg = 'X24'
+[DEBUG] OPTIMIZATION: Right operand is constant: 1
+[DEBUG] Checking type promotion: left_reg=X24, right_reg=
+[DEBUG] NO PROMOTION NEEDED or both same type or constant operand
+[DEBUG LEVEL 5] Emitting instruction: MOV X9, X24
+[DEBUG] Protected variable home register by copying to scratch register.
+[DEBUG LEVEL 5] Emitting instruction: ADD X9, X9, #1
+[DEBUG] OPTIMIZATION: Generated ADD with immediate: 1
+[DEBUG] OPTIMIZATION: No right register to release (used immediate value)
+[DEBUG] Finished visiting BinaryOp node. Result in X9
+[DEBUG] Handling assignment for variable: I_for_var_0
+[DEBUG] store_variable_register for 'I_for_var_0' from register 'X9'
+[DEBUG]   [ALLOCATOR HIT] Variable 'I_for_var_0' lives in X24. Emitting MOV.
+[DEBUG LEVEL 5] Emitting instruction: MOV X24, X9
+[DEBUG]   Updating home register X24 for variable 'I_for_var_0' after store.
+[DEBUG LEVEL 5] Emitting instruction: MOV X24, X9
+[DEBUG LEVEL 3] Skipping duplicate MOV instruction: MOV X24, X9
+[DEBUG] Finished visiting AssignmentStatement node.
+[DEBUG LEVEL 5] Emitting instruction: B START_ForHeader_4
+[DEBUG] Visiting AssignmentStatement node.
+[DEBUG]   [CSE DEBUG] *** PROCESSING ASSIGNMENT STATEMENT ***
+[DEBUG]   [CSE DEBUG] LHS count: 1, RHS count: 1
+[DEBUG] Visiting NumberLiteral node.
+[DEBUG LEVEL 5] Emitting instruction: MOVZ X9, #0
+[DEBUG] Loaded integer literal 0 into X9 using MOVZ.
+[DEBUG] Registering canonical address: I_for_var_0 = NUMBER_LITERAL:0
+[DEBUG] Registered canonical address: I_for_var_0 = NUMBER_LITERAL:0
+[DEBUG]   [CSE INTEGRATION] This variable now holds a known address
+[DEBUG] Handling assignment for variable: I_for_var_0
+[DEBUG] store_variable_register for 'I_for_var_0' from register 'X9'
+[DEBUG]   [ALLOCATOR HIT] Variable 'I_for_var_0' lives in X24. Emitting MOV.
+[DEBUG LEVEL 5] Emitting instruction: MOV X24, X9
+[DEBUG]   Updating home register X24 for variable 'I_for_var_0' after store.
+[DEBUG LEVEL 5] Emitting instruction: MOV X24, X9
+[DEBUG LEVEL 3] Skipping duplicate MOV instruction: MOV X24, X9
+[DEBUG] Finished visiting AssignmentStatement node.
+[DEBUG LEVEL 5] Emitting instruction: B START_ForHeader_4
+[DEBUG] --- Entering NewCodeGenerator::visit(RoutineCallStatement& node) [ARM64 ABI COMPLIANT] ---
+[DEBUG] Detected a regular function/routine call.
+[DEBUG] === ARM64 ABI Argument Coercion ===
+[DEBUG] Total arguments: 0
+[DEBUG] Emitting 0 queued operations
+[DEBUG] Final register usage: NGRN=0, NSRN=0
+[DEBUG] === END ARM64 ABI Argument Coercion ===
+[DEBUG LEVEL 5] Emitting instruction: BL HeapManager_enter_scope_veneer
+[DEBUG] --- Exiting NewCodeGenerator::visit(RoutineCallStatement& node) ---
+[DEBUG] --- Entering NewCodeGenerator::visit(RoutineCallStatement& node) [ARM64 ABI COMPLIANT] ---
+[DEBUG] Detected a regular function/routine call.
+[DEBUG] Generating code for StringLiteral.
+[DEBUG] Allocated register X9 for the string address.
+[DEBUG LEVEL 5] Emitting instruction: ADRP X9, L_str2
+[DEBUG LEVEL 5] Emitting instruction: ADD X9, X9, #:lo12:L_str2
+[DEBUG LEVEL 5] Emitting instruction: ADD X9, X9, #8
+[DEBUG] Emitted ADRP/ADD sequence and offset adjustment for string literal 'FAIL: VEC allocation failed
+'.
+[DEBUG] === ARM64 ABI Argument Coercion ===
+[DEBUG] Total arguments: 1
+[DEBUG] Arg 0: src=X9 expr_type=POINTER_TO|STRING expected=INTEGER target=INTEGER
+[DEBUG] Integer arg 0 -> X0 (NGRN=0)
+[DEBUG] Queued MOV X0, X9
+[DEBUG] Deferring release of source register: X9
+[DEBUG] Emitting 1 queued operations
+[DEBUG LEVEL 5] Emitting instruction: MOV X0, X9
+[DEBUG] Executed MOV X0, X9
+[DEBUG] Releasing source register: X9
+[DEBUG] Final register usage: NGRN=1, NSRN=0
+[DEBUG] === END ARM64 ABI Argument Coercion ===
+[DEBUG LEVEL 5] Emitting instruction: BL WRITES_veneer
+[DEBUG] --- Exiting NewCodeGenerator::visit(RoutineCallStatement& node) ---
+[DEBUG] --- Entering NewCodeGenerator::visit(RoutineCallStatement& node) [ARM64 ABI COMPLIANT] ---
+[DEBUG] Detected a regular function/routine call.
+[DEBUG] === ARM64 ABI Argument Coercion ===
+[DEBUG] Total arguments: 0
+[DEBUG] Emitting 0 queued operations
+[DEBUG] Final register usage: NGRN=0, NSRN=0
+[DEBUG] === END ARM64 ABI Argument Coercion ===
+[DEBUG LEVEL 5] Emitting instruction: BL HeapManager_exit_scope_veneer
+[DEBUG] --- Exiting NewCodeGenerator::visit(RoutineCallStatement& node) ---
+[DEBUG LEVEL 5] Emitting instruction: B START_FinishCleanup_3
 [DEBUG] Performing end-of-function scope cleanup for 'START'.
 [DEBUG] Defining epilogue label: .L0
 [DEBUG] Attempting to generate epilogue for 'START'.
@@ -896,20 +1599,8 @@ Offset   | Content                               | Type
 [InstructionStream TRACE] Adding label definition: L_str0
 [InstructionStream TRACE] Adding label definition: L_str1
 [InstructionStream TRACE] Adding label definition: L_str2
-[InstructionStream TRACE] Adding label definition: L_str3
 [DataGenerator TRACE] Entering generate_rodata_section.
-[DataGenerator TRACE] Size of list_literals_ vector is: 1
-[DataGenerator TRACE] >> Processing header: L_list0_header
-[DataGenerator TRACE]   Internal nodes vector size: 3
-[DataGenerator TRACE]   --- Dumping Node Labels ---
-[DataGenerator TRACE]     -> L_list0_node_0
-[DataGenerator TRACE]     -> L_list0_node_1
-[DataGenerator TRACE]     -> L_list0_node_2
-[DataGenerator TRACE]   --- End Dump ---
-[InstructionStream TRACE] Adding label definition: L_list0_header
-[InstructionStream TRACE] Adding label definition: L_list0_node_0
-[InstructionStream TRACE] Adding label definition: L_list0_node_1
-[InstructionStream TRACE] Adding label definition: L_list0_node_2
+[DataGenerator TRACE] Size of list_literals_ vector is: 0
 [InstructionStream TRACE] Adding label definition: L__data_segment_base
 [DEBUG] Code generation finished.
 Code generation complete.
@@ -920,8 +1611,9 @@ Symbol Table (Persistent, All Symbols)
 Symbol 'HeapManager_enter_scope' (FUNCTION, INTEGER, scope=0, block=0, class_name='', function_name='Global')
 Symbol 'HeapManager_exit_scope' (FUNCTION, INTEGER, scope=0, block=0, class_name='', function_name='Global')
 Symbol 'START' (ROUTINE, INTEGER, scope=0, block=0, class_name='', function_name='START')
-Symbol 'L' (LOCAL_VAR, POINTER_TO|LIST|STRING, scope=2, block=0, class_name='', function_name='START')
-Symbol 'S' (LOCAL_VAR, STRING, scope=2, block=0, class_name='', function_name='START')
+Symbol 'V' (LOCAL_VAR, POINTER_TO|VEC|FLOAT, scope=2, block=0, size=5, class_name='', function_name='START')
+Symbol 'I' (LOCAL_VAR, INTEGER, scope=2, block=0, class_name='', function_name='START')
+Symbol 'e' (LOCAL_VAR, FLOAT, scope=2, block=0, class_name='', function_name='START')
 Symbol 'READN' (RUNTIME_FUNCTION, INTEGER, scope=0, block=0, class_name='', function_name='')
 Symbol 'RND' (RUNTIME_FLOAT_FUNCTION, FLOAT, scope=0, block=0, class_name='', function_name='', parameters=[INTEGER])
 Symbol 'RAND' (RUNTIME_FUNCTION, INTEGER, scope=0, block=0, class_name='', function_name='', parameters=[INTEGER])
@@ -946,6 +1638,7 @@ Symbol 'PUTWORD' (RUNTIME_ROUTINE, INTEGER, scope=0, block=0, class_name='', fun
 Symbol 'EXIT' (RUNTIME_ROUTINE, INTEGER, scope=0, block=0, class_name='', function_name='', parameters=[INTEGER])
 Symbol 'NEWLINE' (RUNTIME_ROUTINE, INTEGER, scope=0, block=0, class_name='', function_name='')
 Symbol 'NEWPAGE' (RUNTIME_ROUTINE, INTEGER, scope=0, block=0, class_name='', function_name='')
+Symbol 'SPLIT' (RUNTIME_LIST_FUNCTION, POINTER_TO|LIST|STRING, scope=0, block=0, class_name='', function_name='', parameters=[STRING, STRING])
 Symbol 'FILE_OPEN_READ' (RUNTIME_FUNCTION, INTEGER, scope=0, block=0, class_name='', function_name='', parameters=[STRING])
 Symbol 'FILE_OPEN_WRITE' (RUNTIME_FUNCTION, INTEGER, scope=0, block=0, class_name='', function_name='', parameters=[STRING])
 Symbol 'FILE_OPEN_APPEND' (RUNTIME_FUNCTION, INTEGER, scope=0, block=0, class_name='', function_name='', parameters=[STRING])
@@ -988,336 +1681,782 @@ Symbol 'SDL2_GET_VIDEO_DRIVERS' (RUNTIME_FUNCTION, INTEGER, scope=0, block=0, cl
 Symbol 'SDL2_GET_CURRENT_VIDEO_DRIVER' (RUNTIME_FUNCTION, INTEGER, scope=0, block=0, class_name='', function_name='')
 Symbol 'SDL2_GET_DISPLAY_MODES' (RUNTIME_FUNCTION, INTEGER, scope=0, block=0, class_name='', function_name='')
 Symbol 'SDL2_TEST_BASIC' (RUNTIME_FUNCTION, INTEGER, scope=0, block=0, class_name='', function_name='')
-Symbol '_forEach_cursor_0' (LOCAL_VAR, POINTER_TO|LIST, scope=1, block=0, class_name='', function_name='START')
+Symbol 'I_for_var_0' (LOCAL_VAR, INTEGER, scope=2, block=0, class_name='', function_name='START')
+Symbol '_forEach_len_0' (LOCAL_VAR, INTEGER, scope=1, block=0, class_name='', function_name='START')
+Symbol '_forEach_idx_1' (LOCAL_VAR, INTEGER, scope=1, block=0, class_name='', function_name='START')
 
 Data sections generated.
 
 === Peephole Optimization ===
-Analyzing 201 ARM64 instructions...
+Analyzing 269 ARM64 instructions...
 Maximum optimization passes: 5
 
 [Peephole Optimizer] Applied: Combine adjacent X-register STRs into STP
-  Position: 55
+  Position: 66
   Before:
-    STR X19, [X29, #40] ; Saved Reg: X19 @ FP+40  [Opcode=26, Dest=-1, Src1=19, Imm=40, Base=29, Offset=40]
-    STR X20, [X29, #48] ; Saved Reg: X20 @ FP+48  [Opcode=26, Dest=-1, Src1=20, Imm=48, Base=29, Offset=48]
+    STR X19, [X29, #72] ; Saved Reg: X19 @ FP+72  [Opcode=26, Dest=-1, Src1=19, Imm=72, Base=29, Offset=72]
+    STR X20, [X29, #80] ; Saved Reg: X20 @ FP+80  [Opcode=26, Dest=-1, Src1=20, Imm=80, Base=29, Offset=80]
   After:
-    STP x19, x20, [x29, #40]  [Opcode=30, Dest=-1, Src1=19, Imm=40, Base=29, Offset=40]
+    STP x19, x20, [x29, #72]  [Opcode=30, Dest=-1, Src1=19, Imm=72, Base=29, Offset=72]
   Instruction count: 2 -> 1
 
 
 [Peephole Optimizer] Applied: Combine adjacent X-register STRs into STP
-  Position: 56
+  Position: 67
   Before:
-    STR X26, [X29, #56] ; Saved Reg: X26 @ FP+56  [Opcode=26, Dest=-1, Src1=26, Imm=56, Base=29, Offset=56]
-    STR X27, [X29, #64] ; Saved Reg: X27 @ FP+64  [Opcode=26, Dest=-1, Src1=27, Imm=64, Base=29, Offset=64]
+    STR X21, [X29, #88] ; Saved Reg: X21 @ FP+88  [Opcode=26, Dest=-1, Src1=21, Imm=88, Base=29, Offset=88]
+    STR X22, [X29, #96] ; Saved Reg: X22 @ FP+96  [Opcode=26, Dest=-1, Src1=22, Imm=96, Base=29, Offset=96]
   After:
-    STP x26, x27, [x29, #56]  [Opcode=30, Dest=-1, Src1=26, Imm=56, Base=29, Offset=56]
+    STP x21, x22, [x29, #88]  [Opcode=30, Dest=-1, Src1=21, Imm=88, Base=29, Offset=88]
+  Instruction count: 2 -> 1
+
+
+[Peephole Optimizer] Applied: Combine adjacent X-register STRs into STP
+  Position: 68
+  Before:
+    STR X23, [X29, #104] ; Saved Reg: X23 @ FP+104  [Opcode=26, Dest=-1, Src1=23, Imm=104, Base=29, Offset=104]
+    STR X24, [X29, #112] ; Saved Reg: X24 @ FP+112  [Opcode=26, Dest=-1, Src1=24, Imm=112, Base=29, Offset=112]
+  After:
+    STP x23, x24, [x29, #104]  [Opcode=30, Dest=-1, Src1=23, Imm=104, Base=29, Offset=104]
+  Instruction count: 2 -> 1
+
+
+[Peephole Optimizer] Applied: Combine adjacent X-register STRs into STP
+  Position: 69
+  Before:
+    STR X25, [X29, #120] ; Saved Reg: X25 @ FP+120  [Opcode=26, Dest=-1, Src1=25, Imm=120, Base=29, Offset=120]
+    STR X26, [X29, #128] ; Saved Reg: X26 @ FP+128  [Opcode=26, Dest=-1, Src1=26, Imm=128, Base=29, Offset=128]
+  After:
+    STP x25, x26, [x29, #120]  [Opcode=30, Dest=-1, Src1=25, Imm=120, Base=29, Offset=120]
+  Instruction count: 2 -> 1
+
+
+[Peephole Optimizer] Applied: Combine adjacent X-register STRs into STP
+  Position: 70
+  Before:
+    STR X27, [X29, #136] ; Saved Reg: X27 @ FP+136  [Opcode=26, Dest=-1, Src1=27, Imm=136, Base=29, Offset=136]
+    STR X28, [X29, #144] ; Saved Reg: X28 @ FP+144  [Opcode=26, Dest=-1, Src1=28, Imm=144, Base=29, Offset=144]
+  After:
+    STP x27, x28, [x29, #136]  [Opcode=30, Dest=-1, Src1=27, Imm=136, Base=29, Offset=136]
+  Instruction count: 2 -> 1
+
+
+[Peephole Optimizer] Applied: In-place comparison optimization (MOV-CMP -> CMP)
+  Position: 82
+  Before:
+    MOV X9, X27  [Opcode=1, Dest=9, Src1=27]
+    CMP X9, #0  [Opcode=24, Dest=-1, Src1=9, Imm=0]
+  After:
+    CMP x27, #0  [Opcode=24, Dest=-1, Src1=27, Imm=0]
+  Instruction count: 2 -> 1
+
+
+[Peephole Optimizer] Applied: In-place comparison optimization (MOV-CMP -> CMP)
+  Position: 128
+  Before:
+    MOV X9, X26  [Opcode=1, Dest=9, Src1=26]
+    CMP X9, X25  [Opcode=24, Dest=-1, Src1=9, Src2=25]
+  After:
+    CMP x26, x25  [Opcode=24, Dest=-1, Src1=26, Src2=25]
   Instruction count: 2 -> 1
 
 
 [Peephole Optimizer] Applied: Combine adjacent X-register LDRs into LDP
-  Position: 111
+  Position: 176
   Before:
-    LDR X19, [X29, #40] ; Restored Reg: X19 @ FP+40  [Opcode=27, Dest=19, Src1=-1, Imm=40, Base=29, Offset=40]
-    LDR X20, [X29, #48] ; Restored Reg: X20 @ FP+48  [Opcode=27, Dest=20, Src1=-1, Imm=48, Base=29, Offset=48]
+    LDR X19, [X29, #72] ; Restored Reg: X19 @ FP+72  [Opcode=27, Dest=19, Src1=-1, Imm=72, Base=29, Offset=72]
+    LDR X20, [X29, #80] ; Restored Reg: X20 @ FP+80  [Opcode=27, Dest=20, Src1=-1, Imm=80, Base=29, Offset=80]
   After:
-    LDP x19, x20, [x29, #40]  [Opcode=31, Dest=19, Src1=20, Imm=40, Base=29, Offset=40]
+    LDP x19, x20, [x29, #72]  [Opcode=31, Dest=19, Src1=20, Imm=72, Base=29, Offset=72]
   Instruction count: 2 -> 1
 
 
 [Peephole Optimizer] Applied: Combine adjacent X-register LDRs into LDP
-  Position: 112
+  Position: 177
   Before:
-    LDR X26, [X29, #56] ; Restored Reg: X26 @ FP+56  [Opcode=27, Dest=26, Src1=-1, Imm=56, Base=29, Offset=56]
-    LDR X27, [X29, #64] ; Restored Reg: X27 @ FP+64  [Opcode=27, Dest=27, Src1=-1, Imm=64, Base=29, Offset=64]
+    LDR X21, [X29, #88] ; Restored Reg: X21 @ FP+88  [Opcode=27, Dest=21, Src1=-1, Imm=88, Base=29, Offset=88]
+    LDR X22, [X29, #96] ; Restored Reg: X22 @ FP+96  [Opcode=27, Dest=22, Src1=-1, Imm=96, Base=29, Offset=96]
   After:
-    LDP x26, x27, [x29, #56]  [Opcode=31, Dest=26, Src1=27, Imm=56, Base=29, Offset=56]
+    LDP x21, x22, [x29, #88]  [Opcode=31, Dest=21, Src1=22, Imm=88, Base=29, Offset=88]
   Instruction count: 2 -> 1
 
 
 [Peephole Optimizer] Applied: Combine adjacent X-register LDRs into LDP
-  Position: 115
+  Position: 178
+  Before:
+    LDR X23, [X29, #104] ; Restored Reg: X23 @ FP+104  [Opcode=27, Dest=23, Src1=-1, Imm=104, Base=29, Offset=104]
+    LDR X24, [X29, #112] ; Restored Reg: X24 @ FP+112  [Opcode=27, Dest=24, Src1=-1, Imm=112, Base=29, Offset=112]
+  After:
+    LDP x23, x24, [x29, #104]  [Opcode=31, Dest=23, Src1=24, Imm=104, Base=29, Offset=104]
+  Instruction count: 2 -> 1
+
+
+[Peephole Optimizer] Applied: Combine adjacent X-register LDRs into LDP
+  Position: 179
+  Before:
+    LDR X25, [X29, #120] ; Restored Reg: X25 @ FP+120  [Opcode=27, Dest=25, Src1=-1, Imm=120, Base=29, Offset=120]
+    LDR X26, [X29, #128] ; Restored Reg: X26 @ FP+128  [Opcode=27, Dest=26, Src1=-1, Imm=128, Base=29, Offset=128]
+  After:
+    LDP x25, x26, [x29, #120]  [Opcode=31, Dest=25, Src1=26, Imm=120, Base=29, Offset=120]
+  Instruction count: 2 -> 1
+
+
+[Peephole Optimizer] Applied: Combine adjacent X-register LDRs into LDP
+  Position: 180
+  Before:
+    LDR X27, [X29, #136] ; Restored Reg: X27 @ FP+136  [Opcode=27, Dest=27, Src1=-1, Imm=136, Base=29, Offset=136]
+    LDR X28, [X29, #144] ; Restored Reg: X28 @ FP+144  [Opcode=27, Dest=28, Src1=-1, Imm=144, Base=29, Offset=144]
+  After:
+    LDP x27, x28, [x29, #136]  [Opcode=31, Dest=27, Src1=28, Imm=136, Base=29, Offset=136]
+  Instruction count: 2 -> 1
+
+
+[Peephole Optimizer] Applied: Combine adjacent X-register LDRs into LDP
+  Position: 182
   Before:
     LDR X29, [SP, #0] ; Restore caller's Frame Pointer  [Opcode=27, Dest=29, Src1=-1, Imm=0, Base=31, Offset=0]
     LDR X30, [SP, #8] ; Restore Link Register  [Opcode=27, Dest=30, Src1=-1, Imm=8, Base=31, Offset=8]
   After:
-    LDP x29, x30, [x31]  [Opcode=31, Dest=29, Src1=30, Imm=0, Base=31, Offset=0]
+    LDP x29, x30, [SP, #0]  [Opcode=31, Dest=29, Src1=30, Imm=0, Base=31, Offset=0]
   Instruction count: 2 -> 1
 
 [Peephole Optimizer] Completed pass 1/5, changes made: yes
 Peephole optimization completed 2 
   Passes with changes: 1
 Peephole optimization completed 2 passes:
-  Instructions before: 201
-  Instructions after:  196
-  Total optimizations: 5
+  Instructions before: 269
+  Instructions after:  256
+  Total optimizations: 13
   Patterns matched:
-    - Combine adjacent X-register LDRs into LDP: 3
-    - Combine adjacent X-register STRs into STP: 2
+    - Combine adjacent X-register LDRs into LDP: 6
+    - In-place comparison optimization (MOV-CMP -> CMP): 2
+    - Combine adjacent X-register STRs into STP: 5
 ==============================
 [Peephole Optimizer] Detailed peephole optimization trace complete
 Populating JIT memory according to linker layout...
 
---- CodeBuffer JIT Listing ------ Code Section Listing (Base Address: 0x107884000) ---
+--- CodeBuffer JIT Listing ------ Code Section Listing (Base Address: 0x105e4c000) ---
 Address Hex Code    Assembly
 --------------------------------------------------
- 107884000 0x00000000  
+ 105e4c000 0x00000000  
 ; --- Veneer Section ---
+FGETVEC_veneer:
+ 105e4c004 0xd2907a90  MOVZ X16, #33748
+ 105e4c008 0xf2a01770  MOVK X16, #187, LSL #16
+ 105e4c00c 0xf2c00030  MOVK X16, #1, LSL #32
+ 105e4c010 0xd61f0200  BR X16
 HeapManager_enter_scope_veneer:
- 107884004 0xd29ce990  MOVZ X16, #59212
- 107884008 0xf2a04a10  MOVK X16, #592, LSL #16
- 10788400c 0xf2c00030  MOVK X16, #1, LSL #32
- 107884010 0xd61f0200  BR X16
+ 105e4c014 0xd29d0b10  MOVZ X16, #59480
+ 105e4c018 0xf2a016f0  MOVK X16, #183, LSL #16
+ 105e4c01c 0xf2c00030  MOVK X16, #1, LSL #32
+ 105e4c020 0xd61f0200  BR X16
 HeapManager_exit_scope_veneer:
- 107884014 0xd29cef10  MOVZ X16, #59256
- 107884018 0xf2a04a10  MOVK X16, #592, LSL #16
- 10788401c 0xf2c00030  MOVK X16, #1, LSL #32
- 107884020 0xd61f0200  BR X16
+ 105e4c024 0xd29d1090  MOVZ X16, #59524
+ 105e4c028 0xf2a016f0  MOVK X16, #183, LSL #16
+ 105e4c02c 0xf2c00030  MOVK X16, #1, LSL #32
+ 105e4c030 0xd61f0200  BR X16
 WRITEF_veneer:
- 107884024 0xd2890a10  MOVZ X16, #18512
- 107884028 0xf2a04a90  MOVK X16, #596, LSL #16
- 10788402c 0xf2c00030  MOVK X16, #1, LSL #32
- 107884030 0xd61f0200  BR X16
+ 105e4c034 0xd28a4f10  MOVZ X16, #21112
+ 105e4c038 0xf2a01770  MOVK X16, #187, LSL #16
+ 105e4c03c 0xf2c00030  MOVK X16, #1, LSL #32
+ 105e4c040 0xd61f0200  BR X16
 WRITEF1_veneer:
- 107884034 0xd2899a90  MOVZ X16, #19668
- 107884038 0xf2a04a90  MOVK X16, #596, LSL #16
- 10788403c 0xf2c00030  MOVK X16, #1, LSL #32
- 107884040 0xd61f0200  BR X16
+ 105e4c044 0xd28af310  MOVZ X16, #22424
+ 105e4c048 0xf2a01770  MOVK X16, #187, LSL #16
+ 105e4c04c 0xf2c00030  MOVK X16, #1, LSL #32
+ 105e4c050 0xd61f0200  BR X16
 WRITEF2_veneer:
- 107884044 0xd289a790  MOVZ X16, #19772
- 107884048 0xf2a04a90  MOVK X16, #596, LSL #16
- 10788404c 0xf2c00030  MOVK X16, #1, LSL #32
- 107884050 0xd61f0200  BR X16
+ 105e4c054 0xd28b0010  MOVZ X16, #22528
+ 105e4c058 0xf2a01770  MOVK X16, #187, LSL #16
+ 105e4c05c 0xf2c00030  MOVK X16, #1, LSL #32
+ 105e4c060 0xd61f0200  BR X16
 WRITEF3_veneer:
- 107884054 0xd289b610  MOVZ X16, #19888
- 107884058 0xf2a04a90  MOVK X16, #596, LSL #16
- 10788405c 0xf2c00030  MOVK X16, #1, LSL #32
- 107884060 0xd61f0200  BR X16
+ 105e4c064 0xd28b0e90  MOVZ X16, #22644
+ 105e4c068 0xf2a01770  MOVK X16, #187, LSL #16
+ 105e4c06c 0xf2c00030  MOVK X16, #1, LSL #32
+ 105e4c070 0xd61f0200  BR X16
 WRITEF4_veneer:
- 107884064 0xd289c610  MOVZ X16, #20016
- 107884068 0xf2a04a90  MOVK X16, #596, LSL #16
- 10788406c 0xf2c00030  MOVK X16, #1, LSL #32
- 107884070 0xd61f0200  BR X16
+ 105e4c074 0xd28b1e90  MOVZ X16, #22772
+ 105e4c078 0xf2a01770  MOVK X16, #187, LSL #16
+ 105e4c07c 0xf2c00030  MOVK X16, #1, LSL #32
+ 105e4c080 0xd61f0200  BR X16
 WRITEF5_veneer:
- 107884074 0xd289d790  MOVZ X16, #20156
- 107884078 0xf2a04a90  MOVK X16, #596, LSL #16
- 10788407c 0xf2c00030  MOVK X16, #1, LSL #32
- 107884080 0xd61f0200  BR X16
+ 105e4c084 0xd28b3010  MOVZ X16, #22912
+ 105e4c088 0xf2a01770  MOVK X16, #187, LSL #16
+ 105e4c08c 0xf2c00030  MOVK X16, #1, LSL #32
+ 105e4c090 0xd61f0200  BR X16
 WRITEF6_veneer:
- 107884084 0xd289ea90  MOVZ X16, #20308
- 107884088 0xf2a04a90  MOVK X16, #596, LSL #16
- 10788408c 0xf2c00030  MOVK X16, #1, LSL #32
- 107884090 0xd61f0200  BR X16
+ 105e4c094 0xd28b4310  MOVZ X16, #23064
+ 105e4c098 0xf2a01770  MOVK X16, #187, LSL #16
+ 105e4c09c 0xf2c00030  MOVK X16, #1, LSL #32
+ 105e4c0a0 0xd61f0200  BR X16
 WRITEF7_veneer:
- 107884094 0xd289ff10  MOVZ X16, #20472
- 107884098 0xf2a04a90  MOVK X16, #596, LSL #16
- 10788409c 0xf2c00030  MOVK X16, #1, LSL #32
- 1078840a0 0xd61f0200  BR X16
- 1078840a4 0x00000000  ; --- End Veneer Section ---
+ 105e4c0a4 0xd28b5790  MOVZ X16, #23228
+ 105e4c0a8 0xf2a01770  MOVK X16, #187, LSL #16
+ 105e4c0ac 0xf2c00030  MOVK X16, #1, LSL #32
+ 105e4c0b0 0xd61f0200  BR X16
+WRITES_veneer:
+ 105e4c0b4 0xd2899b10  MOVZ X16, #19672
+ 105e4c0b8 0xf2a01770  MOVK X16, #187, LSL #16
+ 105e4c0bc 0xf2c00030  MOVK X16, #1, LSL #32
+ 105e4c0c0 0xd61f0200  BR X16
+ 105e4c0c4 0x00000000  ; --- End Veneer Section ---
 
 START:
- 1078840a8 0xa9bb7bfd  STP X29, X30, [SP, #-80]!
- 1078840ac 0x910003fd  MOV X29, SP
- 1078840b0 0xa902d3b3  STP x19, x20, [x29, #40]
- 1078840b4 0xa903efba  STP x26, x27, [x29, #56]
- 1078840b8 0xf90027bc  STR X28, [X29, #72] ; Saved Reg: X28 @ FP+72
- 1078840bc 0xd290001c  MOVZ X28, #32768
- 1078840c0 0xf2a05a3c  MOVK X28, #721, LSL #16
- 1078840c4 0xf2c0003c  MOVK X28, #1, LSL #32
- 1078840c8 0xf2e0001c  MOVK X28, #0, LSL #48
+ 105e4c0c8 0xa9b67bfd  STP X29, X30, [SP, #-160]!
+ 105e4c0cc 0x910003fd  MOV X29, SP
+ 105e4c0d0 0xfd0023af  STR D15, [X29, #64] ; Saved Reg: D15 @ FP+64
+ 105e4c0d4 0xa904d3b3  STP x19, x20, [x29, #72]
+ 105e4c0d8 0xa905dbb5  STP x21, x22, [x29, #88]
+ 105e4c0dc 0xa906e3b7  STP x23, x24, [x29, #104]
+ 105e4c0e0 0xa907ebb9  STP x25, x26, [x29, #120]
+ 105e4c0e4 0xa908f3bb  STP x27, x28, [x29, #136]
+ 105e4c0e8 0xd288001c  MOVZ X28, #16384
+ 105e4c0ec 0xf2a027dc  MOVK X28, #318, LSL #16
+ 105e4c0f0 0xf2c0003c  MOVK X28, #1, LSL #32
+ 105e4c0f4 0xf2e0001c  MOVK X28, #0, LSL #48
 START_Entry_0:
- 1078840cc 0x97ffffce  BL HeapManager_enter_scope_veneer    ; Reloc -> 'HeapManager_enter_scope_veneer' @ 0x107884004
- 1078840d0 0xb0000020  ADRP X0, L_list0_header    ; Reloc -> 'L_list0_header' @ 0x10788909c
- 1078840d4 0x91027000  ADD X0, X0, #:lo12:L_list0_header    ; Reloc -> 'L_list0_header' @ 0x10788909c
- 1078840d8 0x96b31e8b  BL DEEPCOPYLITERALLIST    ; Reloc -> 'DEEPCOPYLITERALLIST' @ 0x10254bb04
- 1078840dc 0xaa0003ef  MOV X15, X0
- 1078840e0 0xaa0f03e9  MOV X9, X15
- 1078840e4 0x91004129  ADD X9, X9, #16
- 1078840e8 0xf940012a  LDR X10, [X9, #0]
- 1078840ec 0xaa0a03fa  MOV X26, X10
- 1078840f0 0x1400001a  B START_ForEachHeader_1    ; Reloc -> 'START_ForEachHeader_1' @ 0x107884158
-START_Exit_5:
- 1078840f4 0x1400001c  B .L0    ; Reloc -> '.L0' @ 0x107884164
-START_ForEachAdvance_4:
- 1078840f8 0xf100035f  CMP X26, #0
- 1078840fc 0x54000060  B.EQ .L2    ; Reloc -> '.L2' @ 0x107884108
- 107884100 0xf9400b49  LDR X9, [X26, #16]
- 107884104 0x14000002  B .L1    ; Reloc -> '.L1' @ 0x10788410c
-.L2:
- 107884108 0xaa1f03e9  MOV X9, XZR
-.L1:
- 10788410c 0xaa0903fa  MOV X26, X9
- 107884110 0x14000012  B START_ForEachHeader_1    ; Reloc -> 'START_ForEachHeader_1' @ 0x107884158
-START_ForEachBody_2:
- 107884114 0xf100035f  CMP X26, #0
- 107884118 0x54000060  B.EQ .L4    ; Reloc -> '.L4' @ 0x107884124
- 10788411c 0xf9400749  LDR X9, [X26, #8]
- 107884120 0x14000002  B .L3    ; Reloc -> '.L3' @ 0x107884128
-.L4:
- 107884124 0xaa1f03e9  MOV X9, XZR
-.L3:
- 107884128 0xaa0903fb  MOV X27, X9
- 10788412c 0x97ffffb6  BL HeapManager_enter_scope_veneer    ; Reloc -> 'HeapManager_enter_scope_veneer' @ 0x107884004
- 107884130 0xb0000029  ADRP X9, L_str3    ; Reloc -> 'L_str3' @ 0x10788905c
- 107884134 0x91017129  ADD X9, X9, #:lo12:L_str3    ; Reloc -> 'L_str3' @ 0x10788905c
- 107884138 0x91002129  ADD X9, X9, #8
- 10788413c 0xaa0903e0  MOV X0, X9
- 107884140 0xaa1b03e1  MOV X1, X27
- 107884144 0x97ffffbc  BL WRITEF1_veneer    ; Reloc -> 'WRITEF1_veneer' @ 0x107884034
- 107884148 0x97ffffb3  BL HeapManager_exit_scope_veneer    ; Reloc -> 'HeapManager_exit_scope_veneer' @ 0x107884014
- 10788414c 0x17ffffeb  B START_ForEachAdvance_4    ; Reloc -> 'START_ForEachAdvance_4' @ 0x1078840f8
-START_ForEachExit_3:
- 107884150 0x97ffffb1  BL HeapManager_exit_scope_veneer    ; Reloc -> 'HeapManager_exit_scope_veneer' @ 0x107884014
- 107884154 0x17ffffe8  B START_Exit_5    ; Reloc -> 'START_Exit_5' @ 0x1078840f4
-START_ForEachHeader_1:
- 107884158 0xeb1f035f  CMP X26, XZR
- 10788415c 0x54ffffa0  B.EQ START_ForEachExit_3    ; Reloc -> 'START_ForEachExit_3' @ 0x107884150
- 107884160 0x17ffffed  B START_ForEachBody_2    ; Reloc -> 'START_ForEachBody_2' @ 0x107884114
+ 105e4c0f8 0x97ffffc7  BL HeapManager_enter_scope_veneer    ; Reloc -> 'HeapManager_enter_scope_veneer' @ 0x105e4c014
+ 105e4c0fc 0xd28000a9  MOVZ X9, #5
+ 105e4c100 0xaa0903e0  MOV X0, X9
+ 105e4c104 0x96b5b0b4  BL FGETVEC_veneer    ; Reloc -> 'FGETVEC' @ 0x100bb83d4
+ 105e4c108 0xaa0003e9  MOV X9, X0
+ 105e4c10c 0xaa0903fb  MOV X27, X9
+ 105e4c110 0xf100037f  CMP x27, #0
+ 105e4c114 0x9a9f17ea  CSET X10, EQ
+ 105e4c118 0xeb1f015f  CMP X10, XZR
+ 105e4c11c 0x54000840  B.EQ START_Join_2    ; Reloc -> 'START_Join_2' @ 0x105e4c224
+ 105e4c120 0x14000044  B START_Then_1    ; Reloc -> 'START_Then_1' @ 0x105e4c230
+START_Exit_12:
+ 105e4c124 0x1400004b  B .L0    ; Reloc -> '.L0' @ 0x105e4c250
+START_FinishCleanup_3:
+ 105e4c128 0xd2800009  MOVZ X9, #0
+ 105e4c12c 0xaa0903e0  MOV X0, X9
+ 105e4c130 0xd2800029  MOVZ X9, #1
+ 105e4c134 0xf2a04009  MOVK X9, #512, LSL #16
+ 105e4c138 0xaa0903f0  MOV X16, X9
+ 105e4c13c 0xd4001001  SVC #128
+START_ForBody_5:
+ 105e4c140 0x97ffffb5  BL HeapManager_enter_scope_veneer    ; Reloc -> 'HeapManager_enter_scope_veneer' @ 0x105e4c014
+ 105e4c144 0xaa1803e9  MOV X9, X24
+ 105e4c148 0xd280004a  MOVZ X10, #2
+ 105e4c14c 0x9b0a7d29  MUL X9, X9, X10
+ 105e4c150 0x9e620120  SCVTF D0, X9
+ 105e4c154 0xd37df318  LSL X24, X24, #3
+ 105e4c158 0x8b180369  ADD X9, X27, X24
+ 105e4c15c 0xfd000120  STR D0, [X9, #0]
+ 105e4c160 0x97ffffb1  BL HeapManager_exit_scope_veneer    ; Reloc -> 'HeapManager_exit_scope_veneer' @ 0x105e4c024
+ 105e4c164 0x1400002c  B START_ForIncrement_6    ; Reloc -> 'START_ForIncrement_6' @ 0x105e4c214
+START_ForEachBody_9:
+ 105e4c168 0xaa1a03e9  MOV X9, X26
+ 105e4c16c 0xd37df129  LSL X9, X9, #3
+ 105e4c170 0x8b09036a  ADD X10, X27, X9
+ 105e4c174 0xfd400140  LDR D0, [X10, #0]
+ 105e4c178 0x1e60400f  FMOV D15, D0
+ 105e4c17c 0x1e60400f  FMOV D15, D0
+ 105e4c180 0x97ffffa5  BL HeapManager_enter_scope_veneer    ; Reloc -> 'HeapManager_enter_scope_veneer' @ 0x105e4c014
+ 105e4c184 0xb0000029  ADRP X9, L_str0    ; Reloc -> 'L_str0' @ 0x105e51000
+ 105e4c188 0x91000129  ADD X9, X9, #:lo12:L_str0    ; Reloc -> 'L_str0' @ 0x105e51000
+ 105e4c18c 0x91002129  ADD X9, X9, #8
+ 105e4c190 0xaa0903e0  MOV X0, X9
+ 105e4c194 0x9e6601e9  FMOV X9, D15
+ 105e4c198 0xaa0903e1  MOV X1, X9
+ 105e4c19c 0x97ffffaa  BL WRITEF1_veneer    ; Reloc -> 'WRITEF1_veneer' @ 0x105e4c044
+ 105e4c1a0 0x97ffffa1  BL HeapManager_exit_scope_veneer    ; Reloc -> 'HeapManager_exit_scope_veneer' @ 0x105e4c024
+ 105e4c1a4 0x14000008  B START_ForEachIncrement_10    ; Reloc -> 'START_ForEachIncrement_10' @ 0x105e4c1c4
+START_ForEachExit_11:
+ 105e4c1a8 0x97ffff9f  BL HeapManager_exit_scope_veneer    ; Reloc -> 'HeapManager_exit_scope_veneer' @ 0x105e4c024
+ 105e4c1ac 0x17ffffde  B START_Exit_12    ; Reloc -> 'START_Exit_12' @ 0x105e4c124
+START_ForEachHeader_8:
+ 105e4c1b0 0xeb19035f  CMP x26, x25
+ 105e4c1b4 0x9a9fa7ea  CSET X10, LT
+ 105e4c1b8 0xeb1f015f  CMP X10, XZR
+ 105e4c1bc 0x54fffd61  B.NE START_ForEachBody_9    ; Reloc -> 'START_ForEachBody_9' @ 0x105e4c168
+ 105e4c1c0 0x17fffffa  B START_ForEachExit_11    ; Reloc -> 'START_ForEachExit_11' @ 0x105e4c1a8
+START_ForEachIncrement_10:
+ 105e4c1c4 0xaa1a03e9  MOV X9, X26
+ 105e4c1c8 0x91000529  ADD X9, X9, #1
+ 105e4c1cc 0xaa0903fa  MOV X26, X9
+ 105e4c1d0 0x17fffff8  B START_ForEachHeader_8    ; Reloc -> 'START_ForEachHeader_8' @ 0x105e4c1b0
+START_ForExit_7:
+ 105e4c1d4 0xb0000029  ADRP X9, L_str1    ; Reloc -> 'L_str1' @ 0x105e51024
+ 105e4c1d8 0x91009129  ADD X9, X9, #:lo12:L_str1    ; Reloc -> 'L_str1' @ 0x105e51024
+ 105e4c1dc 0x91002129  ADD X9, X9, #8
+ 105e4c1e0 0xaa0903e0  MOV X0, X9
+ 105e4c1e4 0x97ffffb4  BL WRITES_veneer    ; Reloc -> 'WRITES_veneer' @ 0x105e4c0b4
+ 105e4c1e8 0xd100236a  SUB X10, X27, #8
+ 105e4c1ec 0xf9400149  LDR X9, [X10, #0] ; Load vector/table/string length
+ 105e4c1f0 0xaa0903f9  MOV X25, X9
+ 105e4c1f4 0xd2800009  MOVZ X9, #0
+ 105e4c1f8 0xaa0903fa  MOV X26, X9
+ 105e4c1fc 0x17ffffed  B START_ForEachHeader_8    ; Reloc -> 'START_ForEachHeader_8' @ 0x105e4c1b0
+START_ForHeader_4:
+ 105e4c200 0xaa1803e9  MOV X9, X24
+ 105e4c204 0xd280008a  MOVZ X10, #4
+ 105e4c208 0xeb0a013f  CMP X9, X10
+ 105e4c20c 0x54fffe4c  B.GT START_ForExit_7    ; Reloc -> 'START_ForExit_7' @ 0x105e4c1d4
+ 105e4c210 0x17ffffcc  B START_ForBody_5    ; Reloc -> 'START_ForBody_5' @ 0x105e4c140
+START_ForIncrement_6:
+ 105e4c214 0xaa1803e9  MOV X9, X24
+ 105e4c218 0x91000529  ADD X9, X9, #1
+ 105e4c21c 0xaa0903f8  MOV X24, X9
+ 105e4c220 0x17fffff8  B START_ForHeader_4    ; Reloc -> 'START_ForHeader_4' @ 0x105e4c200
+START_Join_2:
+ 105e4c224 0xd2800009  MOVZ X9, #0
+ 105e4c228 0xaa0903f8  MOV X24, X9
+ 105e4c22c 0x17fffff5  B START_ForHeader_4    ; Reloc -> 'START_ForHeader_4' @ 0x105e4c200
+START_Then_1:
+ 105e4c230 0x97ffff79  BL HeapManager_enter_scope_veneer    ; Reloc -> 'HeapManager_enter_scope_veneer' @ 0x105e4c014
+ 105e4c234 0xb0000029  ADRP X9, L_str2    ; Reloc -> 'L_str2' @ 0x105e51084
+ 105e4c238 0x91021129  ADD X9, X9, #:lo12:L_str2    ; Reloc -> 'L_str2' @ 0x105e51084
+ 105e4c23c 0x91002129  ADD X9, X9, #8
+ 105e4c240 0xaa0903e0  MOV X0, X9
+ 105e4c244 0x97ffff9c  BL WRITES_veneer    ; Reloc -> 'WRITES_veneer' @ 0x105e4c0b4
+ 105e4c248 0x97ffff77  BL HeapManager_exit_scope_veneer    ; Reloc -> 'HeapManager_exit_scope_veneer' @ 0x105e4c024
+ 105e4c24c 0x17ffffb7  B START_FinishCleanup_3    ; Reloc -> 'START_FinishCleanup_3' @ 0x105e4c128
 .L0:
- 107884164 0xa942d3b3  LDP x19, x20, [x29, #40]
- 107884168 0xa943efba  LDP x26, x27, [x29, #56]
- 10788416c 0xf94027bc  LDR X28, [X29, #72] ; Restored Reg: X28 @ FP+72
- 107884170 0x910003bf  MOV SP, X29 ; Deallocate frame by moving FP to SP
- 107884174 0xa9407bfd  LDP x29, x30, [x31]
- 107884178 0x910043ff  ADD SP, SP, #16 ; Deallocate space for saved FP/LR
- 10788417c 0xd65f03c0  RET
+ 105e4c250 0xfd4023af  LDR D15, [X29, #64] ; Restored Reg: D15 @ FP+64
+ 105e4c254 0xa944d3b3  LDP x19, x20, [x29, #72]
+ 105e4c258 0xa945dbb5  LDP x21, x22, [x29, #88]
+ 105e4c25c 0xa946e3b7  LDP x23, x24, [x29, #104]
+ 105e4c260 0xa947ebb9  LDP x25, x26, [x29, #120]
+ 105e4c264 0xa948f3bb  LDP x27, x28, [x29, #136]
+ 105e4c268 0x910003bf  MOV SP, X29 ; Deallocate frame by moving FP to SP
+ 105e4c26c 0xa9407bfd  LDP x29, x30, [SP, #0]
+ 105e4c270 0x910043ff  ADD SP, SP, #16 ; Deallocate space for saved FP/LR
+ 105e4c274 0xd65f03c0  RET
 L_str0:
- 107889000 0x10000000  .quad 0x1
- 107889004 0x00000000  ; (upper half)
- 107889008 0x61000000  DCD 0x61
- 10788900c 0x00000000  DCD 0x0
- 107889010 0x00000000  DCD 0x0
+ 105e51000 0x50000000  .quad 0x5
+ 105e51004 0x00000000  ; (upper half)
+ 105e51008 0x25000000  DCD 0x25
+ 105e5100c 0x66000000  DCD 0x66
+ 105e51010 0x20000000  DCD 0x20
+ 105e51014 0x2d000000  DCD 0x2d
+ 105e51018 0x20000000  DCD 0x20
+ 105e5101c 0x00000000  DCD 0x0
+ 105e51020 0x00000000  DCD 0x0
 L_str1:
- 107889014 0x60000000  .quad 0x6
- 107889018 0x00000000  ; (upper half)
- 10788901c 0x73000000  DCD 0x73
- 107889020 0x74000000  DCD 0x74
- 107889024 0x72000000  DCD 0x72
- 107889028 0x69000000  DCD 0x69
- 10788902c 0x6e000000  DCD 0x6e
- 107889030 0x67000000  DCD 0x67
- 107889034 0x00000000  DCD 0x0
- 107889038 0x00000000  DCD 0x0
+ 105e51024 0x14000000  .quad 0x14
+ 105e51028 0x00000000  ; (upper half)
+ 105e5102c 0x46000000  DCD 0x46
+ 105e51030 0x6f000000  DCD 0x6f
+ 105e51034 0x72000000  DCD 0x72
+ 105e51038 0x65000000  DCD 0x65
+ 105e5103c 0x61000000  DCD 0x61
+ 105e51040 0x63000000  DCD 0x63
+ 105e51044 0x68000000  DCD 0x68
+ 105e51048 0x20000000  DCD 0x20
+ 105e5104c 0x66000000  DCD 0x66
+ 105e51050 0x6c000000  DCD 0x6c
+ 105e51054 0x6f000000  DCD 0x6f
+ 105e51058 0x61000000  DCD 0x61
+ 105e5105c 0x74000000  DCD 0x74
+ 105e51060 0x20000000  DCD 0x20
+ 105e51064 0x74000000  DCD 0x74
+ 105e51068 0x65000000  DCD 0x65
+ 105e5106c 0x73000000  DCD 0x73
+ 105e51070 0x74000000  DCD 0x74
+ 105e51074 0x3a000000  DCD 0x3a
+ 105e51078 0xa0000000  DCD 0xa
+ 105e5107c 0x00000000  DCD 0x0
+ 105e51080 0x00000000  DCD 0x0
 L_str2:
- 10788903c 0x40000000  .quad 0x4
- 107889040 0x00000000  ; (upper half)
- 107889044 0x6c000000  DCD 0x6c
- 107889048 0x69000000  DCD 0x69
- 10788904c 0x73000000  DCD 0x73
- 107889050 0x74000000  DCD 0x74
- 107889054 0x00000000  DCD 0x0
- 107889058 0x00000000  DCD 0x0
-L_str3:
- 10788905c 0xc0000000  .quad 0xc
- 107889060 0x00000000  ; (upper half)
- 107889064 0x53000000  DCD 0x53
- 107889068 0x74000000  DCD 0x74
- 10788906c 0x72000000  DCD 0x72
- 107889070 0x69000000  DCD 0x69
- 107889074 0x6e000000  DCD 0x6e
- 107889078 0x67000000  DCD 0x67
- 10788907c 0x3a000000  DCD 0x3a
- 107889080 0x20000000  DCD 0x20
- 107889084 0x25000000  DCD 0x25
- 107889088 0x73000000  DCD 0x73
- 10788908c 0x20000000  DCD 0x20
- 107889090 0xa0000000  DCD 0xa
- 107889094 0x00000000  DCD 0x0
- 107889098 0x00000000  DCD 0x0
-L_list0_header:
- 10788909c 0x00000000  DCD 0x0
- 1078890a0 0x00000000  DCD 0x0
- 1078890a4 0x78890ec0  .quad L_list0_node_2    ; Reloc -> 'L_list0_node_2' @ 0x1078890ec
- 1078890ac 0x78890bc0  .quad L_list0_node_0    ; Reloc -> 'L_list0_node_0' @ 0x1078890bc
- 1078890b4 0x30000000  .quad 0x3
- 1078890b8 0x00000000  ; (upper half)
-L_list0_node_0:
- 1078890bc 0x30000000  DCD 0x3
- 1078890c0 0x00000000  DCD 0x0
- 1078890c4 0x78890000  .quad L_str0    ; Reloc -> 'L_str0' @ 0x107889000
- 1078890cc 0x78890d40  .quad L_list0_node_1    ; Reloc -> 'L_list0_node_1' @ 0x1078890d4
-L_list0_node_1:
- 1078890d4 0x30000000  DCD 0x3
- 1078890d8 0x00000000  DCD 0x0
- 1078890dc 0x78890140  .quad L_str1    ; Reloc -> 'L_str1' @ 0x107889014
- 1078890e4 0x78890ec0  .quad L_list0_node_2    ; Reloc -> 'L_list0_node_2' @ 0x1078890ec
-L_list0_node_2:
- 1078890ec 0x30000000  DCD 0x3
- 1078890f0 0x00000000  DCD 0x0
- 1078890f4 0x788903c0  .quad L_str2    ; Reloc -> 'L_str2' @ 0x10788903c
- 1078890fc 0x00000000  .quad 0x0
- 107889100 0x00000000  ; (upper half)
+ 105e51084 0x1c000000  .quad 0x1c
+ 105e51088 0x00000000  ; (upper half)
+ 105e5108c 0x46000000  DCD 0x46
+ 105e51090 0x41000000  DCD 0x41
+ 105e51094 0x49000000  DCD 0x49
+ 105e51098 0x4c000000  DCD 0x4c
+ 105e5109c 0x3a000000  DCD 0x3a
+ 105e510a0 0x20000000  DCD 0x20
+ 105e510a4 0x56000000  DCD 0x56
+ 105e510a8 0x45000000  DCD 0x45
+ 105e510ac 0x43000000  DCD 0x43
+ 105e510b0 0x20000000  DCD 0x20
+ 105e510b4 0x61000000  DCD 0x61
+ 105e510b8 0x6c000000  DCD 0x6c
+ 105e510bc 0x6c000000  DCD 0x6c
+ 105e510c0 0x6f000000  DCD 0x6f
+ 105e510c4 0x63000000  DCD 0x63
+ 105e510c8 0x61000000  DCD 0x61
+ 105e510cc 0x74000000  DCD 0x74
+ 105e510d0 0x69000000  DCD 0x69
+ 105e510d4 0x6f000000  DCD 0x6f
+ 105e510d8 0x6e000000  DCD 0x6e
+ 105e510dc 0x20000000  DCD 0x20
+ 105e510e0 0x66000000  DCD 0x66
+ 105e510e4 0x61000000  DCD 0x61
+ 105e510e8 0x69000000  DCD 0x69
+ 105e510ec 0x6c000000  DCD 0x6c
+ 105e510f0 0x65000000  DCD 0x65
+ 105e510f4 0x64000000  DCD 0x64
+ 105e510f8 0xa0000000  DCD 0xa
+ 105e510fc 0x00000000  DCD 0x0
+ 105e51100 0x00000000  DCD 0x0
 
 --------------------------
 
-JIT runtime table populated with 123 function pointers.
+JIT runtime table populated with 124 function pointers.
 Set runtime function table memory to read-only.
 
 --- JIT Execution ---
-JIT execution enabled. Entry point 'START' at 0x1078840a8
-[JITExecutor] Starting execution of JIT-compiled function at address: 0x1078840a8
+JIT execution enabled. Entry point 'START' at 0x105e4c0c8
+[JITExecutor] Starting execution of JIT-compiled function at address: 0x105e4c0c8
 SAMM: Entered scope (depth: 2)
-SAMM: Tracked freelist allocation 0x103499e10 in scope (depth: 2, scope size: 1)
-SAMM: Tracked list allocation 0x103499e10 in scope (depth: 2, scope size: 2)
-BCPL String Optimizations: Initialized (pool + SIMD)
-SAMM: Tracked string pool allocation 0xadb0777dc in scope (depth: 2, scope size: 3)
-SAMM: Tracked string pool allocation 0xadb0777a0 in scope (depth: 2, scope size: 4)
-SAMM: Tracked string pool allocation 0xadb077764 in scope (depth: 2, scope size: 5)
+SAMM: Tracked vector allocation 0x779011980 in scope (depth: 2, scope size: 1)
+[JIT Heap] Allocated vector at 0x779011988, current g_heap_blocks_index: 0
 SAMM: Entered scope (depth: 3)
-String:  
 SAMM: Scope exit - found 0 objects to cleanup (remaining depth: 2)
 SAMM: No objects to cleanup in this scope
 SAMM: Entered scope (depth: 3)
-String:  
 SAMM: Scope exit - found 0 objects to cleanup (remaining depth: 2)
+SAMM: No objects to cleanup in this scope
+Foreach float test:
+SAMM: Entered scope (depth: 3)
+0.000000 - SAMM: Scope exit - found 0 objects to cleanup (remaining depth: 2)
 SAMM: No objects to cleanup in this scope
 SAMM: Entered scope (depth: 3)
-String:  
-SAMM: Scope exit - found 0 objects to cleanup (remaining depth: 2)
+2.000000 - SAMM: Scope exit - found 0 objects to cleanup (remaining depth: 2)
 SAMM: No objects to cleanup in this scope
-SAMM: Scope exit - found 5 objects to cleanup (remaining depth: 1)
-SAMM: About to queue 5 objects for cleanup
+SAMM: Entered scope (depth: 3)
+0.000000 - SAMM: Scope exit - found 0 objects to cleanup (remaining depth: 2)
+SAMM: No objects to cleanup in this scope
+SAMM: Entered scope (depth: 3)
+0.000000 - SAMM: Scope exit - found 0 objects to cleanup (remaining depth: 2)
+SAMM: No objects to cleanup in this scope
+SAMM: Entered scope (depth: 3)
+0.000000 - SAMM: Scope exit - found 0 objects to cleanup (remaining depth: 2)
+SAMM: No objects to cleanup in this scope
+SAMM: Scope exit - found 1 objects to cleanup (remaining depth: 1)
+SAMM: About to queue 1 objects for cleanup
 SAMM: Queued objects for background cleanup (queue depth: 1)
 SAMM: Notified background worker
-JIT Execution completed with result: 4463279984
-  Same value as double: 2.20515e-314
-[JITExecutor] Execution completed. Result: 4463279984
+JIT Execution completed with result: 4435787552
+  Same value as double: 2.19157e-314
+[JITExecutor] Execution completed. Result: 4435787552
 
---- JIT returned with result: 4463279984 ---
+--- JIT returned with result: 4435787552 ---
 SAMM: Worker woke up, queue size: 1, running: YES
-SAMM: Processing batch of 5 objects
-SAMM: cleanupPointersImmediate called with 5 pointers
-SAMM: Cleaning up pointer 0x103499e10
-SAMM: Freeing list header 0x103499e10 and returning all atoms to freelist
-SAMM: Successfully cleaned pointer 0x103499e10
-SAMM: Cleaning up pointer 0x103499e10
-SAMM: Ignoring free() for 0x103499e10 - already freed by SAMM
-SAMM: Successfully cleaned pointer 0x103499e10
-SAMM: Cleaning up pointer 0xadb0777dc
-SAMM: Returning string pool allocation 0xadb0777dc to pool for reuse
-SAMM: Successfully cleaned pointer 0xadb0777dc
-SAMM: Cleaning up pointer 0xadb0777a0
-SAMM: Returning string pool allocation 0xadb0777a0 to pool for reuse
-SAMM: Successfully cleaned pointer 0xadb0777a0
-SAMM: Cleaning up pointer 0xadb077764
-SAMM: Returning string pool allocation 0xadb077764 to pool for reuse
-SAMM: Successfully cleaned pointer 0xadb077764
-SAMM: cleanupPointersImmediate completed 5 items in 0.007 ms
-SAMM: Background worker processed batch of 5 objects
-SAMM: Worker waiting for cleanup queue (queue size: 0)
+SAMM: Processing batch of 1 objects
+SAMM: cleanupPointersImmediate called with 1 pointers
+SAMM: Cleaning up pointer 0x779011980
+DEBUG: HeapManager::free called with payload=0x779011980
+DEBUG: Checking payload 0x779011980 in Bloom filter
+DEBUG: Checking base address 0x779011978 in Bloom filter
+DEBUG: Adding base address 0x779011980 to Bloom filter
+
+--- Generated Assembly Code (After Linking) ---
+--- Code Section Listing (Base Address: 0x105e4c000) ---
+Address Hex Code    Assembly
+--------------------------------------------------
+ 105e4c000 0x00000000  
+; --- Veneer Section ---
+ 0000000 0x00000000  DCD 0
+FGETVEC_veneer:
+ 105e4c004 0xd2907a90  MOVZ X16, #33748
+ 105e4c008 0xf2a01770  MOVK X16, #187, LSL #16
+ 105e4c00c 0xf2c00030  MOVK X16, #1, LSL #32
+ 105e4c010 0xd61f0200  BR X16
+ 0000000 0x00000000  DCD 0
+HeapManager_enter_scope_veneer:
+ 105e4c014 0xd29d0b10  MOVZ X16, #59480
+ 105e4c018 0xf2a016f0  MOVK X16, #183, LSL #16
+ 105e4c01c 0xf2c00030  MOVK X16, #1, LSL #32
+ 105e4c020 0xd61f0200  BR X16
+ 0000000 0x00000000  DCD 0
+HeapManager_exit_scope_veneer:
+ 105e4c024 0xd29d1090  MOVZ X16, #59524
+ 105e4c028 0xf2a016f0  MOVK X16, #183, LSL #16
+ 105e4c02c 0xf2c00030  MOVK X16, #1, LSL #32
+ 105e4c030 0xd61f0200  BR X16
+ 0000000 0x00000000  DCD 0
+WRITEF_veneer:
+ 105e4c034 0xd28a4f10  MOVZ X16, #21112
+ 105e4c038 0xf2a01770  MOVK X16, #187, LSL #16
+ 105e4c03c 0xf2c00030  MOVK X16, #1, LSL #32
+ 105e4c040 0xd61f0200  BR X16
+ 0000000 0x00000000  DCD 0
+WRITEF1_veneer:
+ 105e4c044 0xd28af310  MOVZ X16, #22424
+ 105e4c048 0xf2a01770  MOVK X16, #187, LSL #16
+ 105e4c04c 0xf2c00030  MOVK X16, #1, LSL #32
+ 105e4c050 0xd61f0200  BR X16
+ 0000000 0x00000000  DCD 0
+WRITEF2_veneer:
+ 105e4c054 0xd28b0010  MOVZ X16, #22528
+ 105e4c058 0xf2a01770  MOVK X16, #187, LSL #16
+ 105e4c05c 0xf2c00030  MOVK X16, #1, LSL #32
+ 105e4c060 0xd61f0200  BR X16
+ 0000000 0x00000000  DCD 0
+WRITEF3_veneer:
+ 105e4c064 0xd28b0e90  MOVZ X16, #22644
+ 105e4c068 0xf2a01770  MOVK X16, #187, LSL #16
+ 105e4c06c 0xf2c00030  MOVK X16, #1, LSL #32
+ 105e4c070 0xd61f0200  BR X16
+ 0000000 0x00000000  DCD 0
+WRITEF4_veneer:
+ 105e4c074 0xd28b1e90  MOVZ X16, #22772
+ 105e4c078 0xf2a01770  MOVK X16, #187, LSL #16
+ 105e4c07c 0xf2c00030  MOVK X16, #1, LSL #32
+ 105e4c080 0xd61f0200  BR X16
+ 0000000 0x00000000  DCD 0
+WRITEF5_veneer:
+ 105e4c084 0xd28b3010  MOVZ X16, #22912
+ 105e4c088 0xf2a01770  MOVK X16, #187, LSL #16
+ 105e4c08c 0xf2c00030  MOVK X16, #1, LSL #32
+ 105e4c090 0xd61f0200  BR X16
+ 0000000 0x00000000  DCD 0
+WRITEF6_veneer:
+ 105e4c094 0xd28b4310  MOVZ X16, #23064
+ 105e4c098 0xf2a01770  MOVK X16, #187, LSL #16
+ 105e4c09c 0xf2c00030  MOVK X16, #1, LSL #32
+ 105e4c0a0 0xd61f0200  BR X16
+ 0000000 0x00000000  DCD 0
+WRITEF7_veneer:
+ 105e4c0a4 0xd28b5790  MOVZ X16, #23228
+ 105e4c0a8 0xf2a01770  MOVK X16, #187, LSL #16
+ 105e4c0ac 0xf2c00030  MOVK X16, #1, LSL #32
+ 105e4c0b0 0xd61f0200  BR X16
+ 0000000 0x00000000  DCD 0
+WRITES_veneer:
+ 105e4c0b4 0xd2899b10  MOVZ X16, #19672
+ 105e4c0b8 0xf2a01770  MOVK X16, #187, LSL #16
+ 105e4c0bc 0xf2c00030  MOVK X16, #1, LSL #32
+ 105e4c0c0 0xd61f0200  BR X16
+ 105e4c0c4 0x00000000  ; --- End Veneer Section ---
+
+ 0000000 0x00000000  DCD 0
+START:
+ 105e4c0c8 0xa9b67bfd  STP X29, X30, [SP, #-160]!
+ 105e4c0cc 0x910003fd  MOV X29, SP
+ 105e4c0d0 0xfd0023af  STR D15, [X29, #64] ; Saved Reg: D15 @ FP+64
+ 105e4c0d4 0xa904d3b3  STP x19, x20, [x29, #72]
+ 105e4c0d8 0xa905dbb5  STP x21, x22, [x29, #88]
+ 105e4c0dc 0xa906e3b7  STP x23, x24, [x29, #104]
+ 105e4c0e0 0xa907ebb9  STP x25, x26, [x29, #120]
+ 105e4c0e4 0xa908f3bb  STP x27, x28, [x29, #136]
+ 105e4c0e8 0xd288001c  MOVZ X28, #16384
+ 105e4c0ec 0xf2a027dc  MOVK X28, #318, LSL #16
+ 105e4c0f0 0xf2c0003c  MOVK X28, #1, LSL #32
+ 105e4c0f4 0xf2e0001c  MOVK X28, #0, LSL #48
+ 0000000 0x00000000  DCD 0
+START_Entry_0:
+ 105e4c0f8 0x97ffffc7  BL HeapManager_enter_scope_veneer    ; Reloc -> 'HeapManager_enter_scope_veneer' @ 0x105e4c014
+ 105e4c0fc 0xd28000a9  MOVZ X9, #5
+ 105e4c100 0xaa0903e0  MOV X0, X9
+ 105e4c104 0x96b5b0b4  BL FGETVEC_veneer    ; Reloc -> 'FGETVEC' @ 0x100bb83d4
+ 105e4c108 0xaa0003e9  MOV X9, X0
+ 105e4c10c 0xaa0903fb  MOV X27, X9
+ 105e4c110 0xf100037f  CMP x27, #0
+ 105e4c114 0x9a9f17ea  CSET X10, EQ
+ 105e4c118 0xeb1f015f  CMP X10, XZR
+ 105e4c11c 0x54000840  B.EQ START_Join_2    ; Reloc -> 'START_Join_2' @ 0x105e4c224
+ 105e4c120 0x14000044  B START_Then_1    ; Reloc -> 'START_Then_1' @ 0x105e4c230
+ 0000000 0x00000000  DCD 0
+START_Exit_12:
+ 105e4c124 0x1400004b  B .L0    ; Reloc -> '.L0' @ 0x105e4c250
+ 0000000 0x00000000  DCD 0
+START_FinishCleanup_3:
+ 105e4c128 0xd2800009  MOVZ X9, #0
+ 105e4c12c 0xaa0903e0  MOV X0, X9
+ 105e4c130 0xd2800029  MOVZ X9, #1
+ 105e4c134 0xf2a04009  MOVK X9, #512, LSL #16
+ 105e4c138 0xaa0903f0  MOV X16, X9
+ 105e4c13c 0xd4001001  SVC #128
+ 0000000 0x00000000  DCD 0
+START_ForBody_5:
+ 105e4c140 0x97ffffb5  BL HeapManager_enter_scope_veneer    ; Reloc -> 'HeapManager_enter_scope_veneer' @ 0x105e4c014
+ 105e4c144 0xaa1803e9  MOV X9, X24
+ 105e4c148 0xd280004a  MOVZ X10, #2
+ 105e4c14c 0x9b0a7d29  MUL X9, X9, X10
+ 105e4c150 0x9e620120  SCVTF D0, X9
+ 105e4c154 0xd37df318  LSL X24, X24, #3
+ 105e4c158 0x8b180369  ADD X9, X27, X24
+ 105e4c15c 0xfd000120  STR D0, [X9, #0]
+ 105e4c160 0x97ffffb1  BL HeapManager_exit_scope_veneer    ; Reloc -> 'HeapManager_exit_scope_veneer' @ 0x105e4c024
+ 105e4c164 0x1400002c  B START_ForIncrement_6    ; Reloc -> 'START_ForIncrement_6' @ 0x105e4c214
+ 0000000 0x00000000  DCD 0
+START_ForEachBody_9:
+ 105e4c168 0xaa1a03e9  MOV X9, X26
+ 105e4c16c 0xd37df129  LSL X9, X9, #3
+ 105e4c170 0x8b09036a  ADD X10, X27, X9
+ 105e4c174 0xfd400140  LDR D0, [X10, #0]
+ 105e4c178 0x1e60400f  FMOV D15, D0
+ 105e4c17c 0x1e60400f  FMOV D15, D0
+ 105e4c180 0x97ffffa5  BL HeapManager_enter_scope_veneer    ; Reloc -> 'HeapManager_enter_scope_veneer' @ 0x105e4c014
+ 105e4c184 0xb0000029  ADRP X9, L_str0    ; Reloc -> 'L_str0' @ 0x105e51000
+ 105e4c188 0x91000129  ADD X9, X9, #:lo12:L_str0    ; Reloc -> 'L_str0' @ 0x105e51000
+ 105e4c18c 0x91002129  ADD X9, X9, #8
+ 105e4c190 0xaa0903e0  MOV X0, X9
+ 105e4c194 0x9e6601e9  FMOV X9, D15
+ 105e4c198 0xaa0903e1  MOV X1, X9
+ 105e4c19c 0x97ffffaa  BL WRITEF1_veneer    ; Reloc -> 'WRITEF1_veneer' @ 0x105e4c044
+ 105e4c1a0 0x97ffffa1  BL HeapManager_exit_scope_veneer    ; Reloc -> 'HeapManager_exit_scope_veneer' @ 0x105e4c024
+ 105e4c1a4 0x14000008  B START_ForEachIncrement_10    ; Reloc -> 'START_ForEachIncrement_10' @ 0x105e4c1c4
+ 0000000 0x00000000  DCD 0
+START_ForEachExit_11:
+ 105e4c1a8 0x97ffff9f  BL HeapManager_exit_scope_veneer    ; Reloc -> 'HeapManager_exit_scope_veneer' @ 0x105e4c024
+ 105e4c1ac 0x17ffffde  B START_Exit_12    ; Reloc -> 'START_Exit_12' @ 0x105e4c124
+ 0000000 0x00000000  DCD 0
+START_ForEachHeader_8:
+ 105e4c1b0 0xeb19035f  CMP x26, x25
+ 105e4c1b4 0x9a9fa7ea  CSET X10, LT
+ 105e4c1b8 0xeb1f015f  CMP X10, XZR
+ 105e4c1bc 0x54fffd61  B.NE START_ForEachBody_9    ; Reloc -> 'START_ForEachBody_9' @ 0x105e4c168
+ 105e4c1c0 0x17fffffa  B START_ForEachExit_11    ; Reloc -> 'START_ForEachExit_11' @ 0x105e4c1a8
+ 0000000 0x00000000  DCD 0
+START_ForEachIncrement_10:
+ 105e4c1c4 0xaa1a03e9  MOV X9, X26
+ 105e4c1c8 0x91000529  ADD X9, X9, #1
+ 105e4c1cc 0xaa0903fa  MOV X26, X9
+ 105e4c1d0 0x17fffff8  B START_ForEachHeader_8    ; Reloc -> 'START_ForEachHeader_8' @ 0x105e4c1b0
+ 0000000 0x00000000  DCD 0
+START_ForExit_7:
+ 105e4c1d4 0xb0000029  ADRP X9, L_str1    ; Reloc -> 'L_str1' @ 0x105e51024
+ 105e4c1d8 0x91009129  ADD X9, X9, #:lo12:L_str1    ; Reloc -> 'L_str1' @ 0x105e51024
+ 105e4c1dc 0x91002129  ADD X9, X9, #8
+ 105e4c1e0 0xaa0903e0  MOV X0, X9
+ 105e4c1e4 0x97ffffb4  BL WRITES_veneer    ; Reloc -> 'WRITES_veneer' @ 0x105e4c0b4
+ 105e4c1e8 0xd100236a  SUB X10, X27, #8
+ 105e4c1ec 0xf9400149  LDR X9, [X10, #0] ; Load vector/table/string length
+ 105e4c1f0 0xaa0903f9  MOV X25, X9
+ 105e4c1f4 0xd2800009  MOVZ X9, #0
+ 105e4c1f8 0xaa0903fa  MOV X26, X9
+ 105e4c1fc 0x17ffffed  B START_ForEachHeader_8    ; Reloc -> 'START_ForEachHeader_8' @ 0x105e4c1b0
+ 0000000 0x00000000  DCD 0
+START_ForHeader_4:
+ 105e4c200 0xaa1803e9  MOV X9, X24
+ 105e4c204 0xd280008a  MOVZ X10, #4
+ 105e4c208 0xeb0a013f  CMP X9, X10
+ 105e4c20c 0x54fffe4c  B.GT START_ForExit_7    ; Reloc -> 'START_ForExit_7' @ 0x105e4c1d4
+ 105e4c210 0x17ffffcc  B START_ForBody_5    ; Reloc -> 'START_ForBody_5' @ 0x105e4c140
+ 0000000 0x00000000  DCD 0
+START_ForIncrement_6:
+ 105e4c214 0xaa1803e9  MOV X9, X24
+ 105e4c218 0x91000529  ADD X9, X9, #1
+ 105e4c21c 0xaa0903f8  MOV X24, X9
+ 105e4c220 0x17fffff8  B START_ForHeader_4    ; Reloc -> 'START_ForHeader_4' @ 0x105e4c200
+ 0000000 0x00000000  DCD 0
+START_Join_2:
+ 105e4c224 0xd2800009  MOVZ X9, #0
+ 105e4c228 0xaa0903f8  MOV X24, X9
+ 105e4c22c 0x17fffff5  B START_ForHeader_4    ; Reloc -> 'START_ForHeader_4' @ 0x105e4c200
+ 0000000 0x00000000  DCD 0
+START_Then_1:
+ 105e4c230 0x97ffff79  BL HeapManager_enter_scope_veneer    ; Reloc -> 'HeapManager_enter_scope_veneer' @ 0x105e4c014
+ 105e4c234 0xb0000029  ADRP X9, L_str2    ; Reloc -> 'L_str2' @ 0x105e51084
+ 105e4c238 0x91021129  ADD X9, X9, #:lo12:L_str2    ; Reloc -> 'L_str2' @ 0x105e51084
+ 105e4c23c 0x91002129  ADD X9, X9, #8
+ 105e4c240 0xaa0903e0  MOV X0, X9
+ 105e4c244 0x97ffff9c  BL WRITES_veneer    ; Reloc -> 'WRITES_veneer' @ 0x105e4c0b4
+ 105e4c248 0x97ffff77  BL HeapManager_exit_scope_veneer    ; Reloc -> 'HeapManager_exit_scope_veneer' @ 0x105e4c024
+ 105e4c24c 0x17ffffb7  B START_FinishCleanup_3    ; Reloc -> 'START_FinishCleanup_3' @ 0x105e4c128
+ 0000000 0x00000000  DCD 0
+.L0:
+ 105e4c250 0xfd4023af  LDR D15, [X29, #64] ; Restored Reg: D15 @ FP+64
+ 105e4c254 0xa944d3b3  LDP x19, x20, [x29, #72]
+ 105e4c258 0xa945dbb5  LDP x21, x22, [x29, #88]
+ 105e4c25c 0xa946e3b7  LDP x23, x24, [x29, #104]
+ 105e4c260 0xa947ebb9  LDP x25, x26, [x29, #120]
+ 105e4c264 0xa948f3bb  LDP x27, x28, [x29, #136]
+ 105e4c268 0x910003bf  MOV SP, X29 ; Deallocate frame by moving FP to SP
+ 105e4c26c 0xa9407bfd  LDP x29, x30, [SP, #0]
+ 105e4c270 0x910043ff  ADD SP, SP, #16 ; Deallocate space for saved FP/LR
+ 105e4c274 0xd65f03c0  RET
+ 0000000 0x00000000  DCD 0
+L_str0:
+ 105e51000 0x50000000  .quad 0x5
+ 105e51004 0x00000000  ; (upper half)
+ 105e51008 0x25000000  DCD 0x25
+ 105e5100c 0x66000000  DCD 0x66
+ 105e51010 0x20000000  DCD 0x20
+ 105e51014 0x2d000000  DCD 0x2d
+ 105e51018 0x20000000  DCD 0x20
+ 105e5101c 0x00000000  DCD 0x0
+ 105e51020 0x00000000  DCD 0x0
+ 0000000 0x00000000  DCD 0
+L_str1:
+ 105e51024 0x14000000  .quad 0x14
+ 105e51028 0x00000000  ; (upper half)
+ 105e5102c 0x46000000  DCD 0x46
+ 105e51030 0x6f000000  DCD 0x6f
+ 105e51034 0x72000000  DCD 0x72
+ 105e51038 0x65000000  DCD 0x65
+ 105e5103c 0x61000000  DCD 0x61
+ 105e51040 0x63000000  DCD 0x63
+ 105e51044 0x68000000  DCD 0x68
+ 105e51048 0x20000000  DCD 0x20
+ 105e5104c 0x66000000  DCD 0x66
+ 105e51050 0x6c000000  DCD 0x6c
+ 105e51054 0x6f000000  DCD 0x6f
+ 105e51058 0x61000000  DCD 0x61
+ 105e5105c 0x74000000  DCD 0x74
+ 105e51060 0x20000000  DCD 0x20
+ 105e51064 0x74000000  DCD 0x74
+ 105e51068 0x65000000  DCD 0x65
+ 105e5106c 0x73000000  DCD 0x73
+ 105e51070 0x74000000  DCD 0x74
+ 105e51074 0x3a000000  DCD 0x3a
+ 105e51078 0xa0000000  DCD 0xa
+ 105e5107c 0x00000000  DCD 0x0
+ 105e51080 0x00000000  DCD 0x0
+ 1013e4000 0x00000000  DCD 0x0
+ 0000000 0x00000000  DCD 0
+L_str2:
+ 105e51084 0x1c000000  .quad 0x1c
+ 105e51088 0x00000000  ; (upper half)
+ 105e5108c 0x46000000  DCD 0x46
+ 105e51090 0x41000000  DCD 0x41
+ 105e51094 0x49000000  DCD 0x49
+ 105e51098 0x4c000000  DCD 0x4c
+ 105e5109c 0x3a000000  DCD 0x3a
+ 105e510a0 0x20000000  DCD 0x20
+ 105e510a4 0x56000000  DCD 0x56
+ 105e510a8 0x45000000  DCD 0x45
+ 105e510ac 0x43000000  DCD 0x43
+ 105e510b0 0x20000000  DCD 0x20
+ 105e510b4 0x61000000  DCD 0x61
+ 105e510b8 0x6c000000  DCD 0x6c
+ 105e510bc 0x6c000000  DCD 0x6c
+ 105e510c0 0x6f000000  DCD 0x6f
+ 105e510c4 0x63000000  DCD 0x63
+ 105e510c8 0x61000000  DCD 0x61
+ 105e510cc 0x74000000  DCD 0x74
+ 105e510d0 0x69000000  DCD 0x69
+ 105e510d4 0x6f000000  DCD 0x6f
+ 105e510d8 0x6e000000  DCD 0x6e
+ 105e510dc 0x20000000  DCD 0x20
+ 105e510e0 0x66000000  DCD 0x66
+ 105e510e4 0x61000000  DCD 0x61
+ 105e510e8 0x69000000  DCD 0x69
+ 105e510ec 0x6c000000  DCD 0x6c
+ 105e510f0 0x65000000  DCD 0x65
+ 105e510f4 0x64000000  DCD 0x64
+ 105e510f8 0xa0000000  DCD 0xa
+ 105e510fc 0x00000000  DCD 0x0
+ 105e51100 0x00000000  DCD 0x0
+ 1013e4004 0x00000000  DCD 0x0
+ 0000000 0x00000000  DCD 0
+
+-----------------------------------------------
+
 
 --- BCPL Runtime Metrics ---
-Memory allocations: 0 (0 bytes)
-Memory frees: 0 (0 bytes)
-Vector allocations: 0
+Memory allocations: 1 (48 bytes)
+Memory frees: 1 (48 bytes)
+Vector allocations: 1
 String allocations: 0
 Double-free attempts: 0
 Current active allocations: 0 (0 bytes)
 Bloom filter statistics:
-  Items tracked: 0
+  Items tracked: 1
   Memory usage: 12000000 bytes
   False positives: 0
+DEBUG: Fixed Bloom filter (12MB) now has ~1 items (capacity: 10M, estimated false positive rate: 0.0000%)
+SAMM: Successfully cleaned pointer 0x779011980
+SAMM: cleanupPointersImmediate completed 1 items in 41.376 ms
+SAMM: Background worker processed batch of 1 objects
+SAMM: Worker waiting for cleanup queue (queue size: 0)
   Est. false positive rate: 0.0000%
 File I/O operations:
   Files opened: 0

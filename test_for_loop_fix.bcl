@@ -1,0 +1,64 @@
+LET START() BE
+$(
+    // Test FOR loop with float vector assignment to verify the fix
+    // This test should now properly initialize all 5 elements
+
+    FLET V = FVEC 5
+    IF V = 0 THEN
+    $(
+        WRITES("FAIL: FVEC allocation failed*N")
+        FINISH
+    $)
+
+    // Initialize all elements using FOR loop
+    // This should now work correctly without corrupting the loop counter
+    FOR I = 0 TO 4 DO
+    $(
+        V!I := FLOAT(I * 2)
+    $)
+
+    WRITES("FOR loop initialization test:*N")
+    WRITES("Expected: 0.000000 2.000000 4.000000 6.000000 8.000000*N")
+    WRITES("Actual:   ")
+
+    // Verify all elements were initialized correctly
+    FOREACH e IN V DO
+    $(
+        WRITEF("%f ", e)
+    $)
+    WRITES("*N")
+
+    // Test with a different step size
+    WRITES("*N")
+    WRITES("FOR loop with step test:*N")
+    FOR I = 0 TO 4 BY 2 DO
+    $(
+        V!I := FLOAT(I + 10)
+    $)
+
+    WRITES("After step loop (modified indices 0, 2, 4):*N")
+    FOREACH e IN V DO
+    $(
+        WRITEF("%f ", e)
+    $)
+    WRITES("*N")
+
+    // Test nested loops to ensure no interference
+    WRITES("*N")
+    WRITES("Nested FOR loops test:*N")
+    FOR I = 0 TO 2 DO
+    $(
+        FOR J = 0 TO 1 DO
+        $(
+            LET INDEX = I * 2 + J
+            IF INDEX <= 4 THEN V!INDEX := FLOAT(INDEX * 3)
+        $)
+    $)
+
+    WRITES("After nested loops:*N")
+    FOREACH e IN V DO
+    $(
+        WRITEF("%f ", e)
+    $)
+    WRITES("*N")
+$)

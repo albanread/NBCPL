@@ -2,26 +2,25 @@ LET START() BE
 $(
     
 
-    // 1. Allocate a floating-point vector
-    LET V = FVEC 5
-
+    FLET V = FVEC 5
     IF V = 0 THEN
     $(
-        WRITES("FAIL: FVEC allocation failed*N")
+        WRITES("FAIL: VEC allocation failed*N")
         FINISH
     $)
 
+
     FOR I = 0 TO 4 DO
     $(
-        V!I := I
+        V!I := FLOAT(I * 2)
     $)
+
 
     WRITES("Foreach float test:*N")
 
-    // 3. Iterate over the float vector and print each element
     FOREACH e IN V DO
     $(
-        WRITEF("%d - ")
+        WRITEF("%f - ", e)
     $)
-    NEWLINE
+   
 $)

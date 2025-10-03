@@ -1,0 +1,23 @@
+LET START() BE
+$(
+
+    FLET V = FVEC 5
+    IF V = 0 THEN
+    $(
+        WRITES("FAIL: VEC allocation failed*N")
+        FINISH
+    $)
+
+    FOR I = 0 TO 4 DO
+    $(
+        V!I := FLOAT(I * 2)
+    $)
+
+    WRITES("Foreach float test:*N")
+
+    FOREACH e IN V DO
+    $(
+        WRITEF("%f - ", e)
+    $)
+
+$)

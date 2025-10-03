@@ -237,9 +237,14 @@ void NewCodeGenerator::visit(AssignmentStatement& node) {
                 std::string base_reg = expression_result_reg_;
                 generate_expression_code(*vec_access->index_expr);
                 std::string index_reg = expression_result_reg_;
-                emit(Encoder::create_lsl_imm(index_reg, index_reg, 3));
+                // FIX: Use a temporary register for the offset calculation to avoid corrupting the loop variable
+                std::string offset_reg = register_manager_.acquire_scratch_reg(*this);
+                emit(Encoder::create_lsl_imm(offset_reg, index_reg, 3));
                 std::string effective_addr_reg = register_manager_.get_free_register(*this);
-                emit(Encoder::create_add_reg(effective_addr_reg, base_reg, index_reg));
+                emit(Encoder::create_add_reg(effective_addr_reg, base_reg, offset_reg));
+                
+                // Release the temporary offset register
+                register_manager_.release_scratch_reg(offset_reg);
                 register_manager_.release_register(base_reg);
                 register_manager_.release_register(index_reg);
                 emit(Encoder::create_str_fp_imm(store_reg, effective_addr_reg, 0)); // FTABLE: floating-point store
@@ -293,12 +298,17 @@ void NewCodeGenerator::handle_float_vector_indirection_assignment(FloatVectorInd
     generate_expression_code(*float_vec_indirection->index_expr);
     std::string index_reg = expression_result_reg_;
 
-    // Multiply index by 3 (since double is 8 bytes, float is 4 bytes so use 2 if float, 3 if double)
-    emit(Encoder::create_lsl_imm(index_reg, index_reg, 3)); // LSL by 3 (multiply by 8 for double)
+    // Multiply index by 8 (for 64-bit doubles) using a temporary register to avoid corrupting loop variables
+    // FIX: Use a temporary register for the offset calculation to avoid corrupting the loop variable
+    std::string offset_reg = register_manager_.acquire_scratch_reg(*this);
+    emit(Encoder::create_lsl_imm(offset_reg, index_reg, 3)); // LSL by 3 (multiply by 8 for double)
 
     // Add the offset to the base address to get the effective memory address
     std::string effective_addr_reg = register_manager_.get_free_register(*this);
-    emit(Encoder::create_add_reg(effective_addr_reg, base_reg, index_reg));
+    emit(Encoder::create_add_reg(effective_addr_reg, base_reg, offset_reg));
+    
+    // Release the temporary offset register
+    register_manager_.release_scratch_reg(offset_reg);
     register_manager_.release_register(base_reg);
     register_manager_.release_register(index_reg);
 
