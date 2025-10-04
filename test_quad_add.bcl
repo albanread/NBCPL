@@ -1,0 +1,26 @@
+// Simple test for QUAD vector addition operations
+
+LET START() BE $(
+    WRITEF("Testing QUAD vector addition*N")
+
+    // Create QUAD vectors
+    LET q1 = QUAD(10, 20, 30, 40)
+    WRITEF1("q1 = %X*N", q1)
+
+    LET q2 = QUAD(1, 2, 3, 4)
+    WRITEF1("q2 = %X*N", q2)
+
+    WRITEF("*NTesting vector addition:*N")
+
+    // Test vector addition
+    LET q3 = q1 + q2
+    WRITEF1("q1 + q2 = %X*N", q3)
+
+    // Expected result: (11, 22, 33, 44)
+    // In hex: 000B (11), 0016 (22), 0021 (33), 002C (44)
+    // Combined: 002C0021001600B
+
+    WRITEF("*NExpected: 002C0021001600B*N")
+
+    WRITEF("*NTest complete*N")
+$)

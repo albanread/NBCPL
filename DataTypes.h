@@ -28,6 +28,8 @@ enum class VarType : int64_t {
     PAIR         = 1 << 4, // 16
     FPAIR        = 1 << 5, // 32
     QUAD         = 1 << 6, // 64
+    OCT          = 1 << 7, // 128
+    FOCT         = 1 << 8, // 256
     
     // Container types (higher bits, higher priority)
     VEC          = 1 << 10, // 1024
@@ -107,6 +109,8 @@ inline std::string vartype_to_string(VarType t) {
     if (v & static_cast<int64_t>(VarType::PAIR)) result += "PAIR|";
     if (v & static_cast<int64_t>(VarType::FPAIR)) result += "FPAIR|";
     if (v & static_cast<int64_t>(VarType::QUAD)) result += "QUAD|";
+    if (v & static_cast<int64_t>(VarType::OCT)) result += "OCT|";
+    if (v & static_cast<int64_t>(VarType::FOCT)) result += "FOCT|";
     if (v & static_cast<int64_t>(VarType::NOTUSED)) result += "NOTUSED|";
 
     // Remove trailing '|'

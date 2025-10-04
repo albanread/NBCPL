@@ -773,6 +773,25 @@ VarType ASTAnalyzer::infer_expression_type(const Expression* expr) const {
             case ASTNode::NodeType::QuadExpr:
                 return VarType::QUAD;
                 
+            case ASTNode::NodeType::OctExpr:
+                return VarType::OCT;
+                
+            case ASTNode::NodeType::FOctExpr:
+                return VarType::FOCT;
+                
+            case ASTNode::NodeType::LaneAccessExpr:
+                {
+                    // For lane access, return the element type of the vector
+                    auto* lane_access = static_cast<const LaneAccessExpression*>(expr);
+                    VarType vector_type = infer_expression_type(lane_access->vector_expr.get());
+                    
+                    if (vector_type == VarType::FPAIR || vector_type == VarType::FOCT) {
+                        return VarType::FLOAT;
+                    } else {
+                        return VarType::INTEGER;
+                    }
+                }
+                
             case ASTNode::NodeType::PairAccessExpr:
                 return VarType::INTEGER;  // .first and .second return integers
                 

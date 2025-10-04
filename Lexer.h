@@ -16,7 +16,7 @@ enum class TokenType {
     Virtual, Final,
     Class, Extends, New, Decl, // Added Decl for DECL keyword
     Public, Private, Protected, // Added for visibility modifiers
-    Vec, FVec, Pair, FPair, Quad, If, Unless, Test, While, Until, Repeat, For, ForEach, FForeach, In, Switchon,
+    Vec, FVec, Pair, FPair, Quad, Oct, FOct, If, Unless, Test, While, Until, Repeat, For, ForEach, FForeach, In, Switchon,
     Case, Default, Goto, Return, Finish, Loop, Endcase, Resultis,
     Valof, FValof, Be, To, By, Into, Do, Or, Break, Get, FLet,
     Then, Else,
@@ -27,6 +27,7 @@ enum class TokenType {
     Assign, Plus, Minus, Multiply, Divide, Remainder, Equal, NotEqual,
     Less, LessEqual, Greater, GreaterEqual, LogicalAnd, BitwiseAnd, LogicalOr, BitwiseOr,     BitwiseNot,
     Dot, // Added Dot for '.' operator
+    Pipe, // Added Pipe for '|' operator (lane access)
     MemberAccess, // New: For . and ! operators (legacy, keep for compatibility)
     LogicalNot,
     Equivalence, NotEquivalence, LeftShift, RightShift, Conditional,

@@ -66,6 +66,7 @@ class ASTAnalyzer : public ASTVisitor {
 
     // Infer the type of an expression (INTEGER, FLOAT, POINTER, etc.)
     VarType infer_expression_type(const Expression* expr) const;
+    VarType get_expression_type(const Expression& expr) const { return infer_expression_type(&expr); }
     bool function_accesses_globals(const std::string& function_name) const;
     int64_t evaluate_constant_expression(Expression* expr, bool* has_value) const;
     bool is_local_routine(const std::string& name) const;
@@ -170,6 +171,9 @@ class ASTAnalyzer : public ASTVisitor {
     void visit(FPairAccessExpression& node) override; // New: for fp.first/fp.second access
     void visit(QuadExpression& node) override; // New: for quad(a,b,c,d) expressions
     void visit(QuadAccessExpression& node) override; // New: for q.first/q.second/q.third/q.fourth access
+    void visit(OctExpression& node) override; // New: for oct(...) 8-lane vector expressions
+    void visit(FOctExpression& node) override; // New: for foct(...) 8-lane float vector expressions
+    void visit(LaneAccessExpression& node) override; // New: for vector.|n| lane access
 
   private:
     std::string current_class_name_; // Tracks the current class context for mangling method names

@@ -204,6 +204,15 @@ void NewCodeGenerator::visit(AssignmentStatement& node) {
                 register_manager_.release_register(write_mask_reg);
                 register_manager_.release_register(value_to_store_reg);
             }
+        } else if (auto* lane_access = dynamic_cast<LaneAccessExpression*>(lhs_expr.get())) {
+            // Handle lane access assignment (vector.|n| = value)
+            debug_print("Processing lane access assignment");
+            
+            if (vector_codegen_) {
+                vector_codegen_->generateLaneWrite(*lane_access, node.rhs[i], use_neon_);
+            } else {
+                throw std::runtime_error("VectorCodeGen not available for lane access assignment");
+            }
         } else if (auto* var_access = dynamic_cast<VariableAccess*>(lhs_expr.get())) {
             // --- LOCAL VALUE TRACKING: Register canonical address if RHS is a literal ---
             std::string canonical_form = get_expression_canonical_form(node.rhs[i].get());

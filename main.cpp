@@ -163,9 +163,10 @@ bool parse_arguments(int argc, char* argv[], bool& run_jit, bool& generate_asm, 
                     bool& dump_jit_stack, bool& enable_peephole, bool& enable_stack_canaries,
                     bool& format_code, bool& trace_class_table, bool& trace_vtables,
                     bool& bounds_checking_enabled, bool& enable_samm, bool& enable_superdisc,
+                    bool& use_neon, bool& generate_list,
                     std::string& input_filepath, std::string& call_entry_name, int& offset_instructions,
                     std::vector<std::string>& include_paths, std::string& runtime_mode);
-void handle_static_compilation(bool exec_mode, const std::string& base_name, const InstructionStream& instruction_stream, const DataGenerator& data_generator, bool enable_debug_output, const std::string& runtime_mode, const VeneerManager& veneer_manager);
+void handle_static_compilation(bool exec_mode, const std::string& base_name, const InstructionStream& instruction_stream, const DataGenerator& data_generator, bool enable_debug_output, const std::string& runtime_mode, const VeneerManager& veneer_manager, bool generate_list);
 void* handle_jit_compilation(void* jit_data_memory_base, InstructionStream& instruction_stream, int offset_instructions, bool enable_debug_output, std::vector<Instruction>* finalized_instructions = nullptr);
 void handle_jit_execution(void* code_buffer_base, const std::string& call_entry_name, bool dump_jit_stack, bool enable_debug_output);
 
@@ -212,6 +213,8 @@ int main(int argc, char* argv[]) {
     std::string runtime_mode = "jit"; // Default runtime mode
     bool format_code = false; // Add this flag
     bool bounds_checking_enabled = true; // Runtime bounds checking enabled by default
+    bool use_neon = true; // NEON SIMD instructions enabled by default
+    bool generate_list = false; // Generate listing file with hex opcodes
 
     if (enable_tracing) {
         std::cout << "Debug: About to parse arguments\n";
@@ -226,7 +229,7 @@ int main(int argc, char* argv[]) {
                             trace_class_table,
                             trace_vtables,
                             bounds_checking_enabled, enable_samm,
-                            enable_superdisc,
+                            enable_superdisc, use_neon, generate_list,
                             input_filepath, call_entry_name, g_jit_breakpoint_offset, include_paths, runtime_mode)) {
             if (enable_tracing) {
                 std::cout << "Debug: parse_arguments returned false\n";
@@ -780,7 +783,8 @@ if (enable_tracing || trace_ast) std::cout << "AST transformation complete.\n";
             run_jit, // Pass is_jit_mode: true for JIT, false for static/exec
             class_table.get(),
             final_liveness_analyzer, // Pass the liveness analyzer
-            bounds_checking_enabled // Pass bounds checking flag
+            bounds_checking_enabled, // Pass bounds checking flag
+            use_neon // Pass NEON flag
         );
 
         // --- Initialize veneer manager
@@ -815,9 +819,10 @@ if (enable_tracing || trace_ast) std::cout << "AST transformation complete.\n";
         // --exec
         //
         // Generate CLANG compatible .s assembler file, compile and link it
-        if (generate_asm || exec_mode) {
+        // Auto-enable assembly generation if listing file is requested
+        if (generate_asm || exec_mode || generate_list) {
             std::string base_name = input_filepath.substr(0, input_filepath.find_last_of('.'));
-            handle_static_compilation(exec_mode, base_name, instruction_stream, data_generator, enable_tracing || trace_codegen, runtime_mode, code_generator.get_veneer_manager());
+            handle_static_compilation(exec_mode, base_name, instruction_stream, data_generator, enable_tracing || trace_codegen, runtime_mode, code_generator.get_veneer_manager(), generate_list);
         }
 
         // --- RESET THE LABEL MANAGER ---
@@ -899,7 +904,7 @@ bool parse_arguments(int argc, char* argv[], bool& run_jit, bool& generate_asm, 
                     bool& dump_jit_stack, bool& enable_peephole, bool& enable_stack_canaries,
                     bool& format_code, bool& trace_class_table, bool& trace_vtables,
                     bool& bounds_checking_enabled, bool& enable_samm,
-                    bool& enable_superdisc,
+                    bool& enable_superdisc, bool& use_neon, bool& generate_list,
                     std::string& input_filepath, std::string& call_entry_name, int& offset_instructions,
                     std::vector<std::string>& include_paths, std::string& runtime_mode) {
     if (enable_tracing) {
@@ -941,6 +946,8 @@ bool parse_arguments(int argc, char* argv[], bool& run_jit, bool& generate_asm, 
         else if (arg == "--noSAMM") enable_samm = false;
         else if (arg == "--no-opt") enable_opt = false;
         else if (arg == "--no-superdisc") enable_superdisc = false;
+        else if (arg == "--no-neon") use_neon = false;
+        else if (arg == "--list" || arg == "-l") generate_list = true;
         else if (arg.substr(0, 10) == "--runtime=") {
             runtime_mode = arg.substr(10);
             if (runtime_mode != "jit" && runtime_mode != "standalone" && runtime_mode != "unified") {
@@ -990,6 +997,8 @@ bool parse_arguments(int argc, char* argv[], bool& run_jit, bool& generate_asm, 
                       << "  --no-bounds-check      : Disable runtime bounds checking for vector/string access (default: enabled).\n"
                       << "  --noSAMM               : Disable SAMM (Scope Aware Memory Management) - reduces automatic cleanup (default: enabled).\n"
                       << "  --no-superdisc         : Disable CREATE Method Reordering Pass (rewrite CREATE)\n"
+                      << "  --no-neon              : Disable NEON SIMD instructions for vector operations (use scalar fallback).\n"
+                      << "  --list, -l             : Generate listing file (.lst) with hex opcodes alongside assembly.\n"
                       << "  -I path, --include-path path : Add directory to include search path for GET directives.\n"
                       << "                          Multiple -I flags can be specified for additional paths.\n"
                       << "                          Search order: 1) Current file's directory 2) Specified include paths\n"
@@ -1039,7 +1048,7 @@ bool parse_arguments(int argc, char* argv[], bool& run_jit, bool& generate_asm, 
 /**
  * @brief Handles static compilation to an assembly file and optionally builds and runs it.
  */
-void handle_static_compilation(bool exec_mode, const std::string& base_name, const InstructionStream& instruction_stream, const DataGenerator& data_generator, bool enable_debug_output, const std::string& runtime_mode, const VeneerManager& veneer_manager) {
+void handle_static_compilation(bool exec_mode, const std::string& base_name, const InstructionStream& instruction_stream, const DataGenerator& data_generator, bool enable_debug_output, const std::string& runtime_mode, const VeneerManager& veneer_manager, bool generate_list) {
     if (enable_debug_output) std::cout << "Performing static linking for assembly file generation...\n";
     Linker static_linker;
     std::vector<Instruction> static_instructions = static_linker.process(
@@ -1048,6 +1057,36 @@ void handle_static_compilation(bool exec_mode, const std::string& base_name, con
     std::string asm_output_path = base_name + ".s";
     AssemblyWriter asm_writer;
     asm_writer.write_to_file(asm_output_path, static_instructions, LabelManager::instance(), data_generator, veneer_manager);
+
+    if (generate_list) {
+        // Generate object file first, then create listing with objdump
+        std::string obj_path = base_name + ".o";
+        std::string lst_path = base_name + ".lst";
+        std::string compile_command = "clang -c " + asm_output_path + " -o " + obj_path;
+        
+        if (enable_debug_output) {
+            std::cout << "Compiling to object file: " << compile_command << std::endl;
+        }
+        
+        int compile_result = system(compile_command.c_str());
+        if (compile_result == 0) {
+            // Use objdump to create listing with hex opcodes
+            std::string objdump_command = "objdump -d -S " + obj_path + " > " + lst_path;
+            if (enable_debug_output) {
+                std::cout << "Generating listing file: " << objdump_command << std::endl;
+            }
+            
+            int objdump_result = system(objdump_command.c_str());
+            if (objdump_result == 0) {
+                std::cout << "Generated listing file: " << lst_path << std::endl;
+                std::cout << "Generated object file: " << obj_path << std::endl;
+            } else {
+                std::cerr << "Warning: Failed to generate listing with objdump" << std::endl;
+            }
+        } else {
+            std::cerr << "Warning: Failed to compile object file for listing" << std::endl;
+        }
+    }
 
     if (exec_mode) {
         if (enable_debug_output) std::cout << "\n--- Exec Mode (via clang) ---\n";

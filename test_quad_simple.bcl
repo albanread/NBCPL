@@ -1,15 +1,38 @@
-LET START() BE {
-    LET q1 = QUAD(1, 2, 3, 4)
+// Simple test for QUAD vector operations and lane accessors
 
-    LET a = q1.first
-    LET b = q1.second
-    LET c = q1.third
-    LET d = q1.fourth
+LET START() BE $(
+    WRITEF("Testing QUAD vector operations*N")
 
-    WRITEF("First: %N*N", a)
-    WRITEF("Second: %N*N", b)
-    WRITEF("Third: %N*N", c)
-    WRITEF("Fourth: %N*N", d)
+    // Create QUAD vectors
+    LET q1 = QUAD(10, 20, 30, 40)
+    WRITEF1("q1 = %X*N", q1)
 
-    WRITEF("Hex: %X*N", q1)
-}
+    LET q2 = QUAD(5, 15, 25, 35)
+    WRITEF1("q2 = %X*N", q2)
+
+    WRITEF("*NTesting lane read operations:*N")
+
+    // Test reading individual lanes
+    LET lane0 = q1.|0|
+    LET lane1 = q1.|1|
+    LET lane2 = q1.|2|
+    LET lane3 = q1.|3|
+
+    WRITEF4("q1.|0| = %N, q1.|1| = %N, q1.|2| = %N, q1.|3| = %N*N",
+            lane0, lane1, lane2, lane3)
+
+    WRITEF("*NTesting lane write operations:*N")
+
+    // Test writing to individual lanes
+    LET q3 = QUAD(100, 200, 300, 400)
+    WRITEF1("Before: q3 = %X*N", q3)
+
+    q3.|0| := 111
+    q3.|1| := 222
+    q3.|2| := 333
+    q3.|3| := 444
+
+    WRITEF1("After lane writes: q3 = %X*N", q3)
+
+    WRITEF("*NTest complete*N")
+$)

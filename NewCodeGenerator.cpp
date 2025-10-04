@@ -240,7 +240,8 @@ NewCodeGenerator::NewCodeGenerator(InstructionStream& instruction_stream,
                                    bool is_jit_mode,
                                    ClassTable* class_table,
                                    LivenessAnalysisPass& liveness_analyzer,
-                                   bool bounds_checking_enabled)
+                                   bool bounds_checking_enabled,
+                                   bool use_neon)
 : instruction_stream_(instruction_stream),
   register_manager_(register_manager),
   label_manager_(label_manager),
@@ -255,13 +256,18 @@ NewCodeGenerator::NewCodeGenerator(InstructionStream& instruction_stream,
   is_jit_mode_(is_jit_mode),
   class_table_(class_table),
   liveness_analyzer_(liveness_analyzer),
-  bounds_checking_enabled_(bounds_checking_enabled)
+  bounds_checking_enabled_(bounds_checking_enabled),
+  use_neon_(use_neon)
 {
     x28_is_loaded_in_current_function_ = false;
     // Set the class table pointer in DataGenerator for vtable and class info
     data_generator_.set_class_table(class_table_);
     // Set the symbol table pointer in DataGenerator for offset propagation
     data_generator_.set_symbol_table(symbol_table_.get());
+    
+    // Initialize VectorCodeGen helper
+    vector_codegen_ = std::make_unique<VectorCodeGen>(*this, register_manager_, 
+        [this](const Instruction& instruction) { emit(instruction); });
 }
 
 // Private helper for type inference during code generation (without calling back to analyzer)
@@ -527,6 +533,16 @@ void NewCodeGenerator::visit(SuperMethodAccessExpression& node) {
 void NewCodeGenerator::visit(BinaryOp& node) {
     debug_print("Visiting BinaryOp node.");
 
+    // Check for SIMD vector operations first (OCT, FOCT)
+    VarType left_type = infer_expression_type_local(node.left.get());
+    VarType right_type = infer_expression_type_local(node.right.get());
+    
+    if (vector_codegen_ && VectorCodeGen::isSimdOperation(left_type, right_type)) {
+        debug_print("Detected SIMD vector operation - using VectorCodeGen");
+        vector_codegen_->generateSimdBinaryOp(node, use_neon_);
+        return;
+    }
+
     // Check for vector PAIR operations first
     if (is_vector_pair_operation(node)) {
         debug_print("Detected vector PAIR operation - using NEON acceleration");
@@ -547,8 +563,7 @@ void NewCodeGenerator::visit(BinaryOp& node) {
 
     // --- START NEW LOGIC FOR MIXED-TYPES ---
     // First, recursively determine the type of each sub-expression.
-    VarType left_type = infer_expression_type_local(node.left.get());
-    VarType right_type = infer_expression_type_local(node.right.get());
+    // Types already determined above for SIMD check
     
     debug_print("BinaryOp type inference: left_type=" + std::to_string(static_cast<int>(left_type)) + 
                 ", right_type=" + std::to_string(static_cast<int>(right_type)));

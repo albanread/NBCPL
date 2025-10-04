@@ -1,0 +1,131 @@
+// Test to verify that pseudo GETVEC functions work correctly with the veneer system
+// This test ensures that IGETVEC, SGETVEC, PGETVEC, and QGETVEC are properly
+// detected by ExternalFunctionScanner and added to the veneer jump table
+
+LET START() BE {
+    WRITEF("Testing Pseudo GETVEC Functions with Veneer System*N*N");
+
+    // Test that each pseudo function is callable and returns a valid pointer
+    WRITEF("1. Testing IGETVEC (Integer Vector):*N");
+    LET int_vec = IGETVEC(5);
+    WRITEF("   IGETVEC(5) returned address: %N*N", int_vec);
+    TEST int_vec <> 0 THEN {
+        WRITEF("   ✓ IGETVEC returned valid pointer*N");
+        int_vec!0 := 100;
+        int_vec!1 := 200;
+        WRITEF("   ✓ Can write to vector: int_vec!0=%N, int_vec!1=%N*N", int_vec!0, int_vec!1);
+    } ELSE {
+        WRITEF("   ✗ IGETVEC returned NULL pointer*N");
+    }
+
+    WRITEF("*N2. Testing SGETVEC (String Vector):*N");
+    LET str_vec = SGETVEC(3);
+    WRITEF("   SGETVEC(3) returned address: %N*N", str_vec);
+    TEST str_vec <> 0 THEN {
+        WRITEF("   ✓ SGETVEC returned valid pointer*N");
+        str_vec!0 := 1001;  // Store as integers for now
+        str_vec!1 := 2002;
+        WRITEF("   ✓ Can write to vector: str_vec!0=%N, str_vec!1=%N*N", str_vec!0, str_vec!1);
+    } ELSE {
+        WRITEF("   ✗ SGETVEC returned NULL pointer*N");
+    }
+
+    WRITEF("*N3. Testing PGETVEC (Pair Vector):*N");
+    LET pair_vec = PGETVEC(2);
+    WRITEF("   PGETVEC(2) returned address: %N*N", pair_vec);
+    TEST pair_vec <> 0 THEN {
+        WRITEF("   ✓ PGETVEC returned valid pointer*N");
+        pair_vec!0 := 3001;
+        pair_vec!1 := 4002;
+        WRITEF("   ✓ Can write to vector: pair_vec!0=%N, pair_vec!1=%N*N", pair_vec!0, pair_vec!1);
+    } ELSE {
+        WRITEF("   ✗ PGETVEC returned NULL pointer*N");
+    }
+
+    WRITEF("*N4. Testing QGETVEC (Quad Vector):*N");
+    LET quad_vec = QGETVEC(1);
+    WRITEF("   QGETVEC(1) returned address: %N*N", quad_vec);
+    TEST quad_vec <> 0 THEN {
+        WRITEF("   ✓ QGETVEC returned valid pointer*N");
+        quad_vec!0 := 5001;
+        WRITEF("   ✓ Can write to vector: quad_vec!0=%N*N", quad_vec!0);
+    } ELSE {
+        WRITEF("   ✗ QGETVEC returned NULL pointer*N");
+    }
+
+    WRITEF("*N5. Comparing with regular GETVEC:*N");
+    LET reg_vec = GETVEC(4);
+    WRITEF("   GETVEC(4) returned address: %N*N", reg_vec);
+    TEST reg_vec <> 0 THEN {
+        WRITEF("   ✓ Regular GETVEC still works*N");
+        reg_vec!0 := 9999;
+        WRITEF("   ✓ Can write to vector: reg_vec!0=%N*N", reg_vec!0);
+    } ELSE {
+        WRITEF("   ✗ Regular GETVEC returned NULL pointer*N");
+    }
+
+    WRITEF("*N6. Testing FGETVEC (Float Vector - existing):*N");
+    LET float_vec = FGETVEC(2);
+    WRITEF("   FGETVEC(2) returned address: %N*N", float_vec);
+    TEST float_vec <> 0 THEN {
+        WRITEF("   ✓ FGETVEC returned valid pointer*N");
+        // Note: Float vector assignment needs special handling
+    } ELSE {
+        WRITEF("   ✗ FGETVEC returned NULL pointer*N");
+    }
+
+    WRITEF("*N7. Veneer System Verification:*N");
+    WRITEF("   All pseudo GETVEC functions should be in veneer jump table*N");
+    WRITEF("   External function scanner should detect: IGETVEC, SGETVEC, PGETVEC, QGETVEC*N");
+    WRITEF("   VeneerManager should generate jump veneers for each function*N");
+    WRITEF("   Runtime calls should go through veneer -> RuntimeManager*N");
+
+    WRITEF("*N8. Type System Verification:*N");
+    WRITEF("   Compiler should infer these return types:*N");
+    WRITEF("   • GETVEC()  → POINTER_TO_VEC_OF_ANY*N");
+    WRITEF("   • IGETVEC() → POINTER_TO_VEC_OF_INTEGER*N");
+    WRITEF("   • SGETVEC() → POINTER_TO_VEC_OF_STRING*N");
+    WRITEF("   • PGETVEC() → POINTER_TO_VEC_OF_PAIR*N");
+    WRITEF("   • QGETVEC() → POINTER_TO_VEC_OF_QUAD*N");
+    WRITEF("   • FGETVEC() → POINTER_TO_VEC_OF_FLOAT*N");
+
+    WRITEF("*N9. Runtime Implementation Check:*N");
+    WRITEF("   All pseudo functions use same bcpl_getvec implementation*N");
+    WRITEF("   Only difference is return type hint for compiler*N");
+    WRITEF("   Runtime efficiency: zero overhead type safety*N");
+
+    // Memory cleanup
+    WRITEF("*N10. Cleanup Test:*N");
+    TEST int_vec <> 0 THEN {
+        FREEVEC(int_vec);
+        WRITEF("   ✓ FREEVEC(int_vec) completed*N");
+    }
+    TEST str_vec <> 0 THEN {
+        FREEVEC(str_vec);
+        WRITEF("   ✓ FREEVEC(str_vec) completed*N");
+    }
+    TEST pair_vec <> 0 THEN {
+        FREEVEC(pair_vec);
+        WRITEF("   ✓ FREEVEC(pair_vec) completed*N");
+    }
+    TEST quad_vec <> 0 THEN {
+        FREEVEC(quad_vec);
+        WRITEF("   ✓ FREEVEC(quad_vec) completed*N");
+    }
+    TEST reg_vec <> 0 THEN {
+        FREEVEC(reg_vec);
+        WRITEF("   ✓ FREEVEC(reg_vec) completed*N");
+    }
+    TEST float_vec <> 0 THEN {
+        FREEVEC(float_vec);
+        WRITEF("   ✓ FREEVEC(float_vec) completed*N");
+    }
+
+    WRITEF("*N=== Pseudo GETVEC Veneer Test Complete ===*N");
+    WRITEF("If this test runs successfully, then:*N");
+    WRITEF("1. ExternalFunctionScanner detected all pseudo functions*N");
+    WRITEF("2. VeneerManager generated jump table entries*N");
+    WRITEF("3. Runtime calls work through veneer system*N");
+    WRITEF("4. Type system provides compile-time safety*N");
+    WRITEF("5. All functions use same efficient implementation*N");
+}

@@ -1,0 +1,63 @@
+// Test file demonstrating pseudo GETVEC functions
+// These functions all use the same GETVEC implementation but provide type hints to the compiler
+
+LET START() BE {
+    WRITEF("Testing Pseudo GETVEC Functions*N*N");
+
+    // Test integer vector allocation
+    LET int_vec = IGETVEC(10);
+    WRITEF("IGETVEC(10) returned: %N*N", int_vec);
+    int_vec!0 := 42;
+    int_vec!1 := 100;
+    WRITEF("int_vec!0 = %N, int_vec!1 = %N*N", int_vec!0, int_vec!1);
+
+    // Test string vector allocation
+    LET string_vec = SGETVEC(3);
+    WRITEF("SGETVEC(3) returned: %N*N", string_vec);
+    string_vec!0 := 1001;  // Store as integers for now
+    string_vec!1 := 2002;
+    string_vec!2 := 3003;
+    WRITEF("string_vec contents: %N, %N, %N*N", string_vec!0, string_vec!1, string_vec!2);
+
+    // Test pair vector allocation (store as raw data)
+    LET pair_vec = PGETVEC(2);
+    WRITEF("PGETVEC(2) returned: %N*N", pair_vec);
+    pair_vec!0 := 1010;  // First element
+    pair_vec!1 := 2020;  // Second element
+    WRITEF("pair_vec!0 = %N, pair_vec!1 = %N*N", pair_vec!0, pair_vec!1);
+
+    // Test quad vector allocation (store as raw data)
+    LET quad_vec = QGETVEC(1);
+    WRITEF("QGETVEC(1) returned: %N*N", quad_vec);
+    quad_vec!0 := 4040;  // Single element
+    WRITEF("quad_vec!0 = %N*N", quad_vec!0);
+
+    // Demonstrate that all functions use the same underlying allocation
+    WRITEF("*NAll vectors allocated from the same heap:*N");
+    WRITEF("int_vec address:    %N*N", int_vec);
+    WRITEF("string_vec address: %N*N", string_vec);
+    WRITEF("pair_vec address:   %N*N", pair_vec);
+    WRITEF("quad_vec address:   %N*N", quad_vec);
+
+    // Test comparison with regular GETVEC
+    LET regular_vec = GETVEC(5);
+    WRITEF("GETVEC(5) returned:  %N*N", regular_vec);
+    regular_vec!0 := 9999;
+    WRITEF("regular_vec!0 = %N*N", regular_vec!0);
+
+    WRITEF("*NType system provides compile-time hints:*N");
+    WRITEF("- GETVEC returns POINTER_TO_VEC_OF_ANY*N");
+    WRITEF("- IGETVEC returns POINTER_TO_VEC_OF_INTEGER*N");
+    WRITEF("- SGETVEC returns POINTER_TO_VEC_OF_STRING*N");
+    WRITEF("- PGETVEC returns POINTER_TO_VEC_OF_PAIR*N");
+    WRITEF("- QGETVEC returns POINTER_TO_VEC_OF_QUAD*N");
+
+    // Clean up
+    FREEVEC(int_vec);
+    FREEVEC(string_vec);
+    FREEVEC(pair_vec);
+    FREEVEC(quad_vec);
+    FREEVEC(regular_vec);
+
+    WRITEF("*NTest completed successfully!*N");
+}

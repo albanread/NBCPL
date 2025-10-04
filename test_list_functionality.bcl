@@ -1,0 +1,137 @@
+// Comprehensive test demonstrating how LIST() functionality works in NewBCPL
+// This test shows both static (compile-time constant) and dynamic (runtime) list creation
+
+LET START() BE {
+    WRITEF("=== NewBCPL LIST() Functionality Test ===*N*N");
+
+    // ===============================================================
+    // SECTION 1: Empty Lists
+    // ===============================================================
+    WRITEF("1. Empty Lists:*N");
+
+    LET empty_list = LIST();
+    WRITEF("   LIST() created at address: %N*N", empty_list);
+    WRITEF("   Empty list length: %N*N", LENGTH(empty_list));
+
+    LET empty_manifest = MANIFESTLIST();
+    WRITEF("   MANIFESTLIST() created at address: %N*N", empty_manifest);
+    WRITEF("   Empty manifest list length: %N*N", LENGTH(empty_manifest));
+
+    // ===============================================================
+    // SECTION 2: Static Lists (Compile-time Constants)
+    // ===============================================================
+    WRITEF("*N2. Static Lists (compile-time constants):*N");
+
+    // Integer list - stored as static data, deep copied at runtime
+    LET int_list = LIST(1, 2, 3, 42, 100);
+    WRITEF("   LIST(1, 2, 3, 42, 100) address: %N*N", int_list);
+    WRITEF("   Length: %N*N", LENGTH(int_list));
+    WRITEF("   Elements: %N, %N, %N, %N, %N*N",
+           HD(int_list), HD(TL(int_list)), HD(TL(TL(int_list))),
+           HD(TL(TL(TL(int_list)))), HD(TL(TL(TL(TL(int_list))))));
+
+    // String list - compile-time constant strings
+    LET string_list = LIST("Hello", "World", "BCPL", "Rocks");
+    WRITEF("   LIST(strings) address: %N*N", string_list);
+    WRITEF("   Length: %N*N", LENGTH(string_list));
+    WRITEF("   First element: %S*N", HD(string_list));
+    WRITEF("   Second element: %S*N", HD(TL(string_list)));
+
+    // Mixed type list - integers and strings
+    LET mixed_list = LIST(42, "answer", 3.14, "pi");
+    WRITEF("   LIST(mixed types) address: %N*N", mixed_list);
+    WRITEF("   Length: %N*N", LENGTH(mixed_list));
+
+    // ===============================================================
+    // SECTION 3: Manifest Lists (Read-only)
+    // ===============================================================
+    WRITEF("*N3. Manifest Lists (read-only):*N");
+
+    LET manifest_ints = MANIFESTLIST(10, 20, 30);
+    WRITEF("   MANIFESTLIST(10, 20, 30) address: %N*N", manifest_ints);
+    WRITEF("   Length: %N*N", LENGTH(manifest_ints));
+    WRITEF("   Elements: %N, %N, %N*N",
+           HD(manifest_ints), HD(TL(manifest_ints)), HD(TL(TL(manifest_ints))));
+
+    // Manifest lists point directly to static data (no deep copy)
+    WRITEF("   Manifest lists are direct pointers to .data section*N");
+
+    // ===============================================================
+    // SECTION 4: Dynamic Lists (Runtime Construction)
+    // ===============================================================
+    WRITEF("*N4. Dynamic Lists (runtime construction):*N");
+
+    // Using variables in list construction forces dynamic creation
+    LET x = 5;
+    LET y = 10;
+    LET z = x + y;
+
+    LET dynamic_list = LIST(x, y, z, x * y);
+    WRITEF("   LIST(x, y, z, x*y) where x=%N, y=%N, z=%N*N", x, y, z);
+    WRITEF("   Dynamic list address: %N*N", dynamic_list);
+    WRITEF("   Length: %N*N", LENGTH(dynamic_list));
+    WRITEF("   Elements: %N, %N, %N, %N*N",
+           HD(dynamic_list), HD(TL(dynamic_list)),
+           HD(TL(TL(dynamic_list))), HD(TL(TL(TL(dynamic_list)))));
+
+    // ===============================================================
+    // SECTION 5: List Operations
+    // ===============================================================
+    WRITEF("*N5. List Operations:*N");
+
+    // Head and Tail operations
+    LET test_list = LIST(100, 200, 300, 400);
+    WRITEF("   Original list: LIST(100, 200, 300, 400)*N");
+    WRITEF("   HD(list) = %N*N", HD(test_list));
+    WRITEF("   TL(list) address = %N*N", TL(test_list));
+    WRITEF("   HD(TL(list)) = %N*N", HD(TL(test_list)));
+
+    // List appending (runtime function calls)
+    LET growing_list = LIST(1, 2);
+    WRITEF("   Starting with LIST(1, 2)*N");
+    growing_list := APND(growing_list, 3);  // Append integer
+    growing_list := APND(growing_list, 4);  // Append another integer
+    WRITEF("   After APND(list, 3) and APND(list, 4):*N");
+    WRITEF("   Length: %N*N", LENGTH(growing_list));
+
+    // ===============================================================
+    // SECTION 6: List Memory Management
+    // ===============================================================
+    WRITEF("*N6. Memory Management:*N");
+
+    // Static lists are deep-copied, so they need cleanup
+    WRITEF("   Regular lists need BCPL_FREE_LIST() or FREEVEC() for cleanup*N");
+    WRITEF("   Manifest lists don't need cleanup (they're static)*N");
+
+    // Clean up dynamic lists
+    BCPL_FREE_LIST(empty_list);
+    BCPL_FREE_LIST(int_list);
+    BCPL_FREE_LIST(string_list);
+    BCPL_FREE_LIST(mixed_list);
+    BCPL_FREE_LIST(dynamic_list);
+    BCPL_FREE_LIST(test_list);
+    BCPL_FREE_LIST(growing_list);
+    // Note: Don't free manifest lists - they're static!
+
+    // ===============================================================
+    // SECTION 7: Implementation Details
+    // ===============================================================
+    WRITEF("*N7. How LIST() Works Internally:*N");
+    WRITEF("   • Static lists: Stored in .data section, deep-copied at runtime*N");
+    WRITEF("   • Dynamic lists: Built with BCPL_LIST_CREATE_EMPTY() + BCPL_LIST_APPEND_*N");
+    WRITEF("   • Manifest lists: Direct pointers to static data (read-only)*N");
+    WRITEF("   • Each list has a ListHeader with type, length, head, tail pointers*N");
+    WRITEF("   • List elements are stored in ListAtom nodes with type tags*N");
+    WRITEF("   • Type tags: INT=1, FLOAT=2, STRING=3, LIST=4, OBJECT=5, PAIR=6*N");
+
+    // ===============================================================
+    // SECTION 8: Type System Integration
+    // ===============================================================
+    WRITEF("*N8. Type System:*N");
+    WRITEF("   • LIST() returns POINTER_TO_LIST_OF_ANY*N");
+    WRITEF("   • MANIFESTLIST() returns CONST_POINTER_TO_LIST_OF_ANY*N");
+    WRITEF("   • Compiler can infer specific types: LIST(1,2,3) → POINTER_TO_LIST_OF_INTEGER*N");
+    WRITEF("   • Mixed lists default to POINTER_TO_LIST_OF_ANY*N");
+
+    WRITEF("*N=== LIST() Functionality Test Complete! ===*N");
+}

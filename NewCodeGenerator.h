@@ -18,6 +18,7 @@
 #include "CFGBuilderPass.h"
 #include "VeneerManager.h"
 #include "ExternalFunctionScanner.h"
+#include "VectorCodeGen.h"
 #include <vector>
 #include <string>
 #include <map>
@@ -50,7 +51,8 @@ public:
                      bool is_jit_mode,
                      ClassTable* class_table,
                      LivenessAnalysisPass& liveness_analyzer,
-                     bool bounds_checking_enabled);
+                     bool bounds_checking_enabled,
+                     bool use_neon = true);
 
 
     // Main entry point
@@ -136,10 +138,20 @@ public:
      */
     const VeneerManager& get_veneer_manager() const { return veneer_manager_; }
 
+    // Public helper for type inference during code generation (for VectorCodeGen)
+    VarType infer_expression_type_local(const Expression* expr) const;
+    
+    // Public member for expression result register (for VectorCodeGen access)
+    std::string expression_result_reg_;
+
 private:
     static constexpr size_t MAX_LDR_OFFSET = 4095 * 8; // 32,760 bytes
     bool is_jit_mode_ = false;
     bool bounds_checking_enabled_ = true;
+    bool use_neon_ = true; // NEON SIMD instructions enabled by default
+    
+    // Vector code generation helper
+    std::unique_ptr<VectorCodeGen> vector_codegen_;
 
     /**
      * @brief Generates the necessary cleanup code for a symbol that owns heap memory.
@@ -200,8 +212,11 @@ private:
 
     void visit(ForEachStatement& node) override;
 
-    void visit(FloatValofExpression& node) override;
+    void visit(OctExpression& node) override;
+    void visit(FOctExpression& node) override;
+    void visit(LaneAccessExpression& node) override;
     void visit(ValofExpression& node) override;
+    void visit(FloatValofExpression& node) override;
     
     // Short-circuit evaluation methods
     void generate_short_circuit_and(BinaryOp& node);
@@ -274,7 +289,7 @@ private:
     int debug_level;
     bool x28_is_loaded_in_current_function_;
     
-    std::string expression_result_reg_;
+
     std::string current_function_name_;
     std::vector<std::string> current_function_parameters_;
     std::string current_scope_name_;
@@ -345,9 +360,7 @@ private:
     // Register allocation
     const std::map<std::string, std::map<std::string, LiveInterval>>& all_allocations_;
     ASTAnalyzer& analyzer_; // Reference to the ASTAnalyzer
-    
-    // Private helper for type inference during code generation (without calling back to analyzer)
-    VarType infer_expression_type_local(const Expression* expr) const;
+
     
     // Bounds checking helpers
     std::string get_bounds_error_label_for_current_function();

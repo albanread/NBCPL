@@ -72,6 +72,8 @@ public:
         PairExpr, PairAccessExpr, // New: For pair(x,y) and p.first/p.second
         FPairExpr, FPairAccessExpr, // New: For fpair(x,y) and fp.first/fp.second
         QuadExpr, QuadAccessExpr, // New: For quad(a,b,c,d) and q.first/q.second/q.third/q.fourth
+        OctExpr, FOctExpr, // New: For oct(...) and foct(...) 8-lane vectors
+        LaneAccessExpr, // New: For vector.|n| lane access
         ConditionalExpr, ValofExpr, FloatValofExpr, VecAllocationExpr, FVecAllocationExpr, StringAllocationExpr, TableExpr,
         VecInitializerExpr, // Add this new type
         AssignmentStmt, RoutineCallStmt, IfStmt, UnlessStmt, TestStmt, WhileStmt, UntilStmt,
@@ -757,6 +759,82 @@ public:
     
     FPairAccessExpression(ExprPtr pair, AccessType type)
         : Expression(NodeType::FPairAccessExpr), pair_expr(std::move(pair)), access_type(type) {}
+        
+    void accept(ASTVisitor& visitor) override;
+    ASTNodePtr clone() const override;
+};
+
+class OctExpression : public Expression {
+public:
+    ExprPtr first_expr;
+    ExprPtr second_expr;
+    ExprPtr third_expr;
+    ExprPtr fourth_expr;
+    ExprPtr fifth_expr;
+    ExprPtr sixth_expr;
+    ExprPtr seventh_expr;
+    ExprPtr eighth_expr;
+    
+    OctExpression(ExprPtr first, ExprPtr second, ExprPtr third, ExprPtr fourth,
+                  ExprPtr fifth, ExprPtr sixth, ExprPtr seventh, ExprPtr eighth) 
+        : Expression(NodeType::OctExpr), 
+          first_expr(std::move(first)), second_expr(std::move(second)), 
+          third_expr(std::move(third)), fourth_expr(std::move(fourth)),
+          fifth_expr(std::move(fifth)), sixth_expr(std::move(sixth)),
+          seventh_expr(std::move(seventh)), eighth_expr(std::move(eighth)) {}
+        
+    bool is_literal() const override { 
+        return first_expr && second_expr && third_expr && fourth_expr &&
+               fifth_expr && sixth_expr && seventh_expr && eighth_expr &&
+               first_expr->is_literal() && second_expr->is_literal() && 
+               third_expr->is_literal() && fourth_expr->is_literal() &&
+               fifth_expr->is_literal() && sixth_expr->is_literal() &&
+               seventh_expr->is_literal() && eighth_expr->is_literal(); 
+    }
+        
+    void accept(ASTVisitor& visitor) override;
+    ASTNodePtr clone() const override;
+};
+
+class FOctExpression : public Expression {
+public:
+    ExprPtr first_expr;
+    ExprPtr second_expr;
+    ExprPtr third_expr;
+    ExprPtr fourth_expr;
+    ExprPtr fifth_expr;
+    ExprPtr sixth_expr;
+    ExprPtr seventh_expr;
+    ExprPtr eighth_expr;
+    
+    FOctExpression(ExprPtr first, ExprPtr second, ExprPtr third, ExprPtr fourth,
+                   ExprPtr fifth, ExprPtr sixth, ExprPtr seventh, ExprPtr eighth) 
+        : Expression(NodeType::FOctExpr), 
+          first_expr(std::move(first)), second_expr(std::move(second)), 
+          third_expr(std::move(third)), fourth_expr(std::move(fourth)),
+          fifth_expr(std::move(fifth)), sixth_expr(std::move(sixth)),
+          seventh_expr(std::move(seventh)), eighth_expr(std::move(eighth)) {}
+        
+    bool is_literal() const override { 
+        return first_expr && second_expr && third_expr && fourth_expr &&
+               fifth_expr && sixth_expr && seventh_expr && eighth_expr &&
+               first_expr->is_literal() && second_expr->is_literal() && 
+               third_expr->is_literal() && fourth_expr->is_literal() &&
+               fifth_expr->is_literal() && sixth_expr->is_literal() &&
+               seventh_expr->is_literal() && eighth_expr->is_literal(); 
+    }
+        
+    void accept(ASTVisitor& visitor) override;
+    ASTNodePtr clone() const override;
+};
+
+class LaneAccessExpression : public Expression {
+public:
+    ExprPtr vector_expr;
+    int index;
+    
+    LaneAccessExpression(ExprPtr vector, int idx) 
+        : Expression(NodeType::LaneAccessExpr), vector_expr(std::move(vector)), index(idx) {}
         
     void accept(ASTVisitor& visitor) override;
     ASTNodePtr clone() const override;

@@ -1,0 +1,124 @@
+
+test_quad_simple.o:	file format mach-o arm64
+
+Disassembly of section __TEXT,__text:
+
+0000000000000000 <ltmp0>:
+       0: 14000001     	b	0x4 <ltmp0+0x4>
+       4: a9b67bfd     	stp	x29, x30, [sp, #-0xa0]!
+       8: 910003fd     	mov	x29, sp
+       c: a904d3b3     	stp	x19, x20, [x29, #0x48]
+      10: a905dbb5     	stp	x21, x22, [x29, #0x58]
+      14: a906e3b7     	stp	x23, x24, [x29, #0x68]
+      18: a907ebb9     	stp	x25, x26, [x29, #0x78]
+      1c: a908f3bb     	stp	x27, x28, [x29, #0x88]
+      20: 9000001c     	adrp	x28, 0x0 <ltmp0>
+      24: 9100039c     	add	x28, x28, #0x0
+      28: 90000009     	adrp	x9, 0x0 <ltmp0>
+      2c: 91000129     	add	x9, x9, #0x0
+      30: 91002129     	add	x9, x9, #0x8
+      34: aa0903e0     	mov	x0, x9
+      38: 94000000     	bl	0x38 <ltmp0+0x38>
+      3c: 90000009     	adrp	x9, 0x0 <ltmp0>
+      40: 91000129     	add	x9, x9, #0x0
+      44: f9400129     	ldr	x9, [x9]
+      48: aa0903f7     	mov	x23, x9
+      4c: 90000009     	adrp	x9, 0x0 <ltmp0>
+      50: 91000129     	add	x9, x9, #0x0
+      54: 91002129     	add	x9, x9, #0x8
+      58: aa0903e0     	mov	x0, x9
+      5c: aa1703e1     	mov	x1, x23
+      60: 94000000     	bl	0x60 <ltmp0+0x60>
+      64: 90000009     	adrp	x9, 0x0 <ltmp0>
+      68: 91000129     	add	x9, x9, #0x0
+      6c: f9400129     	ldr	x9, [x9]
+      70: aa0903f6     	mov	x22, x9
+      74: 90000009     	adrp	x9, 0x0 <ltmp0>
+      78: 91000129     	add	x9, x9, #0x0
+      7c: 91002129     	add	x9, x9, #0x8
+      80: aa0903e0     	mov	x0, x9
+      84: aa1603e1     	mov	x1, x22
+      88: 94000000     	bl	0x88 <ltmp0+0x88>
+      8c: 90000009     	adrp	x9, 0x0 <ltmp0>
+      90: 91000129     	add	x9, x9, #0x0
+      94: 91002129     	add	x9, x9, #0x8
+      98: aa0903e0     	mov	x0, x9
+      9c: 94000000     	bl	0x9c <ltmp0+0x9c>
+      a0: 9e6702e0     	fmov	d0, x23
+      a4: 0e023c14     	umov.h	w20, v0[0]
+      a8: aa1403fb     	mov	x27, x20
+      ac: 9e6702e0     	fmov	d0, x23
+      b0: 0e063c14     	umov.h	w20, v0[1]
+      b4: aa1403fa     	mov	x26, x20
+      b8: 9e6702e0     	fmov	d0, x23
+      bc: 0e0a3c14     	umov.h	w20, v0[2]
+      c0: aa1403f9     	mov	x25, x20
+      c4: 9e6702e0     	fmov	d0, x23
+      c8: 0e0e3c14     	umov.h	w20, v0[3]
+      cc: aa1403f8     	mov	x24, x20
+      d0: 90000009     	adrp	x9, 0x0 <ltmp0>
+      d4: 91000129     	add	x9, x9, #0x0
+      d8: 91002129     	add	x9, x9, #0x8
+      dc: aa0903e0     	mov	x0, x9
+      e0: aa1b03e1     	mov	x1, x27
+      e4: aa1a03e2     	mov	x2, x26
+      e8: aa1903e3     	mov	x3, x25
+      ec: aa1803e4     	mov	x4, x24
+      f0: 94000000     	bl	0xf0 <ltmp0+0xf0>
+      f4: 90000009     	adrp	x9, 0x0 <ltmp0>
+      f8: 91000129     	add	x9, x9, #0x0
+      fc: 91002129     	add	x9, x9, #0x8
+     100: aa0903e0     	mov	x0, x9
+     104: 94000000     	bl	0x104 <ltmp0+0x104>
+     108: 90000009     	adrp	x9, 0x0 <ltmp0>
+     10c: 91000129     	add	x9, x9, #0x0
+     110: f9400129     	ldr	x9, [x9]
+     114: aa0903f5     	mov	x21, x9
+     118: 90000009     	adrp	x9, 0x0 <ltmp0>
+     11c: 91000129     	add	x9, x9, #0x0
+     120: 91002129     	add	x9, x9, #0x8
+     124: aa0903e0     	mov	x0, x9
+     128: aa1503e1     	mov	x1, x21
+     12c: 94000000     	bl	0x12c <ltmp0+0x12c>
+     130: d2800de9     	mov	x9, #0x6f               ; =111
+     134: d2800dea     	mov	x10, #0x6f              ; =111
+     138: 9e6702a0     	fmov	d0, x21
+     13c: 4e021d40     	mov.h	v0[0], w10
+     140: 9e660015     	fmov	x21, d0
+     144: d2801bca     	mov	x10, #0xde              ; =222
+     148: d2801bcb     	mov	x11, #0xde              ; =222
+     14c: 9e6702a0     	fmov	d0, x21
+     150: 4e061d60     	mov.h	v0[1], w11
+     154: 9e660015     	fmov	x21, d0
+     158: d28029ab     	mov	x11, #0x14d             ; =333
+     15c: d28029ac     	mov	x12, #0x14d             ; =333
+     160: 9e6702a0     	fmov	d0, x21
+     164: 4e0a1d80     	mov.h	v0[2], w12
+     168: 9e660015     	fmov	x21, d0
+     16c: d280378c     	mov	x12, #0x1bc             ; =444
+     170: d280378d     	mov	x13, #0x1bc             ; =444
+     174: 9e6702a0     	fmov	d0, x21
+     178: 4e0e1da0     	mov.h	v0[3], w13
+     17c: 9e660015     	fmov	x21, d0
+     180: 9000000d     	adrp	x13, 0x0 <ltmp0>
+     184: 910001ad     	add	x13, x13, #0x0
+     188: 910021ad     	add	x13, x13, #0x8
+     18c: aa0d03e0     	mov	x0, x13
+     190: aa1503e1     	mov	x1, x21
+     194: 94000000     	bl	0x194 <ltmp0+0x194>
+     198: 90000009     	adrp	x9, 0x0 <ltmp0>
+     19c: 91000129     	add	x9, x9, #0x0
+     1a0: 91002129     	add	x9, x9, #0x8
+     1a4: aa0903e0     	mov	x0, x9
+     1a8: 94000000     	bl	0x1a8 <ltmp0+0x1a8>
+     1ac: 14000001     	b	0x1b0 <ltmp0+0x1b0>
+     1b0: 14000001     	b	0x1b4 <ltmp0+0x1b4>
+     1b4: a944d3b3     	ldp	x19, x20, [x29, #0x48]
+     1b8: a945dbb5     	ldp	x21, x22, [x29, #0x58]
+     1bc: a946e3b7     	ldp	x23, x24, [x29, #0x68]
+     1c0: a947ebb9     	ldp	x25, x26, [x29, #0x78]
+     1c4: a948f3bb     	ldp	x27, x28, [x29, #0x88]
+     1c8: 910003bf     	mov	sp, x29
+     1cc: a9407bfd     	ldp	x29, x30, [sp]
+     1d0: 910043ff     	add	sp, sp, #0x10
+     1d4: d65f03c0     	ret

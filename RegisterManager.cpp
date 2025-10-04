@@ -689,3 +689,30 @@ bool RegisterManager::is_fp_register(const std::string& reg_name) const {
     }
     return false;
 }
+
+// --- Q Register Management (128-bit NEON registers) ---
+
+std::string RegisterManager::acquire_q_scratch_reg(NewCodeGenerator& code_gen) {
+    // Q registers are 128-bit NEON registers (Q0-Q31)
+    // We map these to the VEC_SCRATCH_REGS but prefix with Q instead of V
+    std::string vec_reg = acquire_vec_scratch_reg();
+    if (!vec_reg.empty() && vec_reg[0] == 'V') {
+        return "Q" + vec_reg.substr(1); // Convert V5 -> Q5
+    }
+    throw std::runtime_error("Failed to acquire Q scratch register");
+}
+
+std::string RegisterManager::acquire_q_temp_reg(NewCodeGenerator& code_gen) {
+    // For temporary usage, use the same mechanism as scratch registers
+    return acquire_q_scratch_reg(code_gen);
+}
+
+void RegisterManager::release_q_register(const std::string& qreg) {
+    // Convert Q register back to V register for internal tracking
+    if (qreg.length() >= 2 && qreg[0] == 'Q') {
+        std::string vec_reg = "V" + qreg.substr(1); // Convert Q5 -> V5
+        release_vec_scratch_reg(vec_reg);
+    } else {
+        throw std::runtime_error("Invalid Q register name: " + qreg);
+    }
+}

@@ -1,0 +1,14 @@
+LET START() BE {
+    WRITEF("Testing basic runtime functions*N");
+
+    LET x = 42;
+    WRITEF("x = %N*N", x);
+
+    LET str = "Hello World";
+    WRITEF("str = %S*N", str);
+
+    LET len = LENGTH(str);
+    WRITEF("LENGTH(str) = %N*N", len);
+
+    WRITEF("Test completed*N");
+}

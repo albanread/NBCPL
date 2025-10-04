@@ -1,0 +1,27 @@
+LET START() BE
+$(
+    WRITES("Testing runtime functions*N");
+
+    LET vec = GETVEC(10);
+    WRITES("GETVEC test*N");
+
+    LET ivec = IGETVEC(5);
+    WRITES("IGETVEC test*N");
+
+    LET svec = SGETVEC(3);
+    WRITES("SGETVEC test*N");
+
+    LET pvec = PGETVEC(2);
+    WRITES("PGETVEC test*N");
+
+    LET qvec = QGETVEC(1);
+    WRITES("QGETVEC test*N");
+
+    FREEVEC(vec);
+    FREEVEC(ivec);
+    FREEVEC(svec);
+    FREEVEC(pvec);
+    FREEVEC(qvec);
+
+    WRITES("All tests completed*N")
+$)

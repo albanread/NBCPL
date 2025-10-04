@@ -123,6 +123,11 @@ public:
     std::string acquire_vec_scratch_reg();
     void release_vec_scratch_reg(const std::string& reg_name);
     std::string acquire_vec_variable_reg(const std::string& variable_name, NewCodeGenerator& code_gen, CallFrameManager& cfm);
+    
+    // --- Q Register Management (128-bit NEON registers) ---
+    std::string acquire_q_scratch_reg(NewCodeGenerator& code_gen);
+    std::string acquire_q_temp_reg(NewCodeGenerator& code_gen);
+    void release_q_register(const std::string& qreg);
 
     // --- Floating-point register management ---
     std::unordered_map<std::string, std::string> fp_variable_to_reg_map_;

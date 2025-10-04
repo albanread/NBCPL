@@ -1,0 +1,16 @@
+LET START() BE {
+    WRITEF("Testing existing GETVEC function*N");
+
+    LET vec = GETVEC(10);
+    WRITEF("GETVEC returned: %N*N", vec);
+
+    TEST vec <> 0 THEN {
+        WRITEF("Success: GETVEC returned valid pointer*N");
+        vec!0 := 123;
+        WRITEF("vec!0 = %N*N", vec!0);
+        FREEVEC(vec);
+        WRITEF("Cleanup completed*N");
+    } ELSE {
+        WRITEF("Error: GETVEC returned NULL*N");
+    }
+}

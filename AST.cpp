@@ -66,6 +66,9 @@ ACCEPT_METHOD_IMPL(FPairExpression)
 ACCEPT_METHOD_IMPL(FPairAccessExpression)
 ACCEPT_METHOD_IMPL(QuadExpression)
 ACCEPT_METHOD_IMPL(QuadAccessExpression)
+ACCEPT_METHOD_IMPL(OctExpression)
+ACCEPT_METHOD_IMPL(FOctExpression)
+ACCEPT_METHOD_IMPL(LaneAccessExpression)
 
 ACCEPT_METHOD_IMPL(VecInitializerExpression)
 
@@ -147,6 +150,39 @@ ASTNodePtr QuadExpression::clone() const {
         second_expr ? std::unique_ptr<Expression>(static_cast<Expression*>(second_expr->clone().release())) : nullptr,
         third_expr ? std::unique_ptr<Expression>(static_cast<Expression*>(third_expr->clone().release())) : nullptr,
         fourth_expr ? std::unique_ptr<Expression>(static_cast<Expression*>(fourth_expr->clone().release())) : nullptr
+    );
+}
+
+ASTNodePtr OctExpression::clone() const {
+    return std::make_unique<OctExpression>(
+        first_expr ? std::unique_ptr<Expression>(static_cast<Expression*>(first_expr->clone().release())) : nullptr,
+        second_expr ? std::unique_ptr<Expression>(static_cast<Expression*>(second_expr->clone().release())) : nullptr,
+        third_expr ? std::unique_ptr<Expression>(static_cast<Expression*>(third_expr->clone().release())) : nullptr,
+        fourth_expr ? std::unique_ptr<Expression>(static_cast<Expression*>(fourth_expr->clone().release())) : nullptr,
+        fifth_expr ? std::unique_ptr<Expression>(static_cast<Expression*>(fifth_expr->clone().release())) : nullptr,
+        sixth_expr ? std::unique_ptr<Expression>(static_cast<Expression*>(sixth_expr->clone().release())) : nullptr,
+        seventh_expr ? std::unique_ptr<Expression>(static_cast<Expression*>(seventh_expr->clone().release())) : nullptr,
+        eighth_expr ? std::unique_ptr<Expression>(static_cast<Expression*>(eighth_expr->clone().release())) : nullptr
+    );
+}
+
+ASTNodePtr FOctExpression::clone() const {
+    return std::make_unique<FOctExpression>(
+        first_expr ? std::unique_ptr<Expression>(static_cast<Expression*>(first_expr->clone().release())) : nullptr,
+        second_expr ? std::unique_ptr<Expression>(static_cast<Expression*>(second_expr->clone().release())) : nullptr,
+        third_expr ? std::unique_ptr<Expression>(static_cast<Expression*>(third_expr->clone().release())) : nullptr,
+        fourth_expr ? std::unique_ptr<Expression>(static_cast<Expression*>(fourth_expr->clone().release())) : nullptr,
+        fifth_expr ? std::unique_ptr<Expression>(static_cast<Expression*>(fifth_expr->clone().release())) : nullptr,
+        sixth_expr ? std::unique_ptr<Expression>(static_cast<Expression*>(sixth_expr->clone().release())) : nullptr,
+        seventh_expr ? std::unique_ptr<Expression>(static_cast<Expression*>(seventh_expr->clone().release())) : nullptr,
+        eighth_expr ? std::unique_ptr<Expression>(static_cast<Expression*>(eighth_expr->clone().release())) : nullptr
+    );
+}
+
+ASTNodePtr LaneAccessExpression::clone() const {
+    return std::make_unique<LaneAccessExpression>(
+        vector_expr ? std::unique_ptr<Expression>(static_cast<Expression*>(vector_expr->clone().release())) : nullptr,
+        index
     );
 }
 

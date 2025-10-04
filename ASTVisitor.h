@@ -117,6 +117,9 @@ public:
     virtual void visit(FPairAccessExpression& node) {} // New: for fp.first/fp.second access
     virtual void visit(QuadExpression& node) {} // New: for quad(a,b,c,d) expressions
     virtual void visit(QuadAccessExpression& node) {} // New: for q.first/q.second/q.third/q.fourth access
+    virtual void visit(OctExpression& node) {} // New: for oct(...) 8-lane vector expressions
+    virtual void visit(FOctExpression& node) {} // New: for foct(...) 8-lane float vector expressions
+    virtual void visit(LaneAccessExpression& node) {} // New: for vector.|n| lane access
 
     // --- Statements ---
     virtual void visit(AssignmentStatement& node) {}

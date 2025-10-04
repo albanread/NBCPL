@@ -1,0 +1,22 @@
+LET START() BE {
+    WRITEF("Testing Pseudo GETVEC Functions*N");
+
+    LET iv = IGETVEC(10);
+    WRITEF("IGETVEC returned: %N*N", iv);
+
+    LET sv = SGETVEC(5);
+    WRITEF("SGETVEC returned: %N*N", sv);
+
+    LET pv = PGETVEC(3);
+    WRITEF("PGETVEC returned: %N*N", pv);
+
+    LET qv = QGETVEC(2);
+    WRITEF("QGETVEC returned: %N*N", qv);
+
+    FREEVEC(iv);
+    FREEVEC(sv);
+    FREEVEC(pv);
+    FREEVEC(qv);
+
+    WRITEF("Test complete*N");
+}

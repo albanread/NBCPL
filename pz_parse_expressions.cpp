@@ -183,9 +183,21 @@ ExprPtr Parser::parse_expression(int precedence) {
             left = std::make_unique<CharIndirection>(std::move(left), parse_expression(9));
         } else if (type == TokenType::FloatVecIndirection) { // Float Vector Indirection
             left = std::make_unique<FloatVectorIndirection>(std::move(left), parse_expression(9));
-        } else if (type == TokenType::Dot) { // Member Access '.' or Pair Access
-            std::string member_name = current_token_.value;
-            consume(TokenType::Identifier, "Expect member name after '.' operator.");
+        } else if (type == TokenType::Dot) { // Member Access '.' or Lane Access
+            // Check for lane access syntax: .|n|
+            if (check(TokenType::BitwiseOr)) {
+                advance(); // consume |
+                if (!check(TokenType::NumberLiteral)) {
+                    throw std::runtime_error("Expect lane index number after '.|'");
+                }
+                int lane_index = std::stoi(current_token_.value);
+                advance(); // consume number
+                consume(TokenType::BitwiseOr, "Expect '|' after lane index");
+                left = std::make_unique<LaneAccessExpression>(std::move(left), lane_index);
+            } else {
+                // Regular member access
+                std::string member_name = current_token_.value;
+                consume(TokenType::Identifier, "Expect member name after '.' operator.");
             
             // Special handling for component access on packed types
             if (member_name == "first" || member_name == "second" || member_name == "third" || member_name == "fourth") {
@@ -197,25 +209,26 @@ ExprPtr Parser::parse_expression(int precedence) {
                 else if (member_name == "third") access_type = QuadAccessExpression::THIRD;
                 else access_type = QuadAccessExpression::FOURTH;
                 left = std::make_unique<QuadAccessExpression>(std::move(left), access_type);
-            } else {
-                // Regular member access
-                auto member_access_expr = std::make_unique<MemberAccessExpression>(std::move(left), member_name);
-
-                if (match(TokenType::LParen)) {
-                    std::vector<ExprPtr> args;
-                    if (!check(TokenType::RParen)) {
-                        args.push_back(parse_expression());
-                        while (match(TokenType::Comma)) {
-                            if (check(TokenType::RParen)) {
-                                break; // Exit the loop gracefully for trailing comma.
-                            }
-                            args.push_back(parse_expression());
-                        }
-                    }
-                    consume(TokenType::RParen, "Expect ')' after method arguments.");
-                    left = std::make_unique<FunctionCall>(std::move(member_access_expr), std::move(args));
                 } else {
-                    left = std::move(member_access_expr);
+                    // Regular member access
+                    auto member_access_expr = std::make_unique<MemberAccessExpression>(std::move(left), member_name);
+
+                    if (match(TokenType::LParen)) {
+                        std::vector<ExprPtr> args;
+                        if (!check(TokenType::RParen)) {
+                            args.push_back(parse_expression());
+                            while (match(TokenType::Comma)) {
+                                if (check(TokenType::RParen)) {
+                                    break; // Exit the loop gracefully for trailing comma.
+                                }
+                                args.push_back(parse_expression());
+                            }
+                        }
+                        consume(TokenType::RParen, "Expect ')' after method arguments.");
+                        left = std::make_unique<FunctionCall>(std::move(member_access_expr), std::move(args));
+                    } else {
+                        left = std::move(member_access_expr);
+                    }
                 }
             }
         } else if (type == TokenType::Bitfield) { // Bitfield Access
@@ -295,6 +308,56 @@ ExprPtr Parser::parse_primary_expression() {
         consume(TokenType::RParen, "Expect ')' after quad elements");
         return std::make_unique<QuadExpression>(std::move(first_expr), std::move(second_expr), 
                                                std::move(third_expr), std::move(fourth_expr));
+    }
+
+    // --- OCT expression parsing ---
+    if (match(TokenType::Oct)) {
+        consume(TokenType::LParen, "Expect '(' after 'oct'");
+        ExprPtr first_expr = parse_expression();
+        consume(TokenType::Comma, "Expect ',' between oct elements");
+        ExprPtr second_expr = parse_expression();
+        consume(TokenType::Comma, "Expect ',' between oct elements");
+        ExprPtr third_expr = parse_expression();
+        consume(TokenType::Comma, "Expect ',' between oct elements");
+        ExprPtr fourth_expr = parse_expression();
+        consume(TokenType::Comma, "Expect ',' between oct elements");
+        ExprPtr fifth_expr = parse_expression();
+        consume(TokenType::Comma, "Expect ',' between oct elements");
+        ExprPtr sixth_expr = parse_expression();
+        consume(TokenType::Comma, "Expect ',' between oct elements");
+        ExprPtr seventh_expr = parse_expression();
+        consume(TokenType::Comma, "Expect ',' between oct elements");
+        ExprPtr eighth_expr = parse_expression();
+        consume(TokenType::RParen, "Expect ')' after oct elements");
+        return std::make_unique<OctExpression>(std::move(first_expr), std::move(second_expr), 
+                                              std::move(third_expr), std::move(fourth_expr),
+                                              std::move(fifth_expr), std::move(sixth_expr),
+                                              std::move(seventh_expr), std::move(eighth_expr));
+    }
+
+    // --- FOCT expression parsing ---
+    if (match(TokenType::FOct)) {
+        consume(TokenType::LParen, "Expect '(' after 'foct'");
+        ExprPtr first_expr = parse_expression();
+        consume(TokenType::Comma, "Expect ',' between foct elements");
+        ExprPtr second_expr = parse_expression();
+        consume(TokenType::Comma, "Expect ',' between foct elements");
+        ExprPtr third_expr = parse_expression();
+        consume(TokenType::Comma, "Expect ',' between foct elements");
+        ExprPtr fourth_expr = parse_expression();
+        consume(TokenType::Comma, "Expect ',' between foct elements");
+        ExprPtr fifth_expr = parse_expression();
+        consume(TokenType::Comma, "Expect ',' between foct elements");
+        ExprPtr sixth_expr = parse_expression();
+        consume(TokenType::Comma, "Expect ',' between foct elements");
+        ExprPtr seventh_expr = parse_expression();
+        consume(TokenType::Comma, "Expect ',' between foct elements");
+        ExprPtr eighth_expr = parse_expression();
+        consume(TokenType::RParen, "Expect ')' after foct elements");
+        return std::make_unique<FOctExpression>(std::move(first_expr), std::move(second_expr), 
+                                               std::move(third_expr), std::move(fourth_expr),
+                                               std::move(fifth_expr), std::move(sixth_expr),
+                                               std::move(seventh_expr), std::move(eighth_expr));
     }
 
     // --- NEW LOGIC FOR BUILT-IN TYPE CONSTANTS ---
