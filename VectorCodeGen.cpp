@@ -19,7 +19,14 @@ void VectorCodeGen::generateSimdBinaryOp(BinaryOp& node, bool use_neon) {
     VarType left_type = code_gen_.infer_expression_type_local(node.left.get());
     VarType right_type = code_gen_.infer_expression_type_local(node.right.get());
 
-    // Determine result type
+    // Check for PAIRS vector operations - use specialized 128-bit SIMD
+    if (isPairsVectorOperation(left_type, right_type)) {
+        debug_print("Detected PAIRS vector operation - using 128-bit NEON SIMD");
+        generatePairsVectorBinaryOp(node, use_neon);
+        return;
+    }
+
+    // Determine result type for other vector operations
     VarType result_type = left_type;
     if (isSimdOperation(left_type, right_type)) {
         // Vector-vector or vector-scalar operation
@@ -128,14 +135,35 @@ std::string VectorCodeGen::generateFOctConstruction(FOctExpression& node, bool u
 
 bool VectorCodeGen::isSimdOperation(VarType left_type, VarType right_type) {
     // Check if either operand is a SIMD vector type
+    int left_int = static_cast<int>(left_type);
+    int right_int = static_cast<int>(right_type);
+    int pairs_int = static_cast<int>(VarType::PAIRS);
+    int pointer_to_int = static_cast<int>(VarType::POINTER_TO);
+    
     bool left_is_simd = (left_type == VarType::PAIR || left_type == VarType::FPAIR ||
                         left_type == VarType::QUAD || left_type == VarType::OCT ||
-                        left_type == VarType::FOCT);
+                        left_type == VarType::FOCT || left_type == VarType::PAIRS ||
+                        ((left_int & pairs_int) && (left_int & pointer_to_int)));
     bool right_is_simd = (right_type == VarType::PAIR || right_type == VarType::FPAIR ||
                          right_type == VarType::QUAD || right_type == VarType::OCT ||
-                         right_type == VarType::FOCT);
+                         right_type == VarType::FOCT || right_type == VarType::PAIRS ||
+                         ((right_int & pairs_int) && (right_int & pointer_to_int)));
 
     return left_is_simd || right_is_simd;
+}
+
+bool VectorCodeGen::isPairsVectorOperation(VarType left_type, VarType right_type) {
+    // Check for both PAIRS and POINTER_TO_PAIRS types
+    int left_int = static_cast<int>(left_type);
+    int right_int = static_cast<int>(right_type);
+    int pairs_int = static_cast<int>(VarType::PAIRS);
+    int pointer_to_int = static_cast<int>(VarType::POINTER_TO);
+    
+    bool left_is_pairs = (left_type == VarType::PAIRS) || 
+                        ((left_int & pairs_int) && (left_int & pointer_to_int));
+    bool right_is_pairs = (right_type == VarType::PAIRS) || 
+                         ((right_int & pairs_int) && (right_int & pointer_to_int));
+    return left_is_pairs && right_is_pairs;
 }
 
 int VectorCodeGen::getLaneCount(VarType type) {
@@ -838,6 +866,196 @@ int VectorCodeGen::calculateLaneOffset(int lane_index, VarType vector_type) {
         default:
             throw std::runtime_error("Invalid vector type for lane offset calculation");
     }
+}
+
+void VectorCodeGen::generatePairsVectorBinaryOp(BinaryOp& node, bool use_neon) {
+    debug_print("generatePairsVectorBinaryOp - 128-bit SIMD for PAIRS vectors");
+
+    // Check operation type
+    if (node.op != BinaryOp::Operator::Add && 
+        node.op != BinaryOp::Operator::Subtract && 
+        node.op != BinaryOp::Operator::Multiply) {
+        throw std::runtime_error("Unsupported binary operation on PAIRS vectors: only +, -, * are supported");
+    }
+
+    // Get operands (must be variables for PAIRS vectors)
+    auto* left_var = dynamic_cast<VariableAccess*>(node.left.get());
+    auto* right_var = dynamic_cast<VariableAccess*>(node.right.get());
+
+    if (!left_var || !right_var) {
+        throw std::runtime_error("PAIRS vector operations require variable operands");
+    }
+
+    // Get vector size
+    size_t vector_size = getPairsVectorSize(node.left.get());
+    debug_print("Vector size: " + std::to_string(vector_size) + " PAIRs");
+
+    // Get addresses of source vectors
+    std::string left_addr = code_gen_.get_variable_register(left_var->name);
+    std::string right_addr = code_gen_.get_variable_register(right_var->name);
+
+    // Allocate result vector
+    std::string result_addr = allocatePairsResultVector(vector_size);
+
+    if (use_neon) {
+        debug_print("Using 128-bit NEON SIMD for PAIRS vector operation");
+
+        // Process 2 PAIRs at a time using 128-bit Q registers
+        for (size_t i = 0; i < vector_size; i += 2) {
+            // Calculate offset for this iteration (each PAIR = 8 bytes)
+            size_t offset = i * 8;
+
+            // Acquire Q registers for 128-bit NEON operations
+            std::string q_left = register_manager_.acquire_q_scratch_reg(code_gen_);
+            std::string q_right = register_manager_.acquire_q_scratch_reg(code_gen_);
+            std::string q_result = register_manager_.acquire_q_scratch_reg(code_gen_);
+
+            // Convert Q register names to V register names for encoder (strip Q prefix)
+            std::string v_left = q_left.substr(1);   // Q5 -> 5
+            std::string v_right = q_right.substr(1); // Q6 -> 6  
+            std::string v_result = q_result.substr(1); // Q7 -> 7
+
+            // Load 2 PAIRs (16 bytes) from each vector using LDR with Q registers
+            emit_(Encoder::create_ldr_vec_imm("Q" + v_left, left_addr, offset));
+            emit_(Encoder::create_ldr_vec_imm("Q" + v_right, right_addr, offset));
+
+            // NEON vector operation: process 4 × 32-bit components (2 PAIRs) in parallel
+            switch (node.op) {
+                case BinaryOp::Operator::Add:
+                    printf("DEBUG: Calling create_add_vector_reg with: vd=%s, vn=%s, vm=%s, arrangement=4S\n", 
+                           ("V" + v_result).c_str(), ("V" + v_left).c_str(), ("V" + v_right).c_str());
+                    fflush(stdout);
+                    emit_(Encoder::create_add_vector_reg("V" + v_result, "V" + v_left, "V" + v_right, "4S"));
+                    debug_print("Generated NEON ADD .4S for PAIRs " + std::to_string(i) + "-" + std::to_string(i+1) + " (four components in parallel)");
+                    break;
+                case BinaryOp::Operator::Subtract:
+                    emit_(Encoder::create_sub_vector_reg("V" + v_result, "V" + v_left, "V" + v_right, "4S"));
+                    debug_print("Generated NEON SUB .4S for PAIRs " + std::to_string(i) + "-" + std::to_string(i+1));
+                    break;
+                case BinaryOp::Operator::Multiply:
+                    emit_(Encoder::create_mul_vector_reg("V" + v_result, "V" + v_left, "V" + v_right, "4S"));
+                    debug_print("Generated NEON MUL .4S for PAIRs " + std::to_string(i) + "-" + std::to_string(i+1));
+                    break;
+                default:
+                    throw std::runtime_error("Unsupported NEON operation for PAIRS");
+            }
+
+            // Store result (2 PAIRs = 16 bytes)
+            emit_(Encoder::create_str_vec_imm("Q" + v_result, result_addr, offset));
+
+            // Release Q registers
+            register_manager_.release_fp_register(q_left);
+            register_manager_.release_fp_register(q_right);
+            register_manager_.release_fp_register(q_result);
+        }
+
+        // Handle remainder PAIRs if vector_size is odd
+        if (vector_size % 2 == 1) {
+            size_t last_index = vector_size - 1;
+            size_t offset = last_index * 8;
+
+            // Use scalar fallback for the last PAIR
+            std::string left_pair_reg = register_manager_.acquire_scratch_reg(code_gen_);
+            std::string right_pair_reg = register_manager_.acquire_scratch_reg(code_gen_);
+            std::string result_pair_reg = register_manager_.acquire_scratch_reg(code_gen_);
+
+            emit_(Encoder::create_ldr_imm(left_pair_reg, left_addr, offset));
+            emit_(Encoder::create_ldr_imm(right_pair_reg, right_addr, offset));
+
+            switch (node.op) {
+                case BinaryOp::Operator::Add:
+                    emit_(Encoder::create_add_reg(result_pair_reg, left_pair_reg, right_pair_reg));
+                    break;
+                case BinaryOp::Operator::Subtract:
+                    emit_(Encoder::create_sub_reg(result_pair_reg, left_pair_reg, right_pair_reg));
+                    break;
+                case BinaryOp::Operator::Multiply:
+                    emit_(Encoder::create_mul_reg(result_pair_reg, left_pair_reg, right_pair_reg));
+                    break;
+                default:
+                    break;
+            }
+
+            emit_(Encoder::create_str_imm(result_pair_reg, result_addr, offset));
+
+            register_manager_.release_register(left_pair_reg);
+            register_manager_.release_register(right_pair_reg);
+            register_manager_.release_register(result_pair_reg);
+        }
+    } else {
+        debug_print("Using scalar fallback for PAIRS vector operation");
+        // Scalar fallback implementation
+        for (size_t i = 0; i < vector_size; i++) {
+            size_t offset = i * 8; // Each PAIR = 8 bytes
+
+            std::string left_pair_reg = register_manager_.acquire_scratch_reg(code_gen_);
+            std::string right_pair_reg = register_manager_.acquire_scratch_reg(code_gen_);
+            std::string result_pair_reg = register_manager_.acquire_scratch_reg(code_gen_);
+
+            emit_(Encoder::create_ldr_imm(left_pair_reg, left_addr, offset));
+            emit_(Encoder::create_ldr_imm(right_pair_reg, right_addr, offset));
+
+            switch (node.op) {
+                case BinaryOp::Operator::Add:
+                    emit_(Encoder::create_add_reg(result_pair_reg, left_pair_reg, right_pair_reg));
+                    break;
+                case BinaryOp::Operator::Subtract:
+                    emit_(Encoder::create_sub_reg(result_pair_reg, left_pair_reg, right_pair_reg));
+                    break;
+                case BinaryOp::Operator::Multiply:
+                    emit_(Encoder::create_mul_reg(result_pair_reg, left_pair_reg, right_pair_reg));
+                    break;
+                default:
+                    throw std::runtime_error("Unsupported scalar operation for PAIRS");
+            }
+
+            emit_(Encoder::create_str_imm(result_pair_reg, result_addr, offset));
+
+            register_manager_.release_register(left_pair_reg);
+            register_manager_.release_register(right_pair_reg);
+            register_manager_.release_register(result_pair_reg);
+        }
+    }
+
+    // Set the result register to the allocated vector address
+    code_gen_.expression_result_reg_ = result_addr;
+    debug_print("PAIRS vector operation completed - result at " + result_addr);
+}
+
+size_t VectorCodeGen::getPairsVectorSize(Expression* expr) {
+    auto* var_access = dynamic_cast<VariableAccess*>(expr);
+    if (!var_access) {
+        throw std::runtime_error("Cannot determine size of non-variable PAIRS vector");
+    }
+
+    // For now, assume size 8 - this should be retrieved from symbol table in real implementation
+    return 8;
+}
+
+std::string VectorCodeGen::allocatePairsResultVector(size_t vector_size) {
+    // Use existing GETVEC infrastructure to allocate PAIRS vector
+    auto& rm = register_manager_;
+    std::string size_reg = rm.acquire_scratch_reg(code_gen_);
+
+    // PAIRS allocation: vector_size PAIRs × 2 words per PAIR
+    size_t total_words = vector_size * 2;
+    emit_(Encoder::create_movz_imm(size_reg, total_words));
+
+    // Call GETVEC to allocate memory
+    std::string result_reg = rm.acquire_scratch_reg(code_gen_);
+    emit_(Encoder::create_mov_reg(result_reg, "X0")); // Save X0
+    emit_(Encoder::create_mov_reg("X0", size_reg));    // Set up GETVEC argument
+
+    // Call GETVEC (assuming it's registered as external function)
+    emit_(Encoder::create_branch_with_link("GETVEC"));
+    emit_(Encoder::create_mov_reg(size_reg, "X0"));    // Get result
+    emit_(Encoder::create_mov_reg("X0", result_reg));  // Restore X0
+
+    rm.release_register(result_reg);
+    std::string vector_addr = size_reg; // Keep the allocated address
+    debug_print("Allocated PAIRS result vector at register " + vector_addr + " (size: " + std::to_string(vector_size) + " PAIRs)");
+
+    return vector_addr;
 }
 
 void VectorCodeGen::debug_print(const std::string& message) {

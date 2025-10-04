@@ -208,20 +208,7 @@ public:
    */
   static Instruction create_str_vec_imm(const std::string &qt,
                                         const std::string &xn, int immediate,
-                                        const std::string &variable_name = "") {
-    // ARM64 encoding for STR Qn, [Xn, #imm]
-    // For now, just emit the assembly text and leave encoding as 0.
-    std::ostringstream oss;
-    oss << "STR " << qt << ", [" << xn << ", #" << immediate << "]";
-    if (!variable_name.empty()) {
-      oss << " ; spill " << variable_name;
-    }
-    Instruction instr(0, oss.str());
-    instr.is_mem_op = true;
-    instr.uses_immediate = true;
-    instr.immediate = immediate;
-    return instr;
-  }
+                                        const std::string &variable_name = "");
 
   /**
    * @brief Creates an LDR (Load 128-bit Vector Register) instruction.
@@ -230,20 +217,7 @@ public:
    */
   static Instruction create_ldr_vec_imm(const std::string &qt,
                                         const std::string &xn, int immediate,
-                                        const std::string &variable_name = "") {
-    // ARM64 encoding for LDR Qn, [Xn, #imm]
-    // For now, just emit the assembly text and leave encoding as 0.
-    std::ostringstream oss;
-    oss << "LDR " << qt << ", [" << xn << ", #" << immediate << "]";
-    if (!variable_name.empty()) {
-      oss << " ; reload " << variable_name;
-    }
-    Instruction instr(0, oss.str());
-    instr.is_mem_op = true;
-    instr.uses_immediate = true;
-    instr.immediate = immediate;
-    return instr;
-  }
+                                        const std::string &variable_name = "");
 
   /**
    * @brief Checks if the given immediate value can be encoded for the given ALU opcode.

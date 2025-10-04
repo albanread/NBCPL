@@ -1,0 +1,35 @@
+LET START() BE
+{
+    WRITEF("Testing 128-bit NEON SIMD for PAIRS vectors*N")
+
+    // Create two PAIRS vectors - size 4 for simple testing
+    LET vec1 = PAIRS 4
+    LET vec2 = PAIRS 4
+
+    // Fill with simple test data
+    vec1!0 := PAIR(10, 20)
+    vec1!1 := PAIR(30, 40)
+    vec1!2 := PAIR(50, 60)
+    vec1!3 := PAIR(70, 80)
+
+    vec2!0 := PAIR(1, 2)
+    vec2!1 := PAIR(3, 4)
+    vec2!2 := PAIR(5, 6)
+    vec2!3 := PAIR(7, 8)
+
+    WRITEF("vec1: PAIR(10,20), PAIR(30,40), PAIR(50,60), PAIR(70,80)*N")
+    WRITEF("vec2: PAIR(1,2), PAIR(3,4), PAIR(5,6), PAIR(7,8)*N")
+
+    // This should use 128-bit NEON: 2 PAIRs per instruction!
+    WRITEF("Computing vec1 + vec2 (using 128-bit NEON SIMD)*N")
+    LET result = vec1 + vec2
+
+    WRITEF("Expected: PAIR(11,22), PAIR(33,44), PAIR(55,66), PAIR(77,88)*N")
+    WRITEF("SIMD Test: Processing 2 PAIRs per NEON instruction*N")
+
+    // Test subtraction too
+    LET diff = vec1 - vec2
+    WRITEF("vec1 - vec2 should give: PAIR(9,18), PAIR(27,36), PAIR(45,54), PAIR(63,72)*N")
+
+    WRITEF("128-bit SIMD PAIRS test complete!*N")
+}

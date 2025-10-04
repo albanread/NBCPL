@@ -1,0 +1,27 @@
+LET START() BE
+{
+    WRITEF("Debug: PAIRS Type Routing Test*N")
+
+    // Simple PAIRS operation test
+    LET a = PAIRS 2
+    LET b = PAIRS 2
+    LET c = PAIRS 2
+
+    WRITEF("Created PAIRS vectors a and b*N")
+
+    // Initialize
+    a!0 := PAIR(10, 20)
+    a!1 := PAIR(30, 40)
+
+    b!0 := PAIR(1, 2)
+    b!1 := PAIR(3, 4)
+
+    WRITEF("Initialized vectors*N")
+    WRITEF("About to perform: c = a + b*N")
+
+    // This should trigger our SIMD routing
+    c := a + b
+    
+    WRITEF("Addition complete - result stored in c*N")
+    WRITEF("PAIRS routing test complete*N")
+}

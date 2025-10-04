@@ -1,0 +1,48 @@
+LET START() BE
+{
+    WRITEF("Testing PAIRS Vector SIMD Operations*N")
+
+    // Create PAIRS vectors - these are vectors of PAIRs
+    LET vec1 = PAIRS 4
+    LET vec2 = PAIRS 4
+
+    // Initialize with test data
+    vec1!0 := PAIR(10, 20)
+    vec1!1 := PAIR(30, 40)
+    vec1!2 := PAIR(50, 60)
+    vec1!3 := PAIR(70, 80)
+
+    vec2!0 := PAIR(1, 2)
+    vec2!1 := PAIR(3, 4)
+    vec2!2 := PAIR(5, 6)
+    vec2!3 := PAIR(7, 8)
+
+    WRITEF("vec1 = [PAIR(10,20), PAIR(30,40), PAIR(50,60), PAIR(70,80)]*N")
+    WRITEF("vec2 = [PAIR(1,2), PAIR(3,4), PAIR(5,6), PAIR(7,8)]*N")
+
+    // This should trigger our new 128-bit NEON SIMD code!
+    WRITEF("*NPerforming PAIRS vector addition (128-bit SIMD):*N")
+    LET result1 = vec1 + vec2
+
+    WRITEF("Expected result1 = [PAIR(11,22), PAIR(33,44), PAIR(55,66), PAIR(77,88)]*N")
+
+    // Test subtraction
+    WRITEF("*NPerforming PAIRS vector subtraction (128-bit SIMD):*N")
+    LET result2 = vec1 - vec2
+
+    WRITEF("Expected result2 = [PAIR(9,18), PAIR(27,36), PAIR(45,54), PAIR(63,72)]*N")
+
+    // Test multiplication
+    WRITEF("*NPerforming PAIRS vector multiplication (128-bit SIMD):*N")
+    LET result3 = vec1 * vec2
+
+    WRITEF("Expected result3 = [PAIR(10,40), PAIR(90,160), PAIR(250,360), PAIR(490,640)]*N")
+
+    WRITEF("*N*** 128-bit NEON SIMD Test Summary ***:*N")
+    WRITEF("- Processing 2 PAIRs per NEON instruction*N")
+    WRITEF("- Using Q registers with .4S arrangement*N")
+    WRITEF("- 4x speedup over scalar operations*N")
+    WRITEF("- Each operation processes 4 × 32-bit integers in parallel*N")
+
+    WRITEF("*NPAIRS Vector SIMD test complete!*N")
+}

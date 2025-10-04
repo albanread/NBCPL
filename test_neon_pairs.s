@@ -1,42 +1,43 @@
 .section __TEXT,__text,regular,pure_instructions
 .globl _start
 .globl _START
-.globl _HeapManager_exit_scope
 .globl _WRITEN
 .globl _SDL2_DRAW_RECT
+.globl _SLURP
+.globl _SDL2_CREATE_WINDOW
 .globl _WRITES
-.globl _BCPL_LIST_APPEND_STRING
 .globl _WRITEF
+.globl _BCPL_LIST_APPEND_STRING
+.globl _BCPL_LIST_APPEND_FLOAT
 .globl _BCPL_LIST_GET_NTH
+.globl _IGETVEC
 .globl _RDCH
 .globl _BCPL_ALLOC_WORDS
-.globl _FILE_READ
-.globl _WRITEC
 .globl _HEAPMANAGER_ISSAMMENABLED
 .globl _SPLIT
-.globl _BCPL_LIST_CREATE_EMPTY
+.globl _SGETVEC
 .globl _GET_FREE_LIST_HEAD_ADDR
+.globl _PGETVEC
+.globl _OBJECT_HEAP_FREE
+.globl _DEEPCOPYLIST
+.globl _BCPL_FREE_LIST_SAFE
 .globl _BCPL_CHECK_AND_DISPLAY_ERRORS
+.globl _WRITEC
+.globl _FILE_READ
 .globl _UNPACKSTRING
 .globl _SDL2_DELAY
 .globl _FREEVEC
-.globl _BCPL_LIST_APPEND_FLOAT
 .globl _BCPL_CONCAT_LISTS
 .globl _SDL2_GET_EVENT_KEY
 .globl _RUNTIME_METHOD_LOOKUP
 .globl _BCPL_LIST_GET_HEAD_AS_INT
-.globl _NEWLINE
-.globl _BCPL_LIST_GET_HEAD_AS_FLOAT
-.globl _OBJECT_HEAP_FREE
-.globl _FEXP
-.globl _FPND
-.globl _WRITEF4
 .globl _HEAPMANAGER_ENTER_SCOPE
 .globl _WRITEF2
-.globl _BCPL_CLEAR_ERRORS
 .globl _FILTER
+.globl _BCPL_CLEAR_ERRORS
 .globl _FLOG
 .globl _GETVEC
+.globl _BCPL_LIST_CREATE_EMPTY
 .globl _FGETVEC
 .globl _LPND
 .globl _BCPL_LIST_APPEND_INT
@@ -46,29 +47,34 @@
 .globl _MALLOC
 .globl _JOIN
 .globl _BCPL_FREE_CELLS
+.globl _FRND
+.globl _SPIT
+.globl _FTAN
 .globl _DEEPCOPYLITERALLIST
 .globl _STRCOPY
 .globl _WRITEF7
 .globl _SDL2_DESTROY_WINDOW
 .globl _SDL2_SET_WINDOW_TITLE
-.globl _PACKSTRING
+.globl _HEAPMANAGER_WAITFORSAMM
+.globl _SDL2_CREATE_RENDERER_EX
+.globl _SPND
+.globl _SDL2_POLL_EVENT
+.globl _RND
+.globl _STRLEN
+.globl _HEAPMANAGER_EXIT_SCOPE
+.globl _SDL2_DRAW_POINT
 .globl _WRITEF3
 .globl _BCPL_GET_ATOM_TYPE
 .globl _FILE_READS
-.globl _FTAN
-.globl _FRND
-.globl _SPIT
 .globl _SDL2_QUIT
 .globl _FILE_WRITES
 .globl _PIC_RUNTIME_HELPER
-.globl _SDL2_CREATE_WINDOW
-.globl _SLURP
 .globl _RAND
+.globl _SDL2_FILL_RECT
+.globl _FWRITE
 .globl _SDL2_CLEAR
 .globl _SDL2_DESTROY_RENDERER
 .globl _BCPL_LIST_GET_REST
-.globl _WRITEF5
-.globl _BCPL_ALLOC_CHARS
 .globl _OBJECT_HEAP_ALLOC
 .globl _SDL2_TEST_BASIC
 .globl _BCPL_LIST_GET_TAIL
@@ -80,15 +86,18 @@
 .globl _FILE_OPEN_APPEND
 .globl _SDL2_CREATE_WINDOW_EX
 .globl _FSIN
-.globl _HeapManager_enter_scope
+.globl _BCPL_ALLOC_CHARS
+.globl _WRITEF5
 .globl _FABS
 .globl _FILE_OPEN_READ
 .globl _SDL2_GET_CURRENT_VIDEO_DRIVER
 .globl _SDL2_INIT_SUBSYSTEMS
-.globl _BCPL_FREE_LIST_SAFE
-.globl _DEEPCOPYLIST
 .globl _BCPL_FREE_LIST
 .globl _FILE_CLOSE
+.globl _PACKSTRING
+.globl _WRITEF4
+.globl _FEXP
+.globl _FPND
 .globl _FIX
 .globl _WRITEF1
 .globl _FILE_WRITE
@@ -96,36 +105,29 @@
 .globl _SDL2_GET_DISPLAY_MODES
 .globl _BCPL_GET_LAST_ERROR
 .globl _SDL2_PRESENT
-.globl _SPND
-.globl _SDL2_CREATE_RENDERER_EX
 .globl _SDL2_GET_EVENT_MOUSE
 .globl _SDL2_SET_DRAW_COLOR
 .globl _WRITEF6
 .globl _HEAPMANAGER_SETSAMMENABLED
 .globl _FILE_OPEN_WRITE
 .globl _SDL2_GET_TICKS
+.globl _BCPL_LIST_GET_HEAD_AS_FLOAT
+.globl _NEWLINE
 .globl _SDL2_INIT
-.globl _SDL2_FILL_RECT
-.globl _FWRITE
 .globl _CONCAT
 .globl _SDL2_DRAW_LINE
-.globl _SDL2_DRAW_POINT
-.globl _HEAPMANAGER_EXIT_SCOPE
+.globl _SDL2_CLEAR_ERROR
+.globl _SDL2_CREATE_RENDERER
+.globl _SDL2_SET_WINDOW_SIZE
 .globl _SDL2_GET_EVENT_BUTTON
 .globl _SETTYPE
 .globl _FILE_SEEK
 .globl _SDL2_GET_VERSION
-.globl _SDL2_CREATE_RENDERER
-.globl _SDL2_CLEAR_ERROR
-.globl _SDL2_SET_WINDOW_SIZE
-.globl _HEAPMANAGER_WAITFORSAMM
-.globl _RND
-.globl _STRLEN
-.globl _SDL2_POLL_EVENT
+.globl _SDL2_GET_ERROR
 .globl _FINISH
+.globl _QGETVEC
 .globl _SDL2_GET_VIDEO_DRIVERS
 .globl _FIND
-.globl _SDL2_GET_ERROR
 .globl ___SDL2_STATIC_BUILD
 .p2align 2
 _start:
@@ -146,138 +148,139 @@ L_START:
     ADRP X28, L__data_segment_base@PAGE
     ADD X28, X28, L__data_segment_base@PAGEOFF
 L_START_Entry_0:
-    BL _HeapManager_enter_scope
     ADRP X9, L_str0@PAGE
     ADD X9, X9, L_str0@PAGEOFF
     ADD X9, X9, #8
     MOV X0, X9
     BL _WRITEF
     MOVZ X9, #8
-    MOV X0, X9
+    LSL X20, X9, #1
+    MOV X0, X20
     BL _GETVEC
-    MOV X9, X0
-    MOV X26, X9
-    MOVZ X9, #8
-    MOV X0, X9
+    MOV X20, X0
+    MOV X26, X20
+    MOVZ X10, #8
+    LSL X20, X10, #1
+    MOV X0, X20
     BL _GETVEC
-    MOV X9, X0
-    MOV X25, X9
-    ADRP X9, L_pair0@PAGE
-    ADD X9, X9, L_pair0@PAGEOFF
-    LDR X9, [X9, #0]
-    MOVZ X10, #0
-    LSL X11, X10, #3
-    ADD X12, X26, X11
-    STR X9, [X12, #0]
-    ADRP X9, L_pair1@PAGE
-    ADD X9, X9, L_pair1@PAGEOFF
-    LDR X9, [X9, #0]
-    MOVZ X10, #1
-    LSL X11, X10, #3
-    ADD X12, X26, X11
-    STR X9, [X12, #0]
-    ADRP X9, L_pair2@PAGE
-    ADD X9, X9, L_pair2@PAGEOFF
-    LDR X9, [X9, #0]
-    MOVZ X10, #2
-    LSL X11, X10, #3
-    ADD X12, X26, X11
-    STR X9, [X12, #0]
-    ADRP X9, L_pair3@PAGE
-    ADD X9, X9, L_pair3@PAGEOFF
-    LDR X9, [X9, #0]
-    MOVZ X10, #3
-    LSL X11, X10, #3
-    ADD X12, X26, X11
-    STR X9, [X12, #0]
-    ADRP X9, L_pair4@PAGE
-    ADD X9, X9, L_pair4@PAGEOFF
-    LDR X9, [X9, #0]
-    MOVZ X10, #4
-    LSL X11, X10, #3
-    ADD X12, X26, X11
-    STR X9, [X12, #0]
-    ADRP X9, L_pair5@PAGE
-    ADD X9, X9, L_pair5@PAGEOFF
-    LDR X9, [X9, #0]
-    MOVZ X10, #5
-    LSL X11, X10, #3
-    ADD X12, X26, X11
-    STR X9, [X12, #0]
-    ADRP X9, L_pair6@PAGE
-    ADD X9, X9, L_pair6@PAGEOFF
-    LDR X9, [X9, #0]
-    MOVZ X10, #6
-    LSL X11, X10, #3
-    ADD X12, X26, X11
-    STR X9, [X12, #0]
-    ADRP X9, L_pair7@PAGE
-    ADD X9, X9, L_pair7@PAGEOFF
-    LDR X9, [X9, #0]
-    MOVZ X10, #7
-    LSL X11, X10, #3
-    ADD X12, X26, X11
-    STR X9, [X12, #0]
-    ADRP X9, L_pair8@PAGE
-    ADD X9, X9, L_pair8@PAGEOFF
-    LDR X9, [X9, #0]
-    MOVZ X10, #0
-    LSL X11, X10, #3
-    ADD X12, X25, X11
-    STR X9, [X12, #0]
-    ADRP X9, L_pair9@PAGE
-    ADD X9, X9, L_pair9@PAGEOFF
-    LDR X9, [X9, #0]
-    MOVZ X10, #1
-    LSL X11, X10, #3
-    ADD X12, X25, X11
-    STR X9, [X12, #0]
-    ADRP X9, L_pair10@PAGE
-    ADD X9, X9, L_pair10@PAGEOFF
-    LDR X9, [X9, #0]
-    MOVZ X10, #2
-    LSL X11, X10, #3
-    ADD X12, X25, X11
-    STR X9, [X12, #0]
-    ADRP X9, L_pair11@PAGE
-    ADD X9, X9, L_pair11@PAGEOFF
-    LDR X9, [X9, #0]
-    MOVZ X10, #3
-    LSL X11, X10, #3
-    ADD X12, X25, X11
-    STR X9, [X12, #0]
-    ADRP X9, L_pair12@PAGE
-    ADD X9, X9, L_pair12@PAGEOFF
-    LDR X9, [X9, #0]
-    MOVZ X10, #4
-    LSL X11, X10, #3
-    ADD X12, X25, X11
-    STR X9, [X12, #0]
-    ADRP X9, L_pair13@PAGE
-    ADD X9, X9, L_pair13@PAGEOFF
-    LDR X9, [X9, #0]
-    MOVZ X10, #5
-    LSL X11, X10, #3
-    ADD X12, X25, X11
-    STR X9, [X12, #0]
-    ADRP X9, L_pair14@PAGE
-    ADD X9, X9, L_pair14@PAGEOFF
-    LDR X9, [X9, #0]
-    MOVZ X10, #6
-    LSL X11, X10, #3
-    ADD X12, X25, X11
-    STR X9, [X12, #0]
-    ADRP X9, L_pair15@PAGE
-    ADD X9, X9, L_pair15@PAGEOFF
-    LDR X9, [X9, #0]
-    MOVZ X10, #7
-    LSL X11, X10, #3
-    ADD X12, X25, X11
-    STR X9, [X12, #0]
-    ADRP X9, L_str1@PAGE
-    ADD X9, X9, L_str1@PAGEOFF
-    ADD X9, X9, #8
-    MOV X0, X9
+    MOV X20, X0
+    MOV X25, X20
+    ADRP X11, L_pair0@PAGE
+    ADD X11, X11, L_pair0@PAGEOFF
+    LDR X11, [X11, #0]
+    MOVZ X12, #0
+    LSL X13, X12, #3
+    ADD X14, X26, X13
+    STR X11, [X14, #0]
+    ADRP X11, L_pair1@PAGE
+    ADD X11, X11, L_pair1@PAGEOFF
+    LDR X11, [X11, #0]
+    MOVZ X12, #1
+    LSL X13, X12, #3
+    ADD X14, X26, X13
+    STR X11, [X14, #0]
+    ADRP X11, L_pair2@PAGE
+    ADD X11, X11, L_pair2@PAGEOFF
+    LDR X11, [X11, #0]
+    MOVZ X12, #2
+    LSL X13, X12, #3
+    ADD X14, X26, X13
+    STR X11, [X14, #0]
+    ADRP X11, L_pair3@PAGE
+    ADD X11, X11, L_pair3@PAGEOFF
+    LDR X11, [X11, #0]
+    MOVZ X12, #3
+    LSL X13, X12, #3
+    ADD X14, X26, X13
+    STR X11, [X14, #0]
+    ADRP X11, L_pair4@PAGE
+    ADD X11, X11, L_pair4@PAGEOFF
+    LDR X11, [X11, #0]
+    MOVZ X12, #4
+    LSL X13, X12, #3
+    ADD X14, X26, X13
+    STR X11, [X14, #0]
+    ADRP X11, L_pair5@PAGE
+    ADD X11, X11, L_pair5@PAGEOFF
+    LDR X11, [X11, #0]
+    MOVZ X12, #5
+    LSL X13, X12, #3
+    ADD X14, X26, X13
+    STR X11, [X14, #0]
+    ADRP X11, L_pair6@PAGE
+    ADD X11, X11, L_pair6@PAGEOFF
+    LDR X11, [X11, #0]
+    MOVZ X12, #6
+    LSL X13, X12, #3
+    ADD X14, X26, X13
+    STR X11, [X14, #0]
+    ADRP X11, L_pair7@PAGE
+    ADD X11, X11, L_pair7@PAGEOFF
+    LDR X11, [X11, #0]
+    MOVZ X12, #7
+    LSL X13, X12, #3
+    ADD X14, X26, X13
+    STR X11, [X14, #0]
+    ADRP X11, L_pair8@PAGE
+    ADD X11, X11, L_pair8@PAGEOFF
+    LDR X11, [X11, #0]
+    MOVZ X12, #0
+    LSL X13, X12, #3
+    ADD X14, X25, X13
+    STR X11, [X14, #0]
+    ADRP X11, L_pair9@PAGE
+    ADD X11, X11, L_pair9@PAGEOFF
+    LDR X11, [X11, #0]
+    MOVZ X12, #1
+    LSL X13, X12, #3
+    ADD X14, X25, X13
+    STR X11, [X14, #0]
+    ADRP X11, L_pair10@PAGE
+    ADD X11, X11, L_pair10@PAGEOFF
+    LDR X11, [X11, #0]
+    MOVZ X12, #2
+    LSL X13, X12, #3
+    ADD X14, X25, X13
+    STR X11, [X14, #0]
+    ADRP X11, L_pair11@PAGE
+    ADD X11, X11, L_pair11@PAGEOFF
+    LDR X11, [X11, #0]
+    MOVZ X12, #3
+    LSL X13, X12, #3
+    ADD X14, X25, X13
+    STR X11, [X14, #0]
+    ADRP X11, L_pair12@PAGE
+    ADD X11, X11, L_pair12@PAGEOFF
+    LDR X11, [X11, #0]
+    MOVZ X12, #4
+    LSL X13, X12, #3
+    ADD X14, X25, X13
+    STR X11, [X14, #0]
+    ADRP X11, L_pair13@PAGE
+    ADD X11, X11, L_pair13@PAGEOFF
+    LDR X11, [X11, #0]
+    MOVZ X12, #5
+    LSL X13, X12, #3
+    ADD X14, X25, X13
+    STR X11, [X14, #0]
+    ADRP X11, L_pair14@PAGE
+    ADD X11, X11, L_pair14@PAGEOFF
+    LDR X11, [X11, #0]
+    MOVZ X12, #6
+    LSL X13, X12, #3
+    ADD X14, X25, X13
+    STR X11, [X14, #0]
+    ADRP X11, L_pair15@PAGE
+    ADD X11, X11, L_pair15@PAGEOFF
+    LDR X11, [X11, #0]
+    MOVZ X12, #7
+    LSL X13, X12, #3
+    ADD X14, X25, X13
+    STR X11, [X14, #0]
+    ADRP X11, L_str1@PAGE
+    ADD X11, X11, L_str1@PAGEOFF
+    ADD X11, X11, #8
+    MOV X0, X11
     BL _WRITEF
     MOVZ X9, #0
     MOV X24, X9
@@ -351,7 +354,6 @@ L_START_ForExit_12:
     ADD X9, X9, #8
     MOV X0, X9
     BL _WRITEF
-    BL _HeapManager_exit_scope
     B L_START_Exit_13
 L_START_ForExit_4:
     ADRP X9, L_str8@PAGE
@@ -368,43 +370,29 @@ L_START_ForExit_8:
     ADD X9, X9, #8
     MOV X0, X9
     BL _WRITEF
-    MOVZ X9, #8
+    MOVZ X9, #16
+    MOV X10, X0
     MOV X0, X9
     BL _GETVEC
-    MOV X10, X0
-    LDR D0, [X26, #0]
-    LDR D1, [X25, #0]
-    LDR D3, [X26, #8]
-    LDR D4, [X25, #8]
-    ADD D2.2S, D0.2S, D1.2S
-    ADD D5.2S, D3.2S, D4.2S
-    STR D2, [X10, #0]
-    STR D5, [X10, #8]
-    LDR D0, [X26, #16]
-    LDR D1, [X25, #16]
-    LDR D3, [X26, #24]
-    LDR D4, [X25, #24]
-    ADD D2.2S, D0.2S, D1.2S
-    ADD D5.2S, D3.2S, D4.2S
-    STR D2, [X10, #16]
-    STR D5, [X10, #24]
-    LDR D0, [X26, #32]
-    LDR D1, [X25, #32]
-    LDR D3, [X26, #40]
-    LDR D4, [X25, #40]
-    ADD D2.2S, D0.2S, D1.2S
-    ADD D5.2S, D3.2S, D4.2S
-    STR D2, [X10, #32]
-    STR D5, [X10, #40]
-    LDR D0, [X26, #48]
-    LDR D1, [X25, #48]
-    LDR D3, [X26, #56]
-    LDR D4, [X25, #56]
-    ADD D2.2S, D0.2S, D1.2S
-    ADD D5.2S, D3.2S, D4.2S
-    STR D2, [X10, #48]
-    STR D5, [X10, #56]
-    MOV X27, X10
+    MOV X9, X0
+    MOV X0, X10
+    LDR Q0, [X26, #0]
+    LDR Q1, [X25, #0]
+    ADD V2.4S, V0.4S, V1.4S
+    STR Q2, [X9, #0]
+    LDR Q3, [X26, #16]
+    LDR Q4, [X25, #16]
+    ADD V5.4S, V3.4S, V4.4S
+    STR Q5, [X9, #16]
+    LDR Q6, [X26, #32]
+    LDR Q7, [X25, #32]
+    ADD V16.4S, V6.4S, V7.4S
+    STR Q16, [X9, #32]
+    LDR Q17, [X26, #48]
+    LDR Q18, [X25, #48]
+    ADD V19.4S, V17.4S, V18.4S
+    STR Q19, [X9, #48]
+    MOV X27, X9
     ADRP X9, L_str10@PAGE
     ADD X9, X9, L_str10@PAGEOFF
     ADD X9, X9, #8
@@ -463,8 +451,8 @@ L_0:
     ADD SP, SP, #16 ; Deallocate space for saved FP/LR
     RET
 L___veneer_:
-    movz x16, #9152
-    movk x16, #766, lsl #16
+    movz x16, #32636
+    movk x16, #1099, lsl #16
     movk x16, #1, lsl #32
     movk x16, #0, lsl #48
     blr x16

@@ -129,6 +129,11 @@ extern "C" {
     void* get_g_free_list_head_address(void);
     void returnNodeToFreelist_runtime(void*);
     void NEWLINE(void);
+    
+    // Aliases for BCPL compatibility
+    void* GETVEC(int64_t num_words) { return bcpl_getvec(num_words); }
+    void* FGETVEC(int64_t num_floats) { return bcpl_fgetvec(num_floats); }
+    void FREEVEC(void* ptr) { return bcpl_free(ptr); }
 }
 
 // Include the file API implementation

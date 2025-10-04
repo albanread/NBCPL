@@ -99,6 +99,14 @@ public:
      */
     static std::string getNeonArrangement(VarType type);
 
+    /**
+     * @brief Check if an operation involves PAIRS vectors specifically
+     * @param left_type Type of left operand
+     * @param right_type Type of right operand
+     * @return True if this is a PAIRS vector operation
+     */
+    static bool isPairsVectorOperation(VarType left_type, VarType right_type);
+
 private:
     NewCodeGenerator& code_gen_;
     RegisterManager& register_manager_;
@@ -108,6 +116,11 @@ private:
     void generateNeonBinaryOp(BinaryOp& node, VarType result_type);
     void generateNeonLaneRead(LaneAccessExpression& node, VarType vector_type, std::string& result_reg);
     void generateNeonLaneWrite(LaneAccessExpression& node, VarType vector_type, const std::string& value_reg);
+    
+    // PAIRS-specific 128-bit SIMD optimization methods
+    void generatePairsVectorBinaryOp(BinaryOp& node, bool use_neon);
+    size_t getPairsVectorSize(Expression* expr);
+    std::string allocatePairsResultVector(size_t vector_size);
     void generateNeonVectorConstruction(const std::vector<const ExprPtr*>& elements, VarType vector_type, std::string& result_reg);
 
     // Scalar fallback helper methods

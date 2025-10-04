@@ -1,0 +1,26 @@
+LET START() BE $(
+    WRITEF("Minimal NEON encoding test*N")
+
+    // Create minimal PAIRS vectors for testing
+    LET vec1 = PAIRS 2  // Just 2 PAIRs to minimize complexity
+    LET vec2 = PAIRS 2
+
+    // Fill with simple test data
+    vec1!0 := PAIR(1, 2)
+    vec1!1 := PAIR(3, 4)
+
+    vec2!0 := PAIR(10, 20)
+    vec2!1 := PAIR(30, 40)
+
+    WRITEF("vec1: [(%N,%N), (%N,%N)]*N", vec1!0|0, vec1!0|1, vec1!1|0, vec1!1|1)
+    WRITEF("vec2: [(%N,%N), (%N,%N)]*N", vec2!0|0, vec2!0|1, vec2!1|0, vec2!1|1)
+
+    // This single operation should generate one NEON ADD.4S instruction
+    WRITEF("Computing result = vec1 + vec2*N")
+    LET result = vec1 + vec2
+
+    WRITEF("result: [(%N,%N), (%N,%N)]*N", result!0|0, result!0|1, result!1|0, result!1|1)
+    WRITEF("Expected: [(11,22), (33,44)]*N")
+
+    WRITEF("Test complete*N")
+$)
