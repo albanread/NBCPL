@@ -1,0 +1,13 @@
+LET START() BE $(
+    WRITEF("Testing PAIR lane 0 extraction only*N")
+
+    LET p1 = PAIR(10, 20)
+    WRITEF1("p1 = %P*N", p1)
+
+    WRITEF("About to read lane 0...*N")
+    LET lane0 = p1.|0|
+    WRITEF1("p1.|0| = %N*N", lane0)
+
+    WRITEF("Expected: 10*N")
+    WRITEF("Test complete*N")
+$)

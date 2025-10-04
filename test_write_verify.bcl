@@ -1,0 +1,26 @@
+LET START() BE
+{
+    writef("Lane write verification test*n")
+
+    // Test PAIR writes - verify by checking the packed value
+    LET p = PAIR(1, 2)
+    writef("PAIR original: %X*n", p)
+
+    p.|0| := 255   // Should show up in lower 32 bits
+    writef("After writing 255 to lane 0: %X*n", p)
+
+    p.|1| := 255   // Should show up in upper 32 bits
+    writef("After writing 255 to lane 1: %X*n", p)
+
+    // Test QUAD writes - verify by checking the packed value
+    LET q = QUAD(1, 2, 3, 4)
+    writef("QUAD original: %X*n", q)
+
+    q.|0| := 255   // Should show up in bits 0-15
+    writef("After writing 255 to lane 0: %X*n", q)
+
+    q.|3| := 255   // Should show up in bits 48-63
+    writef("After writing 255 to lane 3: %X*n", q)
+
+    writef("Verification complete*n")
+}

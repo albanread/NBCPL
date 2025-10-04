@@ -1,0 +1,23 @@
+LET start() BE
+{
+    writef("Testing OCT lane access with SBFX*n")
+
+    // Create an OCT with 8 different values
+    LET oct1 = OCT(1, 2, 3, 4, 5, 6, 7, 8)
+
+    writef("OCT created: oct1 = %x*n", oct1)
+
+    // Test individual lane access
+    writef("Testing individual lane reads:*n")
+    writef("oct1.|0| = %n*n", oct1.|0|)
+    writef("oct1.|1| = %n*n", oct1.|1|)
+    writef("oct1.|2| = %n*n", oct1.|2|)
+    writef("oct1.|3| = %n*n", oct1.|3|)
+    writef("oct1.|4| = %n*n", oct1.|4|)
+    writef("oct1.|5| = %n*n", oct1.|5|)
+    writef("oct1.|6| = %n*n", oct1.|6|)
+    writef("oct1.|7| = %n*n", oct1.|7|)
+
+    writef("Expected: 1, 2, 3, 4, 5, 6, 7, 8*n")
+    writef("OCT SBFX lane extraction test complete*n")
+}

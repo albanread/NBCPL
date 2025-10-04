@@ -1,0 +1,33 @@
+LET START() BE
+{
+    writef("Testing combined lane reads and writes*n")
+
+    // Test PAIR operations
+    writef("=== PAIR Test ===*n")
+    LET p1 = PAIR(10, 20)
+    writef("Original p1 = (%N, %N)*n", p1.|0|, p1.|1|)
+
+    p1.|0| := 100
+    writef("After p1.|0| := 100: p1 = (%N, %N)*n", p1.|0|, p1.|1|)
+
+    p1.|1| := 200
+    writef("After p1.|1| := 200: p1 = (%N, %N)*n", p1.|0|, p1.|1|)
+
+    // Test QUAD operations
+    writef("*n=== QUAD Test ===*n")
+    LET q1 = QUAD(1, 2, 3, 4)
+    writef("Original q1 = (%N, %N, %N, %N)*n", q1.|0|, q1.|1|, q1.|2|, q1.|3|)
+
+    q1.|0| := 10
+    writef("After q1.|0| := 10: q1 = (%N, %N, %N, %N)*n", q1.|0|, q1.|1|, q1.|2|, q1.|3|)
+
+    q1.|2| := 30
+    writef("After q1.|2| := 30: q1 = (%N, %N, %N, %N)*n", q1.|0|, q1.|1|, q1.|2|, q1.|3|)
+
+    q1.|3| := 40
+    writef("After q1.|3| := 40: q1 = (%N, %N, %N, %N)*n", q1.|0|, q1.|1|, q1.|2|, q1.|3|)
+
+    writef("*nExpected PAIR result: (100, 200)*n")
+    writef("Expected QUAD result: (10, 2, 30, 40)*n")
+    writef("*nLane read/write test complete*n")
+}

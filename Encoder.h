@@ -1042,6 +1042,9 @@ public:
   static Instruction opt_create_lsl_imm(const std::string& xd, const std::string& xn, int shift_amount);
   static Instruction opt_create_asr_reg(const std::string& xd, const std::string& xn, const std::string& xm);
 
+  // Friend class to allow VectorCodeGen to access private register encoding functions
+  friend class VectorCodeGen;
+
 private:
   // Private constructor to prevent instantiation (all methods are static)
   Encoder() = delete;

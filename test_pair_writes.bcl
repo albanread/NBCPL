@@ -1,0 +1,16 @@
+LET START() BE
+{
+    WRITEF("Testing PAIR lane write operations*n")
+
+    // Test PAIR lane writes
+    LET p1 = PAIR(10, 20)
+    WRITEF("Original p1 = %d, %d*N", p1.|0|, p1.|1|)
+
+    p1.|0| := 100
+    WRITEF("After p1.|0| := 100: p1 = %N, %d *N", p1.|0|, p1.|1|)
+
+    p1.|1| := 200
+    WRITEF("After p1.|1| := 200: p1 = %d, %d *N", p1.|0|, p1.|1|)
+
+    WRITEF("PAIR lane write test complete*n")
+}

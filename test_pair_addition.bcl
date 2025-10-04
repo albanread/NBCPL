@@ -1,0 +1,36 @@
+LET START() BE
+{
+    WRITEF("Testing PAIR vector addition*N")
+
+    // Create two PAIR vectors
+    LET p1 = PAIR(10, 20)
+    LET p2 = PAIR(5, 15)
+
+    WRITEF("p1 = PAIR(10, 20)*N")
+    WRITEF("p2 = PAIR(5, 15)*N")
+
+    // Test individual lane access before addition
+    WRITEF("p1.|0| = %N, p1.|1| = %N*N", p1.|0|, p1.|1|)
+    WRITEF("p2.|0| = %N, p2.|1| = %N*N", p2.|0|, p2.|1|)
+
+    // Perform vector addition
+    LET p_sum = p1 + p2
+    WRITEF("*NAfter p_sum = p1 + p2:*N")
+
+    // Test lane access on result
+    WRITEF("p_sum.|0| = %N, p_sum.|1| = %N*N", p_sum.|0|, p_sum.|1|)
+    WRITEF("Expected: p_sum.|0| = 15, p_sum.|1| = 35*N")
+
+    // Test with different values
+    WRITEF("*N=== Second Test ===*N")
+    LET a = PAIR(100, 200)
+    LET b = PAIR(1, 2)
+    LET c = a + b
+
+    WRITEF("a = (%N, %N)*N", a.|0|, a.|1|)
+    WRITEF("b = (%N, %N)*N", b.|0|, b.|1|)
+    WRITEF("c = a + b = %P*N", c)
+    WRITEF("Expected: c = (101, 202)*N")
+
+    WRITEF("*NPAIR vector addition test complete*N")
+}

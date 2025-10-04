@@ -1,0 +1,47 @@
+LET start() BE
+{
+    writef("Testing lane write operations*n")
+
+    // Test PAIR lane writes
+    writef("=== PAIR Lane Writes ===*n")
+    LET p1 = PAIR(10, 20)
+    writef("Original p1 = (%n, %n)*n", p1.|0|, p1.|1|)
+
+    p1.|0| := 100
+    writef("After p1.|0| := 100: p1 = (%n, %n)*n", p1.|0|, p1.|1|)
+
+    p1.|1| := 200
+    writef("After p1.|1| := 200: p1 = (%n, %n)*n", p1.|0|, p1.|1|)
+
+    // Test QUAD lane writes
+    writef("*n=== QUAD Lane Writes ===*n")
+    LET q1 = QUAD(10, 20, 30, 40)
+    writef("Original q1 = (%n, %n, %n, %n)*n", q1.|0|, q1.|1|, q1.|2|, q1.|3|)
+
+    q1.|0| := 100
+    writef("After q1.|0| := 100: q1 = (%n, %n, %n, %n)*n", q1.|0|, q1.|1|, q1.|2|, q1.|3|)
+
+    q1.|2| := 300
+    writef("After q1.|2| := 300: q1 = (%n, %n, %n, %n)*n", q1.|0|, q1.|1|, q1.|2|, q1.|3|)
+
+    q1.|3| := 400
+    writef("After q1.|3| := 400: q1 = (%n, %n, %n, %n)*n", q1.|0|, q1.|1|, q1.|2|, q1.|3|)
+
+    // Test OCT lane writes
+    writef("*n=== OCT Lane Writes ===*n")
+    LET oct1 = OCT(1, 2, 3, 4, 5, 6, 7, 8)
+    writef("Original oct1 lanes: %n, %n, %n, %n, %n, %n, %n, %n*n",
+           oct1.|0|, oct1.|1|, oct1.|2|, oct1.|3|, oct1.|4|, oct1.|5|, oct1.|6|, oct1.|7|)
+
+    oct1.|0| := 10
+    oct1.|7| := 80
+    writef("After modifying first and last: %n, %n, %n, %n, %n, %n, %n, %n*n",
+           oct1.|0|, oct1.|1|, oct1.|2|, oct1.|3|, oct1.|4|, oct1.|5|, oct1.|6|, oct1.|7|)
+
+    oct1.|3| := 40
+    oct1.|4| := 50
+    writef("After modifying middle lanes: %n, %n, %n, %n, %n, %n, %n, %n*n",
+           oct1.|0|, oct1.|1|, oct1.|2|, oct1.|3|, oct1.|4|, oct1.|5|, oct1.|6|, oct1.|7|)
+
+    writef("*nLane write test complete*n")
+}

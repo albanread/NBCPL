@@ -141,6 +141,11 @@ void Linker::performRelocations(
     if (enable_tracing) std::cerr << "[LINKER-PASS2] Starting instruction relocation...\n";
 
     for (Instruction& instr : instructions) {
+        // Debug: check if our UMOV instructions are being processed
+        if (instr.assembly_text.find("mov.s") != std::string::npos) {
+            printf("DEBUG LINKER: Processing instruction '%s' with encoding=0x%08x relocation=%d\n", 
+                   instr.assembly_text.c_str(), instr.encoding, (int)instr.relocation);
+        }
         if (instr.relocation == RelocationType::NONE) {
             continue;
         }

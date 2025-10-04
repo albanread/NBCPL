@@ -4,7 +4,7 @@
 
 When designing NewBCPL, we considered adding traditional data structures like `structs` or `records`. However, in keeping with the spirit of BCPL, we wanted a single, powerful mechanism that could group both data and the procedures that operate on that data. The result is our simple, class-based object system.
 
-It is important to state from the outset that this is a **minimal object implementation**. Our goal is not to replicate the complex hierarchies and feature sets of languages like C++ or Java. Instead, we provide a straightforward tool to help you better **structure your code and data**. Think of NewBCPL classes as enhanced records that bundle variables with the functions that manage them, promoting cleaner, more modular program design.
+It is important to state from the outset that this is a **minimal object implementation**.  We provide a straightforward tool to help you better **structure your code and data**. Think of NewBCPL classes as enhanced records that bundle variables with the functions that manage them, promoting cleaner, more modular program design.
 
 ---
 
@@ -35,7 +35,7 @@ Objects are created dynamically on the heap using the NEW keyword. This expressi
 
 When an object is created with NEW, a special routine called CREATE is automatically called. This acts as the class constructor, and it's where you should place initialization logic.
 
-Members are accessed using the familiar dot (.) operator.
+Members can be accessed using the familiar dot (.) operator.
 
 ```BCPL
 LET my_point = NEW Point

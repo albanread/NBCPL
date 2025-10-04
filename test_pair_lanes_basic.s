@@ -162,11 +162,11 @@ L_START_Entry_0:
     MOV X0, X9
     MOV X1, X26
     BL _WRITEF1
-    FMOV D0, X26
-    umov w20, v0.s[0]
+    fmov D0, X26
+    SBFX X20, X26, #0, #32
     MOV X27, X20
-    FMOV D0, X26
-    umov w20, v0.s[1]
+    fmov D0, X26
+    SBFX X20, X26, #32, #32
     MOV X25, X20
     ADRP X9, L_str2@PAGE
     ADD X9, X9, L_str2@PAGEOFF

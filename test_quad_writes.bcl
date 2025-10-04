@@ -1,0 +1,22 @@
+LET START() BE
+{
+    writef("Testing QUAD lane write operations*n")
+
+    // Test QUAD lane writes
+    LET q1 = QUAD(10, 20, 30, 40)
+    writef("Original q1 = (%d, %d, %d, %d)*n", q1.|0|, q1.|1|, q1.|2|, q1.|3|)
+
+    q1.|0| := 100
+    writef("After q1.|0| := 100: q1 = (%d, %d, %d, %d)*n", q1.|0|, q1.|1|, q1.|2|, q1.|3|)
+
+    q1.|2| := 300
+    writef("After q1.|2| := 300: q1 = (%d, %d, %d, %d)*n", q1.|0|, q1.|1|, q1.|2|, q1.|3|)
+
+    q1.|3| := 400
+    writef("After q1.|3| := 400: q1 = (%d, %d, %d, %d)*n", q1.|0|, q1.|1|, q1.|2|, q1.|3|)
+
+    q1.|1| := 200
+    writef("After q1.|1| := 200: q1 = (%d, %d, %d, %d)*n", q1.|0|, q1.|1|, q1.|2|, q1.|3|)
+
+    writef("QUAD lane write test complete*n")
+}

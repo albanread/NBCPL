@@ -169,7 +169,7 @@ L_START_Entry_0:
     MOV X0, X9
     BL _WRITEF
     fmov D0, X23
-    umov w20, v0.h[0]
+    SBFX X20, X23, #0, #16
     MOV X27, X20
     ADRP X9, L_str3@PAGE
     ADD X9, X9, L_str3@PAGEOFF
@@ -178,7 +178,7 @@ L_START_Entry_0:
     MOV X1, X27
     BL _WRITEF1
     fmov D0, X23
-    umov w20, v0.h[1]
+    SBFX X20, X23, #16, #16
     MOV X26, X20
     ADRP X9, L_str4@PAGE
     ADD X9, X9, L_str4@PAGEOFF
@@ -187,7 +187,7 @@ L_START_Entry_0:
     MOV X1, X26
     BL _WRITEF1
     fmov D0, X23
-    umov w20, v0.h[2]
+    SBFX X20, X23, #32, #16
     MOV X25, X20
     ADRP X9, L_str5@PAGE
     ADD X9, X9, L_str5@PAGEOFF
@@ -196,7 +196,7 @@ L_START_Entry_0:
     MOV X1, X25
     BL _WRITEF1
     fmov D0, X23
-    umov w20, v0.h[3]
+    SBFX X20, X23, #48, #16
     MOV X24, X20
     ADRP X9, L_str6@PAGE
     ADD X9, X9, L_str6@PAGEOFF

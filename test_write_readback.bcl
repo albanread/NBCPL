@@ -1,0 +1,46 @@
+LET START() BE
+{
+    writef("Testing lane writes with readback*n")
+
+    // Test PAIR writes by reading back individual lanes
+    LET p = PAIR(10, 20)
+
+    // Read original values
+    LET first_orig = p.|0|
+    LET second_orig = p.|1|
+    writef("PAIR original lanes: first=%d, second=%d*n", first_orig, second_orig)
+
+    // Write new values
+    p.|0| := 100
+    p.|1| := 200
+
+    // Read back the modified values
+    LET first_new = p.|0|
+    LET second_new = p.|1|
+    writef("PAIR after write: first=%d, second=%d*n", first_new, second_new)
+
+    // Test QUAD writes by reading back individual lanes
+    LET q = QUAD(1, 2, 3, 4)
+
+    // Read original values
+    LET q0 = q.|0|
+    LET q1 = q.|1|
+    LET q2 = q.|2|
+    LET q3 = q.|3|
+    writef("QUAD original: %d, %d, %d, %d*n", q0, q1, q2, q3)
+
+    // Write new values
+    q.|0| := 10
+    q.|1| := 20
+    q.|2| := 30
+    q.|3| := 40
+
+    // Read back the modified values
+    q0 := q.|0|
+    q1 := q.|1|
+    q2 := q.|2|
+    q3 := q.|3|
+    writef("QUAD after write: %d, %d, %d, %d*n", q0, q1, q2, q3)
+
+    writef("Lane write test complete*n")
+}

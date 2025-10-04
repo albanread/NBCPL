@@ -1,4 +1,4 @@
-.section __TEXT,__text,regular,pure_instructions
+lets .section __TEXT,__text,regular,pure_instructions
 .globl _start
 .globl _START
 .globl _HeapManager_exit_scope
@@ -130,7 +130,7 @@
 _start:
 _START:
     B L_START
-    
+
 ; --- Veneer Section ---
     ; --- End Veneer Section ---
 

@@ -4,6 +4,7 @@ LET START() BE $(
     LET p1 = PAIR(10, 20)
     WRITEF1("p1 = %P*N", p1)
 
+    
     // Test reading lanes
     LET first = p1.|0|
     LET second = p1.|1|

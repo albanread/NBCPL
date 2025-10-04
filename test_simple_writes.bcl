@@ -1,0 +1,24 @@
+LET START() BE
+{
+    writef("Testing simple lane writes*n")
+
+    // Test PAIR writes
+    LET p = PAIR(1, 2)
+    writef("PAIR before: p=%X, first=%X, second=%X*n", p, p.|0|, p.|1|)
+
+    p.|0| := 10
+    p.|1| := 20
+    writef("PAIR after: p=%X, first=%X, second=%X*n", p, p.|0|, p.|1|)
+
+    // Test QUAD writes
+    LET q = QUAD(1, 2, 3, 4)
+    writef("QUAD before: q=%X, lanes=%X %X %X %X*n", q, q.|0|, q.|1|, q.|2|, q.|3|)
+
+    q.|0| := 10
+    q.|1| := 20
+    q.|2| := 30
+    q.|3| := 40
+    writef("QUAD after: q=%X, lanes=%X %X %X %X*n", q, q.|0|, q.|1|, q.|2|, q.|3|)
+
+    writef("Test complete*n")
+}

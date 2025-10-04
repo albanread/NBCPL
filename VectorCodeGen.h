@@ -134,7 +134,7 @@ private:
     // Lane operations  
     Instruction vecgen_ins_element(const std::string& vd, int dst_lane, const std::string& vn, int src_lane, const std::string& size);
     Instruction vecgen_ins_general(const std::string& vd, int lane, const std::string& rn, const std::string& size);
-    Instruction vecgen_umov(const std::string& rd, const std::string& vn, int lane, const std::string& size);
+    Instruction vecgen_umov_sized(const std::string& rd, const std::string& vn, int lane, const std::string& size);
     Instruction vecgen_mov_element(const std::string& rd, const std::string& vn, int lane, const std::string& size);
     Instruction vecgen_dup_general(const std::string& vd, const std::string& rn, const std::string& arrangement);
     Instruction vecgen_dup_scalar(const std::string& vd, const std::string& vn, const std::string& arrangement);
@@ -149,10 +149,13 @@ private:
     Instruction vecgen_fmov_w_to_s(const std::string& sd, const std::string& wn);
     Instruction vecgen_fmov_s_to_w(const std::string& wd, const std::string& sn);
     Instruction vecgen_fmov_s_lane(const std::string& sd, const std::string& vn, int lane);
+    Instruction vecgen_umov(const std::string& wd, const std::string& vn, int lane);
+    Instruction vecgen_smov(const std::string& wd, const std::string& vn, int lane, const std::string& size);
     Instruction vecgen_fcvt_s_to_d(const std::string& dd, const std::string& sn);
     
     // Register name conversion utilities
     std::string qreg_to_vreg(const std::string& qreg);
+    std::string normalizeArrangementForAssembly(const std::string& arrangement);
     int parse_register_number(const std::string& reg);
     
     // Debug and logging
