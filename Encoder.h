@@ -474,6 +474,14 @@ public:
   static Instruction create_fmov_w_to_s(const std::string &sd,
                                         const std::string &wn);
 
+  // FMOV from S register to W register (for FPAIR construction)
+  static Instruction create_fmov_s_to_w(const std::string &wd,
+                                        const std::string &sn);
+
+  // FCVT from D register to S register (double to single precision)
+  static Instruction create_fcvt_d_to_s(const std::string &sd,
+                                        const std::string &dn);
+
   /**
    * @brief Creates a sequence of MOVZ/MOVK instructions to load a 64-bit
    * absolute address into a register.

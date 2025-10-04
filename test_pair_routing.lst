@@ -1,0 +1,62 @@
+
+test_pair_routing.o:	file format mach-o arm64
+
+Disassembly of section __TEXT,__text:
+
+0000000000000000 <ltmp0>:
+       0: 14000001     	b	0x4 <ltmp0+0x4>
+       4: a9bb7bfd     	stp	x29, x30, [sp, #-0x50]!
+       8: 910003fd     	mov	x29, sp
+       c: a902d3b3     	stp	x19, x20, [x29, #0x28]
+      10: a903efba     	stp	x26, x27, [x29, #0x38]
+      14: f90027bc     	str	x28, [x29, #0x48]
+      18: 9000001c     	adrp	x28, 0x0 <ltmp0>
+      1c: 9100039c     	add	x28, x28, #0x0
+      20: 90000009     	adrp	x9, 0x0 <ltmp0>
+      24: 91000129     	add	x9, x9, #0x0
+      28: 91002129     	add	x9, x9, #0x8
+      2c: aa0903e0     	mov	x0, x9
+      30: 94000000     	bl	0x30 <ltmp0+0x30>
+      34: 90000009     	adrp	x9, 0x0 <ltmp0>
+      38: 91000129     	add	x9, x9, #0x0
+      3c: f9400129     	ldr	x9, [x9]
+      40: aa0903fb     	mov	x27, x9
+      44: 90000009     	adrp	x9, 0x0 <ltmp0>
+      48: 91000129     	add	x9, x9, #0x0
+      4c: f9400129     	ldr	x9, [x9]
+      50: aa0903fa     	mov	x26, x9
+      54: 9e670360     	fmov	d0, x27
+      58: 9e670341     	fmov	d1, x26
+      5c: 0ea18400     	add.2s	v0, v0, v1
+      60: 9e66001b     	fmov	x27, d0
+      64: aa1b03ef     	mov	x15, x27
+      68: 90000009     	adrp	x9, 0x0 <ltmp0>
+      6c: 91000129     	add	x9, x9, #0x0
+      70: 91002129     	add	x9, x9, #0x8
+      74: aa0903e0     	mov	x0, x9
+      78: 9e6701e0     	fmov	d0, x15
+      7c: 0e043c14     	mov.s	w20, v0[0]
+      80: aa1403e1     	mov	x1, x20
+      84: 9e6701e0     	fmov	d0, x15
+      88: 0e0c3c14     	mov.s	w20, v0[1]
+      8c: aa1403e2     	mov	x2, x20
+      90: 94000000     	bl	0x90 <ltmp0+0x90>
+      94: 90000009     	adrp	x9, 0x0 <ltmp0>
+      98: 91000129     	add	x9, x9, #0x0
+      9c: 91002129     	add	x9, x9, #0x8
+      a0: aa0903e0     	mov	x0, x9
+      a4: 94000000     	bl	0xa4 <ltmp0+0xa4>
+      a8: 90000009     	adrp	x9, 0x0 <ltmp0>
+      ac: 91000129     	add	x9, x9, #0x0
+      b0: 91002129     	add	x9, x9, #0x8
+      b4: aa0903e0     	mov	x0, x9
+      b8: 94000000     	bl	0xb8 <ltmp0+0xb8>
+      bc: 14000001     	b	0xc0 <ltmp0+0xc0>
+      c0: 14000001     	b	0xc4 <ltmp0+0xc4>
+      c4: a942d3b3     	ldp	x19, x20, [x29, #0x28]
+      c8: a943efba     	ldp	x26, x27, [x29, #0x38]
+      cc: f94027bc     	ldr	x28, [x29, #0x48]
+      d0: 910003bf     	mov	sp, x29
+      d4: a9407bfd     	ldp	x29, x30, [sp]
+      d8: 910043ff     	add	sp, sp, #0x10
+      dc: d65f03c0     	ret

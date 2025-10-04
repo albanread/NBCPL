@@ -1,0 +1,103 @@
+// Test program to verify binary operator routing for all vector types
+// This tests that +, -, *, / operations are properly routed to VectorCodeGen
+
+LET START() BE {
+    WRITEF("Testing binary operator routing for all vector types...*N")
+
+    // Test PAIR operations
+    WRITEF("=== PAIR Operations ===*N")
+    LET p1 = PAIR(10, 20)
+    LET p2 = PAIR(5, 15)
+
+    LET p_add = p1 + p2
+    LET p_sub = p1 - p2
+    LET p_mul = p1 * p2
+
+    WRITEF("PAIR addition: (%N, %N)*N", p_add.|0|, p_add.|1|)
+    WRITEF("PAIR subtraction: (%N, %N)*N", p_sub.|0|, p_sub.|1|)
+    WRITEF("PAIR multiplication: (%N, %N)*N", p_mul.|0|, p_mul.|1|)
+
+    // Test FPAIR operations
+    WRITEF("*N=== FPAIR Operations ===*N")
+    LET f1 = FPAIR(10.5, 20.5)
+    LET f2 = FPAIR(2.0, 4.0)
+
+    LET f_add = f1 + f2
+    LET f_sub = f1 - f2
+    LET f_mul = f1 * f2
+    LET f_div = f1 / f2  // Division should work for float vectors
+
+    WRITEF("FPAIR addition: (%N, %N)*N", f_add.|0|, f_add.|1|)
+    WRITEF("FPAIR subtraction: (%N, %N)*N", f_sub.|0|, f_sub.|1|)
+    WRITEF("FPAIR multiplication: (%N, %N)*N", f_mul.|0|, f_mul.|1|)
+    WRITEF("FPAIR division: (%N, %N)*N", f_div.|0|, f_div.|1|)
+
+    // Test QUAD operations
+    WRITEF("*N=== QUAD Operations ===*N")
+    LET q1 = QUAD(1, 2, 3, 4)
+    LET q2 = QUAD(10, 20, 30, 40)
+
+    LET q_add = q1 + q2
+    LET q_sub = q1 - q2
+    LET q_mul = q1 * q2
+
+    WRITEF("QUAD addition: (%N, %N, %N, %N)*N", q_add.|0|, q_add.|1|, q_add.|2|, q_add.|3|)
+    WRITEF("QUAD subtraction: (%N, %N, %N, %N)*N", q_sub.|0|, q_sub.|1|, q_sub.|2|, q_sub.|3|)
+    WRITEF("QUAD multiplication: (%N, %N, %N, %N)*N", q_mul.|0|, q_mul.|1|, q_mul.|2|, q_mul.|3|)
+
+    // Test OCT operations
+    WRITEF("*N=== OCT Operations ===*N")
+    LET o1 = OCT(1, 2, 3, 4, 5, 6, 7, 8)
+    LET o2 = OCT(10, 10, 10, 10, 10, 10, 10, 10)
+
+    LET o_add = o1 + o2
+    LET o_sub = o2 - o1
+    LET o_mul = o1 * o2
+
+    WRITEF("OCT addition: (%N, %N, %N, %N, %N, %N, %N, %N)*N",
+           o_add.|0|, o_add.|1|, o_add.|2|, o_add.|3|, o_add.|4|, o_add.|5|, o_add.|6|, o_add.|7|)
+    WRITEF("OCT subtraction: (%N, %N, %N, %N, %N, %N, %N, %N)*N",
+           o_sub.|0|, o_sub.|1|, o_sub.|2|, o_sub.|3|, o_sub.|4|, o_sub.|5|, o_sub.|6|, o_sub.|7|)
+    WRITEF("OCT multiplication: (%N, %N, %N, %N, %N, %N, %N, %N)*N",
+           o_mul.|0|, o_mul.|1|, o_mul.|2|, o_mul.|3|, o_mul.|4|, o_mul.|5|, o_mul.|6|, o_mul.|7|)
+
+    // Test FOCT operations
+    WRITEF("*N=== FOCT Operations ===*N")
+    LET fo1 = FOCT(1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0)
+    LET fo2 = FOCT(2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0)
+
+    LET fo_add = fo1 + fo2
+    LET fo_sub = fo1 - fo2
+    LET fo_mul = fo1 * fo2
+    LET fo_div = fo1 / fo2  // Division should work for float vectors
+
+    WRITEF("FOCT addition: (%N, %N, %N, %N, %N, %N, %N, %N)*N",
+           fo_add.|0|, fo_add.|1|, fo_add.|2|, fo_add.|3|, fo_add.|4|, fo_add.|5|, fo_add.|6|, fo_add.|7|)
+    WRITEF("FOCT subtraction: (%N, %N, %N, %N, %N, %N, %N, %N)*N",
+           fo_sub.|0|, fo_sub.|1|, fo_sub.|2|, fo_sub.|3|, fo_sub.|4|, fo_sub.|5|, fo_sub.|6|, fo_sub.|7|)
+    WRITEF("FOCT multiplication: (%N, %N, %N, %N, %N, %N, %N, %N)*N",
+           fo_mul.|0|, fo_mul.|1|, fo_mul.|2|, fo_mul.|3|, fo_mul.|4|, fo_mul.|5|, fo_mul.|6|, fo_mul.|7|)
+    WRITEF("FOCT division: (%N, %N, %N, %N, %N, %N, %N, %N)*N",
+           fo_div.|0|, fo_div.|1|, fo_div.|2|, fo_div.|3|, fo_div.|4|, fo_div.|5|, fo_div.|6|, fo_div.|7|)
+
+    // Test scalar-vector operations
+    WRITEF("*N=== Scalar-Vector Operations ===*N")
+    LET scalar_val = 3
+    LET scalar_float = 2.5
+
+    // PAIR with scalar
+    LET p_scalar = p1 * scalar_val
+    WRITEF("PAIR * scalar: (%N, %N)*N", p_scalar.|0|, p_scalar.|1|)
+
+    // FPAIR with scalar
+    LET f_scalar = f1 * scalar_float
+    WRITEF("FPAIR * scalar: (%N, %N)*N", f_scalar.|0|, f_scalar.|1|)
+
+    // OCT with scalar
+    LET o_scalar = o1 + scalar_val
+    WRITEF("OCT + scalar: (%N, %N, %N, %N, %N, %N, %N, %N)*N",
+           o_scalar.|0|, o_scalar.|1|, o_scalar.|2|, o_scalar.|3|,
+           o_scalar.|4|, o_scalar.|5|, o_scalar.|6|, o_scalar.|7|)
+
+    WRITEF("*NAll binary operator routing tests completed!*N")
+}

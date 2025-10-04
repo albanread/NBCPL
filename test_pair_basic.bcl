@@ -1,0 +1,8 @@
+LET START() BE $(
+    WRITEF("Testing basic PAIR functionality*N")
+
+    LET p1 = PAIR(10, 20)
+    WRITEF1("Created p1 = %P*N", p1)
+
+    WRITEF("Test complete*N")
+$)

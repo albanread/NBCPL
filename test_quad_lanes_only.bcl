@@ -1,0 +1,23 @@
+LET START() BE $(
+    WRITEF("Testing QUAD lane reads only*N")
+
+    LET q1 = QUAD(10, 20, 30, 40)
+    WRITEF1("q1 = %X*N", q1)
+
+    WRITEF("Testing individual lane reads:*N")
+
+    LET lane0 = q1.|0|
+    WRITEF1("q1.|0| = %N*N", lane0)
+
+    LET lane1 = q1.|1|
+    WRITEF1("q1.|1| = %N*N", lane1)
+
+    LET lane2 = q1.|2|
+    WRITEF1("q1.|2| = %N*N", lane2)
+
+    LET lane3 = q1.|3|
+    WRITEF1("q1.|3| = %N*N", lane3)
+
+    WRITEF("Expected: 10, 20, 30, 40*N")
+    WRITEF("Test complete*N")
+$)

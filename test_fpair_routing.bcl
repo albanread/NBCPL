@@ -1,0 +1,18 @@
+// Minimal test for FPAIR binary operations routing
+// Tests that FPAIR operations are routed through VectorCodeGen
+
+LET START() BE {
+    WRITEF("Testing FPAIR binary operations routing...*N")
+
+    // Create two simple FPAIR vectors
+    LET f1 = FPAIR(10.0, 20.0)
+    LET f2 = FPAIR(5.0, 15.0)
+
+    // Test addition - this should go through VectorCodeGen now
+    LET f_add = f1 + f2
+    WRITEF("FPAIR addition: f1 + f2 = (%F, %F)*N", f_add.|0|, f_add.|1|)
+
+    WRITEF("Expected: (15.0, 35.0)*N")
+
+    WRITEF("Test completed.*N")
+}

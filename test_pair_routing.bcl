@@ -1,0 +1,17 @@
+// Minimal test for PAIR binary operations routing
+// Tests that PAIR operations are routed through VectorCodeGen
+
+LET START() BE {
+    WRITEF("Testing PAIR binary operations routing...*N")
+
+    // Create two simple PAIR vectors
+    LET p1 = PAIR(10, 20)
+    LET p2 = PAIR(5, 15)
+
+    // Test addition - this should go through VectorCodeGen now
+    LET p_add = p1 + p2
+    WRITEF("PAIR addition: p1 + p2 = (%N, %N)*N", p_add.|0|, p_add.|1|)
+    WRITEF("Expected: (15, 35)*N")
+
+    WRITEF("Test completed.*N")
+}

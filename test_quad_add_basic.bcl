@@ -1,0 +1,15 @@
+LET START() BE $(
+    WRITEF("Testing basic QUAD addition*N")
+
+    LET q1 = QUAD(10, 20, 30, 40)
+    LET q2 = QUAD(5, 15, 25, 35)
+
+    WRITEF1("q1 = %X*N", q1)
+    WRITEF1("q2 = %X*N", q2)
+
+    LET q3 = q1 + q2
+    WRITEF1("q1 + q2 = %X*N", q3)
+
+    WRITEF("Expected: (15, 35, 55, 75) = 000F002300370004B*N")
+    WRITEF("Test complete*N")
+$)

@@ -22,7 +22,7 @@ enum class OpType {
     CSET, CSETM, CSINV,
     CBZ, CBNZ,
     // Conversion
-    SCVTF, FCVTZS, FCVTMS,
+    SCVTF, FCVTZS, FCVTMS, FCVT,
     // Vector/SIMD
     FMLA_VECTOR, FMUL_VECTOR, ADD_VECTOR, SUB_VECTOR, LD1_VECTOR, FADD_VECTOR, MUL_VECTOR,
     // Floating-point Math

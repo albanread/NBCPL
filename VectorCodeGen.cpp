@@ -127,8 +127,12 @@ std::string VectorCodeGen::generateFOctConstruction(FOctExpression& node, bool u
 
 bool VectorCodeGen::isSimdOperation(VarType left_type, VarType right_type) {
     // Check if either operand is a SIMD vector type
-    bool left_is_simd = (left_type == VarType::OCT || left_type == VarType::FOCT);
-    bool right_is_simd = (right_type == VarType::OCT || right_type == VarType::FOCT);
+    bool left_is_simd = (left_type == VarType::PAIR || left_type == VarType::FPAIR || 
+                        left_type == VarType::QUAD || left_type == VarType::OCT || 
+                        left_type == VarType::FOCT);
+    bool right_is_simd = (right_type == VarType::PAIR || right_type == VarType::FPAIR || 
+                         right_type == VarType::QUAD || right_type == VarType::OCT || 
+                         right_type == VarType::FOCT);
     
     return left_is_simd || right_is_simd;
 }
@@ -194,16 +198,25 @@ void VectorCodeGen::generateNeonBinaryOp(BinaryOp& node, VarType result_type) {
     
     // Check if this is a vector-scalar operation
     bool is_vector_scalar = false;
-    bool left_is_vector = (left_type == VarType::OCT || left_type == VarType::FOCT);
+    bool left_is_vector = (left_type == VarType::OCT || left_type == VarType::FOCT || 
+                          left_type == VarType::PAIR || left_type == VarType::FPAIR || 
+                          left_type == VarType::QUAD);
     bool right_is_scalar = (right_type == VarType::INTEGER || right_type == VarType::FLOAT);
     
     if (left_is_vector && right_is_scalar) {
         is_vector_scalar = true;
     }
     
-    // Acquire NEON registers
-    std::string left_neon_reg = register_manager_.acquire_q_scratch_reg(code_gen_);
-    std::string right_neon_reg = register_manager_.acquire_q_scratch_reg(code_gen_);
+    // Acquire appropriate NEON registers (D for 64-bit vectors, Q for 128-bit)
+    std::string left_neon_reg;
+    std::string right_neon_reg;
+    if (result_type == VarType::PAIR || result_type == VarType::FPAIR || result_type == VarType::QUAD) {
+        left_neon_reg = register_manager_.acquire_fp_scratch_reg(); // D register
+        right_neon_reg = register_manager_.acquire_fp_scratch_reg(); // D register
+    } else {
+        left_neon_reg = register_manager_.acquire_q_scratch_reg(code_gen_); // Q register
+        right_neon_reg = register_manager_.acquire_q_scratch_reg(code_gen_); // Q register
+    }
     
     // Load vector operands to NEON registers
     if (result_type == VarType::FOCT) {
@@ -216,14 +229,23 @@ void VectorCodeGen::generateNeonBinaryOp(BinaryOp& node, VarType result_type) {
         } else {
             loadVectorToNeon(right_reg, right_neon_reg, right_type);
         }
-    } else {
-        // For OCT (integer), use 64-bit D registers
-        emit_(Encoder::create_fmov_x_to_d(left_neon_reg, left_reg));
+    } else if (result_type == VarType::FPAIR) {
+        // For FPAIR, use 64-bit D registers but handle as floats
+        loadVectorToNeon(left_reg, left_neon_reg, left_type);
         
         if (is_vector_scalar) {
             broadcastScalarToNeon(right_reg, right_neon_reg, result_type);
         } else {
-            emit_(Encoder::create_fmov_x_to_d(right_neon_reg, right_reg));
+            loadVectorToNeon(right_reg, right_neon_reg, right_type);
+        }
+    } else {
+        // For OCT, PAIR, QUAD (integer), use 64-bit D registers
+        emit_(vecgen_fmov_x_to_d(left_neon_reg, left_reg));
+        
+        if (is_vector_scalar) {
+            broadcastScalarToNeon(right_reg, right_neon_reg, result_type);
+        } else {
+            emit_(vecgen_fmov_x_to_d(right_neon_reg, right_reg));
         }
     }
     
@@ -232,7 +254,7 @@ void VectorCodeGen::generateNeonBinaryOp(BinaryOp& node, VarType result_type) {
     // Perform the vector operation
     switch (node.op) {
         case BinaryOp::Operator::Add:
-        if (result_type == VarType::FOCT) {
+        if (result_type == VarType::FOCT || result_type == VarType::FPAIR) {
             emit_(vecgen_fadd_vector(qreg_to_vreg(left_neon_reg), qreg_to_vreg(left_neon_reg), qreg_to_vreg(right_neon_reg), arrangement));
         } else {
             emit_(vecgen_add_vector(qreg_to_vreg(left_neon_reg), qreg_to_vreg(left_neon_reg), qreg_to_vreg(right_neon_reg), arrangement));
@@ -241,7 +263,7 @@ void VectorCodeGen::generateNeonBinaryOp(BinaryOp& node, VarType result_type) {
         break;
             
     case BinaryOp::Operator::Subtract:
-        if (result_type == VarType::FOCT) {
+        if (result_type == VarType::FOCT || result_type == VarType::FPAIR) {
             emit_(vecgen_fsub_vector(qreg_to_vreg(left_neon_reg), qreg_to_vreg(left_neon_reg), qreg_to_vreg(right_neon_reg), arrangement));
         } else {
             emit_(vecgen_sub_vector(qreg_to_vreg(left_neon_reg), qreg_to_vreg(left_neon_reg), qreg_to_vreg(right_neon_reg), arrangement));
@@ -250,7 +272,7 @@ void VectorCodeGen::generateNeonBinaryOp(BinaryOp& node, VarType result_type) {
         break;
             
     case BinaryOp::Operator::Multiply:
-        if (result_type == VarType::FOCT) {
+        if (result_type == VarType::FOCT || result_type == VarType::FPAIR) {
             emit_(vecgen_fmul_vector(qreg_to_vreg(left_neon_reg), qreg_to_vreg(left_neon_reg), qreg_to_vreg(right_neon_reg), arrangement));
         } else {
             emit_(vecgen_mul_vector(qreg_to_vreg(left_neon_reg), qreg_to_vreg(left_neon_reg), qreg_to_vreg(right_neon_reg), arrangement));
@@ -259,7 +281,7 @@ void VectorCodeGen::generateNeonBinaryOp(BinaryOp& node, VarType result_type) {
         break;
             
     case BinaryOp::Operator::Divide:
-        if (result_type == VarType::FOCT) {
+        if (result_type == VarType::FOCT || result_type == VarType::FPAIR) {
             emit_(vecgen_fdiv_vector(qreg_to_vreg(left_neon_reg), qreg_to_vreg(left_neon_reg), qreg_to_vreg(right_neon_reg), arrangement));
             debug_print("Generated NEON vector division (float)");
         } else {
@@ -277,9 +299,14 @@ void VectorCodeGen::generateNeonBinaryOp(BinaryOp& node, VarType result_type) {
     // Update result register
     code_gen_.expression_result_reg_ = left_reg;
     
-    // Release NEON registers
-    register_manager_.release_q_register(left_neon_reg);
-    register_manager_.release_q_register(right_neon_reg);
+    // Release NEON registers (use appropriate method for register type)
+    if (result_type == VarType::PAIR || result_type == VarType::FPAIR || result_type == VarType::QUAD) {
+        register_manager_.release_fp_register(left_neon_reg);
+        register_manager_.release_fp_register(right_neon_reg);
+    } else {
+        register_manager_.release_q_register(left_neon_reg);
+        register_manager_.release_q_register(right_neon_reg);
+    }
     register_manager_.release_register(right_reg);
 }
 
@@ -433,19 +460,23 @@ void VectorCodeGen::generateNeonLaneRead(LaneAccessExpression& node, VarType vec
     std::string arrangement = getNeonArrangement(vector_type);
     
     if (getElementType(vector_type) == VarType::FLOAT) {
-        // For float elements, use FMOV to extract lane
+        // For float elements, use direct float lane extraction
         if (vector_type == VarType::PAIR || vector_type == VarType::FPAIR || vector_type == VarType::QUAD) {
-            // Use D register operations for 64-bit vectors
-            std::string temp_neon = register_manager_.acquire_fp_scratch_reg();
-            emit_(vecgen_ins_element(temp_neon, 0, neon_reg, node.index, "S"));
-            emit_(Encoder::create_fmov_d_to_x(result_reg, temp_neon));
-            register_manager_.release_fp_register(temp_neon);
+            // Use D register operations for 64-bit vectors - extract directly to S register then convert
+            std::string temp_s_reg = register_manager_.acquire_fp_scratch_reg();
+            std::string s_reg = "S" + temp_s_reg.substr(1); // Convert D0 -> S0
+            emit_(vecgen_fmov_s_lane(s_reg, neon_reg, node.index));
+            // Convert single precision to double precision for result
+            emit_(vecgen_fcvt_s_to_d(result_reg, s_reg));
+            register_manager_.release_fp_register(temp_s_reg);
         } else {
             // Use Q register operations for 128-bit vectors
-            std::string temp_neon = register_manager_.acquire_q_scratch_reg(code_gen_);
-            emit_(vecgen_ins_element(qreg_to_vreg(temp_neon), 0, qreg_to_vreg(neon_reg), node.index, "S"));
-            emit_(Encoder::create_fmov_d_to_x(result_reg, temp_neon));
-            register_manager_.release_q_register(temp_neon);
+            std::string temp_s_reg = register_manager_.acquire_fp_scratch_reg();
+            std::string s_reg = "S" + temp_s_reg.substr(1); // Convert D0 -> S0
+            emit_(vecgen_fmov_s_lane(s_reg, qreg_to_vreg(neon_reg), node.index));
+            // Convert single precision to double precision for result
+            emit_(vecgen_fcvt_s_to_d(result_reg, s_reg));
+            register_manager_.release_fp_register(temp_s_reg);
         }
     } else {
         // For integer elements
@@ -527,13 +558,13 @@ void VectorCodeGen::generateNeonLaneWrite(LaneAccessExpression& node, VarType ve
         if (vector_type == VarType::PAIR || vector_type == VarType::FPAIR || vector_type == VarType::QUAD) {
             // Use D register operations for 64-bit vectors
             std::string temp_neon = register_manager_.acquire_fp_scratch_reg();
-            emit_(Encoder::create_fmov_w_to_s(temp_neon, value_reg));
+            emit_(vecgen_fmov_w_to_s(temp_neon, value_reg));
             emit_(vecgen_ins_element(neon_reg, node.index, temp_neon, 0, "S"));
             register_manager_.release_fp_register(temp_neon);
         } else {
             // Use Q register operations for 128-bit vectors
             std::string temp_neon = register_manager_.acquire_q_scratch_reg(code_gen_);
-            emit_(Encoder::create_fmov_w_to_s(temp_neon, value_reg));
+            emit_(vecgen_fmov_w_to_s(temp_neon, value_reg));
             emit_(vecgen_ins_element(qreg_to_vreg(neon_reg), node.index, qreg_to_vreg(temp_neon), 0, "S"));
             register_manager_.release_q_register(temp_neon);
         }
@@ -608,7 +639,7 @@ void VectorCodeGen::generateNeonVectorConstruction(const std::vector<const ExprP
         
         if (getElementType(vector_type) == VarType::FLOAT) {
             std::string temp_neon = register_manager_.acquire_q_scratch_reg(code_gen_);
-            emit_(Encoder::create_fmov_w_to_s(temp_neon, element_reg));
+            emit_(vecgen_fmov_w_to_s(temp_neon, element_reg));
             emit_(vecgen_ins_element(qreg_to_vreg(neon_reg), i, qreg_to_vreg(temp_neon), 0, "S"));
             register_manager_.release_q_register(temp_neon);
         } else {
@@ -656,9 +687,19 @@ void VectorCodeGen::loadVectorToNeon(const std::string& src_reg, const std::stri
     if (vector_type == VarType::FOCT) {
         // FOCT requires 128-bit load (8 x 32-bit floats = 256 bits, but we'll use two 128-bit ops)
         emit_(vecgen_ldr_q(qreg_to_vreg(neon_reg), src_reg, 0));
+    } else if (vector_type == VarType::FPAIR) {
+        // FPAIR: 2 x 32-bit floats packed in 64-bit X register -> D register
+        // The bit-packed representation can be moved directly
+        emit_(vecgen_fmov_x_to_d(neon_reg, src_reg));
+    } else if (vector_type == VarType::PAIR) {
+        // PAIR: 2 x 32-bit integers packed in 64-bit X register -> D register
+        emit_(vecgen_fmov_x_to_d(neon_reg, src_reg));
+    } else if (vector_type == VarType::QUAD) {
+        // QUAD: 4 x 16-bit integers packed in 64-bit X register -> D register
+        emit_(vecgen_fmov_x_to_d(neon_reg, src_reg));
     } else {
         // OCT uses 64-bit load (8 x 8-bit = 64 bits)
-        emit_(Encoder::create_fmov_x_to_d(neon_reg, src_reg));
+        emit_(vecgen_fmov_x_to_d(neon_reg, src_reg));
     }
 }
 
@@ -666,9 +707,18 @@ void VectorCodeGen::storeNeonToVector(const std::string& neon_reg, const std::st
     if (vector_type == VarType::FOCT) {
         // FOCT requires 128-bit store
         emit_(vecgen_str_q(qreg_to_vreg(neon_reg), dst_reg, 0));
+    } else if (vector_type == VarType::FPAIR) {
+        // FPAIR: D register -> 64-bit X register with packed floats
+        emit_(vecgen_fmov_d_to_x(dst_reg, neon_reg));
+    } else if (vector_type == VarType::PAIR) {
+        // PAIR: D register -> 64-bit X register with packed integers
+        emit_(vecgen_fmov_d_to_x(dst_reg, neon_reg));
+    } else if (vector_type == VarType::QUAD) {
+        // QUAD: D register -> 64-bit X register with packed 16-bit integers
+        emit_(vecgen_fmov_d_to_x(dst_reg, neon_reg));
     } else {
         // OCT uses 64-bit store
-        emit_(Encoder::create_fmov_d_to_x(dst_reg, neon_reg));
+        emit_(vecgen_fmov_d_to_x(dst_reg, neon_reg));
     }
 }
 
@@ -678,7 +728,7 @@ void VectorCodeGen::broadcastScalarToNeon(const std::string& scalar_reg, const s
     if (getElementType(vector_type) == VarType::FLOAT) {
         // For float vectors, use FMOV + DUP
         std::string temp_neon = register_manager_.acquire_q_scratch_reg(code_gen_);
-        emit_(Encoder::create_fmov_w_to_s(temp_neon, scalar_reg));
+        emit_(vecgen_fmov_w_to_s(temp_neon, scalar_reg));
         emit_(vecgen_dup_general(qreg_to_vreg(neon_reg), scalar_reg, arrangement));
         register_manager_.release_q_register(temp_neon);
     } else {
@@ -725,6 +775,7 @@ Instruction VectorCodeGen::vecgen_fadd_vector(const std::string& vd, const std::
     if (arrangement == "4S" || arrangement == "2D") {
         instruction |= (1 << 30);
     }
+    // 2S uses 64-bit registers (Q bit = 0)
     
     // Set size bits for arrangement
     if (arrangement == "4S" || arrangement == "2S") {
@@ -837,7 +888,8 @@ Instruction VectorCodeGen::vecgen_fdiv_vector(const std::string& vd, const std::
 
 Instruction VectorCodeGen::vecgen_add_vector(const std::string& vd, const std::string& vn, const std::string& vm, const std::string& arrangement) {
     // ADD vector: 0Q001110SS1mmmmm100001nnnnnddddd
-    uint32_t instruction = 0x0E208400;
+    // Reference: 0ea18400 for add.2s v0, v0, v1
+    uint32_t instruction = 0x0E008400;  // Base pattern with U=0 initially
     
     int vd_num = parse_register_number(vd);
     int vn_num = parse_register_number(vn);
@@ -846,20 +898,21 @@ Instruction VectorCodeGen::vecgen_add_vector(const std::string& vd, const std::s
     instruction |= (vd_num & 0x1F);
     instruction |= ((vn_num & 0x1F) << 5);
     instruction |= ((vm_num & 0x1F) << 16);
+    instruction |= (1 << 21); // U=1 for ADD operation
     
     if (arrangement == "8B" || arrangement == "4H" || arrangement == "2S") {
-        // 64-bit operation, Q=0
+        // 64-bit operation, Q=0 (already 0 in base)
     } else {
         instruction |= (1 << 30); // Q=1 for 128-bit
     }
     
-    // Set size bits
+    // Set size bits (SS field at bits 23:22)
     if (arrangement == "8B" || arrangement == "16B") {
-        instruction |= (0 << 22); // 8-bit elements
+        // size=00 for 8-bit elements (already 0)
     } else if (arrangement == "4H" || arrangement == "8H") {
-        instruction |= (1 << 22); // 16-bit elements
+        instruction |= (1 << 22); // size=01 for 16-bit elements
     } else if (arrangement == "2S" || arrangement == "4S") {
-        instruction |= (2 << 22); // 32-bit elements
+        instruction |= (2 << 22); // size=10 for 32-bit elements
     }
     
     std::string vd_reg = (vd[0] == 'D') ? "v" + vd.substr(1) : vd;
@@ -1053,18 +1106,40 @@ Instruction VectorCodeGen::vecgen_umov(const std::string& rd, const std::string&
     instruction |= (rd_num & 0x1F);
     instruction |= ((vn_num & 0x1F) << 5);
     
-    // Set lane index and size based on actual working opcodes
+    // Set size bits (SS field at bits 23:22) and lane index
     if (size == "B") {
-        // 8-bit: imm5 = (lane << 1) | 1
+        // 8-bit: SS=00 (already 0), imm5 = (lane << 1) | 1
         instruction |= (((lane << 1) | 1) << 16);
     } else if (size == "H") {
-        // 16-bit: imm5 = (lane << 1) | 2 
-        instruction |= (((lane << 1) | 2) << 16);
+        // 16-bit: Use exact reference opcodes from clang
+        // Reference: 0e023c08 (lane 0), 0e063c08 (lane 1), 0e0a3c08 (lane 2), 0e0e3c08 (lane 3)
+        // Base is 0x0E003C00, so we need to match the imm5 patterns exactly
+        if (lane == 0) {
+            instruction = 0x0E023C00 | (rd_num & 0x1F) | ((vn_num & 0x1F) << 5);
+        } else if (lane == 1) {
+            instruction = 0x0E063C00 | (rd_num & 0x1F) | ((vn_num & 0x1F) << 5);
+        } else if (lane == 2) {
+            instruction = 0x0E0A3C00 | (rd_num & 0x1F) | ((vn_num & 0x1F) << 5);
+        } else if (lane == 3) {
+            instruction = 0x0E0E3C00 | (rd_num & 0x1F) | ((vn_num & 0x1F) << 5);
+        } else {
+            // Fallback for other lanes
+            instruction |= (((lane << 2) | 2) << 16);
+        }
     } else if (size == "S") {
-        // 32-bit: imm5 = (lane << 2) | 4
-        instruction |= (((lane << 2) | 4) << 16);
+        // 32-bit: SS=10
+        instruction |= (2 << 22); // Set SS=10 for 32-bit
+        if (lane == 0) {
+            instruction |= (0x04 << 16);
+        } else if (lane == 1) {
+            instruction |= (0x0C << 16);
+        } else {
+            // Fallback pattern for other lanes
+            instruction |= (((lane << 2) | 4) << 16);
+        }
     } else if (size == "D") {
-        // 64-bit: imm5 = (lane << 3) | 8
+        // 64-bit: SS=11, imm5 = (lane << 3) | 8
+        instruction |= (3 << 22); // Set SS=11 for 64-bit
         instruction |= (((lane << 3) | 8) << 16);
         instruction |= (1 << 30); // Q=1 for 64-bit result
     }
@@ -1094,6 +1169,54 @@ Instruction VectorCodeGen::vecgen_umov(const std::string& rd, const std::string&
             asm_text = "umov x" + rd.substr(1) + ", " + vn + ".d[" + std::to_string(lane) + "]";
         }
     }
+    return Instruction(instruction, asm_text);
+}
+
+Instruction VectorCodeGen::vecgen_mov_element(const std::string& rd, const std::string& vn, int lane, const std::string& size) {
+    // MOV element (vector to general): 0Q001110SSiiiiii001111nnnnnddddd
+    // Reference opcodes: 0e043c14 (lane 0), 0e0c3c14 (lane 1)
+    uint32_t instruction = 0x0E003C00;
+    
+    int rd_num = parse_register_number(rd);
+    int vn_num = parse_register_number(vn);
+    
+    instruction |= (rd_num & 0x1F);
+    instruction |= ((vn_num & 0x1F) << 5);
+    
+    // Set lane index and size for MOV element
+    if (size == "S") {
+        // 32-bit elements: Reference shows lane 0 = 0x04, lane 1 = 0x0C
+        if (lane == 0) {
+            instruction |= (0x04 << 16);
+        } else if (lane == 1) {
+            instruction |= (0x0C << 16);
+        } else {
+            // Fallback pattern for other lanes
+            instruction |= (((lane << 2) | 4) << 16);
+        }
+        instruction |= (2 << 22); // size=10 for 32-bit
+    } else if (size == "H") {
+        // 16-bit elements: imm5 = (lane << 1) | 2
+        instruction |= (((lane << 1) | 2) << 16);
+        instruction |= (1 << 22); // size=01 for 16-bit
+    } else if (size == "B") {
+        // 8-bit elements: imm5 = (lane << 1) | 1
+        instruction |= (((lane << 1) | 1) << 16);
+        // size=00 for 8-bit (already 0)
+    }
+    
+    std::string asm_text;
+    std::string v_reg = (vn[0] == 'D') ? "v" + vn.substr(1) : vn;
+    std::string w_reg = "w" + rd.substr(1);
+    
+    if (size == "S") {
+        asm_text = "mov.s " + w_reg + ", " + v_reg + "[" + std::to_string(lane) + "]";
+    } else if (size == "H") {
+        asm_text = "mov.h " + w_reg + ", " + v_reg + "[" + std::to_string(lane) + "]";
+    } else if (size == "B") {
+        asm_text = "mov.b " + w_reg + ", " + v_reg + "[" + std::to_string(lane) + "]";
+    }
+    
     return Instruction(instruction, asm_text);
 }
 
@@ -1236,6 +1359,99 @@ std::string VectorCodeGen::qreg_to_vreg(const std::string& qreg) {
         return "V" + qreg.substr(1);
     }
     return qreg; // Already V register or other format
+}
+
+// FMOV operations for vector register transfers
+Instruction VectorCodeGen::vecgen_fmov_x_to_d(const std::string& dd, const std::string& xn) {
+    // FMOV Dd, Xn: 1001111001100000000000nnnnnddddd
+    uint32_t instruction = 0x9E660000;
+    
+    int dd_num = parse_register_number(dd);
+    int xn_num = parse_register_number(xn);
+    
+    instruction |= (dd_num & 0x1F);
+    instruction |= ((xn_num & 0x1F) << 5);
+    
+    std::string asm_text = "fmov " + dd + ", " + xn;
+    return Instruction(instruction, asm_text);
+}
+
+Instruction VectorCodeGen::vecgen_fmov_d_to_x(const std::string& xd, const std::string& dn) {
+    // FMOV Xd, Dn: 1001111001100001000000nnnnnddddd
+    uint32_t instruction = 0x9E670000;
+    
+    int xd_num = parse_register_number(xd);
+    int dn_num = parse_register_number(dn);
+    
+    instruction |= (xd_num & 0x1F);
+    instruction |= ((dn_num & 0x1F) << 5);
+    
+    std::string asm_text = "fmov " + xd + ", " + dn;
+    return Instruction(instruction, asm_text);
+}
+
+Instruction VectorCodeGen::vecgen_fmov_w_to_s(const std::string& sd, const std::string& wn) {
+    // FMOV Sd, Wn: 0001111000100010000000nnnnnddddd
+    uint32_t instruction = 0x1E220000;
+    
+    int sd_num = parse_register_number(sd);
+    int wn_num = parse_register_number(wn);
+    
+    instruction |= (sd_num & 0x1F);
+    instruction |= ((wn_num & 0x1F) << 5);
+    
+    std::string asm_text = "fmov " + sd + ", " + wn;
+    return Instruction(instruction, asm_text);
+}
+
+Instruction VectorCodeGen::vecgen_fmov_s_to_w(const std::string& wd, const std::string& sn) {
+    // FMOV Wd, Sn: 0001111000100110000000nnnnnddddd
+    uint32_t instruction = 0x1E260000;
+    
+    int wd_num = parse_register_number(wd);
+    int sn_num = parse_register_number(sn);
+    
+    instruction |= (wd_num & 0x1F);
+    instruction |= ((sn_num & 0x1F) << 5);
+    
+    std::string asm_text = "fmov " + wd + ", " + sn;
+    return Instruction(instruction, asm_text);
+}
+
+Instruction VectorCodeGen::vecgen_fmov_s_lane(const std::string& sd, const std::string& vn, int lane) {
+    // FMOV Sd, Vn.S[lane]: 0Q001110SS1iiiii001111nnnnnddddd
+    // For single lane extraction: Q=0, size=10 (32-bit), opc=11
+    uint32_t instruction = 0x0E043C00;
+    
+    int sd_num = parse_register_number(sd);
+    int vn_num = parse_register_number(vn);
+    
+    instruction |= (sd_num & 0x1F);
+    instruction |= ((vn_num & 0x1F) << 5);
+    
+    // Set lane index in imm5 field
+    if (lane == 0) {
+        instruction |= (0x04 << 16);  // imm5 = 00100
+    } else if (lane == 1) {
+        instruction |= (0x0C << 16);  // imm5 = 01100
+    }
+    
+    std::string asm_text = "fmov " + sd + ", " + vn + ".s[" + std::to_string(lane) + "]";
+    return Instruction(instruction, asm_text);
+}
+
+Instruction VectorCodeGen::vecgen_fcvt_s_to_d(const std::string& dd, const std::string& sn) {
+    // FCVT Dd, Sn: 0001111000100010110000nnnnnddddd
+    uint32_t instruction = 0x1E22C000;
+    
+    int dd_num = parse_register_number(dd);
+    int sn_num = parse_register_number(sn);
+    
+    instruction |= (dd_num & 0x1F);
+    instruction |= ((sn_num & 0x1F) << 5);
+    
+    std::string asm_text = "fcvt " + dd + ", " + sn;
+    return Instruction(instruction, asm_text);
 }
 
 int VectorCodeGen::parse_register_number(const std::string& reg) {

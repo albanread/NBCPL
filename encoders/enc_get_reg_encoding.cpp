@@ -55,7 +55,7 @@ uint32_t Encoder::get_reg_encoding(const std::string& reg_name) {
 
     try {
         // Handle different register types
-        if (prefix == 'd' || prefix == 'v') { // Added 'v' for vector registers
+        if (prefix == 'd' || prefix == 'v' || prefix == 's') { // Added 'v' for vector registers and 's' for single precision FP
             uint32_t reg_num = std::stoul(lower_reg.substr(1));
             if (reg_num > 31) {
                 throw std::out_of_range("FP/Vector register number " + std::to_string(reg_num) + 
@@ -71,7 +71,7 @@ uint32_t Encoder::get_reg_encoding(const std::string& reg_name) {
             return reg_num;
         } else {
             throw std::invalid_argument("Invalid register prefix in '" + reg_name + 
-                                     "'. Must be 'w', 'x', 'd', or 'v'.");
+                                     "'. Must be 'w', 'x', 'd', 'v', or 's'.");
         }
     } catch (const std::logic_error&) {
         throw std::invalid_argument("Invalid register format: " + reg_name);

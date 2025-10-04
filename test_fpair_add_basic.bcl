@@ -1,0 +1,15 @@
+LET START() BE $(
+    WRITEF("Testing basic FPAIR addition*N")
+
+    LET fp1 = FPAIR(1.5, 2.5)
+    LET fp2 = FPAIR(0.5, 1.0)
+
+    WRITEF1("fp1 = %P*N", fp1)
+    WRITEF1("fp2 = %P*N", fp2)
+
+    LET fp3 = fp1 + fp2
+    WRITEF1("fp1 + fp2 = %P*N", fp3)
+
+    WRITEF("Expected: (2.0, 3.5)*N")
+    WRITEF("Test complete*N")
+$)

@@ -1,0 +1,8 @@
+LET START() BE {
+    WRITEF("Testing PAIR addition...*N")
+    LET p1 = PAIR(10, 20)
+    LET p2 = PAIR(5, 15)
+    LET result = p1 + p2
+    WRITEF("Result: (%N, %N)*N", result.|0|, result.|1|)
+    WRITEF("Expected: (15, 35)*N")
+}

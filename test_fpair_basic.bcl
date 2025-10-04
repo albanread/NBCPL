@@ -1,0 +1,8 @@
+LET START() BE $(
+    WRITEF("Testing basic FPAIR functionality*N")
+
+    LET fp1 = FPAIR(1.5, 2.5)
+    WRITEF1("Created fp1 = %P*N", fp1)
+
+    WRITEF("Test complete*N")
+$)

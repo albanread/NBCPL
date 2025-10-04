@@ -1,0 +1,33 @@
+LET START() BE {
+    WRITEF("Testing FPAIR bit patterns and debugging*N")
+
+    // Test simple values first
+    WRITEF("Test 1: Simple float values*N")
+    LET f1 = FPAIR(1.0, 2.0)
+    WRITEF("f1 created with (1.0, 2.0)*N")
+    WRITEF("f1 lane 0 = %F*N", f1.|0|)
+    WRITEF("f1 lane 1 = %F*N", f1.|1|)
+
+    // Test with our original values
+    WRITEF("Test 2: Original test values*N")
+    LET f2 = FPAIR(10.0, 20.0)
+    WRITEF("f2 created with (10.0, 20.0)*N")
+    WRITEF("f2 lane 0 = %F*N", f2.|0|)
+    WRITEF("f2 lane 1 = %F*N", f2.|1|)
+
+    // Test with different values
+    WRITEF("Test 3: Different values*N")
+    LET f3 = FPAIR(3.14159, 2.71828)
+    WRITEF("f3 created with (3.14159, 2.71828)*N")
+    WRITEF("f3 lane 0 = %F*N", f3.|0|)
+    WRITEF("f3 lane 1 = %F*N", f3.|1|)
+
+    // Test negative values
+    WRITEF("Test 4: Negative values*N")
+    LET f4 = FPAIR(-1.0, -2.0)
+    WRITEF("f4 created with (-1.0, -2.0)*N")
+    WRITEF("f4 lane 0 = %F*N", f4.|0|)
+    WRITEF("f4 lane 1 = %F*N", f4.|1|)
+
+    WRITEF("End of debugging test*N")
+}

@@ -533,20 +533,13 @@ void NewCodeGenerator::visit(SuperMethodAccessExpression& node) {
 void NewCodeGenerator::visit(BinaryOp& node) {
     debug_print("Visiting BinaryOp node.");
 
-    // Check for SIMD vector operations first (OCT, FOCT)
+    // Check for all vector operations (PAIR, FPAIR, QUAD, OCT, FOCT)
     VarType left_type = infer_expression_type_local(node.left.get());
     VarType right_type = infer_expression_type_local(node.right.get());
     
     if (vector_codegen_ && VectorCodeGen::isSimdOperation(left_type, right_type)) {
-        debug_print("Detected SIMD vector operation - using VectorCodeGen");
+        debug_print("Detected vector operation - routing to VectorCodeGen");
         vector_codegen_->generateSimdBinaryOp(node, use_neon_);
-        return;
-    }
-
-    // Check for vector PAIR operations first
-    if (is_vector_pair_operation(node)) {
-        debug_print("Detected vector PAIR operation - using NEON acceleration");
-        generate_neon_vector_pair_operation(node);
         return;
     }
 

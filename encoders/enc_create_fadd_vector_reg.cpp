@@ -10,12 +10,15 @@ Instruction Encoder::create_fadd_vector_reg(const std::string& vd, const std::st
     uint32_t encoding = 0x4E208400 | (rm << 16) | (rn << 5) | rd;
 
     // Set the size bits based on the arrangement
-    if (arrangement == "4S") {
-        // size bits (22, 23) = 01 for single-precision
-        encoding |= (0b01 << 22);
+    if (arrangement == "4S" || arrangement == "2S") {
+        // size bits (22, 23) = 00 for single-precision, Q bit determines 2S vs 4S
+        encoding &= ~(0b11 << 22); // Clear size bits (set to 00)
+        if (arrangement == "2S") {
+            encoding &= ~(1 << 30); // Clear Q bit for 64-bit operation
+        }
     } else if (arrangement == "2D") {
-        // size bits (22, 23) = 10 for double-precision
-        encoding |= (0b10 << 22);
+        // size bits (22, 23) = 01 for double-precision
+        encoding |= (0b01 << 22);
     } else {
         throw std::runtime_error("Unsupported arrangement for FADD: " + arrangement);
     }

@@ -1,0 +1,79 @@
+
+test_fpair_lanes_basic.o:	file format mach-o arm64
+
+Disassembly of section __TEXT,__text:
+
+0000000000000000 <ltmp0>:
+       0: 14000001     	b	0x4 <ltmp0+0x4>
+       4: a9ba7bfd     	stp	x29, x30, [sp, #-0x60]!
+       8: 910003fd     	mov	x29, sp
+       c: fd0017ae     	str	d14, [x29, #0x28]
+      10: fd001baf     	str	d15, [x29, #0x30]
+      14: a903d3b3     	stp	x19, x20, [x29, #0x38]
+      18: a904efb5     	stp	x21, x27, [x29, #0x48]
+      1c: f9002fbc     	str	x28, [x29, #0x58]
+      20: 9000001c     	adrp	x28, 0x0 <ltmp0>
+      24: 9100039c     	add	x28, x28, #0x0
+      28: 90000009     	adrp	x9, 0x0 <ltmp0>
+      2c: 91000129     	add	x9, x9, #0x0
+      30: 91002129     	add	x9, x9, #0x8
+      34: aa0903e0     	mov	x0, x9
+      38: 94000000     	bl	0x38 <ltmp0+0x38>
+      3c: d2800009     	mov	x9, #0x0                ; =0
+      40: 9000000b     	adrp	x11, 0x0 <ltmp0>
+      44: 9100016b     	add	x11, x11, #0x0
+      48: fd400160     	ldr	d0, [x11]
+      4c: 1e624001     	fcvt	s1, d0
+      50: 1e26002b     	fmov	w11, s1
+      54: b3407d69     	bfxil	x9, x11, #0, #32
+      58: 9000000c     	adrp	x12, 0x0 <ltmp0>
+      5c: 9100018c     	add	x12, x12, #0x0
+      60: fd400180     	ldr	d0, [x12]
+      64: 1e624001     	fcvt	s1, d0
+      68: 1e26002c     	fmov	w12, s1
+      6c: b3607d89     	bfi	x9, x12, #32, #32
+      70: aa0903fb     	mov	x27, x9
+      74: 90000009     	adrp	x9, 0x0 <ltmp0>
+      78: 91000129     	add	x9, x9, #0x0
+      7c: 91002129     	add	x9, x9, #0x8
+      80: aa0903e0     	mov	x0, x9
+      84: aa1b03e1     	mov	x1, x27
+      88: 94000000     	bl	0x88 <ltmp0+0x88>
+      8c: 9e670361     	fmov	d1, x27
+      90: 0e043c34     	mov.s	w20, v1[0]
+      94: 9e670280     	fmov	d0, x20
+      98: 1e60400f     	fmov	d15, d0
+      9c: 1e60400f     	fmov	d15, d0
+      a0: 9e670361     	fmov	d1, x27
+      a4: 0e0c3c34     	mov.s	w20, v1[1]
+      a8: 9e670280     	fmov	d0, x20
+      ac: 1e60400e     	fmov	d14, d0
+      b0: 1e60400e     	fmov	d14, d0
+      b4: 90000009     	adrp	x9, 0x0 <ltmp0>
+      b8: 91000129     	add	x9, x9, #0x0
+      bc: 91002129     	add	x9, x9, #0x8
+      c0: aa0903e0     	mov	x0, x9
+      c4: 1e6041e0     	fmov	d0, d15
+      c8: 1e6041c1     	fmov	d1, d14
+      cc: 94000000     	bl	0xcc <ltmp0+0xcc>
+      d0: 90000009     	adrp	x9, 0x0 <ltmp0>
+      d4: 91000129     	add	x9, x9, #0x0
+      d8: 91002129     	add	x9, x9, #0x8
+      dc: aa0903e0     	mov	x0, x9
+      e0: 94000000     	bl	0xe0 <ltmp0+0xe0>
+      e4: 90000009     	adrp	x9, 0x0 <ltmp0>
+      e8: 91000129     	add	x9, x9, #0x0
+      ec: 91002129     	add	x9, x9, #0x8
+      f0: aa0903e0     	mov	x0, x9
+      f4: 94000000     	bl	0xf4 <ltmp0+0xf4>
+      f8: 14000001     	b	0xfc <ltmp0+0xfc>
+      fc: 14000001     	b	0x100 <ltmp0+0x100>
+     100: fd4017ae     	ldr	d14, [x29, #0x28]
+     104: fd401baf     	ldr	d15, [x29, #0x30]
+     108: a943d3b3     	ldp	x19, x20, [x29, #0x38]
+     10c: a944efb5     	ldp	x21, x27, [x29, #0x48]
+     110: f9402fbc     	ldr	x28, [x29, #0x58]
+     114: 910003bf     	mov	sp, x29
+     118: a9407bfd     	ldp	x29, x30, [sp]
+     11c: 910043ff     	add	sp, sp, #0x10
+     120: d65f03c0     	ret

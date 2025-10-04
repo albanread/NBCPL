@@ -1,0 +1,19 @@
+// Minimal test for QUAD binary operations routing
+// Tests that QUAD operations are routed through VectorCodeGen
+
+LET START() BE {
+    WRITEF("Testing QUAD binary operations routing...*N")
+
+    // Create two simple QUAD vectors
+    LET q1 = QUAD(1, 2, 3, 4)
+    LET q2 = QUAD(10, 20, 30, 40)
+
+    // Test addition - this should go through VectorCodeGen now
+    LET q_add = q1 + q2
+    WRITEF("QUAD addition: q1 + q2 = (%N, %N, %N, %N)*N",
+           q_add.|0|, q_add.|1|, q_add.|2|, q_add.|3|)
+
+    WRITEF("Expected: (11, 22, 33, 44)*N")
+
+    WRITEF("Test completed.*N")
+}

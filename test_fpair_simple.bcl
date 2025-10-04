@@ -1,0 +1,22 @@
+LET START() BE {
+    WRITEF("Testing FPAIR simple operations*N")
+
+    // Test 1: Create FPAIR and read values back immediately
+    WRITEF("Test 1: Basic FPAIR creation and reading*N")
+    LET f1 = FPAIR(10.0, 20.0)
+    WRITEF("f1 lane 0 = %F*N", f1.|0|)
+    WRITEF("f1 lane 1 = %F*N", f1.|1|)
+
+    // Test 2: Create another FPAIR
+    WRITEF("Test 2: Second FPAIR*N")
+    LET f2 = FPAIR(5.0, 15.0)
+    WRITEF("f2 lane 0 = %F*N", f2.|0|)
+    WRITEF("f2 lane 1 = %F*N", f2.|1|)
+
+    // Test 3: Try addition
+    WRITEF("Test 3: Addition*N")
+    LET result = f1 + f2
+    WRITEF("result lane 0 = %F*N", result.|0|)
+    WRITEF("result lane 1 = %F*N", result.|1|)
+    WRITEF("Expected: 15.0 and 35.0*N")
+}

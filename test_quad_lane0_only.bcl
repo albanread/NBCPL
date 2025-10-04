@@ -1,0 +1,13 @@
+LET START() BE $(
+    WRITEF("Testing QUAD lane 0 only*N")
+
+    LET q1 = QUAD(10, 20, 30, 40)
+    WRITEF1("q1 = %X*N", q1)
+
+    LET lane0 = q1.|0|
+    WRITEF1("q1.|0| = %N*N", lane0)
+    WRITEF1("q1.|0| hex = %X*N", lane0)
+
+    WRITEF("Expected: 10 (0x000A)*N")
+    WRITEF("Test complete*N")
+$)

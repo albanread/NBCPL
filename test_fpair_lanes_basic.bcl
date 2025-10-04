@@ -1,0 +1,14 @@
+LET START() BE $(
+    WRITEF("Testing basic FPAIR lane access*N")
+
+    LET fp1 = FPAIR(1.5, 2.5)
+    WRITEF1("fp1 = %P*N", fp1)
+
+    // Test reading lanes
+    LET first = fp1.|0|
+    LET second = fp1.|1|
+    WRITEF2("fp1.|0| = %N, fp1.|1| = %N*N", first, second)
+
+    WRITEF("Expected: fp1.|0| = 1.5, fp1.|1| = 2.5*N")
+    WRITEF("Test complete*N")
+$)

@@ -1,0 +1,24 @@
+// Test PAIR value reading without operations
+// This isolates whether the issue is in creation, reading, or arithmetic
+
+LET START() BE {
+    WRITEF("Testing PAIR value creation and reading...*N")
+
+    // Create a simple PAIR vector
+    LET p1 = PAIR(10, 20)
+    WRITEF("Created p1 = PAIR(10, 20)*N")
+
+    // Read individual lanes
+    LET lane0 = p1.|0|
+    LET lane1 = p1.|1|
+    WRITEF("Lane reads: p1.|0| = %N, p1.|1| = %N*N", lane0, lane1)
+
+    // Create another PAIR
+    LET p2 = PAIR(5, 15)
+    WRITEF("Created p2 = PAIR(5, 15)*N")
+    WRITEF("Lane reads: p2.|0| = %N, p2.|1| = %N*N", p2.|0|, p2.|1|)
+
+    // Test expected results
+    WRITEF("Expected: p1 lanes (10, 20), p2 lanes (5, 15)*N")
+    WRITEF("Test completed.*N")
+}

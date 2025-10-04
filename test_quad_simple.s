@@ -178,16 +178,16 @@ L_START_Entry_0:
     ADD X9, X9, #8
     MOV X0, X9
     BL _WRITEF
-    FMOV D0, X23
+    fmov D0, X23
     umov w20, v0.h[0]
     MOV X27, X20
-    FMOV D0, X23
+    fmov D0, X23
     umov w20, v0.h[1]
     MOV X26, X20
-    FMOV D0, X23
+    fmov D0, X23
     umov w20, v0.h[2]
     MOV X25, X20
-    FMOV D0, X23
+    fmov D0, X23
     umov w20, v0.h[3]
     MOV X24, X20
     ADRP X9, L_str4@PAGE
@@ -216,24 +216,24 @@ L_START_Entry_0:
     BL _WRITEF1
     MOVZ X9, #111
     MOVZ X10, #111
-    FMOV D0, X21
+    fmov D0, X21
     ins v0.h[0], w10
-    FMOV X21, D0
+    fmov X21, D0
     MOVZ X10, #222
     MOVZ X11, #222
-    FMOV D0, X21
+    fmov D0, X21
     ins v0.h[1], w11
-    FMOV X21, D0
+    fmov X21, D0
     MOVZ X11, #333
     MOVZ X12, #333
-    FMOV D0, X21
+    fmov D0, X21
     ins v0.h[2], w12
-    FMOV X21, D0
+    fmov X21, D0
     MOVZ X12, #444
     MOVZ X13, #444
-    FMOV D0, X21
+    fmov D0, X21
     ins v0.h[3], w13
-    FMOV X21, D0
+    fmov X21, D0
     ADRP X13, L_str7@PAGE
     ADD X13, X13, L_str7@PAGEOFF
     ADD X13, X13, #8

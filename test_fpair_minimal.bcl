@@ -1,0 +1,5 @@
+LET START() BE {
+    WRITEF("Minimal FPAIR test*N")
+    LET f1 = FPAIR(1.0, 2.0)
+    WRITEF("Created FPAIR*N")
+}

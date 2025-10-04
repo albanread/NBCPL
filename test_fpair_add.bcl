@@ -1,0 +1,8 @@
+LET START() BE {
+    WRITEF("Testing FPAIR addition...*N")
+    LET f1 = FPAIR(10.0, 20.0)
+    LET f2 = FPAIR(5.0, 15.0)
+    LET result = f1 + f2
+    WRITEF("Result: (%F, %F)*N", result.|0|, result.|1|)
+    WRITEF("Expected: (15.0, 35.0)*N")
+}
