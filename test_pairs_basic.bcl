@@ -1,0 +1,33 @@
+LET START() BE
+{
+    WRITEF("Testing basic PAIRS allocation*N")
+
+    // Test 1: Simple PAIRS allocation
+    LET pairs_vector = PAIRS 5
+    WRITEF("Allocated PAIRS vector of size 5*N")
+
+    // Test 2: Check if allocation returned non-null pointer
+    IF pairs_vector = 0 THEN
+    {
+        WRITEF("ERROR: PAIRS allocation returned null pointer*N")
+        RETURN
+    }
+
+    WRITEF("PAIRS allocation successful - base address: 0x%X*N", pairs_vector)
+
+    // Test 3: Try to store some PAIR values manually
+    // Each PAIR is 8 bytes (2 words), so pair[0] is at offset 0, pair[1] at offset 8, etc.
+    pairs_vector!0 := 10  // First element of first PAIR
+    pairs_vector!1 := 20  // Second element of first PAIR
+    pairs_vector!2 := 30  // First element of second PAIR
+    pairs_vector!3 := 40  // Second element of second PAIR
+
+    WRITEF("Stored test values in PAIRS vector*N")
+
+    // Test 4: Read back the values
+    WRITEF("pair[0] = (%N, %N)*N", pairs_vector!0, pairs_vector!1)
+    WRITEF("pair[1] = (%N, %N)*N", pairs_vector!2, pairs_vector!3)
+
+    WRITEF("Expected: (10, 20) and (30, 40)*N")
+    WRITEF("PAIRS basic allocation test complete*N")
+}

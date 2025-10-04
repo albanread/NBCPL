@@ -74,7 +74,7 @@ public:
         QuadExpr, QuadAccessExpr, // New: For quad(a,b,c,d) and q.first/q.second/q.third/q.fourth
         OctExpr, FOctExpr, // New: For oct(...) and foct(...) 8-lane vectors
         LaneAccessExpr, // New: For vector.|n| lane access
-        ConditionalExpr, ValofExpr, FloatValofExpr, VecAllocationExpr, FVecAllocationExpr, StringAllocationExpr, TableExpr,
+        ConditionalExpr, ValofExpr, FloatValofExpr, VecAllocationExpr, FVecAllocationExpr, PairsAllocationExpr, StringAllocationExpr, TableExpr,
         VecInitializerExpr, // Add this new type
         AssignmentStmt, RoutineCallStmt, IfStmt, UnlessStmt, TestStmt, WhileStmt, UntilStmt,
         RepeatStmt, ForStmt, ForEachStmt, SwitchonStmt, GotoStmt, ReturnStmt, FinishStmt, BreakStmt,
@@ -671,6 +671,17 @@ public:
     bool is_empty; // Flag for empty collection optimization
     TableExpression(std::vector<ExprPtr> initializers, bool is_float_table = false)
         : Expression(NodeType::TableExpr), initializers(std::move(initializers)), is_float_table(is_float_table), is_empty(this->initializers.empty()) {}
+    void accept(ASTVisitor& visitor) override;
+    ASTNodePtr clone() const override;
+};
+
+class PairsAllocationExpression : public Expression {
+public:
+    ExprPtr size_expr;
+    std::string variable_name; // Name of the variable being allocated
+    PairsAllocationExpression(ExprPtr size_expr)
+        : Expression(NodeType::PairsAllocationExpr), size_expr(std::move(size_expr)), variable_name("") {}
+    
     void accept(ASTVisitor& visitor) override;
     ASTNodePtr clone() const override;
 };

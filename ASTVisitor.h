@@ -104,6 +104,7 @@ public:
     virtual void visit(VecAllocationExpression& node) {}
     virtual void visit(VecInitializerExpression& node) {}
     virtual void visit(FVecAllocationExpression& node) {}
+    virtual void visit(PairsAllocationExpression& node) {}
     virtual void visit(StringAllocationExpression& node) {}
     virtual void visit(TableExpression& node) {}
     virtual void visit(ListExpression& node) {}

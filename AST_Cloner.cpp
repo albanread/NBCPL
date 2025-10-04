@@ -192,6 +192,10 @@ ASTNodePtr FVecAllocationExpression::clone() const {
     return std::make_unique<FVecAllocationExpression>(clone_unique_ptr(size_expr));
 }
 
+ASTNodePtr PairsAllocationExpression::clone() const {
+    return std::make_unique<PairsAllocationExpression>(clone_unique_ptr(size_expr));
+}
+
 ASTNodePtr StringAllocationExpression::clone() const {
     return std::make_unique<StringAllocationExpression>(clone_unique_ptr(size_expr));
 }

@@ -1,0 +1,67 @@
+LET START() BE
+{
+    WRITEF("Testing PAIRS vector operations - showing need for SIMD*N")
+
+    // Test 1: Allocate three PAIRS vectors
+    LET size = 10
+    LET points = PAIRS size
+    LET offset = PAIRS size
+    LET result = PAIRS size
+
+    WRITEF("Allocated 3 PAIRS vectors of size %N*N", size)
+
+    // Test 2: Initialize the input vectors with test data
+    FOR i = 0 TO size-1 DO
+    {
+        // Each PAIR is at offset i*2 words
+        LET base_points = i * 2
+        LET base_offset = i * 2
+
+        points!(base_points + 0) := i * 10      // x coordinate
+        points!(base_points + 1) := i * 20      // y coordinate
+
+        offset!(base_offset + 0) := i * 5       // x offset
+        offset!(base_offset + 1) := i * 3       // y offset
+    }
+
+    WRITEF("Initialized input vectors*N")
+
+    // Test 3: Current scalar loop - this is what we want to SIMD-ize!
+    WRITEF("Performing scalar PAIR addition...*N")
+
+    FOR i = 0 TO size-1 DO
+    {
+        LET base_idx = i * 2
+
+        // Scalar addition of each PAIR element
+        result!(base_idx + 0) := points!(base_idx + 0) + offset!(base_idx + 0)
+        result!(base_idx + 1) := points!(base_idx + 1) + offset!(base_idx + 1)
+    }
+
+    WRITEF("Scalar addition complete*N")
+
+    // Test 4: Verify results
+    WRITEF("Results (first 5 PAIRs):*N")
+    FOR i = 0 TO 4 DO
+    {
+        LET base = i * 2
+        LET points_x = points!(base + 0)
+        LET points_y = points!(base + 1)
+        LET offset_x = offset!(base + 0)
+        LET offset_y = offset!(base + 1)
+        LET result_x = result!(base + 0)
+        LET result_y = result!(base + 1)
+
+        WRITEF("PAIR[%N]: (%N,%N) + (%N,%N) = (%N,%N)*N",
+               i, points_x, points_y, offset_x, offset_y, result_x, result_y)
+    }
+
+    // Test 5: Performance analysis
+    WRITEF("*NPerformance Analysis:*N")
+    WRITEF("- Current: %N scalar additions (%N operations)*N", size, size * 2)
+    WRITEF("- With 128-bit SIMD: %N NEON operations (4x faster)*N", size / 2)
+    WRITEF("- Potential speedup: 4.0x*N")
+
+    WRITEF("*NThis is exactly what we need 128-bit SIMD for!*N")
+    WRITEF("Each NEON ADD V0.4S, V0.4S, V1.4S processes 2 PAIRs at once*N")
+}

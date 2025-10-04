@@ -195,6 +195,12 @@ void ExternalFunctionScanner::visit(FVecAllocationExpression& node) {
     if (node.size_expr) node.size_expr->accept(*this);
 }
 
+void ExternalFunctionScanner::visit(PairsAllocationExpression& node) {
+    // PAIRS vector allocation uses existing GETVEC runtime function
+    external_functions_.insert("GETVEC");
+    if (node.size_expr) node.size_expr->accept(*this);
+}
+
 void ExternalFunctionScanner::visit(TableExpression& node) {
     for (auto& init : node.initializers) {
         if (init) init->accept(*this);

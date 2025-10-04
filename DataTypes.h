@@ -30,6 +30,7 @@ enum class VarType : int64_t {
     QUAD         = 1 << 6, // 64
     OCT          = 1 << 7, // 128
     FOCT         = 1 << 8, // 256
+    PAIRS        = 1 << 9, // 512 - Vector of PAIRs
     
     // Container types (higher bits, higher priority)
     VEC          = 1 << 10, // 1024
@@ -58,6 +59,7 @@ enum class VarType : int64_t {
     // --- Legacy/compatibility composite types ---
     POINTER_TO_INT_VEC      = POINTER_TO | VEC | INTEGER,
     POINTER_TO_FLOAT_VEC    = POINTER_TO | VEC | FLOAT,
+    POINTER_TO_PAIRS        = POINTER_TO | PAIRS,
     POINTER_TO_STRING       = POINTER_TO | STRING,
     POINTER_TO_TABLE        = POINTER_TO | TABLE,
     POINTER_TO_FLOAT        = POINTER_TO | FLOAT,
@@ -111,6 +113,7 @@ inline std::string vartype_to_string(VarType t) {
     if (v & static_cast<int64_t>(VarType::QUAD)) result += "QUAD|";
     if (v & static_cast<int64_t>(VarType::OCT)) result += "OCT|";
     if (v & static_cast<int64_t>(VarType::FOCT)) result += "FOCT|";
+    if (v & static_cast<int64_t>(VarType::PAIRS)) result += "PAIRS|";
     if (v & static_cast<int64_t>(VarType::NOTUSED)) result += "NOTUSED|";
 
     // Remove trailing '|'

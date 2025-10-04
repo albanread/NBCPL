@@ -54,6 +54,7 @@ ACCEPT_METHOD_IMPL(ValofExpression)
 ACCEPT_METHOD_IMPL(FloatValofExpression)
 ACCEPT_METHOD_IMPL(VecAllocationExpression)
 ACCEPT_METHOD_IMPL(FVecAllocationExpression)
+ACCEPT_METHOD_IMPL(PairsAllocationExpression)
 ACCEPT_METHOD_IMPL(StringAllocationExpression)
 ACCEPT_METHOD_IMPL(TableExpression)
 ACCEPT_METHOD_IMPL(ListExpression)
@@ -396,6 +397,10 @@ ASTNodePtr VecAllocationExpression::clone() const {
 
 ASTNodePtr FVecAllocationExpression::clone() const {
     return std::make_unique<FVecAllocationExpression>(clone_unique_ptr(size_expr));
+}
+
+ASTNodePtr PairsAllocationExpression::clone() const {
+    return std::make_unique<PairsAllocationExpression>(clone_unique_ptr(size_expr));
 }
 
 ASTNodePtr StringAllocationExpression::clone() const {
@@ -1547,6 +1552,10 @@ void BoundsCheckingPass::visit(VecAllocationExpression& node) {
 }
 
 void BoundsCheckingPass::visit(FVecAllocationExpression& node) {
+    if (node.size_expr) node.size_expr->accept(*this);
+}
+
+void BoundsCheckingPass::visit(PairsAllocationExpression& node) {
     if (node.size_expr) node.size_expr->accept(*this);
 }
 
@@ -5580,6 +5589,7 @@ std::string to_string(ASTNode::NodeType type) {
         case ASTNode::NodeType::FloatValofExpr: return "FloatValofExpr";
         case ASTNode::NodeType::VecAllocationExpr: return "VecAllocationExpr";
         case ASTNode::NodeType::FVecAllocationExpr: return "FVecAllocationExpr";
+        case ASTNode::NodeType::PairsAllocationExpr: return "PairsAllocationExpr";
         case ASTNode::NodeType::StringAllocationExpr: return "StringAllocationExpr";
         case ASTNode::NodeType::TableExpr: return "TableExpr";
         case ASTNode::NodeType::VecInitializerExpr: return "VecInitializerExpr";
@@ -8058,6 +8068,12 @@ void ExternalFunctionScanner::visit(StringAllocationExpression& node) {
 void ExternalFunctionScanner::visit(FVecAllocationExpression& node) {
     // Float vector allocation requires FGETVEC runtime function
     external_functions_.insert("FGETVEC");
+    if (node.size_expr) node.size_expr->accept(*this);
+}
+
+void ExternalFunctionScanner::visit(PairsAllocationExpression& node) {
+    // PAIRS vector allocation uses existing GETVEC runtime function
+    external_functions_.insert("GETVEC");
     if (node.size_expr) node.size_expr->accept(*this);
 }
 
@@ -10626,6 +10642,7 @@ const std::unordered_map<std::string, TokenType> Lexer::keywords_ = {
     {"FVEC", TokenType::FVec}, // Added FVEC as a keyword
     {"PAIR", TokenType::Pair}, // Added PAIR as a keyword
     {"FPAIR", TokenType::FPair}, // Added FPAIR as a keyword
+    {"PAIRS", TokenType::Pairs}, // Added PAIRS as a keyword
     {"QUAD", TokenType::Quad}, // Added QUAD as a keyword
     {"OCT", TokenType::Oct}, // Added OCT as a keyword
     {"FOCT", TokenType::FOct}, // Added FOCT as a keyword
@@ -26896,6 +26913,7 @@ VarType ASTAnalyzer::infer_expression_type(const Expression* expr) const {
                 
             case ASTNode::NodeType::VecAllocationExpr:
             case ASTNode::NodeType::FVecAllocationExpr:
+            case ASTNode::NodeType::PairsAllocationExpr:
             case ASTNode::NodeType::StringAllocationExpr:
                 return infer_allocation_type(expr);
                 
@@ -27510,6 +27528,10 @@ VarType ASTAnalyzer::infer_allocation_type(const Expression* expr) const {
     
     if (dynamic_cast<const FVecAllocationExpression*>(expr)) {
         return VarType::POINTER_TO_FLOAT_VEC;
+    }
+    
+    if (dynamic_cast<const PairsAllocationExpression*>(expr)) {
+        return VarType::POINTER_TO_PAIRS;
     }
     
     if (dynamic_cast<const StringAllocationExpression*>(expr)) {
@@ -44379,6 +44401,45 @@ void NewCodeGenerator::visit(PairExpression& node) {
 }
 // -- end of file
 
+// -- start of file: generators/gen_PairsAllocationExpression.cpp
+#include "NewCodeGenerator.h"
+
+void NewCodeGenerator::visit(PairsAllocationExpression& node) {
+    debug_print("Visiting PairsAllocationExpression node.");
+    // `PAIRS size_expr`
+    // This allocates a vector (array) of PAIR words on the heap and returns its address.
+    // Each PAIR is 8 bytes (2 x 32-bit integers), so we need size_expr * 2 words.
+    // This uses the existing GETVEC runtime function.
+
+    // 1. Evaluate the size_expr (number of PAIRs).
+    generate_expression_code(*node.size_expr);
+    std::string size_pairs_reg = expression_result_reg_; // Register holding the number of PAIRs
+
+    // 2. Calculate total words needed: size_pairs * 2 (each PAIR = 2 words)
+    std::string total_words_reg = register_manager_.acquire_spillable_temp_reg(*this);
+    emit(Encoder::create_lsl_imm(total_words_reg, size_pairs_reg, 1)); // total_words = size_pairs << 1
+    
+    // 3. Move the total number of words to X0 (GETVEC expects word count in X0).
+    if (total_words_reg != "X0") {
+        emit(Encoder::create_mov_reg("X0", total_words_reg));
+        register_manager_.release_register(total_words_reg);
+    }
+
+    // 4. Call the GETVEC runtime function.
+    // GETVEC allocates memory and returns the base address in X0.
+    emit(Encoder::create_branch_with_link("GETVEC"));
+
+    // 5. The result (base address of the allocated PAIRS vector) is now in X0.
+    std::string result_reg = register_manager_.acquire_spillable_temp_reg(*this);
+    if (result_reg != "X0") {
+        emit(Encoder::create_mov_reg(result_reg, "X0"));
+    }
+
+    expression_result_reg_ = result_reg;
+    debug_print("Finished visiting PairsAllocationExpression node. Result in " + expression_result_reg_);
+}
+// -- end of file
+
 // -- start of file: generators/gen_Program.cpp
 #include "NewCodeGenerator.h"
 #include "AST.h"
@@ -53098,6 +53159,9 @@ ExprPtr Parser::parse_primary_expression() {
     }
     if (match(TokenType::FVec)) {
         return std::make_unique<FVecAllocationExpression>(parse_expression());
+    }
+    if (match(TokenType::Pairs)) {
+        return std::make_unique<PairsAllocationExpression>(parse_expression());
     }
     if (match(TokenType::String)) {
         return std::make_unique<StringAllocationExpression>(parse_expression());

@@ -748,6 +748,7 @@ VarType ASTAnalyzer::infer_expression_type(const Expression* expr) const {
                 
             case ASTNode::NodeType::VecAllocationExpr:
             case ASTNode::NodeType::FVecAllocationExpr:
+            case ASTNode::NodeType::PairsAllocationExpr:
             case ASTNode::NodeType::StringAllocationExpr:
                 return infer_allocation_type(expr);
                 
@@ -1362,6 +1363,10 @@ VarType ASTAnalyzer::infer_allocation_type(const Expression* expr) const {
     
     if (dynamic_cast<const FVecAllocationExpression*>(expr)) {
         return VarType::POINTER_TO_FLOAT_VEC;
+    }
+    
+    if (dynamic_cast<const PairsAllocationExpression*>(expr)) {
+        return VarType::POINTER_TO_PAIRS;
     }
     
     if (dynamic_cast<const StringAllocationExpression*>(expr)) {

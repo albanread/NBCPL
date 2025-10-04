@@ -362,6 +362,10 @@ void BoundsCheckingPass::visit(FVecAllocationExpression& node) {
     if (node.size_expr) node.size_expr->accept(*this);
 }
 
+void BoundsCheckingPass::visit(PairsAllocationExpression& node) {
+    if (node.size_expr) node.size_expr->accept(*this);
+}
+
 void BoundsCheckingPass::visit(StringAllocationExpression& node) {
     if (node.size_expr) node.size_expr->accept(*this);
 }

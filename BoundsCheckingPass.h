@@ -128,6 +128,7 @@ public:
     void visit(SuperMethodCallExpression& node) override {}
     void visit(BitfieldAccessExpression& node) override {}
     void visit(FVecAllocationExpression& node) override;
+    void visit(PairsAllocationExpression& node) override;
     void visit(StringAllocationExpression& node) override;
     void visit(VecInitializerExpression& node) override;
     void visit(TableExpression& node) override;

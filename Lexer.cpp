@@ -10,6 +10,7 @@ const std::unordered_map<std::string, TokenType> Lexer::keywords_ = {
     {"FVEC", TokenType::FVec}, // Added FVEC as a keyword
     {"PAIR", TokenType::Pair}, // Added PAIR as a keyword
     {"FPAIR", TokenType::FPair}, // Added FPAIR as a keyword
+    {"PAIRS", TokenType::Pairs}, // Added PAIRS as a keyword
     {"QUAD", TokenType::Quad}, // Added QUAD as a keyword
     {"OCT", TokenType::Oct}, // Added OCT as a keyword
     {"FOCT", TokenType::FOct}, // Added FOCT as a keyword
