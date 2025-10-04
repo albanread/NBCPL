@@ -206,6 +206,16 @@ private:
     // Short-circuit evaluation methods
     void generate_short_circuit_and(BinaryOp& node);
     void generate_short_circuit_or(BinaryOp& node);
+    
+    // NEON SIMD methods for vector PAIR operations
+    bool is_vector_pair_operation(const BinaryOp& node);
+    void generate_neon_vector_pair_operation(BinaryOp& node);
+    void generate_simple_pair_loop(const std::string& left_addr,
+                                   const std::string& right_addr,
+                                   const std::string& result_addr,
+                                   size_t vector_size,
+                                   BinaryOp::Operator op);
+    size_t get_vector_size(ExprPtr& expr);
     void visit(VecAllocationExpression& node) override;
     void visit(VecInitializerExpression& node) override;
     void visit(FVecAllocationExpression& node) override;

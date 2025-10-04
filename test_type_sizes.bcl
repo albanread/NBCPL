@@ -1,0 +1,48 @@
+LET START() BE $(
+    WRITEF("Testing data type sizes*N")
+
+    // Test PAIR (should be 8 bytes: 2 × 32-bit integers)
+    LET p = PAIR(100, 200)
+    WRITEF1("PAIR p = %P*N", p)
+
+    // Test FPAIR (should be 8 bytes: 2 × 32-bit floats)
+    LET fp = FPAIR(3.14, 2.71)
+    WRITEF1("FPAIR fp = %FP*N", fp)
+
+    // Test QUAD (should be 8 bytes: 4 × 16-bit values)
+    LET q = QUAD(10, 20, 30, 40)
+    WRITEF1("QUAD q = %Q*N", q)
+
+    // Test vector allocation for each type
+    LET pairs_vec = PAIRS 3
+    LET fpairs_vec = FPAIRS 3
+    LET quads_vec = QUADS 3
+
+    // Fill the vectors
+    pairs_vec!0 := PAIR(1, 2)
+    pairs_vec!1 := PAIR(3, 4)
+    pairs_vec!2 := PAIR(5, 6)
+
+    fpairs_vec!0 := FPAIR(1.1, 2.2)
+    fpairs_vec!1 := FPAIR(3.3, 4.4)
+    fpairs_vec!2 := FPAIR(5.5, 6.6)
+
+    quads_vec!0 := QUAD(1, 2, 3, 4)
+    quads_vec!1 := QUAD(5, 6, 7, 8)
+    quads_vec!2 := QUAD(9, 10, 11, 12)
+
+    // Print the vectors
+    WRITEF("PAIRS vector:*N")
+    FOR i = 0 TO 2 DO
+        WRITEF2("  pairs_vec!%N = %P*N", i, pairs_vec!i)
+
+    WRITEF("FPAIRS vector:*N")
+    FOR i = 0 TO 2 DO
+        WRITEF2("  fpairs_vec!%N = %FP*N", i, fpairs_vec!i)
+
+    WRITEF("QUADS vector:*N")
+    FOR i = 0 TO 2 DO
+        WRITEF2("  quads_vec!%N = %Q*N", i, quads_vec!i)
+
+    WRITEF("Type sizes test complete*N")
+$)

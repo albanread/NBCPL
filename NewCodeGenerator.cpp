@@ -527,6 +527,13 @@ void NewCodeGenerator::visit(SuperMethodAccessExpression& node) {
 void NewCodeGenerator::visit(BinaryOp& node) {
     debug_print("Visiting BinaryOp node.");
 
+    // Check for vector PAIR operations first
+    if (is_vector_pair_operation(node)) {
+        debug_print("Detected vector PAIR operation - using NEON acceleration");
+        generate_neon_vector_pair_operation(node);
+        return;
+    }
+
     // For LogicalAnd and LogicalOr operations, implement short-circuit logic
     if (node.op == BinaryOp::Operator::LogicalAnd) {
         debug_print("Generating short-circuit code for LogicalAnd");
@@ -3681,6 +3688,204 @@ std::vector<NewCodeGenerator::AtRiskParameterInfo> NewCodeGenerator::find_at_ris
     
     debug_print("Found " + std::to_string(at_risk_params.size()) + " at-risk parameters");
     return at_risk_params;
+}
+
+// NEON SIMD Implementation for Vector PAIR Operations
+
+bool NewCodeGenerator::is_vector_pair_operation(const BinaryOp& node) {
+    debug_print("=== VECTOR PAIR DETECTION ===");
+    
+    // Handle addition, subtraction, and multiplication operations
+    if (node.op != BinaryOp::Operator::Add && 
+        node.op != BinaryOp::Operator::Subtract && 
+        node.op != BinaryOp::Operator::Multiply) {
+        debug_print("Not a supported vector operation (Add/Subtract/Multiply) - skipping vector detection");
+        return false;
+    }
+    
+    // Check if both operands are variables (PAIRS vectors)
+    auto* left_var = dynamic_cast<VariableAccess*>(node.left.get());
+    auto* right_var = dynamic_cast<VariableAccess*>(node.right.get());
+    
+    if (!left_var || !right_var) {
+        debug_print("Not both variables - skipping vector detection");
+        return false;
+    }
+    
+    // Look up the variables in the symbol table
+    Symbol left_symbol, right_symbol;
+    if (!symbol_table_->lookup(left_var->name, left_symbol) || 
+        !symbol_table_->lookup(right_var->name, right_symbol)) {
+        debug_print("Could not find symbols - skipping vector detection");
+        return false;
+    }
+    
+    // Check if both are PAIRS vectors
+    bool left_is_pairs = (left_symbol.type == VarType::PAIR);
+    bool right_is_pairs = (right_symbol.type == VarType::PAIR);
+    
+    debug_print("Left variable '" + left_var->name + "' is PAIRS: " + (left_is_pairs ? "YES" : "NO"));
+    debug_print("Right variable '" + right_var->name + "' is PAIRS: " + (right_is_pairs ? "YES" : "NO"));
+    
+    return left_is_pairs && right_is_pairs;
+}
+
+void NewCodeGenerator::generate_neon_vector_pair_operation(BinaryOp& node) {
+    std::string op_name = (node.op == BinaryOp::Operator::Add) ? "addition" : 
+                         (node.op == BinaryOp::Operator::Subtract) ? "subtraction" : "multiplication";
+    debug_print("Generating NEON vector PAIR " + op_name);
+    
+    // Get vector size
+    size_t vector_size = get_vector_size(node.left);
+    debug_print("Vector size: " + std::to_string(vector_size) + " PAIRs");
+    
+    // Get addresses of source vectors
+    node.left->accept(*this);
+    std::string left_addr = expression_result_reg_;
+    
+    node.right->accept(*this);
+    std::string right_addr = expression_result_reg_;
+    
+    // Allocate result vector
+    std::string result_addr = register_manager_.acquire_scratch_reg(*this);
+    emit(Encoder::create_movz_imm(result_addr, vector_size));
+    emit(Encoder::create_branch_with_link("_GETVEC"));
+    emit(Encoder::create_mov_reg(result_addr, "X0"));
+    
+    // Generate 128-bit simulated NEON loop
+    generate_simple_pair_loop(left_addr, right_addr, result_addr, vector_size, node.op);
+    
+    expression_result_reg_ = result_addr;
+}
+
+size_t NewCodeGenerator::get_vector_size(ExprPtr& expr) {
+    auto* var_access = dynamic_cast<VariableAccess*>(expr.get());
+    if (!var_access) return 0;
+    
+    Symbol symbol;
+    if (!symbol_table_->lookup(var_access->name, symbol)) return 0;
+    
+    return symbol.size;
+}
+
+void NewCodeGenerator::generate_simple_pair_loop(const std::string& left_addr,
+                                                  const std::string& right_addr,
+                                                  const std::string& result_addr,
+                                                  size_t vector_size,
+                                                  BinaryOp::Operator op) {
+    auto& rm = register_manager_;
+    std::string op_name = (op == BinaryOp::Operator::Add) ? "addition" : 
+                         (op == BinaryOp::Operator::Subtract) ? "subtraction" : "multiplication";
+    debug_print("Generating NEON PAIR vector " + op_name + " for " + std::to_string(vector_size) + " elements");
+    
+    // Process two PAIRs per iteration (128-bit simulation)
+    for (size_t i = 0; i < vector_size; i += 2) {
+        size_t offset = i * 8; // Each PAIR is 8 bytes, processing 2 PAIRs = 16 bytes
+        
+        // Acquire NEON vector registers for 128-bit operations
+        std::string vec_left = rm.acquire_vec_scratch_reg();
+        std::string vec_right = rm.acquire_vec_scratch_reg();
+        std::string vec_result = rm.acquire_vec_scratch_reg();
+        
+        // Convert V registers to D register names for lower 64-bit halves
+        std::string d_left_lo = "D" + vec_left.substr(1);
+        std::string d_right_lo = "D" + vec_right.substr(1);
+        std::string d_result_lo = "D" + vec_result.substr(1);
+        
+        // Load first PAIR (lower 64 bits of 128-bit register)
+        emit(Encoder::create_ldr_fp_imm(d_left_lo, left_addr, offset));
+        emit(Encoder::create_ldr_fp_imm(d_right_lo, right_addr, offset));
+        
+        // Load second PAIR (upper 64 bits) - simulate with separate D registers
+        std::string vec_left_hi = rm.acquire_vec_scratch_reg();
+        std::string vec_right_hi = rm.acquire_vec_scratch_reg();
+        std::string d_left_hi = "D" + vec_left_hi.substr(1);
+        std::string d_right_hi = "D" + vec_right_hi.substr(1);
+
+        emit(Encoder::create_ldr_fp_imm(d_left_hi, left_addr, offset + 8));
+        emit(Encoder::create_ldr_fp_imm(d_right_hi, right_addr, offset + 8));
+        
+        // Perform parallel operation on both PAIR halves
+        std::string vec_result_hi = rm.acquire_vec_scratch_reg();
+        std::string d_result_hi = "D" + vec_result_hi.substr(1);
+        
+        switch (op) {
+            case BinaryOp::Operator::Add:
+                emit(Encoder::create_add_vector_reg(d_result_lo, d_left_lo, d_right_lo, "2S"));
+                emit(Encoder::create_add_vector_reg(d_result_hi, d_left_hi, d_right_hi, "2S"));
+                debug_print("Generated dual NEON ADD .2S for PAIRs " + std::to_string(i) + "-" + std::to_string(i+1) + " (simulating 4S operation)");
+                break;
+            case BinaryOp::Operator::Subtract:
+                emit(Encoder::create_sub_vector_reg(d_result_lo, d_left_lo, d_right_lo, "2S"));
+                emit(Encoder::create_sub_vector_reg(d_result_hi, d_left_hi, d_right_hi, "2S"));
+                debug_print("Generated dual NEON SUB .2S for PAIRs " + std::to_string(i) + "-" + std::to_string(i+1) + " (simulating 4S operation)");
+                break;
+            case BinaryOp::Operator::Multiply:
+                emit(Encoder::create_mul_vector_reg(d_result_lo, d_left_lo, d_right_lo, "2S"));
+                emit(Encoder::create_mul_vector_reg(d_result_hi, d_left_hi, d_right_hi, "2S"));
+                debug_print("Generated dual NEON MUL .2S for PAIRs " + std::to_string(i) + "-" + std::to_string(i+1) + " (simulating 4S operation)");
+                break;
+            default:
+                throw std::runtime_error("Unsupported PAIR vector operation: " + std::to_string(static_cast<int>(op)));
+        }
+        
+        // Store both result halves
+        emit(Encoder::create_str_fp_imm(d_result_lo, result_addr, offset));
+        emit(Encoder::create_str_fp_imm(d_result_hi, result_addr, offset + 8));
+        
+        // Release additional vector registers
+        rm.release_vec_scratch_reg(vec_left_hi);
+        rm.release_vec_scratch_reg(vec_right_hi);
+        rm.release_vec_scratch_reg(vec_result_hi);
+        
+        // Release vector registers
+        rm.release_vec_scratch_reg(vec_left);
+        rm.release_vec_scratch_reg(vec_right);
+        rm.release_vec_scratch_reg(vec_result);
+    }
+    
+    // Handle odd number of PAIRs with a single PAIR operation
+    if (vector_size % 2 != 0) {
+        size_t i = vector_size - 1;
+        size_t offset = i * 8;
+        
+        std::string vec_left = rm.acquire_vec_scratch_reg();
+        std::string vec_right = rm.acquire_vec_scratch_reg();
+        std::string vec_result = rm.acquire_vec_scratch_reg();
+        
+        std::string d_left = "D" + vec_left.substr(1);
+        std::string d_right = "D" + vec_right.substr(1);
+        std::string d_result = "D" + vec_result.substr(1);
+        
+        emit(Encoder::create_ldr_fp_imm(d_left, left_addr, offset));
+        emit(Encoder::create_ldr_fp_imm(d_right, right_addr, offset));
+        switch (op) {
+            case BinaryOp::Operator::Add:
+                emit(Encoder::create_add_vector_reg(d_result, d_left, d_right, "2S"));
+                break;
+            case BinaryOp::Operator::Subtract:
+                emit(Encoder::create_sub_vector_reg(d_result, d_left, d_right, "2S"));
+                break;
+            case BinaryOp::Operator::Multiply:
+                emit(Encoder::create_mul_vector_reg(d_result, d_left, d_right, "2S"));
+                break;
+            default:
+                throw std::runtime_error("Unsupported PAIR vector operation: " + std::to_string(static_cast<int>(op)));
+        }
+        emit(Encoder::create_str_fp_imm(d_result, result_addr, offset));
+        
+        rm.release_vec_scratch_reg(vec_left);
+        rm.release_vec_scratch_reg(vec_right);
+        rm.release_vec_scratch_reg(vec_result);
+        
+        std::string op_name = (op == BinaryOp::Operator::Add) ? "ADD" : 
+                             (op == BinaryOp::Operator::Subtract) ? "SUB" : "MUL";
+        debug_print("Generated final single-PAIR NEON " + op_name + " .2S for PAIR " + std::to_string(i));
+    }
+    
+    std::string operation_type = (op == BinaryOp::Operator::Add) ? "addition" : 
+                                (op == BinaryOp::Operator::Subtract) ? "subtraction" : "multiplication";
+    debug_print("NEON PAIR vector " + operation_type + " complete (dual 64-bit mode simulating 128-bit)");
 }
 
 

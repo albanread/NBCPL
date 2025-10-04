@@ -1,0 +1,31 @@
+LET START() BE $(
+    WRITEF("Testing simple vector operations*N")
+
+    // Create two small PAIRS vectors
+    LET a = PAIRS 2
+    LET b = PAIRS 2
+
+    // Fill with simple data
+    a!0 := PAIR(1, 2)
+    a!1 := PAIR(3, 4)
+
+    b!0 := PAIR(10, 20)
+    b!1 := PAIR(30, 40)
+
+    WRITEF("Vector a:*N")
+    WRITEF1("  a!0 = %P*N", a!0)
+    WRITEF1("  a!1 = %P*N", a!1)
+
+    WRITEF("Vector b:*N")
+    WRITEF1("  b!0 = %P*N", b!0)
+    WRITEF1("  b!1 = %P*N", b!1)
+
+    WRITEF("Attempting vector addition: c = a + b*N")
+    LET c = a + b
+
+    WRITEF("Result vector c:*N")
+    WRITEF1("  c!0 = %P*N", c!0)
+    WRITEF1("  c!1 = %P*N", c!1)
+
+    WRITEF("Simple vector test complete*N")
+$)

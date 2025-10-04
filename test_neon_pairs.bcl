@@ -1,0 +1,48 @@
+LET START() BE $(
+    WRITEF("Testing NEON PAIRS vector addition*N")
+
+    // Create two PAIRS vectors of size 8 (good for NEON)
+    LET vec1 = PAIRS 8
+    LET vec2 = PAIRS 8
+
+    // Fill vec1 with test data
+    vec1!0 := PAIR(10, 20)
+    vec1!1 := PAIR(30, 40)
+    vec1!2 := PAIR(50, 60)
+    vec1!3 := PAIR(70, 80)
+    vec1!4 := PAIR(90, 100)
+    vec1!5 := PAIR(110, 120)
+    vec1!6 := PAIR(130, 140)
+    vec1!7 := PAIR(150, 160)
+
+    // Fill vec2 with test data
+    vec2!0 := PAIR(1, 2)
+    vec2!1 := PAIR(3, 4)
+    vec2!2 := PAIR(5, 6)
+    vec2!3 := PAIR(7, 8)
+    vec2!4 := PAIR(9, 10)
+    vec2!5 := PAIR(11, 12)
+    vec2!6 := PAIR(13, 14)
+    vec2!7 := PAIR(15, 16)
+
+    WRITEF("vec1 contents:*N")
+    FOR i = 0 TO 7 DO
+        WRITEF2("  vec1!%N = %P*N", i, vec1!i)
+
+    WRITEF("vec2 contents:*N")
+    FOR i = 0 TO 7 DO
+        WRITEF2("  vec2!%N = %P*N", i, vec2!i)
+
+    // This should trigger NEON vector addition!
+    WRITEF("Computing result = vec1 + vec2 (using NEON acceleration)*N")
+    LET result = vec1 + vec2
+
+    WRITEF("Result contents:*N")
+    FOR i = 0 TO 7 DO
+        WRITEF2("  result!%N = %P*N", i, result!i)
+
+    WRITEF("*NVector addition test completed*N")
+    WRITEF("Note: Detailed verification requires PAIR member access support*N")
+
+    WRITEF("*NNEON PAIRS vector addition test complete*N")
+$)
