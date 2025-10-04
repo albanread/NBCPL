@@ -267,6 +267,7 @@ void NewCodeGenerator::visit(UnaryOp& node) {
         if (
             operand_type == VarType::POINTER_TO_INT_VEC ||
             operand_type == VarType::POINTER_TO_FLOAT_VEC ||
+            operand_type == VarType::POINTER_TO_PAIRS ||
             operand_type == VarType::POINTER_TO_STRING
         ) {
             // This logic is now correct for both VEC and TABLE.

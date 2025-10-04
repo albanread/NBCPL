@@ -52,7 +52,24 @@ VarType StatelessTypeInference::infer_expression_type(const Expression* expr, co
 
     // Vector access
     if (const auto* vec_access = dynamic_cast<const VectorAccess*>(expr)) {
-        return VarType::INTEGER; // Vector elements are typically integers
+        // Infer element type based on the vector type
+        VarType vector_type = infer_expression_type(vec_access->vector_expr.get(), symbol_table);
+        
+        // If accessing a PAIRS vector, return PAIR
+        if ((static_cast<int64_t>(vector_type) & static_cast<int64_t>(VarType::PAIRS)) != 0) {
+            return VarType::PAIR;
+        }
+        // If accessing a float vector, return float
+        if ((static_cast<int64_t>(vector_type) & static_cast<int64_t>(VarType::FLOAT)) != 0) {
+            return VarType::FLOAT;
+        }
+        // Default to integer for regular vectors
+        return VarType::INTEGER;
+    }
+
+    // Lane access (vector.|n|)
+    if (const auto* lane_access = dynamic_cast<const LaneAccessExpression*>(expr)) {
+        return VarType::INTEGER; // Lane access always returns INTEGER
     }
 
     // Vector allocation
@@ -63,6 +80,11 @@ VarType StatelessTypeInference::infer_expression_type(const Expression* expr, co
     // Float vector allocation
     if (const auto* fvec_alloc = dynamic_cast<const FVecAllocationExpression*>(expr)) {
         return VarType::POINTER_TO_FLOAT_VEC;
+    }
+
+    // PAIRS allocation
+    if (const auto* pairs_alloc = dynamic_cast<const PairsAllocationExpression*>(expr)) {
+        return VarType::POINTER_TO_PAIRS;
     }
 
     // String allocation
@@ -230,8 +252,11 @@ VarType StatelessTypeInference::infer_function_call_type(const FunctionCall* fun
         if (func_name == "READF" || func_name == "SIN" || func_name == "COS" || func_name == "SQRT") {
             return VarType::FLOAT;
         }
-        if (func_name == "READS" || func_name == "NEWVEC" || func_name == "GETVEC") {
+        if (func_name == "READS" || func_name == "NEWVEC") {
             return VarType::POINTER_TO_INT;
+        }
+        if (func_name == "GETVEC") {
+            return VarType::POINTER_TO_INT_VEC;
         }
         if (func_name == "FGETVEC") {
             return VarType::POINTER_TO_FLOAT_VEC;

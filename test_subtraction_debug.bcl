@@ -1,0 +1,27 @@
+LET START() BE
+{
+    WRITEF("Debug PAIR Subtraction*N")
+
+    // Test with original values that showed the bug
+    LET p1 = PAIR(12, 24)
+    LET p2 = PAIR(3, 4)
+
+    WRITEF("p1 = PAIR(12, 24)*N")
+    WRITEF("p2 = PAIR(3, 4)*N")
+
+    // Test addition first (known to work)
+    LET add_result = p1 + p2
+    WRITEF("p1 + p2 = PAIR(%d, %d)*N", add_result.|0|, add_result.|1|)
+
+    // Test subtraction
+    LET sub_result = p1 - p2
+    WRITEF("p1 - p2 = PAIR(%d, %d)*N", sub_result.|0|, sub_result.|1|)
+    WRITEF("Should be: PAIR(9, 20)*N")
+
+    // Test reverse subtraction
+    LET sub_result2 = p2 - p1
+    WRITEF("p2 - p1 = PAIR(%d, %d)*N", sub_result2.|0|, sub_result2.|1|)
+    WRITEF("Should be: PAIR(-9, -20)*N")
+
+    WRITEF("Debug complete*N")
+}

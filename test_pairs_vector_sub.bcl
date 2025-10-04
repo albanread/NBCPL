@@ -1,0 +1,5 @@
+LET START() BE $(
+    LET a = NEWINITTABV(2, [PAIR(10, 8), PAIR(6, 4)])
+    LET b = NEWINITTABV(2, [PAIR(3, 2), PAIR(1, 1)])
+    LET c = a - b
+$)

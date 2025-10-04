@@ -167,8 +167,8 @@ void register_runtime_functions() {
     register_runtime_function("BCPL_ALLOC_WORDS", 3, reinterpret_cast<void*>(bcpl_alloc_words));
     register_runtime_function("BCPL_ALLOC_CHARS", 1, reinterpret_cast<void*>(bcpl_alloc_chars));
     register_runtime_function("MALLOC", 1, reinterpret_cast<void*>(bcpl_alloc_words)); // Alias for compatibility
-    register_runtime_function("GETVEC", 1, reinterpret_cast<void*>(bcpl_getvec)); // Traditional BCPL vector allocation
-    register_runtime_function("FGETVEC", 1, reinterpret_cast<void*>(bcpl_fgetvec)); // Float vector allocation
+    register_runtime_function("GETVEC", 1, reinterpret_cast<void*>(bcpl_getvec), FunctionType::STANDARD, VarType::POINTER_TO_INT_VEC); // Traditional BCPL vector allocation
+    register_runtime_function("FGETVEC", 1, reinterpret_cast<void*>(bcpl_fgetvec), FunctionType::STANDARD, VarType::POINTER_TO_FLOAT_VEC); // Float vector allocation
     if (RuntimeManager::instance().isTracingEnabled()) {
         printf("DEBUG: Registering FREEVEC with bcpl_free at address %p\n", reinterpret_cast<void*>(bcpl_free));
     }

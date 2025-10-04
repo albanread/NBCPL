@@ -1,0 +1,40 @@
+LET START() BE {
+    // Test constant folding of LEN() calls with known vector sizes
+
+    // Test 1: GETVEC with constant size
+    LET V = GETVEC(100)
+    LET v_len = LEN(V)
+    WRITEF("GETVEC(100) length: %N*N", v_len)
+
+    // Test 2: FGETVEC with constant size
+    LET F = FGETVEC(50)
+    LET f_len = LEN(F)
+    WRITEF("FGETVEC(50) length: %N*N", f_len)
+
+    // Test 3: PAIRS with constant size
+    LET P = PAIRS 25
+    LET p_len = LEN(P)
+    WRITEF("PAIRS 25 length: %N*N", p_len)
+
+    // Test 4: VEC allocation (if supported)
+    // LET VEC_VAR = VEC 75
+    // LET vec_len = LEN(VEC_VAR)
+    // WRITEF("VEC 75 length: %N*N", vec_len)
+
+    // Test 5: Element access type inference
+    V!0 := 42
+    F!0 := 3.14
+    // LET pair_elem = P!0  // Should be PAIR type - skip for now
+
+    // Test 6: Lane access - skip for now due to type inference issues
+    // pair_elem.|0| := 100
+    // pair_elem.|1| := 200
+    // WRITEF("PAIR lanes: %N, %N*N", pair_elem.|0|, pair_elem.|1|)
+
+    // Test 7: Verify runtime behavior matches compile-time optimization
+    // If LEN() is optimized to constants, these should show the same values
+    WRITEF("Runtime check - V[99] = %N*N", V!99)  // Should not crash if size is 100
+    WRITEF("Runtime check - F[49] = %F*N", F!49)  // Should not crash if size is 50
+
+    WRITEF("All tests completed*N")
+}

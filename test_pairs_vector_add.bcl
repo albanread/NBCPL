@@ -1,0 +1,39 @@
+LET START() BE
+{
+    WRITEF("PAIRS Vector Addition Test*N")
+
+    // Test 1: Create two PAIRS vectors
+    LET a = PAIRS 2
+    LET b = PAIRS 2
+
+    WRITEF("Created PAIRS vectors a and b*N")
+
+    // Test 2: Initialize vectors
+    a!0 := PAIR(10, 20)
+    a!1 := PAIR(30, 40)
+
+    b!0 := PAIR(1, 2)
+    b!1 := PAIR(3, 4)
+
+    WRITEF("Initialized vectors*N")
+
+    // Test 3: Vector addition - this should trigger SIMD routing
+    WRITEF("About to perform: c = a + b*N")
+    LET c = a + b
+
+    // Test 4: Verify the result exists and is accessible
+    WRITEF("Addition complete - result stored in c*N")
+
+    // Test 5: Access the result elements (traditional way)
+    LET elem0 = c!0
+    WRITEF("c!0 first component: %d*N", elem0.|0|)
+
+    // Test 6: Test direct chaining PRS!0.|0| syntax
+    WRITEF("Testing direct chaining...*N")
+    WRITEF("c!0.|0| = %d*N", c!0.|0|)
+    WRITEF("c!0.|1| = %d*N", c!0.|1|)
+    WRITEF("c!1.|0| = %d*N", c!1.|0|)
+    WRITEF("c!1.|1| = %d*N", c!1.|1|)
+
+    WRITEF("PAIRS vector addition test complete!*N")
+}

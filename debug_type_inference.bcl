@@ -1,0 +1,21 @@
+LET START() BE {
+    // Test basic vector allocation
+    LET V = GETVEC(100)
+    WRITEF("Created vector V*N")
+
+    // Test LEN optimization
+    LET v_len = LEN(V)
+    WRITEF("Vector V length: %N*N", v_len)
+
+    // Test PAIRS allocation
+    LET P = PAIRS 10
+    WRITEF("Created PAIRS P*N")
+
+    // Test LEN on PAIRS
+    LET p_len = LEN(P)
+    WRITEF("PAIRS P length: %N*N", p_len)
+
+    // Test simple element access (should be PAIR type)
+    LET pair_elem = P!0
+    WRITEF("Got pair element*N")
+}

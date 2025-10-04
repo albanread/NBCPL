@@ -1,0 +1,27 @@
+LET START() BE
+{
+    WRITEF("Testing PAIR lane access*N")
+
+    // Test 1: Regular PAIR variable lane access
+    LET p = PAIR(123, 456)
+    WRITEF("Created PAIR(123, 456)*N")
+
+    // Test traditional lane access on regular PAIR
+    LET first = p.|0|
+    LET second = p.|1|
+    WRITEF("p.|0| = %d*N", first)
+    WRITEF("p.|1| = %d*N", second)
+
+    // Test 2: PAIRS vector element access (two-step)
+    LET pairs_vec = PAIRS 1
+    pairs_vec!0 := PAIR(789, 101112)
+    WRITEF("Created PAIRS vector with PAIR(789, 101112)*N")
+
+    LET elem = pairs_vec!0
+    LET elem_first = elem.|0|
+    LET elem_second = elem.|1|
+    WRITEF("pairs_vec!0.|0| = %d (via intermediate)*N", elem_first)
+    WRITEF("pairs_vec!0.|1| = %d (via intermediate)*N", elem_second)
+
+    WRITEF("Test complete*N")
+}

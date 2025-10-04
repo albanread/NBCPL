@@ -1,0 +1,20 @@
+LET START() BE $(
+    WRITEF("Testing LEN operations*N")
+
+    // Test basic vector LEN
+    LET V = GETVEC(10)
+    LET v_len = LEN(V)
+    WRITEF1("GETVEC(10) length = %N*N", v_len)
+
+    // Test float vector LEN
+    LET F = FGETVEC(5)
+    LET f_len = LEN(F)
+    WRITEF1("FGETVEC(5) length = %N*N", f_len)
+
+    // Test PAIRS LEN
+    LET P = PAIRS 3
+    LET p_len = LEN(P)
+    WRITEF1("PAIRS 3 length = %N*N", p_len)
+
+    WRITEF("LEN test complete*N")
+$)

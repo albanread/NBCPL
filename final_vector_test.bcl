@@ -1,0 +1,44 @@
+LET START() BE $(
+    WRITEF("=== BCPL Vector Type Inference Test ==*N")
+
+    // Test 1: GETVEC allocation and LEN
+    WRITEF("Test 1: GETVEC allocation*N")
+    LET V = GETVEC(42)
+    LET v_len = LEN(V)
+    WRITEF1("  GETVEC(42) length = %N*N", v_len)
+    V!0 := 100
+    V!41 := 200
+    WRITEF2("  V!0 = %N, V!41 = %N*N", V!0, V!41)
+
+    // Test 2: FGETVEC allocation and LEN
+    WRITEF("Test 2: FGETVEC allocation*N")
+    LET F = FGETVEC(15)
+    LET f_len = LEN(F)
+    WRITEF1("  FGETVEC(15) length = %N*N", f_len)
+    F!0 := 3.14
+    F!14 := 2.71
+    WRITEF2("  F!0 = %F, F!14 = %F*N", F!0, F!14)
+
+    // Test 3: PAIRS allocation and LEN
+    WRITEF("Test 3: PAIRS allocation*N")
+    LET P = PAIRS 8
+    LET p_len = LEN(P)
+    WRITEF1("  PAIRS 8 length = %N*N", p_len)
+    P!0 := PAIR(10, 20)
+    P!7 := PAIR(70, 80)
+    WRITEF2("  P!0 = %P, P!7 = %P*N", P!0, P!7)
+
+    // Test 4: Mixed operations
+    WRITEF("Test 4: Mixed operations*N")
+    LET total = v_len + f_len + p_len
+    WRITEF3("  Total lengths: %N + %N + %N = %N*N", v_len, f_len, p_len, total)
+
+    // Test 5: Boundary access (should work if sizes are correct)
+    WRITEF("Test 5: Boundary access*N")
+    WRITEF3("  Last elements: V!%N=%N, F!%N=%F, P!%N=%P*N",
+           v_len-1, V!(v_len-1),
+           f_len-1, F!(f_len-1),
+           p_len-1, P!(p_len-1))
+
+    WRITEF("=== All tests completed successfully ==*N")
+$)

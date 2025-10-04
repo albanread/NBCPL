@@ -59,6 +59,11 @@ public:
     void visit(RepeatStatement& node) override;
     void visit(TestStatement& node) override;
     void visit(UnlessStatement& node) override;
+    void visit(AssignmentStatement& node) override;
+    void visit(VecAllocationExpression& node) override;
+    void visit(FVecAllocationExpression& node) override;
+    void visit(PairsAllocationExpression& node) override;
+    void visit(FunctionCall& node) override;
 
     // ... other visit methods as needed ...
 

@@ -3,6 +3,7 @@
 
 #include "Optimizer.h"
 #include "AST.h"
+#include "SymbolTable.h"
 #include <string>
 #include <memory>
 
@@ -10,7 +11,7 @@
 // algebraic simplifications, strength reduction, and constant condition elimination.
 class ConstantFoldingPass : public Optimizer {
 public:
-    ConstantFoldingPass(std::unordered_map<std::string, int64_t>& manifests);
+    ConstantFoldingPass(std::unordered_map<std::string, int64_t>& manifests, SymbolTable* symbol_table = nullptr, bool trace_enabled = false);
     virtual ~ConstantFoldingPass() = default;
 
     std::string getName() const override { return "Constant Folding Pass"; }
@@ -39,6 +40,7 @@ public:
     // Default traversal for other nodes
     void visit(ValofExpression& node) override;
     void visit(FloatValofExpression& node) override;
+    void visit(FunctionCall& node) override;
     void visit(VecAllocationExpression& node) override;
     void visit(StringAllocationExpression& node) override;
     void visit(TableExpression& node) override;
@@ -48,6 +50,12 @@ public:
     void visit(GlobalVariableDeclaration& node) override;
 
 private:
+    // Reference to symbol table for type and size information
+    SymbolTable* symbol_table_;
+    
+    // Trace flag for optimizer debug output
+    bool trace_enabled_;
+    
     // Add this map to track variables known to be constant within the current scope.
     std::unordered_map<std::string, int64_t> known_constants_;
 

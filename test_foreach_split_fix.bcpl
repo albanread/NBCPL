@@ -1,0 +1,40 @@
+// Test to verify that forEach cursor type assignment fix is working
+// This tests the specific bug mentioned where forEach cursor was getting
+// wrong type when iterating over SPLIT results
+
+LET START() BE
+{
+    LET text = "apple,banana,cherry,date"
+    LET delimiter = ","
+
+    WRITES("Testing forEach with SPLIT result (should infer string type)*N")
+
+    // This should work without explicit type annotation
+    // The forEach cursor 'item' should be inferred as POINTER_TO_STRING
+    FOREACH item IN SPLIT(text, delimiter) DO
+    {
+        WRITES("Item: ")
+        WRITES(item)
+        WRITES("*N")
+
+        // This LEN call should work if type inference is correct
+        // Previously this would fail with: "Code generation for LEN operator failed: operand was not a vector or list"
+        LET item_length = LEN(item)
+        WRITEF("  Length: %N*N", item_length)
+    }
+
+    WRITES("*NTest with explicit type annotation (should also work)*N")
+
+    // This version with explicit type should always work
+    LET string_list = SPLIT(text, delimiter)
+    FOREACH item2 IN string_list DO
+    {
+        WRITES("Item2: ")
+        WRITES(item2)
+        WRITES("*N")
+        LET item2_length = LEN(item2)
+        WRITEF("  Length: %N*N", item2_length)
+    }
+
+    WRITES("*NForEach SPLIT test completed successfully*N")
+}

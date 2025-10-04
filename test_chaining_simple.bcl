@@ -1,0 +1,24 @@
+LET START() BE
+{
+    WRITEF("Testing PAIRS chaining syntax*N")
+
+    // Create a simple PAIRS vector
+    LET P = PAIRS 1
+    P!0 := PAIR(42, 99)
+
+    // Test traditional two-step access
+    LET elem = P!0
+    LET first = elem.|0|
+    WRITEF("Traditional: P!0.|0| = %d*N", first)
+
+    // Test direct chaining - this is what we want to support
+    // First try with explicit parentheses to force correct parsing
+    LET direct = (P!0).|0|
+    WRITEF("Direct: (P!0).|0| = %d*N", direct)
+
+    // Now try without parentheses
+    LET direct2 = P!0.|0|
+    WRITEF("Direct: P!0.|0| = %d*N", direct2)
+
+    WRITEF("Test complete*N")
+}

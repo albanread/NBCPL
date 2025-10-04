@@ -430,8 +430,8 @@ int main(int argc, char* argv[]) {
         // --- Local Optimization Pass (CSE/LVN) using StringTable ---
         if (enable_opt) {
             if (enable_tracing || trace_optimizer) std::cout << "Optimization enabled. Applying passes...\n";
-            //            ConstantFoldingPass constant_folding_pass(g_global_manifest_constants);
-            //            ast = constant_folding_pass.apply(std::move(ast));
+            ConstantFoldingPass constant_folding_pass(g_global_manifest_constants, symbol_table.get(), trace_optimizer);
+            ast = constant_folding_pass.apply(std::move(ast));
 
             // Clear FOR loop state before StrengthReductionPass to prevent corruption
             ASTAnalyzer& analyzer_for_clearing = ASTAnalyzer::getInstance();

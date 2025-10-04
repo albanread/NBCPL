@@ -1,0 +1,36 @@
+MANIFEST { PAIRS_SIZE = 15 }
+
+LET start() BE {
+    // Test vector allocation type inference
+    LET V = GETVEC(100)
+    LET F = FGETVEC(50)
+    LET P = PAIRS 25
+
+    // Test LEN optimization - these should be optimized to constants
+    LET v_len = LEN(V)    // Should become 100
+    LET f_len = LEN(F)    // Should become 50
+    LET p_len = LEN(P)    // Should become 25
+
+    WRITEF("Vector V length: %N*N", v_len)
+    WRITEF("Float vector F length: %N*N", f_len)
+    WRITEF("PAIRS P length: %N*N", p_len)
+
+    // Test element access type inference
+    V!5 := 42             // V!5 should be INTEGER
+    F!10 := 3.14         // F!10 should be FLOAT
+    LET pair_elem = P!3   // P!3 should be PAIR
+
+    // Test lane access type inference
+    LET lane0 = pair_elem.|0|  // Should be INTEGER
+    LET lane1 = pair_elem.|1|  // Should be INTEGER
+
+    pair_elem.|0| := 100
+    pair_elem.|1| := 200
+
+    WRITEF("PAIR element lanes: %N, %N*N", pair_elem.|0|, pair_elem.|1|)
+
+    // Test with manifest constants
+    LET P2 = PAIRS PAIRS_SIZE
+    LET p2_len = LEN(P2)  // Should become 15
+    WRITEF("P2 length: %N*N", p2_len)
+}

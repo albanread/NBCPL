@@ -1,0 +1,39 @@
+LET START() BE {
+    // Test if LEN() calls are being optimized to constants at compile time
+
+    // Test 1: Simple constant folding test
+    LET a = 5 + 3  // Should be folded to 8
+    WRITEF("5 + 3 = %N*N", a)
+
+    // Test 2: Vector length constant folding
+    LET V = GETVEC(42)
+    LET v_len = LEN(V)
+    WRITEF("LEN(GETVEC(42)) = %N*N", v_len)
+
+    // Test 3: Float vector length constant folding
+    LET F = FGETVEC(17)
+    LET f_len = LEN(F)
+    WRITEF("LEN(FGETVEC(17)) = %N*N", f_len)
+
+    // Test 4: PAIRS length constant folding
+    LET P = PAIRS 8
+    LET p_len = LEN(P)
+    WRITEF("LEN(PAIRS 8) = %N*N", p_len)
+
+    // Test 5: Nested arithmetic with constants
+    LET b = (10 * 2) + (15 / 3)  // Should be folded to 25
+    WRITEF("(10 * 2) + (15 / 3) = %N*N", b)
+
+    // Test 6: Use LEN values in arithmetic (if optimized, should be constant arithmetic)
+    LET total_len = v_len + f_len + p_len  // Should be 42 + 17 + 8 = 67 if optimized
+    WRITEF("Total lengths = %N*N", total_len)
+
+    // Test 7: Conditional based on constant (should be optimized away)
+    IF v_len EQ 42 THEN
+        WRITEF("Vector length is correct (42)*N")
+    ELSE
+        WRITEF("ERROR: Vector length is wrong!*N")
+    FI
+
+    WRITEF("Constant folding test completed*N")
+}

@@ -603,7 +603,161 @@ void SymbolDiscoveryPass::visit(UnlessStatement& node) {
     }
 }
 
+void SymbolDiscoveryPass::visit(AssignmentStatement& node) {
+    // Check if this is a simple assignment (one lhs, one rhs) to a variable
+    if (node.lhs.size() == 1 && node.rhs.size() == 1) {
+        if (auto* var_access = dynamic_cast<VariableAccess*>(node.lhs[0].get())) {
+            // Check for vector allocations and set the variable name
+            if (auto* vec_alloc = dynamic_cast<VecAllocationExpression*>(node.rhs[0].get())) {
+                vec_alloc->variable_name = var_access->name;
+                trace("Set variable name for VecAllocationExpression: " + var_access->name);
+            } else if (auto* fvec_alloc = dynamic_cast<FVecAllocationExpression*>(node.rhs[0].get())) {
+                fvec_alloc->variable_name = var_access->name;
+                trace("Set variable name for FVecAllocationExpression: " + var_access->name);
+            } else if (auto* pairs_alloc = dynamic_cast<PairsAllocationExpression*>(node.rhs[0].get())) {
+                pairs_alloc->variable_name = var_access->name;
+                trace("Set variable name for PairsAllocationExpression: " + var_access->name);
+            } else if (auto* func_call = dynamic_cast<FunctionCall*>(node.rhs[0].get())) {
+                // Check if this is a GETVEC or FGETVEC function call
+                if (auto* func_var = dynamic_cast<VariableAccess*>(func_call->function_expr.get())) {
+                    const std::string& func_name = func_var->name;
+                    if ((func_name == "GETVEC" || func_name == "FGETVEC") && func_call->arguments.size() == 1) {
+                        // Check if size argument is a constant
+                        if (auto* num_lit = dynamic_cast<NumberLiteral*>(func_call->arguments[0].get())) {
+                            int64_t size = num_lit->int_value;
+                            
+                            // Update the variable's symbol with size information
+                            Symbol symbol;
+                            if (symbol_table_->lookup(var_access->name, symbol)) {
+                                VarType vec_type = (func_name == "GETVEC") ? VarType::POINTER_TO_INT_VEC : VarType::POINTER_TO_FLOAT_VEC;
+                                symbol.type = vec_type;
+                                symbol.size = static_cast<size_t>(size);
+                                symbol.has_size = true;
+                                symbol_table_->updateSymbol(var_access->name, symbol);
+                                trace("Updated " + func_name + " variable: " + var_access->name + " with size " + std::to_string(size));
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+    
+    // Continue with normal assignment processing - visit all RHS expressions
+    for (auto& expr : node.rhs) {
+        if (expr) {
+            expr->accept(*this);
+        }
+    }
+}
 
+void SymbolDiscoveryPass::visit(VecAllocationExpression& node) {
+    trace("Processing VecAllocationExpression");
+    
+    // Check if size is a constant
+    if (auto* num_lit = dynamic_cast<NumberLiteral*>(node.size_expr.get())) {
+        int64_t size = num_lit->int_value;
+        
+        // If this vector allocation is being assigned to a variable, update its symbol
+        if (!node.variable_name.empty()) {
+            Symbol symbol;
+            if (symbol_table_->lookup(node.variable_name, symbol)) {
+                symbol.type = VarType::POINTER_TO_INT_VEC;
+                symbol.size = static_cast<size_t>(size);
+                symbol.has_size = true;
+                symbol_table_->updateSymbol(node.variable_name, symbol);
+                trace("Updated vector variable: " + node.variable_name + " with size " + std::to_string(size));
+            }
+        }
+    }
+    
+    // Visit the size expression
+    if (node.size_expr) {
+        node.size_expr->accept(*this);
+    }
+}
+
+void SymbolDiscoveryPass::visit(FVecAllocationExpression& node) {
+    trace("Processing FVecAllocationExpression");
+    
+    // Check if size is a constant
+    if (auto* num_lit = dynamic_cast<NumberLiteral*>(node.size_expr.get())) {
+        int64_t size = num_lit->int_value;
+        
+        // If this vector allocation is being assigned to a variable, update its symbol
+        if (!node.variable_name.empty()) {
+            Symbol symbol;
+            if (symbol_table_->lookup(node.variable_name, symbol)) {
+                symbol.type = VarType::POINTER_TO_FLOAT_VEC;
+                symbol.size = static_cast<size_t>(size);
+                symbol.has_size = true;
+                symbol_table_->updateSymbol(node.variable_name, symbol);
+                trace("Updated float vector variable: " + node.variable_name + " with size " + std::to_string(size));
+            }
+        }
+    }
+    
+    // Visit the size expression
+    if (node.size_expr) {
+        node.size_expr->accept(*this);
+    }
+}
+
+void SymbolDiscoveryPass::visit(PairsAllocationExpression& node) {
+    trace("Processing PairsAllocationExpression");
+    
+    // Check if size is a constant
+    if (auto* num_lit = dynamic_cast<NumberLiteral*>(node.size_expr.get())) {
+        int64_t size = num_lit->int_value;
+        
+        // If this pairs allocation is being assigned to a variable, update its symbol
+        if (!node.variable_name.empty()) {
+            Symbol symbol;
+            if (symbol_table_->lookup(node.variable_name, symbol)) {
+                symbol.type = VarType::POINTER_TO_PAIRS;
+                symbol.size = static_cast<size_t>(size);
+                symbol.has_size = true;
+                symbol_table_->updateSymbol(node.variable_name, symbol);
+                trace("Updated PAIRS variable: " + node.variable_name + " with size " + std::to_string(size));
+            }
+        }
+    }
+    
+    // Visit the size expression
+    if (node.size_expr) {
+        node.size_expr->accept(*this);
+    }
+}
+
+void SymbolDiscoveryPass::visit(FunctionCall& node) {
+    trace("Processing FunctionCall");
+    
+    // Check if this is a vector allocation function call
+    if (auto* var_access = dynamic_cast<VariableAccess*>(node.function_expr.get())) {
+        const std::string& func_name = var_access->name;
+        
+        if ((func_name == "GETVEC" || func_name == "FGETVEC") && node.arguments.size() == 1) {
+            // Check if size argument is a constant
+            if (auto* num_lit = dynamic_cast<NumberLiteral*>(node.arguments[0].get())) {
+                int64_t size = num_lit->int_value;
+                
+                // Store size information for this function call for later use
+                // We'll track this in a temporary way during assignment processing
+                trace("Found " + func_name + " call with constant size: " + std::to_string(size));
+            }
+        }
+    }
+    
+    // Visit function expression and arguments
+    if (node.function_expr) {
+        node.function_expr->accept(*this);
+    }
+    for (auto& arg : node.arguments) {
+        if (arg) {
+            arg->accept(*this);
+        }
+    }
+}
 
 void SymbolDiscoveryPass::trace(const std::string& message) const {
     if (enable_tracing_) {

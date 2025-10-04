@@ -46,6 +46,9 @@ public:
     void visit(FloatValofExpression& node) override;
     void visit(ValofExpression& node) override;
     void visit(AssignmentStatement& node) override;
+    void visit(VecAllocationExpression& node) override;
+    void visit(FVecAllocationExpression& node) override;
+    void visit(PairsAllocationExpression& node) override;
 
 private:
     // The symbol table being built

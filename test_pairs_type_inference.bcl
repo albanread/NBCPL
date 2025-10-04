@@ -1,0 +1,51 @@
+LET START() BE $(
+    // Test 1: Basic PAIRS allocation with constant size
+    LET P = PAIRS 20
+    LET L1 = LEN(P)
+    WRITEF("Test 1: LEN(PAIRS 20) = %d*N", L1)
+
+    // Test 2: PAIRS vector initialization
+    FOR I = 1 TO 20 DO $(
+        P!I := PAIR(I, I*2)
+    $)
+
+    // Test 3: Access PAIRS elements - should infer as PAIR type
+    LET ELEM5 = P!5
+    LET FIRST5 = ELEM5.|0|
+    LET SECOND5 = ELEM5.|1|
+    WRITEF("Test 3: P!5 = PAIR(%d, %d)*N", FIRST5, SECOND5)
+
+    // Test 4: PAIRS with manifest constant size
+    MANIFEST $(
+        PAIRS_SIZE = 15
+    $)
+    LET P2 = PAIRS PAIRS_SIZE
+    LET L2 = LEN(P2)
+    WRITEF("Test 4: LEN(PAIRS PAIRS_SIZE) = %d*N", L2)
+
+    // Test 5: Initialize second PAIRS vector
+    FOR I = 1 TO 15 DO $(
+        P2!I := PAIR(I*3, I*4)
+    $)
+
+    // Test 6: Access elements from second PAIRS vector
+    LET ELEM10 = P2!10
+    WRITEF("Test 6: P2!10 = PAIR(%d, %d)*N", ELEM10.|0|, ELEM10.|1|)
+
+    // Test 7: PAIRS arithmetic (if supported)
+    LET P3 = PAIRS 5
+    FOR I = 1 TO 5 DO $(
+        P3!I := PAIR(I, I*10)
+    $)
+
+    LET L3 = LEN(P3)
+    WRITEF("Test 7: LEN(PAIRS 5) = %d*N", L3)
+
+    // Test 8: Verify individual PAIR elements
+    FOR I = 1 TO 5 DO $(
+        LET ELEM = P3!I
+        WRITEF("  P3!%d = PAIR(%d, %d)*N", I, ELEM.|0|, ELEM.|1|)
+    $)
+
+    WRITEF("All PAIRS type inference tests completed*N")
+$)

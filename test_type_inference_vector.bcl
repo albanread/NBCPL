@@ -1,0 +1,38 @@
+LET START() BE $(
+    // Test 1: Basic GETVEC with constant size
+    LET V = GETVEC(100)
+    LET L1 = LEN(V)
+    WRITEF("Test 1: LEN(GETVEC(100)) = %d*N", L1)
+
+    // Test 2: FGETVEC with constant size
+    LET FV = FGETVEC(50)
+    LET L2 = LEN(FV)
+    WRITEF("Test 2: LEN(FGETVEC(50)) = %d*N", L2)
+
+    // Test 3: VEC allocation with constant size
+    LET V2 = VEC 25
+    LET L3 = LEN(V2)
+    WRITEF("Test 3: LEN(VEC 25) = %d*N", L3)
+
+    // Test 4: Vector initialization
+    FOR I = 1 TO 100 DO $(
+        V!I := I
+    $)
+    WRITEF("Test 4: V!50 = %d*N", V!50)
+
+    // Test 5: Float vector initialization
+    FOR I = 1 TO 50 DO $(
+        FV!I := I * 1.5
+    $)
+    WRITEF("Test 5: FV!25 = %f*N", FV!25)
+
+    // Test 6: Manifest constant size
+    MANIFEST $(
+        BUFFER_SIZE = 200
+    $)
+    LET V3 = GETVEC(BUFFER_SIZE)
+    LET L4 = LEN(V3)
+    WRITEF("Test 6: LEN(GETVEC(BUFFER_SIZE)) = %d*N", L4)
+
+    WRITEF("All vector type inference tests completed*N")
+$)

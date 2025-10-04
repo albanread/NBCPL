@@ -5044,8 +5044,7 @@ ExprPtr CommonSubexpressionEliminationPass::visit_expr(ExprPtr expr) {
 #include "ConstantFoldingPass.h"
 #include <iostream>
 
-// Trace flag for optimizer debug output
-static bool trace_optimizer = false;
+// NOTE: trace_optimizer is now passed via constructor
 
 // --- Helpers for evaluating constant expressions ---
 
@@ -5119,11 +5118,17 @@ bool ConstantFoldingPass::is_bcpl_true(Expression* expr) const {
     return false;
 }
 
-ConstantFoldingPass::ConstantFoldingPass(std::unordered_map<std::string, int64_t>& manifests)
-    : Optimizer(manifests) {}
+ConstantFoldingPass::ConstantFoldingPass(std::unordered_map<std::string, int64_t>& manifests, SymbolTable* symbol_table, bool trace_enabled)
+    : Optimizer(manifests), symbol_table_(symbol_table), trace_enabled_(trace_enabled) {}
 
 ProgramPtr ConstantFoldingPass::apply(ProgramPtr program) {
+    if (trace_enabled_) {
+        std::cout << "[ConstantFoldingPass] Starting constant folding pass" << std::endl;
+    }
     program->accept(*this);
+    if (trace_enabled_) {
+        std::cout << "[ConstantFoldingPass] Finished constant folding pass" << std::endl;
+    }
     return program;
 }
 
@@ -5270,7 +5275,7 @@ void ConstantFoldingPass::visit(BinaryOp& node) {
         }
         if (foldable) {
             current_transformed_node_ = std::make_unique<NumberLiteral>(result);
-            if (trace_optimizer) {
+            if (trace_enabled_) {
                 std::cout << "[OPTIMIZER] Folded BinaryOp to NumberLiteral: " << result << std::endl;
             }
             return;
@@ -5383,6 +5388,50 @@ void ConstantFoldingPass::visit(UnaryOp& node) {
                 current_transformed_node_ = std::make_unique<NumberLiteral>(int_val.value() == 0 ? static_cast<int64_t>(-1) : static_cast<int64_t>(0));
                 std::cout << "[OPTIMIZER] Folded LogicalNot to NumberLiteral: " << (int_val.value() == 0 ? -1 : 0) << std::endl;
                 return;
+            case UnaryOp::Operator::LengthOf:
+                // LEN optimization: check if operand is a variable with known size
+                if (trace_enabled_) {
+                    std::cout << "[ConstantFoldingPass] Processing LengthOf operator" << std::endl;
+                }
+                if (auto* var_access = dynamic_cast<VariableAccess*>(node.operand.get())) {
+                    if (trace_enabled_) {
+                        std::cout << "[ConstantFoldingPass] LengthOf operand is variable: " << var_access->name << std::endl;
+                    }
+                    if (symbol_table_) {
+                        Symbol symbol;
+                        if (symbol_table_->lookup(var_access->name, symbol)) {
+                            if (trace_enabled_) {
+                                std::cout << "[ConstantFoldingPass] Found symbol for " << var_access->name 
+                                          << ", has_size=" << (symbol.has_size ? "true" : "false") 
+                                          << ", size=" << symbol.size << std::endl;
+                            }
+                            if (symbol.has_size) {
+                                int64_t size = static_cast<int64_t>(symbol.size);
+                                
+                                if (trace_enabled_) {
+                                    std::cout << "[ConstantFoldingPass] Optimizing LEN(" << var_access->name 
+                                              << ") to constant " << size << std::endl;
+                                }
+                                
+                                current_transformed_node_ = std::make_unique<NumberLiteral>(size);
+                                return;
+                            }
+                        } else {
+                            if (trace_enabled_) {
+                                std::cout << "[ConstantFoldingPass] Symbol not found for " << var_access->name << std::endl;
+                            }
+                        }
+                    } else {
+                        if (trace_enabled_) {
+                            std::cout << "[ConstantFoldingPass] No symbol table available" << std::endl;
+                        }
+                    }
+                } else {
+                    if (trace_enabled_) {
+                        std::cout << "[ConstantFoldingPass] LengthOf operand is not a variable access" << std::endl;
+                    }
+                }
+                break;
             case UnaryOp::Operator::TailOfNonDestructive:
                 // REST is not a constant-foldable operation, but we should not crash.
                 break;
@@ -5462,7 +5511,7 @@ void ConstantFoldingPass::visit(VariableAccess& node) {
         // This variable has a known constant value. Replace this node
         // with a NumberLiteral containing that value.
         current_transformed_node_ = std::make_unique<NumberLiteral>(static_cast<int64_t>(it_local->second));
-        if (trace_optimizer) {
+        if (trace_enabled_) {
             std::cout << "[OPTIMIZER] Propagated constant for variable '" << node.name 
                       << "' with value " << it_local->second << std::endl;
         }
@@ -5492,7 +5541,7 @@ void ConstantFoldingPass::visit(AssignmentStatement& node) {
             if (rhs_lit && rhs_lit->literal_type == NumberLiteral::LiteralType::Integer) {
                 // The variable 'lhs_var->name' is now a known constant. Track it.
                 known_constants_[lhs_var->name] = rhs_lit->int_value;
-                if (trace_optimizer) {
+                if (trace_enabled_) {
                     std::cout << "[OPTIMIZER] Propagation: Variable '" << lhs_var->name 
                               << "' is now constant with value " << rhs_lit->int_value << std::endl;
                 }
@@ -5523,6 +5572,42 @@ void ConstantFoldingPass::visit(RepeatStatement& node) {
     node.body = visit_stmt(std::move(node.body));
     if (node.condition) {
         node.condition = visit_expr(std::move(node.condition));
+    }
+}
+
+void ConstantFoldingPass::visit(FunctionCall& node) {
+    // Check if this is a LEN() function call before processing arguments
+    if (auto* var_access = dynamic_cast<VariableAccess*>(node.function_expr.get())) {
+        if (var_access->name == "LEN" && node.arguments.size() == 1) {
+            // Check if the argument is a variable access
+            if (auto* arg_var = dynamic_cast<VariableAccess*>(node.arguments[0].get())) {
+                // Look up the variable in the symbol table
+                if (symbol_table_) {
+                    Symbol symbol;
+                    if (symbol_table_->lookup(arg_var->name, symbol) && symbol.has_size) {
+                        // Replace LEN(V) with the constant size
+                        int64_t size = static_cast<int64_t>(symbol.size);
+                        
+                        if (trace_enabled_) {
+                            std::cout << "[ConstantFoldingPass] Optimizing LEN(" << arg_var->name 
+                                      << ") to constant " << size << std::endl;
+                        }
+                        
+                        // Replace the current node with a NumberLiteral
+                        current_transformed_node_ = std::make_unique<NumberLiteral>(size);
+                        return;
+                    }
+                }
+            }
+        }
+    }
+    
+    // Default behavior: process function call normally
+    node.function_expr = visit_expr(std::move(node.function_expr));
+    for (auto& arg : node.arguments) {
+        if (arg) {
+            arg = visit_expr(std::move(arg));
+        }
     }
 }
 
@@ -24657,7 +24742,24 @@ VarType StatelessTypeInference::infer_expression_type(const Expression* expr, co
 
     // Vector access
     if (const auto* vec_access = dynamic_cast<const VectorAccess*>(expr)) {
-        return VarType::INTEGER; // Vector elements are typically integers
+        // Infer element type based on the vector type
+        VarType vector_type = infer_expression_type(vec_access->vector_expr.get(), symbol_table);
+        
+        // If accessing a PAIRS vector, return PAIR
+        if ((static_cast<int64_t>(vector_type) & static_cast<int64_t>(VarType::PAIRS)) != 0) {
+            return VarType::PAIR;
+        }
+        // If accessing a float vector, return float
+        if ((static_cast<int64_t>(vector_type) & static_cast<int64_t>(VarType::FLOAT)) != 0) {
+            return VarType::FLOAT;
+        }
+        // Default to integer for regular vectors
+        return VarType::INTEGER;
+    }
+
+    // Lane access (vector.|n|)
+    if (const auto* lane_access = dynamic_cast<const LaneAccessExpression*>(expr)) {
+        return VarType::INTEGER; // Lane access always returns INTEGER
     }
 
     // Vector allocation
@@ -24668,6 +24770,11 @@ VarType StatelessTypeInference::infer_expression_type(const Expression* expr, co
     // Float vector allocation
     if (const auto* fvec_alloc = dynamic_cast<const FVecAllocationExpression*>(expr)) {
         return VarType::POINTER_TO_FLOAT_VEC;
+    }
+
+    // PAIRS allocation
+    if (const auto* pairs_alloc = dynamic_cast<const PairsAllocationExpression*>(expr)) {
+        return VarType::POINTER_TO_PAIRS;
     }
 
     // String allocation
@@ -24835,8 +24942,11 @@ VarType StatelessTypeInference::infer_function_call_type(const FunctionCall* fun
         if (func_name == "READF" || func_name == "SIN" || func_name == "COS" || func_name == "SQRT") {
             return VarType::FLOAT;
         }
-        if (func_name == "READS" || func_name == "NEWVEC" || func_name == "GETVEC") {
+        if (func_name == "READS" || func_name == "NEWVEC") {
             return VarType::POINTER_TO_INT;
+        }
+        if (func_name == "GETVEC") {
+            return VarType::POINTER_TO_INT_VEC;
         }
         if (func_name == "FGETVEC") {
             return VarType::POINTER_TO_FLOAT_VEC;
@@ -25531,7 +25641,161 @@ void SymbolDiscoveryPass::visit(UnlessStatement& node) {
     }
 }
 
+void SymbolDiscoveryPass::visit(AssignmentStatement& node) {
+    // Check if this is a simple assignment (one lhs, one rhs) to a variable
+    if (node.lhs.size() == 1 && node.rhs.size() == 1) {
+        if (auto* var_access = dynamic_cast<VariableAccess*>(node.lhs[0].get())) {
+            // Check for vector allocations and set the variable name
+            if (auto* vec_alloc = dynamic_cast<VecAllocationExpression*>(node.rhs[0].get())) {
+                vec_alloc->variable_name = var_access->name;
+                trace("Set variable name for VecAllocationExpression: " + var_access->name);
+            } else if (auto* fvec_alloc = dynamic_cast<FVecAllocationExpression*>(node.rhs[0].get())) {
+                fvec_alloc->variable_name = var_access->name;
+                trace("Set variable name for FVecAllocationExpression: " + var_access->name);
+            } else if (auto* pairs_alloc = dynamic_cast<PairsAllocationExpression*>(node.rhs[0].get())) {
+                pairs_alloc->variable_name = var_access->name;
+                trace("Set variable name for PairsAllocationExpression: " + var_access->name);
+            } else if (auto* func_call = dynamic_cast<FunctionCall*>(node.rhs[0].get())) {
+                // Check if this is a GETVEC or FGETVEC function call
+                if (auto* func_var = dynamic_cast<VariableAccess*>(func_call->function_expr.get())) {
+                    const std::string& func_name = func_var->name;
+                    if ((func_name == "GETVEC" || func_name == "FGETVEC") && func_call->arguments.size() == 1) {
+                        // Check if size argument is a constant
+                        if (auto* num_lit = dynamic_cast<NumberLiteral*>(func_call->arguments[0].get())) {
+                            int64_t size = num_lit->int_value;
+                            
+                            // Update the variable's symbol with size information
+                            Symbol symbol;
+                            if (symbol_table_->lookup(var_access->name, symbol)) {
+                                VarType vec_type = (func_name == "GETVEC") ? VarType::POINTER_TO_INT_VEC : VarType::POINTER_TO_FLOAT_VEC;
+                                symbol.type = vec_type;
+                                symbol.size = static_cast<size_t>(size);
+                                symbol.has_size = true;
+                                symbol_table_->updateSymbol(var_access->name, symbol);
+                                trace("Updated " + func_name + " variable: " + var_access->name + " with size " + std::to_string(size));
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+    
+    // Continue with normal assignment processing - visit all RHS expressions
+    for (auto& expr : node.rhs) {
+        if (expr) {
+            expr->accept(*this);
+        }
+    }
+}
 
+void SymbolDiscoveryPass::visit(VecAllocationExpression& node) {
+    trace("Processing VecAllocationExpression");
+    
+    // Check if size is a constant
+    if (auto* num_lit = dynamic_cast<NumberLiteral*>(node.size_expr.get())) {
+        int64_t size = num_lit->int_value;
+        
+        // If this vector allocation is being assigned to a variable, update its symbol
+        if (!node.variable_name.empty()) {
+            Symbol symbol;
+            if (symbol_table_->lookup(node.variable_name, symbol)) {
+                symbol.type = VarType::POINTER_TO_INT_VEC;
+                symbol.size = static_cast<size_t>(size);
+                symbol.has_size = true;
+                symbol_table_->updateSymbol(node.variable_name, symbol);
+                trace("Updated vector variable: " + node.variable_name + " with size " + std::to_string(size));
+            }
+        }
+    }
+    
+    // Visit the size expression
+    if (node.size_expr) {
+        node.size_expr->accept(*this);
+    }
+}
+
+void SymbolDiscoveryPass::visit(FVecAllocationExpression& node) {
+    trace("Processing FVecAllocationExpression");
+    
+    // Check if size is a constant
+    if (auto* num_lit = dynamic_cast<NumberLiteral*>(node.size_expr.get())) {
+        int64_t size = num_lit->int_value;
+        
+        // If this vector allocation is being assigned to a variable, update its symbol
+        if (!node.variable_name.empty()) {
+            Symbol symbol;
+            if (symbol_table_->lookup(node.variable_name, symbol)) {
+                symbol.type = VarType::POINTER_TO_FLOAT_VEC;
+                symbol.size = static_cast<size_t>(size);
+                symbol.has_size = true;
+                symbol_table_->updateSymbol(node.variable_name, symbol);
+                trace("Updated float vector variable: " + node.variable_name + " with size " + std::to_string(size));
+            }
+        }
+    }
+    
+    // Visit the size expression
+    if (node.size_expr) {
+        node.size_expr->accept(*this);
+    }
+}
+
+void SymbolDiscoveryPass::visit(PairsAllocationExpression& node) {
+    trace("Processing PairsAllocationExpression");
+    
+    // Check if size is a constant
+    if (auto* num_lit = dynamic_cast<NumberLiteral*>(node.size_expr.get())) {
+        int64_t size = num_lit->int_value;
+        
+        // If this pairs allocation is being assigned to a variable, update its symbol
+        if (!node.variable_name.empty()) {
+            Symbol symbol;
+            if (symbol_table_->lookup(node.variable_name, symbol)) {
+                symbol.type = VarType::POINTER_TO_PAIRS;
+                symbol.size = static_cast<size_t>(size);
+                symbol.has_size = true;
+                symbol_table_->updateSymbol(node.variable_name, symbol);
+                trace("Updated PAIRS variable: " + node.variable_name + " with size " + std::to_string(size));
+            }
+        }
+    }
+    
+    // Visit the size expression
+    if (node.size_expr) {
+        node.size_expr->accept(*this);
+    }
+}
+
+void SymbolDiscoveryPass::visit(FunctionCall& node) {
+    trace("Processing FunctionCall");
+    
+    // Check if this is a vector allocation function call
+    if (auto* var_access = dynamic_cast<VariableAccess*>(node.function_expr.get())) {
+        const std::string& func_name = var_access->name;
+        
+        if ((func_name == "GETVEC" || func_name == "FGETVEC") && node.arguments.size() == 1) {
+            // Check if size argument is a constant
+            if (auto* num_lit = dynamic_cast<NumberLiteral*>(node.arguments[0].get())) {
+                int64_t size = num_lit->int_value;
+                
+                // Store size information for this function call for later use
+                // We'll track this in a temporary way during assignment processing
+                trace("Found " + func_name + " call with constant size: " + std::to_string(size));
+            }
+        }
+    }
+    
+    // Visit function expression and arguments
+    if (node.function_expr) {
+        node.function_expr->accept(*this);
+    }
+    for (auto& arg : node.arguments) {
+        if (arg) {
+            arg->accept(*this);
+        }
+    }
+}
 
 void SymbolDiscoveryPass::trace(const std::string& message) const {
     if (enable_tracing_) {
@@ -26123,9 +26387,10 @@ std::string SymbolTableBuilder::extract_class_name_from_expression(Expression* e
 }
 
 void SymbolTableBuilder::visit(AssignmentStatement& node) {
-    // Check if this is a simple assignment (one lhs, one rhs) to a variable with a NEW expression
+    // Check if this is a simple assignment (one lhs, one rhs) to a variable
     if (node.lhs.size() == 1 && node.rhs.size() == 1) {
         if (auto* var_access = dynamic_cast<VariableAccess*>(node.lhs[0].get())) {
+            // Check for NEW expression
             std::string class_name = extract_class_name_from_expression(node.rhs[0].get());
             if (!class_name.empty()) {
                 // Look up the symbol and update its class name
@@ -26138,6 +26403,18 @@ void SymbolTableBuilder::visit(AssignmentStatement& node) {
                     trace("Updated symbol '" + var_access->name + "' with class_name '" + class_name + "' from assignment");
                 }
             }
+            
+            // Check for vector allocations and set the variable name
+            if (auto* vec_alloc = dynamic_cast<VecAllocationExpression*>(node.rhs[0].get())) {
+                vec_alloc->variable_name = var_access->name;
+                trace("Set variable name for VecAllocationExpression: " + var_access->name);
+            } else if (auto* fvec_alloc = dynamic_cast<FVecAllocationExpression*>(node.rhs[0].get())) {
+                fvec_alloc->variable_name = var_access->name;
+                trace("Set variable name for FVecAllocationExpression: " + var_access->name);
+            } else if (auto* pairs_alloc = dynamic_cast<PairsAllocationExpression*>(node.rhs[0].get())) {
+                pairs_alloc->variable_name = var_access->name;
+                trace("Set variable name for PairsAllocationExpression: " + var_access->name);
+            }
         }
     }
     
@@ -26146,6 +26423,84 @@ void SymbolTableBuilder::visit(AssignmentStatement& node) {
         if (expr) {
             expr->accept(*this);
         }
+    }
+}
+
+void SymbolTableBuilder::visit(VecAllocationExpression& node) {
+    trace("Processing VecAllocationExpression");
+    
+    // Check if size is a constant
+    if (auto* num_lit = dynamic_cast<NumberLiteral*>(node.size_expr.get())) {
+        int64_t size = num_lit->int_value;
+        
+        // If this vector allocation is being assigned to a variable, update its symbol
+        if (!node.variable_name.empty()) {
+            Symbol symbol;
+            if (symbol_table_->lookup(node.variable_name, symbol)) {
+                symbol.type = VarType::POINTER_TO_INT_VEC;
+                symbol.size = static_cast<size_t>(size);
+                symbol.has_size = true;
+                symbol_table_->updateSymbol(node.variable_name, symbol);
+                trace("Updated vector variable: " + node.variable_name + " with size " + std::to_string(size));
+            }
+        }
+    }
+    
+    // Visit the size expression
+    if (node.size_expr) {
+        node.size_expr->accept(*this);
+    }
+}
+
+void SymbolTableBuilder::visit(FVecAllocationExpression& node) {
+    trace("Processing FVecAllocationExpression");
+    
+    // Check if size is a constant
+    if (auto* num_lit = dynamic_cast<NumberLiteral*>(node.size_expr.get())) {
+        int64_t size = num_lit->int_value;
+        
+        // If this vector allocation is being assigned to a variable, update its symbol
+        if (!node.variable_name.empty()) {
+            Symbol symbol;
+            if (symbol_table_->lookup(node.variable_name, symbol)) {
+                symbol.type = VarType::POINTER_TO_FLOAT_VEC;
+                symbol.size = static_cast<size_t>(size);
+                symbol.has_size = true;
+                symbol_table_->updateSymbol(node.variable_name, symbol);
+                trace("Updated float vector variable: " + node.variable_name + " with size " + std::to_string(size));
+            }
+        }
+    }
+    
+    // Visit the size expression
+    if (node.size_expr) {
+        node.size_expr->accept(*this);
+    }
+}
+
+void SymbolTableBuilder::visit(PairsAllocationExpression& node) {
+    trace("Processing PairsAllocationExpression");
+    
+    // Check if size is a constant
+    if (auto* num_lit = dynamic_cast<NumberLiteral*>(node.size_expr.get())) {
+        int64_t size = num_lit->int_value;
+        
+        // If this pairs allocation is being assigned to a variable, update its symbol
+        if (!node.variable_name.empty()) {
+            Symbol symbol;
+            if (symbol_table_->lookup(node.variable_name, symbol)) {
+                symbol.type = VarType::POINTER_TO_PAIRS;
+                symbol.size = static_cast<size_t>(size);
+                symbol.has_size = true;
+                symbol_table_->updateSymbol(node.variable_name, symbol);
+                trace("Updated PAIRS variable: " + node.variable_name + " with size " + std::to_string(size));
+            }
+        }
+    }
+    
+    // Visit the size expression
+    if (node.size_expr) {
+        node.size_expr->accept(*this);
     }
 }
 
@@ -44714,11 +45069,15 @@ void NewCodeGenerator::visit(PairsAllocationExpression& node) {
     // `PAIRS size_expr`
     // This allocates a vector (array) of PAIR words on the heap and returns its address.
     // Each PAIR is 8 bytes (2 x 32-bit integers), so we need size_expr * 2 words.
-    // This uses the existing GETVEC runtime function.
+    // However, we store the PAIR count in the header, not the word count.
 
     // 1. Evaluate the size_expr (number of PAIRs).
     generate_expression_code(*node.size_expr);
     std::string size_pairs_reg = expression_result_reg_; // Register holding the number of PAIRs
+    
+    // Keep a copy of the pair count for the header
+    std::string pair_count_reg = register_manager_.acquire_spillable_temp_reg(*this);
+    emit(Encoder::create_mov_reg(pair_count_reg, size_pairs_reg));
 
     // 2. Calculate total words needed: size_pairs * 2 (each PAIR = 2 words)
     std::string total_words_reg = register_manager_.acquire_spillable_temp_reg(*this);
@@ -44727,18 +45086,28 @@ void NewCodeGenerator::visit(PairsAllocationExpression& node) {
     // 3. Move the total number of words to X0 (GETVEC expects word count in X0).
     if (total_words_reg != "X0") {
         emit(Encoder::create_mov_reg("X0", total_words_reg));
-        register_manager_.release_register(total_words_reg);
     }
+    register_manager_.release_register(total_words_reg);
+    register_manager_.release_register(size_pairs_reg);
 
     // 4. Call the GETVEC runtime function.
     // GETVEC allocates memory and returns the base address in X0.
     emit(Encoder::create_branch_with_link("GETVEC"));
 
-    // 5. The result (base address of the allocated PAIRS vector) is now in X0.
+    // 5. Fix the length header: Replace word count with PAIR count
+    // The vector header is at [result_ptr - 8], and currently contains total_words
+    // We need to replace it with pair_count (the number of PAIRs)
     std::string result_reg = register_manager_.acquire_spillable_temp_reg(*this);
     if (result_reg != "X0") {
         emit(Encoder::create_mov_reg(result_reg, "X0"));
     }
+    
+    // Store the PAIR count in the length header at [result_ptr - 8]
+    std::string header_addr_reg = register_manager_.acquire_scratch_reg(*this);
+    emit(Encoder::create_sub_imm(header_addr_reg, result_reg, 8)); // header_addr = result_ptr - 8
+    emit(Encoder::create_str_imm(pair_count_reg, header_addr_reg, 0)); // Store PAIR count in header
+    register_manager_.release_register(header_addr_reg);
+    register_manager_.release_register(pair_count_reg);
 
     expression_result_reg_ = result_reg;
     debug_print("Finished visiting PairsAllocationExpression node. Result in " + expression_result_reg_);
@@ -46392,6 +46761,7 @@ void NewCodeGenerator::visit(UnaryOp& node) {
         if (
             operand_type == VarType::POINTER_TO_INT_VEC ||
             operand_type == VarType::POINTER_TO_FLOAT_VEC ||
+            operand_type == VarType::POINTER_TO_PAIRS ||
             operand_type == VarType::POINTER_TO_STRING
         ) {
             // This logic is now correct for both VEC and TABLE.
@@ -49153,8 +49523,8 @@ int main(int argc, char* argv[]) {
         // --- Local Optimization Pass (CSE/LVN) using StringTable ---
         if (enable_opt) {
             if (enable_tracing || trace_optimizer) std::cout << "Optimization enabled. Applying passes...\n";
-            //            ConstantFoldingPass constant_folding_pass(g_global_manifest_constants);
-            //            ast = constant_folding_pass.apply(std::move(ast));
+            ConstantFoldingPass constant_folding_pass(g_global_manifest_constants, symbol_table.get(), trace_optimizer);
+            ast = constant_folding_pass.apply(std::move(ast));
 
             // Clear FOR loop state before StrengthReductionPass to prevent corruption
             ASTAnalyzer& analyzer_for_clearing = ASTAnalyzer::getInstance();
@@ -54954,8 +55324,8 @@ void register_runtime_functions() {
     register_runtime_function("BCPL_ALLOC_WORDS", 3, reinterpret_cast<void*>(bcpl_alloc_words));
     register_runtime_function("BCPL_ALLOC_CHARS", 1, reinterpret_cast<void*>(bcpl_alloc_chars));
     register_runtime_function("MALLOC", 1, reinterpret_cast<void*>(bcpl_alloc_words)); // Alias for compatibility
-    register_runtime_function("GETVEC", 1, reinterpret_cast<void*>(bcpl_getvec)); // Traditional BCPL vector allocation
-    register_runtime_function("FGETVEC", 1, reinterpret_cast<void*>(bcpl_fgetvec)); // Float vector allocation
+    register_runtime_function("GETVEC", 1, reinterpret_cast<void*>(bcpl_getvec), FunctionType::STANDARD, VarType::POINTER_TO_INT_VEC); // Traditional BCPL vector allocation
+    register_runtime_function("FGETVEC", 1, reinterpret_cast<void*>(bcpl_fgetvec), FunctionType::STANDARD, VarType::POINTER_TO_FLOAT_VEC); // Float vector allocation
     if (RuntimeManager::instance().isTracingEnabled()) {
         printf("DEBUG: Registering FREEVEC with bcpl_free at address %p\n", reinterpret_cast<void*>(bcpl_free));
     }

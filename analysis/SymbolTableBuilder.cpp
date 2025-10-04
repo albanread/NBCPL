@@ -456,9 +456,10 @@ std::string SymbolTableBuilder::extract_class_name_from_expression(Expression* e
 }
 
 void SymbolTableBuilder::visit(AssignmentStatement& node) {
-    // Check if this is a simple assignment (one lhs, one rhs) to a variable with a NEW expression
+    // Check if this is a simple assignment (one lhs, one rhs) to a variable
     if (node.lhs.size() == 1 && node.rhs.size() == 1) {
         if (auto* var_access = dynamic_cast<VariableAccess*>(node.lhs[0].get())) {
+            // Check for NEW expression
             std::string class_name = extract_class_name_from_expression(node.rhs[0].get());
             if (!class_name.empty()) {
                 // Look up the symbol and update its class name
@@ -471,6 +472,18 @@ void SymbolTableBuilder::visit(AssignmentStatement& node) {
                     trace("Updated symbol '" + var_access->name + "' with class_name '" + class_name + "' from assignment");
                 }
             }
+            
+            // Check for vector allocations and set the variable name
+            if (auto* vec_alloc = dynamic_cast<VecAllocationExpression*>(node.rhs[0].get())) {
+                vec_alloc->variable_name = var_access->name;
+                trace("Set variable name for VecAllocationExpression: " + var_access->name);
+            } else if (auto* fvec_alloc = dynamic_cast<FVecAllocationExpression*>(node.rhs[0].get())) {
+                fvec_alloc->variable_name = var_access->name;
+                trace("Set variable name for FVecAllocationExpression: " + var_access->name);
+            } else if (auto* pairs_alloc = dynamic_cast<PairsAllocationExpression*>(node.rhs[0].get())) {
+                pairs_alloc->variable_name = var_access->name;
+                trace("Set variable name for PairsAllocationExpression: " + var_access->name);
+            }
         }
     }
     
@@ -479,6 +492,84 @@ void SymbolTableBuilder::visit(AssignmentStatement& node) {
         if (expr) {
             expr->accept(*this);
         }
+    }
+}
+
+void SymbolTableBuilder::visit(VecAllocationExpression& node) {
+    trace("Processing VecAllocationExpression");
+    
+    // Check if size is a constant
+    if (auto* num_lit = dynamic_cast<NumberLiteral*>(node.size_expr.get())) {
+        int64_t size = num_lit->int_value;
+        
+        // If this vector allocation is being assigned to a variable, update its symbol
+        if (!node.variable_name.empty()) {
+            Symbol symbol;
+            if (symbol_table_->lookup(node.variable_name, symbol)) {
+                symbol.type = VarType::POINTER_TO_INT_VEC;
+                symbol.size = static_cast<size_t>(size);
+                symbol.has_size = true;
+                symbol_table_->updateSymbol(node.variable_name, symbol);
+                trace("Updated vector variable: " + node.variable_name + " with size " + std::to_string(size));
+            }
+        }
+    }
+    
+    // Visit the size expression
+    if (node.size_expr) {
+        node.size_expr->accept(*this);
+    }
+}
+
+void SymbolTableBuilder::visit(FVecAllocationExpression& node) {
+    trace("Processing FVecAllocationExpression");
+    
+    // Check if size is a constant
+    if (auto* num_lit = dynamic_cast<NumberLiteral*>(node.size_expr.get())) {
+        int64_t size = num_lit->int_value;
+        
+        // If this vector allocation is being assigned to a variable, update its symbol
+        if (!node.variable_name.empty()) {
+            Symbol symbol;
+            if (symbol_table_->lookup(node.variable_name, symbol)) {
+                symbol.type = VarType::POINTER_TO_FLOAT_VEC;
+                symbol.size = static_cast<size_t>(size);
+                symbol.has_size = true;
+                symbol_table_->updateSymbol(node.variable_name, symbol);
+                trace("Updated float vector variable: " + node.variable_name + " with size " + std::to_string(size));
+            }
+        }
+    }
+    
+    // Visit the size expression
+    if (node.size_expr) {
+        node.size_expr->accept(*this);
+    }
+}
+
+void SymbolTableBuilder::visit(PairsAllocationExpression& node) {
+    trace("Processing PairsAllocationExpression");
+    
+    // Check if size is a constant
+    if (auto* num_lit = dynamic_cast<NumberLiteral*>(node.size_expr.get())) {
+        int64_t size = num_lit->int_value;
+        
+        // If this pairs allocation is being assigned to a variable, update its symbol
+        if (!node.variable_name.empty()) {
+            Symbol symbol;
+            if (symbol_table_->lookup(node.variable_name, symbol)) {
+                symbol.type = VarType::POINTER_TO_PAIRS;
+                symbol.size = static_cast<size_t>(size);
+                symbol.has_size = true;
+                symbol_table_->updateSymbol(node.variable_name, symbol);
+                trace("Updated PAIRS variable: " + node.variable_name + " with size " + std::to_string(size));
+            }
+        }
+    }
+    
+    // Visit the size expression
+    if (node.size_expr) {
+        node.size_expr->accept(*this);
     }
 }
 

@@ -3,8 +3,7 @@
 #include "ConstantFoldingPass.h"
 #include <iostream>
 
-// Trace flag for optimizer debug output
-static bool trace_optimizer = false;
+// NOTE: trace_optimizer is now passed via constructor
 
 // --- Helpers for evaluating constant expressions ---
 
@@ -78,11 +77,17 @@ bool ConstantFoldingPass::is_bcpl_true(Expression* expr) const {
     return false;
 }
 
-ConstantFoldingPass::ConstantFoldingPass(std::unordered_map<std::string, int64_t>& manifests)
-    : Optimizer(manifests) {}
+ConstantFoldingPass::ConstantFoldingPass(std::unordered_map<std::string, int64_t>& manifests, SymbolTable* symbol_table, bool trace_enabled)
+    : Optimizer(manifests), symbol_table_(symbol_table), trace_enabled_(trace_enabled) {}
 
 ProgramPtr ConstantFoldingPass::apply(ProgramPtr program) {
+    if (trace_enabled_) {
+        std::cout << "[ConstantFoldingPass] Starting constant folding pass" << std::endl;
+    }
     program->accept(*this);
+    if (trace_enabled_) {
+        std::cout << "[ConstantFoldingPass] Finished constant folding pass" << std::endl;
+    }
     return program;
 }
 
@@ -229,7 +234,7 @@ void ConstantFoldingPass::visit(BinaryOp& node) {
         }
         if (foldable) {
             current_transformed_node_ = std::make_unique<NumberLiteral>(result);
-            if (trace_optimizer) {
+            if (trace_enabled_) {
                 std::cout << "[OPTIMIZER] Folded BinaryOp to NumberLiteral: " << result << std::endl;
             }
             return;
@@ -342,6 +347,50 @@ void ConstantFoldingPass::visit(UnaryOp& node) {
                 current_transformed_node_ = std::make_unique<NumberLiteral>(int_val.value() == 0 ? static_cast<int64_t>(-1) : static_cast<int64_t>(0));
                 std::cout << "[OPTIMIZER] Folded LogicalNot to NumberLiteral: " << (int_val.value() == 0 ? -1 : 0) << std::endl;
                 return;
+            case UnaryOp::Operator::LengthOf:
+                // LEN optimization: check if operand is a variable with known size
+                if (trace_enabled_) {
+                    std::cout << "[ConstantFoldingPass] Processing LengthOf operator" << std::endl;
+                }
+                if (auto* var_access = dynamic_cast<VariableAccess*>(node.operand.get())) {
+                    if (trace_enabled_) {
+                        std::cout << "[ConstantFoldingPass] LengthOf operand is variable: " << var_access->name << std::endl;
+                    }
+                    if (symbol_table_) {
+                        Symbol symbol;
+                        if (symbol_table_->lookup(var_access->name, symbol)) {
+                            if (trace_enabled_) {
+                                std::cout << "[ConstantFoldingPass] Found symbol for " << var_access->name 
+                                          << ", has_size=" << (symbol.has_size ? "true" : "false") 
+                                          << ", size=" << symbol.size << std::endl;
+                            }
+                            if (symbol.has_size) {
+                                int64_t size = static_cast<int64_t>(symbol.size);
+                                
+                                if (trace_enabled_) {
+                                    std::cout << "[ConstantFoldingPass] Optimizing LEN(" << var_access->name 
+                                              << ") to constant " << size << std::endl;
+                                }
+                                
+                                current_transformed_node_ = std::make_unique<NumberLiteral>(size);
+                                return;
+                            }
+                        } else {
+                            if (trace_enabled_) {
+                                std::cout << "[ConstantFoldingPass] Symbol not found for " << var_access->name << std::endl;
+                            }
+                        }
+                    } else {
+                        if (trace_enabled_) {
+                            std::cout << "[ConstantFoldingPass] No symbol table available" << std::endl;
+                        }
+                    }
+                } else {
+                    if (trace_enabled_) {
+                        std::cout << "[ConstantFoldingPass] LengthOf operand is not a variable access" << std::endl;
+                    }
+                }
+                break;
             case UnaryOp::Operator::TailOfNonDestructive:
                 // REST is not a constant-foldable operation, but we should not crash.
                 break;
@@ -421,7 +470,7 @@ void ConstantFoldingPass::visit(VariableAccess& node) {
         // This variable has a known constant value. Replace this node
         // with a NumberLiteral containing that value.
         current_transformed_node_ = std::make_unique<NumberLiteral>(static_cast<int64_t>(it_local->second));
-        if (trace_optimizer) {
+        if (trace_enabled_) {
             std::cout << "[OPTIMIZER] Propagated constant for variable '" << node.name 
                       << "' with value " << it_local->second << std::endl;
         }
@@ -451,7 +500,7 @@ void ConstantFoldingPass::visit(AssignmentStatement& node) {
             if (rhs_lit && rhs_lit->literal_type == NumberLiteral::LiteralType::Integer) {
                 // The variable 'lhs_var->name' is now a known constant. Track it.
                 known_constants_[lhs_var->name] = rhs_lit->int_value;
-                if (trace_optimizer) {
+                if (trace_enabled_) {
                     std::cout << "[OPTIMIZER] Propagation: Variable '" << lhs_var->name 
                               << "' is now constant with value " << rhs_lit->int_value << std::endl;
                 }
@@ -482,5 +531,41 @@ void ConstantFoldingPass::visit(RepeatStatement& node) {
     node.body = visit_stmt(std::move(node.body));
     if (node.condition) {
         node.condition = visit_expr(std::move(node.condition));
+    }
+}
+
+void ConstantFoldingPass::visit(FunctionCall& node) {
+    // Check if this is a LEN() function call before processing arguments
+    if (auto* var_access = dynamic_cast<VariableAccess*>(node.function_expr.get())) {
+        if (var_access->name == "LEN" && node.arguments.size() == 1) {
+            // Check if the argument is a variable access
+            if (auto* arg_var = dynamic_cast<VariableAccess*>(node.arguments[0].get())) {
+                // Look up the variable in the symbol table
+                if (symbol_table_) {
+                    Symbol symbol;
+                    if (symbol_table_->lookup(arg_var->name, symbol) && symbol.has_size) {
+                        // Replace LEN(V) with the constant size
+                        int64_t size = static_cast<int64_t>(symbol.size);
+                        
+                        if (trace_enabled_) {
+                            std::cout << "[ConstantFoldingPass] Optimizing LEN(" << arg_var->name 
+                                      << ") to constant " << size << std::endl;
+                        }
+                        
+                        // Replace the current node with a NumberLiteral
+                        current_transformed_node_ = std::make_unique<NumberLiteral>(size);
+                        return;
+                    }
+                }
+            }
+        }
+    }
+    
+    // Default behavior: process function call normally
+    node.function_expr = visit_expr(std::move(node.function_expr));
+    for (auto& arg : node.arguments) {
+        if (arg) {
+            arg = visit_expr(std::move(arg));
+        }
     }
 }
