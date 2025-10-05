@@ -82,7 +82,11 @@ public:
         CaseStmt, DefaultStmt, BrkStatement, LabelTargetStmt, ConditionalBranchStmt,
         DeferStmt, // <-- Added for DEFER statement
         RetainStmt, // <-- Added for RETAIN statement
-        RemanageStmt // <-- Added for REMANAGE statement
+        RemanageStmt, // <-- Added for REMANAGE statement
+        MinStmt, // <-- Added for MIN statement
+        MaxStmt, // <-- Added for MAX statement  
+        SumStmt, // <-- Added for SUM statement
+        ReductionLoopStmt // <-- Added for reduction loop metadata
     };
 
     ASTNode(NodeType type) : type_(type) {}
@@ -1111,6 +1115,118 @@ public:
         // The loop variable is defined by the for statement
         return {loop_variable};
     }
+};
+
+// === Reduction Statements ===
+
+class MinStatement : public Statement {
+public:
+    std::string result_variable;
+    ExprPtr left_operand;
+    ExprPtr right_operand;
+    
+    MinStatement(std::string result_var, ExprPtr left, ExprPtr right)
+        : Statement(NodeType::MinStmt), result_variable(std::move(result_var)), 
+          left_operand(std::move(left)), right_operand(std::move(right)) {}
+    
+    void accept(ASTVisitor& visitor) override;
+    ASTNodePtr clone() const override;
+    
+    std::vector<std::string> get_used_variables() const override {
+        std::vector<std::string> used;
+        if (auto* var = dynamic_cast<VariableAccess*>(left_operand.get())) {
+            used.push_back(var->name);
+        }
+        if (auto* var = dynamic_cast<VariableAccess*>(right_operand.get())) {
+            used.push_back(var->name);
+        }
+        return used;
+    }
+    
+    std::vector<std::string> get_defined_variables() const override {
+        return {result_variable};
+    }
+};
+
+class MaxStatement : public Statement {
+public:
+    std::string result_variable;
+    ExprPtr left_operand;
+    ExprPtr right_operand;
+    
+    MaxStatement(std::string result_var, ExprPtr left, ExprPtr right)
+        : Statement(NodeType::MaxStmt), result_variable(std::move(result_var)), 
+          left_operand(std::move(left)), right_operand(std::move(right)) {}
+    
+    void accept(ASTVisitor& visitor) override;
+    ASTNodePtr clone() const override;
+    
+    std::vector<std::string> get_used_variables() const override {
+        std::vector<std::string> used;
+        if (auto* var = dynamic_cast<VariableAccess*>(left_operand.get())) {
+            used.push_back(var->name);
+        }
+        if (auto* var = dynamic_cast<VariableAccess*>(right_operand.get())) {
+            used.push_back(var->name);
+        }
+        return used;
+    }
+    
+    std::vector<std::string> get_defined_variables() const override {
+        return {result_variable};
+    }
+};
+
+class SumStatement : public Statement {
+public:
+    std::string result_variable;
+    ExprPtr left_operand;
+    ExprPtr right_operand;
+    
+    SumStatement(std::string result_var, ExprPtr left, ExprPtr right)
+        : Statement(NodeType::SumStmt), result_variable(std::move(result_var)), 
+          left_operand(std::move(left)), right_operand(std::move(right)) {}
+    
+    void accept(ASTVisitor& visitor) override;
+    ASTNodePtr clone() const override;
+    
+    std::vector<std::string> get_used_variables() const override {
+        std::vector<std::string> used;
+        if (auto* var = dynamic_cast<VariableAccess*>(left_operand.get())) {
+            used.push_back(var->name);
+        }
+        if (auto* var = dynamic_cast<VariableAccess*>(right_operand.get())) {
+            used.push_back(var->name);
+        }
+        return used;
+    }
+    
+    std::vector<std::string> get_defined_variables() const override {
+        return {result_variable};
+    }
+};
+
+// === ReductionLoopStatement - CFG Metadata ===
+
+class ReductionLoopStatement : public Statement {
+public:
+    std::string left_temp;
+    std::string right_temp;
+    std::string result_temp;
+    std::string index_name;
+    std::string chunks_name;
+    std::string result_variable;
+    int reduction_op; // ReductionOp enum value
+    
+    ReductionLoopStatement(std::string left, std::string right, std::string result,
+                          std::string index, std::string chunks, std::string result_var, int op)
+        : Statement(NodeType::ReductionLoopStmt), left_temp(std::move(left)), 
+          right_temp(std::move(right)), result_temp(std::move(result)),
+          index_name(std::move(index)), chunks_name(std::move(chunks)),
+          result_variable(std::move(result_var)), reduction_op(op) {}
+    
+    void accept(ASTVisitor& visitor) override;
+    ASTNodePtr clone() const override;
 };
 
 #include <optional> // Add this include for std::optional

@@ -1,0 +1,19 @@
+LET START() BE {
+    WRITEF("Debug: Testing basic scalar operations*N")
+
+    // Test basic arithmetic without reduction operations
+    LET a = 10
+    LET b = 5
+    LET c = a + b
+
+    WRITEF("Basic arithmetic: %N + %N = %N*N", a, b, c)
+
+    // Test basic PAIRS creation and access
+    LET pairs1 = PAIRS 1
+    pairs1!0 := 100
+    pairs1!1 := 200
+
+    WRITEF("Created PAIRS: (%N, %N)*N", pairs1!0, pairs1!1)
+
+    WRITEF("Basic operations successful - scalar reduction test skipped*N")
+}

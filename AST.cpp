@@ -200,3 +200,51 @@ ASTNodePtr FPairAccessExpression::clone() const {
         access_type
     );
 }
+
+// === Reduction Statement Implementations ===
+
+void MinStatement::accept(ASTVisitor& visitor) {
+    visitor.visit(*this);
+}
+
+ASTNodePtr MinStatement::clone() const {
+    return std::make_unique<MinStatement>(
+        result_variable,
+        left_operand ? std::unique_ptr<Expression>(static_cast<Expression*>(left_operand->clone().release())) : nullptr,
+        right_operand ? std::unique_ptr<Expression>(static_cast<Expression*>(right_operand->clone().release())) : nullptr
+    );
+}
+
+void MaxStatement::accept(ASTVisitor& visitor) {
+    visitor.visit(*this);
+}
+
+ASTNodePtr MaxStatement::clone() const {
+    return std::make_unique<MaxStatement>(
+        result_variable,
+        left_operand ? std::unique_ptr<Expression>(static_cast<Expression*>(left_operand->clone().release())) : nullptr,
+        right_operand ? std::unique_ptr<Expression>(static_cast<Expression*>(right_operand->clone().release())) : nullptr
+    );
+}
+
+void SumStatement::accept(ASTVisitor& visitor) {
+    visitor.visit(*this);
+}
+
+ASTNodePtr SumStatement::clone() const {
+    return std::make_unique<SumStatement>(
+        result_variable,
+        left_operand ? std::unique_ptr<Expression>(static_cast<Expression*>(left_operand->clone().release())) : nullptr,
+        right_operand ? std::unique_ptr<Expression>(static_cast<Expression*>(right_operand->clone().release())) : nullptr
+    );
+}
+
+void ReductionLoopStatement::accept(ASTVisitor& visitor) {
+    // This is a metadata statement - no visitor needed
+}
+
+ASTNodePtr ReductionLoopStatement::clone() const {
+    return std::make_unique<ReductionLoopStatement>(
+        left_temp, right_temp, result_temp, index_name, chunks_name, result_variable, reduction_op
+    );
+}

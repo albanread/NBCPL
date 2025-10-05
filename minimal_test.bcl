@@ -1,8 +1,12 @@
-LET START() BE $(
-    LET pairs = VEC 2
-    pairs!0 := PAIR(1, 2)
-    pairs!1 := PAIR(3, 4)
-
-    WRITEF1("pairs!0 = %P*N", pairs!0)
-    WRITEF1("pairs!1 = %P*N", pairs!1)
-$)
+LET start() BE {
+    writef("Creating pairs...%n")
+    LET pairs1 = PAIRS 0  // Minimal case: 1 pair
+    pairs1!0 := PAIR(1, 2)
+    
+    LET pairs2 = PAIRS 0
+    pairs2!0 := PAIR(3, 4)
+    
+    writef("About to call MIN...%n")  
+    LET result = MIN(pairs1, pairs2)
+    writef("MIN completed!%n")
+}

@@ -29,6 +29,8 @@
 class LivenessAnalysisPass;
 class ReductionCodeGen;
 
+#include "reductions.h"
+
 class LabelManager;
 class ASTAnalyzer;
 class Identifier;
@@ -212,6 +214,7 @@ private:
     void visit(ListExpression& node) override;
 
     void visit(ForEachStatement& node) override;
+    void visit(ReductionLoopStatement& node) override;
 
     void visit(OctExpression& node) override;
     void visit(FOctExpression& node) override;
@@ -286,6 +289,7 @@ private:
     LabelManager& label_manager_;
     DataGenerator& data_generator_;
     std::unique_ptr<CallFrameManager> current_frame_manager_;
+    std::unique_ptr<ReductionCodeGen> reduction_codegen_;
 
     bool debug_enabled_;
     int debug_level;

@@ -136,7 +136,7 @@ void NewCodeGenerator::handle_method_call_arguments_for_super(FunctionCall& node
 bool NewCodeGenerator::is_special_built_in(const std::string& func_name) {
     static const std::unordered_set<std::string> built_ins = {
         "AS_INT", "AS_FLOAT", "AS_STRING", "AS_LIST",
-        "FIND", "MAP", "FILTER"
+        "FIND", "MAP", "FILTER",
     };
     return built_ins.count(func_name);
 }
@@ -145,7 +145,7 @@ void NewCodeGenerator::handle_special_built_in_call(FunctionCall& node, const st
     auto* var_access = static_cast<VariableAccess*>(node.function_expr.get());
     const std::string& function_name = var_access->name;
     
-
+    // MIN/MAX/SUM are now handled as regular function calls that get converted to statements during parsing
 
     if (function_name == "AS_INT" || function_name == "AS_FLOAT" || function_name == "AS_STRING" || function_name == "AS_LIST") {
         if (node.arguments.size() != 1) {

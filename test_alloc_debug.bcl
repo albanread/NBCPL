@@ -1,0 +1,39 @@
+LET START() BE {
+    WRITEF("Testing PAIRS Vector Allocation and Access*N")
+    WRITEF("==========================================*N")
+
+    // Test 1: Simple PAIRS allocation
+    WRITEF("1. Creating PAIRS 1 vector...*N")
+    LET p1 = PAIRS 1
+    WRITEF("   PAIRS 1 allocated successfully*N")
+
+    // Test 2: Write to first element
+    WRITEF("2. Writing to p1!0...*N")
+    p1!0 := 42
+    WRITEF("   Written 42 to p1!0*N")
+
+    // Test 3: Read from first element
+    WRITEF("3. Reading from p1!0...*N")
+    LET val = p1!0
+    WRITEF("   Read value: %N*N", val)
+
+    // Test 4: Try PAIRS 2
+    WRITEF("4. Creating PAIRS 2 vector...*N")
+    LET p2 = PAIRS 2
+    WRITEF("   PAIRS 2 allocated successfully*N")
+
+    // Test 5: Write to both elements
+    WRITEF("5. Writing to p2!0 and p2!1...*N")
+    p2!0 := 100
+    p2!1 := 200
+    WRITEF("   Written 100 to p2!0, 200 to p2!1*N")
+
+    // Test 6: Read from both elements
+    WRITEF("6. Reading from p2!0 and p2!1...*N")
+    LET val0 = p2!0
+    LET val1 = p2!1
+    WRITEF("   p2!0 = %N, p2!1 = %N*N", val0, val1)
+
+    WRITEF("*N")
+    WRITEF("Basic PAIRS allocation test complete!*N")
+}

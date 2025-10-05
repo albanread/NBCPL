@@ -1,0 +1,15 @@
+LET START() BE {
+    // Create simple PAIRS vectors
+    LET a = PAIRS 1
+    LET b = PAIRS 1
+
+    // Initialize with simple values
+    a!0 := PAIR(1, 2)
+    b!0 := PAIR(3, 4)
+
+    // This should trigger CFG-driven MIN reduction
+    LET result = MIN(a, b)
+
+    // Simple output without format specifiers
+    WRITEF("MIN operation completed*N")
+}

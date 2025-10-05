@@ -1,0 +1,10 @@
+LET START() BE {
+    WRITEF("Testing All PAIRS Vector Reduction Operations*N")
+    WRITEF("============================================*N")
+
+    // Create test PAIRS vectors
+    LET pairs1 = PAIRS 4
+    LET pairs2 = PAIRS 4
+
+    // Initialize pairs1 with test values: (5,7), (3,9)
+{

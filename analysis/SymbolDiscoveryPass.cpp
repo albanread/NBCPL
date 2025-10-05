@@ -603,6 +603,65 @@ void SymbolDiscoveryPass::visit(UnlessStatement& node) {
     }
 }
 
+void SymbolDiscoveryPass::visit(ReductionLoopStatement& node) {
+    trace("Processing reduction loop statement with result variable: " + node.result_variable);
+    
+    // Register all the temporary variables used in the reduction loop
+    if (!node.left_temp.empty()) {
+        Symbol left_symbol(node.left_temp, SymbolKind::LOCAL_VAR, VarType::PAIRS, 
+                          symbol_table_->currentScopeLevel(), current_function_name_);
+        symbol_table_->addSymbol(left_symbol);
+    }
+    
+    if (!node.right_temp.empty()) {
+        Symbol right_symbol(node.right_temp, SymbolKind::LOCAL_VAR, VarType::PAIRS, 
+                           symbol_table_->currentScopeLevel(), current_function_name_);
+        symbol_table_->addSymbol(right_symbol);
+    }
+    
+    if (!node.result_temp.empty()) {
+        Symbol result_symbol(node.result_temp, SymbolKind::LOCAL_VAR, VarType::PAIRS, 
+                            symbol_table_->currentScopeLevel(), current_function_name_);
+        symbol_table_->addSymbol(result_symbol);
+    }
+    
+    if (!node.index_name.empty()) {
+        Symbol index_symbol(node.index_name, SymbolKind::LOCAL_VAR, VarType::INTEGER, 
+                           symbol_table_->currentScopeLevel(), current_function_name_);
+        symbol_table_->addSymbol(index_symbol);
+    }
+    
+    if (!node.chunks_name.empty()) {
+        Symbol chunks_symbol(node.chunks_name, SymbolKind::LOCAL_VAR, VarType::INTEGER, 
+                             symbol_table_->currentScopeLevel(), current_function_name_);
+        symbol_table_->addSymbol(chunks_symbol);
+    }
+}
+
+void SymbolDiscoveryPass::visit(RoutineCallStatement& node) {
+    // Visit the routine expression and arguments
+    if (node.routine_expr) {
+        node.routine_expr->accept(*this);
+    }
+    for (auto& arg : node.arguments) {
+        if (arg) arg->accept(*this);
+    }
+}
+
+void SymbolDiscoveryPass::visit(ReturnStatement& node) {
+    // ReturnStatement typically has no expression in current AST
+    // No symbols to register
+}
+
+void SymbolDiscoveryPass::visit(ResultisStatement& node) {
+    // Visit the expression if it exists
+    if (node.expression) {
+        node.expression->accept(*this);
+    }
+}
+
+
+
 void SymbolDiscoveryPass::visit(AssignmentStatement& node) {
     // Check if this is a simple assignment (one lhs, one rhs) to a variable
     if (node.lhs.size() == 1 && node.rhs.size() == 1) {

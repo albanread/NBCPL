@@ -1,0 +1,32 @@
+LET START() BE {
+    WRITEF("Testing PAIRS MIN operation (simplified)*N")
+
+    // Create small PAIRS vectors to minimize register pressure
+    LET pairs1 = PAIRS 2
+    LET pairs2 = PAIRS 2
+
+    // Initialize pairs1 with test values: (5,7), (3,9)
+    pairs1!0 := 5
+    pairs1!1 := 7
+    pairs1!2 := 3
+    pairs1!3 := 9
+
+    // Initialize pairs2 with test values: (2,8), (6,1)
+    pairs2!0 := 2
+    pairs2!1 := 8
+    pairs2!2 := 6
+    pairs2!3 := 1
+
+    WRITEF("pairs1: (5,7), (3,9)*N")
+    WRITEF("pairs2: (2,8), (6,1)*N")
+
+    // Test MIN operation - should give: (2,7), (3,1)
+    WRITEF("Computing MIN...*N")
+    LET min_result = MIN(pairs1, pairs2)
+
+    WRITEF("MIN result pair 0: (%N,%N)*N", min_result!0, min_result!1)
+    WRITEF("MIN result pair 1: (%N,%N)*N", min_result!2, min_result!3)
+    WRITEF("Expected: (2,7), (3,1)*N")
+
+    WRITEF("PAIRS MIN test complete!*N")
+}

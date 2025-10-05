@@ -2273,6 +2273,305 @@ void CFGBuilderPass::build_destructuring_list_foreach_cfg(ForEachStatement& node
     current_basic_block = exit_block;
 
     if (trace_enabled_) {
-        std::cout << "[CFGBuilderPass] Completed destructuring list FOREACH CFG" << std::endl;
+            std::cout << "[CFGBuilderPass] Completed destructuring list FOREACH CFG" << std::endl;
+        }
     }
-}
+
+    // === Reduction Statement CFG Builders ===
+
+    void CFGBuilderPass::visit(MinStatement& node) {
+        std::cout << "[DEBUG CFG] *** VISITING MinStatement! ***" << std::endl;
+        if (trace_enabled_) std::cout << "[CFGBuilderPass] visit(MinStatement) entered." << std::endl;
+    
+        if (!current_basic_block) end_current_block_and_start_new();
+    
+        // Generate structured loop for MIN reduction using CFG infrastructure
+        std::cout << "[DEBUG CFG] About to call generateReductionCFG for MIN operation" << std::endl;
+        generateReductionCFG(node.left_operand.get(), node.right_operand.get(), 
+                             node.result_variable, 0); // MIN = 0
+    
+        if (trace_enabled_) std::cout << "[CFGBuilderPass] visit(MinStatement) exiting." << std::endl;
+        std::cout << "[DEBUG CFG] *** MinStatement visit complete! ***" << std::endl;
+    }
+
+    void CFGBuilderPass::visit(MaxStatement& node) {
+        std::cout << "[DEBUG CFG] *** VISITING MaxStatement! ***" << std::endl;
+        if (trace_enabled_) std::cout << "[CFGBuilderPass] visit(MaxStatement) entered." << std::endl;
+    
+        if (!current_basic_block) end_current_block_and_start_new();
+    
+        // Generate structured loop for MAX reduction using CFG infrastructure
+        std::cout << "[DEBUG CFG] About to call generateReductionCFG for MAX operation" << std::endl;
+        generateReductionCFG(node.left_operand.get(), node.right_operand.get(), 
+                             node.result_variable, 1); // MAX = 1
+    
+        if (trace_enabled_) std::cout << "[CFGBuilderPass] visit(MaxStatement) exiting." << std::endl;
+        std::cout << "[DEBUG CFG] *** MaxStatement visit complete! ***" << std::endl;
+    }
+
+    void CFGBuilderPass::visit(SumStatement& node) {
+        std::cout << "[DEBUG CFG] *** VISITING SumStatement! ***" << std::endl;
+        if (trace_enabled_) std::cout << "[CFGBuilderPass] visit(SumStatement) entered." << std::endl;
+    
+        if (!current_basic_block) end_current_block_and_start_new();
+    
+        // Generate structured loop for SUM reduction using CFG infrastructure  
+        std::cout << "[DEBUG CFG] About to call generateReductionCFG for SUM operation" << std::endl;
+        generateReductionCFG(node.left_operand.get(), node.right_operand.get(), 
+                             node.result_variable, 2); // SUM = 2
+    
+        if (trace_enabled_) std::cout << "[CFGBuilderPass] visit(SumStatement) exiting." << std::endl;
+        std::cout << "[DEBUG CFG] *** SumStatement visit complete! ***" << std::endl;
+    }
+
+    void CFGBuilderPass::generateReductionCFG(Expression* left_expr, Expression* right_expr,
+                                             const std::string& result_var, int op) {
+        if (trace_enabled_) std::cout << "[CFGBuilderPass] Building CFG for reduction operation." << std::endl;
+        
+        // --- Step 1: Create unique names for reduction control variables ---
+        std::string left_vec_name;
+        std::string right_vec_name;
+        std::string left_size_name = "_reduction_left_size_" + std::to_string(block_id_counter++);
+        std::string right_size_name = "_reduction_right_size_" + std::to_string(block_id_counter++);
+        std::string chunks_name = "_reduction_chunks_" + std::to_string(block_id_counter++);
+        std::string index_name = "_reduction_idx_" + std::to_string(block_id_counter++);
+        
+        // Check if operands are simple variable accesses (optimization)
+        bool left_is_variable = false;
+        bool right_is_variable = false;
+        
+        if (auto* left_var = dynamic_cast<VariableAccess*>(left_expr)) {
+            left_vec_name = left_var->name;
+            left_is_variable = true;
+        } else {
+            left_vec_name = "_reduction_left_" + std::to_string(block_id_counter++);
+        }
+        
+        if (auto* right_var = dynamic_cast<VariableAccess*>(right_expr)) {
+            right_vec_name = right_var->name;
+            right_is_variable = true;
+        } else {
+            right_vec_name = "_reduction_right_" + std::to_string(block_id_counter++);
+        }
+        
+        // --- Step 2: Register temporary variables in symbol table ---
+        if (symbol_table_) {
+            if (!left_is_variable) {
+                symbol_table_->addSymbol(Symbol(
+                    left_vec_name, SymbolKind::LOCAL_VAR, VarType::PAIRS,
+                    symbol_table_->currentScopeLevel(), current_cfg->function_name
+                ));
+            }
+            if (!right_is_variable) {
+                symbol_table_->addSymbol(Symbol(
+                    right_vec_name, SymbolKind::LOCAL_VAR, VarType::PAIRS,
+                    symbol_table_->currentScopeLevel(), current_cfg->function_name
+                ));
+            }
+            symbol_table_->addSymbol(Symbol(
+                left_size_name, SymbolKind::LOCAL_VAR, VarType::INTEGER,
+                symbol_table_->currentScopeLevel(), current_cfg->function_name
+            ));
+            symbol_table_->addSymbol(Symbol(
+                right_size_name, SymbolKind::LOCAL_VAR, VarType::INTEGER,
+                symbol_table_->currentScopeLevel(), current_cfg->function_name
+            ));
+            symbol_table_->addSymbol(Symbol(
+                chunks_name, SymbolKind::LOCAL_VAR, VarType::INTEGER,
+                symbol_table_->currentScopeLevel(), current_cfg->function_name
+            ));
+            symbol_table_->addSymbol(Symbol(
+                index_name, SymbolKind::LOCAL_VAR, VarType::INTEGER,
+                symbol_table_->currentScopeLevel(), current_cfg->function_name
+            ));
+            symbol_table_->addSymbol(Symbol(
+                result_var, SymbolKind::LOCAL_VAR, VarType::PAIRS,
+                symbol_table_->currentScopeLevel(), current_cfg->function_name
+            ));
+        }
+        
+        // --- Step 3: Populate initialization in current block ---
+        if (!current_basic_block) end_current_block_and_start_new();
+        
+        // Store operand expressions if not variables
+        if (!left_is_variable) {
+            std::vector<ExprPtr> left_rhs;
+            left_rhs.push_back(std::unique_ptr<Expression>(static_cast<Expression*>(left_expr->clone().release())));
+            std::vector<ExprPtr> left_lhs;
+            left_lhs.push_back(std::make_unique<VariableAccess>(left_vec_name));
+            current_basic_block->add_statement(std::make_unique<AssignmentStatement>(
+                std::move(left_lhs), std::move(left_rhs)
+            ));
+        }
+        
+        if (!right_is_variable) {
+            std::vector<ExprPtr> right_rhs;
+            right_rhs.push_back(std::unique_ptr<Expression>(static_cast<Expression*>(right_expr->clone().release())));
+            std::vector<ExprPtr> right_lhs;
+            right_lhs.push_back(std::make_unique<VariableAccess>(right_vec_name));
+            current_basic_block->add_statement(std::make_unique<AssignmentStatement>(
+                std::move(right_lhs), std::move(right_rhs)
+            ));
+        }
+        
+        // Get vector sizes: LET left_size = LEN(left_vec)
+        {
+            std::vector<ExprPtr> size_rhs;
+            size_rhs.push_back(std::make_unique<UnaryOp>(UnaryOp::Operator::LengthOf, std::make_unique<VariableAccess>(left_vec_name)));
+            std::vector<ExprPtr> size_lhs;
+            size_lhs.push_back(std::make_unique<VariableAccess>(left_size_name));
+            current_basic_block->add_statement(std::make_unique<AssignmentStatement>(
+                std::move(size_lhs), std::move(size_rhs)
+            ));
+        }
+        
+        // Calculate chunks: LET chunks = (left_size + 1) / 2 for PAIRS
+        {
+            std::vector<ExprPtr> chunks_rhs;
+            auto size_plus_one = std::make_unique<BinaryOp>(
+                BinaryOp::Operator::Add,
+                std::make_unique<VariableAccess>(left_size_name),
+                std::make_unique<NumberLiteral>(static_cast<int64_t>(1))
+            );
+            chunks_rhs.push_back(std::make_unique<BinaryOp>(
+                BinaryOp::Operator::Divide,
+                std::move(size_plus_one),
+                std::make_unique<NumberLiteral>(static_cast<int64_t>(2))
+            ));
+            std::vector<ExprPtr> chunks_lhs;
+            chunks_lhs.push_back(std::make_unique<VariableAccess>(chunks_name));
+            current_basic_block->add_statement(std::make_unique<AssignmentStatement>(
+                std::move(chunks_lhs), std::move(chunks_rhs)
+            ));
+        }
+        
+        // Allocate result vector: LET result = GETVEC(left_size * 2)
+        {
+            std::vector<ExprPtr> result_rhs;
+            auto size_times_two = std::make_unique<BinaryOp>(
+                BinaryOp::Operator::Multiply,
+                std::make_unique<VariableAccess>(left_size_name),
+                std::make_unique<NumberLiteral>(static_cast<int64_t>(2))
+            );
+            std::vector<ExprPtr> getvec_args;
+            getvec_args.push_back(std::move(size_times_two));
+            result_rhs.push_back(std::make_unique<FunctionCall>(
+                std::make_unique<VariableAccess>("GETVEC"),
+                std::move(getvec_args)
+            ));
+            std::vector<ExprPtr> result_lhs;
+            result_lhs.push_back(std::make_unique<VariableAccess>(result_var));
+            current_basic_block->add_statement(std::make_unique<AssignmentStatement>(
+                std::move(result_lhs), std::move(result_rhs)
+            ));
+        }
+        
+        // Initialize index: LET idx = 0
+        {
+            std::vector<ExprPtr> idx_rhs;
+            idx_rhs.push_back(std::make_unique<NumberLiteral>(static_cast<int64_t>(0)));
+            std::vector<ExprPtr> idx_lhs;
+            idx_lhs.push_back(std::make_unique<VariableAccess>(index_name));
+            current_basic_block->add_statement(std::make_unique<AssignmentStatement>(
+                std::move(idx_lhs), std::move(idx_rhs)
+            ));
+        }
+        
+        // --- Step 4: Create the loop basic blocks ---
+        BasicBlock* header_block = create_new_basic_block("ReductionHeader_");
+        BasicBlock* body_block = create_new_basic_block("ReductionBody_");  
+        BasicBlock* increment_block = create_new_basic_block("ReductionIncrement_");
+        BasicBlock* exit_block = create_new_basic_block("ReductionExit_");
+        
+        // --- Step 5: Connect pre-header to header ---
+        current_basic_block->add_successor(header_block);
+        header_block->add_predecessor(current_basic_block);
+        
+        // --- Step 6: Populate header block (loop condition) ---
+        current_basic_block = header_block;
+        
+        // Create ReductionLoopStatement for the body with metadata
+        auto reduction_loop_stmt = std::make_unique<ReductionLoopStatement>(
+            left_vec_name, right_vec_name, result_var,
+            index_name, chunks_name, result_var, op
+        );
+        
+        // Add conditional branch: if (idx < chunks) goto body else goto exit
+        auto condition = std::make_unique<BinaryOp>(
+            BinaryOp::Operator::Less,
+            std::make_unique<VariableAccess>(index_name),
+            std::make_unique<VariableAccess>(chunks_name)
+        );
+        auto if_stmt = std::make_unique<IfStatement>(
+            std::move(condition),
+            std::make_unique<CompoundStatement>(std::vector<StmtPtr>{}) // Placeholder - flow handled by CFG
+        );
+        current_basic_block->add_statement(std::move(if_stmt));
+        
+        // Connect header to body and exit
+        current_basic_block->add_successor(body_block);
+        current_basic_block->add_successor(exit_block);
+        body_block->add_predecessor(current_basic_block);
+        exit_block->add_predecessor(current_basic_block);
+        
+        // --- Step 7: Populate body block (NEON reduction) ---
+        current_basic_block = body_block;
+        std::cout << "[DEBUG CFG] Adding simple debug statements to body block: " << body_block->id << std::endl;
+        
+        // Create simple debug statements directly in the body block
+        // This proves the loop body is executing
+        
+        // Create a simple assignment: index := index + 0 (NOP but visible in assembly)
+        std::vector<ExprPtr> debug_lhs;
+        debug_lhs.push_back(std::make_unique<VariableAccess>(index_name));
+        std::vector<ExprPtr> debug_rhs;
+        debug_rhs.push_back(std::make_unique<BinaryOp>(
+            BinaryOp::Operator::Add,
+            std::make_unique<VariableAccess>(index_name),
+            std::make_unique<NumberLiteral>(static_cast<int64_t>(0))
+        ));
+        current_basic_block->add_statement(std::make_unique<AssignmentStatement>(
+            std::move(debug_lhs), std::move(debug_rhs)
+        ));
+        
+        std::cout << "[DEBUG CFG] Body block now has " << current_basic_block->statements.size() << " statements" << std::endl;
+        
+        // Connect body to increment
+        current_basic_block->add_successor(increment_block);
+        increment_block->add_predecessor(current_basic_block);
+        
+        // --- Step 8: Populate increment block ---
+        current_basic_block = increment_block;
+        
+        // idx = idx + 1
+        {
+            std::vector<ExprPtr> inc_rhs;
+            inc_rhs.push_back(std::make_unique<BinaryOp>(
+                BinaryOp::Operator::Add,
+                std::make_unique<VariableAccess>(index_name),
+                std::make_unique<NumberLiteral>(static_cast<int64_t>(1))
+            ));
+            std::vector<ExprPtr> inc_lhs;
+            inc_lhs.push_back(std::make_unique<VariableAccess>(index_name));
+            current_basic_block->add_statement(std::make_unique<AssignmentStatement>(
+                std::move(inc_lhs), std::move(inc_rhs)
+            ));
+        }
+        
+        // Connect increment back to header
+        current_basic_block->add_successor(header_block);
+        header_block->add_predecessor(current_basic_block);
+        
+        // --- Step 9: Set current block to exit for continuation ---
+        current_basic_block = exit_block;
+        
+        if (trace_enabled_) {
+            std::cout << "[CFGBuilderPass] Generated CFG blocks for reduction:" << std::endl;
+            std::cout << "  Header: " << header_block->id << std::endl;
+            std::cout << "  Body: " << body_block->id << std::endl;
+            std::cout << "  Increment: " << increment_block->id << std::endl;
+            std::cout << "  Exit: " << exit_block->id << std::endl;
+        }
+        
+        if (trace_enabled_) std::cout << "[CFGBuilderPass] Completed reduction CFG generation." << std::endl;
+    }

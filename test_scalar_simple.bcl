@@ -1,0 +1,25 @@
+LET START() BE {
+    WRITEF("Testing scalar fallback with --no-neon*N")
+
+    // Create minimal PAIRS vectors - just 1 pair each
+    LET pairs1 = PAIRS 1
+    LET pairs2 = PAIRS 1
+
+    // Initialize with simple values
+    pairs1!0 := 10
+    pairs1!1 := 20
+
+    pairs2!0 := 5
+    pairs2!1 := 15
+
+    WRITEF("pairs1: (10, 20)*N")
+    WRITEF("pairs2: (5, 15)*N")
+
+    // Test scalar MIN - should give (5, 15)
+    LET min_result = MIN(pairs1, pairs2)
+
+    WRITEF("MIN result: (%N, %N)*N", min_result!0, min_result!1)
+    WRITEF("Expected: (5, 15)*N")
+
+    WRITEF("Scalar fallback test complete*N")
+}

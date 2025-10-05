@@ -241,7 +241,47 @@ void Parser::parse_let_construct() {
 
     std::vector<ExprPtr> initializers;
     do {
-      initializers.push_back(parse_expression());
+      ExprPtr init_expr = parse_expression();
+      
+      // Check if this is a MIN/MAX/SUM function call - convert to reduction statement
+      if (auto* func_call = dynamic_cast<FunctionCall*>(init_expr.get())) {
+        if (auto* var_access = dynamic_cast<VariableAccess*>(func_call->function_expr.get())) {
+          const std::string& func_name = var_access->name;
+          
+          if (func_name == "MIN" && func_call->arguments.size() == 2 && names.size() == 1) {
+            // Convert LET result = MIN(a, b) to MinStatement
+            auto min_stmt = std::make_unique<MinStatement>(
+              names[0],
+              std::move(func_call->arguments[0]),
+              std::move(func_call->arguments[1])
+            );
+            program_->statements.push_back(std::move(min_stmt));
+            return; // Early return - handled as statement
+          }
+          else if (func_name == "MAX" && func_call->arguments.size() == 2 && names.size() == 1) {
+            // Convert LET result = MAX(a, b) to MaxStatement  
+            auto max_stmt = std::make_unique<MaxStatement>(
+              names[0],
+              std::move(func_call->arguments[0]),
+              std::move(func_call->arguments[1])
+            );
+            program_->statements.push_back(std::move(max_stmt));
+            return; // Early return - handled as statement
+          }
+          else if (func_name == "SUM" && func_call->arguments.size() == 2 && names.size() == 1) {
+            // Convert LET result = SUM(a, b) to SumStatement
+            auto sum_stmt = std::make_unique<SumStatement>(
+              names[0],
+              std::move(func_call->arguments[0]),
+              std::move(func_call->arguments[1])
+            );
+            program_->statements.push_back(std::move(sum_stmt));
+            return; // Early return - handled as statement
+          }
+        }
+      }
+      
+      initializers.push_back(std::move(init_expr));
     } while (match(TokenType::Comma));
 
     // Allow destructuring assignment: 2 names, 1 initializer (for PAIR/FPAIR unpacking)

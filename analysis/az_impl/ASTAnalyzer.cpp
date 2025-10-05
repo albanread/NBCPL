@@ -950,6 +950,60 @@ VarType ASTAnalyzer::infer_function_call_type(const FunctionCall* func_call) con
         return it->second;
     }
     
+    // Handle MAX and MIN - generic: return same type as arguments
+    if (func_name == "MAX" || func_name == "MIN") {
+        if (func_call->arguments.size() >= 2) {
+            VarType arg_type = infer_expression_type(func_call->arguments[0].get());
+            if (trace_enabled_) {
+                std::cerr << "DEBUG: " << func_name << "() inferred return type: " 
+                          << static_cast<int>(arg_type) << " (same as argument type)" << std::endl;
+            }
+            return arg_type; // Generic: MAX/MIN return same type as input
+        }
+        return VarType::UNKNOWN;
+    }
+    
+    // Handle SUM - generic: returns element type of vector arguments
+    if (func_name == "SUM") {
+        if (func_call->arguments.size() >= 2) {
+            VarType arg_type = infer_expression_type(func_call->arguments[0].get());
+            
+            // If arguments are PAIRS vectors, return PAIR (single element)
+            if (arg_type == VarType::PAIRS || 
+                (static_cast<int64_t>(arg_type) & static_cast<int64_t>(VarType::PAIRS)) != 0) {
+                if (trace_enabled_) {
+                    std::cerr << "DEBUG: SUM() inferred return type: PAIR (element of PAIRS)" << std::endl;
+                }
+                return VarType::PAIR;
+            }
+            // If arguments are VEC OF INTEGER, return INTEGER
+            else if ((static_cast<int64_t>(arg_type) & static_cast<int64_t>(VarType::VEC)) != 0 &&
+                     (static_cast<int64_t>(arg_type) & static_cast<int64_t>(VarType::INTEGER)) != 0) {
+                if (trace_enabled_) {
+                    std::cerr << "DEBUG: SUM() inferred return type: INTEGER (element of VEC OF INTEGER)" << std::endl;
+                }
+                return VarType::INTEGER;
+            }
+            // If arguments are VEC OF FLOAT, return FLOAT
+            else if ((static_cast<int64_t>(arg_type) & static_cast<int64_t>(VarType::VEC)) != 0 &&
+                     (static_cast<int64_t>(arg_type) & static_cast<int64_t>(VarType::FLOAT)) != 0) {
+                if (trace_enabled_) {
+                    std::cerr << "DEBUG: SUM() inferred return type: FLOAT (element of VEC OF FLOAT)" << std::endl;
+                }
+                return VarType::FLOAT;
+            }
+            // For scalar types, return the same type
+            else {
+                if (trace_enabled_) {
+                    std::cerr << "DEBUG: SUM() inferred return type: " << static_cast<int>(arg_type) 
+                              << " (same as scalar argument)" << std::endl;
+                }
+                return arg_type;
+            }
+        }
+        return VarType::UNKNOWN;
+    }
+
     // Handle special runtime functions
     if (func_name == "CONCAT" || func_name == "BCPL_CONCAT_LISTS") {
         if (func_call->arguments.size() == 2) {
@@ -1338,6 +1392,27 @@ VarType ASTAnalyzer::infer_access_type(const Expression* expr) const {
         if (vector_type == VarType::POINTER_TO_INT_VEC) return VarType::INTEGER;
         if (vector_type == VarType::POINTER_TO_FLOAT_VEC) return VarType::FLOAT;
         if (vector_type == VarType::POINTER_TO_STRING) return VarType::INTEGER; // Character access
+        
+        // Handle PAIRS vector access - return PAIR for each element
+        if ((static_cast<int64_t>(vector_type) & static_cast<int64_t>(VarType::PAIRS)) != 0) {
+            return VarType::PAIR;
+        }
+        
+        // Handle QUAD vector access - return QUAD for each element
+        if ((static_cast<int64_t>(vector_type) & static_cast<int64_t>(VarType::QUAD)) != 0) {
+            return VarType::QUAD;
+        }
+        
+        // Handle OCT vector access - return OCT for each element
+        if ((static_cast<int64_t>(vector_type) & static_cast<int64_t>(VarType::OCT)) != 0) {
+            return VarType::OCT;
+        }
+        
+        // Handle FOCT vector access - return FOCT for each element
+        if ((static_cast<int64_t>(vector_type) & static_cast<int64_t>(VarType::FOCT)) != 0) {
+            return VarType::FOCT;
+        }
+        
         return VarType::INTEGER; // Default
     }
     

@@ -1,0 +1,13 @@
+LET START() BE $(
+    WRITEF("Testing PAIRS without AS clause*N")
+
+    // Test PAIRS allocation without AS clause
+    LET pairs_vec = PAIRS 4
+
+    // Initialize with some values
+    pairs_vec!0 := PAIR(10, 20)
+    pairs_vec!1 := PAIR(30, 40)
+
+    WRITEF("PAIRS allocation and assignment successful*N")
+    WRITEF2("pairs_vec!0 = %P, pairs_vec!1 = %P*N", pairs_vec!0, pairs_vec!1)
+$)

@@ -23,6 +23,10 @@ std::string to_string(ASTNode::NodeType type) {
         case ASTNode::NodeType::OctExpr: return "OctExpression";
         case ASTNode::NodeType::FOctExpr: return "FOctExpression";
         case ASTNode::NodeType::LaneAccessExpr: return "LaneAccessExpression";
+        case ASTNode::NodeType::MinStmt: return "MinStatement";
+        case ASTNode::NodeType::MaxStmt: return "MaxStatement";
+        case ASTNode::NodeType::SumStmt: return "SumStatement";
+        case ASTNode::NodeType::ReductionLoopStmt: return "ReductionLoopStatement";
         // --- ADDED CASES END HERE ---
 
         case ASTNode::NodeType::RetainStmt: return "RetainStatement";

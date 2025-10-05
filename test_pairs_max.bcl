@@ -1,0 +1,32 @@
+LET START() BE {
+    WRITEF("Testing PAIRS MAX operation*N")
+
+    // Create small PAIRS vectors
+    LET pairs1 = PAIRS 2
+    LET pairs2 = PAIRS 2
+
+    // Initialize pairs1 with test values: (5,7), (3,9)
+    pairs1!0 := 5
+    pairs1!1 := 7
+    pairs1!2 := 3
+    pairs1!3 := 9
+
+    // Initialize pairs2 with test values: (2,8), (6,1)
+    pairs2!0 := 2
+    pairs2!1 := 8
+    pairs2!2 := 6
+    pairs2!3 := 1
+
+    WRITEF("pairs1: (5,7), (3,9)*N")
+    WRITEF("pairs2: (2,8), (6,1)*N")
+
+    // Test MAX operation - should give: (5,8), (6,9)
+    WRITEF("Computing MAX...*N")
+    LET max_result = MAX(pairs1, pairs2)
+
+    WRITEF("MAX result pair 0: (%N,%N)*N", max_result!0, max_result!1)
+    WRITEF("MAX result pair 1: (%N,%N)*N", max_result!2, max_result!3)
+    WRITEF("Expected: (5,8), (6,9)*N")
+
+    WRITEF("PAIRS MAX test complete!*N")
+}

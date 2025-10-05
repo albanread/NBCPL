@@ -1,0 +1,32 @@
+LET START() BE {
+    WRITEF("Testing PAIRS SUM operation*N")
+
+    // Create small PAIRS vectors
+    LET pairs1 = PAIRS 2
+    LET pairs2 = PAIRS 2
+
+    // Initialize pairs1 with test values: (5,7), (3,9)
+    pairs1!0 := 5
+    pairs1!1 := 7
+    pairs1!2 := 3
+    pairs1!3 := 9
+
+    // Initialize pairs2 with test values: (2,8), (6,1)
+    pairs2!0 := 2
+    pairs2!1 := 8
+    pairs2!2 := 6
+    pairs2!3 := 1
+
+    WRITEF("pairs1: (5,7), (3,9)*N")
+    WRITEF("pairs2: (2,8), (6,1)*N")
+
+    // Test SUM operation - should give: (7,15), (9,10)
+    WRITEF("Computing SUM...*N")
+    LET sum_result = SUM(pairs1, pairs2)
+
+    WRITEF("SUM result pair 0: (%N,%N)*N", sum_result!0, sum_result!1)
+    WRITEF("SUM result pair 1: (%N,%N)*N", sum_result!2, sum_result!3)
+    WRITEF("Expected: (7,15), (9,10)*N")
+
+    WRITEF("PAIRS SUM test complete!*N")
+}

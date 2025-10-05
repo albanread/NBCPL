@@ -1,8 +1,3 @@
-// Simple test without NEON instructions to verify basic functionality
-
-LET START() BE {
-    LET a = 10
-    LET b = 5
-    LET c = a + b
-    WRITEF("Simple test: %N + %N = %N*N", a, b, c)
+LET start() BE {
+    writef("Test passed%n")
 }

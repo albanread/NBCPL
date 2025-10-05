@@ -65,6 +65,7 @@ void ASTAnalyzer::visit(FunctionCall& node) {
     }
     // --- END NEW LOGIC ---
 
+
     // Increment the approximate instruction counter to account for the call instructions
     if (!current_function_scope_.empty()) {
         // Approximate the number of instructions generated for this call

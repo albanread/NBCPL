@@ -179,6 +179,20 @@ public:
 
     void reset();
 
+    // === NEON Control Methods ===
+    
+    /**
+     * Enable or disable NEON instruction generation
+     * When disabled, forces scalar fallback for all vector operations
+     */
+    void set_neon_enabled(bool enabled) { neon_enabled_ = enabled; }
+    
+    /**
+     * Check if NEON instructions are enabled
+     * @return true if NEON is enabled, false if --no-neon or disabled
+     */
+    bool is_neon_enabled() const { return neon_enabled_; }
+
     bool is_fp_register(const std::string& reg_name) const;
     bool is_variable_spilled(const std::string& variable_name) const;
 
@@ -201,6 +215,9 @@ private:
     RegisterManager& operator=(const RegisterManager&) = delete;
 
     static RegisterManager* instance_;
+    
+    // NEON enable/disable state
+    bool neon_enabled_ = true;  // Default: NEON enabled
 
 
 

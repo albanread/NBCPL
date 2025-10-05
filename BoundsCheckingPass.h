@@ -103,6 +103,7 @@ public:
     void visit(StringStatement& node) override;
     void visit(FreeStatement& node) override;
     void visit(ConditionalBranchStatement& node) override;
+    void visit(ReductionLoopStatement& node) override;
     void visit(CompoundStatement& node) override {}
     void visit(ForEachStatement& node) override;
     void visit(RetainStatement& node) override {}

@@ -53,6 +53,7 @@ StmtPtr Parser::parse_primary_statement() {
     switch (current_token_.type) {
         case TokenType::Let:
         case TokenType::FLet: {
+            std::cout << "[DEBUG] Entering LET/FLet case in parse_primary_statement" << std::endl;
             // Lower LET/FLet to a vector of statements (assignment + optional DEFER)
             auto stmts = parse_let_statement_as_statements();
             if (stmts.empty()) return nullptr;
@@ -151,6 +152,7 @@ StmtPtr Parser::parse_defer_statement() {
  */
 std::vector<StmtPtr> Parser::parse_let_statement_as_statements() {
     TraceGuard guard(*this, "parse_let_statement_as_statements");
+    std::cout << "===== PARSER DEBUG: parse_let_statement_as_statements CALLED =====" << std::endl;
     std::vector<StmtPtr> generated_statements;
 
     bool is_float = check(TokenType::FLet);
@@ -162,11 +164,64 @@ std::vector<StmtPtr> Parser::parse_let_statement_as_statements() {
         consume(TokenType::Identifier, "Expect identifier in LET declaration.");
     } while (match(TokenType::Comma));
 
+    // --- NEW: Optional AS <type> annotation ---
+    VarType explicit_type = VarType::UNKNOWN;
+    if (match(TokenType::As)) {
+        explicit_type = parse_type_specifier();
+    }
+
     consume(TokenType::Equal, "Expect '=' after name(s).");
 
     std::vector<ExprPtr> initializers;
     do {
-        initializers.push_back(parse_expression());
+        ExprPtr init_expr = parse_expression();
+        
+        // DEBUG: Check what type of expression we parsed
+        std::cout << "[DEBUG] Parsed expression in LET statement" << std::endl;
+        
+        // Check if this is a MIN/MAX/SUM function call - convert to reduction statement
+        if (auto* func_call = dynamic_cast<FunctionCall*>(init_expr.get())) {
+            std::cout << "[DEBUG] Found function call in LET statement" << std::endl;
+            if (auto* var_access = dynamic_cast<VariableAccess*>(func_call->function_expr.get())) {
+                const std::string& func_name = var_access->name;
+                std::cout << "[DEBUG] Function name: " << func_name << ", args: " << func_call->arguments.size() << ", names: " << names.size() << std::endl;
+                
+                if (func_name == "MIN" && func_call->arguments.size() == 2 && names.size() == 1) {
+                    std::cout << "[DEBUG] Converting MIN to MinStatement!" << std::endl;
+                    // Convert LET result = MIN(a, b) to MinStatement
+                    auto min_stmt = std::make_unique<MinStatement>(
+                        names[0],
+                        std::move(func_call->arguments[0]),
+                        std::move(func_call->arguments[1])
+                    );
+                    generated_statements.push_back(std::move(min_stmt));
+                    std::cout << "[DEBUG] MinStatement created and added!" << std::endl;
+                    return generated_statements; // Early return - handled as statement
+                }
+                else if (func_name == "MAX" && func_call->arguments.size() == 2 && names.size() == 1) {
+                    // Convert LET result = MAX(a, b) to MaxStatement  
+                    auto max_stmt = std::make_unique<MaxStatement>(
+                        names[0],
+                        std::move(func_call->arguments[0]),
+                        std::move(func_call->arguments[1])
+                    );
+                    generated_statements.push_back(std::move(max_stmt));
+                    return generated_statements; // Early return - handled as statement
+                }
+                else if (func_name == "SUM" && func_call->arguments.size() == 2 && names.size() == 1) {
+                    // Convert LET result = SUM(a, b) to SumStatement
+                    auto sum_stmt = std::make_unique<SumStatement>(
+                        names[0],
+                        std::move(func_call->arguments[0]),
+                        std::move(func_call->arguments[1])
+                    );
+                    generated_statements.push_back(std::move(sum_stmt));
+                    return generated_statements; // Early return - handled as statement
+                }
+            }
+        }
+        
+        initializers.push_back(std::move(init_expr));
     } while (match(TokenType::Comma));
 
     // Allow destructuring assignment: 2 names, 1 initializer (for PAIR/FPAIR unpacking)
@@ -362,9 +417,61 @@ StmtPtr Parser::parse_block_or_compound_statement() {
             consume(TokenType::Equal, "Expect '=' after variable names or type specifier.");
 
             std::vector<ExprPtr> initializers;
+            bool is_reduction_statement = false;
+            
             do {
-                initializers.push_back(parse_expression());
+                ExprPtr init_expr = parse_expression();
+                
+                // Check if this is a MIN/MAX/SUM function call - convert to reduction statement
+                if (auto* func_call = dynamic_cast<FunctionCall*>(init_expr.get())) {
+                    if (auto* var_access = dynamic_cast<VariableAccess*>(func_call->function_expr.get())) {
+                        const std::string& func_name = var_access->name;
+                        
+                        if (func_name == "MIN" && func_call->arguments.size() == 2 && names.size() == 1) {
+                            std::cout << "[DEBUG] FOUND MIN FUNCTION - Converting to MinStatement!" << std::endl;
+                            // Convert LET result = MIN(a, b) to MinStatement
+                            auto min_stmt = std::make_unique<MinStatement>(
+                                names[0],
+                                std::move(func_call->arguments[0]),
+                                std::move(func_call->arguments[1])
+                            );
+                            statements.push_back(std::move(min_stmt));
+                            std::cout << "[DEBUG] MinStatement created and added to statements!" << std::endl;
+                            is_reduction_statement = true;
+                            break;
+                        }
+                        else if (func_name == "MAX" && func_call->arguments.size() == 2 && names.size() == 1) {
+                            // Convert LET result = MAX(a, b) to MaxStatement  
+                            auto max_stmt = std::make_unique<MaxStatement>(
+                                names[0],
+                                std::move(func_call->arguments[0]),
+                                std::move(func_call->arguments[1])
+                            );
+                            statements.push_back(std::move(max_stmt));
+                            is_reduction_statement = true;
+                            break;
+                        }
+                        else if (func_name == "SUM" && func_call->arguments.size() == 2 && names.size() == 1) {
+                            // Convert LET result = SUM(a, b) to SumStatement
+                            auto sum_stmt = std::make_unique<SumStatement>(
+                                names[0],
+                                std::move(func_call->arguments[0]),
+                                std::move(func_call->arguments[1])
+                            );
+                            statements.push_back(std::move(sum_stmt));
+                            is_reduction_statement = true;
+                            break;
+                        }
+                    }
+                }
+                
+                initializers.push_back(std::move(init_expr));
             } while (match(TokenType::Comma));
+            
+            // If we created a reduction statement, skip the normal declaration/assignment processing
+            if (is_reduction_statement) {
+                continue;
+            }
 
             // Allow destructuring assignment: 2 names, 1 initializer (for PAIR/FPAIR unpacking)
             if (names.size() != initializers.size()) {

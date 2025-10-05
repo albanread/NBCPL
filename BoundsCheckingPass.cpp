@@ -324,6 +324,10 @@ void BoundsCheckingPass::visit(StringStatement& node) {
 }
 void BoundsCheckingPass::visit(FreeStatement& node) {}
 void BoundsCheckingPass::visit(ConditionalBranchStatement& node) {}
+void BoundsCheckingPass::visit(ReductionLoopStatement& node) {
+    // ReductionLoopStatement doesn't contain expressions that need bounds checking
+    // but we need the visitor for pass completeness
+}
 
 // Expression visitors
 void BoundsCheckingPass::visit(BinaryOp& node) {

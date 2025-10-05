@@ -63,6 +63,30 @@ void NewCodeGenerator::visit(ForEachStatement& node) {
     // No codegen needed here.
 }
 
+// ReductionLoopStatement visitor - generates NEON primitive for one chunk
+void NewCodeGenerator::visit(ReductionLoopStatement& node) {
+    std::cout << "[DEBUG CODEGEN] *** VISITING ReductionLoopStatement! ***" << std::endl;
+    debug_print("Visiting ReductionLoopStatement node - generating simple debug body");
+    
+    // Get the index register to increment it as proof we're in the loop
+    std::string index_reg = get_variable_register(node.index_name);
+    
+    // Simple debug: just do some operations to show we're in the loop body
+    emit(Instruction(0xD503201F, "NOP  // Reduction loop iteration start"));
+    
+    // Increment a scratch register as a side effect to prove we're running
+    std::string debug_reg = register_manager_.acquire_scratch_reg(*this);
+    emit(Encoder::create_movz_imm(debug_reg, 0x1234, 0)); // Load magic number
+    emit(Encoder::create_add_reg(debug_reg, debug_reg, index_reg)); // Add index to it
+    emit(Instruction(0xD503201F, "NOP  // Reduction loop iteration end"));
+    
+    // Release the debug register
+    register_manager_.release_register(debug_reg);
+    
+    debug_print("Completed simple debug loop body generation");
+    std::cout << "[DEBUG CODEGEN] *** ReductionLoopStatement visit complete! ***" << std::endl;
+}
+
 /**
  * @brief Generates the necessary cleanup code for a symbol that owns heap memory.
  * This includes checking for null, determining the object type, and calling the
@@ -268,6 +292,12 @@ NewCodeGenerator::NewCodeGenerator(InstructionStream& instruction_stream,
     // Initialize VectorCodeGen helper
     vector_codegen_ = std::make_unique<VectorCodeGen>(*this, register_manager_, 
         [this](const Instruction& instruction) { emit(instruction); });
+    
+    // Initialize ReductionCodeGen helper
+    reduction_codegen_ = std::make_unique<ReductionCodeGen>(register_manager_, *this, analyzer_);
+    
+    // Set NEON enable/disable in RegisterManager based on constructor flag
+    register_manager_.set_neon_enabled(use_neon_);
 }
 
 // Private helper for type inference during code generation (without calling back to analyzer)

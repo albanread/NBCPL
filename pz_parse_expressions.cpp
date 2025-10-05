@@ -49,7 +49,10 @@ VarType Parser::parse_type_specifier() {
     } else if (match(TokenType::String)) { // <-- ADD THIS CASE
         // Specifically handle the STRING keyword, which is not a generic identifier.
         final_type = static_cast<VarType>(static_cast<int64_t>(final_type) | static_cast<int64_t>(VarType::STRING));
+    } else if (match(TokenType::Pairs)) { // <-- Handle PAIRS as its own token type
+        final_type = static_cast<VarType>(static_cast<int64_t>(final_type) | static_cast<int64_t>(VarType::PAIRS));
     } else {
+
         error("Expected a base type identifier (e.g., INTEGER) or type keyword (e.g., STRING).");
         return VarType::UNKNOWN;
     }

@@ -1,0 +1,49 @@
+LET START() BE {
+
+    WRITEF("Testing PAIRS Vector Reduction Operations*N")
+
+    // Create test PAIRS vectors
+    LET pairs1 = PAIRS 3
+    LET pairs2 = PAIRS 3
+
+    // Initialize pairs1 with test values: (1,2), (3,4), (5,6), (7,8)
+    pairs1!0 := PAIR(1, 2)
+    pairs1!1 := PAIR(3, 4)
+    pairs1!2 := PAIR(5, 6)
+    pairs1!3 := PAIR(7, 8)
+
+    // Initialize pairs2 with test values: (2,1), (6,3), (4,9), (8,5)
+    pairs2!0 := PAIR(2, 1)
+    pairs2!1 := PAIR(6, 3)
+    pairs2!2 := PAIR(4, 9)
+    pairs2!3 := PAIR(8, 5)
+
+    WRITEF("pairs1: (1,2), (3,4), (5,6), (7,8)*N")
+    WRITEF("pairs2: (2,1), (6,3), (4,9), (8,5)*N")
+
+    // Test MIN operation - should give: (1,1), (3,3), (4,6), (7,5)
+    // NO AS clause - should automatically infer PAIRS type
+    WRITEF("*NTesting MIN operation (automatic type inference)...*N")
+    LET min_result = MIN(pairs1, pairs2)
+    WRITEF("MIN result pair 0: %P*N", min_result!0)
+    WRITEF("MIN result pair 1: %P*N", min_result!1)
+    WRITEF("MIN result pair 2: %P*N", min_result!2)
+    WRITEF("MIN result pair 3: %P*N", min_result!3)
+
+    // Test MAX operation - should give: (2,2), (6,4), (5,9), (8,8)
+    // NO AS clause - should automatically infer PAIRS type
+    WRITEF("*NTesting MAX operation (automatic type inference)...*N")
+    LET max_result = MAX(pairs1, pairs2)
+    WRITEF("MAX result pair 0: %P*N", max_result!0)
+    WRITEF("MAX result pair 1: %P*N", max_result!1)
+    WRITEF("MAX result pair 2: %P*N", max_result!2)
+    WRITEF("MAX result pair 3: %P*N", max_result!3)
+
+    // Test SUM operation - should give: (3,3), (9,7), (9,15), (15,13)
+    // NO AS clause - should automatically infer PAIR type (single element)
+    WRITEF("*NTesting SUM operation (automatic type inference)...*N")
+    LET sum_result = SUM(pairs1, pairs2)
+    WRITEF("SUM result: %P*N", sum_result)
+
+    WRITEF("*NPAIRS reduction operations test complete!*N")
+}

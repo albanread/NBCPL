@@ -1,0 +1,13 @@
+LET start() BE {
+    LET pairs1 = PAIRS 1  // Just 2 pairs to keep it simple
+    pairs1!0 := PAIR(1, 2)
+    pairs1!1 := PAIR(3, 4)
+    
+    LET pairs2 = PAIRS 1
+    pairs2!0 := PAIR(2, 1) 
+    pairs2!1 := PAIR(4, 3)
+    
+    writef("About to call MIN...%n")
+    LET result = MIN(pairs1, pairs2)
+    writef("MIN completed successfully%n")
+}

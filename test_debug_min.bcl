@@ -1,0 +1,16 @@
+LET START() BE {
+    WRITEF("Debug MIN test*N")
+
+    LET a = PAIRS 1
+    LET b = PAIRS 1
+
+    a!0 := PAIR(5, 10)
+    b!0 := PAIR(3, 8)
+
+    WRITEF("Before MIN: a!0=%P, b!0=%P*N", a!0, b!0)
+
+    LET result = MIN(a, b)
+
+    WRITEF("After MIN: result!0=%P*N", result!0)
+    WRITEF("Expected: (3,8)*N")
+}

@@ -60,6 +60,9 @@ class BrkStatement;
 class LabelTargetStatement;
 class ConditionalBranchStatement;
 class RemanageStatement;
+class MinStatement;
+class MaxStatement;
+class SumStatement;
 
 
 // Forward declaration for SUPER node
@@ -155,4 +158,8 @@ public:
 
     // --- DEFER ---
     virtual void visit(DeferStatement& node) {}
+    virtual void visit(MinStatement& node) {} // <-- Added for MIN statement
+    virtual void visit(MaxStatement& node) {} // <-- Added for MAX statement
+    virtual void visit(SumStatement& node) {} // <-- Added for SUM statement
+    virtual void visit(ReductionLoopStatement& node) {} // <-- Added for reduction loop metadata
 };

@@ -60,6 +60,10 @@ public:
     void visit(TestStatement& node) override;
     void visit(UnlessStatement& node) override;
     void visit(AssignmentStatement& node) override;
+    void visit(RoutineCallStatement& node) override;
+    void visit(ReturnStatement& node) override;
+    void visit(ResultisStatement& node) override;
+    void visit(ReductionLoopStatement& node) override;
     void visit(VecAllocationExpression& node) override;
     void visit(FVecAllocationExpression& node) override;
     void visit(PairsAllocationExpression& node) override;

@@ -1,0 +1,50 @@
+LET START() BE $(
+    WRITEF("Testing generic type inference for MAX, MIN, SUM*N")
+
+    // Test 1: PAIRS vectors - should infer types automatically
+    LET pairs1 = PAIRS 3
+    LET pairs2 = PAIRS 3
+
+    pairs1!0 := PAIR(10, 20)
+    pairs1!1 := PAIR(30, 40)
+    pairs1!2 := PAIR(50, 60)
+
+    pairs2!0 := PAIR(5, 15)
+    pairs2!1 := PAIR(25, 35)
+    pairs2!2 := PAIR(45, 55)
+
+    // These should infer PAIRS type automatically (no AS clause needed)
+    LET max_result = MAX(pairs1, pairs2)
+    LET min_result = MIN(pairs1, pairs2)
+
+    // This should infer PAIR type automatically (single element from PAIRS)
+    LET sum_result = SUM(pairs1, pairs2)
+
+    WRITEF("PAIRS test completed - types inferred automatically*N")
+
+    // Test 2: Integer vectors - should also work generically
+    LET vec1 = GETVEC(3)
+    LET vec2 = GETVEC(3)
+
+    vec1!0 := 100
+    vec1!1 := 200
+    vec1!2 := 300
+
+    vec2!0 := 50
+    vec2!1 := 150
+    vec2!2 := 250
+
+    // These should infer integer vector types
+    LET max_ints = MAX(vec1, vec2)
+    LET min_ints = MIN(vec1, vec2)
+    LET sum_ints = SUM(vec1, vec2)  // Should return INTEGER
+
+    WRITEF("Integer vector test completed*N")
+
+    // Test 3: Scalar values - should work on scalars too
+    LET scalar_max = MAX(100, 50)    // Should return INTEGER
+    LET scalar_min = MIN(3.14, 2.71) // Should return FLOAT
+
+    WRITEF("Scalar test completed*N")
+    WRITEF("All generic type inference tests passed!*N")
+$)

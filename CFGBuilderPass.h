@@ -5,6 +5,7 @@
 #include "ASTVisitor.h"
 #include "ControlFlowGraph.h"
 #include "HeapManager/HeapManager.h"
+#include "reductions.h"
 #include <optional>
 #include <unordered_map>
 #include <utility> // For std::pair
@@ -161,6 +162,15 @@ private:
 
     // FloatValofExpression visitor
     void visit(FloatValofExpression& node) override;
+    
+    // Reduction statement visitors
+    void visit(MinStatement& node) override;
+    void visit(MaxStatement& node) override;
+    void visit(SumStatement& node) override;
+    
+    // Helper method for generating reduction CFG structures
+    void generateReductionCFG(Expression* left_expr, Expression* right_expr,
+                             const std::string& result_var, int op);
 };
 
 #endif // CFG_BUILDER_PASS_H

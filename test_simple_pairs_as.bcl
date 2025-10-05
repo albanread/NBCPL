@@ -1,0 +1,8 @@
+LET START() BE $(
+    WRITEF("Testing simple PAIRS AS clause*N")
+
+    // Simple test case
+    LET result AS PAIRS = PAIRS 2
+
+    WRITEF("Test completed*N")
+$)

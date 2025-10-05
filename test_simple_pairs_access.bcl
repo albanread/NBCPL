@@ -1,0 +1,24 @@
+LET START() BE {
+    WRITEF("Testing Simple PAIRS Vector Access*N")
+    WRITEF("==================================*N")
+
+    // Create a simple PAIRS vector with 1 element
+    LET pairs1 = PAIRS 1
+
+    WRITEF("Created PAIRS 1 vector*N")
+
+    // Try to access the first lane
+    WRITEF("Trying to access lane 0...*N")
+    pairs1!0 := 42
+    WRITEF("Successfully wrote 42 to lane 0*N")
+
+    WRITEF("Trying to access lane 1...*N")
+    pairs1!1 := 84
+    WRITEF("Successfully wrote 84 to lane 1*N")
+
+    WRITEF("Reading back values:*N")
+    WRITEF("  pairs1!0 = %N*N", pairs1!0)
+    WRITEF("  pairs1!1 = %N*N", pairs1!1)
+
+    WRITEF("Simple PAIRS access test complete!*N")
+}
