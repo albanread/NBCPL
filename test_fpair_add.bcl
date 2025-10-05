@@ -8,7 +8,7 @@ LET START() BE {
     // Test FPAIR addition (should use fadd_vector_2s)
     LET a = FPAIR(1.5, 2.5)
     LET b = FPAIR(0.5, 1.0)
-    BRK
+   
     LET c = a + b
    
     WRITEF("FPAIR addition: %Q + %Q = %Q*N", a, b, c)

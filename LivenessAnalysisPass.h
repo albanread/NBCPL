@@ -53,6 +53,7 @@ public:
     void visit(VectorAccess& node) override;
     void visit(CharIndirection& node) override;
     void visit(FloatVectorIndirection& node) override;
+    void visit(LaneAccessExpression& node) override;
     void visit(FunctionCall& node) override;
     void visit(ConditionalExpression& node) override;
     void visit(ValofExpression& node) override;

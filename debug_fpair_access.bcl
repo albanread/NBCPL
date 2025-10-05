@@ -1,0 +1,34 @@
+LET START() BE {
+    WRITEF("Testing FPairAccessExpression (.first/.second)*N")
+
+    // Create a simple FPAIR with known values
+    LET f = FPAIR(42.0, 99.0)
+    WRITEF("Created FPAIR(42.0, 99.0)*N")
+    WRITEF("Raw FPAIR bits: 0x%X*N", f)
+
+    // Test .first access
+    WRITEF("Testing .first access...*N")
+    LET first_val = f.first
+    WRITEF("f.first = %F*N", first_val)
+
+    // Test .second access
+    WRITEF("Testing .second access...*N")
+    LET second_val = f.second
+    WRITEF("f.second = %F*N", second_val)
+
+    // Compare with lane access
+    WRITEF("Now testing lane access...*N")
+    LET lane0 = f.|0|
+    LET lane1 = f.|1|
+    WRITEF("f.|0| = %F*N", lane0)
+    WRITEF("f.|1| = %F*N", lane1)
+
+    WRITEF("Test with different values*N")
+    LET f2 = FPAIR(1.0, 2.0)
+    WRITEF("FPAIR(1.0, 2.0).first = %F*N", f2.first)
+    WRITEF("FPAIR(1.0, 2.0).second = %F*N", f2.second)
+    WRITEF("FPAIR(1.0, 2.0).|0| = %F*N", f2.|0|)
+    WRITEF("FPAIR(1.0, 2.0).|1| = %F*N", f2.|1|)
+
+    WRITEF("Done*N")
+}

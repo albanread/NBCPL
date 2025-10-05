@@ -6,7 +6,7 @@
 // ARM64 FCVT (Floating-point Convert precision)
 // This instruction converts from double precision (D) to single precision (S)
 // Encoding: FCVT Sd, Dn
-// 0x1E224000 | (Rn << 5) | Rd
+// 0x1E624000 | (Rn << 5) | Rd
 // Where Rn is the D register (bits 5-9) and Rd is the S register (bits 0-4)
 
 Instruction Encoder::create_fcvt_d_to_s(const std::string& sd, const std::string& dn) {
@@ -38,11 +38,11 @@ Instruction Encoder::create_fcvt_d_to_s(const std::string& sd, const std::string
     }
 
     // FCVT Sd, Dn encoding (double to single precision)
-    BitPatcher patcher(0x1E224000);
+    BitPatcher patcher(0x1E624000);
     patcher.patch(d_src, 5, 5); // bits 5-9: source D register
     patcher.patch(s_dst, 0, 5); // bits 0-4: destination S register
 
-    Instruction instr(patcher.get_value(), "FCVT " + sd + ", " + dn);
+    Instruction instr(patcher.get_value(), "FCVT " + sd + ", " + dn +" ;encoder.");
     instr.opcode = InstructionDecoder::OpType::FCVT;
     instr.dest_reg = Encoder::get_reg_encoding(sd);
     instr.src_reg1 = Encoder::get_reg_encoding(dn);

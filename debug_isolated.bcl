@@ -1,0 +1,36 @@
+LET START() BE {
+    WRITEF("Isolated FPAIR lane access test*N")
+
+    // Test case that fails
+    WRITEF("=== Testing FPAIR(1.0, 2.0) - Known to fail ==*N")
+    LET fail_test = FPAIR(1.0, 2.0)
+    WRITEF("Created: FPAIR(1.0, 2.0)*N")
+    WRITEF("Raw bits: 0x%X*N", fail_test)
+    WRITEF("Lane 0: %F*N", fail_test.|0|)
+    WRITEF("Lane 1: %F*N", fail_test.|1|)
+
+    WRITEF("*N=== Testing FPAIR(3.14159, 2.71828) - Known to work ==*N")
+    LET work_test = FPAIR(3.14159, 2.71828)
+    WRITEF("Created: FPAIR(3.14159, 2.71828)*N")
+    WRITEF("Raw bits: 0x%X*N", work_test)
+    WRITEF("Lane 0: %F*N", work_test.|0|)
+    WRITEF("Lane 1: %F*N", work_test.|1|)
+
+    // Test if it's about the specific values by swapping them
+    WRITEF("*N=== Testing FPAIR(2.71828, 3.14159) - Swap working values ==*N")
+    LET swap_test = FPAIR(2.71828, 3.14159)
+    WRITEF("Created: FPAIR(2.71828, 3.14159)*N")
+    WRITEF("Raw bits: 0x%X*N", swap_test)
+    WRITEF("Lane 0: %F*N", swap_test.|0|)
+    WRITEF("Lane 1: %F*N", swap_test.|1|)
+
+    // Test with similar simple values
+    WRITEF("*N=== Testing FPAIR(1.1, 2.1) - Similar to failing case ==*N")
+    LET similar_test = FPAIR(1.1, 2.1)
+    WRITEF("Created: FPAIR(1.1, 2.1)*N")
+    WRITEF("Raw bits: 0x%X*N", similar_test)
+    WRITEF("Lane 0: %F*N", similar_test.|0|)
+    WRITEF("Lane 1: %F*N", similar_test.|1|)
+
+    WRITEF("*NDone with isolated test*N")
+}

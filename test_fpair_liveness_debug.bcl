@@ -1,0 +1,6 @@
+LET START() BE {
+    // Minimal test to debug FPAIR liveness analysis
+    LET f1 = FPAIR(1.0, 2.0)
+    WRITEF("Debug: f1 created*N")
+    WRITEF("f1.|0| = %F*N", f1.|0|)
+}

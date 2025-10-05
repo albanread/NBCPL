@@ -1,0 +1,23 @@
+LET START() BE {
+    WRITEF("Testing FPAIR arithmetic*N")
+
+    // Test simple addition
+    LET f1 = FPAIR(1.0, 2.0)
+    LET f2 = FPAIR(3.0, 4.0)
+    LET result = f1 + f2
+    WRITEF("FPAIR addition: (1.0, 2.0) + (3.0, 4.0) = result*N")
+
+    // Test subtraction
+    LET f3 = FPAIR(10.0, 8.0)
+    LET f4 = FPAIR(3.0, 2.0)
+    LET result2 = f3 - f4
+    WRITEF("FPAIR subtraction: (10.0, 8.0) - (3.0, 2.0) = result*N")
+
+    // Test multiplication
+    LET f5 = FPAIR(2.0, 3.0)
+    LET f6 = FPAIR(4.0, 5.0)
+    LET result3 = f5 * f6
+    WRITEF("FPAIR multiplication: (2.0, 3.0) * (4.0, 5.0) = result*N")
+
+    WRITEF("All FPAIR arithmetic tests completed*N")
+}

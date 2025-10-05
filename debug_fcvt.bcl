@@ -1,0 +1,37 @@
+LET START() BE {
+    WRITEF("Debugging FCVT and float bit interpretation*N")
+
+    // Test basic FCVT with known single precision values
+    // 1.0f in single precision is 0x3F800000
+    // 2.0f in single precision is 0x40000000
+
+    // Create simple single precision float values
+    LET f1 = 1.0  // This is double precision
+    LET f2 = 2.0  // This is double precision
+
+    WRITEF("Double precision 1.0 = %F*N", f1)
+    WRITEF("Double precision 2.0 = %F*N", f2)
+
+    // Create FPAIR and examine its bit pattern
+    LET fpair = FPAIR(1.0, 2.0)
+    WRITEF("FPAIR(1.0, 2.0) bits = 0x%X*N", fpair)
+
+    // The expected bit pattern should be:
+    // Lower 32 bits: 0x3F800000 (1.0f)
+    // Upper 32 bits: 0x40000000 (2.0f)
+    // Combined: 0x400000003F800000
+
+    WRITEF("Expected: 0x400000003F800000*N")
+
+    // Test individual bit extractions
+    WRITEF("Testing lane access (should show raw bit values):*N")
+    LET lane0_raw = fpair.|0|
+    LET lane1_raw = fpair.|1|
+    WRITEF("Raw lane 0 bits as float: %F*N", lane0_raw)
+    WRITEF("Raw lane 1 bits as float: %F*N", lane1_raw)
+
+    WRITEF("Expected lane 0: 1.000000*N")
+    WRITEF("Expected lane 1: 2.000000*N")
+
+    WRITEF("Done*N")
+}

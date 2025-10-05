@@ -151,13 +151,13 @@ L_START_Entry_0:
     ADRP X11, L_float0@PAGE
     ADD X11, X11, L_float0@PAGEOFF
     LDR D0, [X11, #0]
-    FCVT S1, D0
+    FCVT S1, D0 ;encoder.
     FMOV W11, S1
     BFXIL X9, X11, #0, #32
     ADRP X12, L_float1@PAGE
     ADD X12, X12, L_float1@PAGEOFF
     LDR D0, [X12, #0]
-    FCVT S1, D0
+    FCVT S1, D0 ;encoder.
     FMOV W12, S1
     BFI X9, X12, #32, #32
     MOV X27, X9
@@ -165,19 +165,19 @@ L_START_Entry_0:
     ADRP X13, L_float2@PAGE
     ADD X13, X13, L_float2@PAGEOFF
     LDR D0, [X13, #0]
-    FCVT S1, D0
+    FCVT S1, D0 ;encoder.
     FMOV W13, S1
     BFXIL X9, X13, #0, #32
     ADRP X14, L_float3@PAGE
     ADD X14, X14, L_float3@PAGEOFF
     LDR D0, [X14, #0]
-    FCVT S1, D0
+    FCVT S1, D0 ;encoder.
     FMOV W14, S1
     BFI X9, X14, #32, #32
     MOV X26, X9
     fmov D0, X27
     fmov D1, X26
-    fadd v0.2s, v0.2s, v1.2s    ; dedicated 2s encoder
+    fadd v0.2s, v0.2s, v1.2s    ; FPAIR 2s encoder
     fmov X20, D0
     MOV X25, X20
     ADRP X9, L_str1@PAGE

@@ -2,6 +2,7 @@ LET START() BE {
     WRITEF("Testing FPAIR bit patterns and debugging*N")
 
     // Test simple values first
+   
     WRITEF("Test 1: Simple float values*N")
     LET f1 = FPAIR(1.0, 2.0)
     WRITEF("f1 created with (1.0, 2.0)*N")

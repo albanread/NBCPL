@@ -4,28 +4,10 @@
 
 LET START() BE {
     WRITEF("Testing FPAIR 2S dedicated encoders*N")
-
-    // Test FPAIR addition (should use fadd_vector_2s)
-    LET a = FPAIR(1.5, 2.5)
-    LET b = FPAIR(0.5, 1.0)
-    LET c = a + b
-    WRITEF("FPAIR addition: %Q + %Q = %Q*N", a, b, c)
-
     // Test FPAIR subtraction (should use fsub_vector_2s)
     LET d = FPAIR(10.0, 8.0)
     LET e = FPAIR(3.0, 2.0)
     LET f = d - e
     WRITEF("FPAIR subtraction: %Q - %Q = %Q*N", d, e, f)
-
-    // Test FPAIR multiplication (should use fmul_vector_2s)
-    LET g = FPAIR(2.0, 3.0)
-    LET h = FPAIR(4.0, 5.0)
-    LET i = g * h
-    WRITEF("FPAIR multiplication: %Q * %Q = %Q*N", g, h, i)
-
-    // Test FPAIR division (should use fdiv_vector_2s - already implemented)
-    LET j = FPAIR(12.0, 15.0)
-    LET k = FPAIR(3.0, 5.0)
-    LET l = j / k
-    WRITEF("FPAIR division: %Q / %Q = %Q*N", j, k, l)
+   
 }

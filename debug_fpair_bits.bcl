@@ -1,0 +1,18 @@
+LET START() BE {
+    WRITEF("Testing FPAIR bit patterns*N")
+
+    // Create a simple FPAIR with known values
+    LET f = FPAIR(42.0, 99.0)
+    WRITEF("Created FPAIR(42.0, 99.0)*N")
+    WRITEF("Raw FPAIR bits as hex: 0x%X*N", f)
+
+    // Test with simpler values that have known bit patterns
+    LET simple = FPAIR(1.0, 2.0)
+    WRITEF("Simple FPAIR(1.0, 2.0) raw bits: 0x%X*N", simple)
+
+    // Test with zero values
+    LET zeros = FPAIR(0.0, 0.0)
+    WRITEF("Zero FPAIR(0.0, 0.0) raw bits: 0x%X*N", zeros)
+
+    WRITEF("Done examining bit patterns*N")
+}

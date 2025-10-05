@@ -1,0 +1,19 @@
+LET START() BE {
+    WRITEF("Debugging FPAIR lane access*N")
+
+    // Create a simple FPAIR with known values
+    LET f = FPAIR(42.0, 99.0)
+    WRITEF("Created FPAIR(42.0, 99.0)*N")
+
+    // Try to access lane 0
+    WRITEF("Accessing lane 0...*N")
+    LET lane0 = f.|0|
+    WRITEF("Lane 0 = %F*N", lane0)
+
+    // Try to access lane 1
+    WRITEF("Accessing lane 1...*N")
+    LET lane1 = f.|1|
+    WRITEF("Lane 1 = %F*N", lane1)
+
+    WRITEF("Done*N")
+}

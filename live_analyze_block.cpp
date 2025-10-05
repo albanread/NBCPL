@@ -31,9 +31,21 @@ void LivenessAnalysisPass::analyze_block(BasicBlock* block) {
     }
     
     // Scan statements in reverse order to find variables used after calls
-    for (auto it = block->statements.rbegin(); it != block->statements.rend(); ++it) {
+    int reverse_stmt_idx = block->statements.size() - 1;
+    for (auto it = block->statements.rbegin(); it != block->statements.rend(); ++it, --reverse_stmt_idx) {
         const auto& stmt = *it;
-        if (!stmt) continue;
+        if (!stmt) {
+            if (trace_enabled_) {
+                std::cout << "[LivenessAnalysisPass] Reverse scan - null statement at index " << reverse_stmt_idx << std::endl;
+            }
+            continue;
+        }
+        
+        if (trace_enabled_) {
+            const auto& stmt_ref = *stmt;
+            const char* stmt_type_name = typeid(stmt_ref).name();
+            std::cout << "[LivenessAnalysisPass] Reverse scan - processing statement " << reverse_stmt_idx << " type: " << stmt_type_name << std::endl;
+        }
         
         // Check if this statement uses any variables
         std::set<std::string> vars_used_in_stmt;
@@ -47,16 +59,25 @@ void LivenessAnalysisPass::analyze_block(BasicBlock* block) {
             collect_statement_variable_uses(stmt.get(), vars_used_in_stmt);
         }
         
-        if (trace_enabled_ && !vars_used_in_stmt.empty()) {
-            std::cout << "[LivenessAnalysisPass] Statement uses variables: ";
-            for (const auto& var : vars_used_in_stmt) {
-                std::cout << var << " ";
+        if (trace_enabled_) {
+            if (!vars_used_in_stmt.empty()) {
+                std::cout << "[LivenessAnalysisPass] Reverse scan - Statement " << reverse_stmt_idx << " uses variables: ";
+                for (const auto& var : vars_used_in_stmt) {
+                    std::cout << var << " ";
+                }
+                std::cout << std::endl;
+            } else {
+                std::cout << "[LivenessAnalysisPass] Reverse scan - Statement " << reverse_stmt_idx << " uses no variables" << std::endl;
             }
-            std::cout << std::endl;
         }
         
         // Check if this statement contains a function call
         bool stmt_contains_call = statement_contains_call(stmt.get());
+        
+        if (trace_enabled_) {
+            std::cout << "[LivenessAnalysisPass] Reverse scan - Statement " << reverse_stmt_idx 
+                      << " contains call: " << (stmt_contains_call ? "YES" : "NO") << std::endl;
+        }
         
         // SPECIAL CASE: Handle intra-statement call intervals
         // For expressions like "N * FUNC(N-1)", we need to detect that N is used
@@ -86,8 +107,9 @@ void LivenessAnalysisPass::analyze_block(BasicBlock* block) {
         // If we've seen a call, all variables used in this statement are live across calls
         if (found_call) {
             vars_used_after_calls.insert(vars_used_in_stmt.begin(), vars_used_in_stmt.end());
-            if (trace_enabled_ && !vars_used_in_stmt.empty()) {
-                std::cout << "[LivenessAnalysisPass] Variables used after call: ";
+            if (trace_enabled_) {
+                std::cout << "[LivenessAnalysisPass] Reverse scan - Found " << vars_used_in_stmt.size() 
+                          << " variables used after previous calls: ";
                 for (const auto& var : vars_used_in_stmt) {
                     std::cout << var << " ";
                 }
@@ -98,7 +120,7 @@ void LivenessAnalysisPass::analyze_block(BasicBlock* block) {
         if (stmt_contains_call) {
             found_call = true;
             if (trace_enabled_) {
-                std::cout << "[LivenessAnalysisPass] Found call in statement" << std::endl;
+                std::cout << "[LivenessAnalysisPass] Reverse scan - Marking found_call=true at statement " << reverse_stmt_idx << std::endl;
             }
         }
     }
@@ -160,11 +182,20 @@ void LivenessAnalysisPass::analyze_block(BasicBlock* block) {
 void LivenessAnalysisPass::collect_variable_uses(ASTNode* node, std::set<std::string>& vars) {
     if (!node) return;
     
+    if (trace_enabled_) {
+        const auto& node_ref = *node;
+        const char* node_type_name = typeid(node_ref).name();
+        std::cout << "[LivenessAnalysisPass] Collecting uses from node type: " << node_type_name << std::endl;
+    }
+    
     if (auto* var_access = dynamic_cast<VariableAccess*>(node)) {
         if (symbol_table_) {
             Symbol symbol;
             if (symbol_table_->lookup(var_access->name, symbol) && symbol.is_variable()) {
                 vars.insert(var_access->name);
+                if (trace_enabled_) {
+                    std::cout << "[LivenessAnalysisPass] Found variable use: " << var_access->name << std::endl;
+                }
             }
         }
     } else if (auto* binary_op = dynamic_cast<BinaryOp*>(node)) {
@@ -191,6 +222,9 @@ void LivenessAnalysisPass::collect_variable_uses(ASTNode* node, std::set<std::st
     } else if (auto* fpair_access = dynamic_cast<FPairAccessExpression*>(node)) {
         // This is the critical fix: when accessing .first or .second on FPAIR,
         // we need to mark the underlying fpair variable as used
+        if (trace_enabled_) {
+            std::cout << "[LivenessAnalysisPass] Found FPairAccessExpression - collecting from pair_expr" << std::endl;
+        }
         collect_variable_uses(fpair_access->pair_expr.get(), vars);
     } else if (auto* fpair_expr = dynamic_cast<FPairExpression*>(node)) {
         collect_variable_uses(fpair_expr->first_expr.get(), vars);
@@ -199,6 +233,21 @@ void LivenessAnalysisPass::collect_variable_uses(ASTNode* node, std::set<std::st
         collect_variable_uses(conditional->condition.get(), vars);
         collect_variable_uses(conditional->true_expr.get(), vars);
         collect_variable_uses(conditional->false_expr.get(), vars);
+    } else if (auto* lane_access = dynamic_cast<LaneAccessExpression*>(node)) {
+        // This is the critical fix: when accessing lanes (like f1.|0|),
+        // we need to mark the underlying vector/pair variable as used
+        if (trace_enabled_) {
+            std::cout << "[LivenessAnalysisPass] Found LaneAccessExpression - collecting from vector_expr" << std::endl;
+        }
+        collect_variable_uses(lane_access->vector_expr.get(), vars);
+    } else {
+        if (trace_enabled_) {
+            std::cout << "[LivenessAnalysisPass] Testing dynamic_cast<LaneAccessExpression*>: " 
+                      << (dynamic_cast<LaneAccessExpression*>(node) != nullptr ? "SUCCESS" : "FAILED") << std::endl;
+            const auto& node_ref = *node;
+            const char* node_type_name = typeid(node_ref).name();
+            std::cout << "[LivenessAnalysisPass] Unhandled node type in collect_variable_uses: " << node_type_name << std::endl;
+        }
     }
 }
 

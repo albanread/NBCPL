@@ -409,6 +409,12 @@ void LivenessAnalysisPass::visit(BitfieldAccessExpression& node) {
     if (node.width_expr) node.width_expr->accept(*this);
 }
 
+void LivenessAnalysisPass::visit(LaneAccessExpression& node) {
+    // This is the critical fix: when accessing lanes (like f1.|0|),
+    // we need to mark the underlying vector/pair variable as used
+    if (node.vector_expr) node.vector_expr->accept(*this);
+}
+
 void LivenessAnalysisPass::visit(FVecAllocationExpression& node) {
     if (node.size_expr) node.size_expr->accept(*this);
 }
