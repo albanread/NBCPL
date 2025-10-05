@@ -139,6 +139,8 @@ L_START:
     STP x19, x20, [x29, #40]
     STP x26, x27, [x29, #56]
     STR X28, [X29, #72] ; Saved Reg: X28 @ FP+72
+    ADRP X28, L__data_segment_base@PAGE
+    ADD X28, X28, L__data_segment_base@PAGEOFF
 L_START_Entry_0:
     MOVZ X9, #0
     ADRP X11, L_float0@PAGE

@@ -1508,15 +1508,22 @@ Instruction VectorCodeGen::fsub_vector_2s(const std::string& vd, const std::stri
 
     // Base FSUB vector opcode for .2S: 0x0ea1d400 (exact match to clang output)
     BitPatcher patcher(0x0ea1d400);
+    std::cerr << "[DEBUG] Initial BitPatcher value: 0x" << std::hex << patcher.get_value() << std::dec << std::endl;
     
     // Clear existing register fields
     patcher.patch(0, 0, 5);   // Clear Rd (bits 4:0)
+    std::cerr << "[DEBUG] After clearing Rd: 0x" << std::hex << patcher.get_value() << std::dec << std::endl;
     patcher.patch(0, 5, 5);   // Clear Rn (bits 9:5)
+    std::cerr << "[DEBUG] After clearing Rn: 0x" << std::hex << patcher.get_value() << std::dec << std::endl;
     patcher.patch(0, 16, 5);  // Clear Rm (bits 20:16)
+    std::cerr << "[DEBUG] After clearing Rm: 0x" << std::hex << patcher.get_value() << std::dec << std::endl;
     
     patcher.patch(vd_num, 0, 5);   // Rd (bits 4:0)
+    std::cerr << "[DEBUG] After setting Rd=" << vd_num << ": 0x" << std::hex << patcher.get_value() << std::dec << std::endl;
     patcher.patch(vn_num, 5, 5);   // Rn (bits 9:5)
+    std::cerr << "[DEBUG] After setting Rn=" << vn_num << ": 0x" << std::hex << patcher.get_value() << std::dec << std::endl;
     patcher.patch(vm_num, 16, 5);  // Rm (bits 20:16)
+    std::cerr << "[DEBUG] After setting Rm=" << vm_num << ": 0x" << std::hex << patcher.get_value() << std::dec << std::endl;
 
     // Generate assembly text
     std::string vd_reg = (vd[0] == 'D') ? "v" + vd.substr(1) : vd;
@@ -1525,7 +1532,10 @@ Instruction VectorCodeGen::fsub_vector_2s(const std::string& vd, const std::stri
     
     std::string asm_text = "fsub " + vd_reg + ".2s, " + vn_reg + ".2s, " + vm_reg + ".2s    ; dedicated 2s encoder";
     
-    Instruction instr(patcher.get_value(), asm_text);
+    uint32_t final_encoding = patcher.get_value();
+    std::cerr << "[DEBUG] FSUB BitPatcher result: 0x" << std::hex << final_encoding << std::dec << std::endl;
+    
+    Instruction instr(final_encoding, asm_text);
     instr.opcode = InstructionDecoder::OpType::FSUB;
     instr.dest_reg = vd_num;
     instr.src_reg1 = vn_num;

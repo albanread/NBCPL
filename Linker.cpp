@@ -37,6 +37,16 @@ std::vector<Instruction> Linker::process(
     // Pass 2: Apply relocations to patch instructions with the now-known label addresses.
     performRelocations(instructions_with_addresses, manager, runtime_manager, enable_tracing);
 
+    // Display traced instructions at end of linker process
+    std::cerr << "\n[LINKER TRACE] Final traced instructions after linking:\n";
+    for (const auto& instr : instructions_with_addresses) {
+        if (instr.trace_this_instruction) {
+            std::cerr << "[LINKER TRACE] " << instr.assembly_text 
+                      << " | Encoding: 0x" << std::hex << instr.encoding << std::dec 
+                      << " | Address: 0x" << std::hex << instr.address << std::dec << std::endl;
+        }
+    }
+
     return instructions_with_addresses;
 }
 

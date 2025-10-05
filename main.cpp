@@ -1230,6 +1230,14 @@ void* handle_jit_compilation(void* jit_data_memory_base, InstructionStream& inst
                 } else if (instr.relocation != RelocationType::ABSOLUTE_ADDRESS_HI32) {
                     // For all other instructions (including regular code and HI32 parts that are skipped),
                     // write 4 bytes. The HI32 case is skipped because the LO32 case handles it.
+                    
+                    // Trace specific instructions before memory write
+                    if (instr.trace_this_instruction) {
+                        std::cerr << "[JIT MEMORY WRITE TRACE] About to write: " << instr.assembly_text 
+                                  << " | Encoding: 0x" << std::hex << instr.encoding << std::dec 
+                                  << " | To address: 0x" << std::hex << instr.address << std::dec << std::endl;
+                    }
+                    
                     memcpy(dest, &instr.encoding, sizeof(uint32_t));
                 }
 
