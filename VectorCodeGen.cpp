@@ -285,8 +285,11 @@ void VectorCodeGen::generateNeonBinaryOp(BinaryOp& node, VarType result_type) {
     // Perform the vector operation
     switch (node.op) {
         case BinaryOp::Operator::Add:
-        if (result_type == VarType::FOCT || result_type == VarType::FPAIR) {
+        if (result_type == VarType::FOCT) {
             emit_(vecgen_fadd_vector(qreg_to_vreg(left_neon_reg), qreg_to_vreg(left_neon_reg), qreg_to_vreg(right_neon_reg), arrangement));
+        } else if (result_type == VarType::FPAIR) {
+            emit_(fadd_vector_2s(qreg_to_vreg(left_neon_reg), qreg_to_vreg(left_neon_reg), qreg_to_vreg(right_neon_reg)));
+            debug_print("Generated specialized NEON FADD .2S for FPAIR addition");
         } else if (result_type == VarType::PAIR) {
             emit_(add_vector_2s(qreg_to_vreg(left_neon_reg), qreg_to_vreg(left_neon_reg), qreg_to_vreg(right_neon_reg)));
             debug_print("Generated specialized NEON ADD .2S for PAIR addition");
@@ -297,8 +300,11 @@ void VectorCodeGen::generateNeonBinaryOp(BinaryOp& node, VarType result_type) {
         break;
 
     case BinaryOp::Operator::Subtract:
-        if (result_type == VarType::FOCT || result_type == VarType::FPAIR) {
+        if (result_type == VarType::FOCT) {
             emit_(vecgen_fsub_vector(qreg_to_vreg(left_neon_reg), qreg_to_vreg(left_neon_reg), qreg_to_vreg(right_neon_reg), arrangement));
+        } else if (result_type == VarType::FPAIR) {
+            emit_(fsub_vector_2s(qreg_to_vreg(left_neon_reg), qreg_to_vreg(left_neon_reg), qreg_to_vreg(right_neon_reg)));
+            debug_print("Generated specialized NEON FSUB .2S for FPAIR subtraction");
         } else if (result_type == VarType::PAIR) {
             emit_(sub_vector_2s(qreg_to_vreg(left_neon_reg), qreg_to_vreg(left_neon_reg), qreg_to_vreg(right_neon_reg)));
             debug_print("Generated specialized NEON SUB .2S for PAIR subtraction");
@@ -309,8 +315,11 @@ void VectorCodeGen::generateNeonBinaryOp(BinaryOp& node, VarType result_type) {
         break;
 
     case BinaryOp::Operator::Multiply:
-        if (result_type == VarType::FOCT || result_type == VarType::FPAIR) {
+        if (result_type == VarType::FOCT) {
             emit_(vecgen_fmul_vector(qreg_to_vreg(left_neon_reg), qreg_to_vreg(left_neon_reg), qreg_to_vreg(right_neon_reg), arrangement));
+        } else if (result_type == VarType::FPAIR) {
+            emit_(fmul_vector_2s(qreg_to_vreg(left_neon_reg), qreg_to_vreg(left_neon_reg), qreg_to_vreg(right_neon_reg)));
+            debug_print("Generated specialized NEON FMUL .2S for FPAIR multiplication");
         } else if (result_type == VarType::PAIR) {
             emit_(mul_vector_2s(qreg_to_vreg(left_neon_reg), qreg_to_vreg(left_neon_reg), qreg_to_vreg(right_neon_reg)));
             debug_print("Generated specialized NEON MUL .2S for PAIR multiplication");
@@ -1433,6 +1442,102 @@ Instruction VectorCodeGen::fdiv_vector_2s(const std::string& vd, const std::stri
     
     Instruction instr(patcher.get_value(), asm_text);
     instr.opcode = InstructionDecoder::OpType::FDIV;
+    instr.dest_reg = vd_num;
+    instr.src_reg1 = vn_num;
+    instr.src_reg2 = vm_num;
+    
+    return instr;
+}
+
+// Specialized encoder for 2S vector floating-point addition (FPAIR operations)
+Instruction VectorCodeGen::fadd_vector_2s(const std::string& vd, const std::string& vn, const std::string& vm) {
+    // ARM64 FADD vector .2S encoding: clang generates 0x0e21d400
+    // Use BitPatcher to build instruction like other encoders
+    
+    int vd_num = parse_register_number(vd);
+    int vn_num = parse_register_number(vn);
+    int vm_num = parse_register_number(vm);
+
+    // Base FADD vector opcode for .2S: 0x0e21d400 (exact match to clang output)
+    BitPatcher patcher(0x0e21d400);
+    
+    patcher.patch(vd_num, 0, 5);   // Rd (bits 4:0)
+    patcher.patch(vn_num, 5, 5);   // Rn (bits 9:5)
+    patcher.patch(vm_num, 16, 5);  // Rm (bits 20:16)
+
+    // Generate assembly text
+    std::string vd_reg = (vd[0] == 'D') ? "v" + vd.substr(1) : vd;
+    std::string vn_reg = (vn[0] == 'D') ? "v" + vn.substr(1) : vn;
+    std::string vm_reg = (vm[0] == 'D') ? "v" + vm.substr(1) : vm;
+    
+    std::string asm_text = "fadd " + vd_reg + ".2s, " + vn_reg + ".2s, " + vm_reg + ".2s    ; dedicated 2s encoder";
+    
+    Instruction instr(patcher.get_value(), asm_text);
+    instr.opcode = InstructionDecoder::OpType::FADD;
+    instr.dest_reg = vd_num;
+    instr.src_reg1 = vn_num;
+    instr.src_reg2 = vm_num;
+    
+    return instr;
+}
+
+// Specialized encoder for 2S vector floating-point subtraction (FPAIR operations)
+Instruction VectorCodeGen::fsub_vector_2s(const std::string& vd, const std::string& vn, const std::string& vm) {
+    // ARM64 FSUB vector .2S encoding: clang generates 0x0ea1d400
+    // Use BitPatcher to build instruction like other encoders
+    
+    int vd_num = parse_register_number(vd);
+    int vn_num = parse_register_number(vn);
+    int vm_num = parse_register_number(vm);
+
+    // Base FSUB vector opcode for .2S: 0x0ea1d400 (exact match to clang output)
+    BitPatcher patcher(0x0ea1d400);
+    
+    patcher.patch(vd_num, 0, 5);   // Rd (bits 4:0)
+    patcher.patch(vn_num, 5, 5);   // Rn (bits 9:5)
+    patcher.patch(vm_num, 16, 5);  // Rm (bits 20:16)
+
+    // Generate assembly text
+    std::string vd_reg = (vd[0] == 'D') ? "v" + vd.substr(1) : vd;
+    std::string vn_reg = (vn[0] == 'D') ? "v" + vn.substr(1) : vn;
+    std::string vm_reg = (vm[0] == 'D') ? "v" + vm.substr(1) : vm;
+    
+    std::string asm_text = "fsub " + vd_reg + ".2s, " + vn_reg + ".2s, " + vm_reg + ".2s    ; dedicated 2s encoder";
+    
+    Instruction instr(patcher.get_value(), asm_text);
+    instr.opcode = InstructionDecoder::OpType::FSUB;
+    instr.dest_reg = vd_num;
+    instr.src_reg1 = vn_num;
+    instr.src_reg2 = vm_num;
+    
+    return instr;
+}
+
+// Specialized encoder for 2S vector floating-point multiplication (FPAIR operations)
+Instruction VectorCodeGen::fmul_vector_2s(const std::string& vd, const std::string& vn, const std::string& vm) {
+    // ARM64 FMUL vector .2S encoding: clang generates 0x2e21dc00
+    // Use BitPatcher to build instruction like other encoders
+    
+    int vd_num = parse_register_number(vd);
+    int vn_num = parse_register_number(vn);
+    int vm_num = parse_register_number(vm);
+
+    // Base FMUL vector opcode for .2S: 0x2e21dc00 (exact match to clang output)
+    BitPatcher patcher(0x2e21dc00);
+    
+    patcher.patch(vd_num, 0, 5);   // Rd (bits 4:0)
+    patcher.patch(vn_num, 5, 5);   // Rn (bits 9:5)
+    patcher.patch(vm_num, 16, 5);  // Rm (bits 20:16)
+
+    // Generate assembly text
+    std::string vd_reg = (vd[0] == 'D') ? "v" + vd.substr(1) : vd;
+    std::string vn_reg = (vn[0] == 'D') ? "v" + vn.substr(1) : vn;
+    std::string vm_reg = (vm[0] == 'D') ? "v" + vm.substr(1) : vm;
+    
+    std::string asm_text = "fmul " + vd_reg + ".2s, " + vn_reg + ".2s, " + vm_reg + ".2s    ; dedicated 2s encoder";
+    
+    Instruction instr(patcher.get_value(), asm_text);
+    instr.opcode = InstructionDecoder::OpType::FMUL;
     instr.dest_reg = vd_num;
     instr.src_reg1 = vn_num;
     instr.src_reg2 = vm_num;

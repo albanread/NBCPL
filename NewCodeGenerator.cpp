@@ -693,73 +693,16 @@ void NewCodeGenerator::visit(BinaryOp& node) {
     }
     // ======================= END OF FIX =======================
 
-    // Handle FPAIR arithmetic operations using NEON SIMD instructions (floating point)
+    // Handle FPAIR arithmetic operations using dedicated VectorCodeGen 2S encoders
     if (is_fpair_op) {
-        debug_print("Generating FPAIR arithmetic using NEON SIMD floating-point instructions");
+        debug_print("Routing FPAIR operations to VectorCodeGen for dedicated 2S encoders");
         
-        // Check if we support this operation for FPAIRs
-        if (node.op != BinaryOp::Operator::Add && 
-            node.op != BinaryOp::Operator::Subtract && 
-            node.op != BinaryOp::Operator::Multiply &&
-            node.op != BinaryOp::Operator::Divide) {
-            throw std::runtime_error("Unsupported binary operation on FPAIR types: only +, -, *, / are supported");
+        if (vector_codegen_ && VectorCodeGen::isSimdOperation(left_type, right_type)) {
+            vector_codegen_->generateSimdBinaryOp(node, use_neon_);
+            return;
+        } else {
+            throw std::runtime_error("VectorCodeGen not available for FPAIR operations");
         }
-        
-        // NEON SIMD approach for optimal floating-point performance:
-        // 1. Move FPAIR values from X registers to D registers (64-bit NEON registers)
-        // 2. Use NEON .2S (2 x 32-bit float lanes) instructions for component-wise arithmetic
-        // 3. Move result back to X register
-        
-        // Move left FPAIR (X register) to NEON D register
-        std::string left_neon_reg = register_manager_.acquire_fp_scratch_reg();
-        emit(Encoder::create_fmov_x_to_d(left_neon_reg, left_reg));
-        debug_print("Moved left FPAIR from " + left_reg + " to NEON register " + left_neon_reg);
-        
-        // Move right FPAIR (X register) to NEON D register  
-        std::string right_neon_reg = register_manager_.acquire_fp_scratch_reg();
-        emit(Encoder::create_fmov_x_to_d(right_neon_reg, right_reg));
-        debug_print("Moved right FPAIR from " + right_reg + " to NEON register " + right_neon_reg);
-        
-        // Convert D register names to V register names for vector operations
-        std::string left_vector_reg = "V" + left_neon_reg.substr(1);
-        std::string right_vector_reg = "V" + right_neon_reg.substr(1);
-        
-        // Perform component-wise floating-point arithmetic using NEON vector instructions
-        switch (node.op) {
-            case BinaryOp::Operator::Add:
-                emit(Encoder::create_fadd_vector_reg(left_vector_reg, left_vector_reg, right_vector_reg, "2S"));
-                debug_print("FPAIR addition: " + left_vector_reg + ".2S = " + left_vector_reg + ".2S + " + right_vector_reg + ".2S");
-                break;
-            case BinaryOp::Operator::Subtract:
-                emit(Encoder::enc_create_fsub_vector_reg(left_vector_reg, left_vector_reg, right_vector_reg, "2S"));
-                debug_print("FPAIR subtraction: " + left_vector_reg + ".2S = " + left_vector_reg + ".2S - " + right_vector_reg + ".2S");
-                break;
-            case BinaryOp::Operator::Multiply:
-                emit(Encoder::create_fmul_vector_reg(left_vector_reg, left_vector_reg, right_vector_reg, "2S"));
-                debug_print("FPAIR multiplication: " + left_vector_reg + ".2S = " + left_vector_reg + ".2S * " + right_vector_reg + ".2S");
-                break;
-            case BinaryOp::Operator::Divide:
-                emit(Encoder::enc_create_fdiv_vector_reg(left_vector_reg, left_vector_reg, right_vector_reg, "2S"));
-                debug_print("FPAIR division: " + left_vector_reg + ".2S = " + left_vector_reg + ".2S / " + right_vector_reg + ".2S");
-                break;
-            default:
-                throw std::runtime_error("Unsupported FPAIR operation");
-        }
-        
-        // Move result back from NEON D register to X register
-        emit(Encoder::create_fmov_d_to_x(left_reg, left_neon_reg));
-        debug_print("Moved FPAIR result from NEON register " + left_neon_reg + " back to " + left_reg);
-        
-        // Release NEON scratch registers
-        register_manager_.release_register(left_neon_reg);
-        register_manager_.release_register(right_neon_reg);
-        if (!right_is_constant) {
-            register_manager_.release_register(right_reg);
-        }
-        
-        expression_result_reg_ = left_reg;
-        debug_print("FPAIR SIMD arithmetic complete. Result in " + expression_result_reg_);
-        return;
     }
 
     // Handle scalar-FPAIR arithmetic operations using NEON SIMD instructions

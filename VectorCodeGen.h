@@ -135,6 +135,33 @@ public:
     Instruction add_vector_2s(const std::string& vd, const std::string& vn, const std::string& vm);
     
     /**
+     * @brief Specialized encoder for 2S vector floating-point addition (FPAIR operations)
+     * @param vd Destination vector register
+     * @param vn First source vector register
+     * @param vm Second source vector register
+     * @return Instruction for FADD Vd.2S, Vn.2S, Vm.2S
+     */
+    Instruction fadd_vector_2s(const std::string& vd, const std::string& vn, const std::string& vm);
+    
+    /**
+     * @brief Specialized encoder for 2S vector floating-point subtraction (FPAIR operations)
+     * @param vd Destination vector register
+     * @param vn First source vector register
+     * @param vm Second source vector register
+     * @return Instruction for FSUB Vd.2S, Vn.2S, Vm.2S
+     */
+    Instruction fsub_vector_2s(const std::string& vd, const std::string& vn, const std::string& vm);
+    
+    /**
+     * @brief Specialized encoder for 2S vector floating-point multiplication (FPAIR operations)
+     * @param vd Destination vector register
+     * @param vn First source vector register
+     * @param vm Second source vector register
+     * @return Instruction for FMUL Vd.2S, Vn.2S, Vm.2S
+     */
+    Instruction fmul_vector_2s(const std::string& vd, const std::string& vn, const std::string& vm);
+    
+    /**
      * @brief Specialized encoder for 2S vector floating-point division (FPAIR operations)
      * @param vd Destination vector register
      * @param vn First source vector register

@@ -1,0 +1,10 @@
+// Simple FPAIR test to isolate potential JIT issues
+LET START() BE {
+    WRITEF("Simple FPAIR test*N")
+
+    // Test just one FPAIR addition
+    LET a = FPAIR(2.0, 3.0)
+    LET b = FPAIR(1.0, 2.0)
+    LET c = a + b
+    WRITEF("Result: %Q*N", c)
+}
