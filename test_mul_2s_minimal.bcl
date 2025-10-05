@@ -1,0 +1,10 @@
+// Minimal test for specialized PAIR multiplication encoder (mul_vector_2s)
+LET START() BE {
+    WRITEF("Testing mul_vector_2s*N")
+
+    LET a = PAIR(4, 3)
+    LET b = PAIR(2, 5)
+    LET c = a * b
+
+    WRITEF("Result is %P*N", c)
+}

@@ -1,0 +1,10 @@
+// Minimal test for specialized PAIR subtraction encoder (sub_vector_2s)
+LET START() BE {
+    WRITEF("Testing sub_vector_2s*N")
+
+    LET a = PAIR(10, 5)
+    LET b = PAIR(3, 2)
+    LET c = a - b
+    WRITEF("Result is %P", c)
+
+}

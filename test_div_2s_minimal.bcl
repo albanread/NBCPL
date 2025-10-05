@@ -1,0 +1,10 @@
+// Minimal test for specialized FPAIR division encoder (fdiv_vector_2s)
+LET START() BE {
+    writef("Testing fdiv_vector_2s*N")
+
+    LET a = FPAIR(8.0, 15.0)
+    LET b = FPAIR(2.0, 3.0)
+    LET c = a / b
+
+    writef("Result is %P*N", c)
+}

@@ -196,6 +196,7 @@ VarType VectorCodeGen::getElementType(VarType type) {
 }
 
 std::string VectorCodeGen::getNeonArrangement(VarType type) {
+    // debug_print("getNeonArrangement called with type: " + std::to_string(static_cast<int>(type)));
     switch (type) {
         case VarType::PAIR:
             return "2S_INT";  // Use a new arrangement for integer pairs
@@ -208,6 +209,7 @@ std::string VectorCodeGen::getNeonArrangement(VarType type) {
         case VarType::FOCT:
             return "2D";  // 8 x 32-bit floats (using two 128-bit registers)
         default:
+            // debug_print("ERROR: Unsupported vector type for NEON arrangement: " + std::to_string(static_cast<int>(type)));
             throw std::runtime_error("Unsupported vector type for NEON arrangement");
     }
 }
@@ -285,6 +287,9 @@ void VectorCodeGen::generateNeonBinaryOp(BinaryOp& node, VarType result_type) {
         case BinaryOp::Operator::Add:
         if (result_type == VarType::FOCT || result_type == VarType::FPAIR) {
             emit_(vecgen_fadd_vector(qreg_to_vreg(left_neon_reg), qreg_to_vreg(left_neon_reg), qreg_to_vreg(right_neon_reg), arrangement));
+        } else if (result_type == VarType::PAIR) {
+            emit_(add_vector_2s(qreg_to_vreg(left_neon_reg), qreg_to_vreg(left_neon_reg), qreg_to_vreg(right_neon_reg)));
+            debug_print("Generated specialized NEON ADD .2S for PAIR addition");
         } else {
             emit_(vecgen_add_vector(qreg_to_vreg(left_neon_reg), qreg_to_vreg(left_neon_reg), qreg_to_vreg(right_neon_reg), arrangement));
         }
@@ -294,6 +299,9 @@ void VectorCodeGen::generateNeonBinaryOp(BinaryOp& node, VarType result_type) {
     case BinaryOp::Operator::Subtract:
         if (result_type == VarType::FOCT || result_type == VarType::FPAIR) {
             emit_(vecgen_fsub_vector(qreg_to_vreg(left_neon_reg), qreg_to_vreg(left_neon_reg), qreg_to_vreg(right_neon_reg), arrangement));
+        } else if (result_type == VarType::PAIR) {
+            emit_(sub_vector_2s(qreg_to_vreg(left_neon_reg), qreg_to_vreg(left_neon_reg), qreg_to_vreg(right_neon_reg)));
+            debug_print("Generated specialized NEON SUB .2S for PAIR subtraction");
         } else {
             emit_(vecgen_sub_vector(qreg_to_vreg(left_neon_reg), qreg_to_vreg(left_neon_reg), qreg_to_vreg(right_neon_reg), arrangement));
         }
@@ -303,6 +311,9 @@ void VectorCodeGen::generateNeonBinaryOp(BinaryOp& node, VarType result_type) {
     case BinaryOp::Operator::Multiply:
         if (result_type == VarType::FOCT || result_type == VarType::FPAIR) {
             emit_(vecgen_fmul_vector(qreg_to_vreg(left_neon_reg), qreg_to_vreg(left_neon_reg), qreg_to_vreg(right_neon_reg), arrangement));
+        } else if (result_type == VarType::PAIR) {
+            emit_(mul_vector_2s(qreg_to_vreg(left_neon_reg), qreg_to_vreg(left_neon_reg), qreg_to_vreg(right_neon_reg)));
+            debug_print("Generated specialized NEON MUL .2S for PAIR multiplication");
         } else {
             emit_(vecgen_mul_vector(qreg_to_vreg(left_neon_reg), qreg_to_vreg(left_neon_reg), qreg_to_vreg(right_neon_reg), arrangement));
         }
@@ -310,9 +321,12 @@ void VectorCodeGen::generateNeonBinaryOp(BinaryOp& node, VarType result_type) {
         break;
 
     case BinaryOp::Operator::Divide:
-        if (result_type == VarType::FOCT || result_type == VarType::FPAIR) {
+        if (result_type == VarType::FOCT) {
             emit_(vecgen_fdiv_vector(qreg_to_vreg(left_neon_reg), qreg_to_vreg(left_neon_reg), qreg_to_vreg(right_neon_reg), arrangement));
             debug_print("Generated NEON vector division (float)");
+        } else if (result_type == VarType::FPAIR) {
+            emit_(fdiv_vector_2s(qreg_to_vreg(left_neon_reg), qreg_to_vreg(left_neon_reg), qreg_to_vreg(right_neon_reg)));
+            debug_print("Generated specialized NEON FDIV .2S for FPAIR division");
         } else {
             throw std::runtime_error("Integer division not supported in NEON vector operations");
         }
@@ -1321,6 +1335,147 @@ Instruction VectorCodeGen::vecgen_mul_vector(const std::string& vd, const std::s
     std::string lower_arrangement = normalizeArrangementForAssembly(arrangement);
     std::string asm_text = "mul " + vd_reg + "." + lower_arrangement + ", " + vn_reg + "." + lower_arrangement + ", " + vm_reg + "." + lower_arrangement;
     return Instruction(instruction, asm_text);
+}
+
+// Specialized encoder for 2S vector subtraction (PAIR operations)
+Instruction VectorCodeGen::sub_vector_2s(const std::string& vd, const std::string& vn, const std::string& vm) {
+    // ARM64 SUB vector .2S encoding: 0Q001110SS1mmmmm100001nnnnnddddd
+    // Q=0, SS=10 (32-bit), opcode=100001 (SUB)
+    // Use BitPatcher to build instruction like other encoders
+    
+    int vd_num = parse_register_number(vd);
+    int vn_num = parse_register_number(vn);
+    int vm_num = parse_register_number(vm);
+
+    // Base SUB vector opcode for .2S: 0x2ea18400 (exact match to clang output)
+    BitPatcher patcher(0x2ea18400);
+    
+    patcher.patch(vd_num, 0, 5);   // Rd (bits 4:0)
+    patcher.patch(vn_num, 5, 5);   // Rn (bits 9:5)
+    patcher.patch(vm_num, 16, 5);  // Rm (bits 20:16)
+
+    // Generate assembly text
+    std::string vd_reg = (vd[0] == 'D') ? "v" + vd.substr(1) : vd;
+    std::string vn_reg = (vn[0] == 'D') ? "v" + vn.substr(1) : vn;
+    std::string vm_reg = (vm[0] == 'D') ? "v" + vm.substr(1) : vm;
+    
+    std::string asm_text = "sub " + vd_reg + ".2s, " + vn_reg + ".2s, " + vm_reg + ".2s    ; new dedicated 2s encoder";
+    
+    Instruction instr(patcher.get_value(), asm_text);
+    instr.opcode = InstructionDecoder::OpType::SUB_VECTOR;
+    instr.dest_reg = vd_num;
+    instr.src_reg1 = vn_num;
+    instr.src_reg2 = vm_num;
+    
+    return instr;
+}
+
+// Specialized encoder for 2S vector multiplication (PAIR operations)
+Instruction VectorCodeGen::mul_vector_2s(const std::string& vd, const std::string& vn, const std::string& vm) {
+    // ARM64 MUL vector .2S encoding: clang generates 0x0ea19c00
+    // Use BitPatcher to build instruction like other encoders
+    
+    int vd_num = parse_register_number(vd);
+    int vn_num = parse_register_number(vn);
+    int vm_num = parse_register_number(vm);
+
+    // Base MUL vector opcode for .2S: 0x0ea19c00 (exact match to clang output)
+    // Clear register bits first since clang base has registers (0,0,1)
+    uint32_t base = 0x0ea19c00;
+    base &= ~0x1F;          // Clear Rd (bits 4:0) 
+    base &= ~(0x1F << 5);   // Clear Rn (bits 9:5)
+    base &= ~(0x1F << 16);  // Clear Rm (bits 20:16)
+    
+    BitPatcher patcher(base);
+    
+    patcher.patch(vd_num, 0, 5);   // Rd (bits 4:0)
+    patcher.patch(vn_num, 5, 5);   // Rn (bits 9:5)
+    patcher.patch(vm_num, 16, 5);  // Rm (bits 20:16)
+
+    // Generate assembly text
+    std::string vd_reg = (vd[0] == 'D') ? "v" + vd.substr(1) : vd;
+    std::string vn_reg = (vn[0] == 'D') ? "v" + vn.substr(1) : vn;
+    std::string vm_reg = (vm[0] == 'D') ? "v" + vm.substr(1) : vm;
+    
+    std::string asm_text = "mul " + vd_reg + ".2s, " + vn_reg + ".2s, " + vm_reg + ".2s    ; new dedicated 2s encoder";
+    
+    Instruction instr(patcher.get_value(), asm_text);
+    instr.opcode = InstructionDecoder::OpType::MUL_VECTOR;
+    instr.dest_reg = vd_num;
+    instr.src_reg1 = vn_num;
+    instr.src_reg2 = vm_num;
+    
+    return instr;
+}
+
+// Specialized encoder for 2S vector floating-point division (FPAIR operations)
+Instruction VectorCodeGen::fdiv_vector_2s(const std::string& vd, const std::string& vn, const std::string& vm) {
+    // ARM64 FDIV vector .2S encoding: clang generates 0x2e21fc00
+    // Use BitPatcher to build instruction like other encoders
+    
+    int vd_num = parse_register_number(vd);
+    int vn_num = parse_register_number(vn);
+    int vm_num = parse_register_number(vm);
+
+    // Base FDIV vector opcode for .2S: 0x2e21fc00 (exact match to clang output)
+    BitPatcher patcher(0x2e21fc00);
+    
+    patcher.patch(vd_num, 0, 5);   // Rd (bits 4:0)
+    patcher.patch(vn_num, 5, 5);   // Rn (bits 9:5)
+    patcher.patch(vm_num, 16, 5);  // Rm (bits 20:16)
+
+    // Generate assembly text
+    std::string vd_reg = (vd[0] == 'D') ? "v" + vd.substr(1) : vd;
+    std::string vn_reg = (vn[0] == 'D') ? "v" + vn.substr(1) : vn;
+    std::string vm_reg = (vm[0] == 'D') ? "v" + vm.substr(1) : vm;
+    
+    std::string asm_text = "fdiv " + vd_reg + ".2s, " + vn_reg + ".2s, " + vm_reg + ".2s    ; new dedicated 2s encoder";
+    
+    Instruction instr(patcher.get_value(), asm_text);
+    instr.opcode = InstructionDecoder::OpType::FDIV;
+    instr.dest_reg = vd_num;
+    instr.src_reg1 = vn_num;
+    instr.src_reg2 = vm_num;
+    
+    return instr;
+}
+
+// Specialized encoder for 2S vector addition (PAIR operations)
+Instruction VectorCodeGen::add_vector_2s(const std::string& vd, const std::string& vn, const std::string& vm) {
+    // ARM64 ADD vector .2S encoding: clang generates 0x0ea18400
+    // Use BitPatcher to build instruction like other encoders
+    
+    int vd_num = parse_register_number(vd);
+    int vn_num = parse_register_number(vn);
+    int vm_num = parse_register_number(vm);
+
+    // Base ADD vector opcode for .2S: 0x0ea18400 (exact match to clang output)
+    // Clear register bits first since clang base has registers (0,0,1)
+    uint32_t base = 0x0ea18400;
+    base &= ~0x1F;          // Clear Rd (bits 4:0) 
+    base &= ~(0x1F << 5);   // Clear Rn (bits 9:5)
+    base &= ~(0x1F << 16);  // Clear Rm (bits 20:16)
+    
+    BitPatcher patcher(base);
+    
+    patcher.patch(vd_num, 0, 5);   // Rd (bits 4:0)
+    patcher.patch(vn_num, 5, 5);   // Rn (bits 9:5)
+    patcher.patch(vm_num, 16, 5);  // Rm (bits 20:16)
+
+    // Generate assembly text
+    std::string vd_reg = (vd[0] == 'D') ? "v" + vd.substr(1) : vd;
+    std::string vn_reg = (vn[0] == 'D') ? "v" + vn.substr(1) : vn;
+    std::string vm_reg = (vm[0] == 'D') ? "v" + vm.substr(1) : vm;
+    
+    std::string asm_text = "add " + vd_reg + ".2s, " + vn_reg + ".2s, " + vm_reg + ".2s    ; new dedicated 2s encoder";
+    
+    Instruction instr(patcher.get_value(), asm_text);
+    instr.opcode = InstructionDecoder::OpType::ADD_VECTOR;
+    instr.dest_reg = vd_num;
+    instr.src_reg1 = vn_num;
+    instr.src_reg2 = vm_num;
+    
+    return instr;
 }
 
 Instruction VectorCodeGen::vecgen_ins_element(const std::string& vd, int dst_lane, const std::string& vn, int src_lane, const std::string& size) {

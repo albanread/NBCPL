@@ -1,0 +1,24 @@
+// Simple test for specialized PAIR subtraction encoder (sub_vector_2s)
+// Tests basic PAIR - PAIR operations
+
+LET start() BE {
+    writef("Testing specialized PAIR subtraction encoder*N")
+
+    // Test 1: Basic PAIR subtraction
+    LET p1 = PAIR(10, 1)
+    LET p2 = PAIR(2, 2)
+    LET p3 = p1 - p2
+
+    writef("Test 1: PAIR(10,1) - PAIR(2,2) = PAIR(%D,%D)*N", p3.|0|, p3.|1|)
+    // Expected: PAIR(8, -1)
+
+    // Test 2: Simple negative result
+    LET p4 = PAIR(5, 3)
+    LET p5 = PAIR(8, 7)
+    LET p6 = p4 - p5
+
+    writef("Test 2: PAIR(5,3) - PAIR(8,7) = PAIR(%D,%D)*N", p6.|0|, p6.|1|)
+    // Expected: PAIR(-3, -4)
+
+    writef("*NSpecialized PAIR subtraction tests completed*N")
+}

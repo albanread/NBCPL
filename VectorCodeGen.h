@@ -107,6 +107,42 @@ public:
      */
     static bool isPairsVectorOperation(VarType left_type, VarType right_type);
 
+    /**
+     * @brief Specialized encoder for 2S vector subtraction (PAIR operations)
+     * @param vd Destination vector register
+     * @param vn First source vector register
+     * @param vm Second source vector register
+     * @return Instruction for SUB Vd.2S, Vn.2S, Vm.2S
+     */
+    Instruction sub_vector_2s(const std::string& vd, const std::string& vn, const std::string& vm);
+    
+    /**
+     * @brief Specialized encoder for 2S vector multiplication (PAIR operations)
+     * @param vd Destination vector register
+     * @param vn First source vector register
+     * @param vm Second source vector register
+     * @return Instruction for MUL Vd.2S, Vn.2S, Vm.2S
+     */
+    Instruction mul_vector_2s(const std::string& vd, const std::string& vn, const std::string& vm);
+    
+    /**
+     * @brief Specialized encoder for 2S vector addition (PAIR operations)
+     * @param vd Destination vector register
+     * @param vn First source vector register
+     * @param vm Second source vector register
+     * @return Instruction for ADD Vd.2S, Vn.2S, Vm.2S
+     */
+    Instruction add_vector_2s(const std::string& vd, const std::string& vn, const std::string& vm);
+    
+    /**
+     * @brief Specialized encoder for 2S vector floating-point division (FPAIR operations)
+     * @param vd Destination vector register
+     * @param vn First source vector register
+     * @param vm Second source vector register
+     * @return Instruction for FDIV Vd.2S, Vn.2S, Vm.2S
+     */
+    Instruction fdiv_vector_2s(const std::string& vd, const std::string& vn, const std::string& vm);
+
 private:
     NewCodeGenerator& code_gen_;
     RegisterManager& register_manager_;
