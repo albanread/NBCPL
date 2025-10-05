@@ -1,0 +1,48 @@
+// Test file to verify endian fix for FPAIR vector operations
+// This tests that BitPatcher register field clearing works correctly
+
+LET START() BE {
+    WRITEF("Testing FPAIR endian fix*N*N")
+
+    // Test FPAIR subtraction (this was showing endian issues)
+    WRITEF("=== Testing FPAIR Subtraction (endian fix) ===*N")
+    LET a = FPAIR(10.0, 8.0)
+    LET b = FPAIR(3.5, 2.0)
+    LET c = a - b
+    WRITEF("a = FPAIR(10.0, 8.0)*N")
+    WRITEF("b = FPAIR(3.5, 2.0)*N")
+    WRITEF("c = a - b = %Q*N", c)
+    WRITEF("Expected: FPAIR(6.5, 6.0)*N*N")
+
+    // Test FPAIR addition (this was working)
+    WRITEF("=== Testing FPAIR Addition (reference) ===*N")
+    LET d = FPAIR(2.0, 3.0)
+    LET e = FPAIR(1.0, 2.0)
+    LET f = d + e
+    WRITEF("d = FPAIR(2.0, 3.0)*N")
+    WRITEF("e = FPAIR(1.0, 2.0)*N")
+    WRITEF("f = d + e = %Q*N", f)
+    WRITEF("Expected: FPAIR(3.0, 5.0)*N*N")
+
+    // Test FPAIR multiplication
+    WRITEF("=== Testing FPAIR Multiplication (endian fix) ===*N")
+    LET g = FPAIR(2.0, 4.0)
+    LET h = FPAIR(1.5, 2.0)
+    LET i = g * h
+    WRITEF("g = FPAIR(2.0, 4.0)*N")
+    WRITEF("h = FPAIR(1.5, 2.0)*N")
+    WRITEF("i = g * h = %Q*N", i)
+    WRITEF("Expected: FPAIR(3.0, 8.0)*N*N")
+
+    // Test PAIR integer subtraction (also had endian issues)
+    WRITEF("=== Testing PAIR Integer Subtraction (endian fix) ===*N")
+    LET pair1 = PAIR(20, 15)
+    LET pair2 = PAIR(5, 3)
+    LET result = pair1 - pair2
+    WRITEF("pair1 = PAIR(20, 15)*N")
+    WRITEF("pair2 = PAIR(5, 3)*N")
+    WRITEF("result = pair1 - pair2 = %P*N", result)
+    WRITEF("Expected: PAIR(15, 12)*N*N")
+
+    WRITEF("Endian fix test complete.*N")
+}

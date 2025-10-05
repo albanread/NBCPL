@@ -1359,6 +1359,11 @@ Instruction VectorCodeGen::sub_vector_2s(const std::string& vd, const std::strin
     // Base SUB vector opcode for .2S: 0x2ea18400 (exact match to clang output)
     BitPatcher patcher(0x2ea18400);
     
+    // Clear existing register fields
+    patcher.patch(0, 0, 5);   // Clear Rd (bits 4:0)
+    patcher.patch(0, 5, 5);   // Clear Rn (bits 9:5)
+    patcher.patch(0, 16, 5);  // Clear Rm (bits 20:16)
+    
     patcher.patch(vd_num, 0, 5);   // Rd (bits 4:0)
     patcher.patch(vn_num, 5, 5);   // Rn (bits 9:5)
     patcher.patch(vm_num, 16, 5);  // Rm (bits 20:16)
@@ -1429,6 +1434,11 @@ Instruction VectorCodeGen::fdiv_vector_2s(const std::string& vd, const std::stri
     // Base FDIV vector opcode for .2S: 0x2e21fc00 (exact match to clang output)
     BitPatcher patcher(0x2e21fc00);
     
+    // Clear existing register fields
+    patcher.patch(0, 0, 5);   // Clear Rd (bits 4:0)
+    patcher.patch(0, 5, 5);   // Clear Rn (bits 9:5)
+    patcher.patch(0, 16, 5);  // Clear Rm (bits 20:16)
+    
     patcher.patch(vd_num, 0, 5);   // Rd (bits 4:0)
     patcher.patch(vn_num, 5, 5);   // Rn (bits 9:5)
     patcher.patch(vm_num, 16, 5);  // Rm (bits 20:16)
@@ -1459,7 +1469,13 @@ Instruction VectorCodeGen::fadd_vector_2s(const std::string& vd, const std::stri
     int vm_num = parse_register_number(vm);
 
     // Base FADD vector opcode for .2S: 0x0e21d400 (exact match to clang output)
+    // Clear register bits first using BitPatcher
     BitPatcher patcher(0x0e21d400);
+    
+    // Clear existing register fields
+    patcher.patch(0, 0, 5);   // Clear Rd (bits 4:0)
+    patcher.patch(0, 5, 5);   // Clear Rn (bits 9:5)
+    patcher.patch(0, 16, 5);  // Clear Rm (bits 20:16)
     
     patcher.patch(vd_num, 0, 5);   // Rd (bits 4:0)
     patcher.patch(vn_num, 5, 5);   // Rn (bits 9:5)
@@ -1493,6 +1509,11 @@ Instruction VectorCodeGen::fsub_vector_2s(const std::string& vd, const std::stri
     // Base FSUB vector opcode for .2S: 0x0ea1d400 (exact match to clang output)
     BitPatcher patcher(0x0ea1d400);
     
+    // Clear existing register fields
+    patcher.patch(0, 0, 5);   // Clear Rd (bits 4:0)
+    patcher.patch(0, 5, 5);   // Clear Rn (bits 9:5)
+    patcher.patch(0, 16, 5);  // Clear Rm (bits 20:16)
+    
     patcher.patch(vd_num, 0, 5);   // Rd (bits 4:0)
     patcher.patch(vn_num, 5, 5);   // Rn (bits 9:5)
     patcher.patch(vm_num, 16, 5);  // Rm (bits 20:16)
@@ -1524,6 +1545,11 @@ Instruction VectorCodeGen::fmul_vector_2s(const std::string& vd, const std::stri
 
     // Base FMUL vector opcode for .2S: 0x2e21dc00 (exact match to clang output)
     BitPatcher patcher(0x2e21dc00);
+    
+    // Clear existing register fields
+    patcher.patch(0, 0, 5);   // Clear Rd (bits 4:0)
+    patcher.patch(0, 5, 5);   // Clear Rn (bits 9:5)
+    patcher.patch(0, 16, 5);  // Clear Rm (bits 20:16)
     
     patcher.patch(vd_num, 0, 5);   // Rd (bits 4:0)
     patcher.patch(vn_num, 5, 5);   // Rn (bits 9:5)

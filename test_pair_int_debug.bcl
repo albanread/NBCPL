@@ -1,0 +1,41 @@
+// Debug test for integer PAIR operations
+// Focus on isolating the integer PAIR subtraction issue
+
+LET START() BE {
+    WRITEF("Testing integer PAIR operations (debug)*N*N")
+
+    // Test simple PAIR creation first
+    WRITEF("=== Testing PAIR Creation ===*N")
+    LET a = PAIR(10, 5)
+    WRITEF("a = PAIR(10, 5) = %P*N", a)
+    WRITEF("Expected: PAIR(10, 5)*N*N")
+
+    LET b = PAIR(3, 2)
+    WRITEF("b = PAIR(3, 2) = %P*N", b)
+    WRITEF("Expected: PAIR(3, 2)*N*N")
+
+    // Test PAIR addition (should work)
+    WRITEF("=== Testing PAIR Addition ===*N")
+    LET c = a + b
+    WRITEF("c = a + b = %P*N", c)
+    WRITEF("Expected: PAIR(13, 7)*N*N")
+
+    // Test PAIR subtraction (the problem case)
+    WRITEF("=== Testing PAIR Subtraction (Debug) ===*N")
+    LET d = a - b
+    WRITEF("d = a - b = %P*N", d)
+    WRITEF("Expected: PAIR(7, 3)*N*N")
+
+    // Test with different values
+    WRITEF("=== Testing Different PAIR Subtraction ===*N")
+    LET e = PAIR(20, 15)
+    LET f = PAIR(5, 3)
+    WRITEF("e = PAIR(20, 15) = %P*N", e)
+    WRITEF("f = PAIR(5, 3) = %P*N", f)
+
+    LET g = e - f
+    WRITEF("g = e - f = %P*N", g)
+    WRITEF("Expected: PAIR(15, 12)*N*N")
+
+    WRITEF("Debug test complete.*N")
+}
