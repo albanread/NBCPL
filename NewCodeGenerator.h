@@ -27,6 +27,7 @@
 
 // Forward declaration for liveness analysis
 class LivenessAnalysisPass;
+class ReductionCodeGen;
 
 class LabelManager;
 class ASTAnalyzer;
