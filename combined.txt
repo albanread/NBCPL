@@ -1105,12 +1105,16 @@ bool BasicBlock::ends_with_control_flow() const {
 // -- start of file: BitPatcher.cpp
 #include "BitPatcher.h"
 #include <stdexcept> // Required for std::out_of_range
+#include <iostream> // Required for debug output
 
 /**
  * @brief Constructs a BitPatcher object.
  * @param initial_value The initial 32-bit value.
  */
-BitPatcher::BitPatcher(uint32_t initial_value) : data(initial_value) {}
+BitPatcher::BitPatcher(uint32_t initial_value) : data(initial_value) {
+    std::cerr << "[DEBUG] BitPatcher constructor: input=0x" << std::hex << initial_value 
+              << " stored=0x" << data << std::dec << std::endl;
+}
 
 /**
  * @brief Retrieves the current 32-bit data word.
@@ -23172,17 +23176,26 @@ Instruction VectorCodeGen::fsub_vector_2s(const std::string& vd, const std::stri
     int vn_num = parse_register_number(vn);
     int vm_num = parse_register_number(vm);
 
-    // Base FSUB vector opcode for .2S: 0x0ea1d400 (exact match to clang output)
-    BitPatcher patcher(0x0ea1d400);
+    // Base FSUB vector opcode for .2S: 0xea1d4000 (exact match to clang output)
+    uint32_t base_opcode = 0xea1d4000;
+    std::cerr << "[DEBUG] About to create BitPatcher with: 0x" << std::hex << base_opcode << std::dec << std::endl;
+    BitPatcher patcher(base_opcode);
+    std::cerr << "[DEBUG] Initial BitPatcher value: 0x" << std::hex << patcher.get_value() << std::dec << std::endl;
     
     // Clear existing register fields
     patcher.patch(0, 0, 5);   // Clear Rd (bits 4:0)
+    std::cerr << "[DEBUG] After clearing Rd: 0x" << std::hex << patcher.get_value() << std::dec << std::endl;
     patcher.patch(0, 5, 5);   // Clear Rn (bits 9:5)
+    std::cerr << "[DEBUG] After clearing Rn: 0x" << std::hex << patcher.get_value() << std::dec << std::endl;
     patcher.patch(0, 16, 5);  // Clear Rm (bits 20:16)
+    std::cerr << "[DEBUG] After clearing Rm: 0x" << std::hex << patcher.get_value() << std::dec << std::endl;
     
     patcher.patch(vd_num, 0, 5);   // Rd (bits 4:0)
+    std::cerr << "[DEBUG] After setting Rd=" << vd_num << ": 0x" << std::hex << patcher.get_value() << std::dec << std::endl;
     patcher.patch(vn_num, 5, 5);   // Rn (bits 9:5)
+    std::cerr << "[DEBUG] After setting Rn=" << vn_num << ": 0x" << std::hex << patcher.get_value() << std::dec << std::endl;
     patcher.patch(vm_num, 16, 5);  // Rm (bits 20:16)
+    std::cerr << "[DEBUG] After setting Rm=" << vm_num << ": 0x" << std::hex << patcher.get_value() << std::dec << std::endl;
 
     // Generate assembly text
     std::string vd_reg = (vd[0] == 'D') ? "v" + vd.substr(1) : vd;

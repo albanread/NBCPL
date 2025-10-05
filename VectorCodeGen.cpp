@@ -1506,8 +1506,10 @@ Instruction VectorCodeGen::fsub_vector_2s(const std::string& vd, const std::stri
     int vn_num = parse_register_number(vn);
     int vm_num = parse_register_number(vm);
 
-    // Base FSUB vector opcode for .2S: 0x0ea1d400 (exact match to clang output)
-    BitPatcher patcher(0x0ea1d400);
+    // Base FSUB vector opcode for .2S: 0xea1d4000 (exact match to clang output)
+    uint32_t base_opcode = 0xea1d4000;
+    std::cerr << "[DEBUG] About to create BitPatcher with: 0x" << std::hex << base_opcode << std::dec << std::endl;
+    BitPatcher patcher(base_opcode);
     std::cerr << "[DEBUG] Initial BitPatcher value: 0x" << std::hex << patcher.get_value() << std::dec << std::endl;
     
     // Clear existing register fields

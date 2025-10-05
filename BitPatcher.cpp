@@ -1,11 +1,15 @@
 #include "BitPatcher.h"
 #include <stdexcept> // Required for std::out_of_range
 
+
 /**
  * @brief Constructs a BitPatcher object.
  * @param initial_value The initial 32-bit value.
  */
-BitPatcher::BitPatcher(uint32_t initial_value) : data(initial_value) {}
+BitPatcher::BitPatcher(uint32_t initial_value) : data(initial_value) {
+    // std::cerr << "[DEBUG] BitPatcher constructor: input=0x" << std::hex << initial_value
+    //           << " stored=0x" << data << std::dec << std::endl;
+}
 
 /**
  * @brief Retrieves the current 32-bit data word.
