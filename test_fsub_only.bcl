@@ -1,0 +1,10 @@
+// Minimal test to isolate FSUB instruction transformation
+// This will help us see exactly how the linker transforms the FSUB encoding
+
+LET START() BE {
+    // Just one FPAIR subtraction to isolate the issue
+    LET a = FPAIR(10.0, 8.0)
+    LET b = FPAIR(3.5, 2.0)
+    LET c = a - b
+    WRITEF("Result: %Q*N", c)
+}

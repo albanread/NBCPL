@@ -112,6 +112,9 @@ struct Instruction {
   // Peephole optimizer control
   bool nopeep = false; // If true, this instruction should not be optimized by peephole optimizer
 
+  // Instruction flow tracing
+  bool trace_this_instruction = false; // If true, this instruction will be traced through the compilation pipeline
+
 JITAttribute jit_attribute = JITAttribute::None;
 
 

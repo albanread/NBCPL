@@ -1,0 +1,21 @@
+// Test file to trace linker transformations
+// This will help us see how instructions are transformed by the linker
+
+LET START() BE {
+    WRITEF("Testing linker transformations*N*N")
+
+    // Test FPAIR subtraction (the problematic case)
+    WRITEF("=== Testing FPAIR Subtraction (Linker Trace) ===*N")
+    LET a = FPAIR(10.0, 8.0)
+    LET b = FPAIR(3.5, 2.0)
+    LET c = a - b
+    WRITEF("Result: %Q*N", c)
+    WRITEF("Expected: FPAIR(6.5, 6.0)*N*N")
+
+    // Test simple function call to see relocations
+    WRITEF("=== Testing Function Call (Relocation Trace) ===*N")
+    LET result = 2 + 3
+    WRITEF("Simple calculation: %N*N", result)
+
+    WRITEF("Linker trace test complete.*N")
+}

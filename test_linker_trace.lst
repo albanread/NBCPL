@@ -1,0 +1,98 @@
+
+test_linker_trace.o:	file format mach-o arm64
+
+Disassembly of section __TEXT,__text:
+
+0000000000000000 <ltmp0>:
+       0: 14000001     	b	0x4 <ltmp0+0x4>
+       4: a9b97bfd     	stp	x29, x30, [sp, #-0x70]!
+       8: 910003fd     	mov	x29, sp
+       c: a90353b3     	stp	x19, x20, [x29, #0x30]
+      10: a90467b5     	stp	x21, x25, [x29, #0x40]
+      14: a9056fba     	stp	x26, x27, [x29, #0x50]
+      18: f90033bc     	str	x28, [x29, #0x60]
+      1c: 9000001c     	adrp	x28, 0x0 <ltmp0>
+      20: 9100039c     	add	x28, x28, #0x0
+      24: 90000009     	adrp	x9, 0x0 <ltmp0>
+      28: 91000129     	add	x9, x9, #0x0
+      2c: 91002129     	add	x9, x9, #0x8
+      30: aa0903e0     	mov	x0, x9
+      34: 94000000     	bl	0x34 <ltmp0+0x34>
+      38: 90000009     	adrp	x9, 0x0 <ltmp0>
+      3c: 91000129     	add	x9, x9, #0x0
+      40: 91002129     	add	x9, x9, #0x8
+      44: aa0903e0     	mov	x0, x9
+      48: 94000000     	bl	0x48 <ltmp0+0x48>
+      4c: d2800009     	mov	x9, #0x0                ; =0
+      50: 9000000b     	adrp	x11, 0x0 <ltmp0>
+      54: 9100016b     	add	x11, x11, #0x0
+      58: fd400160     	ldr	d0, [x11]
+      5c: 1e624001     	fcvt	s1, d0
+      60: 1e26002b     	fmov	w11, s1
+      64: b3407d69     	bfxil	x9, x11, #0, #32
+      68: 9000000c     	adrp	x12, 0x0 <ltmp0>
+      6c: 9100018c     	add	x12, x12, #0x0
+      70: fd400180     	ldr	d0, [x12]
+      74: 1e624001     	fcvt	s1, d0
+      78: 1e26002c     	fmov	w12, s1
+      7c: b3607d89     	bfi	x9, x12, #32, #32
+      80: aa0903fb     	mov	x27, x9
+      84: d2800009     	mov	x9, #0x0                ; =0
+      88: 9000000d     	adrp	x13, 0x0 <ltmp0>
+      8c: 910001ad     	add	x13, x13, #0x0
+      90: fd4001a0     	ldr	d0, [x13]
+      94: 1e624001     	fcvt	s1, d0
+      98: 1e26002d     	fmov	w13, s1
+      9c: b3407da9     	bfxil	x9, x13, #0, #32
+      a0: 9000000e     	adrp	x14, 0x0 <ltmp0>
+      a4: 910001ce     	add	x14, x14, #0x0
+      a8: fd4001c0     	ldr	d0, [x14]
+      ac: 1e624001     	fcvt	s1, d0
+      b0: 1e26002e     	fmov	w14, s1
+      b4: b3607dc9     	bfi	x9, x14, #32, #32
+      b8: aa0903fa     	mov	x26, x9
+      bc: 9e670360     	fmov	d0, x27
+      c0: 9e670341     	fmov	d1, x26
+      c4: 0ea1d400     	fsub.2s	v0, v0, v1
+      c8: 9e660014     	fmov	x20, d0
+      cc: aa1403f9     	mov	x25, x20
+      d0: 90000009     	adrp	x9, 0x0 <ltmp0>
+      d4: 91000129     	add	x9, x9, #0x0
+      d8: 91002129     	add	x9, x9, #0x8
+      dc: aa0903e0     	mov	x0, x9
+      e0: aa1903e1     	mov	x1, x25
+      e4: 94000000     	bl	0xe4 <ltmp0+0xe4>
+      e8: 90000009     	adrp	x9, 0x0 <ltmp0>
+      ec: 91000129     	add	x9, x9, #0x0
+      f0: 91002129     	add	x9, x9, #0x8
+      f4: aa0903e0     	mov	x0, x9
+      f8: 94000000     	bl	0xf8 <ltmp0+0xf8>
+      fc: 90000009     	adrp	x9, 0x0 <ltmp0>
+     100: 91000129     	add	x9, x9, #0x0
+     104: 91002129     	add	x9, x9, #0x8
+     108: aa0903e0     	mov	x0, x9
+     10c: 94000000     	bl	0x10c <ltmp0+0x10c>
+     110: d28000a9     	mov	x9, #0x5                ; =5
+     114: aa0903f9     	mov	x25, x9
+     118: 90000009     	adrp	x9, 0x0 <ltmp0>
+     11c: 91000129     	add	x9, x9, #0x0
+     120: 91002129     	add	x9, x9, #0x8
+     124: aa0903e0     	mov	x0, x9
+     128: d28000a9     	mov	x9, #0x5                ; =5
+     12c: aa0903e1     	mov	x1, x9
+     130: 94000000     	bl	0x130 <ltmp0+0x130>
+     134: 90000009     	adrp	x9, 0x0 <ltmp0>
+     138: 91000129     	add	x9, x9, #0x0
+     13c: 91002129     	add	x9, x9, #0x8
+     140: aa0903e0     	mov	x0, x9
+     144: 94000000     	bl	0x144 <ltmp0+0x144>
+     148: 14000001     	b	0x14c <ltmp0+0x14c>
+     14c: 14000001     	b	0x150 <ltmp0+0x150>
+     150: a94353b3     	ldp	x19, x20, [x29, #0x30]
+     154: a94467b5     	ldp	x21, x25, [x29, #0x40]
+     158: a9456fba     	ldp	x26, x27, [x29, #0x50]
+     15c: f94033bc     	ldr	x28, [x29, #0x60]
+     160: 910003bf     	mov	sp, x29
+     164: a9407bfd     	ldp	x29, x30, [sp]
+     168: 910043ff     	add	sp, sp, #0x10
+     16c: d65f03c0     	ret

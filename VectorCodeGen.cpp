@@ -1530,6 +1530,7 @@ Instruction VectorCodeGen::fsub_vector_2s(const std::string& vd, const std::stri
     instr.dest_reg = vd_num;
     instr.src_reg1 = vn_num;
     instr.src_reg2 = vm_num;
+    instr.trace_this_instruction = true; // Enable tracing for FSUB instructions
     
     return instr;
 }

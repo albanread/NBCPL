@@ -13,6 +13,13 @@ void InstructionStream::add(const Instruction& instr) {
         std::cout << "[InstructionStream TRACE] Adding label definition: "
                   << instr.target_label << std::endl;
     }
+    
+    // Trace specific instructions marked for tracing
+    if (instr.trace_this_instruction) {
+        std::cerr << "[InstructionStream TRACE] Adding traced instruction: " 
+                  << instr.assembly_text << " | Encoding: 0x" << std::hex 
+                  << instr.encoding << std::dec << std::endl;
+    }
     // --- END TRACE ---
 
     instructions_.push_back(instr);
