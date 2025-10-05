@@ -1,5 +1,12 @@
 #include "BitPatcher.h"
 #include <stdexcept> // Required for std::out_of_range
+#include <iostream>
+#include <iomanip>
+
+// Static flag for tracing
+bool BitPatcher::trace_enabled = false;
+
+
 
 
 /**
@@ -7,8 +14,7 @@
  * @param initial_value The initial 32-bit value.
  */
 BitPatcher::BitPatcher(uint32_t initial_value) : data(initial_value) {
-    // std::cerr << "[DEBUG] BitPatcher constructor: input=0x" << std::hex << initial_value
-    //           << " stored=0x" << data << std::dec << std::endl;
+
 }
 
 /**
@@ -24,6 +30,9 @@ uint32_t BitPatcher::get_value() const {
  * @param new_value The new 32-bit value to set.
  */
 void BitPatcher::set_value(uint32_t new_value) {
+    if (trace_enabled) {
+        std::cerr << "[BitPatcher TRACE] set_value: 0x" << std::hex << new_value << std::dec << std::endl;
+    }
     this->data = new_value;
 }
 
@@ -35,6 +44,11 @@ void BitPatcher::set_value(uint32_t new_value) {
  * @param num_bits The number of bits in the field to patch (1-32).
  */
 void BitPatcher::patch(uint32_t value_to_patch, int start_bit, int num_bits) {
+    if (trace_enabled) {
+        std::cerr << "[BitPatcher TRACE] before patch: 0x" << std::hex << this->data << std::dec
+                  << " patching value: 0x" << std::hex << value_to_patch << std::dec
+                  << " at bit " << start_bit << " (" << num_bits << " bits)" << std::endl;
+    }
     // --- C++ Input Validation ---
     if (num_bits <= 0 || num_bits > 32) {
         throw std::out_of_range("BitPatcher::patch - num_bits must be between 1 and 32.");
@@ -48,7 +62,6 @@ void BitPatcher::patch(uint32_t value_to_patch, int start_bit, int num_bits) {
 
     // --- ARM64 Inline Assembly ---
     uint32_t temp_mask;
-
     __asm__ volatile (
         // 1. Create a mask of '1's for the given number of bits.
         "CMP %w[num_bits], #32 \n\t"
@@ -85,4 +98,7 @@ void BitPatcher::patch(uint32_t value_to_patch, int start_bit, int num_bits) {
           [num_bits] "r" (num_bits)
         : "w1", "w2", "cc" // Clobbered registers and condition codes.
     );
+    if (trace_enabled) {
+        std::cerr << "[BitPatcher TRACE] after patch:  0x" << std::hex << this->data << std::dec << std::endl;
+    }
 }

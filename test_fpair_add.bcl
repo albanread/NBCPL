@@ -1,8 +1,16 @@
+// Test file for verifying FPAIR 2S dedicated encoders
+// Use --list to see clang assembly/hex and --tracecodegen to see JIT encodings
+// Then grep for the hex values to compare
+
 LET START() BE {
-    WRITEF("Testing FPAIR addition...*N")
-    LET f1 = FPAIR(10.0, 20.0)
-    LET f2 = FPAIR(5.0, 15.0)
-    LET result = f1 + f2
-    WRITEF("Result: (%F, %F)*N", result.|0|, result.|1|)
-    WRITEF("Expected: (15.0, 35.0)*N")
+    WRITEF("Testing FPAIR 2S dedicated encoders*N")
+
+    // Test FPAIR addition (should use fadd_vector_2s)
+    LET a = FPAIR(1.5, 2.5)
+    LET b = FPAIR(0.5, 1.0)
+    BRK
+    LET c = a + b
+   
+    WRITEF("FPAIR addition: %Q + %Q = %Q*N", a, b, c)
+
 }

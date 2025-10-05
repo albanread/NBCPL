@@ -13,7 +13,7 @@ VectorCodeGen::VectorCodeGen(NewCodeGenerator& code_gen,
 }
 
 void VectorCodeGen::generateSimdBinaryOp(BinaryOp& node, bool use_neon) {
-    debug_print("VectorCodeGen::generateSimdBinaryOp - use_neon: " + std::to_string(use_neon));
+
 
     // Get operand types from analyzer
     VarType left_type = code_gen_.infer_expression_type_local(node.left.get());
@@ -21,7 +21,7 @@ void VectorCodeGen::generateSimdBinaryOp(BinaryOp& node, bool use_neon) {
 
     // Check for PAIRS vector operations - use specialized 128-bit SIMD
     if (isPairsVectorOperation(left_type, right_type)) {
-        debug_print("Detected PAIRS vector operation - using 128-bit NEON SIMD");
+
         generatePairsVectorBinaryOp(node, use_neon);
         return;
     }
@@ -45,7 +45,7 @@ void VectorCodeGen::generateSimdBinaryOp(BinaryOp& node, bool use_neon) {
 }
 
 std::string VectorCodeGen::generateLaneRead(LaneAccessExpression& node, bool use_neon) {
-    debug_print("VectorCodeGen::generateLaneRead - use_neon: " + std::to_string(use_neon));
+
 
     VarType vector_type = code_gen_.infer_expression_type_local(node.vector_expr.get());
     std::string result_reg;
@@ -66,7 +66,7 @@ std::string VectorCodeGen::generateLaneRead(LaneAccessExpression& node, bool use
 }
 
 void VectorCodeGen::generateLaneWrite(LaneAccessExpression& node, ExprPtr& value_expr, bool use_neon) {
-    debug_print("VectorCodeGen::generateLaneWrite - use_neon: " + std::to_string(use_neon));
+
 
     VarType vector_type = code_gen_.infer_expression_type_local(node.vector_expr.get());
 
@@ -84,7 +84,7 @@ void VectorCodeGen::generateLaneWrite(LaneAccessExpression& node, ExprPtr& value
 }
 
 std::string VectorCodeGen::generateOctConstruction(OctExpression& node, bool use_neon) {
-    debug_print("VectorCodeGen::generateOctConstruction - use_neon: " + std::to_string(use_neon));
+
 
     std::string result_reg = register_manager_.acquire_spillable_temp_reg(code_gen_);
 
@@ -109,7 +109,7 @@ std::string VectorCodeGen::generateOctConstruction(OctExpression& node, bool use
 }
 
 std::string VectorCodeGen::generateFOctConstruction(FOctExpression& node, bool use_neon) {
-    debug_print("VectorCodeGen::generateFOctConstruction - use_neon: " + std::to_string(use_neon));
+
 
     std::string result_reg = register_manager_.acquire_spillable_temp_reg(code_gen_);
 
@@ -139,7 +139,7 @@ bool VectorCodeGen::isSimdOperation(VarType left_type, VarType right_type) {
     int right_int = static_cast<int>(right_type);
     int pairs_int = static_cast<int>(VarType::PAIRS);
     int pointer_to_int = static_cast<int>(VarType::POINTER_TO);
-    
+
     bool left_is_simd = (left_type == VarType::PAIR || left_type == VarType::FPAIR ||
                         left_type == VarType::QUAD || left_type == VarType::OCT ||
                         left_type == VarType::FOCT || left_type == VarType::PAIRS ||
@@ -158,10 +158,10 @@ bool VectorCodeGen::isPairsVectorOperation(VarType left_type, VarType right_type
     int right_int = static_cast<int>(right_type);
     int pairs_int = static_cast<int>(VarType::PAIRS);
     int pointer_to_int = static_cast<int>(VarType::POINTER_TO);
-    
-    bool left_is_pairs = (left_type == VarType::PAIRS) || 
+
+    bool left_is_pairs = (left_type == VarType::PAIRS) ||
                         ((left_int & pairs_int) && (left_int & pointer_to_int));
-    bool right_is_pairs = (right_type == VarType::PAIRS) || 
+    bool right_is_pairs = (right_type == VarType::PAIRS) ||
                          ((right_int & pairs_int) && (right_int & pointer_to_int));
     return left_is_pairs && right_is_pairs;
 }
@@ -196,7 +196,7 @@ VarType VectorCodeGen::getElementType(VarType type) {
 }
 
 std::string VectorCodeGen::getNeonArrangement(VarType type) {
-    // debug_print("getNeonArrangement called with type: " + std::to_string(static_cast<int>(type)));
+
     switch (type) {
         case VarType::PAIR:
             return "2S_INT";  // Use a new arrangement for integer pairs
@@ -209,13 +209,13 @@ std::string VectorCodeGen::getNeonArrangement(VarType type) {
         case VarType::FOCT:
             return "2D";  // 8 x 32-bit floats (using two 128-bit registers)
         default:
-            // debug_print("ERROR: Unsupported vector type for NEON arrangement: " + std::to_string(static_cast<int>(type)));
+
             throw std::runtime_error("Unsupported vector type for NEON arrangement");
     }
 }
 
 void VectorCodeGen::generateNeonBinaryOp(BinaryOp& node, VarType result_type) {
-    debug_print("Generating NEON binary operation for vector type");
+
 
     // Generate code for operands
     node.left->accept(code_gen_);
@@ -289,14 +289,14 @@ void VectorCodeGen::generateNeonBinaryOp(BinaryOp& node, VarType result_type) {
             emit_(vecgen_fadd_vector(qreg_to_vreg(left_neon_reg), qreg_to_vreg(left_neon_reg), qreg_to_vreg(right_neon_reg), arrangement));
         } else if (result_type == VarType::FPAIR) {
             emit_(fadd_vector_2s(qreg_to_vreg(left_neon_reg), qreg_to_vreg(left_neon_reg), qreg_to_vreg(right_neon_reg)));
-            debug_print("Generated specialized NEON FADD .2S for FPAIR addition");
+
         } else if (result_type == VarType::PAIR) {
             emit_(add_vector_2s(qreg_to_vreg(left_neon_reg), qreg_to_vreg(left_neon_reg), qreg_to_vreg(right_neon_reg)));
-            debug_print("Generated specialized NEON ADD .2S for PAIR addition");
+
         } else {
             emit_(vecgen_add_vector(qreg_to_vreg(left_neon_reg), qreg_to_vreg(left_neon_reg), qreg_to_vreg(right_neon_reg), arrangement));
         }
-        debug_print("Generated NEON vector addition");
+
         break;
 
     case BinaryOp::Operator::Subtract:
@@ -304,14 +304,14 @@ void VectorCodeGen::generateNeonBinaryOp(BinaryOp& node, VarType result_type) {
             emit_(vecgen_fsub_vector(qreg_to_vreg(left_neon_reg), qreg_to_vreg(left_neon_reg), qreg_to_vreg(right_neon_reg), arrangement));
         } else if (result_type == VarType::FPAIR) {
             emit_(fsub_vector_2s(qreg_to_vreg(left_neon_reg), qreg_to_vreg(left_neon_reg), qreg_to_vreg(right_neon_reg)));
-            debug_print("Generated specialized NEON FSUB .2S for FPAIR subtraction");
+
         } else if (result_type == VarType::PAIR) {
             emit_(sub_vector_2s(qreg_to_vreg(left_neon_reg), qreg_to_vreg(left_neon_reg), qreg_to_vreg(right_neon_reg)));
-            debug_print("Generated specialized NEON SUB .2S for PAIR subtraction");
+
         } else {
             emit_(vecgen_sub_vector(qreg_to_vreg(left_neon_reg), qreg_to_vreg(left_neon_reg), qreg_to_vreg(right_neon_reg), arrangement));
         }
-        debug_print("Generated NEON vector subtraction");
+
         break;
 
     case BinaryOp::Operator::Multiply:
@@ -319,23 +319,23 @@ void VectorCodeGen::generateNeonBinaryOp(BinaryOp& node, VarType result_type) {
             emit_(vecgen_fmul_vector(qreg_to_vreg(left_neon_reg), qreg_to_vreg(left_neon_reg), qreg_to_vreg(right_neon_reg), arrangement));
         } else if (result_type == VarType::FPAIR) {
             emit_(fmul_vector_2s(qreg_to_vreg(left_neon_reg), qreg_to_vreg(left_neon_reg), qreg_to_vreg(right_neon_reg)));
-            debug_print("Generated specialized NEON FMUL .2S for FPAIR multiplication");
+
         } else if (result_type == VarType::PAIR) {
             emit_(mul_vector_2s(qreg_to_vreg(left_neon_reg), qreg_to_vreg(left_neon_reg), qreg_to_vreg(right_neon_reg)));
-            debug_print("Generated specialized NEON MUL .2S for PAIR multiplication");
+
         } else {
             emit_(vecgen_mul_vector(qreg_to_vreg(left_neon_reg), qreg_to_vreg(left_neon_reg), qreg_to_vreg(right_neon_reg), arrangement));
         }
-        debug_print("Generated NEON vector multiplication");
+
         break;
 
     case BinaryOp::Operator::Divide:
         if (result_type == VarType::FOCT) {
             emit_(vecgen_fdiv_vector(qreg_to_vreg(left_neon_reg), qreg_to_vreg(left_neon_reg), qreg_to_vreg(right_neon_reg), arrangement));
-            debug_print("Generated NEON vector division (float)");
+
         } else if (result_type == VarType::FPAIR) {
             emit_(fdiv_vector_2s(qreg_to_vreg(left_neon_reg), qreg_to_vreg(left_neon_reg), qreg_to_vreg(right_neon_reg)));
-            debug_print("Generated specialized NEON FDIV .2S for FPAIR division");
+
         } else {
             throw std::runtime_error("Integer division not supported in NEON vector operations");
         }
@@ -379,7 +379,7 @@ void VectorCodeGen::generateNeonBinaryOp(BinaryOp& node, VarType result_type) {
 }
 
 void VectorCodeGen::generateScalarBinaryOp(BinaryOp& node, VarType result_type) {
-    debug_print("Generating scalar fallback binary operation for vector type");
+
 
     // Generate code for operands
     node.left->accept(code_gen_);
@@ -507,7 +507,7 @@ void VectorCodeGen::generateScalarBinaryOp(BinaryOp& node, VarType result_type) 
 }
 
 void VectorCodeGen::generateNeonLaneRead(LaneAccessExpression& node, VarType vector_type, std::string& result_reg) {
-    debug_print("Generating NEON lane read operation");
+
 
     // Generate code for vector expression
     node.vector_expr->accept(code_gen_);
@@ -550,19 +550,19 @@ void VectorCodeGen::generateNeonLaneRead(LaneAccessExpression& node, VarType vec
         // For integer elements
         // Skip NEON entirely for integer types - use direct bitfield extraction
         if ((vector_type == VarType::PAIR && arrangement == "2S_INT") ||
-            vector_type == VarType::QUAD || 
+            vector_type == VarType::QUAD ||
             vector_type == VarType::OCT) {
             // Extract directly from the original vector register using SBFX
             node.vector_expr->accept(code_gen_);
             std::string vector_reg = code_gen_.expression_result_reg_;
-            
+
             if (vector_type == VarType::PAIR) {
                 // PAIR: 2 x 32-bit integers
                 if (node.index == 0) {
                     // Extract first element: bits 0-31
                     emit_(Encoder::opt_create_sbfx(result_reg, vector_reg, 0, 32));
                 } else if (node.index == 1) {
-                    // Extract second element: bits 32-63  
+                    // Extract second element: bits 32-63
                     emit_(Encoder::opt_create_sbfx(result_reg, vector_reg, 32, 32));
                 } else {
                     throw std::runtime_error("Invalid lane index for PAIR: " + std::to_string(node.index));
@@ -584,12 +584,12 @@ void VectorCodeGen::generateNeonLaneRead(LaneAccessExpression& node, VarType vec
                     throw std::runtime_error("Invalid lane index for OCT: " + std::to_string(node.index));
                 }
             }
-            
+
             // Release the NEON register since we didn't use it
             register_manager_.release_fp_register(neon_reg);
             return;
         }
-        
+
         // For remaining types (FPAIR, FOCT), continue with NEON extraction
         if (vector_type == VarType::FPAIR) {
             emit_(vecgen_umov_sized(result_reg, neon_reg, node.index, "S"));
@@ -599,7 +599,7 @@ void VectorCodeGen::generateNeonLaneRead(LaneAccessExpression& node, VarType vec
         }
     }
 
-    debug_print("Extracted lane " + std::to_string(node.index) + " from vector");
+
 
     // Release registers
     if (vector_type == VarType::PAIR || vector_type == VarType::FPAIR || vector_type == VarType::QUAD) {
@@ -611,7 +611,7 @@ void VectorCodeGen::generateNeonLaneRead(LaneAccessExpression& node, VarType vec
 }
 
 void VectorCodeGen::generateScalarLaneRead(LaneAccessExpression& node, VarType vector_type, std::string& result_reg) {
-    debug_print("Generating scalar lane read operation");
+
 
     // Generate code for vector expression
     node.vector_expr->accept(code_gen_);
@@ -631,14 +631,14 @@ void VectorCodeGen::generateScalarLaneRead(LaneAccessExpression& node, VarType v
         }
     }
 
-    debug_print("Loaded lane " + std::to_string(node.index) + " at offset " + std::to_string(lane_offset));
+
 
     // Release vector register
     register_manager_.release_register(vector_reg);
 }
 
 void VectorCodeGen::generateNeonLaneWrite(LaneAccessExpression& node, VarType vector_type, const std::string& value_reg) {
-    debug_print("Generating NEON lane write operation");
+
 
     // Generate code for vector expression
     node.vector_expr->accept(code_gen_);
@@ -673,16 +673,16 @@ void VectorCodeGen::generateNeonLaneWrite(LaneAccessExpression& node, VarType ve
     } else {
         // For integer elements, skip NEON entirely - use direct BFI bitfield insertion
         if ((vector_type == VarType::PAIR) ||
-            vector_type == VarType::QUAD || 
+            vector_type == VarType::QUAD ||
             vector_type == VarType::OCT) {
-            
+
             if (vector_type == VarType::PAIR) {
                 // PAIR: 2 x 32-bit integers
                 if (node.index == 0) {
                     // Insert into bits 0-31
                     emit_(Encoder::opt_create_bfi(vector_reg, value_reg, 0, 32));
                 } else if (node.index == 1) {
-                    // Insert into bits 32-63  
+                    // Insert into bits 32-63
                     emit_(Encoder::opt_create_bfi(vector_reg, value_reg, 32, 32));
                 } else {
                     throw std::runtime_error("Invalid lane index for PAIR: " + std::to_string(node.index));
@@ -704,7 +704,7 @@ void VectorCodeGen::generateNeonLaneWrite(LaneAccessExpression& node, VarType ve
                     throw std::runtime_error("Invalid lane index for OCT: " + std::to_string(node.index));
                 }
             }
-            
+
             // Release the NEON register since we didn't use it
             if (vector_type == VarType::PAIR || vector_type == VarType::FPAIR || vector_type == VarType::QUAD) {
                 register_manager_.release_fp_register(neon_reg);
@@ -712,10 +712,10 @@ void VectorCodeGen::generateNeonLaneWrite(LaneAccessExpression& node, VarType ve
                 register_manager_.release_q_register(neon_reg);
             }
             register_manager_.release_register(vector_reg);
-            debug_print("Inserted value into lane " + std::to_string(node.index) + " using BFI");
+
             return;
         }
-        
+
         // For remaining types (FPAIR, FOCT), continue with NEON insertion
         if (vector_type == VarType::FPAIR) {
             emit_(vecgen_ins_general(neon_reg, node.index, value_reg, "S"));
@@ -727,7 +727,7 @@ void VectorCodeGen::generateNeonLaneWrite(LaneAccessExpression& node, VarType ve
     // Store vector back to memory
     storeNeonToVector(neon_reg, vector_reg, vector_type);
 
-    debug_print("Inserted value into lane " + std::to_string(node.index));
+
 
     // Release registers
     if (vector_type == VarType::PAIR || vector_type == VarType::FPAIR || vector_type == VarType::QUAD) {
@@ -739,7 +739,7 @@ void VectorCodeGen::generateNeonLaneWrite(LaneAccessExpression& node, VarType ve
 }
 
 void VectorCodeGen::generateScalarLaneWrite(LaneAccessExpression& node, VarType vector_type, const std::string& value_reg) {
-    debug_print("Generating scalar lane write operation");
+
 
     // Generate code for vector expression
     node.vector_expr->accept(code_gen_);
@@ -759,14 +759,14 @@ void VectorCodeGen::generateScalarLaneWrite(LaneAccessExpression& node, VarType 
         }
     }
 
-    debug_print("Stored value to lane " + std::to_string(node.index) + " at offset " + std::to_string(lane_offset));
+
 
     // Release vector register
     register_manager_.release_register(vector_reg);
 }
 
 void VectorCodeGen::generateNeonVectorConstruction(const std::vector<const ExprPtr*>& elements, VarType vector_type, std::string& result_reg) {
-    debug_print("Generating NEON vector construction");
+
 
     std::string neon_reg = register_manager_.acquire_fp_scratch_reg();
 
@@ -798,7 +798,7 @@ void VectorCodeGen::generateNeonVectorConstruction(const std::vector<const ExprP
 }
 
 void VectorCodeGen::generateScalarVectorConstruction(const std::vector<const ExprPtr*>& elements, VarType vector_type, std::string& result_reg) {
-    debug_print("Generating scalar vector construction");
+
 
     // Generate code for each element and store at appropriate offset
     for (size_t i = 0; i < elements.size(); i++) {
@@ -892,11 +892,11 @@ int VectorCodeGen::calculateLaneOffset(int lane_index, VarType vector_type) {
 }
 
 void VectorCodeGen::generatePairsVectorBinaryOp(BinaryOp& node, bool use_neon) {
-    debug_print("generatePairsVectorBinaryOp - 128-bit SIMD for PAIRS vectors");
+
 
     // Check operation type
-    if (node.op != BinaryOp::Operator::Add && 
-        node.op != BinaryOp::Operator::Subtract && 
+    if (node.op != BinaryOp::Operator::Add &&
+        node.op != BinaryOp::Operator::Subtract &&
         node.op != BinaryOp::Operator::Multiply) {
         throw std::runtime_error("Unsupported binary operation on PAIRS vectors: only +, -, * are supported");
     }
@@ -911,7 +911,7 @@ void VectorCodeGen::generatePairsVectorBinaryOp(BinaryOp& node, bool use_neon) {
 
     // Get vector size
     size_t vector_size = getPairsVectorSize(node.left.get());
-    debug_print("Vector size: " + std::to_string(vector_size) + " PAIRs");
+
 
     // Get addresses of source vectors
     std::string left_addr = code_gen_.get_variable_register(left_var->name);
@@ -921,7 +921,7 @@ void VectorCodeGen::generatePairsVectorBinaryOp(BinaryOp& node, bool use_neon) {
     std::string result_addr = allocatePairsResultVector(vector_size);
 
     if (use_neon) {
-        debug_print("Using 128-bit NEON SIMD for PAIRS vector operation");
+
 
         // Process 2 PAIRs at a time using 128-bit Q registers
         for (size_t i = 0; i < vector_size; i += 2) {
@@ -935,7 +935,7 @@ void VectorCodeGen::generatePairsVectorBinaryOp(BinaryOp& node, bool use_neon) {
 
             // Convert Q register names to V register names for encoder (strip Q prefix)
             std::string v_left = q_left.substr(1);   // Q5 -> 5
-            std::string v_right = q_right.substr(1); // Q6 -> 6  
+            std::string v_right = q_right.substr(1); // Q6 -> 6
             std::string v_result = q_result.substr(1); // Q7 -> 7
 
             // Load 2 PAIRs (16 bytes) from each vector using LDR with Q registers
@@ -945,19 +945,19 @@ void VectorCodeGen::generatePairsVectorBinaryOp(BinaryOp& node, bool use_neon) {
             // NEON vector operation: process 4 × 32-bit components (2 PAIRs) in parallel
             switch (node.op) {
                 case BinaryOp::Operator::Add:
-                    printf("DEBUG: Calling create_add_vector_reg with: vd=%s, vn=%s, vm=%s, arrangement=4S\n", 
+                    printf("DEBUG: Calling create_add_vector_reg with: vd=%s, vn=%s, vm=%s, arrangement=4S\n",
                            ("V" + v_result).c_str(), ("V" + v_left).c_str(), ("V" + v_right).c_str());
                     fflush(stdout);
                     emit_(Encoder::create_add_vector_reg("V" + v_result, "V" + v_left, "V" + v_right, "4S"));
-                    debug_print("Generated NEON ADD .4S for PAIRs " + std::to_string(i) + "-" + std::to_string(i+1) + " (four components in parallel)");
+
                     break;
                 case BinaryOp::Operator::Subtract:
                     emit_(Encoder::create_sub_vector_reg("V" + v_result, "V" + v_left, "V" + v_right, "4S"));
-                    debug_print("Generated NEON SUB .4S for PAIRs " + std::to_string(i) + "-" + std::to_string(i+1));
+
                     break;
                 case BinaryOp::Operator::Multiply:
                     emit_(Encoder::create_mul_vector_reg("V" + v_result, "V" + v_left, "V" + v_right, "4S"));
-                    debug_print("Generated NEON MUL .4S for PAIRs " + std::to_string(i) + "-" + std::to_string(i+1));
+
                     break;
                 default:
                     throw std::runtime_error("Unsupported NEON operation for PAIRS");
@@ -1006,7 +1006,7 @@ void VectorCodeGen::generatePairsVectorBinaryOp(BinaryOp& node, bool use_neon) {
             register_manager_.release_register(result_pair_reg);
         }
     } else {
-        debug_print("Using scalar fallback for PAIRS vector operation");
+
         // Scalar fallback implementation
         for (size_t i = 0; i < vector_size; i++) {
             size_t offset = i * 8; // Each PAIR = 8 bytes
@@ -1042,7 +1042,7 @@ void VectorCodeGen::generatePairsVectorBinaryOp(BinaryOp& node, bool use_neon) {
 
     // Set the result register to the allocated vector address
     code_gen_.expression_result_reg_ = result_addr;
-    debug_print("PAIRS vector operation completed - result at " + result_addr);
+
 }
 
 size_t VectorCodeGen::getPairsVectorSize(Expression* expr) {
@@ -1076,14 +1076,12 @@ std::string VectorCodeGen::allocatePairsResultVector(size_t vector_size) {
 
     rm.release_register(result_reg);
     std::string vector_addr = size_reg; // Keep the allocated address
-    debug_print("Allocated PAIRS result vector at register " + vector_addr + " (size: " + std::to_string(vector_size) + " PAIRs)");
+
 
     return vector_addr;
 }
 
-void VectorCodeGen::debug_print(const std::string& message) {
-    std::cout << "[VectorCodeGen] " << message << std::endl;
-}
+
 
 // Custom vector instruction encoders
 Instruction VectorCodeGen::vecgen_fadd_vector(const std::string& vd, const std::string& vn, const std::string& vm, const std::string& arrangement) {
@@ -1265,7 +1263,7 @@ Instruction VectorCodeGen::vecgen_add_vector(const std::string& vd, const std::s
     std::string vm_reg = (vm[0] == 'D') ? "v" + vm.substr(1) : vm;
     std::string lower_arrangement = normalizeArrangementForAssembly(arrangement);
     std::string asm_text = "add " + vd_reg + "." + lower_arrangement + ", " + vn_reg + "." + lower_arrangement + ", " + vm_reg + "." + lower_arrangement;
-    
+
     Instruction instr(encoding, asm_text);
     instr.opcode = InstructionDecoder::OpType::ADD_VECTOR;
     instr.dest_reg = Encoder::get_reg_encoding(vd);
@@ -1351,19 +1349,19 @@ Instruction VectorCodeGen::sub_vector_2s(const std::string& vd, const std::strin
     // ARM64 SUB vector .2S encoding: 0Q001110SS1mmmmm100001nnnnnddddd
     // Q=0, SS=10 (32-bit), opcode=100001 (SUB)
     // Use BitPatcher to build instruction like other encoders
-    
+
     int vd_num = parse_register_number(vd);
     int vn_num = parse_register_number(vn);
     int vm_num = parse_register_number(vm);
 
     // Base SUB vector opcode for .2S: 0x2ea18400 (exact match to clang output)
     BitPatcher patcher(0x2ea18400);
-    
+
     // Clear existing register fields
     patcher.patch(0, 0, 5);   // Clear Rd (bits 4:0)
     patcher.patch(0, 5, 5);   // Clear Rn (bits 9:5)
     patcher.patch(0, 16, 5);  // Clear Rm (bits 20:16)
-    
+
     patcher.patch(vd_num, 0, 5);   // Rd (bits 4:0)
     patcher.patch(vn_num, 5, 5);   // Rn (bits 9:5)
     patcher.patch(vm_num, 16, 5);  // Rm (bits 20:16)
@@ -1372,15 +1370,15 @@ Instruction VectorCodeGen::sub_vector_2s(const std::string& vd, const std::strin
     std::string vd_reg = (vd[0] == 'D') ? "v" + vd.substr(1) : vd;
     std::string vn_reg = (vn[0] == 'D') ? "v" + vn.substr(1) : vn;
     std::string vm_reg = (vm[0] == 'D') ? "v" + vm.substr(1) : vm;
-    
+
     std::string asm_text = "sub " + vd_reg + ".2s, " + vn_reg + ".2s, " + vm_reg + ".2s    ; new dedicated 2s encoder";
-    
+
     Instruction instr(patcher.get_value(), asm_text);
     instr.opcode = InstructionDecoder::OpType::SUB_VECTOR;
     instr.dest_reg = vd_num;
     instr.src_reg1 = vn_num;
     instr.src_reg2 = vm_num;
-    
+
     return instr;
 }
 
@@ -1388,7 +1386,7 @@ Instruction VectorCodeGen::sub_vector_2s(const std::string& vd, const std::strin
 Instruction VectorCodeGen::mul_vector_2s(const std::string& vd, const std::string& vn, const std::string& vm) {
     // ARM64 MUL vector .2S encoding: clang generates 0x0ea19c00
     // Use BitPatcher to build instruction like other encoders
-    
+
     int vd_num = parse_register_number(vd);
     int vn_num = parse_register_number(vn);
     int vm_num = parse_register_number(vm);
@@ -1396,12 +1394,12 @@ Instruction VectorCodeGen::mul_vector_2s(const std::string& vd, const std::strin
     // Base MUL vector opcode for .2S: 0x0ea19c00 (exact match to clang output)
     // Clear register bits first since clang base has registers (0,0,1)
     uint32_t base = 0x0ea19c00;
-    base &= ~0x1F;          // Clear Rd (bits 4:0) 
+    base &= ~0x1F;          // Clear Rd (bits 4:0)
     base &= ~(0x1F << 5);   // Clear Rn (bits 9:5)
     base &= ~(0x1F << 16);  // Clear Rm (bits 20:16)
-    
+
     BitPatcher patcher(base);
-    
+
     patcher.patch(vd_num, 0, 5);   // Rd (bits 4:0)
     patcher.patch(vn_num, 5, 5);   // Rn (bits 9:5)
     patcher.patch(vm_num, 16, 5);  // Rm (bits 20:16)
@@ -1410,15 +1408,15 @@ Instruction VectorCodeGen::mul_vector_2s(const std::string& vd, const std::strin
     std::string vd_reg = (vd[0] == 'D') ? "v" + vd.substr(1) : vd;
     std::string vn_reg = (vn[0] == 'D') ? "v" + vn.substr(1) : vn;
     std::string vm_reg = (vm[0] == 'D') ? "v" + vm.substr(1) : vm;
-    
+
     std::string asm_text = "mul " + vd_reg + ".2s, " + vn_reg + ".2s, " + vm_reg + ".2s    ; new dedicated 2s encoder";
-    
+
     Instruction instr(patcher.get_value(), asm_text);
     instr.opcode = InstructionDecoder::OpType::MUL_VECTOR;
     instr.dest_reg = vd_num;
     instr.src_reg1 = vn_num;
     instr.src_reg2 = vm_num;
-    
+
     return instr;
 }
 
@@ -1426,19 +1424,19 @@ Instruction VectorCodeGen::mul_vector_2s(const std::string& vd, const std::strin
 Instruction VectorCodeGen::fdiv_vector_2s(const std::string& vd, const std::string& vn, const std::string& vm) {
     // ARM64 FDIV vector .2S encoding: clang generates 0x2e21fc00
     // Use BitPatcher to build instruction like other encoders
-    
+
     int vd_num = parse_register_number(vd);
     int vn_num = parse_register_number(vn);
     int vm_num = parse_register_number(vm);
 
     // Base FDIV vector opcode for .2S: 0x2e21fc00 (exact match to clang output)
     BitPatcher patcher(0x2e21fc00);
-    
+
     // Clear existing register fields
     patcher.patch(0, 0, 5);   // Clear Rd (bits 4:0)
     patcher.patch(0, 5, 5);   // Clear Rn (bits 9:5)
     patcher.patch(0, 16, 5);  // Clear Rm (bits 20:16)
-    
+
     patcher.patch(vd_num, 0, 5);   // Rd (bits 4:0)
     patcher.patch(vn_num, 5, 5);   // Rn (bits 9:5)
     patcher.patch(vm_num, 16, 5);  // Rm (bits 20:16)
@@ -1447,15 +1445,15 @@ Instruction VectorCodeGen::fdiv_vector_2s(const std::string& vd, const std::stri
     std::string vd_reg = (vd[0] == 'D') ? "v" + vd.substr(1) : vd;
     std::string vn_reg = (vn[0] == 'D') ? "v" + vn.substr(1) : vn;
     std::string vm_reg = (vm[0] == 'D') ? "v" + vm.substr(1) : vm;
-    
+
     std::string asm_text = "fdiv " + vd_reg + ".2s, " + vn_reg + ".2s, " + vm_reg + ".2s    ; new dedicated 2s encoder";
-    
+
     Instruction instr(patcher.get_value(), asm_text);
     instr.opcode = InstructionDecoder::OpType::FDIV;
     instr.dest_reg = vd_num;
     instr.src_reg1 = vn_num;
     instr.src_reg2 = vm_num;
-    
+
     return instr;
 }
 
@@ -1463,7 +1461,7 @@ Instruction VectorCodeGen::fdiv_vector_2s(const std::string& vd, const std::stri
 Instruction VectorCodeGen::fadd_vector_2s(const std::string& vd, const std::string& vn, const std::string& vm) {
     // ARM64 FADD vector .2S encoding: clang generates 0x0e21d400
     // Use BitPatcher to build instruction like other encoders
-    
+
     int vd_num = parse_register_number(vd);
     int vn_num = parse_register_number(vn);
     int vm_num = parse_register_number(vm);
@@ -1471,12 +1469,13 @@ Instruction VectorCodeGen::fadd_vector_2s(const std::string& vd, const std::stri
     // Base FADD vector opcode for .2S: 0x0e21d400 (exact match to clang output)
     // Clear register bits first using BitPatcher
     BitPatcher patcher(0x0e21d400);
-    
+    patcher.trace_enabled = true;
+
     // Clear existing register fields
     patcher.patch(0, 0, 5);   // Clear Rd (bits 4:0)
     patcher.patch(0, 5, 5);   // Clear Rn (bits 9:5)
     patcher.patch(0, 16, 5);  // Clear Rm (bits 20:16)
-    
+
     patcher.patch(vd_num, 0, 5);   // Rd (bits 4:0)
     patcher.patch(vn_num, 5, 5);   // Rn (bits 9:5)
     patcher.patch(vm_num, 16, 5);  // Rm (bits 20:16)
@@ -1485,15 +1484,16 @@ Instruction VectorCodeGen::fadd_vector_2s(const std::string& vd, const std::stri
     std::string vd_reg = (vd[0] == 'D') ? "v" + vd.substr(1) : vd;
     std::string vn_reg = (vn[0] == 'D') ? "v" + vn.substr(1) : vn;
     std::string vm_reg = (vm[0] == 'D') ? "v" + vm.substr(1) : vm;
-    
-    std::string asm_text = "fadd " + vd_reg + ".2s, " + vn_reg + ".2s, " + vm_reg + ".2s    ; dedicated 2s encoder";
-    
+
+    std::string asm_text = "fadd " + vd_reg + ".2s, " + vn_reg + ".2s, " + vm_reg + ".2s    ; FPAIR 2s encoder";
+
     Instruction instr(patcher.get_value(), asm_text);
     instr.opcode = InstructionDecoder::OpType::FADD;
     instr.dest_reg = vd_num;
     instr.src_reg1 = vn_num;
     instr.src_reg2 = vm_num;
-    
+    instr.trace_this_instruction=true;
+    patcher.trace_enabled = false;
     return instr;
 }
 
@@ -1501,49 +1501,40 @@ Instruction VectorCodeGen::fadd_vector_2s(const std::string& vd, const std::stri
 Instruction VectorCodeGen::fsub_vector_2s(const std::string& vd, const std::string& vn, const std::string& vm) {
     // ARM64 FSUB vector .2S encoding: clang generates 0x0ea1d400
     // Use BitPatcher to build instruction like other encoders
-    
+
     int vd_num = parse_register_number(vd);
     int vn_num = parse_register_number(vn);
     int vm_num = parse_register_number(vm);
 
     // Base FSUB vector opcode for .2S: 0xea1d4000 (exact match to clang output)
     uint32_t base_opcode = 0xea1d4000;
-    std::cerr << "[DEBUG] About to create BitPatcher with: 0x" << std::hex << base_opcode << std::dec << std::endl;
     BitPatcher patcher(base_opcode);
-    std::cerr << "[DEBUG] Initial BitPatcher value: 0x" << std::hex << patcher.get_value() << std::dec << std::endl;
-    
+
     // Clear existing register fields
     patcher.patch(0, 0, 5);   // Clear Rd (bits 4:0)
-    std::cerr << "[DEBUG] After clearing Rd: 0x" << std::hex << patcher.get_value() << std::dec << std::endl;
     patcher.patch(0, 5, 5);   // Clear Rn (bits 9:5)
-    std::cerr << "[DEBUG] After clearing Rn: 0x" << std::hex << patcher.get_value() << std::dec << std::endl;
     patcher.patch(0, 16, 5);  // Clear Rm (bits 20:16)
-    std::cerr << "[DEBUG] After clearing Rm: 0x" << std::hex << patcher.get_value() << std::dec << std::endl;
-    
+
     patcher.patch(vd_num, 0, 5);   // Rd (bits 4:0)
-    std::cerr << "[DEBUG] After setting Rd=" << vd_num << ": 0x" << std::hex << patcher.get_value() << std::dec << std::endl;
     patcher.patch(vn_num, 5, 5);   // Rn (bits 9:5)
-    std::cerr << "[DEBUG] After setting Rn=" << vn_num << ": 0x" << std::hex << patcher.get_value() << std::dec << std::endl;
     patcher.patch(vm_num, 16, 5);  // Rm (bits 20:16)
-    std::cerr << "[DEBUG] After setting Rm=" << vm_num << ": 0x" << std::hex << patcher.get_value() << std::dec << std::endl;
 
     // Generate assembly text
     std::string vd_reg = (vd[0] == 'D') ? "v" + vd.substr(1) : vd;
     std::string vn_reg = (vn[0] == 'D') ? "v" + vn.substr(1) : vn;
     std::string vm_reg = (vm[0] == 'D') ? "v" + vm.substr(1) : vm;
-    
+
     std::string asm_text = "fsub " + vd_reg + ".2s, " + vn_reg + ".2s, " + vm_reg + ".2s    ; dedicated 2s encoder";
-    
+
     uint32_t final_encoding = patcher.get_value();
-    std::cerr << "[DEBUG] FSUB BitPatcher result: 0x" << std::hex << final_encoding << std::dec << std::endl;
-    
+
     Instruction instr(final_encoding, asm_text);
     instr.opcode = InstructionDecoder::OpType::FSUB;
     instr.dest_reg = vd_num;
     instr.src_reg1 = vn_num;
     instr.src_reg2 = vm_num;
     instr.trace_this_instruction = true; // Enable tracing for FSUB instructions
-    
+
     return instr;
 }
 
@@ -1551,19 +1542,19 @@ Instruction VectorCodeGen::fsub_vector_2s(const std::string& vd, const std::stri
 Instruction VectorCodeGen::fmul_vector_2s(const std::string& vd, const std::string& vn, const std::string& vm) {
     // ARM64 FMUL vector .2S encoding: clang generates 0x2e21dc00
     // Use BitPatcher to build instruction like other encoders
-    
+
     int vd_num = parse_register_number(vd);
     int vn_num = parse_register_number(vn);
     int vm_num = parse_register_number(vm);
 
     // Base FMUL vector opcode for .2S: 0x2e21dc00 (exact match to clang output)
     BitPatcher patcher(0x2e21dc00);
-    
+
     // Clear existing register fields
     patcher.patch(0, 0, 5);   // Clear Rd (bits 4:0)
     patcher.patch(0, 5, 5);   // Clear Rn (bits 9:5)
     patcher.patch(0, 16, 5);  // Clear Rm (bits 20:16)
-    
+
     patcher.patch(vd_num, 0, 5);   // Rd (bits 4:0)
     patcher.patch(vn_num, 5, 5);   // Rn (bits 9:5)
     patcher.patch(vm_num, 16, 5);  // Rm (bits 20:16)
@@ -1572,15 +1563,15 @@ Instruction VectorCodeGen::fmul_vector_2s(const std::string& vd, const std::stri
     std::string vd_reg = (vd[0] == 'D') ? "v" + vd.substr(1) : vd;
     std::string vn_reg = (vn[0] == 'D') ? "v" + vn.substr(1) : vn;
     std::string vm_reg = (vm[0] == 'D') ? "v" + vm.substr(1) : vm;
-    
+
     std::string asm_text = "fmul " + vd_reg + ".2s, " + vn_reg + ".2s, " + vm_reg + ".2s    ; dedicated 2s encoder";
-    
+
     Instruction instr(patcher.get_value(), asm_text);
     instr.opcode = InstructionDecoder::OpType::FMUL;
     instr.dest_reg = vd_num;
     instr.src_reg1 = vn_num;
     instr.src_reg2 = vm_num;
-    
+
     return instr;
 }
 
@@ -1588,7 +1579,7 @@ Instruction VectorCodeGen::fmul_vector_2s(const std::string& vd, const std::stri
 Instruction VectorCodeGen::add_vector_2s(const std::string& vd, const std::string& vn, const std::string& vm) {
     // ARM64 ADD vector .2S encoding: clang generates 0x0ea18400
     // Use BitPatcher to build instruction like other encoders
-    
+
     int vd_num = parse_register_number(vd);
     int vn_num = parse_register_number(vn);
     int vm_num = parse_register_number(vm);
@@ -1596,12 +1587,12 @@ Instruction VectorCodeGen::add_vector_2s(const std::string& vd, const std::strin
     // Base ADD vector opcode for .2S: 0x0ea18400 (exact match to clang output)
     // Clear register bits first since clang base has registers (0,0,1)
     uint32_t base = 0x0ea18400;
-    base &= ~0x1F;          // Clear Rd (bits 4:0) 
+    base &= ~0x1F;          // Clear Rd (bits 4:0)
     base &= ~(0x1F << 5);   // Clear Rn (bits 9:5)
     base &= ~(0x1F << 16);  // Clear Rm (bits 20:16)
-    
+
     BitPatcher patcher(base);
-    
+
     patcher.patch(vd_num, 0, 5);   // Rd (bits 4:0)
     patcher.patch(vn_num, 5, 5);   // Rn (bits 9:5)
     patcher.patch(vm_num, 16, 5);  // Rm (bits 20:16)
@@ -1610,15 +1601,15 @@ Instruction VectorCodeGen::add_vector_2s(const std::string& vd, const std::strin
     std::string vd_reg = (vd[0] == 'D') ? "v" + vd.substr(1) : vd;
     std::string vn_reg = (vn[0] == 'D') ? "v" + vn.substr(1) : vn;
     std::string vm_reg = (vm[0] == 'D') ? "v" + vm.substr(1) : vm;
-    
+
     std::string asm_text = "add " + vd_reg + ".2s, " + vn_reg + ".2s, " + vm_reg + ".2s    ; new dedicated 2s encoder";
-    
+
     Instruction instr(patcher.get_value(), asm_text);
     instr.opcode = InstructionDecoder::OpType::ADD_VECTOR;
     instr.dest_reg = vd_num;
     instr.src_reg1 = vn_num;
     instr.src_reg2 = vm_num;
-    
+
     return instr;
 }
 
@@ -2162,15 +2153,58 @@ Instruction VectorCodeGen::vecgen_umov(const std::string& wd, const std::string&
 
 Instruction VectorCodeGen::vecgen_fcvt_s_to_d(const std::string& dd, const std::string& sn) {
     // FCVT Dd, Sn: 0001111000100010110000nnnnnddddd
+
+    // Validate register types - destination must be D register, source must be S register
+    if (dd.empty() || (dd[0] != 'D' && dd[0] != 'd')) {
+        throw std::runtime_error("Invalid destination register for FCVT S->D: " + dd + " (must be D register)");
+    }
+    if (sn.empty() || (sn[0] != 'S' && sn[0] != 's')) {
+        throw std::runtime_error("Invalid source register for FCVT S->D: " + sn + " (must be S register)");
+    }
+
     uint32_t instruction = 0x1E22C000;
 
     int dd_num = parse_register_number(dd);
     int sn_num = parse_register_number(sn);
 
+    // Additional validation - register numbers must be in valid range
+    if (dd_num > 31 || sn_num > 31) {
+        throw std::runtime_error("Invalid register for FCVT S->D: " + dd + ", " + sn);
+    }
+
     instruction |= (dd_num & 0x1F);
     instruction |= ((sn_num & 0x1F) << 5);
 
-    std::string asm_text = "fcvt " + dd + ", " + sn;
+    std::string asm_text = "fcvt " + dd + ", " + sn +"; vecgen";
+    return Instruction(instruction, asm_text);
+}
+
+Instruction VectorCodeGen::vecgen_fcvt_d_to_s(const std::string& sd, const std::string& dn) {
+    // FCVT Sd, Dn: 0001111001100010010000nnnnnddddd
+    // The correct base opcode for double-to-single is 0x1E624000.
+
+    // Validate register types - destination must be S register, source must be D register
+    if (sd.empty() || (sd[0] != 'S' && sd[0] != 's')) {
+        throw std::runtime_error("Invalid destination register for FCVT D->S: " + sd + " (must be S register)");
+    }
+    if (dn.empty() || (dn[0] != 'D' && dn[0] != 'd')) {
+        throw std::runtime_error("Invalid source register for FCVT D->S: " + dn + " (must be D register)");
+    }
+
+    uint32_t instruction = 0x1E624000;
+
+    int sd_num = parse_register_number(sd); // Destination 'S' register
+    int dn_num = parse_register_number(dn); // Source 'D' register
+
+    // Additional validation - register numbers must be in valid range
+    if (sd_num > 31 || dn_num > 31) {
+        throw std::runtime_error("Invalid register for FCVT D->S: " + sd + ", " + dn);
+    }
+
+    instruction |= (sd_num & 0x1F);
+    instruction |= ((dn_num & 0x1F) << 5);
+
+    std::string asm_text = "fcvt " + sd + ", " + dn +"; vecgen";
     return Instruction(instruction, asm_text);
 }
 

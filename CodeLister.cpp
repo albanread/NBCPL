@@ -29,11 +29,8 @@ std::string CodeLister::generate_code_listing(
     for (size_t i = 0; i < instructions.size(); ++i) {
         const auto& instr = instructions[i];
 
-        // *** THE FIX IS HERE ***
-        // The linker has already calculated the absolute address. We just use it directly.
         size_t absolute_address = instr.address;
 
-        // Check if a label is defined at this instruction's absolute address
         if (address_to_label.count(absolute_address)) {
             ss << address_to_label[absolute_address] << ":\n";
         }
@@ -50,6 +47,8 @@ std::string CodeLister::generate_code_listing(
         ss << instr.assembly_text;
 
         // After printing the assembly_text, check if the linker patched this instruction.
+
+        // 2. Handle linker relocation info (preserves previous logic)
         if (instr.relocation_applied) {
             ss << "    ; Reloc -> '" << instr.resolved_symbol_name << "' @ 0x" << std::hex << instr.resolved_target_address << std::dec;
         }

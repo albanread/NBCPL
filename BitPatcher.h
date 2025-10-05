@@ -49,6 +49,10 @@ public:
 private:
     /// @brief The 32-bit data word that is being manipulated.
     uint32_t data;
+
+public:
+    /// @brief Static flag to enable or disable tracing for all BitPatcher operations.
+    static bool trace_enabled;
 };
 
 #endif // BITPATCHER_H

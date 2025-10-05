@@ -16,9 +16,7 @@ void InstructionStream::add(const Instruction& instr) {
     
     // Trace specific instructions marked for tracing
     if (instr.trace_this_instruction) {
-        std::cerr << "[InstructionStream TRACE] Adding traced instruction: " 
-                  << instr.assembly_text << " | Encoding: 0x" << std::hex 
-                  << instr.encoding << std::dec << std::endl;
+
     }
     // --- END TRACE ---
 
