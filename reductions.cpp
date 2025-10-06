@@ -374,20 +374,13 @@ Instruction ReductionCodeGen::vecgen_smin_4s(const std::string& vd,
 Instruction ReductionCodeGen::vecgen_smax_4s(const std::string& vd,
                                              const std::string& vn,
                                              const std::string& vm) {
-    // SMAX.4S instruction encoding
-    uint32_t base_opcode = 0x4EA06400;
+    // Use standardized SMAX encoder for consistency
+    // Convert Q register names to V register names
+    std::string v_vd = "v" + vd.substr(1);
+    std::string v_vn = "v" + vn.substr(1);
+    std::string v_vm = "v" + vm.substr(1);
 
-    int rd = std::stoi(vd.substr(1));
-    int rn = std::stoi(vn.substr(1));
-    int rm = std::stoi(vm.substr(1));
-
-    // Convert Q register names to V register names for assembly
-    std::string v_vd = "V" + vd.substr(1);
-    std::string v_vn = "V" + vn.substr(1);
-    std::string v_vm = "V" + vm.substr(1);
-
-    uint32_t instruction = base_opcode | (rm << 16) | (rn << 5) | rd;
-    return Instruction(instruction, "SMAX " + v_vd + ".4S, " + v_vn + ".4S, " + v_vm + ".4S");
+    return Encoder::create_smax_vector_reg(v_vd, v_vn, v_vm, "4S");
 }
 
 Instruction ReductionCodeGen::vecgen_fmin_4s(const std::string& vd,
@@ -412,20 +405,13 @@ Instruction ReductionCodeGen::vecgen_fmin_4s(const std::string& vd,
 Instruction ReductionCodeGen::vecgen_fmax_4s(const std::string& vd,
                                              const std::string& vn,
                                              const std::string& vm) {
-    // FMAX.4S instruction encoding
-    uint32_t base_opcode = 0x4EA0F400;
+    // Use standardized FMAX encoder for consistency
+    // Convert Q register names to V register names
+    std::string v_vd = "v" + vd.substr(1);
+    std::string v_vn = "v" + vn.substr(1);
+    std::string v_vm = "v" + vm.substr(1);
 
-    int rd = std::stoi(vd.substr(1));
-    int rn = std::stoi(vn.substr(1));
-    int rm = std::stoi(vm.substr(1));
-
-    // Convert Q register names to V register names for assembly
-    std::string v_vd = "V" + vd.substr(1);
-    std::string v_vn = "V" + vn.substr(1);
-    std::string v_vm = "V" + vm.substr(1);
-
-    uint32_t instruction = base_opcode | (rm << 16) | (rn << 5) | rd;
-    return Instruction(instruction, "FMAX " + v_vd + ".4S, " + v_vn + ".4S, " + v_vm + ".4S");
+    return Encoder::create_fmax_vector_reg(v_vd, v_vn, v_vm, "4S");
 }
 
 // === FPAIRS Operations ===

@@ -917,6 +917,45 @@ public:
                                            const std::string &arrangement);
 
   /**
+   * @brief Creates a vector SMINP (Signed Minimum Pairwise) instruction.
+   * @param vd The destination vector register.
+   * @param vn The first source vector register.
+   * @param vm The second source vector register.
+   * @param arrangement The data arrangement (e.g., "4S").
+   * @return A complete Instruction object.
+   */
+  static Instruction create_sminp_vector_reg(const std::string &vd,
+                                             const std::string &vn,
+                                             const std::string &vm,
+                                             const std::string &arrangement);
+
+  /**
+   * @brief Creates a vector SMAX (Signed Maximum) instruction.
+   * @param vd The destination vector register.
+   * @param vn The first source vector register.
+   * @param vm The second source vector register.
+   * @param arrangement The data arrangement (e.g., "4S").
+   * @return A complete Instruction object.
+   */
+  static Instruction create_smax_vector_reg(const std::string &vd,
+                                            const std::string &vn,
+                                            const std::string &vm,
+                                            const std::string &arrangement);
+
+  /**
+   * @brief Creates a vector FMAX (Floating-point Maximum) instruction.
+   * @param vd The destination vector register.
+   * @param vn The first source vector register.
+   * @param vm The second source vector register.
+   * @param arrangement The data arrangement (e.g., "4S").
+   * @return A complete Instruction object.
+   */
+  static Instruction create_fmax_vector_reg(const std::string &vd,
+                                            const std::string &vn,
+                                            const std::string &vm,
+                                            const std::string &arrangement);
+
+  /**
    * @brief Creates a vector UZP1 (Unzip 1) instruction.
    * @param vd The destination vector register.
    * @param vn The first source vector register.

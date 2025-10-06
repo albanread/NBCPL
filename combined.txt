@@ -39312,8 +39312,8 @@ Instruction Encoder::create_faddp_vector_reg(const std::string& vd, const std::s
     // FADDP Vd.<T>, Vn.<T>, Vm.<T>
     // Floating-point addition of pairs of elements
     
-    if (arrangement != "2S" && arrangement != "4S" && arrangement != "2D") {
-        throw std::runtime_error("Invalid arrangement for FADDP vector: " + arrangement + " (expected 2S, 4S, or 2D)");
+    if (arrangement != "2S" && arrangement != "4S" && arrangement != "4H" && arrangement != "2D") {
+        throw std::runtime_error("Invalid arrangement for FADDP vector: " + arrangement + " (expected 2S, 4S, 4H, or 2D)");
     }
     
     uint32_t encoding;
@@ -39326,6 +39326,10 @@ Instruction Encoder::create_faddp_vector_reg(const std::string& vd, const std::s
         // FADDP Vd.4S, Vn.4S, Vm.4S (128-bit vector)
         // 01101110101mmmmm110100nnnnnddddd
         encoding = 0x6E20D400 | (rm << 16) | (rn << 5) | rd;
+    } else if (arrangement == "4H") {
+        // FADDP Vd.4H, Vn.4H, Vm.4H (64-bit vector, half precision)
+        // 00101110010mmmmm000100nnnnnddddd
+        encoding = 0x2E401400 | (rm << 16) | (rn << 5) | rd;
     } else if (arrangement == "2D") {
         // FADDP Vd.2D, Vn.2D, Vm.2D (128-bit vector, double precision)
         // 01101110111mmmmm110100nnnnnddddd
@@ -39347,8 +39351,19 @@ Instruction Encoder::create_fcmp_reg(const std::string& dn, const std::string& d
     uint32_t rn = get_reg_encoding(dn);
     uint32_t rm = get_reg_encoding(dm);
 
-    // Encoding for FCMP Dn, Dm (double-precision)
-    uint32_t encoding = 0x1E602008 | (rm << 16) | (rn << 5);
+    // Detect register type and use appropriate base encoding
+    uint32_t base_encoding;
+    if (dn[0] == 'd' || dn[0] == 'D') {
+        // Double-precision (64-bit): FCMP Dn, Dm
+        base_encoding = 0x1E602008;
+    } else if (dn[0] == 's' || dn[0] == 'S') {
+        // Single-precision (32-bit): FCMP Sn, Sm
+        base_encoding = 0x1E202000;
+    } else {
+        throw std::invalid_argument("FCMP register type must be 'D' (double) or 'S' (single)");
+    }
+    
+    uint32_t encoding = base_encoding | (rm << 16) | (rn << 5);
 
     std::stringstream ss;
     ss << "FCMP " << dn << ", " << dm;
@@ -39539,6 +39554,63 @@ Instruction Encoder::enc_create_fdiv_vector_reg(const std::string& vd, const std
 }
 // -- end of file
 
+// -- start of file: encoders/enc_create_fmax_vector_reg.cpp
+#include "../Encoder.h"
+#include <sstream>
+
+Instruction Encoder::create_fmax_vector_reg(const std::string& vd, const std::string& vn, const std::string& vm, const std::string& arrangement) {
+    uint32_t rd = get_reg_encoding(vd);
+    uint32_t rn = get_reg_encoding(vn);
+    uint32_t rm = get_reg_encoding(vm);
+
+    // FMAX (Floating-point Maximum) vector instruction
+    // FMAX Vd.<T>, Vn.<T>, Vm.<T>
+    // Element-wise floating-point maximum
+    
+    if (arrangement != "2S" && arrangement != "4S" && arrangement != "2D" && arrangement != "4H" && arrangement != "8H") {
+        throw std::runtime_error("Invalid arrangement for FMAX vector: " + arrangement + 
+                                 " (expected 2S, 4S, 2D, 4H, or 8H)");
+    }
+    
+    uint32_t encoding;
+    
+    if (arrangement == "2S") {
+        // FMAX Vd.2S, Vn.2S, Vm.2S (64-bit vector, single precision)
+        // 0Q001110xx1mmmmm111101nnnnnddddd where Q=0, sz=00
+        encoding = 0x0E20F400 | (rm << 16) | (rn << 5) | rd;
+    } else if (arrangement == "4S") {
+        // FMAX Vd.4S, Vn.4S, Vm.4S (128-bit vector, single precision)
+        // 0Q001110xx1mmmmm111101nnnnnddddd where Q=1, sz=00
+        encoding = 0x4E20F400 | (rm << 16) | (rn << 5) | rd;
+    } else if (arrangement == "2D") {
+        // FMAX Vd.2D, Vn.2D, Vm.2D (128-bit vector, double precision)
+        // 0Q001110xx1mmmmm111101nnnnnddddd where Q=1, sz=01
+        encoding = 0x4E60F400 | (rm << 16) | (rn << 5) | rd;
+    } else if (arrangement == "4H") {
+        // FMAX Vd.4H, Vn.4H, Vm.4H (64-bit vector, half precision)
+        // 0Q001110xx1mmmmm001101nnnnnddddd where Q=0, sz=10
+        encoding = 0x0E403400 | (rm << 16) | (rn << 5) | rd;
+    } else if (arrangement == "8H") {
+        // FMAX Vd.8H, Vn.8H, Vm.8H (128-bit vector, half precision)
+        // 0Q001110xx1mmmmm001101nnnnnddddd where Q=1, sz=10
+        encoding = 0x4E403400 | (rm << 16) | (rn << 5) | rd;
+    }
+
+    std::stringstream ss;
+    ss << "FMAX " << vd << "." << arrangement << ", " << vn << "." << arrangement << ", " << vm << "." << arrangement;
+    
+    Instruction instr(encoding, ss.str());
+    instr.opcode = InstructionDecoder::OpType::FMAX_VECTOR;
+    instr.dest_reg = rd;
+    instr.src_reg1 = rn;
+    instr.src_reg2 = rm;
+    instr.is_mem_op = false;
+    instr.uses_immediate = false;
+    
+    return instr;
+}
+// -- end of file
+
 // -- start of file: encoders/enc_create_fmaxp_vector_reg.cpp
 #include "../Encoder.h"
 #include <sstream>
@@ -39552,20 +39624,24 @@ Instruction Encoder::create_fmaxp_vector_reg(const std::string& vd, const std::s
     // FMAXP Vd.<T>, Vn.<T>, Vm.<T>
     // Floating-point maximum of pairs of elements
     
-    if (arrangement != "2S" && arrangement != "4S" && arrangement != "2D") {
-        throw std::runtime_error("Invalid arrangement for FMAXP vector: " + arrangement + " (expected 2S, 4S, or 2D)");
+    if (arrangement != "2S" && arrangement != "4S" && arrangement != "4H" && arrangement != "2D") {
+        throw std::runtime_error("Invalid arrangement for FMAXP vector: " + arrangement + " (expected 2S, 4S, 4H, or 2D)");
     }
     
     uint32_t encoding;
     
     if (arrangement == "2S") {
         // FMAXP Vd.2S, Vn.2S, Vm.2S (64-bit vector)
-        // 01101110001mmmmm111100nnnnnddddd
-        encoding = 0x2E20F000 | (rm << 16) | (rn << 5) | rd;
+        // 00101110001mmmmm111101nnnnnddddd
+        encoding = 0x2E20F400 | (rm << 16) | (rn << 5) | rd;
     } else if (arrangement == "4S") {
         // FMAXP Vd.4S, Vn.4S, Vm.4S (128-bit vector)
-        // 01101110101mmmmm111100nnnnnddddd
-        encoding = 0x6E20F000 | (rm << 16) | (rn << 5) | rd;
+        // 01101110001mmmmm111101nnnnnddddd
+        encoding = 0x6E20F400 | (rm << 16) | (rn << 5) | rd;
+    } else if (arrangement == "4H") {
+        // FMAXP Vd.4H, Vn.4H, Vm.4H (64-bit vector, half precision)
+        // 00101110010mmmmm001101nnnnnddddd
+        encoding = 0x2E403400 | (rm << 16) | (rn << 5) | rd;
     } else if (arrangement == "2D") {
         // FMAXP Vd.2D, Vn.2D, Vm.2D (128-bit vector, double precision)
         // 01101110111mmmmm111100nnnnnddddd
@@ -39588,23 +39664,24 @@ Instruction Encoder::create_fmin_vector_reg(const std::string& vd, const std::st
     uint32_t rn = get_reg_encoding(vn);
     uint32_t rm = get_reg_encoding(vm);
 
-    // Base encoding for FMIN (vector)
-    // FMIN vector encoding: 0x4EA0F400 (based on ARM64 reference)
-    uint32_t encoding = 0x4EA0F400 | (rm << 16) | (rn << 5) | rd;
+    uint32_t encoding;
 
-    // Set the size bits based on the arrangement
-    if (arrangement == "4S" || arrangement == "2S") {
-        // size bits (22, 23) = 00 for single-precision, Q bit determines 2S vs 4S
-        encoding &= ~(0b11 << 22); // Clear size bits (set to 00)
-        if (arrangement == "2S") {
-            encoding &= ~(1 << 30); // Clear Q bit for 64-bit operation
-        }
+    // FMIN vector encodings based on arrangement (corrected to match Clang)
+    if (arrangement == "2S") {
+        // 64-bit version: 0ea0f400 base
+        encoding = 0x0ea0f400;
+    } else if (arrangement == "4S") {
+        // 128-bit version: 4ea0f400 base
+        encoding = 0x4ea0f400;
     } else if (arrangement == "2D") {
-        // size bits (22, 23) = 01 for double-precision
-        encoding |= (0b01 << 22);
+        // 128-bit double-precision: 4ee0f400 base
+        encoding = 0x4ee0f400;
     } else {
         throw std::runtime_error("Unsupported arrangement for FMIN: " + arrangement);
     }
+
+    // Add register fields: Rm[20:16], Rn[9:5], Rd[4:0]
+    encoding |= (rm << 16) | (rn << 5) | rd;
 
     std::stringstream ss;
     ss << "FMIN " << vd << "." << arrangement << ", " << vn << "." << arrangement << ", " << vm << "." << arrangement;
@@ -39630,20 +39707,24 @@ Instruction Encoder::create_fminp_vector_reg(const std::string& vd, const std::s
     // FMINP Vd.<T>, Vn.<T>, Vm.<T>
     // Floating-point minimum of pairs of elements
     
-    if (arrangement != "2S" && arrangement != "4S" && arrangement != "2D") {
-        throw std::runtime_error("Invalid arrangement for FMINP vector: " + arrangement + " (expected 2S, 4S, or 2D)");
+    if (arrangement != "2S" && arrangement != "4S" && arrangement != "4H" && arrangement != "2D") {
+        throw std::runtime_error("Invalid arrangement for FMINP vector: " + arrangement + " (expected 2S, 4S, 4H, or 2D)");
     }
     
     uint32_t encoding;
     
     if (arrangement == "2S") {
         // FMINP Vd.2S, Vn.2S, Vm.2S (64-bit vector)
-        // 01101110001mmmmm111101nnnnnddddd
-        encoding = 0x2E20F400 | (rm << 16) | (rn << 5) | rd;
+        // 00101110101mmmmm111101nnnnnddddd
+        encoding = 0x2EA0F400 | (rm << 16) | (rn << 5) | rd;
     } else if (arrangement == "4S") {
-        // FMINP Vd.4S, Vn.4S, Vm.4S (128-bit vector)
+        // FMINP Vd.4S, Vn.4S, Vm.4S (128-bit vector) 
         // 01101110101mmmmm111101nnnnnddddd
-        encoding = 0x6E20F400 | (rm << 16) | (rn << 5) | rd;
+        encoding = 0x6EA0F400 | (rm << 16) | (rn << 5) | rd;
+    } else if (arrangement == "4H") {
+        // FMINP Vd.4H, Vn.4H, Vm.4H (64-bit vector, half precision)
+        // 00101110110mmmmm001101nnnnnddddd
+        encoding = 0x2EC03400 | (rm << 16) | (rn << 5) | rd;
     } else if (arrangement == "2D") {
         // FMINP Vd.2D, Vn.2D, Vm.2D (128-bit vector, double precision)
         // 01101110111mmmmm111101nnnnnddddd
@@ -40022,15 +40103,26 @@ Instruction Encoder::create_fmul_vector_reg(const std::string& vd, const std::st
 #include <sstream>
 #include "BitPatcher.h"
 
-// Implements FNEG Dd, Dn (floating-point negate, double-precision)
+// Implements FNEG Dd, Dn and FNEG Sd, Sn (floating-point negate)
+// FNEG (double-precision) has base encoding 0x1E614000
+// FNEG (single-precision) has base encoding 0x1E214000
 Instruction Encoder::create_fneg_reg(const std::string& dd, const std::string& dn) {
     uint32_t rd = get_reg_encoding(dd);
     uint32_t rn = get_reg_encoding(dn);
 
-    // Encoding for FNEG Dd, Dn:
-    // 0x1E614000 | (rn << 5) | rd
-    // FNEG Dd, Dn: 0001 1110 0110 0001 0100 0000 000r nnnn rrrrr
-    BitPatcher patcher(0x1E614000);
+    // Detect register type and use appropriate base encoding
+    uint32_t base_encoding;
+    if (dd[0] == 'd' || dd[0] == 'D') {
+        // Double-precision (64-bit): FNEG Dd, Dn
+        base_encoding = 0x1E614000;
+    } else if (dd[0] == 's' || dd[0] == 'S') {
+        // Single-precision (32-bit): FNEG Sd, Sn
+        base_encoding = 0x1E214000;
+    } else {
+        throw std::invalid_argument("FNEG register type must be 'D' (double) or 'S' (single)");
+    }
+    
+    BitPatcher patcher(base_encoding);
     patcher.patch(rn, 5, 5); // Dn at bits [9:5]
     patcher.patch(rd, 0, 5); // Dd at bits [4:0]
 
@@ -40049,15 +40141,27 @@ Instruction Encoder::create_fneg_reg(const std::string& dd, const std::string& d
 #include "Encoder.h"
 #include "BitPatcher.h"
 
-// Implements the ARM64 FSQRT Dd, Dn instruction encoding.
+// Implements the ARM64 FSQRT Dd, Dn and FSQRT Sd, Sn instruction encoding.
 // FSQRT (double-precision) has base encoding 0x1E61C000.
-// Dd: destination FP register (0-31), Dn: source FP register (0-31).
+// FSQRT (single-precision) has base encoding 0x1E21C000.
+// Dd/Sd: destination FP register (0-31), Dn/Sn: source FP register (0-31).
 Instruction Encoder::create_fsqrt_reg(const std::string& dd, const std::string& dn) {
     uint32_t rd = get_reg_encoding(dd);
     uint32_t rn = get_reg_encoding(dn);
 
-    // Encoding for FSQRT Dd, Dn (double-precision): 0x1E61C000
-    BitPatcher patcher(0x1E61C000);
+    // Detect register type and use appropriate base encoding
+    uint32_t base_encoding;
+    if (dd[0] == 'd' || dd[0] == 'D') {
+        // Double-precision (64-bit): FSQRT Dd, Dn
+        base_encoding = 0x1E61C000;
+    } else if (dd[0] == 's' || dd[0] == 'S') {
+        // Single-precision (32-bit): FSQRT Sd, Sn
+        base_encoding = 0x1E21C000;
+    } else {
+        throw std::invalid_argument("FSQRT register type must be 'D' (double) or 'S' (single)");
+    }
+    
+    BitPatcher patcher(base_encoding);
     patcher.patch(rn, 5, 5);  // Dn at bits [9:5]
     patcher.patch(rd, 0, 5);  // Dd at bits [4:0]
 
@@ -41399,6 +41503,68 @@ Instruction Encoder::create_scvtf_reg(const std::string& dd, const std::string& 
 
 // -- end of file
 
+// -- start of file: encoders/enc_create_smax_vector_reg.cpp
+#include "../Encoder.h"
+#include <sstream>
+
+Instruction Encoder::create_smax_vector_reg(const std::string& vd, const std::string& vn, const std::string& vm, const std::string& arrangement) {
+    uint32_t rd = get_reg_encoding(vd);
+    uint32_t rn = get_reg_encoding(vn);
+    uint32_t rm = get_reg_encoding(vm);
+
+    // SMAX (Signed Maximum) vector instruction
+    // SMAX Vd.<T>, Vn.<T>, Vm.<T>
+    // Element-wise signed maximum
+    
+    if (arrangement != "8B" && arrangement != "16B" && arrangement != "4H" && 
+        arrangement != "8H" && arrangement != "2S" && arrangement != "4S") {
+        throw std::runtime_error("Invalid arrangement for SMAX vector: " + arrangement + 
+                                 " (expected 8B, 16B, 4H, 8H, 2S, or 4S)");
+    }
+    
+    uint32_t encoding;
+    
+    if (arrangement == "8B") {
+        // SMAX Vd.8B, Vn.8B, Vm.8B (64-bit vector, 8-bit elements)
+        // 0Q001110xx1mmmmm011001nnnnnddddd where Q=0, size=00
+        encoding = 0x0E206400 | (rm << 16) | (rn << 5) | rd;
+    } else if (arrangement == "16B") {
+        // SMAX Vd.16B, Vn.16B, Vm.16B (128-bit vector, 8-bit elements)
+        // 0Q001110xx1mmmmm011001nnnnnddddd where Q=1, size=00
+        encoding = 0x4E206400 | (rm << 16) | (rn << 5) | rd;
+    } else if (arrangement == "4H") {
+        // SMAX Vd.4H, Vn.4H, Vm.4H (64-bit vector, 16-bit elements)
+        // 0Q001110xx1mmmmm011001nnnnnddddd where Q=0, size=01
+        encoding = 0x0E606400 | (rm << 16) | (rn << 5) | rd;
+    } else if (arrangement == "8H") {
+        // SMAX Vd.8H, Vn.8H, Vm.8H (128-bit vector, 16-bit elements)
+        // 0Q001110xx1mmmmm011001nnnnnddddd where Q=1, size=01
+        encoding = 0x4E606400 | (rm << 16) | (rn << 5) | rd;
+    } else if (arrangement == "2S") {
+        // SMAX Vd.2S, Vn.2S, Vm.2S (64-bit vector, 32-bit elements)
+        // 0Q001110xx1mmmmm011001nnnnnddddd where Q=0, size=10
+        encoding = 0x0EA06400 | (rm << 16) | (rn << 5) | rd;
+    } else if (arrangement == "4S") {
+        // SMAX Vd.4S, Vn.4S, Vm.4S (128-bit vector, 32-bit elements)
+        // 0Q001110xx1mmmmm011001nnnnnddddd where Q=1, size=10
+        encoding = 0x4EA06400 | (rm << 16) | (rn << 5) | rd;
+    }
+
+    std::stringstream ss;
+    ss << "SMAX " << vd << "." << arrangement << ", " << vn << "." << arrangement << ", " << vm << "." << arrangement;
+    
+    Instruction instr(encoding, ss.str());
+    instr.opcode = InstructionDecoder::OpType::SMAX_VECTOR;
+    instr.dest_reg = rd;
+    instr.src_reg1 = rn;
+    instr.src_reg2 = rm;
+    instr.is_mem_op = false;
+    instr.uses_immediate = false;
+    
+    return instr;
+}
+// -- end of file
+
 // -- start of file: encoders/enc_create_smin_vector_reg.cpp
 #include "../Encoder.h"
 #include <sstream>
@@ -41451,6 +41617,68 @@ Instruction Encoder::create_smin_vector_reg(const std::string& vd, const std::st
     
     Instruction instr(encoding, ss.str());
     instr.opcode = InstructionDecoder::OpType::SMIN_VECTOR;
+    instr.dest_reg = rd;
+    instr.src_reg1 = rn;
+    instr.src_reg2 = rm;
+    instr.is_mem_op = false;
+    instr.uses_immediate = false;
+    
+    return instr;
+}
+// -- end of file
+
+// -- start of file: encoders/enc_create_sminp_vector_reg.cpp
+#include "../Encoder.h"
+#include <sstream>
+
+Instruction Encoder::create_sminp_vector_reg(const std::string& vd, const std::string& vn, const std::string& vm, const std::string& arrangement) {
+    uint32_t rd = get_reg_encoding(vd);
+    uint32_t rn = get_reg_encoding(vn);
+    uint32_t rm = get_reg_encoding(vm);
+
+    // SMINP (Signed Minimum Pairwise) vector instruction
+    // SMINP Vd.<T>, Vn.<T>, Vm.<T>
+    // Pairwise signed minimum of elements
+    
+    if (arrangement != "8B" && arrangement != "16B" && arrangement != "4H" && 
+        arrangement != "8H" && arrangement != "2S" && arrangement != "4S") {
+        throw std::runtime_error("Invalid arrangement for SMINP vector: " + arrangement + 
+                                 " (expected 8B, 16B, 4H, 8H, 2S, or 4S)");
+    }
+    
+    uint32_t encoding;
+    
+    if (arrangement == "8B") {
+        // SMINP Vd.8B, Vn.8B, Vm.8B (64-bit vector, 8-bit elements)
+        // 0Q001110xx1mmmmm101011nnnnnddddd where Q=0, size=00
+        encoding = 0x0E20AC00 | (rm << 16) | (rn << 5) | rd;
+    } else if (arrangement == "16B") {
+        // SMINP Vd.16B, Vn.16B, Vm.16B (128-bit vector, 8-bit elements)
+        // 0Q001110xx1mmmmm101011nnnnnddddd where Q=1, size=00
+        encoding = 0x4E20AC00 | (rm << 16) | (rn << 5) | rd;
+    } else if (arrangement == "4H") {
+        // SMINP Vd.4H, Vn.4H, Vm.4H (64-bit vector, 16-bit elements)
+        // 0Q001110xx1mmmmm101011nnnnnddddd where Q=0, size=01
+        encoding = 0x0E60AC00 | (rm << 16) | (rn << 5) | rd;
+    } else if (arrangement == "8H") {
+        // SMINP Vd.8H, Vn.8H, Vm.8H (128-bit vector, 16-bit elements)
+        // 0Q001110xx1mmmmm101011nnnnnddddd where Q=1, size=01
+        encoding = 0x4E60AC00 | (rm << 16) | (rn << 5) | rd;
+    } else if (arrangement == "2S") {
+        // SMINP Vd.2S, Vn.2S, Vm.2S (64-bit vector, 32-bit elements)
+        // 0Q001110xx1mmmmm101011nnnnnddddd where Q=0, size=10
+        encoding = 0x0EA0AC00 | (rm << 16) | (rn << 5) | rd;
+    } else if (arrangement == "4S") {
+        // SMINP Vd.4S, Vn.4S, Vm.4S (128-bit vector, 32-bit elements)
+        // 0Q001110xx1mmmmm101011nnnnnddddd where Q=1, size=10
+        encoding = 0x4EA0AC00 | (rm << 16) | (rn << 5) | rd;
+    }
+
+    std::stringstream ss;
+    ss << "SMINP " << vd << "." << arrangement << ", " << vn << "." << arrangement << ", " << vm << "." << arrangement;
+    
+    Instruction instr(encoding, ss.str());
+    instr.opcode = InstructionDecoder::OpType::SMINP_VECTOR;
     instr.dest_reg = rd;
     instr.src_reg1 = rn;
     instr.src_reg2 = rm;
@@ -41972,10 +42200,36 @@ Instruction Encoder::create_sub_vector_reg(const std::string& vd, const std::str
     uint32_t rn = get_reg_encoding(vn);
     uint32_t rm = get_reg_encoding(vm);
 
-    // Encoding for SUB Vd.2S, Vn.2S, Vm.2S (vector integer subtract)
-    // Q(0) | 1 | 0 | 01110 | 1 | M(0) | 1 | Rm | 1000 | Rn | Rd
-    // For .2S (2x32-bit): Q=0, size=10
-    uint32_t encoding = 0x6E208000 | (rm << 16) | (rn << 5) | rd;
+    uint32_t encoding;
+
+    // SUB vector encodings based on arrangement (corrected to match Clang)
+    if (arrangement == "2S") {
+        // 64-bit version: 2ea08400 base
+        encoding = 0x2ea08400;
+    } else if (arrangement == "4S") {
+        // 128-bit version: 6ea08400 base  
+        encoding = 0x6ea08400;
+    } else if (arrangement == "8B") {
+        // 64-bit 8-byte: 2e208400 base  
+        encoding = 0x2e208400;
+    } else if (arrangement == "16B") {
+        // 128-bit 16-byte: 6e208400 base
+        encoding = 0x6e208400;
+    } else if (arrangement == "4H") {
+        // 64-bit 4-halfword: 2e608400 base
+        encoding = 0x2e608400;
+    } else if (arrangement == "8H") {
+        // 128-bit 8-halfword: 6e608400 base
+        encoding = 0x6e608400;
+    } else if (arrangement == "2D") {
+        // 128-bit 2-doubleword: 6ee08400 base
+        encoding = 0x6ee08400;
+    } else {
+        throw std::runtime_error("Unsupported arrangement for SUB vector: " + arrangement);
+    }
+
+    // Add register fields: Rm[20:16], Rn[9:5], Rd[4:0]
+    encoding |= (rm << 16) | (rn << 5) | rd;
 
     std::stringstream ss;
     ss << "SUB " << vd << "." << arrangement << ", " << vn << "." << arrangement << ", " << vm << "." << arrangement;
@@ -52921,6 +53175,9 @@ void LivenessAnalysisPass::run_data_flow_analysis() {
 // --- Formatter ---
 #include "format/CodeFormatter.h"
 
+// --- Encoder Testing ---
+#include "testing/encoder_validation/EncoderTester.h"
+
 // Utility
 //
 void dump_class_table(const ClassTable& table) {
@@ -53000,7 +53257,8 @@ bool parse_arguments(int argc, char* argv[], bool& run_jit, bool& generate_asm, 
                     bool& dump_jit_stack, bool& enable_peephole, bool& enable_stack_canaries,
                     bool& format_code, bool& trace_class_table, bool& trace_vtables,
                     bool& bounds_checking_enabled, bool& enable_samm, bool& enable_superdisc,
-                    bool& use_neon, bool& generate_list,
+                    bool& use_neon, bool& generate_list, bool& test_encoders,
+                    bool& test_encode, std::string& test_encode_name, bool& list_encoders,
                     std::string& input_filepath, std::string& call_entry_name, int& offset_instructions,
                     std::vector<std::string>& include_paths, std::string& runtime_mode);
 void handle_static_compilation(bool exec_mode, const std::string& base_name, const InstructionStream& instruction_stream, const DataGenerator& data_generator, bool enable_debug_output, const std::string& runtime_mode, const VeneerManager& veneer_manager, bool generate_list);
@@ -53052,6 +53310,10 @@ int main(int argc, char* argv[]) {
     bool bounds_checking_enabled = true; // Runtime bounds checking enabled by default
     bool use_neon = true; // NEON SIMD instructions enabled by default
     bool generate_list = false; // Generate listing file with hex opcodes
+    bool test_encoders = false; // Encoder validation testing mode
+    bool test_encode = false; // Individual encoder testing mode
+    std::string test_encode_name; // Name of specific encoder to test
+    bool list_encoders = false; // List available encoders mode
 
     if (enable_tracing) {
         std::cout << "Debug: About to parse arguments\n";
@@ -53066,7 +53328,8 @@ int main(int argc, char* argv[]) {
                             trace_class_table,
                             trace_vtables,
                             bounds_checking_enabled, enable_samm,
-                            enable_superdisc, use_neon, generate_list,
+                            enable_superdisc, use_neon, generate_list, test_encoders,
+                            test_encode, test_encode_name, list_encoders,
                             input_filepath, call_entry_name, g_jit_breakpoint_offset, include_paths, runtime_mode)) {
             if (enable_tracing) {
                 std::cout << "Debug: parse_arguments returned false\n";
@@ -53082,6 +53345,147 @@ int main(int argc, char* argv[]) {
     }
     if (enable_tracing) {
         std::cout << "Debug: Arguments parsed successfully\n";
+    }
+
+    // Check if we should run encoder validation tests
+    if (test_encoders) {
+        EncoderTester tester;
+        bool success = tester.run_all_tests();
+        return success ? 0 : 1;
+    }
+    
+    // Check if we should test a specific encoder
+    if (test_encode) {
+        EncoderTester tester;
+        bool success;
+        
+        // Check if it's a pattern (contains *)
+        if (test_encode_name.find('*') != std::string::npos) {
+            success = tester.run_pattern_tests(test_encode_name);
+        } else {
+            success = tester.run_single_test(test_encode_name);
+        }
+        return success ? 0 : 1;
+    }
+    
+    // Check if we should list available encoders
+    if (list_encoders) {
+        EncoderTester tester;
+        std::vector<std::string> encoders = tester.list_available_encoders();
+        
+        std::cout << "\n=== Available NEON Encoders ===" << std::endl;
+        std::cout << "Total: " << encoders.size() << " encoders\n" << std::endl;
+        
+        // Group by operation type for better display
+        std::cout << "Floating Point Minimum Pairwise (FMINP):" << std::endl;
+        for (const std::string& name : encoders) {
+            if (name.find("fminp_") == 0) {
+                std::cout << "  " << name << std::endl;
+            }
+        }
+        
+        std::cout << "\nFloating Point Maximum Pairwise (FMAXP):" << std::endl;
+        for (const std::string& name : encoders) {
+            if (name.find("fmaxp_") == 0) {
+                std::cout << "  " << name << std::endl;
+            }
+        }
+        
+        std::cout << "\nFloating Point Addition Pairwise (FADDP):" << std::endl;
+        for (const std::string& name : encoders) {
+            if (name.find("faddp_") == 0) {
+                std::cout << "  " << name << std::endl;
+            }
+        }
+        
+        std::cout << "\nInteger Addition Pairwise (ADDP):" << std::endl;
+        for (const std::string& name : encoders) {
+            if (name.find("addp_") == 0) {
+                std::cout << "  " << name << std::endl;
+            }
+        }
+        
+        std::cout << "\nSigned Integer Minimum Pairwise (SMINP):" << std::endl;
+        for (const std::string& name : encoders) {
+            if (name.find("sminp_") == 0) {
+                std::cout << "  " << name << std::endl;
+            }
+        }
+        
+        std::cout << "\nScalar Operations:" << std::endl;
+        for (const std::string& name : encoders) {
+            if (name.find("scalar_") == 0) {
+                std::cout << "  " << name << std::endl;
+            }
+        }
+        
+        std::cout << "\nFloating Point Operations:" << std::endl;
+        for (const std::string& name : encoders) {
+            if (name.find("fp_") == 0) {
+                std::cout << "  " << name << std::endl;
+            }
+        }
+        
+        std::cout << "\nVector Floating Point Operations:" << std::endl;
+        for (const std::string& name : encoders) {
+            if (name.find("vec_") == 0) {
+                std::cout << "  " << name << std::endl;
+            }
+        }
+        
+        std::cout << "\nMemory Operations:" << std::endl;
+        for (const std::string& name : encoders) {
+            if (name.find("mem_") == 0) {
+                std::cout << "  " << name << std::endl;
+            }
+        }
+        
+        std::cout << "\nBranch Operations:" << std::endl;
+        for (const std::string& name : encoders) {
+            if (name.find("branch_") == 0) {
+                std::cout << "  " << name << std::endl;
+            }
+        }
+        
+        std::cout << "\nUsage Examples:" << std::endl;
+        std::cout << "\nSigned Integer Maximum (SMAX):" << std::endl;
+        for (const std::string& name : encoders) {
+            if (name.find("smax_") == 0) {
+                std::cout << "  " << name << std::endl;
+            }
+        }
+        
+        std::cout << "\nInteger Addition (ADD):" << std::endl;
+        for (const std::string& name : encoders) {
+            if (name.find("add_") == 0) {
+                std::cout << "  " << name << std::endl;
+            }
+        }
+        
+        std::cout << "\nInteger Subtraction (SUB):" << std::endl;
+        for (const std::string& name : encoders) {
+            if (name.find("sub_") == 0) {
+                std::cout << "  " << name << std::endl;
+            }
+        }
+        
+        std::cout << "\nFloating Point Minimum (FMIN):" << std::endl;
+        for (const std::string& name : encoders) {
+            if (name.find("fmin_") == 0) {
+                std::cout << "  " << name << std::endl;
+            }
+        }
+        
+        std::cout << "\nUsage Examples:" << std::endl;
+        std::cout << "  ./NewBCPL --test-encode fminp_4s        # Test single encoder" << std::endl;
+        std::cout << "  ./NewBCPL --test-encode \"fminp_*\"       # Test FMINP family" << std::endl;
+        std::cout << "  ./NewBCPL --test-encode \"*_4s\"         # Test all 4S layouts" << std::endl;
+        std::cout << "  ./NewBCPL --test-encode \"scalar_*\"     # Test all scalar operations" << std::endl;
+        std::cout << "  ./NewBCPL --test-encode \"vec_*\"        # Test all vector operations" << std::endl;
+        std::cout << "  ./NewBCPL --test-encode \"mem_*\"        # Test all memory operations" << std::endl;
+        std::cout << "  ./NewBCPL --test-encoders               # Test all encoders" << std::endl;
+        
+        return 0;
     }
 
     // Set individual trace flags based on global tracing or specific flags
@@ -53741,7 +54145,8 @@ bool parse_arguments(int argc, char* argv[], bool& run_jit, bool& generate_asm, 
                     bool& dump_jit_stack, bool& enable_peephole, bool& enable_stack_canaries,
                     bool& format_code, bool& trace_class_table, bool& trace_vtables,
                     bool& bounds_checking_enabled, bool& enable_samm,
-                    bool& enable_superdisc, bool& use_neon, bool& generate_list,
+                    bool& enable_superdisc, bool& use_neon, bool& generate_list, bool& test_encoders,
+                    bool& test_encode, std::string& test_encode_name, bool& list_encoders,
                     std::string& input_filepath, std::string& call_entry_name, int& offset_instructions,
                     std::vector<std::string>& include_paths, std::string& runtime_mode) {
     if (enable_tracing) {
@@ -53785,6 +54190,17 @@ bool parse_arguments(int argc, char* argv[], bool& run_jit, bool& generate_asm, 
         else if (arg == "--no-superdisc") enable_superdisc = false;
         else if (arg == "--no-neon") use_neon = false;
         else if (arg == "--list" || arg == "-l") generate_list = true;
+        else if (arg == "--test-encoders") test_encoders = true;
+        else if (arg == "--test-encode") {
+            if (i + 1 < argc) {
+                test_encode = true;
+                test_encode_name = argv[++i];
+            } else {
+                std::cerr << "Error: --test-encode requires an encoder name argument" << std::endl;
+                return false;
+            }
+        }
+        else if (arg == "--list-encoders") list_encoders = true;
         else if (arg.substr(0, 10) == "--runtime=") {
             runtime_mode = arg.substr(10);
             if (runtime_mode != "jit" && runtime_mode != "standalone" && runtime_mode != "unified") {
@@ -53836,6 +54252,11 @@ bool parse_arguments(int argc, char* argv[], bool& run_jit, bool& generate_asm, 
                       << "  --no-superdisc         : Disable CREATE Method Reordering Pass (rewrite CREATE)\n"
                       << "  --no-neon              : Disable NEON SIMD instructions for vector operations (use scalar fallback).\n"
                       << "  --list, -l             : Generate listing file (.lst) with hex opcodes alongside assembly.\n"
+                      << "\n"
+                      << "Encoder Testing:\n"
+                      << "  --test-encoders        : Run all encoder validation tests (53 total).\n"
+                      << "  --test-encode <name>   : Run validation for specific encoder or pattern.\n"
+                      << "  --list-encoders        : Show all available encoder names.\n"
                       << "  -I path, --include-path path : Add directory to include search path for GET directives.\n"
                       << "                          Multiple -I flags can be specified for additional paths.\n"
                       << "                          Search order: 1) Current file's directory 2) Specified include paths\n"
@@ -53869,7 +54290,7 @@ bool parse_arguments(int argc, char* argv[], bool& run_jit, bool& generate_asm, 
         }
     }
 
-    if (input_filepath.empty()) {
+    if (input_filepath.empty() && !test_encoders && !test_encode && !list_encoders) {
         if (enable_tracing) {
             std::cerr << "Debug: No input file specified.\n";
         }
@@ -58984,20 +59405,13 @@ Instruction ReductionCodeGen::vecgen_smin_4s(const std::string& vd,
 Instruction ReductionCodeGen::vecgen_smax_4s(const std::string& vd,
                                              const std::string& vn,
                                              const std::string& vm) {
-    // SMAX.4S instruction encoding
-    uint32_t base_opcode = 0x4EA06400;
+    // Use standardized SMAX encoder for consistency
+    // Convert Q register names to V register names
+    std::string v_vd = "v" + vd.substr(1);
+    std::string v_vn = "v" + vn.substr(1);
+    std::string v_vm = "v" + vm.substr(1);
 
-    int rd = std::stoi(vd.substr(1));
-    int rn = std::stoi(vn.substr(1));
-    int rm = std::stoi(vm.substr(1));
-
-    // Convert Q register names to V register names for assembly
-    std::string v_vd = "V" + vd.substr(1);
-    std::string v_vn = "V" + vn.substr(1);
-    std::string v_vm = "V" + vm.substr(1);
-
-    uint32_t instruction = base_opcode | (rm << 16) | (rn << 5) | rd;
-    return Instruction(instruction, "SMAX " + v_vd + ".4S, " + v_vn + ".4S, " + v_vm + ".4S");
+    return Encoder::create_smax_vector_reg(v_vd, v_vn, v_vm, "4S");
 }
 
 Instruction ReductionCodeGen::vecgen_fmin_4s(const std::string& vd,
@@ -59022,20 +59436,13 @@ Instruction ReductionCodeGen::vecgen_fmin_4s(const std::string& vd,
 Instruction ReductionCodeGen::vecgen_fmax_4s(const std::string& vd,
                                              const std::string& vn,
                                              const std::string& vm) {
-    // FMAX.4S instruction encoding
-    uint32_t base_opcode = 0x4EA0F400;
+    // Use standardized FMAX encoder for consistency
+    // Convert Q register names to V register names
+    std::string v_vd = "v" + vd.substr(1);
+    std::string v_vn = "v" + vn.substr(1);
+    std::string v_vm = "v" + vm.substr(1);
 
-    int rd = std::stoi(vd.substr(1));
-    int rn = std::stoi(vn.substr(1));
-    int rm = std::stoi(vm.substr(1));
-
-    // Convert Q register names to V register names for assembly
-    std::string v_vd = "V" + vd.substr(1);
-    std::string v_vn = "V" + vn.substr(1);
-    std::string v_vm = "V" + vm.substr(1);
-
-    uint32_t instruction = base_opcode | (rm << 16) | (rn << 5) | rd;
-    return Instruction(instruction, "FMAX " + v_vd + ".4S, " + v_vn + ".4S, " + v_vm + ".4S");
+    return Encoder::create_fmax_vector_reg(v_vd, v_vn, v_vm, "4S");
 }
 
 // === FPAIRS Operations ===
@@ -63888,6 +64295,31 @@ int main() {
 
 // -- end of file
 
+// -- start of file: test_branch_encoder.cpp
+#include "Encoder.h"
+#include <iostream>
+
+int main() {
+    std::cout << "Testing branch conditional encoder..." << std::endl;
+    
+    try {
+        // Test the encoder directly
+        Instruction instr = Encoder::create_branch_conditional("eq", "test_label");
+        
+        std::cout << "Assembly text: '" << instr.assembly_text << "'" << std::endl;
+        std::cout << "Encoding: 0x" << std::hex << instr.encoding << std::dec << std::endl;
+        std::cout << "Relocation type: " << static_cast<int>(instr.relocation) << std::endl;
+        std::cout << "Target label: '" << instr.target_label << "'" << std::endl;
+        
+    } catch (const std::exception& e) {
+        std::cout << "Error: " << e.what() << std::endl;
+        return 1;
+    }
+    
+    return 0;
+}
+// -- end of file
+
 // -- start of file: test_encoder_debug.cpp
 #include "Encoder.h"
 #include <iostream>
@@ -66830,6 +67262,74 @@ int main() {
 }
 // -- end of file
 
+// -- start of file: test_legacy_encoders.cpp
+#include <iostream>
+#include "testing/encoder_validation/EncoderTester.h"
+
+int main() {
+    std::cout << "=== Legacy Encoder Integration Test ===" << std::endl;
+    
+    EncoderTester tester;
+    
+    // Test basic functionality
+    std::cout << "Testing basic NOP encoder..." << std::endl;
+    bool nop_result = tester.runValidation("test_nop", create_test_nop_instruction());
+    
+    if (nop_result) {
+        std::cout << "✅ Basic validation framework works!" << std::endl;
+    } else {
+        std::cout << "❌ Basic validation framework failed!" << std::endl;
+        return 1;
+    }
+    
+    // Test individual legacy encoders
+    std::cout << "\nTesting legacy scalar encoders..." << std::endl;
+    
+    // Test scalar NOP
+    bool scalar_nop = tester.run_single_test("scalar_nop");
+    std::cout << "scalar_nop: " << (scalar_nop ? "PASS" : "FAIL") << std::endl;
+    
+    // Test scalar ADD
+    bool scalar_add = tester.run_single_test("scalar_add_reg");
+    std::cout << "scalar_add_reg: " << (scalar_add ? "PASS" : "FAIL") << std::endl;
+    
+    // Test floating point operations
+    std::cout << "\nTesting floating point encoders..." << std::endl;
+    bool fp_fadd = tester.run_single_test("fp_fadd_reg");
+    std::cout << "fp_fadd_reg: " << (fp_fadd ? "PASS" : "FAIL") << std::endl;
+    
+    // Test vector operations
+    std::cout << "\nTesting vector encoders..." << std::endl;
+    bool vec_fadd_4s = tester.run_single_test("vec_fadd_4s");
+    std::cout << "vec_fadd_4s: " << (vec_fadd_4s ? "PASS" : "FAIL") << std::endl;
+    
+    // Test pattern matching
+    std::cout << "\nTesting pattern matching..." << std::endl;
+    bool scalar_pattern = tester.run_pattern_tests("scalar_*");
+    std::cout << "scalar_* pattern: " << (scalar_pattern ? "PASS" : "FAIL") << std::endl;
+    
+    // Summary
+    int total_tests = 6;
+    int passed = 0;
+    if (scalar_nop) passed++;
+    if (scalar_add) passed++;
+    if (fp_fadd) passed++;
+    if (vec_fadd_4s) passed++;
+    if (scalar_pattern) passed++;
+    
+    std::cout << "\n=== Summary ===" << std::endl;
+    std::cout << "Tests passed: " << passed << "/" << total_tests << std::endl;
+    
+    if (passed == total_tests) {
+        std::cout << "✅ All legacy encoder tests PASSED!" << std::endl;
+        return 0;
+    } else {
+        std::cout << "❌ Some legacy encoder tests FAILED!" << std::endl;
+        return 1;
+    }
+}
+// -- end of file
+
 // -- start of file: test_remanage_simple.cpp
 #include "Lexer.h"
 #include "Parser.h"
@@ -67914,6 +68414,1364 @@ int main() {
     }
     
     return 0;
+}
+// -- end of file
+
+// -- start of file: testing/encoder_validation/EncoderTester.cpp
+// testing/encoder_validation/EncoderTester.cpp
+#include "EncoderTester.h"
+#include <iostream>
+#include <fstream>
+#include <sstream>
+#include <iomanip>
+#include <cstdlib>
+#include <filesystem>
+#include <unistd.h>
+#include <sys/wait.h>
+#include <algorithm>
+#include <functional>
+#include <map>
+
+bool EncoderTester::run_all_tests() {
+    std::cout << "\n=== NewBCPL Encoder Validation Framework ===" << std::endl;
+    std::cout << "Testing NEON encoder functions against Clang output...\n" << std::endl;
+    
+    ensureValidationDirectory();
+    initialize_test_map();
+    
+    tests_run = 0;
+    tests_passed = 0;
+    
+    // Test FMINP encoders
+    std::cout << "Testing FMINP encoders..." << std::endl;
+    test_gen_neon_fminp_4s();
+    test_gen_neon_fminp_2s();
+    test_gen_neon_fminp_4h();
+    
+    // Test FMAXP encoders
+    std::cout << "\nTesting FMAXP encoders..." << std::endl;
+    test_gen_neon_fmaxp_4s();
+    test_gen_neon_fmaxp_2s();
+    test_gen_neon_fmaxp_4h();
+    
+    // Test FADDP encoders
+    std::cout << "\nTesting FADDP encoders..." << std::endl;
+    test_gen_neon_faddp_4s();
+    test_gen_neon_faddp_2s();
+    test_gen_neon_faddp_4h();
+    
+    // Test ADDP encoders
+    std::cout << "\nTesting ADDP encoders..." << std::endl;
+    test_gen_neon_addp_4s();
+    test_gen_neon_addp_2s();
+    
+    // Test SMINP encoders
+    std::cout << "\nTesting SMINP encoders..." << std::endl;
+    test_gen_neon_sminp_4s();
+    test_gen_neon_sminp_8h();
+    test_gen_neon_sminp_16b();
+
+    // Test SMAX encoders
+    std::cout << "\nTesting SMAX encoders..." << std::endl;
+    test_gen_neon_smax_4s();
+    test_gen_neon_smax_8h();
+    test_gen_neon_smax_16b();
+
+    // Test ADD encoders
+    std::cout << "\nTesting ADD encoders..." << std::endl;
+    test_gen_neon_add_4s();
+    test_gen_neon_add_8h();
+    test_gen_neon_add_16b();
+
+    // Test SUB encoders
+    std::cout << "\nTesting SUB encoders..." << std::endl;
+    test_gen_neon_sub_4s();
+    test_gen_neon_sub_8h();
+    test_gen_neon_sub_16b();
+
+    // Test FMIN encoders
+    std::cout << "\nTesting FMIN encoders..." << std::endl;
+    test_gen_neon_fmin_4s();
+    test_gen_neon_fmin_2s();
+    test_gen_neon_fmin_2d();
+
+    // Test Legacy Scalar encoders
+    std::cout << "\nTesting Legacy Scalar encoders..." << std::endl;
+    test_gen_scalar_nop();
+    test_gen_scalar_add_reg();
+    test_gen_scalar_sub_reg();
+    test_gen_scalar_mul_reg();
+    test_gen_scalar_mov_reg();
+    test_gen_scalar_add_imm();
+    test_gen_scalar_sub_imm();
+    test_gen_scalar_cmp_reg();
+    test_gen_scalar_cmp_imm();
+
+    // Test Legacy Floating Point encoders
+    std::cout << "\nTesting Legacy Floating Point encoders..." << std::endl;
+    test_gen_fp_fadd_reg();
+    test_gen_fp_fsub_reg();
+    test_gen_fp_fmul_reg();
+    test_gen_fp_fdiv_reg();
+    test_gen_fp_fcmp_reg();
+    test_gen_fp_fsqrt_reg();
+    test_gen_fp_fneg_reg();
+
+    // Test Vector Floating Point encoders
+    std::cout << "\nTesting Vector Floating Point encoders..." << std::endl;
+    test_gen_vec_fadd_4s();
+    test_gen_vec_fadd_2s();
+    test_gen_vec_fadd_2d();
+    test_gen_vec_fsub_4s();
+    test_gen_vec_fsub_2s();
+    test_gen_vec_fmul_4s();
+    test_gen_vec_fmul_2s();
+
+    // Test Memory Operation encoders
+    std::cout << "\nTesting Memory Operation encoders..." << std::endl;
+    test_gen_mem_ldr_imm();
+    test_gen_mem_str_imm();
+    test_gen_mem_ldp_imm();
+    test_gen_mem_stp_imm();
+    
+    // Print final summary
+    std::cout << "\n=== Test Results Summary ===" << std::endl;
+    std::cout << "Tests run: " << tests_run << std::endl;
+    std::cout << "Tests passed: " << tests_passed << std::endl;
+    std::cout << "Tests failed: " << (tests_run - tests_passed) << std::endl;
+    
+    if (tests_passed == tests_run) {
+        std::cout << "✅ ALL TESTS PASSED" << std::endl;
+        return true;
+    } else {
+        std::cout << "❌ SOME TESTS FAILED" << std::endl;
+        return false;
+    }
+}
+
+bool EncoderTester::test_gen_neon_fminp_4s() {
+    PairwiseReductionLoopStatement mock_node = createMockReductionStatement();
+    Instruction instruction = gen_neon_fminp_4s(mock_node);
+    return runValidation("gen_neon_fminp_4s", instruction);
+}
+
+bool EncoderTester::test_gen_neon_fminp_2s() {
+    PairwiseReductionLoopStatement mock_node = createMockReductionStatement();
+    Instruction instruction = gen_neon_fminp_2s(mock_node);
+    return runValidation("gen_neon_fminp_2s", instruction);
+}
+
+bool EncoderTester::test_gen_neon_fminp_4h() {
+    PairwiseReductionLoopStatement mock_node = createMockReductionStatement();
+    Instruction instruction = gen_neon_fminp_4h(mock_node);
+    return runValidation("gen_neon_fminp_4h", instruction);
+}
+
+bool EncoderTester::test_gen_neon_fmaxp_4s() {
+    PairwiseReductionLoopStatement mock_node = createMockReductionStatement();
+    Instruction instruction = gen_neon_fmaxp_4s(mock_node);
+    return runValidation("gen_neon_fmaxp_4s", instruction);
+}
+
+bool EncoderTester::test_gen_neon_fmaxp_2s() {
+    PairwiseReductionLoopStatement mock_node = createMockReductionStatement();
+    Instruction instruction = gen_neon_fmaxp_2s(mock_node);
+    return runValidation("gen_neon_fmaxp_2s", instruction);
+}
+
+bool EncoderTester::test_gen_neon_fmaxp_4h() {
+    PairwiseReductionLoopStatement mock_node = createMockReductionStatement();
+    Instruction instruction = gen_neon_fmaxp_4h(mock_node);
+    return runValidation("gen_neon_fmaxp_4h", instruction);
+}
+
+bool EncoderTester::test_gen_neon_faddp_4s() {
+    PairwiseReductionLoopStatement mock_node = createMockReductionStatement();
+    Instruction instruction = gen_neon_faddp_4s(mock_node);
+    return runValidation("gen_neon_faddp_4s", instruction);
+}
+
+bool EncoderTester::test_gen_neon_faddp_2s() {
+    PairwiseReductionLoopStatement mock_node = createMockReductionStatement();
+    Instruction instruction = gen_neon_faddp_2s(mock_node);
+    return runValidation("gen_neon_faddp_2s", instruction);
+}
+
+bool EncoderTester::test_gen_neon_faddp_4h() {
+    PairwiseReductionLoopStatement mock_node = createMockReductionStatement();
+    Instruction instruction = gen_neon_faddp_4h(mock_node);
+    return runValidation("gen_neon_faddp_4h", instruction);
+}
+
+bool EncoderTester::test_gen_neon_addp_4s() {
+    PairwiseReductionLoopStatement mock_node = createMockReductionStatement();
+    Instruction instruction = gen_neon_addp_4s(mock_node);
+    return runValidation("gen_neon_addp_4s", instruction);
+}
+
+bool EncoderTester::test_gen_neon_addp_2s() {
+    PairwiseReductionLoopStatement mock_node = createMockReductionStatement();
+    Instruction instruction = gen_neon_addp_2s(mock_node);
+    return runValidation("gen_neon_addp_2s", instruction);
+}
+
+bool EncoderTester::test_gen_neon_sminp_4s() {
+    PairwiseReductionLoopStatement mock_node = createMockReductionStatement();
+    Instruction instruction = gen_neon_sminp_4s(mock_node);
+    return runValidation("gen_neon_sminp_4s", instruction);
+}
+
+bool EncoderTester::test_gen_neon_sminp_8h() {
+    PairwiseReductionLoopStatement mock_node = createMockReductionStatement();
+    Instruction instruction = gen_neon_sminp_8h(mock_node);
+    return runValidation("gen_neon_sminp_8h", instruction);
+}
+
+bool EncoderTester::test_gen_neon_sminp_16b() {
+    PairwiseReductionLoopStatement mock_node = createMockReductionStatement();
+    Instruction instruction = gen_neon_sminp_16b(mock_node);
+    return runValidation("gen_neon_sminp_16b", instruction);
+}
+
+// ===== LEGACY SCALAR ENCODER TESTS =====
+
+bool EncoderTester::test_gen_scalar_nop() {
+    PairwiseReductionLoopStatement mock_node = createMockReductionStatement();
+    Instruction instruction = gen_scalar_nop(mock_node);
+    return runValidation("gen_scalar_nop", instruction);
+}
+
+bool EncoderTester::test_gen_scalar_add_reg() {
+    PairwiseReductionLoopStatement mock_node = createMockReductionStatement();
+    Instruction instruction = gen_scalar_add_reg(mock_node);
+    return runValidation("gen_scalar_add_reg", instruction);
+}
+
+bool EncoderTester::test_gen_scalar_sub_reg() {
+    PairwiseReductionLoopStatement mock_node = createMockReductionStatement();
+    Instruction instruction = gen_scalar_sub_reg(mock_node);
+    return runValidation("gen_scalar_sub_reg", instruction);
+}
+
+bool EncoderTester::test_gen_scalar_mul_reg() {
+    PairwiseReductionLoopStatement mock_node = createMockReductionStatement();
+    Instruction instruction = gen_scalar_mul_reg(mock_node);
+    return runValidation("gen_scalar_mul_reg", instruction);
+}
+
+bool EncoderTester::test_gen_scalar_mov_reg() {
+    PairwiseReductionLoopStatement mock_node = createMockReductionStatement();
+    Instruction instruction = gen_scalar_mov_reg(mock_node);
+    return runValidation("gen_scalar_mov_reg", instruction);
+}
+
+// ===== LEGACY FLOATING POINT ENCODER TESTS =====
+
+bool EncoderTester::test_gen_fp_fadd_reg() {
+    PairwiseReductionLoopStatement mock_node = createMockReductionStatement();
+    Instruction instruction = gen_fp_fadd_reg(mock_node);
+    return runValidation("gen_fp_fadd_reg", instruction);
+}
+
+bool EncoderTester::test_gen_fp_fsub_reg() {
+    PairwiseReductionLoopStatement mock_node = createMockReductionStatement();
+    Instruction instruction = gen_fp_fsub_reg(mock_node);
+    return runValidation("gen_fp_fsub_reg", instruction);
+}
+
+bool EncoderTester::test_gen_fp_fmul_reg() {
+    PairwiseReductionLoopStatement mock_node = createMockReductionStatement();
+    Instruction instruction = gen_fp_fmul_reg(mock_node);
+    return runValidation("gen_fp_fmul_reg", instruction);
+}
+
+bool EncoderTester::test_gen_fp_fdiv_reg() {
+    PairwiseReductionLoopStatement mock_node = createMockReductionStatement();
+    Instruction instruction = gen_fp_fdiv_reg(mock_node);
+    return runValidation("gen_fp_fdiv_reg", instruction);
+}
+
+// ===== LEGACY VECTOR FLOATING POINT ENCODER TESTS =====
+
+bool EncoderTester::test_gen_vec_fadd_4s() {
+    PairwiseReductionLoopStatement mock_node = createMockReductionStatement();
+    Instruction instruction = gen_vec_fadd_4s(mock_node);
+    return runValidation("gen_vec_fadd_4s", instruction);
+}
+
+bool EncoderTester::test_gen_vec_fadd_2s() {
+    PairwiseReductionLoopStatement mock_node = createMockReductionStatement();
+    Instruction instruction = gen_vec_fadd_2s(mock_node);
+    return runValidation("gen_vec_fadd_2s", instruction);
+}
+
+bool EncoderTester::test_gen_vec_fadd_2d() {
+    PairwiseReductionLoopStatement mock_node = createMockReductionStatement();
+    Instruction instruction = gen_vec_fadd_2d(mock_node);
+    return runValidation("gen_vec_fadd_2d", instruction);
+}
+
+bool EncoderTester::test_gen_vec_fsub_4s() {
+    PairwiseReductionLoopStatement mock_node = createMockReductionStatement();
+    Instruction instruction = gen_vec_fsub_4s(mock_node);
+    return runValidation("gen_vec_fsub_4s", instruction);
+}
+
+bool EncoderTester::test_gen_vec_fsub_2s() {
+    PairwiseReductionLoopStatement mock_node = createMockReductionStatement();
+    Instruction instruction = gen_vec_fsub_2s(mock_node);
+    return runValidation("gen_vec_fsub_2s", instruction);
+}
+
+bool EncoderTester::test_gen_vec_fmul_4s() {
+    PairwiseReductionLoopStatement mock_node = createMockReductionStatement();
+    Instruction instruction = gen_vec_fmul_4s(mock_node);
+    return runValidation("gen_vec_fmul_4s", instruction);
+}
+
+bool EncoderTester::test_gen_vec_fmul_2s() {
+    PairwiseReductionLoopStatement mock_node = createMockReductionStatement();
+    Instruction instruction = gen_vec_fmul_2s(mock_node);
+    return runValidation("gen_vec_fmul_2s", instruction);
+}
+
+// ===== LEGACY LOAD/STORE ENCODER TESTS =====
+
+bool EncoderTester::test_gen_mem_ldr_imm() {
+    PairwiseReductionLoopStatement mock_node = createMockReductionStatement();
+    Instruction instruction = gen_mem_ldr_imm(mock_node);
+    return runValidation("gen_mem_ldr_imm", instruction);
+}
+
+bool EncoderTester::test_gen_mem_str_imm() {
+    PairwiseReductionLoopStatement mock_node = createMockReductionStatement();
+    Instruction instruction = gen_mem_str_imm(mock_node);
+    return runValidation("gen_mem_str_imm", instruction);
+}
+
+bool EncoderTester::test_gen_mem_ldp_imm() {
+    PairwiseReductionLoopStatement mock_node = createMockReductionStatement();
+    Instruction instruction = gen_mem_ldp_imm(mock_node);
+    return runValidation("gen_mem_ldp_imm", instruction);
+}
+
+bool EncoderTester::test_gen_mem_stp_imm() {
+    PairwiseReductionLoopStatement mock_node = createMockReductionStatement();
+    Instruction instruction = gen_mem_stp_imm(mock_node);
+    return runValidation("gen_mem_stp_imm", instruction);
+}
+
+// ===== LEGACY BRANCH ENCODER TESTS =====
+
+bool EncoderTester::test_gen_scalar_add_imm() {
+    PairwiseReductionLoopStatement mock_node = createMockReductionStatement();
+    Instruction instruction = gen_scalar_add_imm(mock_node);
+    return runValidation("gen_scalar_add_imm", instruction);
+}
+
+bool EncoderTester::test_gen_scalar_sub_imm() {
+    PairwiseReductionLoopStatement mock_node = createMockReductionStatement();
+    Instruction instruction = gen_scalar_sub_imm(mock_node);
+    return runValidation("gen_scalar_sub_imm", instruction);
+}
+
+bool EncoderTester::test_gen_scalar_cmp_reg() {
+    PairwiseReductionLoopStatement mock_node = createMockReductionStatement();
+    Instruction instruction = gen_scalar_cmp_reg(mock_node);
+    return runValidation("gen_scalar_cmp_reg", instruction);
+}
+
+bool EncoderTester::test_gen_scalar_cmp_imm() {
+    PairwiseReductionLoopStatement mock_node = createMockReductionStatement();
+    Instruction instruction = gen_scalar_cmp_imm(mock_node);
+    return runValidation("gen_scalar_cmp_imm", instruction);
+}
+
+bool EncoderTester::test_gen_fp_fcmp_reg() {
+    PairwiseReductionLoopStatement mock_node = createMockReductionStatement();
+    Instruction instruction = gen_fp_fcmp_reg(mock_node);
+    return runValidation("gen_fp_fcmp_reg", instruction);
+}
+
+bool EncoderTester::test_gen_fp_fsqrt_reg() {
+    PairwiseReductionLoopStatement mock_node = createMockReductionStatement();
+    Instruction instruction = gen_fp_fsqrt_reg(mock_node);
+    return runValidation("gen_fp_fsqrt_reg", instruction);
+}
+
+bool EncoderTester::test_gen_fp_fneg_reg() {
+    PairwiseReductionLoopStatement mock_node = createMockReductionStatement();
+    Instruction instruction = gen_fp_fneg_reg(mock_node);
+    return runValidation("gen_fp_fneg_reg", instruction);
+}
+
+bool EncoderTester::test_gen_neon_smax_4s() {
+    PairwiseReductionLoopStatement mock_node = createMockReductionStatement();
+    Instruction instruction = gen_neon_smax_4s(mock_node);
+    return runValidation("gen_neon_smax_4s", instruction);
+}
+
+bool EncoderTester::test_gen_neon_smax_8h() {
+    PairwiseReductionLoopStatement mock_node = createMockReductionStatement();
+    Instruction instruction = gen_neon_smax_8h(mock_node);
+    return runValidation("gen_neon_smax_8h", instruction);
+}
+
+bool EncoderTester::test_gen_neon_smax_16b() {
+    PairwiseReductionLoopStatement mock_node = createMockReductionStatement();
+    Instruction instruction = gen_neon_smax_16b(mock_node);
+    return runValidation("gen_neon_smax_16b", instruction);
+}
+
+bool EncoderTester::test_gen_neon_add_4s() {
+    PairwiseReductionLoopStatement mock_node = createMockReductionStatement();
+    Instruction instruction = gen_neon_add_4s(mock_node);
+    return runValidation("gen_neon_add_4s", instruction);
+}
+
+bool EncoderTester::test_gen_neon_add_8h() {
+    PairwiseReductionLoopStatement mock_node = createMockReductionStatement();
+    Instruction instruction = gen_neon_add_8h(mock_node);
+    return runValidation("gen_neon_add_8h", instruction);
+}
+
+bool EncoderTester::test_gen_neon_add_16b() {
+    PairwiseReductionLoopStatement mock_node = createMockReductionStatement();
+    Instruction instruction = gen_neon_add_16b(mock_node);
+    return runValidation("gen_neon_add_16b", instruction);
+}
+
+bool EncoderTester::test_gen_neon_sub_4s() {
+    PairwiseReductionLoopStatement mock_node = createMockReductionStatement();
+    Instruction instruction = gen_neon_sub_4s(mock_node);
+    return runValidation("gen_neon_sub_4s", instruction);
+}
+
+bool EncoderTester::test_gen_neon_sub_8h() {
+    PairwiseReductionLoopStatement mock_node = createMockReductionStatement();
+    Instruction instruction = gen_neon_sub_8h(mock_node);
+    return runValidation("gen_neon_sub_8h", instruction);
+}
+
+bool EncoderTester::test_gen_neon_sub_16b() {
+    PairwiseReductionLoopStatement mock_node = createMockReductionStatement();
+    Instruction instruction = gen_neon_sub_16b(mock_node);
+    return runValidation("gen_neon_sub_16b", instruction);
+}
+
+bool EncoderTester::test_gen_neon_fmin_4s() {
+    PairwiseReductionLoopStatement mock_node = createMockReductionStatement();
+    Instruction instruction = gen_neon_fmin_4s(mock_node);
+    return runValidation("gen_neon_fmin_4s", instruction);
+}
+
+bool EncoderTester::test_gen_neon_fmin_2s() {
+    PairwiseReductionLoopStatement mock_node = createMockReductionStatement();
+    Instruction instruction = gen_neon_fmin_2s(mock_node);
+    return runValidation("gen_neon_fmin_2s", instruction);
+}
+
+bool EncoderTester::test_gen_neon_fmin_2d() {
+    PairwiseReductionLoopStatement mock_node = createMockReductionStatement();
+    Instruction instruction = gen_neon_fmin_2d(mock_node);
+    return runValidation("gen_neon_fmin_2d", instruction);
+}
+
+bool EncoderTester::runValidation(const std::string& test_name, const Instruction& instruction) {
+    tests_run++;
+    
+    // Step 1: Check if we have valid assembly
+    if (instruction.assembly_text.empty()) {
+        reportResult(test_name, false, "", "No assembly generated");
+        return false;
+    }
+    
+    // Step 2: Write assembly to file and try to compile with clang
+    std::string asm_file = validation_dir + "/" + test_name + ".s";
+    std::string obj_file = validation_dir + "/" + test_name + ".o";
+    
+    if (!validateAssembly(instruction.assembly_text, obj_file)) {
+        reportResult(test_name, false, "", "Assembly failed to compile with clang");
+        return false;
+    }
+    
+    // Step 3: Extract binary encoding from clang-compiled object
+    std::string clang_hex = extractClangBinaryEncoding(obj_file);
+    if (clang_hex.empty()) {
+        reportResult(test_name, false, "", "Failed to extract clang binary encoding");
+        return false;
+    }
+    
+    // Step 4: Compare encodings
+    std::string our_hex = encodingToHexString(instruction.encoding);
+    
+    bool passed = false;
+    
+    // Special handling for relocatable instructions (branches, calls, etc.)
+    if (instruction.relocation != RelocationType::NONE) {
+        // For relocatable instructions, we need to mask out the immediate field
+        // since our encoder generates position-independent code (immediate=0)
+        // while Clang generates position-dependent code with calculated offsets
+        
+        uint32_t clang_encoding = 0;
+        uint32_t our_encoding = instruction.encoding;
+        
+        // Parse clang hex to uint32_t
+        if (clang_hex.length() == 8) {
+            clang_encoding = static_cast<uint32_t>(std::stoul(clang_hex, nullptr, 16));
+        }
+        
+        if (instruction.relocation == RelocationType::PC_RELATIVE_19_BIT_OFFSET) {
+            // For conditional branches: mask out bits 23-5 (19-bit immediate)
+            uint32_t mask = ~(0x7FFFF << 5); // Clear bits 23-5
+            uint32_t clang_masked = clang_encoding & mask;
+            uint32_t our_masked = our_encoding & mask;
+            passed = (clang_masked == our_masked);
+            
+            if (passed) {
+                reportResult(test_name, true, clang_hex, our_hex + " (relocatable - immediate fields masked)");
+            } else {
+                reportResult(test_name, false, clang_hex, our_hex + " (relocatable - masked comparison failed)");
+            }
+        } else {
+            // For other relocation types, fall back to exact comparison for now
+            passed = (clang_hex == our_hex);
+            reportResult(test_name, passed, clang_hex, our_hex + " (relocatable - exact comparison)");
+        }
+    } else {
+        // Standard exact comparison for non-relocatable instructions
+        passed = (clang_hex == our_hex);
+        reportResult(test_name, passed, clang_hex, our_hex);
+    }
+    
+    if (passed) {
+        tests_passed++;
+    }
+    
+    return passed;
+}
+
+void EncoderTester::ensureValidationDirectory() {
+    if (!std::filesystem::exists(validation_dir)) {
+        std::filesystem::create_directories(validation_dir);
+    }
+}
+
+bool EncoderTester::validateAssembly(const std::string& assembly_text, const std::string& output_file) {
+    // Write assembly to temporary file
+    std::string asm_file = output_file.substr(0, output_file.find_last_of('.')) + ".s";
+    
+    std::ofstream asm_out(asm_file);
+    if (!asm_out) {
+        return false;
+    }
+    
+    // Write a minimal assembly file with our instruction
+    asm_out << ".text\n";
+    asm_out << ".global _start\n";
+    asm_out << "_start:\n";
+    asm_out << "    " << assembly_text << "\n";
+    asm_out << "    nop\n";  // Add a NOP to ensure we have something after our instruction
+    asm_out << "\n";
+    // Add common labels that branch instructions might reference
+    asm_out << "test_label:\n";
+    asm_out << "    nop\n";
+    asm_out << "\n";
+    asm_out << "test_function:\n";
+    asm_out << "    nop\n";
+    asm_out << "    ret\n";
+    asm_out.close();
+    
+    // Try to assemble with clang
+    std::string clang_cmd = "clang -c -target arm64-apple-macos11 " + asm_file + " -o " + output_file + " 2>/dev/null";
+    
+    int result = std::system(clang_cmd.c_str());
+    
+    if (result != 0) {
+        // Keep assembly file for debugging when assembly fails
+        return false;
+    }
+    
+    // Keep assembly file for debugging - don't clean up
+    // std::filesystem::remove(asm_file);
+    
+    return (result == 0);
+}
+
+std::string EncoderTester::extractClangBinaryEncoding(const std::string& object_file) {
+    // Use objdump to extract the binary encoding
+    std::string objdump_cmd = "objdump -d " + object_file + " 2>/dev/null";
+    
+    FILE* pipe = popen(objdump_cmd.c_str(), "r");
+    if (!pipe) {
+        return "";
+    }
+    
+    std::string result;
+    char buffer[256];
+    while (fgets(buffer, sizeof(buffer), pipe)) {
+        result += buffer;
+    }
+    pclose(pipe);
+    
+    // Parse objdump output to find our instruction
+    std::istringstream iss(result);
+    std::string line;
+    while (std::getline(iss, line)) {
+        // Look for lines with hex bytes (format: "address: bytes instruction")
+        if (line.find(':') != std::string::npos && line.find_first_of("0123456789abcdef") != std::string::npos) {
+            // Extract the hex bytes between the colon and the instruction mnemonic
+            size_t colon_pos = line.find(':');
+            size_t tab_pos = line.find('\t', colon_pos);
+            if (colon_pos != std::string::npos && tab_pos != std::string::npos) {
+                std::string hex_part = line.substr(colon_pos + 1, tab_pos - colon_pos - 1);
+                
+                // Remove spaces and extract the first 4 bytes (8 hex chars) for our instruction
+                std::string clean_hex;
+                for (char c : hex_part) {
+                    if (std::isxdigit(c)) {
+                        clean_hex += c;
+                    }
+                }
+                
+                // Return first 8 hex characters (32-bit instruction)
+                if (clean_hex.length() >= 8) {
+                    return clean_hex.substr(0, 8);
+                }
+            }
+        }
+    }
+    
+    return "";
+}
+
+PairwiseReductionLoopStatement EncoderTester::createMockReductionStatement() {
+    // Create a minimal mock AST node for testing purposes
+    PairwiseReductionLoopStatement node("test_vec_a", "test_vec_b", "test_result", "test_intrinsic", 0);
+    
+    return node;
+}
+
+std::string EncoderTester::encodingToHexString(uint32_t encoding) {
+    std::ostringstream oss;
+    oss << std::hex << std::setfill('0') << std::setw(8) << encoding;
+    return oss.str();
+}
+
+void EncoderTester::reportResult(const std::string& test_name, bool passed, 
+                                const std::string& expected_hex, 
+                                const std::string& actual_hex) {
+    if (passed) {
+        std::cout << "  ✅ " << test_name << " [PASS]" << std::endl;
+    } else {
+        std::cout << "  ❌ " << test_name << " [FAIL]" << std::endl;
+        if (!expected_hex.empty() && !actual_hex.empty()) {
+            std::cout << "     Expected (Clang): " << expected_hex << std::endl;
+            std::cout << "     Actual (Ours):    " << actual_hex << std::endl;
+        } else if (!actual_hex.empty()) {
+            std::cout << "     Error: " << actual_hex << std::endl;
+        }
+    }
+}
+
+bool EncoderTester::run_single_test(const std::string& encoder_name) {
+    std::cout << "\n=== Testing Individual Encoder: " << encoder_name << " ===" << std::endl;
+    
+    ensureValidationDirectory();
+    initialize_test_map();
+    
+    tests_run = 0;
+    tests_passed = 0;
+    
+    // Check if encoder exists
+    auto it = encoder_test_map.find(encoder_name);
+    if (it == encoder_test_map.end()) {
+        std::cout << "❌ ERROR: Unknown encoder '" << encoder_name << "'" << std::endl;
+        suggest_similar_encoders(encoder_name);
+        return false;
+    }
+    
+    // Run the specific test
+    bool result = it->second();
+    
+    // Print summary
+    std::cout << "\n=== Test Result ===" << std::endl;
+    std::cout << "Encoder: " << encoder_name << std::endl;
+    std::cout << "Result: " << (result ? "✅ PASS" : "❌ FAIL") << std::endl;
+    
+    return result;
+}
+
+bool EncoderTester::run_pattern_tests(const std::string& pattern) {
+    std::cout << "\n=== Testing Encoders Matching Pattern: " << pattern << " ===" << std::endl;
+    
+    ensureValidationDirectory();
+    initialize_test_map();
+    
+    // Find matching encoders
+    std::vector<std::string> matching_encoders = find_matching_encoders(pattern);
+    
+    if (matching_encoders.empty()) {
+        std::cout << "❌ ERROR: No encoders match pattern '" << pattern << "'" << std::endl;
+        std::cout << "Available encoders:" << std::endl;
+        for (const std::string& encoder_name : list_available_encoders()) {
+            std::cout << "  " << encoder_name << std::endl;
+        }
+        return false;
+    }
+    
+    std::cout << "Found " << matching_encoders.size() << " matching encoder(s):" << std::endl;
+    for (const std::string& name : matching_encoders) {
+        std::cout << "  " << name << std::endl;
+    }
+    std::cout << std::endl;
+    
+    tests_run = 0;
+    tests_passed = 0;
+    bool all_passed = true;
+    
+    // Run tests for matching encoders
+    for (size_t i = 0; i < matching_encoders.size(); i++) {
+        const std::string& encoder_name = matching_encoders[i];
+        std::cout << "[" << (i + 1) << "/" << matching_encoders.size() << "] Testing " << encoder_name << "..." << std::endl;
+        
+        auto it = encoder_test_map.find(encoder_name);
+        if (it != encoder_test_map.end()) {
+            bool result = it->second();
+            if (!result) {
+                all_passed = false;
+            }
+        }
+    }
+    
+    // Print summary
+    std::cout << "\n=== Pattern Test Results ===" << std::endl;
+    std::cout << "Pattern: " << pattern << std::endl;
+    std::cout << "Tests run: " << tests_run << std::endl;
+    std::cout << "Tests passed: " << tests_passed << std::endl;
+    std::cout << "Tests failed: " << (tests_run - tests_passed) << std::endl;
+    
+    if (all_passed) {
+        std::cout << "✅ ALL PATTERN TESTS PASSED" << std::endl;
+    } else {
+        std::cout << "❌ SOME PATTERN TESTS FAILED" << std::endl;
+    }
+    
+    return all_passed;
+}
+
+std::vector<std::string> EncoderTester::list_available_encoders() {
+    initialize_test_map();
+    
+    std::vector<std::string> encoder_names;
+    for (const auto& pair : encoder_test_map) {
+        encoder_names.push_back(pair.first);
+    }
+    
+    // Sort alphabetically for better presentation
+    std::sort(encoder_names.begin(), encoder_names.end());
+    
+    return encoder_names;
+}
+
+std::vector<std::string> EncoderTester::find_matching_encoders(const std::string& pattern) {
+    std::vector<std::string> all_encoders = list_available_encoders();
+    std::vector<std::string> matching_encoders;
+    
+    for (const std::string& encoder_name : all_encoders) {
+        if (matches_pattern(encoder_name, pattern)) {
+            matching_encoders.push_back(encoder_name);
+        }
+    }
+    
+    return matching_encoders;
+}
+
+void EncoderTester::initialize_test_map() {
+    if (!encoder_test_map.empty()) {
+        return; // Already initialized
+    }
+    
+    // Map encoder names to their test functions
+    encoder_test_map["fminp_4s"] = [this]() { return test_gen_neon_fminp_4s(); };
+    encoder_test_map["fminp_2s"] = [this]() { return test_gen_neon_fminp_2s(); };
+    encoder_test_map["fminp_4h"] = [this]() { return test_gen_neon_fminp_4h(); };
+    
+    encoder_test_map["fmaxp_4s"] = [this]() { return test_gen_neon_fmaxp_4s(); };
+    encoder_test_map["fmaxp_2s"] = [this]() { return test_gen_neon_fmaxp_2s(); };
+    encoder_test_map["fmaxp_4h"] = [this]() { return test_gen_neon_fmaxp_4h(); };
+    
+    encoder_test_map["faddp_4s"] = [this]() { return test_gen_neon_faddp_4s(); };
+    encoder_test_map["faddp_2s"] = [this]() { return test_gen_neon_faddp_2s(); };
+    encoder_test_map["faddp_4h"] = [this]() { return test_gen_neon_faddp_4h(); };
+    
+    encoder_test_map["addp_4s"] = [this]() { return test_gen_neon_addp_4s(); };
+    encoder_test_map["addp_2s"] = [this]() { return test_gen_neon_addp_2s(); };
+    
+    encoder_test_map["sminp_4s"] = [this]() { return test_gen_neon_sminp_4s(); };
+    encoder_test_map["sminp_8h"] = [this]() { return test_gen_neon_sminp_8h(); };
+    encoder_test_map["sminp_16b"] = [this]() { return test_gen_neon_sminp_16b(); };
+    
+    // Legacy scalar encoders
+    encoder_test_map["scalar_nop"] = [this]() { return test_gen_scalar_nop(); };
+    encoder_test_map["scalar_add_reg"] = [this]() { return test_gen_scalar_add_reg(); };
+    encoder_test_map["scalar_sub_reg"] = [this]() { return test_gen_scalar_sub_reg(); };
+    encoder_test_map["scalar_mul_reg"] = [this]() { return test_gen_scalar_mul_reg(); };
+    encoder_test_map["scalar_mov_reg"] = [this]() { return test_gen_scalar_mov_reg(); };
+    
+    // Legacy floating point encoders
+    encoder_test_map["fp_fadd_reg"] = [this]() { return test_gen_fp_fadd_reg(); };
+    encoder_test_map["fp_fsub_reg"] = [this]() { return test_gen_fp_fsub_reg(); };
+    encoder_test_map["fp_fmul_reg"] = [this]() { return test_gen_fp_fmul_reg(); };
+    encoder_test_map["fp_fdiv_reg"] = [this]() { return test_gen_fp_fdiv_reg(); };
+    
+    // Legacy vector floating point encoders
+    encoder_test_map["vec_fadd_4s"] = [this]() { return test_gen_vec_fadd_4s(); };
+    encoder_test_map["vec_fadd_2s"] = [this]() { return test_gen_vec_fadd_2s(); };
+    encoder_test_map["vec_fadd_2d"] = [this]() { return test_gen_vec_fadd_2d(); };
+    encoder_test_map["vec_fsub_4s"] = [this]() { return test_gen_vec_fsub_4s(); };
+    encoder_test_map["vec_fsub_2s"] = [this]() { return test_gen_vec_fsub_2s(); };
+    encoder_test_map["vec_fmul_4s"] = [this]() { return test_gen_vec_fmul_4s(); };
+    encoder_test_map["vec_fmul_2s"] = [this]() { return test_gen_vec_fmul_2s(); };
+    
+    // Legacy load/store encoders
+    encoder_test_map["mem_ldr_imm"] = [this]() { return test_gen_mem_ldr_imm(); };
+    encoder_test_map["mem_str_imm"] = [this]() { return test_gen_mem_str_imm(); };
+    encoder_test_map["mem_ldp_imm"] = [this]() { return test_gen_mem_ldp_imm(); };
+    encoder_test_map["mem_stp_imm"] = [this]() { return test_gen_mem_stp_imm(); };
+    
+    // Legacy arithmetic encoders
+    encoder_test_map["scalar_add_imm"] = [this]() { return test_gen_scalar_add_imm(); };
+    encoder_test_map["scalar_sub_imm"] = [this]() { return test_gen_scalar_sub_imm(); };
+    encoder_test_map["scalar_cmp_reg"] = [this]() { return test_gen_scalar_cmp_reg(); };
+    encoder_test_map["scalar_cmp_imm"] = [this]() { return test_gen_scalar_cmp_imm(); };
+    
+    // Legacy floating point encoders
+    encoder_test_map["fp_fcmp_reg"] = [this]() { return test_gen_fp_fcmp_reg(); };
+    encoder_test_map["fp_fsqrt_reg"] = [this]() { return test_gen_fp_fsqrt_reg(); };
+    encoder_test_map["fp_fneg_reg"] = [this]() { return test_gen_fp_fneg_reg(); };
+    
+    encoder_test_map["smax_4s"] = [this]() { return test_gen_neon_smax_4s(); };
+    encoder_test_map["smax_8h"] = [this]() { return test_gen_neon_smax_8h(); };
+    encoder_test_map["smax_16b"] = [this]() { return test_gen_neon_smax_16b(); };
+    
+    encoder_test_map["add_4s"] = [this]() { return test_gen_neon_add_4s(); };
+    encoder_test_map["add_8h"] = [this]() { return test_gen_neon_add_8h(); };
+    encoder_test_map["add_16b"] = [this]() { return test_gen_neon_add_16b(); };
+    
+    encoder_test_map["sub_4s"] = [this]() { return test_gen_neon_sub_4s(); };
+    encoder_test_map["sub_8h"] = [this]() { return test_gen_neon_sub_8h(); };
+    encoder_test_map["sub_16b"] = [this]() { return test_gen_neon_sub_16b(); };
+    
+    encoder_test_map["fmin_4s"] = [this]() { return test_gen_neon_fmin_4s(); };
+    encoder_test_map["fmin_2s"] = [this]() { return test_gen_neon_fmin_2s(); };
+    encoder_test_map["fmin_2d"] = [this]() { return test_gen_neon_fmin_2d(); };
+}
+
+bool EncoderTester::matches_pattern(const std::string& name, const std::string& pattern) {
+    // Simple wildcard matching supporting * (matches any characters)
+    if (pattern == "*") {
+        return true;
+    }
+    
+    // If no wildcard, exact match
+    if (pattern.find('*') == std::string::npos) {
+        return name == pattern;
+    }
+    
+    // Handle patterns with * wildcards
+    size_t pattern_pos = 0;
+    size_t name_pos = 0;
+    
+    while (pattern_pos < pattern.size() && name_pos < name.size()) {
+        if (pattern[pattern_pos] == '*') {
+            // Skip the *
+            pattern_pos++;
+            
+            // If * is at the end, match everything remaining
+            if (pattern_pos == pattern.size()) {
+                return true;
+            }
+            
+            // Find the next non-* character in pattern
+            char next_char = pattern[pattern_pos];
+            
+            // Find that character in the name
+            while (name_pos < name.size() && name[name_pos] != next_char) {
+                name_pos++;
+            }
+            
+            // If we didn't find it, no match
+            if (name_pos == name.size()) {
+                return false;
+            }
+        } else {
+            // Regular character matching
+            if (name[name_pos] != pattern[pattern_pos]) {
+                return false;
+            }
+            pattern_pos++;
+            name_pos++;
+        }
+    }
+    
+    // Handle remaining * at end of pattern
+    while (pattern_pos < pattern.size() && pattern[pattern_pos] == '*') {
+        pattern_pos++;
+    }
+    
+    // Both should be at end for a complete match
+    return pattern_pos == pattern.size() && name_pos == name.size();
+}
+
+void EncoderTester::suggest_similar_encoders(const std::string& invalid_name) {
+    std::vector<std::string> all_encoders = list_available_encoders();
+    std::vector<std::string> suggestions;
+    
+    // Find encoders with similar names (simple substring matching)
+    for (const std::string& encoder_name : all_encoders) {
+        // Check if the invalid name is a substring of a valid encoder
+        if (encoder_name.find(invalid_name) != std::string::npos) {
+            suggestions.push_back(encoder_name);
+        }
+        // Check if a valid encoder is a substring of the invalid name
+        else if (invalid_name.find(encoder_name) != std::string::npos) {
+            suggestions.push_back(encoder_name);
+        }
+    }
+    
+    if (!suggestions.empty()) {
+        std::cout << "Did you mean:" << std::endl;
+        for (const std::string& suggestion : suggestions) {
+            std::cout << "  " << suggestion << std::endl;
+        }
+    } else {
+        std::cout << "Available encoders:" << std::endl;
+        for (const std::string& encoder_name : all_encoders) {
+            std::cout << "  " << encoder_name << std::endl;
+        }
+    }
+}
+// -- end of file
+
+// -- start of file: testing/encoder_validation/TestableEncoders.cpp
+// testing/encoder_validation/TestableEncoders.cpp
+#include "../../Encoder.h"
+#include "../../AST.h"
+
+/**
+ * @brief Refactored NEON encoder functions that return Instruction objects directly.
+ * These are pure functions suitable for automated testing against Clang output.
+ * 
+ * Each function takes the minimal required parameters and returns a complete
+ * Instruction object with both assembly text and binary encoding.
+ */
+
+// ===== FMINP ENCODERS =====
+
+Instruction gen_neon_fminp_4s(const PairwiseReductionLoopStatement& node) {
+    // ARM64 FMINP.4S: Vector pairwise minimum of single-precision floats
+    // Expected encoding from Clang: 6ea2f420 for fminp v0.4s, v1.4s, v2.4s
+    // This uses the actual ARM64 encoding with proper register layout
+    
+    return Encoder::create_fminp_vector_reg("v0", "v1", "v2", "4S");
+}
+
+Instruction gen_neon_fminp_2s(const PairwiseReductionLoopStatement& node) {
+    // ARM64 FMINP.2S: Vector pairwise minimum of 2x single-precision floats  
+    // Expected encoding from Clang: 2ea2f420 for fminp v0.2s, v1.2s, v2.2s
+    
+    return Encoder::create_fminp_vector_reg("v0", "v1", "v2", "2S");
+}
+
+Instruction gen_neon_fminp_4h(const PairwiseReductionLoopStatement& node) {
+    // ARM64 FMINP.4H: Vector pairwise minimum of 4x half-precision floats (FQUAD)
+    // Expected encoding from Clang: 2ec23420 for fminp v0.4h, v1.4h, v2.4h
+    // Note: 4H arrangement uses different opcode pattern than 2S/4S
+    
+    return Encoder::create_fminp_vector_reg("v0", "v1", "v2", "4H");
+}
+
+// ===== FMAXP ENCODERS =====
+
+Instruction gen_neon_fmaxp_4s(const PairwiseReductionLoopStatement& node) {
+    // ARM64 FMAXP.4S: Vector pairwise maximum of single-precision floats
+    // Expected encoding from Clang: 6e22f420 for fmaxp v0.4s, v1.4s, v2.4s
+    
+    return Encoder::create_fmaxp_vector_reg("v0", "v1", "v2", "4S");
+}
+
+Instruction gen_neon_fmaxp_2s(const PairwiseReductionLoopStatement& node) {
+    // ARM64 FMAXP.2S: Vector pairwise maximum of 2x single-precision floats
+    // Expected encoding from Clang: 2e22f420 for fmaxp v0.2s, v1.2s, v2.2s
+    
+    return Encoder::create_fmaxp_vector_reg("v0", "v1", "v2", "2S");
+}
+
+Instruction gen_neon_fmaxp_4h(const PairwiseReductionLoopStatement& node) {
+    // ARM64 FMAXP.4H: Vector pairwise maximum of 4x half-precision floats (FQUAD)
+    // Expected encoding from Clang: 2e423420 for fmaxp v0.4h, v1.4h, v2.4h
+    
+    return Encoder::create_fmaxp_vector_reg("v0", "v1", "v2", "4H");
+}
+
+// ===== FADDP ENCODERS =====
+
+Instruction gen_neon_faddp_4s(const PairwiseReductionLoopStatement& node) {
+    // ARM64 FADDP.4S: Vector pairwise addition of single-precision floats
+    // Expected encoding from Clang: 6e22d420 for faddp v0.4s, v1.4s, v2.4s
+    
+    return Encoder::create_faddp_vector_reg("v0", "v1", "v2", "4S");
+}
+
+Instruction gen_neon_faddp_2s(const PairwiseReductionLoopStatement& node) {
+    // ARM64 FADDP.2S: Vector pairwise addition of 2x single-precision floats
+    // Expected encoding from Clang: 2e22d420 for faddp v0.2s, v1.2s, v2.2s
+    
+    return Encoder::create_faddp_vector_reg("v0", "v1", "v2", "2S");
+}
+
+Instruction gen_neon_faddp_4h(const PairwiseReductionLoopStatement& node) {
+    // ARM64 FADDP.4H: Vector pairwise addition of 4x half-precision floats (FQUAD)
+    // Expected encoding from Clang: 2e421420 for faddp v0.4h, v1.4h, v2.4h
+    
+    return Encoder::create_faddp_vector_reg("v0", "v1", "v2", "4H");
+}
+
+// ===== ADDP ENCODERS (Integer) =====
+
+Instruction gen_neon_addp_4s(const PairwiseReductionLoopStatement& node) {
+    // ARM64 ADDP.4S: Vector pairwise addition of 4x 32-bit integers
+    // Expected encoding from Clang: 4ea2bc20 for addp v0.4s, v1.4s, v2.4s
+    
+    return Encoder::create_addp_vector_reg("v0", "v1", "v2", "4S");
+}
+
+Instruction gen_neon_addp_2s(const PairwiseReductionLoopStatement& node) {
+    // ARM64 ADDP.2S: Vector pairwise addition of 2x 32-bit integers
+    // Expected encoding from Clang: 0ea2bc20 for addp v0.2s, v1.2s, v2.2s
+    
+    return Encoder::create_addp_vector_reg("v0", "v1", "v2", "2S");
+}
+
+// ===== SMINP ENCODERS (Signed Integer Minimum) =====
+
+Instruction gen_neon_sminp_4s(const PairwiseReductionLoopStatement& node) {
+    // ARM64 SMINP.4S: Vector pairwise minimum of 4x signed 32-bit integers
+    // Expected encoding from Clang: 4ea2ac20 for sminp v0.4s, v1.4s, v2.4s
+    
+    return Encoder::create_sminp_vector_reg("v0", "v1", "v2", "4S");
+}
+
+Instruction gen_neon_sminp_8h(const PairwiseReductionLoopStatement& node) {
+    // ARM64 SMINP.8H: Vector pairwise minimum of 8x signed 16-bit integers
+    // Expected encoding from Clang: 4e62ac20 for sminp v0.8h, v1.8h, v2.8h
+    
+    return Encoder::create_sminp_vector_reg("v0", "v1", "v2", "8H");
+}
+
+Instruction gen_neon_sminp_16b(const PairwiseReductionLoopStatement& node) {
+    // ARM64 SMINP.16B: Vector pairwise minimum of 16x signed 8-bit integers
+    // Expected encoding from Clang: 4e22ac20 for sminp v0.16b, v1.16b, v2.16b
+    
+    return Encoder::create_sminp_vector_reg("v0", "v1", "v2", "16B");
+}
+
+// ===== SMAX ENCODERS (Signed Integer Maximum) =====
+
+Instruction gen_neon_smax_4s(const PairwiseReductionLoopStatement& node) {
+    // ARM64 SMAX.4S: Vector element-wise maximum of 4x signed 32-bit integers
+    // Expected encoding from Clang: 4ea26420 for smax v0.4s, v1.4s, v2.4s
+    
+    return Encoder::create_smax_vector_reg("v0", "v1", "v2", "4S");
+}
+
+Instruction gen_neon_smax_8h(const PairwiseReductionLoopStatement& node) {
+    // ARM64 SMAX.8H: Vector element-wise maximum of 8x signed 16-bit integers
+    // Expected encoding from Clang: 4e626420 for smax v0.8h, v1.8h, v2.8h
+    
+    return Encoder::create_smax_vector_reg("v0", "v1", "v2", "8H");
+}
+
+Instruction gen_neon_smax_16b(const PairwiseReductionLoopStatement& node) {
+    // ARM64 SMAX.16B: Vector element-wise maximum of 16x signed 8-bit integers
+    // Expected encoding from Clang: 4e226420 for smax v0.16b, v1.16b, v2.16b
+    
+    return Encoder::create_smax_vector_reg("v0", "v1", "v2", "16B");
+}
+
+// ===== ADD ENCODERS (Integer Addition) =====
+
+Instruction gen_neon_add_4s(const PairwiseReductionLoopStatement& node) {
+    // ARM64 ADD.4S: Vector element-wise addition of 4x signed 32-bit integers
+    // Expected encoding from Clang: 4ea18402 for add v2.4s, v0.4s, v1.4s
+    
+    return Encoder::create_add_vector_reg("v0", "v1", "v2", "4S");
+}
+
+Instruction gen_neon_add_8h(const PairwiseReductionLoopStatement& node) {
+    // ARM64 ADD.8H: Vector element-wise addition of 8x signed 16-bit integers
+    // Expected encoding from Clang: 4e618402 for add v2.8h, v0.8h, v1.8h
+    
+    return Encoder::create_add_vector_reg("v0", "v1", "v2", "8H");
+}
+
+Instruction gen_neon_add_16b(const PairwiseReductionLoopStatement& node) {
+    // ARM64 ADD.16B: Vector element-wise addition of 16x signed 8-bit integers
+    // Expected encoding from Clang: 4e218402 for add v2.16b, v0.16b, v1.16b
+    
+    return Encoder::create_add_vector_reg("v0", "v1", "v2", "16B");
+}
+
+// ===== SUB ENCODERS (Integer Subtraction) =====
+
+Instruction gen_neon_sub_4s(const PairwiseReductionLoopStatement& node) {
+    // ARM64 SUB.4S: Vector element-wise subtraction of 4x signed 32-bit integers
+    // Expected encoding from Clang: 4ea28420 for sub v0.4s, v1.4s, v2.4s
+    
+    return Encoder::create_sub_vector_reg("v0", "v1", "v2", "4S");
+}
+
+Instruction gen_neon_sub_8h(const PairwiseReductionLoopStatement& node) {
+    // ARM64 SUB.8H: Vector element-wise subtraction of 8x signed 16-bit integers  
+    // Expected encoding from Clang: 4e628420 for sub v0.8h, v1.8h, v2.8h
+    
+    return Encoder::create_sub_vector_reg("v0", "v1", "v2", "8H");
+}
+
+Instruction gen_neon_sub_16b(const PairwiseReductionLoopStatement& node) {
+    // ARM64 SUB.16B: Vector element-wise subtraction of 16x signed 8-bit integers
+    // Expected encoding from Clang: 4e228420 for sub v0.16b, v1.16b, v2.16b
+    
+    return Encoder::create_sub_vector_reg("v0", "v1", "v2", "16B");
+}
+
+// ===== FMIN ENCODERS (Floating-point Minimum) =====
+
+Instruction gen_neon_fmin_4s(const PairwiseReductionLoopStatement& node) {
+    // ARM64 FMIN.4S: Vector element-wise minimum of 4x single-precision floats
+    // Expected encoding from Clang: 4ea2f420 for fmin v0.4s, v1.4s, v2.4s
+    
+    return Encoder::create_fmin_vector_reg("v0", "v1", "v2", "4S");
+}
+
+Instruction gen_neon_fmin_2s(const PairwiseReductionLoopStatement& node) {
+    // ARM64 FMIN.2S: Vector element-wise minimum of 2x single-precision floats
+    // Expected encoding from Clang: 2ea2f420 for fmin v0.2s, v1.2s, v2.2s
+    
+    return Encoder::create_fmin_vector_reg("v0", "v1", "v2", "2S");
+}
+
+Instruction gen_neon_fmin_2d(const PairwiseReductionLoopStatement& node) {
+    // ARM64 FMIN.2D: Vector element-wise minimum of 2x double-precision floats
+    // Expected encoding from Clang: 4ee2f420 for fmin v0.2d, v1.2d, v2.2d
+    
+    return Encoder::create_fmin_vector_reg("v0", "v1", "v2", "2D");
+}
+
+// ===== LEGACY SCALAR ENCODERS =====
+
+Instruction gen_scalar_nop(const PairwiseReductionLoopStatement& node) {
+    // ARM64 NOP instruction - well-known encoding for testing
+    return Encoder::create_nop();
+}
+
+Instruction gen_scalar_add_reg(const PairwiseReductionLoopStatement& node) {
+    // ARM64 ADD register instruction: ADD X0, X1, X2
+    return Encoder::create_add_reg("x0", "x1", "x2");
+}
+
+Instruction gen_scalar_sub_reg(const PairwiseReductionLoopStatement& node) {
+    // ARM64 SUB register instruction: SUB X0, X1, X2
+    return Encoder::create_sub_reg("x0", "x1", "x2");
+}
+
+Instruction gen_scalar_mul_reg(const PairwiseReductionLoopStatement& node) {
+    // ARM64 MUL register instruction: MUL X0, X1, X2
+    return Encoder::create_mul_reg("x0", "x1", "x2");
+}
+
+Instruction gen_scalar_mov_reg(const PairwiseReductionLoopStatement& node) {
+    // ARM64 MOV register instruction: MOV X0, X1
+    return Encoder::create_mov_reg("x0", "x1");
+}
+
+// ===== LEGACY FLOATING POINT ENCODERS =====
+
+Instruction gen_fp_fadd_reg(const PairwiseReductionLoopStatement& node) {
+    // ARM64 FADD scalar instruction: FADD D0, D1, D2
+    return Encoder::create_fadd_reg("d0", "d1", "d2");
+}
+
+Instruction gen_fp_fsub_reg(const PairwiseReductionLoopStatement& node) {
+    // ARM64 FSUB scalar instruction: FSUB D0, D1, D2
+    return Encoder::create_fsub_reg("d0", "d1", "d2");
+}
+
+Instruction gen_fp_fmul_reg(const PairwiseReductionLoopStatement& node) {
+    // ARM64 FMUL scalar instruction: FMUL D0, D1, D2
+    return Encoder::create_fmul_reg("d0", "d1", "d2");
+}
+
+Instruction gen_fp_fdiv_reg(const PairwiseReductionLoopStatement& node) {
+    // ARM64 FDIV scalar instruction: FDIV D0, D1, D2
+    return Encoder::create_fdiv_reg("d0", "d1", "d2");
+}
+
+// ===== LEGACY VECTOR FLOATING POINT ENCODERS =====
+
+Instruction gen_vec_fadd_4s(const PairwiseReductionLoopStatement& node) {
+    // ARM64 FADD vector instruction: FADD V0.4S, V1.4S, V2.4S
+    return Encoder::create_fadd_vector_reg("v0", "v1", "v2", "4S");
+}
+
+Instruction gen_vec_fadd_2s(const PairwiseReductionLoopStatement& node) {
+    // ARM64 FADD vector instruction: FADD V0.2S, V1.2S, V2.2S
+    return Encoder::create_fadd_vector_reg("v0", "v1", "v2", "2S");
+}
+
+Instruction gen_vec_fadd_2d(const PairwiseReductionLoopStatement& node) {
+    // ARM64 FADD vector instruction: FADD V0.2D, V1.2D, V2.2D
+    return Encoder::create_fadd_vector_reg("v0", "v1", "v2", "2D");
+}
+
+Instruction gen_vec_fsub_4s(const PairwiseReductionLoopStatement& node) {
+    // ARM64 FSUB vector instruction: FSUB V0.4S, V1.4S, V2.4S
+    return Encoder::enc_create_fsub_vector_reg("v0", "v1", "v2", "4S");
+}
+
+Instruction gen_vec_fsub_2s(const PairwiseReductionLoopStatement& node) {
+    // ARM64 FSUB vector instruction: FSUB V0.2S, V1.2S, V2.2S
+    return Encoder::enc_create_fsub_vector_reg("v0", "v1", "v2", "2S");
+}
+
+Instruction gen_vec_fmul_4s(const PairwiseReductionLoopStatement& node) {
+    // ARM64 FMUL vector instruction: FMUL V0.4S, V1.4S, V2.4S
+    return Encoder::create_fmul_vector_reg("v0", "v1", "v2", "4S");
+}
+
+Instruction gen_vec_fmul_2s(const PairwiseReductionLoopStatement& node) {
+    // ARM64 FMUL vector instruction: FMUL V0.2S, V1.2S, V2.2S
+    return Encoder::create_fmul_vector_reg("v0", "v1", "v2", "2S");
+}
+
+// ===== LEGACY LOAD/STORE ENCODERS =====
+
+Instruction gen_mem_ldr_imm(const PairwiseReductionLoopStatement& node) {
+    // ARM64 LDR immediate instruction: LDR X0, [X1, #8]
+    return Encoder::create_ldr_imm("x0", "x1", 8);
+}
+
+Instruction gen_mem_str_imm(const PairwiseReductionLoopStatement& node) {
+    // ARM64 STR immediate instruction: STR X0, [X1, #8]
+    return Encoder::create_str_imm("x0", "x1", 8);
+}
+
+Instruction gen_mem_ldp_imm(const PairwiseReductionLoopStatement& node) {
+    // ARM64 LDP immediate instruction: LDP X0, X1, [X2, #16]
+    return Encoder::create_ldp_imm("x0", "x1", "x2", 16);
+}
+
+Instruction gen_mem_stp_imm(const PairwiseReductionLoopStatement& node) {
+    // ARM64 STP immediate instruction: STP X0, X1, [X2, #16]
+    return Encoder::create_stp_imm("x0", "x1", "x2", 16);
+}
+
+// ===== LEGACY ARITHMETIC ENCODERS =====
+
+Instruction gen_scalar_add_imm(const PairwiseReductionLoopStatement& node) {
+    // ARM64 ADD immediate instruction: ADD X0, X1, #42
+    return Encoder::create_add_imm("x0", "x1", 42);
+}
+
+Instruction gen_scalar_sub_imm(const PairwiseReductionLoopStatement& node) {
+    // ARM64 SUB immediate instruction: SUB X0, X1, #16
+    return Encoder::create_sub_imm("x0", "x1", 16);
+}
+
+Instruction gen_scalar_cmp_reg(const PairwiseReductionLoopStatement& node) {
+    // ARM64 CMP register instruction: CMP X0, X1
+    return Encoder::create_cmp_reg("x0", "x1");
+}
+
+Instruction gen_scalar_cmp_imm(const PairwiseReductionLoopStatement& node) {
+    // ARM64 CMP immediate instruction: CMP X0, #5
+    return Encoder::create_cmp_imm("x0", 5);
+}
+
+// ===== LEGACY FLOATING POINT ENCODERS =====
+
+Instruction gen_fp_fcmp_reg(const PairwiseReductionLoopStatement& node) {
+    // ARM64 FCMP register instruction: FCMP S0, S1 (single-precision)
+    return Encoder::create_fcmp_reg("s0", "s1");
+}
+
+Instruction gen_fp_fsqrt_reg(const PairwiseReductionLoopStatement& node) {
+    // ARM64 FSQRT register instruction: FSQRT S0, S1 (single-precision)
+    return Encoder::create_fsqrt_reg("s0", "s1");
+}
+
+Instruction gen_fp_fneg_reg(const PairwiseReductionLoopStatement& node) {
+    // ARM64 FNEG register instruction: FNEG S0, S1 (single-precision)
+    return Encoder::create_fneg_reg("s0", "s1");
+}
+
+/**
+ * @brief Helper function to create a test Instruction for validation
+ * This provides a known-good test case to verify the validation framework works.
+ */
+Instruction create_test_nop_instruction() {
+    // ARM64 NOP instruction - well-known encoding for testing
+    Instruction instr;
+    instr.encoding = 0xd503201f;  // Real ARM64 NOP encoding
+    instr.assembly_text = "nop";
+    return instr;
+}
+// -- end of file
+
+// -- start of file: testing/encoder_validation/test_nop_validation.cpp
+// testing/encoder_validation/test_nop_validation.cpp
+#include "EncoderTester.h"
+#include "../../Encoder.h"
+#include <iostream>
+
+/**
+ * @brief Simple test to verify the encoder validation framework works correctly
+ * 
+ * This test validates a known-good NOP instruction against Clang to ensure
+ * the validation framework itself is working properly before testing complex
+ * NEON encoders.
+ */
+
+// Test function for the known-good NOP instruction
+Instruction create_test_nop() {
+    // ARM64 NOP instruction - well-known encoding
+    Instruction instr;
+    instr.encoding = 0xd503201f;  // Real ARM64 NOP encoding
+    instr.assembly_text = "nop";
+    return instr;
+}
+
+int main() {
+    std::cout << "=== NOP Instruction Validation Test ===" << std::endl;
+    std::cout << "Testing validation framework with known-good NOP instruction...\n" << std::endl;
+    
+    // Create encoder tester
+    EncoderTester tester;
+    
+    // Test the NOP instruction
+    Instruction nop_instr = create_test_nop();
+    bool result = tester.runValidation("test_nop", nop_instr);
+    
+    if (result) {
+        std::cout << "\n✅ SUCCESS: Validation framework is working correctly!" << std::endl;
+        std::cout << "The framework correctly validated the NOP instruction against Clang." << std::endl;
+        return 0;
+    } else {
+        std::cout << "\n❌ FAILURE: Validation framework has issues." << std::endl;
+        std::cout << "Check clang installation or framework implementation." << std::endl;
+        return 1;
+    }
 }
 // -- end of file
 

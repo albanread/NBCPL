@@ -6,10 +6,36 @@ Instruction Encoder::create_sub_vector_reg(const std::string& vd, const std::str
     uint32_t rn = get_reg_encoding(vn);
     uint32_t rm = get_reg_encoding(vm);
 
-    // Encoding for SUB Vd.2S, Vn.2S, Vm.2S (vector integer subtract)
-    // Q(0) | 1 | 0 | 01110 | 1 | M(0) | 1 | Rm | 1000 | Rn | Rd
-    // For .2S (2x32-bit): Q=0, size=10
-    uint32_t encoding = 0x6E208000 | (rm << 16) | (rn << 5) | rd;
+    uint32_t encoding;
+
+    // SUB vector encodings based on arrangement (corrected to match Clang)
+    if (arrangement == "2S") {
+        // 64-bit version: 2ea08400 base
+        encoding = 0x2ea08400;
+    } else if (arrangement == "4S") {
+        // 128-bit version: 6ea08400 base  
+        encoding = 0x6ea08400;
+    } else if (arrangement == "8B") {
+        // 64-bit 8-byte: 2e208400 base  
+        encoding = 0x2e208400;
+    } else if (arrangement == "16B") {
+        // 128-bit 16-byte: 6e208400 base
+        encoding = 0x6e208400;
+    } else if (arrangement == "4H") {
+        // 64-bit 4-halfword: 2e608400 base
+        encoding = 0x2e608400;
+    } else if (arrangement == "8H") {
+        // 128-bit 8-halfword: 6e608400 base
+        encoding = 0x6e608400;
+    } else if (arrangement == "2D") {
+        // 128-bit 2-doubleword: 6ee08400 base
+        encoding = 0x6ee08400;
+    } else {
+        throw std::runtime_error("Unsupported arrangement for SUB vector: " + arrangement);
+    }
+
+    // Add register fields: Rm[20:16], Rn[9:5], Rd[4:0]
+    encoding |= (rm << 16) | (rn << 5) | rd;
 
     std::stringstream ss;
     ss << "SUB " << vd << "." << arrangement << ", " << vn << "." << arrangement << ", " << vm << "." << arrangement;

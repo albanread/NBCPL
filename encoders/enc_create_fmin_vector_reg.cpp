@@ -6,23 +6,24 @@ Instruction Encoder::create_fmin_vector_reg(const std::string& vd, const std::st
     uint32_t rn = get_reg_encoding(vn);
     uint32_t rm = get_reg_encoding(vm);
 
-    // Base encoding for FMIN (vector)
-    // FMIN vector encoding: 0x4EA0F400 (based on ARM64 reference)
-    uint32_t encoding = 0x4EA0F400 | (rm << 16) | (rn << 5) | rd;
+    uint32_t encoding;
 
-    // Set the size bits based on the arrangement
-    if (arrangement == "4S" || arrangement == "2S") {
-        // size bits (22, 23) = 00 for single-precision, Q bit determines 2S vs 4S
-        encoding &= ~(0b11 << 22); // Clear size bits (set to 00)
-        if (arrangement == "2S") {
-            encoding &= ~(1 << 30); // Clear Q bit for 64-bit operation
-        }
+    // FMIN vector encodings based on arrangement (corrected to match Clang)
+    if (arrangement == "2S") {
+        // 64-bit version: 0ea0f400 base
+        encoding = 0x0ea0f400;
+    } else if (arrangement == "4S") {
+        // 128-bit version: 4ea0f400 base
+        encoding = 0x4ea0f400;
     } else if (arrangement == "2D") {
-        // size bits (22, 23) = 01 for double-precision
-        encoding |= (0b01 << 22);
+        // 128-bit double-precision: 4ee0f400 base
+        encoding = 0x4ee0f400;
     } else {
         throw std::runtime_error("Unsupported arrangement for FMIN: " + arrangement);
     }
+
+    // Add register fields: Rm[20:16], Rn[9:5], Rd[4:0]
+    encoding |= (rm << 16) | (rn << 5) | rd;
 
     std::stringstream ss;
     ss << "FMIN " << vd << "." << arrangement << ", " << vn << "." << arrangement << ", " << vm << "." << arrangement;

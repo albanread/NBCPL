@@ -84,6 +84,9 @@
 // --- Formatter ---
 #include "format/CodeFormatter.h"
 
+// --- Encoder Testing ---
+#include "testing/encoder_validation/EncoderTester.h"
+
 // Utility
 //
 void dump_class_table(const ClassTable& table) {
@@ -163,7 +166,8 @@ bool parse_arguments(int argc, char* argv[], bool& run_jit, bool& generate_asm, 
                     bool& dump_jit_stack, bool& enable_peephole, bool& enable_stack_canaries,
                     bool& format_code, bool& trace_class_table, bool& trace_vtables,
                     bool& bounds_checking_enabled, bool& enable_samm, bool& enable_superdisc,
-                    bool& use_neon, bool& generate_list,
+                    bool& use_neon, bool& generate_list, bool& test_encoders,
+                    bool& test_encode, std::string& test_encode_name, bool& list_encoders,
                     std::string& input_filepath, std::string& call_entry_name, int& offset_instructions,
                     std::vector<std::string>& include_paths, std::string& runtime_mode);
 void handle_static_compilation(bool exec_mode, const std::string& base_name, const InstructionStream& instruction_stream, const DataGenerator& data_generator, bool enable_debug_output, const std::string& runtime_mode, const VeneerManager& veneer_manager, bool generate_list);
@@ -215,6 +219,10 @@ int main(int argc, char* argv[]) {
     bool bounds_checking_enabled = true; // Runtime bounds checking enabled by default
     bool use_neon = true; // NEON SIMD instructions enabled by default
     bool generate_list = false; // Generate listing file with hex opcodes
+    bool test_encoders = false; // Encoder validation testing mode
+    bool test_encode = false; // Individual encoder testing mode
+    std::string test_encode_name; // Name of specific encoder to test
+    bool list_encoders = false; // List available encoders mode
 
     if (enable_tracing) {
         std::cout << "Debug: About to parse arguments\n";
@@ -229,7 +237,8 @@ int main(int argc, char* argv[]) {
                             trace_class_table,
                             trace_vtables,
                             bounds_checking_enabled, enable_samm,
-                            enable_superdisc, use_neon, generate_list,
+                            enable_superdisc, use_neon, generate_list, test_encoders,
+                            test_encode, test_encode_name, list_encoders,
                             input_filepath, call_entry_name, g_jit_breakpoint_offset, include_paths, runtime_mode)) {
             if (enable_tracing) {
                 std::cout << "Debug: parse_arguments returned false\n";
@@ -245,6 +254,147 @@ int main(int argc, char* argv[]) {
     }
     if (enable_tracing) {
         std::cout << "Debug: Arguments parsed successfully\n";
+    }
+
+    // Check if we should run encoder validation tests
+    if (test_encoders) {
+        EncoderTester tester;
+        bool success = tester.run_all_tests();
+        return success ? 0 : 1;
+    }
+    
+    // Check if we should test a specific encoder
+    if (test_encode) {
+        EncoderTester tester;
+        bool success;
+        
+        // Check if it's a pattern (contains *)
+        if (test_encode_name.find('*') != std::string::npos) {
+            success = tester.run_pattern_tests(test_encode_name);
+        } else {
+            success = tester.run_single_test(test_encode_name);
+        }
+        return success ? 0 : 1;
+    }
+    
+    // Check if we should list available encoders
+    if (list_encoders) {
+        EncoderTester tester;
+        std::vector<std::string> encoders = tester.list_available_encoders();
+        
+        std::cout << "\n=== Available NEON Encoders ===" << std::endl;
+        std::cout << "Total: " << encoders.size() << " encoders\n" << std::endl;
+        
+        // Group by operation type for better display
+        std::cout << "Floating Point Minimum Pairwise (FMINP):" << std::endl;
+        for (const std::string& name : encoders) {
+            if (name.find("fminp_") == 0) {
+                std::cout << "  " << name << std::endl;
+            }
+        }
+        
+        std::cout << "\nFloating Point Maximum Pairwise (FMAXP):" << std::endl;
+        for (const std::string& name : encoders) {
+            if (name.find("fmaxp_") == 0) {
+                std::cout << "  " << name << std::endl;
+            }
+        }
+        
+        std::cout << "\nFloating Point Addition Pairwise (FADDP):" << std::endl;
+        for (const std::string& name : encoders) {
+            if (name.find("faddp_") == 0) {
+                std::cout << "  " << name << std::endl;
+            }
+        }
+        
+        std::cout << "\nInteger Addition Pairwise (ADDP):" << std::endl;
+        for (const std::string& name : encoders) {
+            if (name.find("addp_") == 0) {
+                std::cout << "  " << name << std::endl;
+            }
+        }
+        
+        std::cout << "\nSigned Integer Minimum Pairwise (SMINP):" << std::endl;
+        for (const std::string& name : encoders) {
+            if (name.find("sminp_") == 0) {
+                std::cout << "  " << name << std::endl;
+            }
+        }
+        
+        std::cout << "\nScalar Operations:" << std::endl;
+        for (const std::string& name : encoders) {
+            if (name.find("scalar_") == 0) {
+                std::cout << "  " << name << std::endl;
+            }
+        }
+        
+        std::cout << "\nFloating Point Operations:" << std::endl;
+        for (const std::string& name : encoders) {
+            if (name.find("fp_") == 0) {
+                std::cout << "  " << name << std::endl;
+            }
+        }
+        
+        std::cout << "\nVector Floating Point Operations:" << std::endl;
+        for (const std::string& name : encoders) {
+            if (name.find("vec_") == 0) {
+                std::cout << "  " << name << std::endl;
+            }
+        }
+        
+        std::cout << "\nMemory Operations:" << std::endl;
+        for (const std::string& name : encoders) {
+            if (name.find("mem_") == 0) {
+                std::cout << "  " << name << std::endl;
+            }
+        }
+        
+        std::cout << "\nBranch Operations:" << std::endl;
+        for (const std::string& name : encoders) {
+            if (name.find("branch_") == 0) {
+                std::cout << "  " << name << std::endl;
+            }
+        }
+        
+        std::cout << "\nUsage Examples:" << std::endl;
+        std::cout << "\nSigned Integer Maximum (SMAX):" << std::endl;
+        for (const std::string& name : encoders) {
+            if (name.find("smax_") == 0) {
+                std::cout << "  " << name << std::endl;
+            }
+        }
+        
+        std::cout << "\nInteger Addition (ADD):" << std::endl;
+        for (const std::string& name : encoders) {
+            if (name.find("add_") == 0) {
+                std::cout << "  " << name << std::endl;
+            }
+        }
+        
+        std::cout << "\nInteger Subtraction (SUB):" << std::endl;
+        for (const std::string& name : encoders) {
+            if (name.find("sub_") == 0) {
+                std::cout << "  " << name << std::endl;
+            }
+        }
+        
+        std::cout << "\nFloating Point Minimum (FMIN):" << std::endl;
+        for (const std::string& name : encoders) {
+            if (name.find("fmin_") == 0) {
+                std::cout << "  " << name << std::endl;
+            }
+        }
+        
+        std::cout << "\nUsage Examples:" << std::endl;
+        std::cout << "  ./NewBCPL --test-encode fminp_4s        # Test single encoder" << std::endl;
+        std::cout << "  ./NewBCPL --test-encode \"fminp_*\"       # Test FMINP family" << std::endl;
+        std::cout << "  ./NewBCPL --test-encode \"*_4s\"         # Test all 4S layouts" << std::endl;
+        std::cout << "  ./NewBCPL --test-encode \"scalar_*\"     # Test all scalar operations" << std::endl;
+        std::cout << "  ./NewBCPL --test-encode \"vec_*\"        # Test all vector operations" << std::endl;
+        std::cout << "  ./NewBCPL --test-encode \"mem_*\"        # Test all memory operations" << std::endl;
+        std::cout << "  ./NewBCPL --test-encoders               # Test all encoders" << std::endl;
+        
+        return 0;
     }
 
     // Set individual trace flags based on global tracing or specific flags
@@ -904,7 +1054,8 @@ bool parse_arguments(int argc, char* argv[], bool& run_jit, bool& generate_asm, 
                     bool& dump_jit_stack, bool& enable_peephole, bool& enable_stack_canaries,
                     bool& format_code, bool& trace_class_table, bool& trace_vtables,
                     bool& bounds_checking_enabled, bool& enable_samm,
-                    bool& enable_superdisc, bool& use_neon, bool& generate_list,
+                    bool& enable_superdisc, bool& use_neon, bool& generate_list, bool& test_encoders,
+                    bool& test_encode, std::string& test_encode_name, bool& list_encoders,
                     std::string& input_filepath, std::string& call_entry_name, int& offset_instructions,
                     std::vector<std::string>& include_paths, std::string& runtime_mode) {
     if (enable_tracing) {
@@ -948,6 +1099,17 @@ bool parse_arguments(int argc, char* argv[], bool& run_jit, bool& generate_asm, 
         else if (arg == "--no-superdisc") enable_superdisc = false;
         else if (arg == "--no-neon") use_neon = false;
         else if (arg == "--list" || arg == "-l") generate_list = true;
+        else if (arg == "--test-encoders") test_encoders = true;
+        else if (arg == "--test-encode") {
+            if (i + 1 < argc) {
+                test_encode = true;
+                test_encode_name = argv[++i];
+            } else {
+                std::cerr << "Error: --test-encode requires an encoder name argument" << std::endl;
+                return false;
+            }
+        }
+        else if (arg == "--list-encoders") list_encoders = true;
         else if (arg.substr(0, 10) == "--runtime=") {
             runtime_mode = arg.substr(10);
             if (runtime_mode != "jit" && runtime_mode != "standalone" && runtime_mode != "unified") {
@@ -999,6 +1161,11 @@ bool parse_arguments(int argc, char* argv[], bool& run_jit, bool& generate_asm, 
                       << "  --no-superdisc         : Disable CREATE Method Reordering Pass (rewrite CREATE)\n"
                       << "  --no-neon              : Disable NEON SIMD instructions for vector operations (use scalar fallback).\n"
                       << "  --list, -l             : Generate listing file (.lst) with hex opcodes alongside assembly.\n"
+                      << "\n"
+                      << "Encoder Testing:\n"
+                      << "  --test-encoders        : Run all encoder validation tests (53 total).\n"
+                      << "  --test-encode <name>   : Run validation for specific encoder or pattern.\n"
+                      << "  --list-encoders        : Show all available encoder names.\n"
                       << "  -I path, --include-path path : Add directory to include search path for GET directives.\n"
                       << "                          Multiple -I flags can be specified for additional paths.\n"
                       << "                          Search order: 1) Current file's directory 2) Specified include paths\n"
@@ -1032,7 +1199,7 @@ bool parse_arguments(int argc, char* argv[], bool& run_jit, bool& generate_asm, 
         }
     }
 
-    if (input_filepath.empty()) {
+    if (input_filepath.empty() && !test_encoders && !test_encode && !list_encoders) {
         if (enable_tracing) {
             std::cerr << "Debug: No input file specified.\n";
         }
