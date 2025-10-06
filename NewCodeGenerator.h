@@ -404,6 +404,12 @@ private:
     void invalidate_variable_tracking(const std::string& var_name);
     void clear_local_value_tracking(); // Called at function boundaries
     std::string get_expression_canonical_form(const Expression* expr) const;
+    
+    // --- NEON Registry Integration Methods ---
+    void visit_pairwise_reduction_with_registry(PairwiseReductionLoopStatement& node);
+    void visit_pairwise_reduction_legacy(PairwiseReductionLoopStatement& node);
+    std::string varTypeToString(VarType type) const;
+    void debug_print_registry_info() const;
 };
 
 #endif // NEW_CODE_GENERATOR_H

@@ -1,0 +1,2 @@
+LET main() BE { WRITEF("Registry build test
+") }

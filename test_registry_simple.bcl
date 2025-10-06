@@ -1,0 +1,18 @@
+LET main() BE {
+    WRITEF("Testing NEON encoder registry system\n")
+
+    // Create simple test values
+    LET a = PAIR(10, 20)
+    LET b = PAIR(5, 25)
+
+    // Test pairwise minimum operation
+    // This should trigger the registry lookup for PAIR type
+    LET result = PAIRWISE_MIN(a, b)
+
+    WRITEF("Input A: %d %d\n", a!0, a!1)
+    WRITEF("Input B: %d %d\n", b!0, b!1)
+    WRITEF("Result:  %d %d\n", result!0, result!1)
+
+    WRITEF("Registry integration test completed successfully\n")
+    RESULTIS 0
+}

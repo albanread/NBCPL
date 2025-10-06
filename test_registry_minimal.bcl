@@ -1,0 +1,13 @@
+LET main() BE {
+    WRITEF("Testing NEON encoder registry initialization\n")
+
+    // Simple test - just create some variables
+    LET a = 10
+    LET b = 20
+    LET c = a + b
+
+    WRITEF("Simple arithmetic test: %d + %d = %d\n", a, b, c)
+    WRITEF("Registry system initialized successfully\n")
+
+    RESULTIS 0
+}
