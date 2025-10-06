@@ -238,6 +238,15 @@ private:
     size_t get_vector_size(ExprPtr& expr);
     void visit(VecAllocationExpression& node) override;
     void visit(VecInitializerExpression& node) override;
+    
+    // Type-aware PAIRWISE_MIN helper methods
+    void generateFPairPairwiseMin(const PairwiseReductionLoopStatement& node);
+    void generateFOctPairwiseMin(const PairwiseReductionLoopStatement& node);
+    void generateFloatVectorPairwiseMin(const PairwiseReductionLoopStatement& node);
+    void generatePairPairwiseMin(const PairwiseReductionLoopStatement& node);
+    void generateQuadPairwiseMin(const PairwiseReductionLoopStatement& node);
+    void generateOctPairwiseMin(const PairwiseReductionLoopStatement& node);
+    void generateIntegerVectorPairwiseMin(const PairwiseReductionLoopStatement& node);
     void visit(FVecAllocationExpression& node) override;
     void visit(PairsAllocationExpression& node) override;
     void visit(StringAllocationExpression& node) override;

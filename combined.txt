@@ -13580,80 +13580,284 @@ void NewCodeGenerator::visit(ReductionLoopStatement& node) {
 
 void NewCodeGenerator::visit(PairwiseReductionLoopStatement& node) {
     std::cout << "[DEBUG CODEGEN] *** VISITING PairwiseReductionLoopStatement! ***" << std::endl;
-    debug_print("Generating NEON pairwise reduction with intrinsic: " + node.intrinsic_name);
+    debug_print("Generating type-aware NEON pairwise reduction with intrinsic: " + node.intrinsic_name);
+    std::cout << "[DEBUG CODEGEN] Processing PAIRWISE_MIN for vectors: " << node.vector_a_name 
+              << " and " << node.vector_b_name << std::endl;
     
-    // Get vector registers for the input vectors
+    // Step 1: Get the type of the input vectors from the symbol table
+    Symbol vector_a_symbol;
+    if (!lookup_symbol(node.vector_a_name, vector_a_symbol)) {
+        debug_print("Error: Cannot find symbol for vector: " + node.vector_a_name);
+        std::cout << "[DEBUG CODEGEN] ERROR: Symbol not found for " << node.vector_a_name << std::endl;
+        return;
+    }
+    
+    debug_print("Vector " + node.vector_a_name + " has type: " + vartype_to_string(vector_a_symbol.type));
+    std::cout << "[DEBUG CODEGEN] Vector " << node.vector_a_name << " has type: " 
+              << vartype_to_string(vector_a_symbol.type) << std::endl;
+    
+    // Step 2: Switch on the vector type to generate appropriate NEON instructions
+    VarType base_type = vector_a_symbol.type;
+    
+    // Remove pointer wrapper if present
+    if (static_cast<int64_t>(base_type) & static_cast<int64_t>(VarType::POINTER_TO)) {
+        std::cout << "[DEBUG CODEGEN] Removing POINTER_TO wrapper from type" << std::endl;
+        base_type = static_cast<VarType>(static_cast<int64_t>(base_type) & ~static_cast<int64_t>(VarType::POINTER_TO));
+        std::cout << "[DEBUG CODEGEN] Base type after unwrapping: " << vartype_to_string(base_type) << std::endl;
+    }
+    
+    // Generate type-specific pairwise minimum
+    std::cout << "[DEBUG CODEGEN] Checking if base type contains FLOAT..." << std::endl;
+    if (static_cast<int64_t>(base_type) & static_cast<int64_t>(VarType::FLOAT)) {
+        std::cout << "[DEBUG CODEGEN] Type contains FLOAT, checking subtype..." << std::endl;
+        if (static_cast<int64_t>(base_type) & static_cast<int64_t>(VarType::VEC)) {
+            // POINTER_TO_FLOAT_VEC: General float vector (FVEC)
+            std::cout << "[DEBUG CODEGEN] Generating float vector pairwise min (FVEC)" << std::endl;
+            generateFloatVectorPairwiseMin(node);
+        } else if (base_type == VarType::FPAIR) {
+            // FPAIR: 2 floats in 64 bits
+            std::cout << "[DEBUG CODEGEN] Generating FPAIR pairwise min" << std::endl;
+            generateFPairPairwiseMin(node);
+        } else if (base_type == VarType::FOCT) {
+            // FOCT: 8 floats in 64 bits
+            std::cout << "[DEBUG CODEGEN] Generating FOCT pairwise min" << std::endl;
+            generateFOctPairwiseMin(node);
+        } else {
+            debug_print("Unsupported float type for PAIRWISE_MIN: " + vartype_to_string(base_type));
+            std::cout << "[DEBUG CODEGEN] ERROR: Unsupported float type: " << vartype_to_string(base_type) << std::endl;
+        }
+    } else if (static_cast<int64_t>(base_type) & static_cast<int64_t>(VarType::INTEGER)) {
+        std::cout << "[DEBUG CODEGEN] Type contains INTEGER, checking subtype..." << std::endl;
+        if (static_cast<int64_t>(base_type) & static_cast<int64_t>(VarType::VEC)) {
+            // POINTER_TO_INT_VEC: General integer vector (VEC)
+            std::cout << "[DEBUG CODEGEN] Generating integer vector pairwise min (VEC)" << std::endl;
+            generateIntegerVectorPairwiseMin(node);
+        } else if (base_type == VarType::PAIR) {
+            // PAIR: 2 ints in 64 bits
+            std::cout << "[DEBUG CODEGEN] Generating PAIR pairwise min" << std::endl;
+            generatePairPairwiseMin(node);
+        } else if (base_type == VarType::QUAD) {
+            // QUAD: 4 ints in 64 bits
+            std::cout << "[DEBUG CODEGEN] Generating QUAD pairwise min" << std::endl;
+            generateQuadPairwiseMin(node);
+        } else if (base_type == VarType::OCT) {
+            // OCT: 8 ints in 64 bits
+            std::cout << "[DEBUG CODEGEN] Generating OCT pairwise min" << std::endl;
+            generateOctPairwiseMin(node);
+        } else {
+            debug_print("Unsupported integer type for PAIRWISE_MIN: " + vartype_to_string(base_type));
+            std::cout << "[DEBUG CODEGEN] ERROR: Unsupported integer type: " << vartype_to_string(base_type) << std::endl;
+        }
+    } else {
+        debug_print("Error: Unsupported type for PAIRWISE_MIN: " + vartype_to_string(base_type));
+        std::cout << "[DEBUG CODEGEN] ERROR: Completely unsupported type: " << vartype_to_string(base_type) << std::endl;
+        return;
+    }
+    
+    debug_print("Completed type-aware NEON pairwise reduction generation");
+    std::cout << "[DEBUG CODEGEN] *** PairwiseReductionLoopStatement visit complete! ***" << std::endl;
+}
+
+// Helper function for FPAIR (2 floats in 64 bits)
+void NewCodeGenerator::generateFPairPairwiseMin(const PairwiseReductionLoopStatement& node) {
+    debug_print("Generating FPAIR pairwise minimum (2 floats, 64-bit)");
+    
     std::string vector_a_reg = get_variable_register(node.vector_a_name);
     std::string vector_b_reg = get_variable_register(node.vector_b_name);
     std::string result_reg = get_variable_register(node.result_vector_name);
     
-    // Acquire NEON V registers for the operation
     std::string va_neon = register_manager_.acquire_vec_scratch_reg();
     std::string vb_neon = register_manager_.acquire_vec_scratch_reg();
     std::string vresult_neon = register_manager_.acquire_vec_scratch_reg();
     
-    // Load vectors into NEON registers
-    // LD1 {Va.2S}, [vector_a_reg] - 2x32-bit lanes per PAIR (64-bit word)
-    emit(Encoder::create_ld1_vector_reg(va_neon, vector_a_reg, "2S"));
-    // LD1 {Vb.2S}, [vector_b_reg]
-    emit(Encoder::create_ld1_vector_reg(vb_neon, vector_b_reg, "2S"));
+    // Load 64-bit FPAIR values into NEON registers
+    emit(Encoder::create_ldr_vec_imm(va_neon, vector_a_reg, 0)); // Load 64-bit
+    emit(Encoder::create_ldr_vec_imm(vb_neon, vector_b_reg, 0)); // Load 64-bit
     
-    // Generate the appropriate NEON pairwise instruction based on intrinsic
-    if (node.intrinsic_name == "llvm.arm.neon.vpmin.v4f32") {
-        // Implement integer pairwise minimum using shuffle + SMIN
-        // Input: V0=[a,b,c,d], V1=[a,b,c,d] (same vector)
-        // Goal: [min(a,b), min(c,d)]
-        
-        // Create shuffled version: V_shuffled=[b,a,d,c] 
-        std::string v_shuffled = register_manager_.acquire_vec_scratch_reg();
-        
-        // TRN1/TRN2 can help rearrange for pairwise operations
-        // For now, use EXT to shift elements: EXT V_shuffled, V0, V0, #4
-        // This rotates [a,b,c,d] -> [b,c,d,a], but we need [b,a,d,c]
-        
-        // Alternative: Use UZP1/UZP2 to separate odd/even elements
-        std::string v_even = register_manager_.acquire_vec_scratch_reg(); // [a,c,a,c] 
-        std::string v_odd = register_manager_.acquire_vec_scratch_reg();  // [b,d,b,d]
-        
-        // UZP1 extracts elements 0,2,4,6 -> [a,c,a,c] from [a,b,c,d] (4S format)
-        emit(Encoder::create_uzp1_vector_reg(v_even, va_neon, va_neon, "4S"));
-        // UZP2 extracts elements 1,3,5,7 -> [b,d,b,d] from [a,b,c,d] (4S format)
-        emit(Encoder::create_uzp2_vector_reg(v_odd, va_neon, va_neon, "4S"));
-        
-        // Now do element-wise min: [min(a,b), min(c,d), ...] for pairwise result
-        emit(Encoder::create_smin_vector_reg(vresult_neon, v_even, v_odd, "4S"));
-        
-        // Clean up temporary registers
-        register_manager_.release_vec_scratch_reg(v_shuffled);
-        register_manager_.release_vec_scratch_reg(v_even);
-        register_manager_.release_vec_scratch_reg(v_odd);
-        
-    } else if (node.intrinsic_name == "llvm.arm.neon.vpmax.v4f32") {
-        // FMAXP Vresult.4S, Va.4S, Vb.4S - pairwise maximum
-        emit(Encoder::create_fmaxp_vector_reg(vresult_neon, va_neon, vb_neon, "4S"));
-    } else if (node.intrinsic_name == "llvm.arm.neon.vpadd.v4f32") {
-        // FADDP Vresult.4S, Va.4S, Vb.4S - pairwise addition (float)
-        emit(Encoder::create_faddp_vector_reg(vresult_neon, va_neon, vb_neon, "4S"));
-    } else if (node.intrinsic_name == "llvm.arm.neon.vpadd.v4i32") {
-        // ADDP Vresult.2S, Va.2S, Vb.2S - pairwise addition (PAIRS format)
-        emit(Encoder::create_addp_vector_reg(vresult_neon, va_neon, vb_neon, "2S"));
-    } else {
-        debug_print("Warning: Unknown pairwise intrinsic " + node.intrinsic_name + ", using SMIN as fallback");
-        emit(Encoder::create_smin_vector_reg(vresult_neon, va_neon, vb_neon, "4S"));
-    }
+    // FMINP.2S: Pairwise minimum of two 2-element float vectors
+    emit(Encoder::create_fminp_vector_reg(vresult_neon, va_neon, vb_neon, "2S"));
     
-    // Store result vector back to memory
-    // ST1 {Vresult.2S}, [result_reg] - 2x32-bit lanes per PAIR
-    emit(Encoder::create_st1_vector_reg(vresult_neon, result_reg, "2S"));
+    // Store 64-bit result
+    emit(Encoder::create_str_vec_imm(vresult_neon, result_reg, 0));
     
-    // Release NEON registers
     register_manager_.release_vec_scratch_reg(va_neon);
     register_manager_.release_vec_scratch_reg(vb_neon);  
     register_manager_.release_vec_scratch_reg(vresult_neon);
+}
+
+// Helper function for FOCT (8 floats in 64 bits - actually should be 128 bits)
+void NewCodeGenerator::generateFOctPairwiseMin(const PairwiseReductionLoopStatement& node) {
+    debug_print("Generating FOCT pairwise minimum (8 floats, 128-bit)");
     
-    debug_print("Completed NEON pairwise reduction generation");
+    std::string vector_a_reg = get_variable_register(node.vector_a_name);
+    std::string vector_b_reg = get_variable_register(node.vector_b_name);
+    std::string result_reg = get_variable_register(node.result_vector_name);
     
-    std::cout << "[DEBUG CODEGEN] *** PairwiseReductionLoopStatement visit complete! ***" << std::endl;
+    std::string va_neon = register_manager_.acquire_vec_scratch_reg();
+    std::string vb_neon = register_manager_.acquire_vec_scratch_reg();
+    std::string vresult_neon = register_manager_.acquire_vec_scratch_reg();
+    
+    // Load 128-bit FOCT values into NEON registers
+    emit(Encoder::create_ld1_vector_reg(va_neon, vector_a_reg, "4S")); // 4x32-bit floats
+    emit(Encoder::create_ld1_vector_reg(vb_neon, vector_b_reg, "4S")); // 4x32-bit floats
+    
+    // FMINP.4S: Pairwise minimum of two 4-element float vectors
+    emit(Encoder::create_fminp_vector_reg(vresult_neon, va_neon, vb_neon, "4S"));
+    
+    // Store 128-bit result
+    emit(Encoder::create_st1_vector_reg(vresult_neon, result_reg, "4S"));
+    
+    register_manager_.release_vec_scratch_reg(va_neon);
+    register_manager_.release_vec_scratch_reg(vb_neon);  
+    register_manager_.release_vec_scratch_reg(vresult_neon);
+}
+
+// Helper function for general float vectors (FVEC)
+void NewCodeGenerator::generateFloatVectorPairwiseMin(const PairwiseReductionLoopStatement& node) {
+    debug_print("Generating float vector pairwise minimum (FVEC)");
+    
+    std::string vector_a_reg = get_variable_register(node.vector_a_name);
+    std::string vector_b_reg = get_variable_register(node.vector_b_name);
+    std::string result_reg = get_variable_register(node.result_vector_name);
+    
+    std::string va_neon = register_manager_.acquire_vec_scratch_reg();
+    std::string vb_neon = register_manager_.acquire_vec_scratch_reg();
+    std::string vresult_neon = register_manager_.acquire_vec_scratch_reg();
+    
+    // Load float vectors - assume 4S format for typical FVEC
+    emit(Encoder::create_ld1_vector_reg(va_neon, vector_a_reg, "4S"));
+    emit(Encoder::create_ld1_vector_reg(vb_neon, vector_b_reg, "4S"));
+    
+    // FMINP.4S: Pairwise minimum of float vectors
+    emit(Encoder::create_fminp_vector_reg(vresult_neon, va_neon, vb_neon, "4S"));
+    
+    // Store float vector result
+    emit(Encoder::create_st1_vector_reg(vresult_neon, result_reg, "4S"));
+    
+    register_manager_.release_vec_scratch_reg(va_neon);
+    register_manager_.release_vec_scratch_reg(vb_neon);  
+    register_manager_.release_vec_scratch_reg(vresult_neon);
+}
+
+// Helper function for PAIR (2 ints in 64 bits)
+void NewCodeGenerator::generatePairPairwiseMin(const PairwiseReductionLoopStatement& node) {
+    debug_print("Generating PAIR pairwise minimum (2 ints, 64-bit)");
+    
+    std::string vector_a_reg = get_variable_register(node.vector_a_name);
+    std::string vector_b_reg = get_variable_register(node.vector_b_name);
+    std::string result_reg = get_variable_register(node.result_vector_name);
+    
+    std::string va_neon = register_manager_.acquire_vec_scratch_reg();
+    std::string vb_neon = register_manager_.acquire_vec_scratch_reg();
+    std::string vresult_neon = register_manager_.acquire_vec_scratch_reg();
+    
+    // Load 64-bit PAIR values into NEON registers
+    emit(Encoder::create_ldr_vec_imm(va_neon, vector_a_reg, 0)); // Load 64-bit
+    emit(Encoder::create_ldr_vec_imm(vb_neon, vector_b_reg, 0)); // Load 64-bit
+    
+    // SMIN.2S: Element-wise minimum of two 2-element integer vectors
+    emit(Encoder::create_smin_vector_reg(vresult_neon, va_neon, vb_neon, "2S"));
+    
+    // Store 64-bit result
+    emit(Encoder::create_str_vec_imm(vresult_neon, result_reg, 0));
+    
+    register_manager_.release_vec_scratch_reg(va_neon);
+    register_manager_.release_vec_scratch_reg(vb_neon);  
+    register_manager_.release_vec_scratch_reg(vresult_neon);
+}
+
+// Helper function for QUAD (4 ints in 64 bits - actually should be 128 bits)
+void NewCodeGenerator::generateQuadPairwiseMin(const PairwiseReductionLoopStatement& node) {
+    debug_print("Generating QUAD pairwise minimum (4 ints, 128-bit)");
+    
+    std::string vector_a_reg = get_variable_register(node.vector_a_name);
+    std::string vector_b_reg = get_variable_register(node.vector_b_name);
+    std::string result_reg = get_variable_register(node.result_vector_name);
+    
+    std::string va_neon = register_manager_.acquire_vec_scratch_reg();
+    std::string vb_neon = register_manager_.acquire_vec_scratch_reg();
+    std::string vresult_neon = register_manager_.acquire_vec_scratch_reg();
+    
+    // Load 128-bit QUAD values into NEON registers
+    emit(Encoder::create_ld1_vector_reg(va_neon, vector_a_reg, "4S")); // 4x32-bit integers
+    emit(Encoder::create_ld1_vector_reg(vb_neon, vector_b_reg, "4S")); // 4x32-bit integers
+    
+    // SMIN.4S: Element-wise minimum of two 4-element integer vectors
+    emit(Encoder::create_smin_vector_reg(vresult_neon, va_neon, vb_neon, "4S"));
+    
+    // Store 128-bit result
+    emit(Encoder::create_st1_vector_reg(vresult_neon, result_reg, "4S"));
+    
+    register_manager_.release_vec_scratch_reg(va_neon);
+    register_manager_.release_vec_scratch_reg(vb_neon);  
+    register_manager_.release_vec_scratch_reg(vresult_neon);
+}
+
+// Helper function for OCT (8 ints in 64 bits - should be 256 bits or use multiple registers)
+void NewCodeGenerator::generateOctPairwiseMin(const PairwiseReductionLoopStatement& node) {
+    debug_print("Generating OCT pairwise minimum (8 ints, requires multiple registers)");
+    
+    std::string vector_a_reg = get_variable_register(node.vector_a_name);
+    std::string vector_b_reg = get_variable_register(node.vector_b_name);
+    std::string result_reg = get_variable_register(node.result_vector_name);
+    
+    // For 8 integers, we need to use two 128-bit registers
+    std::string va_neon_lo = register_manager_.acquire_vec_scratch_reg();
+    std::string va_neon_hi = register_manager_.acquire_vec_scratch_reg();
+    std::string vb_neon_lo = register_manager_.acquire_vec_scratch_reg();
+    std::string vb_neon_hi = register_manager_.acquire_vec_scratch_reg();
+    std::string vresult_lo = register_manager_.acquire_vec_scratch_reg();
+    std::string vresult_hi = register_manager_.acquire_vec_scratch_reg();
+    
+    // Load lower 4 integers (elements 0-3)
+    emit(Encoder::create_ld1_vector_reg(va_neon_lo, vector_a_reg, "4S"));
+    emit(Encoder::create_ld1_vector_reg(vb_neon_lo, vector_b_reg, "4S"));
+    
+    // Load higher 4 integers (elements 4-7) - offset by 16 bytes
+    emit(Encoder::create_ldr_imm(va_neon_hi, vector_a_reg, 16));
+    emit(Encoder::create_ldr_imm(vb_neon_hi, vector_b_reg, 16));
+    
+    // SMIN.4S for both halves
+    emit(Encoder::create_smin_vector_reg(vresult_lo, va_neon_lo, vb_neon_lo, "4S"));
+    emit(Encoder::create_smin_vector_reg(vresult_hi, va_neon_hi, vb_neon_hi, "4S"));
+    
+    // Store both halves
+    emit(Encoder::create_st1_vector_reg(vresult_lo, result_reg, "4S"));
+    emit(Encoder::create_str_imm(vresult_hi, result_reg, 16));
+    
+    register_manager_.release_vec_scratch_reg(va_neon_lo);
+    register_manager_.release_vec_scratch_reg(va_neon_hi);
+    register_manager_.release_vec_scratch_reg(vb_neon_lo);
+    register_manager_.release_vec_scratch_reg(vb_neon_hi);
+    register_manager_.release_vec_scratch_reg(vresult_lo);
+    register_manager_.release_vec_scratch_reg(vresult_hi);
+}
+
+// Helper function for general integer vectors (VEC)
+void NewCodeGenerator::generateIntegerVectorPairwiseMin(const PairwiseReductionLoopStatement& node) {
+    debug_print("Generating integer vector pairwise minimum (VEC)");
+    
+    std::string vector_a_reg = get_variable_register(node.vector_a_name);
+    std::string vector_b_reg = get_variable_register(node.vector_b_name);
+    std::string result_reg = get_variable_register(node.result_vector_name);
+    
+    std::string va_neon = register_manager_.acquire_vec_scratch_reg();
+    std::string vb_neon = register_manager_.acquire_vec_scratch_reg();
+    std::string vresult_neon = register_manager_.acquire_vec_scratch_reg();
+    
+    // Load integer vectors - assume 4S format for typical VEC
+    emit(Encoder::create_ld1_vector_reg(va_neon, vector_a_reg, "4S"));
+    emit(Encoder::create_ld1_vector_reg(vb_neon, vector_b_reg, "4S"));
+    
+    // SMIN.4S: Element-wise minimum of integer vectors
+    emit(Encoder::create_smin_vector_reg(vresult_neon, va_neon, vb_neon, "4S"));
+    
+    // Store integer vector result
+    emit(Encoder::create_st1_vector_reg(vresult_neon, result_reg, "4S"));
+    
+    register_manager_.release_vec_scratch_reg(va_neon);
+    register_manager_.release_vec_scratch_reg(vb_neon);  
+    register_manager_.release_vec_scratch_reg(vresult_neon);
 }
 
 /**
