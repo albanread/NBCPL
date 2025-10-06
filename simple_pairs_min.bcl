@@ -1,0 +1,25 @@
+GET "libhdr"
+
+LET START() BE
+$(
+    WRITEF("Simple PAIRS component-wise MIN test*N")
+
+    // Create small PAIRS collection
+    LET points = PAIRS 3
+
+    // Initialize with test data
+    points!0 := PAIR(10, 30)
+    points!1 := PAIR(5, 40)
+    points!2 := PAIR(15, 20)
+
+    WRITEF("Points: (%N,%N), (%N,%N), (%N,%N)*N",
+           points!0|0, points!0|1,
+           points!1|0, points!1|1,
+           points!2|0, points!2|1)
+
+    // Component-wise MIN - should find min X and min Y separately
+    LET result = MIN(points)
+
+    WRITEF("MIN result: (%N, %N)*N", result.first, result.second)
+    WRITEF("Expected: (5, 20)*N")
+$)

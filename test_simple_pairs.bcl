@@ -1,0 +1,43 @@
+GET "libhdr"
+
+// Simple test to debug PAIRS usage and PAIRWISE_ADD behavior
+
+LET START() BE
+$(
+    WRITEF("Testing basic PAIRS operations*N")
+
+    // Create PAIRS vector with 2 elements
+    LET pairs_vec = PAIRS 2
+
+    // Initialize PAIRS elements with MAKEPAIR
+    pairs_vec!0 := MAKEPAIR(1, 5)
+    pairs_vec!1 := MAKEPAIR(3, 7)
+
+    WRITEF("Created PAIRS vector with 2 elements*N")
+    WRITEF("pairs_vec!0 = MAKEPAIR(1, 5)*N")
+    WRITEF("pairs_vec!1 = MAKEPAIR(3, 7)*N")
+
+    // Test basic PAIRS access
+    LET first_pair = pairs_vec!0
+    LET second_pair = pairs_vec!1
+
+    WRITEF("first_pair created successfully*N")
+    WRITEF("second_pair created successfully*N")
+
+    // Test lane access on PAIRS elements
+    WRITEF("first_pair lanes: [%d, %d]*N", first_pair.|0|, first_pair.|1|)
+    WRITEF("second_pair lanes: [%d, %d]*N", second_pair.|0|, second_pair.|1|)
+
+    // Now test PAIRWISE_ADD
+    WRITEF("*NTesting PAIRWISE_ADD on PAIRS...*N")
+    LET result = PAIRWISE_ADD(pairs_vec)
+
+    WRITEF("PAIRWISE_ADD completed successfully*N")
+
+    // Try to access result as a PAIR
+    WRITEF("Attempting to access result as PAIR:*N")
+    WRITEF("Result lane 0: %d*N", result.|0|)
+    WRITEF("Result lane 1: %d*N", result.|1|)
+
+    WRITEF("*NPAIRWISE_ADD test completed*N")
+$)

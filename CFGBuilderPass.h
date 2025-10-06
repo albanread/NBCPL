@@ -6,6 +6,8 @@
 #include "ControlFlowGraph.h"
 #include "HeapManager/HeapManager.h"
 #include "reductions.h"
+#include "Reducer.h"
+#include "Reducers.h"
 #include <optional>
 #include <unordered_map>
 #include <utility> // For std::pair
@@ -167,10 +169,30 @@ private:
     void visit(MinStatement& node) override;
     void visit(MaxStatement& node) override;
     void visit(SumStatement& node) override;
+    void visit(ReductionStatement& node) override;  // New modular reduction visitor
     
     // Helper method for generating reduction CFG structures
     void generateReductionCFG(Expression* left_expr, Expression* right_expr,
                              const std::string& result_var, int op);
+    
+    // Overloaded version that accepts Reducer interface (modern approach)
+    void generateReductionCFG(Expression* left_expr, Expression* right_expr,
+                             const std::string& result_var, const Reducer& reducer);
+    
+    // Pairwise reduction CFG generation for NEON intrinsics
+    void generatePairwiseReductionCFG(Expression* left_expr, Expression* right_expr,
+                                     const std::string& result_var, const PairwiseMinReducer& reducer);
+    void generatePairwiseReductionCFG(Expression* left_expr, Expression* right_expr,
+                                     const std::string& result_var, const PairwiseMaxReducer& reducer);
+    void generatePairwiseReductionCFG(Expression* left_expr, Expression* right_expr,
+                                     const std::string& result_var, const PairwiseAddReducer& reducer);
+    
+    // Component-wise reduction CFG generation for PAIRS with NEON optimization
+    void generateComponentWiseReductionCFG(Expression* left_expr, Expression* right_expr,
+                                          const std::string& result_var, const Reducer& reducer);
+    
+    // Helper method to detect PAIRS type
+    bool isPairsType(Expression* expr);
 };
 
 #endif // CFG_BUILDER_PASS_H

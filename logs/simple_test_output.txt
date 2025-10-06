@@ -1,3 +1,0 @@
-
-Compilation failed due to the following syntax error(s):
-  [L-1719837592 C2] Error: Executable statements are not allowed in the global scope.

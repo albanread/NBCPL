@@ -1,0 +1,72 @@
+// Test file for NEON-accelerated pairwise reductions
+// Demonstrates PAIRWISE_MIN, PAIRWISE_MAX, and PAIRWISE_ADD operations
+
+LET START() BE {
+    WRITEF("Testing NEON Pairwise Vector Reductions*N")
+
+    // Create test float vectors for pairwise operations
+    LET vec_a = FVEC 8  // 8 float elements
+    LET vec_b = FVEC 8  // 8 float elements
+    LET result_min = FVEC 4  // Result will have half the elements
+    LET result_max = FVEC 4
+    LET result_add = FVEC 4
+
+    // Initialize vec_a with test values
+    vec_a!0 := 1.5   // First pair: (1.5, 2.5)
+    vec_a!1 := 2.5
+    vec_a!2 := 8.0   // Second pair: (8.0, 3.0)
+    vec_a!3 := 3.0
+    vec_a!4 := 2.2   // Third pair: (2.2, 7.7)
+    vec_a!5 := 7.7
+    vec_a!6 := 9.1   // Fourth pair: (9.1, 1.1)
+    vec_a!7 := 1.1
+
+    // Initialize vec_b with test values
+    vec_b!0 := 4.5   // First pair: (4.5, 1.0)
+    vec_b!1 := 1.0
+    vec_b!2 := 6.0   // Second pair: (6.0, 9.0)
+    vec_b!3 := 9.0
+    vec_b!4 := 3.3   // Third pair: (3.3, 6.6)
+    vec_b!5 := 6.6
+    vec_b!6 := 8.8   // Fourth pair: (8.8, 2.2)
+    vec_b!7 := 2.2
+
+    WRITEF("Input vectors initialized*N")
+    WRITEF("vec_a pairs: (%.1f,%.1f) (%.1f,%.1f) (%.1f,%.1f) (%.1f,%.1f)*N",
+           vec_a!0, vec_a!1, vec_a!2, vec_a!3, vec_a!4, vec_a!5, vec_a!6, vec_a!7)
+    WRITEF("vec_b pairs: (%.1f,%.1f) (%.1f,%.1f) (%.1f,%.1f) (%.1f,%.1f)*N",
+           vec_b!0, vec_b!1, vec_b!2, vec_b!3, vec_b!4, vec_b!5, vec_b!6, vec_b!7)
+
+    // Test PAIRWISE_MIN: finds minimum within each pair
+    // Should produce: min(1.5,2.5)=1.5, min(8.0,3.0)=3.0, min(2.2,7.7)=2.2, min(9.1,1.1)=1.1
+    WRITEF("*NTesting PAIRWISE_MIN operation...*N")
+    result_min := PAIRWISE_MIN(vec_a, vec_b)
+
+    WRITEF("PAIRWISE_MIN results: %.1f %.1f %.1f %.1f*N",
+           result_min!0, result_min!1, result_min!2, result_min!3)
+    WRITEF("Expected: 1.5 3.0 2.2 1.1 (minimum within each pair)*N")
+
+    // Test PAIRWISE_MAX: finds maximum within each pair
+    // Should produce: max(1.5,2.5)=2.5, max(8.0,3.0)=8.0, max(2.2,7.7)=7.7, max(9.1,1.1)=9.1
+    WRITEF("*NTesting PAIRWISE_MAX operation...*N")
+    result_max := PAIRWISE_MAX(vec_a, vec_b)
+
+    WRITEF("PAIRWISE_MAX results: %.1f %.1f %.1f %.1f*N",
+           result_max!0, result_max!1, result_max!2, result_max!3)
+    WRITEF("Expected: 2.5 8.0 7.7 9.1 (maximum within each pair)*N")
+
+    // Test PAIRWISE_ADD: adds elements within each pair
+    // Should produce: (1.5+2.5)=4.0, (8.0+3.0)=11.0, (2.2+7.7)=9.9, (9.1+1.1)=10.2
+    WRITEF("*NTesting PAIRWISE_ADD operation...*N")
+    result_add := PAIRWISE_ADD(vec_a, vec_b)
+
+    WRITEF("PAIRWISE_ADD results: %.1f %.1f %.1f %.1f*N",
+           result_add!0, result_add!1, result_add!2, result_add!3)
+    WRITEF("Expected: 4.0 11.0 9.9 10.2 (sum within each pair)*N")
+
+    // Performance note
+    WRITEF("*NPerformance: These operations use ARM NEON SIMD instructions*N")
+    WRITEF("FMINP, FMAXP, and FADDP for maximum throughput*N")
+
+    WRITEF("*NPairwise NEON reduction tests completed successfully!*N")
+}

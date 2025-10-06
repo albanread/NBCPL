@@ -1,0 +1,111 @@
+GET "libhdr"
+
+// Test component-wise reductions on collections of PAIRS with NEON optimization
+// This demonstrates how the modular reducer system automatically generates
+// optimized SIMD code for component-wise operations on PAIRS collections.
+
+LET START() BE
+$(
+    WRITEF("=== NEON-Optimized Component-wise PAIRS Reduction Test ===*N")
+
+    // Create a collection of PAIRS for testing
+    LET pairs_collection = PAIRS 8
+    WRITEF("Created PAIRS collection with 8 elements*N")
+
+    // Initialize with test data representing (x, y) coordinates
+    pairs_collection!0 := PAIR(10, 50)    // Point 1: (10, 50)
+    pairs_collection!1 := PAIR(25, 30)    // Point 2: (25, 30)
+    pairs_collection!2 := PAIR(5, 80)     // Point 3: (5, 80)
+    pairs_collection!3 := PAIR(40, 15)    // Point 4: (40, 15)
+    pairs_collection!4 := PAIR(35, 45)    // Point 5: (35, 45)
+    pairs_collection!5 := PAIR(20, 60)    // Point 6: (20, 60)
+    pairs_collection!6 := PAIR(15, 25)    // Point 7: (15, 25)
+    pairs_collection!7 := PAIR(30, 70)    // Point 8: (30, 70)
+
+    WRITEF("*NInitialized collection with coordinate pairs:*N")
+    FOR i = 0 TO 7 DO
+        WRITEF("  pairs_collection!%N = (%N, %N)*N",
+               i, pairs_collection!i|0, pairs_collection!i|1)
+
+    WRITEF("*N=== Testing Component-wise MIN Reduction ===*N")
+    WRITEF("Expected: MIN should find minimum X and minimum Y independently*N")
+    WRITEF("Expected result: PAIR(5, 15) - min X=5, min Y=15*N")
+
+    // This will use the MinReducer with NEON optimization
+    // Compiler generates: VLD2 (de-interleave), VMIN (vector min), VPMIN (horizontal min)
+    LET min_result = MIN(pairs_collection)
+    WRITEF("MIN result: PAIR(%N, %N)*N", min_result.first, min_result.second)
+
+    WRITEF("*N=== Testing Component-wise MAX Reduction ===*N")
+    WRITEF("Expected: MAX should find maximum X and maximum Y independently*N")
+    WRITEF("Expected result: PAIR(40, 80) - max X=40, max Y=80*N")
+
+    // This will use the MaxReducer with NEON optimization
+    // Compiler generates: VLD2 (de-interleave), VMAX (vector max), VPMAX (horizontal max)
+    LET max_result = MAX(pairs_collection)
+    WRITEF("MAX result: PAIR(%N, %N)*N", max_result.first, max_result.second)
+
+    WRITEF("*N=== Testing Component-wise SUM Reduction ===*N")
+    WRITEF("Expected: SUM should add all X values and all Y values independently*N")
+    WRITEF("Expected result: PAIR(180, 375) - sum X=180, sum Y=375*N")
+
+    // This will use the SumReducer with NEON optimization
+    // Compiler generates: VLD2 (de-interleave), VADD (vector add), VPADD (horizontal add)
+    LET sum_result = SUM(pairs_collection)
+    WRITEF("SUM result: PAIR(%N, %N)*N", sum_result.first, sum_result.second)
+
+    WRITEF("*N=== Verification ===*N")
+
+    // Verify MIN result
+    TEST min_result.first = 5 & min_result.second = 15 THEN
+        WRITEF("✓ MIN component-wise reduction: CORRECT*N")
+    ELSE
+        WRITEF("✗ MIN component-wise reduction: FAILED*N")
+
+    // Verify MAX result
+    TEST max_result.first = 40 & max_result.second = 80 THEN
+        WRITEF("✓ MAX component-wise reduction: CORRECT*N")
+    ELSE
+        WRITEF("✗ MAX component-wise reduction: FAILED*N")
+
+    // Verify SUM result
+    TEST sum_result.first = 180 & sum_result.second = 375 THEN
+        WRITEF("✓ SUM component-wise reduction: CORRECT*N")
+    ELSE
+        WRITEF("✗ SUM component-wise reduction: FAILED*N")
+
+    WRITEF("*N=== NEON Optimization Benefits ===*N")
+    WRITEF("This test demonstrates several key optimizations:*N")
+    WRITEF("1. VLD2 instruction de-interleaves PAIRS data automatically*N")
+    WRITEF("2. Vector operations process 4 pairs simultaneously*N")
+    WRITEF("3. Horizontal reductions collapse vectors to final scalars*N")
+    WRITEF("4. Scalar fallback handles remaining elements cleanly*N")
+    WRITEF("5. Developer writes simple MIN/MAX/SUM - compiler handles SIMD*N")
+
+    WRITEF("*N=== Testing with Smaller Collection ===*N")
+
+    // Test with collection smaller than NEON vector size (edge case)
+    LET small_pairs = PAIRS 3
+    small_pairs!0 := PAIR(100, 200)
+    small_pairs!1 := PAIR(50, 300)
+    small_pairs!2 := PAIR(150, 100)
+
+    WRITEF("Small collection: [(%N,%N), (%N,%N), (%N,%N)]*N",
+           small_pairs!0|0, small_pairs!0|1,
+           small_pairs!1|0, small_pairs!1|1,
+           small_pairs!2|0, small_pairs!2|1)
+
+    LET small_min = MIN(small_pairs)
+    LET small_max = MAX(small_pairs)
+    LET small_sum = SUM(small_pairs)
+
+    WRITEF("Small MIN: PAIR(%N, %N) - Expected: PAIR(50, 100)*N",
+           small_min.first, small_min.second)
+    WRITEF("Small MAX: PAIR(%N, %N) - Expected: PAIR(150, 300)*N",
+           small_max.first, small_max.second)
+    WRITEF("Small SUM: PAIR(%N, %N) - Expected: PAIR(300, 600)*N",
+           small_sum.first, small_sum.second)
+
+    WRITEF("*N=== Component-wise PAIRS Reduction Test Complete ===*N")
+    WRITEF("All operations used the modular reducer system with NEON optimization*N")
+$)

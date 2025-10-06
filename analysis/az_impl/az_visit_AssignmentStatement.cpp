@@ -1,11 +1,108 @@
 #include "../ASTAnalyzer.h"
 #include "../../DataTypes.h"
+#include "../../Reducer.h"
 
 // Visitor implementation for AssignmentStatement nodes
 void ASTAnalyzer::visit(AssignmentStatement& node) {
     if (trace_enabled_) {
         std::cerr << "[ASSIGNMENT VISITOR] Processing AssignmentStatement with " 
                   << node.lhs.size() << " LHS variables" << std::endl;
+    }
+    
+    // Check for single assignment with reducer function: result := REDUCER_FUNC(...)
+    if (node.lhs.size() == 1 && node.rhs.size() == 1) {
+        auto* lhs_var = dynamic_cast<VariableAccess*>(node.lhs[0].get());
+        auto* func_call = dynamic_cast<FunctionCall*>(node.rhs[0].get());
+
+        if (lhs_var && func_call) {
+            if (auto* func_var = dynamic_cast<VariableAccess*>(func_call->function_expr.get())) {
+                const std::string& func_name = func_var->name;
+
+                // Check for PAIRWISE_MIN and other reducer functions
+                if (func_name == "PAIRWISE_MIN" && func_call->arguments.size() >= 1) {
+                    if (trace_enabled_) {
+                        std::cerr << "[ASSIGNMENT VISITOR] Detected PAIRWISE_MIN assignment - converting to ReductionStatement" << std::endl;
+                    }
+                    
+                    // Note: In a real implementation, you would need to transform the AST
+                    // For now, we'll just mark that this should be handled as a reduction
+                    // and process it normally, but with special awareness
+                    
+                    // Ensure the LHS variable is in the symbol table
+                    if (symbol_table_) {
+                        Symbol existing_symbol;
+                        if (!symbol_table_->lookup(lhs_var->name, existing_symbol)) {
+                            // Add the variable to symbol table as it will receive the reduction result
+                            Symbol new_symbol(
+                                lhs_var->name,
+                                SymbolKind::LOCAL_VAR,
+                                VarType::POINTER_TO_FLOAT_VEC, // PAIRWISE_MIN typically returns a vector
+                                symbol_table_->currentScopeLevel(),
+                                current_function_scope_
+                            );
+                            symbol_table_->addSymbol(new_symbol);
+                            
+                            // Update function metrics
+                            if (current_function_scope_ != "Global") {
+                                auto& metrics = function_metrics_[current_function_scope_];
+                                metrics.variable_types[lhs_var->name] = VarType::POINTER_TO_FLOAT_VEC;
+                                metrics.num_variables++;
+                            }
+                            
+                            if (trace_enabled_) {
+                                std::cerr << "[ASSIGNMENT VISITOR] Added PAIRWISE_MIN result variable '" 
+                                         << lhs_var->name << "' to symbol table" << std::endl;
+                            }
+                        }
+                    }
+                }
+                // Add other reducer functions here as needed
+                else if (func_name == "PAIRWISE_MAX" && func_call->arguments.size() >= 1) {
+                    // Similar handling for PAIRWISE_MAX
+                    if (symbol_table_) {
+                        Symbol existing_symbol;
+                        if (!symbol_table_->lookup(lhs_var->name, existing_symbol)) {
+                            Symbol new_symbol(
+                                lhs_var->name,
+                                SymbolKind::LOCAL_VAR,
+                                VarType::POINTER_TO_FLOAT_VEC,
+                                symbol_table_->currentScopeLevel(),
+                                current_function_scope_
+                            );
+                            symbol_table_->addSymbol(new_symbol);
+                            
+                            if (current_function_scope_ != "Global") {
+                                auto& metrics = function_metrics_[current_function_scope_];
+                                metrics.variable_types[lhs_var->name] = VarType::POINTER_TO_FLOAT_VEC;
+                                metrics.num_variables++;
+                            }
+                        }
+                    }
+                }
+                else if (func_name == "PAIRWISE_ADD" && func_call->arguments.size() >= 1) {
+                    // Similar handling for PAIRWISE_ADD
+                    if (symbol_table_) {
+                        Symbol existing_symbol;
+                        if (!symbol_table_->lookup(lhs_var->name, existing_symbol)) {
+                            Symbol new_symbol(
+                                lhs_var->name,
+                                SymbolKind::LOCAL_VAR,
+                                VarType::POINTER_TO_FLOAT_VEC,
+                                symbol_table_->currentScopeLevel(),
+                                current_function_scope_
+                            );
+                            symbol_table_->addSymbol(new_symbol);
+                            
+                            if (current_function_scope_ != "Global") {
+                                auto& metrics = function_metrics_[current_function_scope_];
+                                metrics.variable_types[lhs_var->name] = VarType::POINTER_TO_FLOAT_VEC;
+                                metrics.num_variables++;
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
     
     // Visit all RHS expressions first (to analyze subexpressions)

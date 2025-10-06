@@ -1,0 +1,44 @@
+// Test file for the new modular reduction system
+// This tests MIN, MAX, and SUM operations on vector pairs
+
+LET start() BE {
+    STATIC data_a = VEC 10
+    STATIC data_b = VEC 10
+    STATIC min_result = VEC 10
+    STATIC max_result = VEC 10
+    STATIC sum_result = VEC 10
+
+    // Initialize test data
+    data_a!0 := 1; data_b!0 := 5
+    data_a!1 := 8; data_b!1 := 3
+    data_a!2 := 2; data_b!2 := 7
+    data_a!3 := 9; data_b!3 := 1
+    data_a!4 := 4; data_b!4 := 6
+
+    // Test MIN reduction - should find minimum at each position
+    min_result := MIN(data_a, data_b)
+
+    // Test MAX reduction - should find maximum at each position
+    max_result := MAX(data_a, data_b)
+
+    // Test SUM reduction - should add corresponding elements
+    sum_result := SUM(data_a, data_b)
+
+    // Print results
+    writef("MIN results: ")
+    FOR i = 0 TO 4 DO writef("%d ", min_result!i)
+    writef("*n")
+
+    writef("MAX results: ")
+    FOR i = 0 TO 4 DO writef("%d ", max_result!i)
+    writef("*n")
+
+    writef("SUM results: ")
+    FOR i = 0 TO 4 DO writef("%d ", sum_result!i)
+    writef("*n")
+
+    // Expected output:
+    // MIN results: 1 3 2 1 4
+    // MAX results: 5 8 7 9 6
+    // SUM results: 6 11 9 10 10
+}

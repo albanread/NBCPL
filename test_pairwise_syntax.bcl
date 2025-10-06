@@ -1,0 +1,20 @@
+// Test file to verify PAIRWISE function syntax parsing
+// This test should demonstrate that the parser recognizes pairwise functions
+
+LET START() BE {
+    // Test 1: PAIRWISE_MIN with two arguments
+    LET a = PAIRWISE_MIN(data1, data2)
+
+    // Test 2: PAIRWISE_MAX with two arguments
+    LET b = PAIRWISE_MAX(vec1, vec2)
+
+    // Test 3: PAIRWISE_ADD with two arguments
+    LET c = PAIRWISE_ADD(floats1, floats2)
+
+    // Test 4: PAIRWISE functions with single argument
+    LET d = PAIRWISE_MIN(single_vec)
+    LET e = PAIRWISE_MAX(another_vec)
+    LET f = PAIRWISE_ADD(sum_vec)
+
+    WRITEF("Pairwise syntax parsing test*N")
+}

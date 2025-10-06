@@ -1,0 +1,22 @@
+LET START() BE
+{
+    WRITEF("PAIRWISE_ADD Test with PAIRS*N")
+
+    // Simple PAIRS operation test
+    LET a = PAIRS 2
+
+    WRITEF("Created PAIRS vector a*N")
+
+    // Initialize with test values
+    a!0 := PAIR(1, 5)
+    a!1 := PAIR(3, 7)
+
+    WRITEF("Initialized: a!0=PAIR(1,5), a!1=PAIR(3,7)*N")
+    WRITEF("Testing PAIRWISE_ADD(a)*N")
+
+    // Test PAIRWISE_ADD
+    PAIRWISE_ADD(a)
+
+    WRITEF("PAIRWISE_ADD completed*N")
+    WRITEF("PAIRWISE_ADD test complete*N")
+}

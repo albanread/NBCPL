@@ -1,0 +1,160 @@
+#include "../AST.h"
+#include "../Reducer.h"
+#include "../Reducers.h"
+#include "../CFGBuilderPass.h"
+#include <iostream>
+#include <memory>
+
+/**
+ * Example demonstrating the new modular reduction system
+ * 
+ * This example shows how the new Reducer interface makes it easy to:
+ * 1. Create reduction operations using the factory
+ * 2. Build ReductionStatement AST nodes
+ * 3. Add new reduction types without modifying existing code
+ */
+
+void demonstrateModularReductions() {
+    std::cout << "=== Modular Reduction System Demo ===" << std::endl;
+    
+    // === 1. Factory Pattern Usage ===
+    std::cout << "\n1. Creating reducers using factory pattern:" << std::endl;
+    
+    auto min_reducer = createReducer("MIN");
+    auto max_reducer = createReducer("MAX");
+    auto sum_reducer = createReducer("SUM");
+    auto product_reducer = createReducer("PRODUCT");
+    
+    if (min_reducer) {
+        std::cout << "   MIN reducer: " << min_reducer->getName() 
+                  << ", requires init: " << (min_reducer->requiresInitialization() ? "yes" : "no") << std::endl;
+    }
+    
+    if (sum_reducer) {
+        std::cout << "   SUM reducer: " << sum_reducer->getName() 
+                  << ", requires init: " << (sum_reducer->requiresInitialization() ? "yes" : "no")
+                  << ", initial value: " << sum_reducer->getInitialValueString() << std::endl;
+    }
+    
+    if (product_reducer) {
+        std::cout << "   PRODUCT reducer: " << product_reducer->getName() 
+                  << ", requires init: " << (product_reducer->requiresInitialization() ? "yes" : "no")
+                  << ", initial value: " << product_reducer->getInitialValueString() << std::endl;
+    }
+    
+    // === 2. Creating ReductionStatement AST Nodes ===
+    std::cout << "\n2. Creating ReductionStatement AST nodes:" << std::endl;
+    
+    // Create sample operand expressions
+    auto left_operand = std::make_unique<VariableAccess>("vector_a");
+    auto right_operand = std::make_unique<VariableAccess>("vector_b");
+    
+    // Create a MIN reduction: result := MIN(vector_a, vector_b)
+    auto min_statement = std::make_unique<ReductionStatement>(
+        createReducer("MIN"),
+        "min_result",
+        std::make_unique<VariableAccess>("vector_a"),
+        std::make_unique<VariableAccess>("vector_b")
+    );
+    
+    std::cout << "   Created MIN reduction statement: " 
+              << min_statement->reducer->getName() << std::endl;
+    
+    // Create a SUM reduction: sum_result := SUM(vector_c, vector_d) 
+    auto sum_statement = std::make_unique<ReductionStatement>(
+        createReducer("SUM"),
+        "sum_result", 
+        std::make_unique<VariableAccess>("vector_c"),
+        std::make_unique<VariableAccess>("vector_d")
+    );
+    
+    std::cout << "   Created SUM reduction statement: " 
+              << sum_statement->reducer->getName() << std::endl;
+    
+    // === 3. Comparison with Old System ===
+    std::cout << "\n3. Comparison with old system:" << std::endl;
+    std::cout << "   OLD: Separate MinStatement, MaxStatement, SumStatement classes" << std::endl;
+    std::cout << "   OLD: Separate visit methods for each operation type" << std::endl;
+    std::cout << "   OLD: Integer operation codes (0=MIN, 1=MAX, 2=SUM)" << std::endl;
+    std::cout << "   NEW: Single ReductionStatement class with pluggable Reducer" << std::endl;
+    std::cout << "   NEW: Single visit(ReductionStatement&) method" << std::endl;
+    std::cout << "   NEW: Type-safe reducer objects with clear interfaces" << std::endl;
+    
+    // === 4. Extension Example ===
+    std::cout << "\n4. Easy extension example:" << std::endl;
+    std::cout << "   To add PRODUCT reduction:" << std::endl;
+    std::cout << "   - Create ProductReducer class (already done in Reducers.h)" << std::endl;
+    std::cout << "   - Add to factory map in Reducer.cpp (already done)" << std::endl;
+    std::cout << "   - Extend ReductionOp enum in reductions.h (future work)" << std::endl;
+    std::cout << "   - Add NEON support in ReductionCodeGen (future work)" << std::endl;
+    std::cout << "   - NO changes needed to AST.h, CFGBuilderPass, or visitor pattern!" << std::endl;
+    
+    // === 5. Benefits Summary ===
+    std::cout << "\n5. Benefits of modular design:" << std::endl;
+    std::cout << "   ✓ Extensibility: Easy to add new reduction operations" << std::endl;
+    std::cout << "   ✓ Reusability: Reducer logic can be used elsewhere" << std::endl;
+    std::cout << "   ✓ Separation of Concerns: Operation logic separate from AST/CFG" << std::endl;
+    std::cout << "   ✓ Maintainability: No large switch statements" << std::endl;
+    std::cout << "   ✓ Type Safety: Compile-time checking of reducer interfaces" << std::endl;
+    std::cout << "   ✓ Testability: Individual reducers can be unit tested" << std::endl;
+}
+
+/**
+ * Example of creating a custom reducer for a new operation
+ */
+class CustomAverageReducer : public Reducer {
+public:
+    std::string getName() const override {
+        return "AVERAGE";
+    }
+    
+    BinaryOp::Operator getOperator() const override {
+        return BinaryOp::Operator::Add; // Average uses addition in the reduction
+    }
+    
+    int getReductionOp() const override {
+        return 6; // Would need to be added to ReductionOp enum
+    }
+    
+    std::unique_ptr<Expression> getInitialValue() const override {
+        return std::make_unique<NumberLiteral>(0); // Start with zero for sum
+    }
+    
+    std::string getInitialValueString() const override {
+        return "0 (custom average needs post-processing division)";
+    }
+};
+
+void demonstrateCustomReducer() {
+    std::cout << "\n=== Custom Reducer Demo ===" << std::endl;
+    
+    auto custom_reducer = std::make_unique<CustomAverageReducer>();
+    
+    std::cout << "Custom " << custom_reducer->getName() << " reducer created" << std::endl;
+    std::cout << "Initial value: " << custom_reducer->getInitialValueString() << std::endl;
+    
+    // Could create a ReductionStatement with this custom reducer
+    auto avg_statement = std::make_unique<ReductionStatement>(
+        std::move(custom_reducer),
+        "average_result",
+        std::make_unique<VariableAccess>("data_vector_1"), 
+        std::make_unique<VariableAccess>("data_vector_2")
+    );
+    
+    std::cout << "Created custom reduction statement for: " 
+              << avg_statement->reducer->getName() << std::endl;
+}
+
+int main() {
+    try {
+        demonstrateModularReductions();
+        demonstrateCustomReducer();
+        
+        std::cout << "\n=== Demo Complete ===" << std::endl;
+        return 0;
+    }
+    catch (const std::exception& e) {
+        std::cerr << "Error: " << e.what() << std::endl;
+        return 1;
+    }
+}

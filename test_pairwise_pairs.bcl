@@ -1,0 +1,53 @@
+GET "libhdr"
+
+// Test for PAIRWISE_ADD using PAIRS data type
+// PAIRS is a vector type containing PAIR elements
+
+LET START() BE
+$(
+    WRITEF("Testing PAIRWISE_ADD with PAIRS data type*N")
+
+    // Create PAIRS vector with 2 elements
+    LET pairs_vec = PAIRS 2
+
+    // Initialize PAIRS elements
+    pairs_vec!0 := MAKEPAIR(1, 5)    // First pair: lanes [1, 5]
+    pairs_vec!1 := MAKEPAIR(3, 7)    // Second pair: lanes [3, 7]
+
+    WRITEF("Input PAIRS vector:*N")
+    WRITEF("  pairs_vec!0 = MAKEPAIR(1, 5)*N")
+    WRITEF("  pairs_vec!1 = MAKEPAIR(3, 7)*N")
+
+    // Test PAIRWISE_ADD on PAIRS
+    // Expected: pairwise add within pairs across the vector
+    // This should create a result PAIRS with summed lanes
+    LET result_pairs = PAIRWISE_ADD(pairs_vec)
+
+    WRITEF("PAIRWISE_ADD result type: PAIRS*N")
+    WRITEF("Result pairs_vec length: %d*N", LEN(result_pairs))
+
+    // Access the result elements
+    WRITEF("Result pairs_vec!0: %d*N", result_pairs!0)
+
+    TEST LEN(result_pairs) > 0 THEN $(
+        LET first_result = result_pairs!0
+        WRITEF("First result pair lanes: [%d, %d]*N", first_result.|0|, first_result.|1|)
+
+        // Simple test: just check if we get reasonable values
+        LET lane0 = first_result.|0|
+        LET lane1 = first_result.|1|
+        TEST lane0 > 0 THEN $(
+            TEST lane1 > 0 THEN $(
+                WRITEF("✓ PAIRWISE_ADD with PAIRS appears to work*N")
+            $) ELSE $(
+                WRITEF("✗ PAIRWISE_ADD with PAIRS produced unexpected results*N")
+            $)
+        $) ELSE $(
+            WRITEF("✗ PAIRWISE_ADD with PAIRS produced unexpected results*N")
+        $)
+    $) ELSE $(
+        WRITEF("✗ PAIRWISE_ADD result has no elements*N")
+    $)
+
+    WRITEF("*NPAIRWISE_ADD with PAIRS testing completed*N")
+$)

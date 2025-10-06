@@ -1,0 +1,22 @@
+LET START() BE
+{
+    WRITEF("Testing PAIRWISE_MIN with modular reducers*N")
+
+    // Create simple test vector
+    LET vec = GETVEC(4)
+
+    // Initialize with test values: [5.0, 2.0, 8.0, 1.0]
+    vec!0 := 5
+    vec!1 := 2
+    vec!2 := 8
+    vec!3 := 1
+
+    // Test PAIRWISE_MIN - should find min of adjacent pairs
+    // Expected: min(5,2)=2, min(8,1)=1, so result should be [2, 1]
+    LET result = PAIRWISE_MIN(vec)
+    
+    WRITEF("[%d, %d]*N", result!0, result!1)
+    
+    WRITEF("PAIRWISE_MIN result completed*N")
+   
+}

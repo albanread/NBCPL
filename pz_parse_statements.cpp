@@ -1,6 +1,7 @@
 #include "Parser.h"
 #include <vector>
 #include "AST.h"
+#include "Reducer.h"
 
 /**
  * @brief Parses a statement, handling optional REPEAT WHILE/UNTIL clauses.
@@ -459,6 +460,61 @@ StmtPtr Parser::parse_block_or_compound_statement() {
                                 std::move(func_call->arguments[1])
                             );
                             statements.push_back(std::move(sum_stmt));
+                            is_reduction_statement = true;
+                            break;
+                        }
+                        else if (func_name == "PAIRWISE_MIN" && func_call->arguments.size() >= 1 && names.size() == 1) {
+                            std::cout << "[DEBUG] FOUND PAIRWISE_MIN FUNCTION - Converting to ReductionStatement!" << std::endl;
+                            
+                            // First, create an AssignmentStatement to declare the result variable (equivalent to LET without initializer)
+                            // This ensures the variable is in the symbol table and allocation map
+                            std::vector<ExprPtr> lhs_vec;
+                            lhs_vec.push_back(std::make_unique<VariableAccess>(names[0]));
+                            std::vector<ExprPtr> rhs_vec;
+                            rhs_vec.push_back(std::make_unique<NullLiteral>()); // Use null as placeholder initializer
+                            auto var_decl_stmt = std::make_unique<AssignmentStatement>(
+                                std::move(lhs_vec), 
+                                std::move(rhs_vec)
+                            );
+                            statements.push_back(std::move(var_decl_stmt));
+                            
+                            // Then create the ReductionStatement
+                            auto pairwise_min_stmt = std::make_unique<ReductionStatement>(
+                                createReducer("PAIRWISE_MIN"),
+                                names[0],
+                                std::move(func_call->arguments[0]),
+                                func_call->arguments.size() > 1 ? std::move(func_call->arguments[1]) : nullptr
+                            );
+                            statements.push_back(std::move(pairwise_min_stmt));
+                            std::cout << "[DEBUG] PairwiseMinStatement created and added to statements!" << std::endl;
+                            is_reduction_statement = true;
+                            break;
+                        }
+                        else if (func_name == "PAIRWISE_MAX" && func_call->arguments.size() >= 1 && names.size() == 1) {
+                            std::cout << "[DEBUG] FOUND PAIRWISE_MAX FUNCTION - Converting to ReductionStatement!" << std::endl;
+                            // Convert LET result = PAIRWISE_MAX(a, b) to ReductionStatement with PairwiseMaxReducer
+                            auto pairwise_max_stmt = std::make_unique<ReductionStatement>(
+                                createReducer("PAIRWISE_MAX"),
+                                names[0],
+                                std::move(func_call->arguments[0]),
+                                func_call->arguments.size() > 1 ? std::move(func_call->arguments[1]) : nullptr
+                            );
+                            statements.push_back(std::move(pairwise_max_stmt));
+                            std::cout << "[DEBUG] PairwiseMaxStatement created and added to statements!" << std::endl;
+                            is_reduction_statement = true;
+                            break;
+                        }
+                        else if (func_name == "PAIRWISE_ADD" && func_call->arguments.size() >= 1 && names.size() == 1) {
+                            std::cout << "[DEBUG] FOUND PAIRWISE_ADD FUNCTION - Converting to ReductionStatement!" << std::endl;
+                            // Convert LET result = PAIRWISE_ADD(a, b) to ReductionStatement with PairwiseAddReducer
+                            auto pairwise_add_stmt = std::make_unique<ReductionStatement>(
+                                createReducer("PAIRWISE_ADD"),
+                                names[0],
+                                std::move(func_call->arguments[0]),
+                                func_call->arguments.size() > 1 ? std::move(func_call->arguments[1]) : nullptr
+                            );
+                            statements.push_back(std::move(pairwise_add_stmt));
+                            std::cout << "[DEBUG] PairwiseAddStatement created and added to statements!" << std::endl;
                             is_reduction_statement = true;
                             break;
                         }

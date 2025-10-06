@@ -1,5 +1,6 @@
 #include "AST.h"
 #include "ASTVisitor.h"
+#include "Reducer.h"
 
 // Out-of-line virtual destructors for base classes.
 // Defining them out-of-line (even if defaulted) in a single .cpp file ensures
@@ -239,6 +240,24 @@ ASTNodePtr SumStatement::clone() const {
     );
 }
 
+void ReductionStatement::accept(ASTVisitor& visitor) {
+    visitor.visit(*this);
+}
+
+ASTNodePtr ReductionStatement::clone() const {
+    return std::make_unique<ReductionStatement>(
+        createReducer(reducer->getName()),
+        result_variable,
+        left_operand ? std::unique_ptr<Expression>(static_cast<Expression*>(left_operand->clone().release())) : nullptr,
+        right_operand ? std::unique_ptr<Expression>(static_cast<Expression*>(right_operand->clone().release())) : nullptr
+    );
+}
+
+ReductionStatement::ReductionStatement(std::unique_ptr<Reducer> reducer, std::string result_var, ExprPtr left, ExprPtr right)
+    : Statement(NodeType::ReductionStmt), reducer(std::move(reducer)), 
+      result_variable(std::move(result_var)), left_operand(std::move(left)), 
+      right_operand(std::move(right)) {}
+
 void ReductionLoopStatement::accept(ASTVisitor& visitor) {
     // This is a metadata statement - no visitor needed
 }
@@ -246,5 +265,15 @@ void ReductionLoopStatement::accept(ASTVisitor& visitor) {
 ASTNodePtr ReductionLoopStatement::clone() const {
     return std::make_unique<ReductionLoopStatement>(
         left_temp, right_temp, result_temp, index_name, chunks_name, result_variable, reduction_op
+    );
+}
+
+void PairwiseReductionLoopStatement::accept(ASTVisitor& visitor) {
+    visitor.visit(*this);
+}
+
+ASTNodePtr PairwiseReductionLoopStatement::clone() const {
+    return std::make_unique<PairwiseReductionLoopStatement>(
+        vector_a_name, vector_b_name, result_vector_name, intrinsic_name, reduction_op
     );
 }

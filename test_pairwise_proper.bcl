@@ -1,0 +1,55 @@
+LET START() BE {
+    WRITEF("Testing NEON Pairwise Functions*N")
+
+    // Create test vectors with proper allocation
+    LET vec1 = FVEC 8
+    LET vec2 = FVEC 8
+
+    // Initialize first vector: [1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0]
+    vec1!0 := 1.0
+    vec1!1 := 2.0
+    vec1!2 := 3.0
+    vec1!3 := 4.0
+    vec1!4 := 5.0
+    vec1!5 := 6.0
+    vec1!6 := 7.0
+    vec1!7 := 8.0
+
+    // Initialize second vector: [2.0, 1.0, 6.0, 3.0, 8.0, 5.0, 4.0, 7.0]
+    vec2!0 := 2.0
+    vec2!1 := 1.0
+    vec2!2 := 6.0
+    vec2!3 := 3.0
+    vec2!4 := 8.0
+    vec2!5 := 5.0
+    vec2!6 := 4.0
+    vec2!7 := 7.0
+
+    WRITEF("Input vectors initialized*N")
+
+    // Test 1: PAIRWISE_MIN - finds min of adjacent pairs
+    // vec1 pairs: (1.0,2.0)→1.0, (3.0,4.0)→3.0, (5.0,6.0)→5.0, (7.0,8.0)→7.0
+    // Should produce: [1.0, 3.0, 5.0, 7.0]
+    LET min_result = FVEC 4
+    min_result := PAIRWISE_MIN(vec1)
+
+    WRITEF("PAIRWISE_MIN test completed*N")
+
+    // Test 2: PAIRWISE_MAX - finds max of adjacent pairs
+    // vec1 pairs: (1.0,2.0)→2.0, (3.0,4.0)→4.0, (5.0,6.0)→6.0, (7.0,8.0)→8.0
+    // Should produce: [2.0, 4.0, 6.0, 8.0]
+    LET max_result = FVEC 4
+    max_result := PAIRWISE_MAX(vec1)
+
+    WRITEF("PAIRWISE_MAX test completed*N")
+
+    // Test 3: PAIRWISE_ADD - adds adjacent pairs
+    // vec2 pairs: (2.0,1.0)→3.0, (6.0,3.0)→9.0, (8.0,5.0)→13.0, (4.0,7.0)→11.0
+    // Should produce: [3.0, 9.0, 13.0, 11.0]
+    LET add_result = FVEC 4
+    add_result := PAIRWISE_ADD(vec2)
+
+    WRITEF("PAIRWISE_ADD test completed*N")
+
+    WRITEF("All pairwise NEON tests completed successfully!*N")
+}

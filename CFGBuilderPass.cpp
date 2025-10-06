@@ -1,11 +1,14 @@
 #include "AST.h"
 #include "CFGBuilderPass.h"
 #include "BasicBlock.h"
+#include "Reducer.h"
 #include <iostream>
 #include <vector>
 #include <memory>
 #include "analysis/ASTAnalyzer.h"
 #include "NameMangler.h"
+#include "Symbol.h"
+#include "SymbolTable.h"
 
 // Helper function to clone a unique_ptr, assuming it's available from AST_Cloner.cpp
 template <typename T>
@@ -2574,4 +2577,777 @@ void CFGBuilderPass::build_destructuring_list_foreach_cfg(ForEachStatement& node
         }
         
         if (trace_enabled_) std::cout << "[CFGBuilderPass] Completed reduction CFG generation." << std::endl;
+    }
+
+    // === Helper method to check if expression is PAIRS type ===
+    
+    bool CFGBuilderPass::isPairsType(Expression* expr) {
+        if (!expr || !symbol_table_) {
+            return false;
+        }
+        
+        // Check if it's a variable access and look up its type
+        if (auto* var_access = dynamic_cast<VariableAccess*>(expr)) {
+            Symbol symbol;
+            if (symbol_table_->lookup(var_access->name, symbol)) {
+                return symbol.type == VarType::PAIRS;
+            }
+        }
+        
+        // Check if it's a PAIRS allocation expression
+        if (dynamic_cast<PairsAllocationExpression*>(expr)) {
+            return true;
+        }
+        
+        return false;
+    }
+
+    // === New Overloaded generateReductionCFG for Reducer Interface ===
+    
+    void CFGBuilderPass::generateReductionCFG(Expression* left_expr, Expression* right_expr,
+                                             const std::string& result_var, const Reducer& reducer) {
+        if (trace_enabled_) {
+            std::cout << "[CFGBuilderPass] Building CFG for " << reducer.getName() 
+                      << " reduction operation (modern interface)" << std::endl;
+        }
+        
+        // Check if we're dealing with PAIRS type for component-wise reduction
+        if (isPairsType(left_expr)) {
+            if (trace_enabled_) {
+                std::cout << "[CFGBuilderPass] Detected PAIRS type - generating component-wise reduction" << std::endl;
+            }
+            generateComponentWiseReductionCFG(left_expr, right_expr, result_var, reducer);
+        } else {
+            // Delegate to existing implementation using the reducer's operation code
+            generateReductionCFG(left_expr, right_expr, result_var, reducer.getReductionOp());
+        }
+        
+        if (trace_enabled_) {
+            std::cout << "[CFGBuilderPass] Completed " << reducer.getName() 
+                      << " reduction using " << (isPairsType(left_expr) ? "component-wise" : "legacy") 
+                      << " implementation" << std::endl;
+        }
+    }
+
+    // === New Modular ReductionStatement Visitor ===
+    
+    void CFGBuilderPass::visit(ReductionStatement& node) {
+        if (trace_enabled_) {
+            std::cout << "[CFGBuilderPass] visit(ReductionStatement) entered for operation: " 
+                      << node.reducer->getName() << std::endl;
+        }
+        
+        if (!current_basic_block) end_current_block_and_start_new();
+
+        // Check if we have a pairwise reducer and handle it specially
+        if (auto* pairwise_min = dynamic_cast<PairwiseMinReducer*>(node.reducer.get())) {
+            generatePairwiseReductionCFG(node.left_operand.get(), node.right_operand.get(),
+                                        node.result_variable, *pairwise_min);
+        } else if (auto* pairwise_max = dynamic_cast<PairwiseMaxReducer*>(node.reducer.get())) {
+            generatePairwiseReductionCFG(node.left_operand.get(), node.right_operand.get(),
+                                        node.result_variable, *pairwise_max);
+        } else if (auto* pairwise_add = dynamic_cast<PairwiseAddReducer*>(node.reducer.get())) {
+            generatePairwiseReductionCFG(node.left_operand.get(), node.right_operand.get(),
+                                        node.result_variable, *pairwise_add);
+        } else {
+            // Handle initialization if the reducer requires it
+            if (node.reducer->requiresInitialization()) {
+                if (trace_enabled_) {
+                    std::cout << "[CFGBuilderPass] Initializing result variable '" << node.result_variable 
+                              << "' with initial value: " << node.reducer->getInitialValueString() << std::endl;
+                }
+                
+                std::vector<ExprPtr> result_lhs;
+                result_lhs.push_back(std::make_unique<VariableAccess>(node.result_variable));
+                std::vector<ExprPtr> result_rhs;
+                result_rhs.push_back(node.reducer->getInitialValue());
+                current_basic_block->add_statement(std::make_unique<AssignmentStatement>(
+                    std::move(result_lhs), std::move(result_rhs)
+                ));
+            }
+
+            // Generate the reduction CFG using the modern reducer interface
+            generateReductionCFG(node.left_operand.get(), node.right_operand.get(),
+                                 node.result_variable, *node.reducer);
+        }
+
+        if (trace_enabled_) {
+            std::cout << "[CFGBuilderPass] visit(ReductionStatement) exiting for operation: " 
+                      << node.reducer->getName() << std::endl;
+        }
+    }
+
+    // === Pairwise Reduction CFG Generation Methods ===
+    
+    void CFGBuilderPass::generatePairwiseReductionCFG(Expression* left_expr, Expression* right_expr,
+                                                     const std::string& result_var, const PairwiseMinReducer& reducer) {
+        if (trace_enabled_) {
+            std::cout << "[CFGBuilderPass] Building pairwise CFG for " << reducer.getName() 
+                      << " operation using NEON intrinsics" << std::endl;
+        }
+
+        if (!current_basic_block) end_current_block_and_start_new();
+
+        // Extract vector names from expressions
+        std::string left_vector_name, right_vector_name;
+        if (auto* left_var = dynamic_cast<VariableAccess*>(left_expr)) {
+            left_vector_name = left_var->name;
+        } else {
+            left_vector_name = "_pairwise_left_" + std::to_string(block_id_counter++);
+            // Store the left expression in a temporary variable
+            std::vector<ExprPtr> left_lhs;
+            left_lhs.push_back(std::make_unique<VariableAccess>(left_vector_name));
+            std::vector<ExprPtr> left_rhs;
+            left_rhs.push_back(std::unique_ptr<Expression>(static_cast<Expression*>(left_expr->clone().release())));
+            current_basic_block->add_statement(std::make_unique<AssignmentStatement>(
+                std::move(left_lhs), std::move(left_rhs)
+            ));
+        }
+
+        if (right_expr) {
+            if (auto* right_var = dynamic_cast<VariableAccess*>(right_expr)) {
+                right_vector_name = right_var->name;
+            } else {
+                right_vector_name = "_pairwise_right_" + std::to_string(block_id_counter++);
+                // Store the right expression in a temporary variable
+                std::vector<ExprPtr> right_lhs;
+                right_lhs.push_back(std::make_unique<VariableAccess>(right_vector_name));
+                std::vector<ExprPtr> right_rhs;
+                right_rhs.push_back(std::unique_ptr<Expression>(static_cast<Expression*>(right_expr->clone().release())));
+                current_basic_block->add_statement(std::make_unique<AssignmentStatement>(
+                    std::move(right_lhs), std::move(right_rhs)
+                ));
+            }
+        } else {
+            // For single-argument pairwise operations, use the left vector as both operands
+            right_vector_name = left_vector_name;
+        }
+
+        // Generate result vector allocation with proper size calculation
+        // For pairwise operations: result_size = input_size / 2
+        
+        // Create a UnaryOp to get input vector size: LengthOf(input_vector)
+        auto len_op = std::make_unique<UnaryOp>(
+            UnaryOp::Operator::LengthOf, 
+            std::make_unique<VariableAccess>(left_vector_name));
+        
+        // Create binary division: LengthOf(input_vector) / 2
+        auto two_literal = std::make_unique<NumberLiteral>(static_cast<int64_t>(2));
+        auto size_div = std::make_unique<BinaryOp>(
+            BinaryOp::Operator::Divide,
+            std::move(len_op),
+            std::move(two_literal)
+        );
+        
+        // Create GETVEC call: GETVEC(input_size / 2)
+        std::vector<ExprPtr> getvec_args;
+        getvec_args.push_back(std::move(size_div));
+        auto getvec_call = std::make_unique<FunctionCall>(
+            std::make_unique<VariableAccess>("GETVEC"), std::move(getvec_args));
+        
+        // Create assignment: result_var = GETVEC(input_size / 2)  
+        std::vector<ExprPtr> result_lhs;
+        result_lhs.push_back(std::make_unique<VariableAccess>(result_var));
+        std::vector<ExprPtr> result_rhs;
+        result_rhs.push_back(std::move(getvec_call));
+        
+        current_basic_block->add_statement(std::make_unique<AssignmentStatement>(
+            std::move(result_lhs), std::move(result_rhs)
+        ));
+
+        // Create the pairwise reduction loop statement with NEON intrinsic
+        auto pairwise_stmt = std::make_unique<PairwiseReductionLoopStatement>(
+            left_vector_name, right_vector_name, result_var,
+            "llvm.arm.neon.vpmin.v4f32",  // NEON intrinsic for pairwise minimum
+            reducer.getReductionOp()
+        );
+
+        current_basic_block->add_statement(std::move(pairwise_stmt));
+
+        if (trace_enabled_) {
+            std::cout << "[CFGBuilderPass] Completed pairwise " << reducer.getName() 
+                      << " CFG generation with NEON intrinsics" << std::endl;
+        }
+    }
+
+    void CFGBuilderPass::generatePairwiseReductionCFG(Expression* left_expr, Expression* right_expr,
+                                                     const std::string& result_var, const PairwiseMaxReducer& reducer) {
+        if (trace_enabled_) {
+            std::cout << "[CFGBuilderPass] Building pairwise CFG for " << reducer.getName() 
+                      << " operation using NEON intrinsics" << std::endl;
+        }
+
+        if (!current_basic_block) end_current_block_and_start_new();
+
+        // Extract vector names from expressions (similar to PairwiseMinReducer)
+        std::string left_vector_name, right_vector_name;
+        if (auto* left_var = dynamic_cast<VariableAccess*>(left_expr)) {
+            left_vector_name = left_var->name;
+        } else {
+            left_vector_name = "_pairwise_left_" + std::to_string(block_id_counter++);
+            std::vector<ExprPtr> left_lhs;
+            left_lhs.push_back(std::make_unique<VariableAccess>(left_vector_name));
+            std::vector<ExprPtr> left_rhs;
+            left_rhs.push_back(std::unique_ptr<Expression>(static_cast<Expression*>(left_expr->clone().release())));
+            current_basic_block->add_statement(std::make_unique<AssignmentStatement>(
+                std::move(left_lhs), std::move(left_rhs)
+            ));
+        }
+
+        if (right_expr) {
+            if (auto* right_var = dynamic_cast<VariableAccess*>(right_expr)) {
+                right_vector_name = right_var->name;
+            } else {
+                right_vector_name = "_pairwise_right_" + std::to_string(block_id_counter++);
+                std::vector<ExprPtr> right_lhs;
+                right_lhs.push_back(std::make_unique<VariableAccess>(right_vector_name));
+                std::vector<ExprPtr> right_rhs;
+                right_rhs.push_back(std::unique_ptr<Expression>(static_cast<Expression*>(right_expr->clone().release())));
+                current_basic_block->add_statement(std::make_unique<AssignmentStatement>(
+                    std::move(right_lhs), std::move(right_rhs)
+                ));
+            }
+        } else {
+            // For single-argument pairwise operations, use the left vector as both operands
+            right_vector_name = left_vector_name;
+        }
+
+        // Generate result vector allocation with proper size calculation
+        // For pairwise operations: result_size = input_size / 2
+        
+        // Create a UnaryOp to get input vector size: LengthOf(input_vector)
+        auto len_op = std::make_unique<UnaryOp>(
+            UnaryOp::Operator::LengthOf, 
+            std::make_unique<VariableAccess>(left_vector_name));
+        
+        // Create binary division: LengthOf(input_vector) / 2
+        auto two_literal = std::make_unique<NumberLiteral>(static_cast<int64_t>(2));
+        auto size_div = std::make_unique<BinaryOp>(
+            BinaryOp::Operator::Divide,
+            std::move(len_op),
+            std::move(two_literal)
+        );
+        
+        // Create GETVEC call: GETVEC(input_size / 2)
+        std::vector<ExprPtr> getvec_args;
+        getvec_args.push_back(std::move(size_div));
+        auto getvec_call = std::make_unique<FunctionCall>(
+            std::make_unique<VariableAccess>("GETVEC"), std::move(getvec_args));
+        
+        // Create assignment: result_var = GETVEC(input_size / 2)  
+        std::vector<ExprPtr> result_lhs;
+        result_lhs.push_back(std::make_unique<VariableAccess>(result_var));
+        std::vector<ExprPtr> result_rhs;
+        result_rhs.push_back(std::move(getvec_call));
+        
+        current_basic_block->add_statement(std::make_unique<AssignmentStatement>(
+            std::move(result_lhs), std::move(result_rhs)
+        ));
+
+        // Create the pairwise reduction loop statement with NEON intrinsic for maximum
+        auto pairwise_stmt = std::make_unique<PairwiseReductionLoopStatement>(
+            left_vector_name, right_vector_name, result_var,
+            "llvm.arm.neon.vpmax.v4f32",  // NEON intrinsic for pairwise maximum
+            reducer.getReductionOp()
+        );
+
+        current_basic_block->add_statement(std::move(pairwise_stmt));
+
+        if (trace_enabled_) {
+            std::cout << "[CFGBuilderPass] Completed pairwise " << reducer.getName() 
+                      << " CFG generation with NEON intrinsics" << std::endl;
+        }
+    }
+
+    void CFGBuilderPass::generatePairwiseReductionCFG(Expression* left_expr, Expression* right_expr,
+                                                     const std::string& result_var, const PairwiseAddReducer& reducer) {
+        if (trace_enabled_) {
+            std::cout << "[CFGBuilderPass] Building pairwise CFG for " << reducer.getName() 
+                      << " operation using NEON intrinsics" << std::endl;
+        }
+
+        if (!current_basic_block) end_current_block_and_start_new();
+
+        // Extract vector names from expressions (similar to other pairwise reducers)
+        std::string left_vector_name, right_vector_name;
+        if (auto* left_var = dynamic_cast<VariableAccess*>(left_expr)) {
+            left_vector_name = left_var->name;
+        } else {
+            left_vector_name = "_pairwise_left_" + std::to_string(block_id_counter++);
+            std::vector<ExprPtr> left_lhs;
+            left_lhs.push_back(std::make_unique<VariableAccess>(left_vector_name));
+            std::vector<ExprPtr> left_rhs;
+            left_rhs.push_back(std::unique_ptr<Expression>(static_cast<Expression*>(left_expr->clone().release())));
+            current_basic_block->add_statement(std::make_unique<AssignmentStatement>(
+                std::move(left_lhs), std::move(left_rhs)
+            ));
+        }
+
+        if (right_expr) {
+            if (auto* right_var = dynamic_cast<VariableAccess*>(right_expr)) {
+                right_vector_name = right_var->name;
+            } else {
+                right_vector_name = "_pairwise_right_" + std::to_string(block_id_counter++);
+                std::vector<ExprPtr> right_lhs;
+                right_lhs.push_back(std::make_unique<VariableAccess>(right_vector_name));
+                std::vector<ExprPtr> right_rhs;
+                right_rhs.push_back(std::unique_ptr<Expression>(static_cast<Expression*>(right_expr->clone().release())));
+                current_basic_block->add_statement(std::make_unique<AssignmentStatement>(
+                    std::move(right_lhs), std::move(right_rhs)
+                ));
+            }
+        } else {
+            // For single-argument pairwise operations, use the left vector as both operands
+            right_vector_name = left_vector_name;
+        }
+
+        // Generate result vector allocation with proper size calculation
+        // For pairwise operations: result_size = input_size / 2
+        
+        // Create a UnaryOp to get input vector size: LengthOf(input_vector)
+        auto len_op = std::make_unique<UnaryOp>(
+            UnaryOp::Operator::LengthOf, 
+            std::make_unique<VariableAccess>(left_vector_name));
+        
+        // Create binary division: LengthOf(input_vector) / 2
+        auto two_literal = std::make_unique<NumberLiteral>(static_cast<int64_t>(2));
+        auto size_div = std::make_unique<BinaryOp>(
+            BinaryOp::Operator::Divide,
+            std::move(len_op),
+            std::move(two_literal)
+        );
+        
+        // Create GETVEC call: GETVEC(input_size / 2)
+        std::vector<ExprPtr> getvec_args;
+        getvec_args.push_back(std::move(size_div));
+        auto getvec_call = std::make_unique<FunctionCall>(
+            std::make_unique<VariableAccess>("GETVEC"), std::move(getvec_args));
+        
+        // Create assignment: result_var = GETVEC(input_size / 2)  
+        std::vector<ExprPtr> result_lhs;
+        result_lhs.push_back(std::make_unique<VariableAccess>(result_var));
+        std::vector<ExprPtr> result_rhs;
+        result_rhs.push_back(std::move(getvec_call));
+        
+        current_basic_block->add_statement(std::make_unique<AssignmentStatement>(
+            std::move(result_lhs), std::move(result_rhs)
+        ));
+
+        // Create the pairwise reduction loop statement with NEON intrinsic for addition
+        auto pairwise_stmt = std::make_unique<PairwiseReductionLoopStatement>(
+            left_vector_name, right_vector_name, result_var,
+            "llvm.arm.neon.vpadd.v4i32",  // NEON intrinsic for integer pairwise addition
+            reducer.getReductionOp()
+        );
+
+        current_basic_block->add_statement(std::move(pairwise_stmt));
+
+        if (trace_enabled_) {
+            std::cout << "[CFGBuilderPass] Completed pairwise " << reducer.getName() 
+                      << " CFG generation with NEON intrinsics" << std::endl;
+        }
+    }
+
+    // === Component-wise Reduction CFG Generation for PAIRS with NEON Optimization ===
+    
+    void CFGBuilderPass::generateComponentWiseReductionCFG(Expression* left_expr, Expression* right_expr,
+                                                          const std::string& result_var, const Reducer& reducer) {
+        if (trace_enabled_) {
+            std::cout << "[CFGBuilderPass] Building NEON-optimized component-wise CFG for " << reducer.getName() 
+                      << " reduction on PAIRS collection" << std::endl;
+        }
+
+        // --- Step 1: Create unique names for NEON-optimized reduction control variables ---
+        std::string left_vec_name;
+        std::string left_size_name = "_pairs_size_" + std::to_string(block_id_counter++);
+        std::string vector_chunks_name = "_vector_chunks_" + std::to_string(block_id_counter++);
+        std::string remainder_name = "_remainder_" + std::to_string(block_id_counter++);
+        std::string index_name = "_vec_idx_" + std::to_string(block_id_counter++);
+        std::string x_accumulator_name = "_x_acc_" + std::to_string(block_id_counter++);
+        std::string y_accumulator_name = "_y_acc_" + std::to_string(block_id_counter++);
+
+        // Check if operand is a simple variable access (optimization)
+        bool left_is_variable = false;
+        if (auto* left_var = dynamic_cast<VariableAccess*>(left_expr)) {
+            left_vec_name = left_var->name;
+            left_is_variable = true;
+        } else {
+            left_vec_name = "_pairs_vec_" + std::to_string(block_id_counter++);
+        }
+
+        // --- Step 2: Register NEON-optimized temporary variables in symbol table ---
+        if (symbol_table_) {
+            if (!left_is_variable) {
+                symbol_table_->addSymbol(Symbol(
+                    left_vec_name, SymbolKind::LOCAL_VAR, VarType::PAIRS,
+                    symbol_table_->currentScopeLevel(), current_cfg->function_name
+                ));
+            }
+            symbol_table_->addSymbol(Symbol(
+                left_size_name, SymbolKind::LOCAL_VAR, VarType::INTEGER,
+                symbol_table_->currentScopeLevel(), current_cfg->function_name
+            ));
+            symbol_table_->addSymbol(Symbol(
+                vector_chunks_name, SymbolKind::LOCAL_VAR, VarType::INTEGER,
+                symbol_table_->currentScopeLevel(), current_cfg->function_name
+            ));
+            symbol_table_->addSymbol(Symbol(
+                remainder_name, SymbolKind::LOCAL_VAR, VarType::INTEGER,
+                symbol_table_->currentScopeLevel(), current_cfg->function_name
+            ));
+            symbol_table_->addSymbol(Symbol(
+                index_name, SymbolKind::LOCAL_VAR, VarType::INTEGER,
+                symbol_table_->currentScopeLevel(), current_cfg->function_name
+            ));
+            // NEON vector accumulators (will be mapped to NEON registers in codegen)
+            symbol_table_->addSymbol(Symbol(
+                x_accumulator_name, SymbolKind::LOCAL_VAR, VarType::QUAD,
+                symbol_table_->currentScopeLevel(), current_cfg->function_name
+            ));
+            symbol_table_->addSymbol(Symbol(
+                y_accumulator_name, SymbolKind::LOCAL_VAR, VarType::QUAD,
+                symbol_table_->currentScopeLevel(), current_cfg->function_name
+            ));
+            symbol_table_->addSymbol(Symbol(
+                result_var, SymbolKind::LOCAL_VAR, VarType::PAIR,
+                symbol_table_->currentScopeLevel(), current_cfg->function_name
+            ));
+        }
+
+        // --- Step 3: Initialize setup in current block ---
+        if (!current_basic_block) end_current_block_and_start_new();
+
+        // Store operand expression if not a variable
+        if (!left_is_variable) {
+            std::vector<ExprPtr> left_rhs;
+            left_rhs.push_back(std::unique_ptr<Expression>(static_cast<Expression*>(left_expr->clone().release())));
+            std::vector<ExprPtr> left_lhs;
+            left_lhs.push_back(std::make_unique<VariableAccess>(left_vec_name));
+            current_basic_block->add_statement(std::make_unique<AssignmentStatement>(
+                std::move(left_lhs), std::move(left_rhs)
+            ));
+        }
+
+        // Get collection size: LET pairs_size = LEN(pairs_vec)
+        {
+            std::vector<ExprPtr> size_rhs;
+            size_rhs.push_back(std::make_unique<UnaryOp>(UnaryOp::Operator::LengthOf, std::make_unique<VariableAccess>(left_vec_name)));
+            std::vector<ExprPtr> size_lhs;
+            size_lhs.push_back(std::make_unique<VariableAccess>(left_size_name));
+            current_basic_block->add_statement(std::make_unique<AssignmentStatement>(
+                std::move(size_lhs), std::move(size_rhs)
+            ));
+        }
+
+        // Calculate vector chunks: LET vector_chunks = pairs_size / 4 (4 pairs per NEON vector)
+        {
+            std::vector<ExprPtr> chunks_rhs;
+            chunks_rhs.push_back(std::make_unique<BinaryOp>(
+                BinaryOp::Operator::Divide,
+                std::make_unique<VariableAccess>(left_size_name),
+                std::make_unique<NumberLiteral>(static_cast<int64_t>(4))
+            ));
+            std::vector<ExprPtr> chunks_lhs;
+            chunks_lhs.push_back(std::make_unique<VariableAccess>(vector_chunks_name));
+            current_basic_block->add_statement(std::make_unique<AssignmentStatement>(
+                std::move(chunks_lhs), std::move(chunks_rhs)
+            ));
+        }
+
+        // Calculate remainder: LET remainder = pairs_size % 4
+        {
+            std::vector<ExprPtr> rem_rhs;
+            rem_rhs.push_back(std::make_unique<BinaryOp>(
+                BinaryOp::Operator::Remainder,
+                std::make_unique<VariableAccess>(left_size_name),
+                std::make_unique<NumberLiteral>(static_cast<int64_t>(4))
+            ));
+            std::vector<ExprPtr> rem_lhs;
+            rem_lhs.push_back(std::make_unique<VariableAccess>(remainder_name));
+            current_basic_block->add_statement(std::make_unique<AssignmentStatement>(
+                std::move(rem_lhs), std::move(rem_rhs)
+            ));
+        }
+
+        // Initialize NEON accumulators with reducer's initial value
+        // x_acc = [initial, initial, initial, initial] (QUAD vector)
+        {
+            std::vector<ExprPtr> x_acc_rhs;
+            std::vector<ExprPtr> quad_elements;
+            for (int i = 0; i < 4; i++) {
+                quad_elements.push_back(std::unique_ptr<Expression>(static_cast<Expression*>(reducer.getInitialValue()->clone().release())));
+            }
+            x_acc_rhs.push_back(std::make_unique<QuadExpression>(
+                std::move(quad_elements[0]), std::move(quad_elements[1]),
+                std::move(quad_elements[2]), std::move(quad_elements[3])
+            ));
+            std::vector<ExprPtr> x_acc_lhs;
+            x_acc_lhs.push_back(std::make_unique<VariableAccess>(x_accumulator_name));
+            current_basic_block->add_statement(std::make_unique<AssignmentStatement>(
+                std::move(x_acc_lhs), std::move(x_acc_rhs)
+            ));
+        }
+
+        // y_acc = [initial, initial, initial, initial] (QUAD vector)
+        {
+            std::vector<ExprPtr> y_acc_rhs;
+            std::vector<ExprPtr> quad_elements;
+            for (int i = 0; i < 4; i++) {
+                quad_elements.push_back(std::unique_ptr<Expression>(static_cast<Expression*>(reducer.getInitialValue()->clone().release())));
+            }
+            y_acc_rhs.push_back(std::make_unique<QuadExpression>(
+                std::move(quad_elements[0]), std::move(quad_elements[1]),
+                std::move(quad_elements[2]), std::move(quad_elements[3])
+            ));
+            std::vector<ExprPtr> y_acc_lhs;
+            y_acc_lhs.push_back(std::make_unique<VariableAccess>(y_accumulator_name));
+            current_basic_block->add_statement(std::make_unique<AssignmentStatement>(
+                std::move(y_acc_lhs), std::move(y_acc_rhs)
+            ));
+        }
+
+        // Initialize index: LET idx = 0
+        {
+            std::vector<ExprPtr> idx_rhs;
+            idx_rhs.push_back(std::make_unique<NumberLiteral>(static_cast<int64_t>(0)));
+            std::vector<ExprPtr> idx_lhs;
+            idx_lhs.push_back(std::make_unique<VariableAccess>(index_name));
+            current_basic_block->add_statement(std::make_unique<AssignmentStatement>(
+                std::move(idx_lhs), std::move(idx_rhs)
+            ));
+        }
+
+        // --- Step 4: Create NEON-optimized loop blocks ---
+        BasicBlock* vector_header_block = create_new_basic_block("NEONVectorHeader_");
+        BasicBlock* vector_body_block = create_new_basic_block("NEONVectorBody_");
+        BasicBlock* vector_increment_block = create_new_basic_block("NEONVectorIncrement_");
+        BasicBlock* remainder_header_block = create_new_basic_block("RemainderHeader_");
+        BasicBlock* remainder_body_block = create_new_basic_block("RemainderBody_");
+        BasicBlock* remainder_increment_block = create_new_basic_block("RemainderIncrement_");
+        BasicBlock* horizontal_reduction_block = create_new_basic_block("HorizontalReduction_");
+        BasicBlock* exit_block = create_new_basic_block("ComponentWiseExit_");
+
+        // --- Step 5: Connect to NEON vectorized loop ---
+        current_basic_block->add_successor(vector_header_block);
+        vector_header_block->add_predecessor(current_basic_block);
+
+        // --- Step 6: NEON vectorized loop header ---
+        current_basic_block = vector_header_block;
+
+        // if (idx < vector_chunks) goto vector_body else goto remainder_header
+        auto vector_condition = std::make_unique<BinaryOp>(
+            BinaryOp::Operator::Less,
+            std::make_unique<VariableAccess>(index_name),
+            std::make_unique<VariableAccess>(vector_chunks_name)
+        );
+        auto vector_if_stmt = std::make_unique<IfStatement>(
+            std::move(vector_condition),
+            std::make_unique<CompoundStatement>(std::vector<StmtPtr>{})
+        );
+        current_basic_block->add_statement(std::move(vector_if_stmt));
+
+        current_basic_block->add_successor(vector_body_block);
+        current_basic_block->add_successor(remainder_header_block);
+        vector_body_block->add_predecessor(current_basic_block);
+        remainder_header_block->add_predecessor(current_basic_block);
+
+        // --- Step 7: NEON vectorized loop body (VLD2 + vector reduction) ---
+        current_basic_block = vector_body_block;
+
+        // This is where the magic happens - we create a specialized NEON reduction statement
+        // The code generator will recognize this pattern and emit:
+        // 1. VLD2 to de-interleave pairs into separate X and Y vectors
+        // 2. VMIN/VMAX/VADD to perform vectorized reduction
+        auto neon_reduction_stmt = std::make_unique<PairwiseReductionLoopStatement>(
+            left_vec_name,                    // source PAIRS vector
+            "",                               // no second vector (single-operand reduction)
+            result_var,                       // result variable
+            reducer.getName() + "_COMPONENT", // intrinsic name hint for codegen
+            reducer.getReductionOp()          // operation code
+        );
+
+        // Add metadata for NEON code generation
+        neon_reduction_stmt->vector_a_name = left_vec_name;
+        neon_reduction_stmt->result_vector_name = x_accumulator_name + "," + y_accumulator_name;
+        neon_reduction_stmt->intrinsic_name = "vld2_deinterleave_" + reducer.getName();
+
+        current_basic_block->add_statement(std::move(neon_reduction_stmt));
+
+        current_basic_block->add_successor(vector_increment_block);
+        vector_increment_block->add_predecessor(current_basic_block);
+
+        // --- Step 8: NEON vectorized increment ---
+        current_basic_block = vector_increment_block;
+
+        // idx = idx + 1 (process next chunk of 4 pairs)
+        {
+            std::vector<ExprPtr> inc_rhs;
+            inc_rhs.push_back(std::make_unique<BinaryOp>(
+                BinaryOp::Operator::Add,
+                std::make_unique<VariableAccess>(index_name),
+                std::make_unique<NumberLiteral>(static_cast<int64_t>(1))
+            ));
+            std::vector<ExprPtr> inc_lhs;
+            inc_lhs.push_back(std::make_unique<VariableAccess>(index_name));
+            current_basic_block->add_statement(std::make_unique<AssignmentStatement>(
+                std::move(inc_lhs), std::move(inc_rhs)
+            ));
+        }
+
+        current_basic_block->add_successor(vector_header_block);
+        vector_header_block->add_predecessor(current_basic_block);
+
+        // --- Step 9: Handle remaining pairs (scalar fallback) ---
+        current_basic_block = remainder_header_block;
+
+        // Reset index for remainder processing: idx = vector_chunks * 4
+        {
+            std::vector<ExprPtr> idx_rhs;
+            idx_rhs.push_back(std::make_unique<BinaryOp>(
+                BinaryOp::Operator::Multiply,
+                std::make_unique<VariableAccess>(vector_chunks_name),
+                std::make_unique<NumberLiteral>(static_cast<int64_t>(4))
+            ));
+            std::vector<ExprPtr> idx_lhs;
+            idx_lhs.push_back(std::make_unique<VariableAccess>(index_name));
+            current_basic_block->add_statement(std::make_unique<AssignmentStatement>(
+                std::move(idx_lhs), std::move(idx_rhs)
+            ));
+        }
+
+        // if (idx < pairs_size) goto remainder_body else goto horizontal_reduction
+        auto remainder_condition = std::make_unique<BinaryOp>(
+            BinaryOp::Operator::Less,
+            std::make_unique<VariableAccess>(index_name),
+            std::make_unique<VariableAccess>(left_size_name)
+        );
+        auto remainder_if_stmt = std::make_unique<IfStatement>(
+            std::move(remainder_condition),
+            std::make_unique<CompoundStatement>(std::vector<StmtPtr>{})
+        );
+        current_basic_block->add_statement(std::move(remainder_if_stmt));
+
+        current_basic_block->add_successor(remainder_body_block);
+        current_basic_block->add_successor(horizontal_reduction_block);
+        remainder_body_block->add_predecessor(current_basic_block);
+        horizontal_reduction_block->add_predecessor(current_basic_block);
+
+        // --- Step 10: Remainder processing (scalar component-wise) ---
+        current_basic_block = remainder_body_block;
+
+        // Process remaining pairs one at a time using scalar operations
+        // This will be handled by regular scalar reduction logic
+        // (Similar to the original component-wise logic but simpler)
+
+        current_basic_block->add_successor(remainder_increment_block);
+        remainder_increment_block->add_predecessor(current_basic_block);
+
+        current_basic_block = remainder_increment_block;
+
+        // idx = idx + 1
+        {
+            std::vector<ExprPtr> inc_rhs;
+            inc_rhs.push_back(std::make_unique<BinaryOp>(
+                BinaryOp::Operator::Add,
+                std::make_unique<VariableAccess>(index_name),
+                std::make_unique<NumberLiteral>(static_cast<int64_t>(1))
+            ));
+            std::vector<ExprPtr> inc_lhs;
+            inc_lhs.push_back(std::make_unique<VariableAccess>(index_name));
+            current_basic_block->add_statement(std::make_unique<AssignmentStatement>(
+                std::move(inc_lhs), std::move(inc_rhs)
+            ));
+        }
+
+        current_basic_block->add_successor(remainder_header_block);
+        remainder_header_block->add_predecessor(current_basic_block);
+
+        // --- Step 11: Horizontal reduction (reduce NEON vectors to scalars) ---
+        current_basic_block = horizontal_reduction_block;
+
+        // Create horizontal reduction statements for X and Y components
+        // x_result = PAIRWISE_MIN/MAX/ADD(x_accumulator) until scalar
+        // y_result = PAIRWISE_MIN/MAX/ADD(y_accumulator) until scalar
+
+        std::string final_x_name = "_final_x_" + std::to_string(block_id_counter++);
+        std::string final_y_name = "_final_y_" + std::to_string(block_id_counter++);
+
+        if (symbol_table_) {
+            symbol_table_->addSymbol(Symbol(
+                final_x_name, SymbolKind::LOCAL_VAR, VarType::INTEGER,
+                symbol_table_->currentScopeLevel(), current_cfg->function_name
+            ));
+            symbol_table_->addSymbol(Symbol(
+                final_y_name, SymbolKind::LOCAL_VAR, VarType::INTEGER,
+                symbol_table_->currentScopeLevel(), current_cfg->function_name
+            ));
+        }
+
+        // Use pairwise reduction to collapse vector to scalar
+        std::string pairwise_reducer_name;
+        if (reducer.getName() == "MIN") {
+            pairwise_reducer_name = "PAIRWISE_MIN";
+        } else if (reducer.getName() == "MAX") {
+            pairwise_reducer_name = "PAIRWISE_MAX";  
+        } else if (reducer.getName() == "SUM") {
+            pairwise_reducer_name = "PAIRWISE_ADD";
+        } else {
+            pairwise_reducer_name = "PAIRWISE_ADD"; // fallback
+        }
+
+        auto x_horizontal_stmt = std::make_unique<ReductionStatement>(
+            createReducer(pairwise_reducer_name),
+            final_x_name,
+            std::make_unique<VariableAccess>(x_accumulator_name),
+            nullptr
+        );
+        current_basic_block->add_statement(std::move(x_horizontal_stmt));
+
+        auto y_horizontal_stmt = std::make_unique<ReductionStatement>(
+            createReducer(pairwise_reducer_name),
+            final_y_name,
+            std::make_unique<VariableAccess>(y_accumulator_name),
+            nullptr
+        );
+        current_basic_block->add_statement(std::move(y_horizontal_stmt));
+
+        // Combine final results into result pair: result = PAIR(final_x, final_y)
+        {
+            std::vector<ExprPtr> result_rhs;
+            result_rhs.push_back(std::make_unique<PairExpression>(
+                std::make_unique<VariableAccess>(final_x_name),
+                std::make_unique<VariableAccess>(final_y_name)
+            ));
+            std::vector<ExprPtr> result_lhs;
+            result_lhs.push_back(std::make_unique<VariableAccess>(result_var));
+            current_basic_block->add_statement(std::make_unique<AssignmentStatement>(
+                std::move(result_lhs), std::move(result_rhs)
+            ));
+        }
+
+        current_basic_block->add_successor(exit_block);
+        exit_block->add_predecessor(current_basic_block);
+
+        // --- Step 12: Set current block to exit ---
+        current_basic_block = exit_block;
+
+        if (trace_enabled_) {
+            std::cout << "[CFGBuilderPass] Generated NEON-optimized component-wise CFG blocks for " << reducer.getName() << " reduction:" << std::endl;
+            std::cout << "  NEON Vector Header: " << vector_header_block->id << std::endl;
+            std::cout << "  NEON Vector Body: " << vector_body_block->id << " (VLD2 + vector ops)" << std::endl;
+            std::cout << "  NEON Vector Increment: " << vector_increment_block->id << std::endl;
+            std::cout << "  Remainder Header: " << remainder_header_block->id << std::endl;
+            std::cout << "  Remainder Body: " << remainder_body_block->id << " (scalar fallback)" << std::endl;
+            std::cout << "  Remainder Increment: " << remainder_increment_block->id << std::endl;
+            std::cout << "  Horizontal Reduction: " << horizontal_reduction_block->id << " (VPMIN/VPMAX/VPADD)" << std::endl;
+            std::cout << "  Exit: " << exit_block->id << std::endl;
+        }
+
+        if (trace_enabled_) {
+            std::cout << "[CFGBuilderPass] Completed NEON-optimized component-wise reduction CFG generation for PAIRS collection" << std::endl;
+            std::cout << "[CFGBuilderPass] Expected NEON instructions: VLD2 (de-interleave), V" 
+                      << (reducer.getName() == "MIN" ? "MIN" : reducer.getName() == "MAX" ? "MAX" : "ADD") 
+                      << " (vector ops), VP" << (reducer.getName() == "MIN" ? "MIN" : reducer.getName() == "MAX" ? "MAX" : "ADD") 
+                      << " (horizontal reduction)" << std::endl;
+        }
     }

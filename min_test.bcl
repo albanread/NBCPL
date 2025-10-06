@@ -1,0 +1,1 @@
+LET START() BE { LET a = PAIRS 3; LET b = PAIRS 3; LET result = MIN(a, b); WRITEF("Test*N") }

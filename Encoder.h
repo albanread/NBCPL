@@ -893,6 +893,56 @@ public:
                                            const std::string &arrangement);
 
   /**
+   * @brief Creates a vector ST1 (Store Single Structure) instruction.
+   * @param vt The source vector register.
+   * @param xn The base address register.
+   * @param arrangement The data arrangement (e.g., "4S").
+   * @return A complete Instruction object.
+   */
+  static Instruction create_st1_vector_reg(const std::string &vt,
+                                           const std::string &xn,
+                                           const std::string &arrangement);
+
+  /**
+   * @brief Creates a vector SMIN (Signed Minimum) instruction.
+   * @param vd The destination vector register.
+   * @param vn The first source vector register.
+   * @param vm The second source vector register.
+   * @param arrangement The data arrangement (e.g., "4S").
+   * @return A complete Instruction object.
+   */
+  static Instruction create_smin_vector_reg(const std::string &vd,
+                                           const std::string &vn,
+                                           const std::string &vm,
+                                           const std::string &arrangement);
+
+  /**
+   * @brief Creates a vector UZP1 (Unzip 1) instruction.
+   * @param vd The destination vector register.
+   * @param vn The first source vector register.
+   * @param vm The second source vector register.
+   * @param arrangement The data arrangement (e.g., "4S").
+   * @return A complete Instruction object.
+   */
+  static Instruction create_uzp1_vector_reg(const std::string &vd,
+                                           const std::string &vn,
+                                           const std::string &vm,
+                                           const std::string &arrangement);
+
+  /**
+   * @brief Creates a vector UZP2 (Unzip 2) instruction.
+   * @param vd The destination vector register.
+   * @param vn The first source vector register.
+   * @param vm The second source vector register.
+   * @param arrangement The data arrangement (e.g., "4S").
+   * @return A complete Instruction object.
+   */
+  static Instruction create_uzp2_vector_reg(const std::string &vd,
+                                           const std::string &vn,
+                                           const std::string &vm,
+                                           const std::string &arrangement);
+
+  /**
    * @brief Creates a vector FADD (Floating-Point Add) instruction. (Vd = Vn +
    * Vm)
    * @param vd The destination vector register (e.g., "V0").
@@ -903,6 +953,58 @@ public:
    * @return A complete Instruction object.
    */
   static Instruction create_fadd_vector_reg(const std::string &vd,
+                                            const std::string &vn,
+                                            const std::string &vm,
+                                            const std::string &arrangement);
+
+  /**
+   * @brief Creates a FMINP (Floating-point Minimum Pairwise) vector instruction.
+   * @param vd The destination vector register.
+   * @param vn The first source vector register.
+   * @param vm The second source vector register.
+   * @param arrangement The data arrangement (e.g., "2S", "4S", "2D").
+   * @return A complete Instruction object.
+   */
+  static Instruction create_fminp_vector_reg(const std::string &vd,
+                                             const std::string &vn,
+                                             const std::string &vm,
+                                             const std::string &arrangement);
+
+  /**
+   * @brief Creates a FMAXP (Floating-point Maximum Pairwise) vector instruction.
+   * @param vd The destination vector register.
+   * @param vn The first source vector register.
+   * @param vm The second source vector register.
+   * @param arrangement The data arrangement (e.g., "2S", "4S", "2D").
+   * @return A complete Instruction object.
+   */
+  static Instruction create_fmaxp_vector_reg(const std::string &vd,
+                                             const std::string &vn,
+                                             const std::string &vm,
+                                             const std::string &arrangement);
+
+  /**
+   * @brief Creates a FADDP (Floating-point Add Pairwise) vector instruction.
+   * @param vd The destination vector register.
+   * @param vn The first source vector register.
+   * @param vm The second source vector register.
+   * @param arrangement The data arrangement (e.g., "2S", "4S", "2D").
+   * @return A complete Instruction object.
+   */
+  static Instruction create_faddp_vector_reg(const std::string &vd,
+                                             const std::string &vn,
+                                             const std::string &vm,
+                                             const std::string &arrangement);
+
+  /**
+   * @brief Creates an ADDP (Add Pairwise) vector instruction for integers.
+   * @param vd The destination vector register.
+   * @param vn The first source vector register.
+   * @param vm The second source vector register.
+   * @param arrangement The data arrangement (e.g., "8B", "16B", "4H", "8H", "2S", "4S").
+   * @return A complete Instruction object.
+   */
+  static Instruction create_addp_vector_reg(const std::string &vd,
                                             const std::string &vn,
                                             const std::string &vm,
                                             const std::string &arrangement);

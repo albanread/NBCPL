@@ -215,6 +215,7 @@ private:
 
     void visit(ForEachStatement& node) override;
     void visit(ReductionLoopStatement& node) override;
+    void visit(PairwiseReductionLoopStatement& node) override;
 
     void visit(OctExpression& node) override;
     void visit(FOctExpression& node) override;

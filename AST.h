@@ -23,6 +23,9 @@ public:
 // Include DataTypes.h for ExprPtr definition
 #include "DataTypes.h"
 
+// Forward declarations
+class Reducer;
+
 // Visibility enum for class members
 enum class Visibility {
     Public,
@@ -83,10 +86,12 @@ public:
         DeferStmt, // <-- Added for DEFER statement
         RetainStmt, // <-- Added for RETAIN statement
         RemanageStmt, // <-- Added for REMANAGE statement
-        MinStmt, // <-- Added for MIN statement
-        MaxStmt, // <-- Added for MAX statement  
-        SumStmt, // <-- Added for SUM statement
-        ReductionLoopStmt // <-- Added for reduction loop metadata
+        MinStmt, // <-- Added for MIN statement (DEPRECATED - use ReductionStmt)
+        MaxStmt, // <-- Added for MAX statement (DEPRECATED - use ReductionStmt)  
+        SumStmt, // <-- Added for SUM statement (DEPRECATED - use ReductionStmt)
+        ReductionStmt, // <-- Added for generic reduction statement
+        ReductionLoopStmt, // <-- Added for reduction loop metadata
+        PairwiseReductionLoopStmt // <-- Added for pairwise reduction loop metadata
     };
 
     ASTNode(NodeType type) : type_(type) {}
@@ -1208,6 +1213,35 @@ public:
 
 // === ReductionLoopStatement - CFG Metadata ===
 
+class ReductionStatement : public Statement {
+public:
+    std::unique_ptr<Reducer> reducer;
+    std::string result_variable;
+    ExprPtr left_operand;
+    ExprPtr right_operand;
+    
+    // Constructor declared here, implemented in AST.cpp to avoid incomplete type issues
+    ReductionStatement(std::unique_ptr<Reducer> reducer, std::string result_var, ExprPtr left, ExprPtr right);
+    
+    void accept(ASTVisitor& visitor) override;
+    ASTNodePtr clone() const override;
+    
+    std::vector<std::string> get_used_variables() const override {
+        std::vector<std::string> used;
+        if (left_operand && left_operand->getType() == ASTNode::NodeType::VariableAccessExpr) {
+            if (auto* var = dynamic_cast<VariableAccess*>(left_operand.get())) {
+                used.push_back(var->name);
+            }
+        }
+        if (right_operand && right_operand->getType() == ASTNode::NodeType::VariableAccessExpr) {
+            if (auto* var = dynamic_cast<VariableAccess*>(right_operand.get())) {
+                used.push_back(var->name);
+            }
+        }
+        return used;
+    }
+};
+
 class ReductionLoopStatement : public Statement {
 public:
     std::string left_temp;
@@ -1227,6 +1261,29 @@ public:
     
     void accept(ASTVisitor& visitor) override;
     ASTNodePtr clone() const override;
+};
+
+class PairwiseReductionLoopStatement : public Statement {
+public:
+    std::string vector_a_name;
+    std::string vector_b_name;
+    std::string result_vector_name;
+    std::string intrinsic_name;  // NEON intrinsic to use (e.g., "llvm.arm.neon.vpmin")
+    int reduction_op; // Operation code for type identification
+    
+    PairwiseReductionLoopStatement(std::string vector_a, std::string vector_b, 
+                                  std::string result_vec, std::string intrinsic, int op)
+        : Statement(NodeType::PairwiseReductionLoopStmt), 
+          vector_a_name(std::move(vector_a)), vector_b_name(std::move(vector_b)),
+          result_vector_name(std::move(result_vec)), intrinsic_name(std::move(intrinsic)),
+          reduction_op(op) {}
+    
+    void accept(ASTVisitor& visitor) override;
+    ASTNodePtr clone() const override;
+    
+    std::vector<std::string> get_used_variables() const override {
+        return {vector_a_name, vector_b_name};
+    }
 };
 
 #include <optional> // Add this include for std::optional

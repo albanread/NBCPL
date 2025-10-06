@@ -134,11 +134,11 @@ _START:
     ; --- End Veneer Section ---
 
 L_START:
-    STP X29, X30, [SP, #-80]!
+    STP X29, X30, [SP, #-96]!
     MOV X29, SP
     STP x19, x20, [x29, #40]
-    STP x26, x27, [x29, #56]
-    STR X28, [X29, #72] ; Saved Reg: X28 @ FP+72
+    STP x25, x26, [x29, #56]
+    STP x27, x28, [x29, #72]
     ADRP X28, L__data_segment_base@PAGE
     ADD X28, X28, L__data_segment_base@PAGEOFF
 L_START_Entry_0:
@@ -148,21 +148,36 @@ L_START_Entry_0:
     MOV X0, X9
     BL _WRITEF
     MOVZ X9, #2
-    LSL X20, X9, #1
-    MOV X0, X20
+    MOV X20, X9
+    LSL X21, X9, #1
+    MOV X0, X21
     BL _GETVEC
-    MOV X20, X0
-    MOV X27, X20
-    MOVZ X10, #2
-    LSL X20, X10, #1
-    MOV X0, X20
+    MOV X21, X0
+    SUB X9, X21, #8
+    STR X20, [X9, #0]
+    MOV X27, X21
+    MOVZ X9, #2
+    MOV X20, X9
+    LSL X21, X9, #1
+    MOV X0, X21
     BL _GETVEC
-    MOV X20, X0
-    MOV X26, X20
-    ADRP X11, L_str1@PAGE
-    ADD X11, X11, L_str1@PAGEOFF
-    ADD X11, X11, #8
-    MOV X0, X11
+    MOV X21, X0
+    SUB X9, X21, #8
+    STR X20, [X9, #0]
+    MOV X26, X21
+    MOVZ X9, #2
+    MOV X20, X9
+    LSL X21, X9, #1
+    MOV X0, X21
+    BL _GETVEC
+    MOV X21, X0
+    SUB X9, X21, #8
+    STR X20, [X9, #0]
+    MOV X25, X21
+    ADRP X9, L_str1@PAGE
+    ADD X9, X9, L_str1@PAGEOFF
+    ADD X9, X9, #8
+    MOV X0, X9
     BL _WRITEF
     ADRP X9, L_pair0@PAGE
     ADD X9, X9, L_pair0@PAGEOFF
@@ -224,7 +239,7 @@ L_START_Entry_0:
     LDR Q18, [X26, #48]
     ADD V19.4S, V17.4S, V18.4S
     STR Q19, [X9, #48]
-    MOV X15, X9
+    MOV X25, X9
     ADRP X9, L_str4@PAGE
     ADD X9, X9, L_str4@PAGEOFF
     ADD X9, X9, #8
@@ -240,15 +255,15 @@ L_START_Exit_1:
     B L_0
 L_0:
     LDP x19, x20, [x29, #40]
-    LDP x26, x27, [x29, #56]
-    LDR X28, [X29, #72] ; Restored Reg: X28 @ FP+72
+    LDP x25, x26, [x29, #56]
+    LDP x27, x28, [x29, #72]
     MOV SP, X29 ; Deallocate frame by moving FP to SP
     LDP x29, x30, [SP, #0]
     ADD SP, SP, #16 ; Deallocate space for saved FP/LR
     RET
 L___veneer_:
-    movz x16, #1172
-    movk x16, #1080, lsl #16
+    movz x16, #46172
+    movk x16, #253, lsl #16
     movk x16, #1, lsl #32
     movk x16, #0, lsl #48
     blr x16
@@ -476,7 +491,6 @@ L_pair3:
 
 .section __DATA,__data
 .p2align 3
-    .long 0x0
     .long 0x0
     .long 0x0
     .long 0x0

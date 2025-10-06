@@ -87,6 +87,84 @@ void NewCodeGenerator::visit(ReductionLoopStatement& node) {
     std::cout << "[DEBUG CODEGEN] *** ReductionLoopStatement visit complete! ***" << std::endl;
 }
 
+void NewCodeGenerator::visit(PairwiseReductionLoopStatement& node) {
+    std::cout << "[DEBUG CODEGEN] *** VISITING PairwiseReductionLoopStatement! ***" << std::endl;
+    debug_print("Generating NEON pairwise reduction with intrinsic: " + node.intrinsic_name);
+    
+    // Get vector registers for the input vectors
+    std::string vector_a_reg = get_variable_register(node.vector_a_name);
+    std::string vector_b_reg = get_variable_register(node.vector_b_name);
+    std::string result_reg = get_variable_register(node.result_vector_name);
+    
+    // Acquire NEON V registers for the operation
+    std::string va_neon = register_manager_.acquire_vec_scratch_reg();
+    std::string vb_neon = register_manager_.acquire_vec_scratch_reg();
+    std::string vresult_neon = register_manager_.acquire_vec_scratch_reg();
+    
+    // Load vectors into NEON registers
+    // LD1 {Va.2S}, [vector_a_reg] - 2x32-bit lanes per PAIR (64-bit word)
+    emit(Encoder::create_ld1_vector_reg(va_neon, vector_a_reg, "2S"));
+    // LD1 {Vb.2S}, [vector_b_reg]
+    emit(Encoder::create_ld1_vector_reg(vb_neon, vector_b_reg, "2S"));
+    
+    // Generate the appropriate NEON pairwise instruction based on intrinsic
+    if (node.intrinsic_name == "llvm.arm.neon.vpmin.v4f32") {
+        // Implement integer pairwise minimum using shuffle + SMIN
+        // Input: V0=[a,b,c,d], V1=[a,b,c,d] (same vector)
+        // Goal: [min(a,b), min(c,d)]
+        
+        // Create shuffled version: V_shuffled=[b,a,d,c] 
+        std::string v_shuffled = register_manager_.acquire_vec_scratch_reg();
+        
+        // TRN1/TRN2 can help rearrange for pairwise operations
+        // For now, use EXT to shift elements: EXT V_shuffled, V0, V0, #4
+        // This rotates [a,b,c,d] -> [b,c,d,a], but we need [b,a,d,c]
+        
+        // Alternative: Use UZP1/UZP2 to separate odd/even elements
+        std::string v_even = register_manager_.acquire_vec_scratch_reg(); // [a,c,a,c] 
+        std::string v_odd = register_manager_.acquire_vec_scratch_reg();  // [b,d,b,d]
+        
+        // UZP1 extracts elements 0,2,4,6 -> [a,c,a,c] from [a,b,c,d] (4S format)
+        emit(Encoder::create_uzp1_vector_reg(v_even, va_neon, va_neon, "4S"));
+        // UZP2 extracts elements 1,3,5,7 -> [b,d,b,d] from [a,b,c,d] (4S format)
+        emit(Encoder::create_uzp2_vector_reg(v_odd, va_neon, va_neon, "4S"));
+        
+        // Now do element-wise min: [min(a,b), min(c,d), ...] for pairwise result
+        emit(Encoder::create_smin_vector_reg(vresult_neon, v_even, v_odd, "4S"));
+        
+        // Clean up temporary registers
+        register_manager_.release_vec_scratch_reg(v_shuffled);
+        register_manager_.release_vec_scratch_reg(v_even);
+        register_manager_.release_vec_scratch_reg(v_odd);
+        
+    } else if (node.intrinsic_name == "llvm.arm.neon.vpmax.v4f32") {
+        // FMAXP Vresult.4S, Va.4S, Vb.4S - pairwise maximum
+        emit(Encoder::create_fmaxp_vector_reg(vresult_neon, va_neon, vb_neon, "4S"));
+    } else if (node.intrinsic_name == "llvm.arm.neon.vpadd.v4f32") {
+        // FADDP Vresult.4S, Va.4S, Vb.4S - pairwise addition (float)
+        emit(Encoder::create_faddp_vector_reg(vresult_neon, va_neon, vb_neon, "4S"));
+    } else if (node.intrinsic_name == "llvm.arm.neon.vpadd.v4i32") {
+        // ADDP Vresult.2S, Va.2S, Vb.2S - pairwise addition (PAIRS format)
+        emit(Encoder::create_addp_vector_reg(vresult_neon, va_neon, vb_neon, "2S"));
+    } else {
+        debug_print("Warning: Unknown pairwise intrinsic " + node.intrinsic_name + ", using SMIN as fallback");
+        emit(Encoder::create_smin_vector_reg(vresult_neon, va_neon, vb_neon, "4S"));
+    }
+    
+    // Store result vector back to memory
+    // ST1 {Vresult.2S}, [result_reg] - 2x32-bit lanes per PAIR
+    emit(Encoder::create_st1_vector_reg(vresult_neon, result_reg, "2S"));
+    
+    // Release NEON registers
+    register_manager_.release_vec_scratch_reg(va_neon);
+    register_manager_.release_vec_scratch_reg(vb_neon);  
+    register_manager_.release_vec_scratch_reg(vresult_neon);
+    
+    debug_print("Completed NEON pairwise reduction generation");
+    
+    std::cout << "[DEBUG CODEGEN] *** PairwiseReductionLoopStatement visit complete! ***" << std::endl;
+}
+
 /**
  * @brief Generates the necessary cleanup code for a symbol that owns heap memory.
  * This includes checking for null, determining the object type, and calling the

@@ -63,6 +63,8 @@ class RemanageStatement;
 class MinStatement;
 class MaxStatement;
 class SumStatement;
+class ReductionStatement;
+class PairwiseReductionLoopStatement;
 
 
 // Forward declaration for SUPER node
@@ -158,8 +160,10 @@ public:
 
     // --- DEFER ---
     virtual void visit(DeferStatement& node) {}
-    virtual void visit(MinStatement& node) {} // <-- Added for MIN statement
-    virtual void visit(MaxStatement& node) {} // <-- Added for MAX statement
-    virtual void visit(SumStatement& node) {} // <-- Added for SUM statement
+    virtual void visit(MinStatement& node) {} // <-- Added for MIN statement (DEPRECATED)
+    virtual void visit(MaxStatement& node) {} // <-- Added for MAX statement (DEPRECATED)
+    virtual void visit(SumStatement& node) {} // <-- Added for SUM statement (DEPRECATED)
+    virtual void visit(ReductionStatement& node) {} // <-- Added for generic reduction statement
     virtual void visit(ReductionLoopStatement& node) {} // <-- Added for reduction loop metadata
+    virtual void visit(PairwiseReductionLoopStatement& node) {} // <-- Added for pairwise reduction loop metadata
 };

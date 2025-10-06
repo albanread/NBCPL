@@ -233,7 +233,7 @@ void ASTAnalyzer::visit(LetDeclaration& node) {
             determined_type = node.is_float_declaration ? VarType::FLOAT : VarType::INTEGER;
             if (trace_enabled_) {
                 std::cerr << "DEBUG: Variable '" << name << "' has no initializer, using declaration type: " 
-                          << static_cast<int>(node.explicit_type) << std::endl;
+                          << vartype_to_string(determined_type) << std::endl;
             }
         }
 
@@ -315,6 +315,40 @@ void ASTAnalyzer::visit(LetDeclaration& node) {
             } else {
                 // Otherwise, add the new, complete symbol to the table.
                 symbol_table_->addSymbol(updated_symbol);
+            }
+        }
+
+        // CRITICAL FIX: Ensure all declared variables are in the symbol table
+        // even if they don't have initializers
+        if (symbol_table_) {
+            Symbol check_symbol;
+            if (!symbol_table_->lookup(name, check_symbol)) {
+                // Variable still not in symbol table - add it now
+                VarType default_type = node.is_float_declaration ? VarType::FLOAT : VarType::INTEGER;
+                Symbol new_symbol(
+                    name,
+                    SymbolKind::LOCAL_VAR,
+                    default_type,
+                    symbol_table_->currentScopeLevel(),
+                    current_function_scope_
+                );
+                symbol_table_->addSymbol(new_symbol);
+                
+                // Also update function metrics
+                if (current_function_scope_ != "Global") {
+                    auto& metrics = function_metrics_[current_function_scope_];
+                    metrics.variable_types[name] = default_type;
+                    if (default_type == VarType::FLOAT) {
+                        metrics.num_float_variables++;
+                    } else {
+                        metrics.num_variables++;
+                    }
+                }
+                
+                if (trace_enabled_) {
+                    std::cerr << "DEBUG: Added missing variable '" << name 
+                              << "' to symbol table with type " << vartype_to_string(default_type) << std::endl;
+                }
             }
         }
 

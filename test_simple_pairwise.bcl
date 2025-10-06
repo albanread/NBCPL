@@ -1,0 +1,1 @@
+LET START() BE { LET result = PAIRWISE_MIN(vec1, vec2); WRITEF("Test*N") }

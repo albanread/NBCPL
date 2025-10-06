@@ -1,0 +1,13 @@
+LET start() BE
+{
+    LET vec = GETVEC(5)
+
+    vec!0 := 10
+    vec!1 := 5
+    vec!2 := 15
+
+    LET result = MIN(vec, 3)
+    WRITEF("MIN result: %N*N", result)
+
+    FREEVEC(vec)
+}

@@ -1,7 +1,0 @@
-[COERCE_CRITICAL] Processing 1 arguments:
-[COERCE_CRITICAL] Arg 0: reg=X9 type=POINTER_TO|STRING expected=INTEGER name=str
-[COERCE_DEBUG] Input argument registers: arg0=X9 
-[COERCE_DEBUG] Integer: X9 -> X0
-[COERCE_CRITICAL] Processing arg 0 of 1: X9 -> X0 (param: str)
-[COERCE_CRITICAL] About to emit 1 operations for 1 arguments
-[COERCE_DEBUG] Executed 1 queued operations

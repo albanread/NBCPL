@@ -1,0 +1,62 @@
+LET test_traditional_reductions() BE
+{
+    LET vec = GETVEC(10)
+
+    // Initialize with test values
+    vec!0 := 5
+    vec!1 := 2
+    vec!2 := 8
+    vec!3 := 1
+    vec!4 := 9
+
+    // Test traditional MIN reduction
+    LET min_result = MIN(vec, 5)
+    WRITEF("MIN result: %N*N", min_result)
+
+    // Test traditional MAX reduction
+    LET max_result = MAX(vec, 5)
+    WRITEF("MAX result: %N*N", max_result)
+
+    // Test traditional SUM reduction
+    LET sum_result = SUM(vec, 5)
+    WRITEF("SUM result: %N*N", sum_result)
+
+    FREEVEC(vec)
+}
+
+LET test_pairwise_reductions() BE
+{
+    LET vec = GETVEC(10)
+
+    // Initialize with test values for pairwise operations
+    vec!0 := 5
+    vec!1 := 2
+    vec!2 := 8
+    vec!3 := 1
+
+    // Test PAIRWISE_MIN - should work with modular system
+    LET pmin_result = PAIRWISE_MIN(vec)
+    WRITEF("PAIRWISE_MIN result: %N*N", pmin_result)
+
+    // Test PAIRWISE_MAX
+    LET pmax_result = PAIRWISE_MAX(vec)
+    WRITEF("PAIRWISE_MAX result: %N*N", pmax_result)
+
+    // Test PAIRWISE_ADD
+    LET padd_result = PAIRWISE_ADD(vec)
+    WRITEF("PAIRWISE_ADD result: %N*N", padd_result)
+
+    FREEVEC(vec)
+}
+
+LET start() BE
+{
+    WRITEF("Testing Modular Reducer System*N")
+    WRITEF("================================*N")
+
+    test_traditional_reductions()
+    WRITEF("*N")
+    test_pairwise_reductions()
+
+    WRITEF("*NTest complete*N")
+}

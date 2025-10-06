@@ -1,10 +1,10 @@
 #pragma once
 
 #include <string>
-#include "AST.h"
-#include "SymbolTable.h"
-#include "analysis/ASTAnalyzer.h"
-#include "DataTypes.h"
+#include "../AST.h"
+#include "../SymbolTable.h"
+#include "ASTAnalyzer.h"
+#include "../DataTypes.h"
 
 // Factory for creating and registering temporary variables during optimization passes.
 class TemporaryVariableFactory {
