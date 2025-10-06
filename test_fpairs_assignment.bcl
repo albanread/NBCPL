@@ -1,0 +1,9 @@
+LET START() BE {
+    LET fp = FPAIRS 10
+
+    WRITEF("FPAIRS vector allocated*N")
+
+    fp!0 := FPAIR(10.0, 1.0)
+
+    WRITEF("Assignment fp!0 := FPAIR(10.0, 1.0) successful*N")
+}

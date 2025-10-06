@@ -116,8 +116,16 @@ void NewCodeGenerator::visit(PairwiseReductionLoopStatement& node) {
     }
     
     // Generate type-specific pairwise minimum
-    std::cout << "[DEBUG CODEGEN] Checking if base type contains FLOAT..." << std::endl;
-    if (static_cast<int64_t>(base_type) & static_cast<int64_t>(VarType::FLOAT)) {
+    // Check for vector types first (FPAIRS, PAIRS, etc.)
+    if (static_cast<int64_t>(base_type) & static_cast<int64_t>(VarType::FPAIRS)) {
+        // FPAIRS: Vector of float pairs
+        std::cout << "[DEBUG CODEGEN] Generating FPAIRS vector pairwise min" << std::endl;
+        generateFPairsVectorPairwiseMin(node);
+    } else if (static_cast<int64_t>(base_type) & static_cast<int64_t>(VarType::PAIRS)) {
+        // PAIRS: Vector of integer pairs
+        std::cout << "[DEBUG CODEGEN] Generating PAIRS vector pairwise min" << std::endl;
+        generatePairPairwiseMin(node);
+    } else if (static_cast<int64_t>(base_type) & static_cast<int64_t>(VarType::FLOAT)) {
         std::cout << "[DEBUG CODEGEN] Type contains FLOAT, checking subtype..." << std::endl;
         if (static_cast<int64_t>(base_type) & static_cast<int64_t>(VarType::VEC)) {
             // POINTER_TO_FLOAT_VEC: General float vector (FVEC)
@@ -146,20 +154,20 @@ void NewCodeGenerator::visit(PairwiseReductionLoopStatement& node) {
             std::cout << "[DEBUG CODEGEN] Generating integer vector pairwise min (VEC)" << std::endl;
             generateIntegerVectorPairwiseMin(node);
         } else if (base_type == VarType::PAIR) {
-            // PAIR: 2 ints in 64 bits
+            // PAIR: 2 integers in 64 bits
             std::cout << "[DEBUG CODEGEN] Generating PAIR pairwise min" << std::endl;
             generatePairPairwiseMin(node);
         } else if (base_type == VarType::QUAD) {
-            // QUAD: 4 ints in 64 bits
+            // QUAD: 4 integers in 128 bits
             std::cout << "[DEBUG CODEGEN] Generating QUAD pairwise min" << std::endl;
             generateQuadPairwiseMin(node);
         } else if (base_type == VarType::OCT) {
-            // OCT: 8 ints in 64 bits
+            // OCT: 8 integers in 256 bits
             std::cout << "[DEBUG CODEGEN] Generating OCT pairwise min" << std::endl;
             generateOctPairwiseMin(node);
         } else {
             debug_print("Unsupported integer type for PAIRWISE_MIN: " + vartype_to_string(base_type));
-            std::cout << "[DEBUG CODEGEN] ERROR: Unsupported integer type: " << vartype_to_string(base_type) << std::endl;
+            std::cout << "[DEBUG CODEGEN] ERROR: Unsupported integer type: " + vartype_to_string(base_type) << std::endl;
         }
     } else {
         debug_print("Error: Unsupported type for PAIRWISE_MIN: " + vartype_to_string(base_type));
@@ -187,8 +195,8 @@ void NewCodeGenerator::generateFPairPairwiseMin(const PairwiseReductionLoopState
     emit(Encoder::create_ldr_vec_imm(va_neon, vector_a_reg, 0)); // Load 64-bit
     emit(Encoder::create_ldr_vec_imm(vb_neon, vector_b_reg, 0)); // Load 64-bit
     
-    // FMINP.2S: Pairwise minimum of two 2-element float vectors
-    emit(Encoder::create_fminp_vector_reg(vresult_neon, va_neon, vb_neon, "2S"));
+    // FMIN.2S: Element-wise minimum of two 2-element float vectors
+    emit(Encoder::create_fmin_vector_reg(vresult_neon, va_neon, vb_neon, "2S"));
     
     // Store 64-bit result
     emit(Encoder::create_str_vec_imm(vresult_neon, result_reg, 0));
@@ -242,10 +250,37 @@ void NewCodeGenerator::generateFOctPairwiseMin(const PairwiseReductionLoopStatem
     emit(Encoder::create_ld1_vector_reg(va_neon, vector_a_reg, "4S")); // 4x32-bit floats
     emit(Encoder::create_ld1_vector_reg(vb_neon, vector_b_reg, "4S")); // 4x32-bit floats
     
-    // FMINP.4S: Pairwise minimum of two 4-element float vectors
-    emit(Encoder::create_fminp_vector_reg(vresult_neon, va_neon, vb_neon, "4S"));
+    // FMIN.4S: Element-wise minimum of two 4-element float vectors
+    emit(Encoder::create_fmin_vector_reg(vresult_neon, va_neon, vb_neon, "4S"));
     
     // Store 128-bit result
+    emit(Encoder::create_st1_vector_reg(vresult_neon, result_reg, "4S"));
+    
+    register_manager_.release_vec_scratch_reg(va_neon);
+    register_manager_.release_vec_scratch_reg(vb_neon);  
+    register_manager_.release_vec_scratch_reg(vresult_neon);
+}
+
+// Helper function for FPAIRS vectors (vector of float pairs)
+void NewCodeGenerator::generateFPairsVectorPairwiseMin(const PairwiseReductionLoopStatement& node) {
+    debug_print("Generating FPAIRS vector pairwise minimum (vector of float pairs)");
+    
+    std::string vector_a_reg = get_variable_register(node.vector_a_name);
+    std::string vector_b_reg = get_variable_register(node.vector_b_name);
+    std::string result_reg = get_variable_register(node.result_vector_name);
+    
+    std::string va_neon = register_manager_.acquire_vec_scratch_reg();
+    std::string vb_neon = register_manager_.acquire_vec_scratch_reg();
+    std::string vresult_neon = register_manager_.acquire_vec_scratch_reg();
+    
+    // Load FPAIRS vectors - each FPAIR is 2 floats, use 4S format for pairs
+    emit(Encoder::create_ld1_vector_reg(va_neon, vector_a_reg, "4S"));
+    emit(Encoder::create_ld1_vector_reg(vb_neon, vector_b_reg, "4S"));
+    
+    // FMIN.4S: Element-wise minimum of float pairs
+    emit(Encoder::create_fmin_vector_reg(vresult_neon, va_neon, vb_neon, "4S"));
+    
+    // Store FPAIRS vector result
     emit(Encoder::create_st1_vector_reg(vresult_neon, result_reg, "4S"));
     
     register_manager_.release_vec_scratch_reg(va_neon);
@@ -269,8 +304,8 @@ void NewCodeGenerator::generateFloatVectorPairwiseMin(const PairwiseReductionLoo
     emit(Encoder::create_ld1_vector_reg(va_neon, vector_a_reg, "4S"));
     emit(Encoder::create_ld1_vector_reg(vb_neon, vector_b_reg, "4S"));
     
-    // FMINP.4S: Pairwise minimum of float vectors
-    emit(Encoder::create_fminp_vector_reg(vresult_neon, va_neon, vb_neon, "4S"));
+    // FMIN.4S: Element-wise minimum of float vectors
+    emit(Encoder::create_fmin_vector_reg(vresult_neon, va_neon, vb_neon, "4S"));
     
     // Store float vector result
     emit(Encoder::create_st1_vector_reg(vresult_neon, result_reg, "4S"));
@@ -1968,6 +2003,8 @@ void NewCodeGenerator::visit(BinaryOp& node) {
     debug_print("Finished visiting BinaryOp node. Result in " + expression_result_reg_);
 }
 
+
+
 // Generates code for short-circuit logical AND (&&)
 void NewCodeGenerator::generate_short_circuit_and(BinaryOp& node) {
     // Generate code for the left operand
@@ -2560,22 +2597,25 @@ void NewCodeGenerator::handle_variable_assignment(VariableAccess* var_access, co
 }
 
 void NewCodeGenerator::handle_vector_assignment(VectorAccess* vec_access, const std::string& value_to_store_reg) {
+    // Test: Remove pinning since allocator fix should prevent conflicts
+
     // 1. Evaluate vector_expr to get the base address (e.g., V)
     generate_expression_code(*vec_access->vector_expr);
     std::string vector_base_reg = expression_result_reg_;
+    
+    // Test: Remove pinning since allocator fix should prevent conflicts
 
     // 2. Evaluate index_expr to get the index (e.g., 0)
     generate_expression_code(*vec_access->index_expr);
     std::string index_reg = expression_result_reg_;
 
     // 3. Calculate the byte offset: index * 8 (for 64-bit words)
-    // FIX: Use a temporary register for the offset calculation to avoid corrupting the loop variable
     std::string offset_reg = register_manager_.acquire_scratch_reg(*this);
     emit(Encoder::create_lsl_imm(offset_reg, index_reg, 3));
     debug_print("Calculated byte offset for vector assignment.");
 
     // 4. Calculate the effective memory address: base + offset
-    std::string effective_addr_reg = register_manager_.get_free_register(*this);
+    std::string effective_addr_reg = register_manager_.acquire_scratch_reg(*this);
     emit(Encoder::create_add_reg(effective_addr_reg, vector_base_reg, offset_reg));
     debug_print("Calculated effective address for vector assignment.");
 
@@ -2608,7 +2648,7 @@ void NewCodeGenerator::handle_vector_assignment(VectorAccess* vec_access, const 
 
     // Release registers used in the store
     register_manager_.release_register(value_to_store_reg);
-    register_manager_.release_register(effective_addr_reg);
+    register_manager_.release_scratch_reg(effective_addr_reg);
 }
 
 void NewCodeGenerator::handle_char_indirection_assignment(CharIndirection* char_indirection, const std::string& value_to_store_reg) {
@@ -2694,6 +2734,10 @@ void NewCodeGenerator::emit(const Instruction& instr) {
     }
     
     instruction_stream_.add(instr);
+    
+    // Update live intervals after adding the instruction
+    // Use AST statement index instead of emitted instruction count for correct liveness tracking
+    register_manager_.update_live_intervals(all_allocations_, current_scope_name_, current_ast_statement_index_);
 }
 
 // Stub implementation for emitting comments
@@ -2836,6 +2880,7 @@ void NewCodeGenerator::generate_function_like_code(
     }
     current_scope_name_ = name;    // Initialize scope tracking
     block_id_counter_ = 0;         // Reset block ID counter for each new function
+    current_ast_statement_index_ = -1;  // Initialize AST statement index (-1 for prologue)
     debug_print("DEBUG: generate_function_like_code called for: " + name);
     debug_print("Generating function-like code for: " + name);
     x28_is_loaded_in_current_function_ = false;
@@ -3448,6 +3493,8 @@ void NewCodeGenerator::generate_function_like_code(
 
         // Generate code for each statement within the block
         for (const auto& stmt : block->statements) {
+            // Update AST statement index for correct liveness tracking
+            current_ast_statement_index_++;
             stmt->accept(*this);
         }
 
@@ -3459,6 +3506,8 @@ void NewCodeGenerator::generate_function_like_code(
 
 
     // --- START MODIFICATION: Insert Cleanup Logic ---
+    // Set AST statement index to after the last statement for epilogue
+    current_ast_statement_index_ = 1000;  // Large value to ensure all intervals are expired
     debug_print("Performing end-of-function scope cleanup for '" + name + "'.");
     if (symbol_table_) {
         // Get all symbols for the function's top-level scope.

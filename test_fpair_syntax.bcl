@@ -1,0 +1,10 @@
+LET START() BE {
+    WRITEF("Testing FPAIR syntax parsing*N")
+
+    // Test basic FPAIR creation
+    LET f = FPAIR(1.0, 2.0)
+
+    WRITEF("FPAIR created successfully*N")
+    WRITEF("First element: %F*N", f.first)
+    WRITEF("Second element: %F*N", f.second)
+}

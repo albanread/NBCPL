@@ -59,6 +59,10 @@ VarType StatelessTypeInference::infer_expression_type(const Expression* expr, co
         if ((static_cast<int64_t>(vector_type) & static_cast<int64_t>(VarType::PAIRS)) != 0) {
             return VarType::PAIR;
         }
+        // If accessing a FPAIRS vector, return FPAIR
+        if ((static_cast<int64_t>(vector_type) & static_cast<int64_t>(VarType::FPAIRS)) != 0) {
+            return VarType::FPAIR;
+        }
         // If accessing a float vector, return float
         if ((static_cast<int64_t>(vector_type) & static_cast<int64_t>(VarType::FLOAT)) != 0) {
             return VarType::FLOAT;
@@ -85,6 +89,11 @@ VarType StatelessTypeInference::infer_expression_type(const Expression* expr, co
     // PAIRS allocation
     if (const auto* pairs_alloc = dynamic_cast<const PairsAllocationExpression*>(expr)) {
         return VarType::POINTER_TO_PAIRS;
+    }
+
+    // FPAIRS allocation
+    if (const auto* fpairs_alloc = dynamic_cast<const FPairsAllocationExpression*>(expr)) {
+        return VarType::POINTER_TO_FPAIRS;
     }
 
     // String allocation

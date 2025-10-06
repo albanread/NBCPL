@@ -570,6 +570,9 @@ ExprPtr Parser::parse_primary_expression() {
     if (match(TokenType::Pairs)) {
         return std::make_unique<PairsAllocationExpression>(parse_expression());
     }
+    if (match(TokenType::FPairs)) {
+        return std::make_unique<FPairsAllocationExpression>(parse_expression());
+    }
     if (match(TokenType::String)) {
         return std::make_unique<StringAllocationExpression>(parse_expression());
     }

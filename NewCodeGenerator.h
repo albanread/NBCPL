@@ -245,6 +245,7 @@ private:
     void generateFPairPairwiseMin(const PairwiseReductionLoopStatement& node);
     void generateFQuadPairwiseMin(const PairwiseReductionLoopStatement& node);
     void generateFOctPairwiseMin(const PairwiseReductionLoopStatement& node);
+    void generateFPairsVectorPairwiseMin(const PairwiseReductionLoopStatement& node);
     void generateFloatVectorPairwiseMin(const PairwiseReductionLoopStatement& node);
     void generatePairPairwiseMin(const PairwiseReductionLoopStatement& node);
     void generateQuadPairwiseMin(const PairwiseReductionLoopStatement& node);
@@ -252,6 +253,7 @@ private:
     void generateIntegerVectorPairwiseMin(const PairwiseReductionLoopStatement& node);
     void visit(FVecAllocationExpression& node) override;
     void visit(PairsAllocationExpression& node) override;
+    void visit(FPairsAllocationExpression& node) override;
     void visit(StringAllocationExpression& node) override;
     void visit(AssignmentStatement& node) override;
     void visit(RoutineCallStatement& node) override;
@@ -313,6 +315,9 @@ private:
     std::vector<std::string> current_function_parameters_;
     std::string current_scope_name_;
     size_t block_id_counter_ = 0;
+    
+    // Track current AST statement index for correct liveness tracking
+    int current_ast_statement_index_ = -1;
 
     std::map<std::string, int> current_scope_symbols_;
     std::stack<std::map<std::string, int>> scope_stack_;

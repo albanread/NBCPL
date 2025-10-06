@@ -27,18 +27,17 @@ Instruction Encoder::enc_create_fsub_vector_reg(const std::string& vd, const std
     // sz=0 for 32-bit (S), sz=1 for 64-bit (D)
     // Q=0 for 64-bit vector (2S/1D), Q=1 for 128-bit vector (4S/2D)
     
-    uint32_t instruction = 0x0E200C00; // Base encoding: 0|0|0|01110|0|1|00000|100010|00000|00000
+    uint32_t instruction = 0x4E20D400; // Base encoding for FSUB vector (corrected opcode)
     
-    // Set Q bit based on arrangement
-    if (arrangement == "4S" || arrangement == "2D") {
-        instruction |= (1U << 30); // Set Q=1 for 128-bit
+    // Set arrangement-specific bits
+    if (arrangement == "4S" || arrangement == "2S") {
+        instruction |= (1U << 23); // Set bit 23 for single-precision arrangements
+        if (arrangement == "2S") {
+            instruction &= ~(1U << 30); // Clear Q bit for 64-bit operation (2S)
+        }
+    } else if (arrangement == "2D") {
+        instruction |= (0b01 << 22); // Set sz=01 for double-precision
     }
-    
-    // Set sz bit based on element size
-    if (arrangement == "2D") {
-        instruction |= (1U << 22); // Set sz=1 for 64-bit elements
-    }
-    // sz=0 for 32-bit elements (2S, 4S)
     
     // Set register fields
     instruction |= (vm_num << 16);  // Rm field

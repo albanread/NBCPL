@@ -1,0 +1,5 @@
+LET START() BE {
+    LET p = PAIR(1, 2)
+    LET fp = FPAIR(1.0, 2.0)
+    WRITEF("PAIR and FPAIR created*N")
+}

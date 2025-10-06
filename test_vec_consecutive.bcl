@@ -1,0 +1,12 @@
+LET START() BE {
+    WRITEF("Testing consecutive VEC assignments*N")
+
+    LET vec_a = VEC 4
+    LET vec_b = VEC 4
+
+    // Two consecutive assignments - test if regular vectors crash
+    vec_a!0 := 100
+    vec_b!0 := 200
+
+    WRITEF("Consecutive VEC assignments completed*N")
+}

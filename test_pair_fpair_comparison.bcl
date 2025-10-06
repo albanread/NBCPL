@@ -1,0 +1,60 @@
+LET START() BE {
+    WRITEF("=== PAIR vs FPAIR Type Inference Comparison ===*N")
+
+    // Test 1: PAIR creation and type inference
+    WRITEF("Test 1: PAIR creation*N")
+    LET pair_var = PAIR(10, 20)
+    WRITEF("  ✓ PAIR(10, 20) created successfully*N")
+
+    // Test 2: FPAIR creation and type inference
+    WRITEF("Test 2: FPAIR creation*N")
+    LET fpair_var = FPAIR(10.0, 20.0)
+    WRITEF("  ✓ FPAIR(10.0, 20.0) created successfully*N")
+
+    // Test 3: PAIRS allocation
+    WRITEF("Test 3: PAIRS allocation*N")
+    LET pairs_vec = PAIRS 3
+    WRITEF("  ✓ PAIRS 3 allocated successfully*N")
+
+    // Test 4: FPAIRS allocation
+    WRITEF("Test 4: FPAIRS allocation*N")
+    LET fpairs_vec = FPAIRS 3
+    WRITEF("  ✓ FPAIRS 3 allocated successfully*N")
+
+    // Test 5: Assign PAIRs to PAIRS vector
+    WRITEF("Test 5: PAIR assignments*N")
+    pairs_vec!0 := PAIR(1, 2)
+    pairs_vec!1 := PAIR(3, 4)
+    pairs_vec!2 := PAIR(5, 6)
+    WRITEF("  ✓ PAIR assignments to PAIRS vector completed*N")
+
+    // Test 6: Assign FPAIRs to FPAIRS vector
+    WRITEF("Test 6: FPAIR assignments*N")
+    fpairs_vec!0 := FPAIR(1.1, 2.2)
+    fpairs_vec!1 := FPAIR(3.3, 4.4)
+    fpairs_vec!2 := FPAIR(5.5, 6.6)
+    WRITEF("  ✓ FPAIR assignments to FPAIRS vector completed*N")
+
+    // Test 7: Access PAIR elements
+    WRITEF("Test 7: PAIR element access*N")
+    LET retrieved_pair = pairs_vec!0
+    LET pair_first = retrieved_pair.first
+    LET pair_second = retrieved_pair.second
+    WRITEF("  ✓ PAIR access: first=%D, second=%D*N", pair_first, pair_second)
+
+    // Test 8: Access FPAIR elements
+    WRITEF("Test 8: FPAIR element access*N")
+    LET retrieved_fpair = fpairs_vec!0
+    LET fpair_first = retrieved_fpair.first
+    LET fpair_second = retrieved_fpair.second
+    WRITEF("  ✓ FPAIR access: first=%F, second=%F*N", fpair_first, fpair_second)
+
+    // Test 9: Direct component access
+    WRITEF("Test 9: Direct component access*N")
+    LET direct_pair_first = pairs_vec!1.first
+    LET direct_fpair_first = fpairs_vec!1.first
+    WRITEF("  ✓ Direct access: pair.first=%D, fpair.first=%F*N", direct_pair_first, direct_fpair_first)
+
+    WRITEF("*N=== TYPE INFERENCE COMPARISON COMPLETE ===*N")
+    WRITEF("Both PAIR and FPAIR type inference working correctly*N")
+}

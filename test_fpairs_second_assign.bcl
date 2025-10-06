@@ -1,0 +1,11 @@
+LET START() BE {
+    WRITEF("Testing FPAIRS with second assignment only*N")
+
+    LET vec_a = FPAIRS 4
+    LET vec_b = FPAIRS 4
+
+    // Skip first assignment, try just the second one
+    vec_b!0 := FPAIR(1.0, 4.0)
+
+    WRITEF("FPAIRS second assignment completed*N")
+}

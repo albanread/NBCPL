@@ -1,0 +1,10 @@
+LET START() BE {
+    WRITEF("Testing FPAIRS with single assignment*N")
+
+    LET vec_a = FPAIRS 4
+
+    // Try just one assignment
+    vec_a!0 := FPAIR(2.0, 3.0)
+
+    WRITEF("FPAIRS single assignment completed*N")
+}

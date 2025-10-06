@@ -551,6 +551,11 @@ void RegisterManager::sync_with_allocator(const std::map<std::string, std::map<s
     // Clear any previous allocator reservations
     reset_allocations();
     
+    // Cache allocations for live interval tracking
+    cached_allocations_ = allocations;
+    cached_function_name_ = current_function;
+    current_instruction_point_ = 0;
+    
     // Find allocations for the current function
     auto func_it = allocations.find(current_function);
     if (func_it == allocations.end()) {
@@ -560,40 +565,97 @@ void RegisterManager::sync_with_allocator(const std::map<std::string, std::map<s
         return;
     }
     
-    const auto& func_allocations = func_it->second;
-    
     if (debug_enabled_) {
-        std::cout << "[SYNC] Syncing RegisterManager with LinearScanAllocator for function: " << current_function << std::endl;
-        std::cout << "[SYNC] Found " << func_allocations.size() << " variable allocations" << std::endl;
+        std::cout << "[SYNC] Caching live intervals for function: " << current_function << std::endl;
+        std::cout << "[SYNC] Found " << func_it->second.size() << " variable allocations" << std::endl;
     }
     
-    // Reserve registers that were allocated by LinearScanAllocator
+    // Initialize with variables that are live at instruction point 0
+    update_live_intervals(allocations, current_function, 0);
+}
+
+void RegisterManager::update_live_intervals(const std::map<std::string, std::map<std::string, LiveInterval>>& allocations,
+                                          const std::string& current_function,
+                                          int instruction_point) {
+    current_instruction_point_ = instruction_point;
+    
+    // Find allocations for the current function
+    auto func_it = allocations.find(current_function);
+    if (func_it == allocations.end()) {
+        return;
+    }
+    
+    const auto& func_allocations = func_it->second;
+    
+    // Clear previous variable-to-register mappings for reused registers
+    std::set<std::string> active_registers;
+    
+    if (debug_enabled_) {
+        std::cout << "[LIVE] Updating live intervals at instruction point " << instruction_point << std::endl;
+    }
+    
+    // Update register assignments based on live intervals
     for (const auto& [variable, interval] : func_allocations) {
         const std::string& physical_reg = interval.assigned_register;
         
-        if (!physical_reg.empty()) {
-            // Mark this register as reserved for the variable
-            if (registers.count(physical_reg)) {
+        if (!physical_reg.empty() && registers.count(physical_reg)) {
+            // Check if this variable is live at the current instruction point
+            bool is_live = (instruction_point >= interval.start_point && instruction_point <= interval.end_point);
+            
+            if (is_live) {
+                active_registers.insert(physical_reg);
+                
+                // Update register state for the currently live variable
                 registers[physical_reg] = {IN_USE_VARIABLE, variable, false};
                 
-                // Add to variable mapping
+                // Update variable mapping
                 if (physical_reg.find("D") == 0) {
                     // Float register
                     fp_variable_to_reg_map_[variable] = physical_reg;
+                    
+                    // Remove from LRU if already present, then add to front
+                    fp_variable_reg_lru_order_.remove(variable);
                     fp_variable_reg_lru_order_.push_front(variable);
                 } else {
                     // Integer register
                     variable_to_reg_map[variable] = physical_reg;
+                    
+                    // Remove from LRU if already present, then add to front
+                    variable_reg_lru_order_.remove(variable);
                     variable_reg_lru_order_.push_front(variable);
                 }
                 
                 if (debug_enabled_) {
-                    std::cout << "[SYNC] Reserved register " << physical_reg << " for variable " << variable << std::endl;
+                    std::cout << "[LIVE] Register " << physical_reg << " active for variable " << variable 
+                              << " [" << interval.start_point << "-" << interval.end_point << "]" << std::endl;
                 }
-            } else {
+            } else if (instruction_point > interval.end_point) {
+                // Variable is no longer live, remove from mappings
+                if (physical_reg.find("D") == 0) {
+                    fp_variable_to_reg_map_.erase(variable);
+                    fp_variable_reg_lru_order_.remove(variable);
+                } else {
+                    variable_to_reg_map.erase(variable);
+                    variable_reg_lru_order_.remove(variable);
+                }
+                
                 if (debug_enabled_) {
-                    std::cout << "[SYNC] Warning: Register " << physical_reg << " not found in register pool" << std::endl;
+                    std::cout << "[LIVE] Variable " << variable << " expired from register " << physical_reg << std::endl;
                 }
+            }
+        }
+    }
+    
+    // Free registers that are no longer active
+    for (auto& [reg_name, reg_info] : registers) {
+        if (reg_info.status == IN_USE_VARIABLE && active_registers.find(reg_name) == active_registers.end()) {
+            // This register was allocated by the LinearScanAllocator but no variable is currently live in it
+            reg_info.status = FREE;
+            reg_info.bound_to = "";
+            reg_info.dirty = false;
+            
+            if (debug_enabled_) {
+                std::cout << "[LIVE] Freed register " << reg_name << " (no active variables)" << std::endl;
             }
         }
     }

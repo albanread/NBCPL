@@ -185,3 +185,14 @@ void VariableUsageVisitor::visit(ResultisStatement& node) {
 void VariableUsageVisitor::visit(FreeStatement& node) {
     if (node.list_expr) node.list_expr->accept(*this);
 }
+
+void VariableUsageVisitor::visit(PairwiseReductionLoopStatement& node) {
+    // Record uses of the input vector variables
+    if (!node.vector_a_name.empty()) {
+        variables_.insert(node.vector_a_name);
+    }
+    if (!node.vector_b_name.empty()) {
+        variables_.insert(node.vector_b_name);
+    }
+    // Note: We don't record result_vector_name as a "use" since it's being written to
+}

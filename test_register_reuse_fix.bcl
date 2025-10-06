@@ -1,0 +1,49 @@
+// Test file to verify the register reuse fix for LinearScanAllocator synchronization
+// This test creates a scenario where two variables (vec_b and result_min) should
+// be allocated to the same register (X26) but at different points in time,
+// similar to the PAIRWISE_MIN function that was causing segmentation faults.
+
+let test_register_reuse() be {
+    writef("Testing register reuse fix...*N")
+
+    // Create vectors that will be allocated by LinearScanAllocator
+    let vec_a = getvec(10)
+    let vec_b = getvec(10)
+
+    // Fill vectors with test data
+    for i = 0 to 9 do {
+        vec_a[i] := i * 2
+        vec_b[i] := i * 3
+    }
+
+    writef("Initial vectors created and filled*N")
+
+    // This is the critical section where vec_b's live interval should end
+    // and result_min's live interval should begin, allowing register reuse
+    let result_min = vec_b[0] // vec_b is last used here
+
+    // Process remaining elements - vec_b is no longer live
+    for i = 1 to 9 do {
+        let current_val = vec_a[i]
+        if current_val < result_min then
+            result_min := current_val
+    }
+
+    writef("Minimum value found: %N*N", result_min)
+
+    // Verify the result is correct
+    let expected = 0
+    if result_min = expected then
+        writef("PASS: Register reuse test succeeded*N")
+    else
+        writef("FAIL: Expected %N, got %N*N", expected, result_min)
+
+    // Clean up
+    freevec(vec_a)
+    freevec(vec_b)
+}
+
+let start() be {
+    test_register_reuse()
+    finish
+}

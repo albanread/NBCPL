@@ -1,0 +1,12 @@
+LET START() BE {
+    LET pairs_vec = PAIRS 10
+    LET fpairs_vec = FPAIRS 10
+
+    WRITEF("PAIRS 10 allocated at: %X*N", pairs_vec)
+    WRITEF("FPAIRS 10 allocated at: %X*N", fpairs_vec)
+
+    pairs_vec!0 := PAIR(1, 2)
+    fpairs_vec!0 := FPAIR(1.0, 2.0)
+
+    WRITEF("Assignments successful*N")
+}

@@ -1,0 +1,16 @@
+LET START() BE {
+
+    WRITEF("Testing Pairwise Operation Liveness Fix*N")
+
+    LET vec_a = FPAIRS 4  // First vector - should stay live until PAIRWISE_MIN
+    LET vec_b = FPAIRS 4  // Second vector - should stay live until PAIRWISE_MIN
+
+    // Initialize vectors with test data
+    vec_a!0 := FPAIR(2.0, 3.0)
+
+
+//    LET result_min = PAIRWISE_MIN(vec_a, vec_b)
+
+//    WRITEF("%Q", vec_a!0)
+
+}

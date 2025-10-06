@@ -107,6 +107,7 @@ public:
     void visit(VecInitializerExpression& node) override;
     void visit(BitfieldAccessExpression& node) override;
     void visit(FVecAllocationExpression& node) override;
+    void visit(PairwiseReductionLoopStatement& node) override;
 
 private:
     // Input: A reference to the map of CFGs.

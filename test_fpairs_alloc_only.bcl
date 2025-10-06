@@ -1,0 +1,8 @@
+LET START() BE {
+    WRITEF("Testing FPAIRS allocation only*N")
+
+    LET vec_a = FPAIRS 4
+    LET vec_b = FPAIRS 4
+
+    WRITEF("FPAIRS allocated successfully*N")
+}

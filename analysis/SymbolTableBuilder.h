@@ -49,6 +49,7 @@ public:
     void visit(VecAllocationExpression& node) override;
     void visit(FVecAllocationExpression& node) override;
     void visit(PairsAllocationExpression& node) override;
+    void visit(FPairsAllocationExpression& node) override;
 
 private:
     // The symbol table being built

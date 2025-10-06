@@ -1,0 +1,12 @@
+LET START() BE {
+    WRITEF("Testing consecutive FVEC assignments*N")
+
+    LET vec_a = FVEC 4
+    LET vec_b = FVEC 4
+
+    // Two consecutive assignments - test if float vectors crash
+    vec_a!0 := 1.5
+    vec_b!0 := 2.5
+
+    WRITEF("Consecutive FVEC assignments completed*N")
+}

@@ -1,0 +1,11 @@
+LET START() BE {
+    WRITEF("Testing FPAIRS with both assignments to same vector*N")
+
+    LET vec_a = FPAIRS 4
+
+    // Try both assignments to the same vector
+    vec_a!0 := FPAIR(2.0, 3.0)
+    vec_a!1 := FPAIR(1.0, 4.0)
+
+    WRITEF("FPAIRS same vector assignments completed*N")
+}

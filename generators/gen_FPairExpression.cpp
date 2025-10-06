@@ -12,8 +12,7 @@ void NewCodeGenerator::visit(FPairExpression& node) {
     // First float goes into bits 0-31 (lower 32 bits)
     // Second float goes into bits 32-63 (upper 32 bits)
     
-    auto& register_manager = RegisterManager::getInstance();
-    std::string result_reg = register_manager.get_free_register(*this);
+    std::string result_reg = register_manager_.get_free_register(*this);
     
     // Initialize result register to 0
     emit(Encoder::create_movz_imm(result_reg, 0));
@@ -24,14 +23,14 @@ void NewCodeGenerator::visit(FPairExpression& node) {
         std::string first_reg = expression_result_reg_;
         
         // Convert double to single precision float first
-        std::string single_precision_reg = register_manager.acquire_fp_scratch_reg(); // This gives us D register
+        std::string single_precision_reg = register_manager_.acquire_fp_scratch_reg(); // This gives us D register
         std::string s_reg = "S" + single_precision_reg.substr(1); // Convert D0 -> S0
         debug_print("FCVT registers: s_reg=" + s_reg + ", first_reg=" + first_reg);
         emit(Encoder::create_fcvt_d_to_s(s_reg, first_reg));
         
         // For float values, we need to move from FP register to general register
         // FMOV W_reg, S_reg moves the bit pattern of a 32-bit float
-        std::string temp_gen_reg = register_manager.get_free_register(*this);
+        std::string temp_gen_reg = register_manager_.get_free_register(*this);
         std::string w_reg = "W" + temp_gen_reg.substr(1); // Convert X0 -> W0
         emit(Encoder::create_fmov_s_to_w(w_reg, s_reg));
         
@@ -40,9 +39,9 @@ void NewCodeGenerator::visit(FPairExpression& node) {
         // Insert 32 bits from temp_gen_reg starting at bit 0
         emit(Encoder::opt_create_bfxil(result_reg, temp_gen_reg, 0, 32));
         
-        register_manager.release_register(first_reg);
-        register_manager.release_fp_register(single_precision_reg);
-        register_manager.release_register(temp_gen_reg);
+        register_manager_.release_register(first_reg);
+        register_manager_.release_register(single_precision_reg);
+        register_manager_.release_register(temp_gen_reg);
         debug_print("Converted double to float and inserted into bits 0-31 using BFXIL");
     }
     
@@ -52,12 +51,12 @@ void NewCodeGenerator::visit(FPairExpression& node) {
         std::string second_reg = expression_result_reg_;
         
         // Convert double to single precision float first
-        std::string single_precision_reg = register_manager.acquire_fp_scratch_reg(); // This gives us D register
+        std::string single_precision_reg = register_manager_.acquire_fp_scratch_reg(); // This gives us D register
         std::string s_reg = "S" + single_precision_reg.substr(1); // Convert D0 -> S0
         emit(Encoder::create_fcvt_d_to_s(s_reg, second_reg));
         
         // For float values, we need to move from FP register to general register
-        std::string temp_gen_reg = register_manager.get_free_register(*this);
+        std::string temp_gen_reg = register_manager_.get_free_register(*this);
         std::string w_reg = "W" + temp_gen_reg.substr(1); // Convert X0 -> W0
         emit(Encoder::create_fmov_s_to_w(w_reg, s_reg));
         
@@ -65,9 +64,9 @@ void NewCodeGenerator::visit(FPairExpression& node) {
         // Insert 32 bits from temp_gen_reg starting at bit 32
         emit(Encoder::opt_create_bfi(result_reg, temp_gen_reg, 32, 32));
         
-        register_manager.release_register(second_reg);
-        register_manager.release_fp_register(single_precision_reg);
-        register_manager.release_register(temp_gen_reg);
+        register_manager_.release_register(second_reg);
+        register_manager_.release_register(single_precision_reg);
+        register_manager_.release_register(temp_gen_reg);
         debug_print("Converted double to float and inserted into bits 32-63 using BFI");
     }
     

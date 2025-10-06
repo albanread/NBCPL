@@ -1,0 +1,7 @@
+LET START() BE {
+    WRITEF("Testing simple FPAIR creation*N")
+
+    LET pair_value = FPAIR(1.0, 2.0)
+
+    WRITEF("FPAIR created successfully*N")
+}

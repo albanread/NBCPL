@@ -1,0 +1,19 @@
+LET START() BE {
+    WRITEF("Testing FPAIRS with debug output*N")
+
+    LET vec_a = FPAIRS 4
+    LET vec_b = FPAIRS 4
+    WRITEF("FPAIRS vectors allocated*N")
+
+    // First assignment with debug
+    WRITEF("About to assign to vec_a!0*N")
+    vec_a!0 := FPAIR(2.0, 3.0)
+    WRITEF("Successfully assigned to vec_a!0*N")
+
+    // Second assignment with debug
+    WRITEF("About to assign to vec_b!0*N")
+    vec_b!0 := FPAIR(1.0, 4.0)
+    WRITEF("Successfully assigned to vec_b!0*N")
+
+    WRITEF("All FPAIRS assignments completed*N")
+}

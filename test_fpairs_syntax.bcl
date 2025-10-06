@@ -1,0 +1,25 @@
+LET START() BE {
+    WRITEF("Testing FPAIRS allocation syntax*N")
+
+    // Test basic FPAIRS allocation
+    LET vec_a = FPAIRS 4
+
+    WRITEF("FPAIRS allocation successful*N")
+    WRITEF("vec_a allocated at address: %X*N", vec_a)
+
+    // Test initializing FPAIRS elements with individual FPAIRs
+    vec_a!0 := FPAIR(1.0, 2.0)
+    vec_a!1 := FPAIR(3.0, 4.0)
+    vec_a!2 := FPAIR(5.0, 6.0)
+    vec_a!3 := FPAIR(7.0, 8.0)
+
+    WRITEF("FPAIRS elements initialized*N")
+
+    // Test creating different sized FPAIRS
+    LET vec_b = FPAIRS 2
+    vec_b!0 := FPAIR(10.5, 20.5)
+    vec_b!1 := FPAIR(30.5, 40.5)
+
+    WRITEF("Additional FPAIRS allocation successful*N")
+    WRITEF("FPAIRS syntax test completed successfully*N")
+}

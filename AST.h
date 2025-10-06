@@ -78,7 +78,7 @@ public:
         FQuadExpr, FQuadAccessExpr, // New: For fquad(a,b,c,d) and fq.first/fq.second/fq.third/fq.fourth
         OctExpr, FOctExpr, // New: For oct(...) and foct(...) 8-lane vectors
         LaneAccessExpr, // New: For vector.|n| lane access
-        ConditionalExpr, ValofExpr, FloatValofExpr, VecAllocationExpr, FVecAllocationExpr, PairsAllocationExpr, StringAllocationExpr, TableExpr,
+        ConditionalExpr, ValofExpr, FloatValofExpr, VecAllocationExpr, FVecAllocationExpr, PairsAllocationExpr, FPairsAllocationExpr, StringAllocationExpr, TableExpr,
         VecInitializerExpr, // Add this new type
         AssignmentStmt, RoutineCallStmt, IfStmt, UnlessStmt, TestStmt, WhileStmt, UntilStmt,
         RepeatStmt, ForStmt, ForEachStmt, SwitchonStmt, GotoStmt, ReturnStmt, FinishStmt, BreakStmt,
@@ -691,6 +691,17 @@ public:
     std::string variable_name; // Name of the variable being allocated
     PairsAllocationExpression(ExprPtr size_expr)
         : Expression(NodeType::PairsAllocationExpr), size_expr(std::move(size_expr)), variable_name("") {}
+    
+    void accept(ASTVisitor& visitor) override;
+    ASTNodePtr clone() const override;
+};
+
+class FPairsAllocationExpression : public Expression {
+public:
+    ExprPtr size_expr;
+    std::string variable_name; // Name of the variable being allocated
+    FPairsAllocationExpression(ExprPtr size_expr)
+        : Expression(NodeType::FPairsAllocationExpr), size_expr(std::move(size_expr)), variable_name("") {}
     
     void accept(ASTVisitor& visitor) override;
     ASTNodePtr clone() const override;

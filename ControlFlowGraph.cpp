@@ -67,6 +67,7 @@ std::string to_string(ASTNode::NodeType type) {
         case ASTNode::NodeType::VecAllocationExpr: return "VecAllocationExpr";
         case ASTNode::NodeType::FVecAllocationExpr: return "FVecAllocationExpr";
         case ASTNode::NodeType::PairsAllocationExpr: return "PairsAllocationExpr";
+        case ASTNode::NodeType::FPairsAllocationExpr: return "FPairsAllocationExpr";
         case ASTNode::NodeType::StringAllocationExpr: return "StringAllocationExpr";
         case ASTNode::NodeType::TableExpr: return "TableExpr";
         case ASTNode::NodeType::VecInitializerExpr: return "VecInitializerExpr";

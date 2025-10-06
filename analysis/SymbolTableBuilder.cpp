@@ -483,6 +483,9 @@ void SymbolTableBuilder::visit(AssignmentStatement& node) {
             } else if (auto* pairs_alloc = dynamic_cast<PairsAllocationExpression*>(node.rhs[0].get())) {
                 pairs_alloc->variable_name = var_access->name;
                 trace("Set variable name for PairsAllocationExpression: " + var_access->name);
+            } else if (auto* fpairs_alloc = dynamic_cast<FPairsAllocationExpression*>(node.rhs[0].get())) {
+                fpairs_alloc->variable_name = var_access->name;
+                trace("Set variable name for FPairsAllocationExpression: " + var_access->name);
             }
         }
     }
@@ -563,6 +566,32 @@ void SymbolTableBuilder::visit(PairsAllocationExpression& node) {
                 symbol.has_size = true;
                 symbol_table_->updateSymbol(node.variable_name, symbol);
                 trace("Updated PAIRS variable: " + node.variable_name + " with size " + std::to_string(size));
+            }
+        }
+    }
+    
+    // Visit the size expression
+    if (node.size_expr) {
+        node.size_expr->accept(*this);
+    }
+}
+
+void SymbolTableBuilder::visit(FPairsAllocationExpression& node) {
+    trace("Processing FPairsAllocationExpression");
+    
+    // Check if size is a constant
+    if (auto* num_lit = dynamic_cast<NumberLiteral*>(node.size_expr.get())) {
+        int64_t size = num_lit->int_value;
+        
+        // If this fpairs allocation is being assigned to a variable, update its symbol
+        if (!node.variable_name.empty()) {
+            Symbol symbol;
+            if (symbol_table_->lookup(node.variable_name, symbol)) {
+                symbol.type = VarType::POINTER_TO_FPAIRS;
+                symbol.size = static_cast<size_t>(size);
+                symbol.has_size = true;
+                symbol_table_->updateSymbol(node.variable_name, symbol);
+                trace("Updated FPAIRS variable: " + node.variable_name + " with size " + std::to_string(size));
             }
         }
     }

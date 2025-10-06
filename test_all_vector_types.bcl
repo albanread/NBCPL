@@ -1,0 +1,53 @@
+LET START() BE {
+    WRITEF("Testing consecutive assignments for all vector types*N")
+
+    // Test PAIRS
+    WRITEF("Testing PAIRS...*N")
+    LET pairs_a = PAIRS 4
+    LET pairs_b = PAIRS 4
+    pairs_a!0 := PAIR(10, 20)
+    pairs_b!0 := PAIR(30, 40)
+    WRITEF("PAIRS: OK*N")
+
+    // Test FPAIRS
+    WRITEF("Testing FPAIRS...*N")
+    LET fpairs_a = FPAIRS 4
+    LET fpairs_b = FPAIRS 4
+    fpairs_a!0 := FPAIR(1.0, 2.0)
+    fpairs_b!0 := FPAIR(3.0, 4.0)
+    WRITEF("FPAIRS: OK*N")
+
+    // Test QUADS
+    WRITEF("Testing QUADS...*N")
+    LET quads_a = QUADS 4
+    LET quads_b = QUADS 4
+    quads_a!0 := QUAD(1, 2, 3, 4)
+    quads_b!0 := QUAD(5, 6, 7, 8)
+    WRITEF("QUADS: OK*N")
+
+    // Test FQUADS
+    WRITEF("Testing FQUADS...*N")
+    LET fquads_a = FQUADS 4
+    LET fquads_b = FQUADS 4
+    fquads_a!0 := FQUAD(1.0, 2.0, 3.0, 4.0)
+    fquads_b!0 := FQUAD(5.0, 6.0, 7.0, 8.0)
+    WRITEF("FQUADS: OK*N")
+
+    // Test OCTS
+    WRITEF("Testing OCTS...*N")
+    LET octs_a = OCTS 4
+    LET octs_b = OCTS 4
+    octs_a!0 := OCT(1, 2, 3, 4, 5, 6, 7, 8)
+    octs_b!0 := OCT(9, 10, 11, 12, 13, 14, 15, 16)
+    WRITEF("OCTS: OK*N")
+
+    // Test FOCTS
+    WRITEF("Testing FOCTS...*N")
+    LET focts_a = FOCTS 4
+    LET focts_b = FOCTS 4
+    focts_a!0 := FOCT(1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0)
+    focts_b!0 := FOCT(9.0, 10.0, 11.0, 12.0, 13.0, 14.0, 15.0, 16.0)
+    WRITEF("FOCTS: OK*N")
+
+    WRITEF("All vector types completed successfully!*N")
+}

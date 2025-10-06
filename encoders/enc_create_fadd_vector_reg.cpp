@@ -6,8 +6,8 @@ Instruction Encoder::create_fadd_vector_reg(const std::string& vd, const std::st
     uint32_t rn = get_reg_encoding(vn);
     uint32_t rm = get_reg_encoding(vm);
 
-    // Base encoding for FADD (vector)
-    uint32_t encoding = 0x4E208400 | (rm << 16) | (rn << 5) | rd;
+    // Base encoding for FADD (vector) - corrected opcode from ADD to FADD
+    uint32_t encoding = 0x4E20D400 | (rm << 16) | (rn << 5) | rd;
 
     // Set the size bits based on the arrangement
     if (arrangement == "4S" || arrangement == "2S") {

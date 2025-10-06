@@ -1,0 +1,17 @@
+LET START() BE {
+    WRITEF("Testing liveness analysis for PAIRWISE_MIN*N")
+
+    LET vec_a = FVEC 4
+    LET vec_b = FVEC 4
+
+    // Initialize vectors
+    vec_a!0 := 1.0
+    vec_a!1 := 2.0
+    vec_b!0 := 3.0
+    vec_b!1 := 4.0
+
+    // This should use both vec_a and vec_b
+    LET result_min = PAIRWISE_MIN(vec_a, vec_b)
+
+    WRITEF("Done*N")
+}

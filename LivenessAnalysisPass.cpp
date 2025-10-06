@@ -39,19 +39,43 @@ void LivenessAnalysisPass::visit(VariableAccess& node) {
 
 // Visitor for assignment (a 'def' case).
 void LivenessAnalysisPass::visit(AssignmentStatement& node) {
-    // First, visit the RHS to find all 'uses'.
+    // CRITICAL FIX for vector assignments (e.g., vec_a!0 := FPAIR(...)):
+    // We must visit LHS address calculations FIRST to capture the 'use' of base vectors,
+    // then visit RHS, then record the LHS 'def'.
+    
+    // 1. Visit LHS for address calculation uses (e.g., vec_a in vec_a!0)
+    for (const auto& lhs_expr : node.lhs) {
+        if (auto* vec_access = dynamic_cast<VectorAccess*>(lhs_expr.get())) {
+            // For vector access, we USE the base vector for address calculation
+            if (vec_access->vector_expr) {
+                vec_access->vector_expr->accept(*this);
+            }
+            if (vec_access->index_expr) {
+                vec_access->index_expr->accept(*this);
+            }
+        } else if (auto* var = dynamic_cast<VariableAccess*>(lhs_expr.get())) {
+            // Simple variable access on LHS is just a def, no use
+            // Don't visit it yet - we'll handle defs after RHS
+        } else {
+            // Other LHS expressions (indirection, etc.) may have uses
+            lhs_expr->accept(*this);
+        }
+    }
+    
+    // 2. Visit the RHS to find all 'uses'
     for (const auto& rhs_expr : node.rhs) {
         rhs_expr->accept(*this);
     }
 
-    // Then, visit the LHS to find all 'defs'.
+    // 3. Now record the LHS 'defs' (after all uses are recorded)
     for (const auto& lhs_expr : node.lhs) {
         if (auto* var = dynamic_cast<VariableAccess*>(lhs_expr.get())) {
-            // CORRECTED LIVENESS ANALYSIS:
-            // A variable is in def[B] if it is assigned/written in block B.
-            // This is independent of whether it's used elsewhere in the block.
-            // Standard data-flow analysis: def[B] = {variables assigned in B}
             current_def_set_.insert(var->name);
+        } else if (auto* vec_access = dynamic_cast<VectorAccess*>(lhs_expr.get())) {
+            // For vector access, the base vector variable is being modified
+            if (auto* base_var = dynamic_cast<VariableAccess*>(vec_access->vector_expr.get())) {
+                current_def_set_.insert(base_var->name);
+            }
         }
     }
 }
@@ -320,6 +344,43 @@ void LivenessAnalysisPass::visit(GlobalVariableDeclaration& node) {
     // for (const auto& initializer : node.initializers) {
     //     if (initializer) initializer->accept(*this);
     // }
+}
+
+void LivenessAnalysisPass::visit(PairwiseReductionLoopStatement& node) {
+    // Mark this block as containing a function call for call interval fix
+    if (current_block_being_analyzed_) {
+        blocks_with_calls_.insert(current_block_being_analyzed_);
+        if (trace_enabled_) {
+            std::cout << "[LivenessAnalysisPass] Block " << current_block_being_analyzed_->id 
+                      << " contains pairwise reduction (treated as call) - marked for call interval fix" << std::endl;
+        }
+    }
+    
+    // Record uses of the input vector variables
+    // For liveness analysis, a variable is considered USED if it's read at this point,
+    // regardless of whether it was defined earlier in the same block
+    if (!node.vector_a_name.empty()) {
+        current_use_set_.insert(node.vector_a_name);
+        if (trace_enabled_) {
+            std::cout << "[LivenessAnalysisPass] Recording use of vector_a: " << node.vector_a_name << std::endl;
+        }
+    }
+    
+    if (!node.vector_b_name.empty()) {
+        current_use_set_.insert(node.vector_b_name);
+        if (trace_enabled_) {
+            std::cout << "[LivenessAnalysisPass] Recording use of vector_b: " << node.vector_b_name << std::endl;
+        }
+    }
+    
+    // Record definition of the result variable
+    // The result vector is WRITTEN by the pairwise reduction operation
+    if (!node.result_vector_name.empty()) {
+        current_def_set_.insert(node.result_vector_name);
+        if (trace_enabled_) {
+            std::cout << "[LivenessAnalysisPass] Recording def of result: " << node.result_vector_name << std::endl;
+        }
+    }
 }
 
 // Phase 2: Run the iterative data-flow algorithm.

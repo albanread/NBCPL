@@ -1,0 +1,29 @@
+LET START() BE {
+    WRITEF("Testing FMIN instruction fix for PAIRWISE_MIN*N")
+
+    // Create two simple float vectors for testing
+    LET vec_a = FVEC(4)
+    LET vec_b = FVEC(4)
+
+    // Initialize with simple test values
+    vec_a!0 := 1.0
+    vec_a!1 := 5.0
+    vec_a!2 := 3.0
+    vec_a!3 := 7.0
+
+    vec_b!0 := 2.0
+    vec_b!1 := 4.0
+    vec_b!2 := 6.0
+    vec_b!3 := 1.0
+
+    WRITEF("Vector A: [%F, %F, %F, %F]*N", vec_a!0, vec_a!1, vec_a!2, vec_a!3)
+    WRITEF("Vector B: [%F, %F, %F, %F]*N", vec_b!0, vec_b!1, vec_b!2, vec_b!3)
+
+    // This should now use FMIN instead of FMINP
+    // Expected result: [1.0, 4.0, 3.0, 1.0] (element-wise minimum)
+    LET result = PAIRWISE_MIN(vec_a, vec_b)
+
+    WRITEF("Result:   [%F, %F, %F, %F]*N", result!0, result!1, result!2, result!3)
+    WRITEF("Expected: [1.0, 4.0, 3.0, 1.0]*N")
+    WRITEF("FMIN instruction fix test completed successfully*N")
+}

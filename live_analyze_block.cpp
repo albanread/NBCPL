@@ -204,7 +204,16 @@ void LivenessAnalysisPass::collect_variable_uses(ASTNode* node, std::set<std::st
     } else if (auto* unary_op = dynamic_cast<UnaryOp*>(node)) {
         collect_variable_uses(unary_op->operand.get(), vars);
     } else if (auto* func_call = dynamic_cast<FunctionCall*>(node)) {
+        if (trace_enabled_) {
+            std::cout << "[LivenessAnalysisPass] Found FunctionCall with " << func_call->arguments.size() << " arguments" << std::endl;
+            if (auto* func_var = dynamic_cast<VariableAccess*>(func_call->function_expr.get())) {
+                std::cout << "[LivenessAnalysisPass] Function name: " << func_var->name << std::endl;
+            }
+        }
         for (const auto& arg : func_call->arguments) {
+            if (trace_enabled_) {
+                std::cout << "[LivenessAnalysisPass] Processing function argument..." << std::endl;
+            }
             collect_variable_uses(arg.get(), vars);
         }
     } else if (auto* vec_access = dynamic_cast<VectorAccess*>(node)) {
@@ -279,6 +288,14 @@ void LivenessAnalysisPass::collect_statement_variable_uses(ASTNode* stmt, std::s
     } else if (auto* return_stmt = dynamic_cast<ReturnStatement*>(stmt)) {
         // ReturnStatement in this AST doesn't have an expression field
         // It's handled separately in other statement types
+    } else if (auto* pairwise_stmt = dynamic_cast<PairwiseReductionLoopStatement*>(stmt)) {
+        // PairwiseReductionLoopStatement uses input vectors
+        if (!pairwise_stmt->vector_a_name.empty()) {
+            vars.insert(pairwise_stmt->vector_a_name);
+        }
+        if (!pairwise_stmt->vector_b_name.empty()) {
+            vars.insert(pairwise_stmt->vector_b_name);
+        }
     }
 }
 
@@ -321,6 +338,14 @@ bool LivenessAnalysisPass::statement_contains_call(ASTNode* stmt) {
         }
     }
     // =================== FIX ENDS HERE ===================
+    
+    // Check if this is a PairwiseReductionLoopStatement (treated as a call)
+    if (auto* pairwise_stmt = dynamic_cast<PairwiseReductionLoopStatement*>(stmt)) {
+        if (trace_enabled_) {
+            std::cout << "[LivenessAnalysisPass] Found PairwiseReductionLoopStatement (treated as call)" << std::endl;
+        }
+        return true;
+    }
     
     return false;
 }

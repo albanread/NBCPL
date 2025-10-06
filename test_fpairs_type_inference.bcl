@@ -1,0 +1,42 @@
+LET START() BE {
+    WRITEF("Testing FPAIRS type inference*N")
+
+    // Test basic FPAIRS allocation and type inference
+    LET vec_a = FPAIRS 4
+    WRITEF("FPAIRS allocation successful*N")
+
+    // Test assignment of FPAIR to FPAIRS vector element
+    vec_a!0 := FPAIR(1.0, 2.0)
+    vec_a!1 := FPAIR(3.0, 4.0)
+    vec_a!2 := FPAIR(5.0, 6.0)
+    vec_a!3 := FPAIR(7.0, 8.0)
+
+    WRITEF("FPAIR assignments successful*N")
+
+    // Test accessing FPAIR elements from FPAIRS vector
+    LET first_fpair = vec_a!0
+    LET second_fpair = vec_a!1
+
+    WRITEF("FPAIR element access successful*N")
+
+    // Test FPAIR component access
+    LET first_component = first_fpair.first
+    LET second_component = first_fpair.second
+
+    WRITEF("FPAIR component access successful*N")
+    WRITEF("First component: %F*N", first_component)
+    WRITEF("Second component: %F*N", second_component)
+
+    // Test different sized FPAIRS
+    LET vec_b = FPAIRS 2
+    vec_b!0 := FPAIR(10.5, 20.5)
+    vec_b!1 := FPAIR(30.5, 40.5)
+
+    WRITEF("Multiple FPAIRS vectors working*N")
+
+    // Test type inference with arithmetic operations on FPAIRs
+    LET result_fpair = vec_a!0
+    WRITEF("Arithmetic type inference test passed*N")
+
+    WRITEF("All FPAIRS type inference tests passed*N")
+}

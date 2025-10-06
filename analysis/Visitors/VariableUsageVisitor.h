@@ -78,6 +78,7 @@ public:
     void visit(CompoundStatement& node) override;
     void visit(BlockStatement& node) override;
     void visit(FreeStatement& node) override;
+    void visit(PairwiseReductionLoopStatement& node) override;
 
 private:
     std::set<std::string> variables_;

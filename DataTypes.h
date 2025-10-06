@@ -32,13 +32,16 @@ enum class VarType : int64_t {
     OCT          = 1 << 8, // 256
     FOCT         = 1 << 9, // 512
     PAIRS        = 1 << 10, // 1024 - Vector of PAIRs
-    FQUADS       = 1 << 11, // 2048 - Vector of FQUADs
+    FPAIRS       = 1 << 11, // 2048 - Vector of FPAIRs
+    QUADS        = 1 << 12, // 4096 - Vector of QUADs
+    OCTS         = 1 << 13, // 8192 - Vector of OCTs
     
     // Container types (higher bits, higher priority)
-    VEC          = 1 << 12, // 4096
-    LIST         = 1 << 13, // 8192  
-    TABLE        = 1 << 14, // 16384
-    OBJECT       = 1 << 15, // 32768
+    VEC          = 1 << 14, // 16384
+    LIST         = 1 << 15, // 32768  
+    TABLE        = 1 << 16, // 65536
+    FQUADS       = 1 << 17, // 131072 - Vector of FQUADs
+    OBJECT       = 1 << 18, // 262144
     
     // Type Modifiers (highest bits, highest priority when combined)
     POINTER_TO   = 1 << 20, // 1048576
@@ -62,6 +65,10 @@ enum class VarType : int64_t {
     POINTER_TO_INT_VEC      = POINTER_TO | VEC | INTEGER,
     POINTER_TO_FLOAT_VEC    = POINTER_TO | VEC | FLOAT,
     POINTER_TO_PAIRS        = POINTER_TO | PAIRS,
+    POINTER_TO_FPAIRS       = POINTER_TO | FPAIRS,
+    POINTER_TO_QUADS        = POINTER_TO | QUADS,
+    POINTER_TO_OCTS         = POINTER_TO | OCTS,
+    POINTER_TO_FQUADS       = POINTER_TO | FQUADS,
     POINTER_TO_STRING       = POINTER_TO | STRING,
     POINTER_TO_TABLE        = POINTER_TO | TABLE,
     POINTER_TO_FLOAT        = POINTER_TO | FLOAT,
@@ -117,6 +124,9 @@ inline std::string vartype_to_string(VarType t) {
     if (v & static_cast<int64_t>(VarType::OCT)) result += "OCT|";
     if (v & static_cast<int64_t>(VarType::FOCT)) result += "FOCT|";
     if (v & static_cast<int64_t>(VarType::PAIRS)) result += "PAIRS|";
+    if (v & static_cast<int64_t>(VarType::FPAIRS)) result += "FPAIRS|";
+    if (v & static_cast<int64_t>(VarType::QUADS)) result += "QUADS|";
+    if (v & static_cast<int64_t>(VarType::OCTS)) result += "OCTS|";
     if (v & static_cast<int64_t>(VarType::FQUADS)) result += "FQUADS|";
     if (v & static_cast<int64_t>(VarType::NOTUSED)) result += "NOTUSED|";
 

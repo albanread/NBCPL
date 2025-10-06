@@ -1,0 +1,16 @@
+LET START() BE {
+    LET p = PAIR(1, 2)
+    LET fp = FPAIR(1.0, 2.0)
+    LET pairs_vec = PAIRS 2
+    LET fpairs_vec = FPAIRS 2
+
+    WRITEF("p type should be PAIR*N")
+    WRITEF("fp type should be FPAIR*N")
+    WRITEF("pairs_vec type should be POINTER_TO_PAIRS*N")
+    WRITEF("fpairs_vec type should be POINTER_TO_FPAIRS*N")
+
+    pairs_vec!0 := p
+    fpairs_vec!0 := fp
+
+    WRITEF("Type assignments successful*N")
+}

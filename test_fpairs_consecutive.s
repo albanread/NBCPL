@@ -134,11 +134,10 @@ _START:
     ; --- End Veneer Section ---
 
 L_START:
-    STP X29, X30, [SP, #-80]!
+    STP X29, X30, [SP, #-64]!
     MOV X29, SP
-    STP x19, x20, [x29, #32]
-    STP x26, x27, [x29, #48]
-    STR X28, [X29, #64] ; Saved Reg: X28 @ FP+64
+    STP x19, x27, [x29, #32]
+    STR X28, [X29, #48] ; Saved Reg: X28 @ FP+48
     ADRP X28, L__data_segment_base@PAGE
     ADD X28, X28, L__data_segment_base@PAGEOFF
 L_START_Entry_0:
@@ -147,94 +146,76 @@ L_START_Entry_0:
     ADD X9, X9, #8
     MOV X0, X9
     BL _WRITEF
-    MOVZ x20, #4
+    MOVZ X9, #4
+    MOV X20, X9
+    LSL X20, X9, #1
     MOV X0, X20
-    BL _GETVEC
-    MOV X26, X0
-    MOVZ X10, #5
-    MOVZ X11, #0
-    LSL X12, X11, #3
-    ADD X13, X26, X12
-    STR X10, [X13, #0]
-    MOVZ X10, #2
-    MOVZ X11, #1
-    LSL X12, X11, #3
-    ADD X13, X26, X12
-    STR X10, [X13, #0]
-    MOVZ X10, #8
-    MOVZ X11, #2
-    LSL X12, X11, #3
-    ADD X13, X26, X12
-    STR X10, [X13, #0]
-    MOVZ X10, #1
-    MOVZ X11, #3
-    LSL X12, X11, #3
-    ADD X13, X26, X12
-    STR X10, [X13, #0]
-    SUB X11, X26, #8
-    LDR X10, [X11, #0] ; Load vector/table/string length
-    MOVZ X11, #2
-    SDIV X10, X10, X11
-    MOV X20, X10
+    BL _FGETVEC
+    MOV X20, X0
+    SUB X9, X20, #8
+    STR X20, [X9, #0]
+    MOV X15, X20
+    MOVZ X9, #4
+    MOV X20, X9
+    LSL X20, X9, #1
     MOV X0, X20
-    BL _GETVEC
-    MOV X27, X0
-    LD1 {V0.4S}, [X26]
-    LD1 {V1.4S}, [X26]
-    UZP1 V4.4S, V0.4S, V0.4S
-    UZP2 V5.4S, V0.4S, V0.4S
-    SMIN V2.4S, V4.4S, V5.4S
-    ST1 {V2.4S}, [X27]
-    ADRP X11, L_str1@PAGE
-    ADD X11, X11, L_str1@PAGEOFF
-    ADD X11, X11, #8
-    MOV X0, X11
-    MOVZ X11, #0
-    SUB X13, X27, #8
-    LDR X12, [X13, #0] ; Load vector length for bounds check
-    CMP X11, X12
-    B.HS L__bounds_error_handler_START
-    MOV X12, X11
-    LSL X12, X12, #3
-    ADD X13, X27, X12
-    LDR X11, [X13, #0]
-    MOV X1, X11
-    MOVZ X11, #1
-    SUB X13, X27, #8
-    LDR X12, [X13, #0] ; Load vector length for bounds check
-    CMP X11, X12
-    B.HS L__bounds_error_handler_START
-    MOV X12, X11
-    LSL X12, X12, #3
-    ADD X13, X27, X12
-    LDR X11, [X13, #0]
-    MOV X2, X11
-    BL _WRITEF2
-    ADRP X9, L_str2@PAGE
-    ADD X9, X9, L_str2@PAGEOFF
+    BL _FGETVEC
+    MOV X20, X0
+    SUB X9, X20, #8
+    STR X20, [X9, #0]
+    MOV X27, X20
+    MOVZ X9, #0
+    ADRP X11, L_float0@PAGE
+    ADD X11, X11, L_float0@PAGEOFF
+    LDR D0, [X11, #0]
+    FCVT S1, D0 ;encoder.
+    FMOV W11, S1
+    BFXIL X9, X11, #0, #32
+    ADRP X12, L_float1@PAGE
+    ADD X12, X12, L_float1@PAGEOFF
+    LDR D0, [X12, #0]
+    FCVT S1, D0 ;encoder.
+    FMOV W12, S1
+    BFI X9, X12, #32, #32
+    MOVZ X12, #0
+    LSL X13, X12, #3
+    ADD X14, X15, X13
+    STR X9, [X14, #0]
+    MOVZ X9, #0
+    ADRP X13, L_float2@PAGE
+    ADD X13, X13, L_float2@PAGEOFF
+    LDR D0, [X13, #0]
+    FCVT S1, D0 ;encoder.
+    FMOV W13, S1
+    BFXIL X9, X13, #0, #32
+    ADRP X14, L_float3@PAGE
+    ADD X14, X14, L_float3@PAGEOFF
+    LDR D0, [X14, #0]
+    FCVT S1, D0 ;encoder.
+    FMOV W14, S1
+    BFI X9, X14, #32, #32
+    MOVZ X14, #0
+    LSL X15, X14, #3
+    ADD X10, X27, X15
+    STR X9, [X10, #0]
+    ADRP X9, L_str1@PAGE
+    ADD X9, X9, L_str1@PAGEOFF
     ADD X9, X9, #8
     MOV X0, X9
     BL _WRITEF
     B L_START_Exit_1
 L_START_Exit_1:
     B L_0
-L__bounds_error_handler_START:
-    MOVZ X0, #0
-    MOVZ X1, #0
-    MOVZ X2, #0
-    BL _BCPL_BOUNDS_ERROR
-    BRK #0
 L_0:
-    LDP x19, x20, [x29, #32]
-    LDP x26, x27, [x29, #48]
-    LDR X28, [X29, #64] ; Restored Reg: X28 @ FP+64
+    LDP x19, x27, [x29, #32]
+    LDR X28, [X29, #48] ; Restored Reg: X28 @ FP+48
     MOV SP, X29 ; Deallocate frame by moving FP to SP
     LDP x29, x30, [SP, #0]
     ADD SP, SP, #16 ; Deallocate space for saved FP/LR
     RET
 L___veneer_:
-    movz x16, #28628
-    movk x16, #1275, lsl #16
+    movz x16, #33584
+    movk x16, #1268, lsl #16
     movk x16, #1, lsl #32
     movk x16, #0, lsl #48
     blr x16
@@ -242,7 +223,7 @@ L___veneer_:
 .section __DATA,__const
 .p2align 3
 L_str0:
-    .quad 0x2b
+    .quad 0x27
     ; (upper half)
     .long 0x54
     .long 0x65
@@ -252,79 +233,65 @@ L_str0:
     .long 0x6e
     .long 0x67
     .long 0x20
+    .long 0x63
+    .long 0x6f
+    .long 0x6e
+    .long 0x73
+    .long 0x65
+    .long 0x63
+    .long 0x75
+    .long 0x74
+    .long 0x69
+    .long 0x76
+    .long 0x65
+    .long 0x20
+    .long 0x46
     .long 0x50
     .long 0x41
     .long 0x49
     .long 0x52
-    .long 0x57
-    .long 0x49
     .long 0x53
-    .long 0x45
-    .long 0x5f
-    .long 0x4d
-    .long 0x49
-    .long 0x4e
     .long 0x20
-    .long 0x77
-    .long 0x69
-    .long 0x74
-    .long 0x68
-    .long 0x20
-    .long 0x6d
-    .long 0x6f
-    .long 0x64
-    .long 0x75
-    .long 0x6c
     .long 0x61
-    .long 0x72
-    .long 0x20
-    .long 0x72
+    .long 0x73
+    .long 0x73
+    .long 0x69
+    .long 0x67
+    .long 0x6e
+    .long 0x6d
     .long 0x65
-    .long 0x64
-    .long 0x75
-    .long 0x63
-    .long 0x65
-    .long 0x72
+    .long 0x6e
+    .long 0x74
     .long 0x73
     .long 0xa
     .long 0x0
     .long 0x0
 L_str1:
-    .quad 0x9
+    .quad 0x22
     ; (upper half)
-    .long 0x5b
-    .long 0x25
-    .long 0x64
-    .long 0x2c
-    .long 0x20
-    .long 0x25
-    .long 0x64
-    .long 0x5d
-    .long 0xa
-    .long 0x0
-    .long 0x0
-L_str2:
-    .quad 0x1e
-    ; (upper half)
-    .long 0x50
-    .long 0x41
-    .long 0x49
-    .long 0x52
-    .long 0x57
-    .long 0x49
-    .long 0x53
-    .long 0x45
-    .long 0x5f
-    .long 0x4d
-    .long 0x49
-    .long 0x4e
-    .long 0x20
-    .long 0x72
-    .long 0x65
+    .long 0x43
+    .long 0x6f
+    .long 0x6e
     .long 0x73
+    .long 0x65
+    .long 0x63
     .long 0x75
-    .long 0x6c
     .long 0x74
+    .long 0x69
+    .long 0x76
+    .long 0x65
+    .long 0x20
+    .long 0x61
+    .long 0x73
+    .long 0x73
+    .long 0x69
+    .long 0x67
+    .long 0x6e
+    .long 0x6d
+    .long 0x65
+    .long 0x6e
+    .long 0x74
+    .long 0x73
     .long 0x20
     .long 0x63
     .long 0x6f
@@ -338,8 +305,21 @@ L_str2:
     .long 0xa
     .long 0x0
     .long 0x0
+L_float0:
+    .quad 0x4000000000000000
+    ; (upper half)
+L_float1:
+    .quad 0x4008000000000000
+    ; (upper half)
+L_float2:
+    .quad 0x3ff0000000000000
+    ; (upper half)
+L_float3:
+    .quad 0x4010000000000000
+    ; (upper half)
 
 .section __DATA,__data
 .p2align 3
+    .long 0x0
     .long 0x0
 L__data_segment_base:

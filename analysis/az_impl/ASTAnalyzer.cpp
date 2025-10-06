@@ -749,6 +749,7 @@ VarType ASTAnalyzer::infer_expression_type(const Expression* expr) const {
             case ASTNode::NodeType::VecAllocationExpr:
             case ASTNode::NodeType::FVecAllocationExpr:
             case ASTNode::NodeType::PairsAllocationExpr:
+            case ASTNode::NodeType::FPairsAllocationExpr:
             case ASTNode::NodeType::StringAllocationExpr:
                 return infer_allocation_type(expr);
                 
@@ -981,6 +982,15 @@ VarType ASTAnalyzer::infer_function_call_type(const FunctionCall* func_call) con
                     std::cerr << "DEBUG: SUM() inferred return type: PAIR (element of PAIRS)" << std::endl;
                 }
                 return VarType::PAIR;
+            }
+            
+            // If arguments are FPAIRS vectors, return FPAIR (single element)
+            if (arg_type == VarType::FPAIRS || 
+                (static_cast<int64_t>(arg_type) & static_cast<int64_t>(VarType::FPAIRS)) != 0) {
+                if (trace_enabled_) {
+                    std::cerr << "DEBUG: SUM() inferred return type: FPAIR (element of FPAIRS)" << std::endl;
+                }
+                return VarType::FPAIR;
             }
             // If arguments are VEC OF INTEGER, return INTEGER
             else if ((static_cast<int64_t>(arg_type) & static_cast<int64_t>(VarType::VEC)) != 0 &&
@@ -1443,6 +1453,11 @@ VarType ASTAnalyzer::infer_access_type(const Expression* expr) const {
             return VarType::PAIR;
         }
         
+        // Handle FPAIRS vector access - return FPAIR for each element
+        if ((static_cast<int64_t>(vector_type) & static_cast<int64_t>(VarType::FPAIRS)) != 0) {
+            return VarType::FPAIR;
+        }
+        
         // Handle QUAD vector access - return QUAD for each element
         if ((static_cast<int64_t>(vector_type) & static_cast<int64_t>(VarType::QUAD)) != 0) {
             return VarType::QUAD;
@@ -1487,6 +1502,10 @@ VarType ASTAnalyzer::infer_allocation_type(const Expression* expr) const {
     
     if (dynamic_cast<const PairsAllocationExpression*>(expr)) {
         return VarType::POINTER_TO_PAIRS;
+    }
+    
+    if (dynamic_cast<const FPairsAllocationExpression*>(expr)) {
+        return VarType::POINTER_TO_FPAIRS;
     }
     
     if (dynamic_cast<const StringAllocationExpression*>(expr)) {

@@ -196,6 +196,10 @@ ASTNodePtr PairsAllocationExpression::clone() const {
     return std::make_unique<PairsAllocationExpression>(clone_unique_ptr(size_expr));
 }
 
+ASTNodePtr FPairsAllocationExpression::clone() const {
+    return std::make_unique<FPairsAllocationExpression>(clone_unique_ptr(size_expr));
+}
+
 ASTNodePtr StringAllocationExpression::clone() const {
     return std::make_unique<StringAllocationExpression>(clone_unique_ptr(size_expr));
 }

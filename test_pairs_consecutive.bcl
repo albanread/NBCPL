@@ -1,0 +1,12 @@
+LET START() BE {
+    WRITEF("Testing consecutive PAIRS assignments*N")
+
+    LET vec_a = PAIRS 4
+    LET vec_b = PAIRS 4
+
+    // Two consecutive assignments - test if this crashes like FPAIRS
+    vec_a!0 := PAIR(10, 20)
+    vec_b!0 := PAIR(30, 40)
+
+    WRITEF("Consecutive PAIRS assignments completed*N")
+}

@@ -56,6 +56,7 @@ ACCEPT_METHOD_IMPL(FloatValofExpression)
 ACCEPT_METHOD_IMPL(VecAllocationExpression)
 ACCEPT_METHOD_IMPL(FVecAllocationExpression)
 ACCEPT_METHOD_IMPL(PairsAllocationExpression)
+ACCEPT_METHOD_IMPL(FPairsAllocationExpression)
 ACCEPT_METHOD_IMPL(StringAllocationExpression)
 ACCEPT_METHOD_IMPL(TableExpression)
 ACCEPT_METHOD_IMPL(ListExpression)
@@ -496,6 +497,10 @@ ASTNodePtr FVecAllocationExpression::clone() const {
 
 ASTNodePtr PairsAllocationExpression::clone() const {
     return std::make_unique<PairsAllocationExpression>(clone_unique_ptr(size_expr));
+}
+
+ASTNodePtr FPairsAllocationExpression::clone() const {
+    return std::make_unique<FPairsAllocationExpression>(clone_unique_ptr(size_expr));
 }
 
 ASTNodePtr StringAllocationExpression::clone() const {
@@ -6876,6 +6881,7 @@ std::string to_string(ASTNode::NodeType type) {
         case ASTNode::NodeType::VecAllocationExpr: return "VecAllocationExpr";
         case ASTNode::NodeType::FVecAllocationExpr: return "FVecAllocationExpr";
         case ASTNode::NodeType::PairsAllocationExpr: return "PairsAllocationExpr";
+        case ASTNode::NodeType::FPairsAllocationExpr: return "FPairsAllocationExpr";
         case ASTNode::NodeType::StringAllocationExpr: return "StringAllocationExpr";
         case ASTNode::NodeType::TableExpr: return "TableExpr";
         case ASTNode::NodeType::VecInitializerExpr: return "VecInitializerExpr";
@@ -11934,6 +11940,7 @@ const std::unordered_map<std::string, TokenType> Lexer::keywords_ = {
     {"PAIR", TokenType::Pair}, // Added PAIR as a keyword
     {"FPAIR", TokenType::FPair}, // Added FPAIR as a keyword
     {"PAIRS", TokenType::Pairs}, // Added PAIRS as a keyword
+    {"FPAIRS", TokenType::FPairs}, // Added FPAIRS as a keyword
     {"QUAD", TokenType::Quad}, // Added QUAD as a keyword
     {"FQUAD", TokenType::FQuad}, // Added FQUAD as a keyword
     {"OCT", TokenType::Oct}, // Added OCT as a keyword
@@ -12470,19 +12477,43 @@ void LivenessAnalysisPass::visit(VariableAccess& node) {
 
 // Visitor for assignment (a 'def' case).
 void LivenessAnalysisPass::visit(AssignmentStatement& node) {
-    // First, visit the RHS to find all 'uses'.
+    // CRITICAL FIX for vector assignments (e.g., vec_a!0 := FPAIR(...)):
+    // We must visit LHS address calculations FIRST to capture the 'use' of base vectors,
+    // then visit RHS, then record the LHS 'def'.
+    
+    // 1. Visit LHS for address calculation uses (e.g., vec_a in vec_a!0)
+    for (const auto& lhs_expr : node.lhs) {
+        if (auto* vec_access = dynamic_cast<VectorAccess*>(lhs_expr.get())) {
+            // For vector access, we USE the base vector for address calculation
+            if (vec_access->vector_expr) {
+                vec_access->vector_expr->accept(*this);
+            }
+            if (vec_access->index_expr) {
+                vec_access->index_expr->accept(*this);
+            }
+        } else if (auto* var = dynamic_cast<VariableAccess*>(lhs_expr.get())) {
+            // Simple variable access on LHS is just a def, no use
+            // Don't visit it yet - we'll handle defs after RHS
+        } else {
+            // Other LHS expressions (indirection, etc.) may have uses
+            lhs_expr->accept(*this);
+        }
+    }
+    
+    // 2. Visit the RHS to find all 'uses'
     for (const auto& rhs_expr : node.rhs) {
         rhs_expr->accept(*this);
     }
 
-    // Then, visit the LHS to find all 'defs'.
+    // 3. Now record the LHS 'defs' (after all uses are recorded)
     for (const auto& lhs_expr : node.lhs) {
         if (auto* var = dynamic_cast<VariableAccess*>(lhs_expr.get())) {
-            // CORRECTED LIVENESS ANALYSIS:
-            // A variable is in def[B] if it is assigned/written in block B.
-            // This is independent of whether it's used elsewhere in the block.
-            // Standard data-flow analysis: def[B] = {variables assigned in B}
             current_def_set_.insert(var->name);
+        } else if (auto* vec_access = dynamic_cast<VectorAccess*>(lhs_expr.get())) {
+            // For vector access, the base vector variable is being modified
+            if (auto* base_var = dynamic_cast<VariableAccess*>(vec_access->vector_expr.get())) {
+                current_def_set_.insert(base_var->name);
+            }
         }
     }
 }
@@ -12751,6 +12782,43 @@ void LivenessAnalysisPass::visit(GlobalVariableDeclaration& node) {
     // for (const auto& initializer : node.initializers) {
     //     if (initializer) initializer->accept(*this);
     // }
+}
+
+void LivenessAnalysisPass::visit(PairwiseReductionLoopStatement& node) {
+    // Mark this block as containing a function call for call interval fix
+    if (current_block_being_analyzed_) {
+        blocks_with_calls_.insert(current_block_being_analyzed_);
+        if (trace_enabled_) {
+            std::cout << "[LivenessAnalysisPass] Block " << current_block_being_analyzed_->id 
+                      << " contains pairwise reduction (treated as call) - marked for call interval fix" << std::endl;
+        }
+    }
+    
+    // Record uses of the input vector variables
+    // For liveness analysis, a variable is considered USED if it's read at this point,
+    // regardless of whether it was defined earlier in the same block
+    if (!node.vector_a_name.empty()) {
+        current_use_set_.insert(node.vector_a_name);
+        if (trace_enabled_) {
+            std::cout << "[LivenessAnalysisPass] Recording use of vector_a: " << node.vector_a_name << std::endl;
+        }
+    }
+    
+    if (!node.vector_b_name.empty()) {
+        current_use_set_.insert(node.vector_b_name);
+        if (trace_enabled_) {
+            std::cout << "[LivenessAnalysisPass] Recording use of vector_b: " << node.vector_b_name << std::endl;
+        }
+    }
+    
+    // Record definition of the result variable
+    // The result vector is WRITTEN by the pairwise reduction operation
+    if (!node.result_vector_name.empty()) {
+        current_def_set_.insert(node.result_vector_name);
+        if (trace_enabled_) {
+            std::cout << "[LivenessAnalysisPass] Recording def of result: " << node.result_vector_name << std::endl;
+        }
+    }
 }
 
 // Phase 2: Run the iterative data-flow algorithm.
@@ -13641,8 +13709,16 @@ void NewCodeGenerator::visit(PairwiseReductionLoopStatement& node) {
     }
     
     // Generate type-specific pairwise minimum
-    std::cout << "[DEBUG CODEGEN] Checking if base type contains FLOAT..." << std::endl;
-    if (static_cast<int64_t>(base_type) & static_cast<int64_t>(VarType::FLOAT)) {
+    // Check for vector types first (FPAIRS, PAIRS, etc.)
+    if (static_cast<int64_t>(base_type) & static_cast<int64_t>(VarType::FPAIRS)) {
+        // FPAIRS: Vector of float pairs
+        std::cout << "[DEBUG CODEGEN] Generating FPAIRS vector pairwise min" << std::endl;
+        generateFPairsVectorPairwiseMin(node);
+    } else if (static_cast<int64_t>(base_type) & static_cast<int64_t>(VarType::PAIRS)) {
+        // PAIRS: Vector of integer pairs
+        std::cout << "[DEBUG CODEGEN] Generating PAIRS vector pairwise min" << std::endl;
+        generatePairPairwiseMin(node);
+    } else if (static_cast<int64_t>(base_type) & static_cast<int64_t>(VarType::FLOAT)) {
         std::cout << "[DEBUG CODEGEN] Type contains FLOAT, checking subtype..." << std::endl;
         if (static_cast<int64_t>(base_type) & static_cast<int64_t>(VarType::VEC)) {
             // POINTER_TO_FLOAT_VEC: General float vector (FVEC)
@@ -13671,20 +13747,20 @@ void NewCodeGenerator::visit(PairwiseReductionLoopStatement& node) {
             std::cout << "[DEBUG CODEGEN] Generating integer vector pairwise min (VEC)" << std::endl;
             generateIntegerVectorPairwiseMin(node);
         } else if (base_type == VarType::PAIR) {
-            // PAIR: 2 ints in 64 bits
+            // PAIR: 2 integers in 64 bits
             std::cout << "[DEBUG CODEGEN] Generating PAIR pairwise min" << std::endl;
             generatePairPairwiseMin(node);
         } else if (base_type == VarType::QUAD) {
-            // QUAD: 4 ints in 64 bits
+            // QUAD: 4 integers in 128 bits
             std::cout << "[DEBUG CODEGEN] Generating QUAD pairwise min" << std::endl;
             generateQuadPairwiseMin(node);
         } else if (base_type == VarType::OCT) {
-            // OCT: 8 ints in 64 bits
+            // OCT: 8 integers in 256 bits
             std::cout << "[DEBUG CODEGEN] Generating OCT pairwise min" << std::endl;
             generateOctPairwiseMin(node);
         } else {
             debug_print("Unsupported integer type for PAIRWISE_MIN: " + vartype_to_string(base_type));
-            std::cout << "[DEBUG CODEGEN] ERROR: Unsupported integer type: " << vartype_to_string(base_type) << std::endl;
+            std::cout << "[DEBUG CODEGEN] ERROR: Unsupported integer type: " + vartype_to_string(base_type) << std::endl;
         }
     } else {
         debug_print("Error: Unsupported type for PAIRWISE_MIN: " + vartype_to_string(base_type));
@@ -13712,8 +13788,8 @@ void NewCodeGenerator::generateFPairPairwiseMin(const PairwiseReductionLoopState
     emit(Encoder::create_ldr_vec_imm(va_neon, vector_a_reg, 0)); // Load 64-bit
     emit(Encoder::create_ldr_vec_imm(vb_neon, vector_b_reg, 0)); // Load 64-bit
     
-    // FMINP.2S: Pairwise minimum of two 2-element float vectors
-    emit(Encoder::create_fminp_vector_reg(vresult_neon, va_neon, vb_neon, "2S"));
+    // FMIN.2S: Element-wise minimum of two 2-element float vectors
+    emit(Encoder::create_fmin_vector_reg(vresult_neon, va_neon, vb_neon, "2S"));
     
     // Store 64-bit result
     emit(Encoder::create_str_vec_imm(vresult_neon, result_reg, 0));
@@ -13767,10 +13843,37 @@ void NewCodeGenerator::generateFOctPairwiseMin(const PairwiseReductionLoopStatem
     emit(Encoder::create_ld1_vector_reg(va_neon, vector_a_reg, "4S")); // 4x32-bit floats
     emit(Encoder::create_ld1_vector_reg(vb_neon, vector_b_reg, "4S")); // 4x32-bit floats
     
-    // FMINP.4S: Pairwise minimum of two 4-element float vectors
-    emit(Encoder::create_fminp_vector_reg(vresult_neon, va_neon, vb_neon, "4S"));
+    // FMIN.4S: Element-wise minimum of two 4-element float vectors
+    emit(Encoder::create_fmin_vector_reg(vresult_neon, va_neon, vb_neon, "4S"));
     
     // Store 128-bit result
+    emit(Encoder::create_st1_vector_reg(vresult_neon, result_reg, "4S"));
+    
+    register_manager_.release_vec_scratch_reg(va_neon);
+    register_manager_.release_vec_scratch_reg(vb_neon);  
+    register_manager_.release_vec_scratch_reg(vresult_neon);
+}
+
+// Helper function for FPAIRS vectors (vector of float pairs)
+void NewCodeGenerator::generateFPairsVectorPairwiseMin(const PairwiseReductionLoopStatement& node) {
+    debug_print("Generating FPAIRS vector pairwise minimum (vector of float pairs)");
+    
+    std::string vector_a_reg = get_variable_register(node.vector_a_name);
+    std::string vector_b_reg = get_variable_register(node.vector_b_name);
+    std::string result_reg = get_variable_register(node.result_vector_name);
+    
+    std::string va_neon = register_manager_.acquire_vec_scratch_reg();
+    std::string vb_neon = register_manager_.acquire_vec_scratch_reg();
+    std::string vresult_neon = register_manager_.acquire_vec_scratch_reg();
+    
+    // Load FPAIRS vectors - each FPAIR is 2 floats, use 4S format for pairs
+    emit(Encoder::create_ld1_vector_reg(va_neon, vector_a_reg, "4S"));
+    emit(Encoder::create_ld1_vector_reg(vb_neon, vector_b_reg, "4S"));
+    
+    // FMIN.4S: Element-wise minimum of float pairs
+    emit(Encoder::create_fmin_vector_reg(vresult_neon, va_neon, vb_neon, "4S"));
+    
+    // Store FPAIRS vector result
     emit(Encoder::create_st1_vector_reg(vresult_neon, result_reg, "4S"));
     
     register_manager_.release_vec_scratch_reg(va_neon);
@@ -13794,8 +13897,8 @@ void NewCodeGenerator::generateFloatVectorPairwiseMin(const PairwiseReductionLoo
     emit(Encoder::create_ld1_vector_reg(va_neon, vector_a_reg, "4S"));
     emit(Encoder::create_ld1_vector_reg(vb_neon, vector_b_reg, "4S"));
     
-    // FMINP.4S: Pairwise minimum of float vectors
-    emit(Encoder::create_fminp_vector_reg(vresult_neon, va_neon, vb_neon, "4S"));
+    // FMIN.4S: Element-wise minimum of float vectors
+    emit(Encoder::create_fmin_vector_reg(vresult_neon, va_neon, vb_neon, "4S"));
     
     // Store float vector result
     emit(Encoder::create_st1_vector_reg(vresult_neon, result_reg, "4S"));
@@ -15493,6 +15596,8 @@ void NewCodeGenerator::visit(BinaryOp& node) {
     debug_print("Finished visiting BinaryOp node. Result in " + expression_result_reg_);
 }
 
+
+
 // Generates code for short-circuit logical AND (&&)
 void NewCodeGenerator::generate_short_circuit_and(BinaryOp& node) {
     // Generate code for the left operand
@@ -16085,22 +16190,25 @@ void NewCodeGenerator::handle_variable_assignment(VariableAccess* var_access, co
 }
 
 void NewCodeGenerator::handle_vector_assignment(VectorAccess* vec_access, const std::string& value_to_store_reg) {
+    // Test: Remove pinning since allocator fix should prevent conflicts
+
     // 1. Evaluate vector_expr to get the base address (e.g., V)
     generate_expression_code(*vec_access->vector_expr);
     std::string vector_base_reg = expression_result_reg_;
+    
+    // Test: Remove pinning since allocator fix should prevent conflicts
 
     // 2. Evaluate index_expr to get the index (e.g., 0)
     generate_expression_code(*vec_access->index_expr);
     std::string index_reg = expression_result_reg_;
 
     // 3. Calculate the byte offset: index * 8 (for 64-bit words)
-    // FIX: Use a temporary register for the offset calculation to avoid corrupting the loop variable
     std::string offset_reg = register_manager_.acquire_scratch_reg(*this);
     emit(Encoder::create_lsl_imm(offset_reg, index_reg, 3));
     debug_print("Calculated byte offset for vector assignment.");
 
     // 4. Calculate the effective memory address: base + offset
-    std::string effective_addr_reg = register_manager_.get_free_register(*this);
+    std::string effective_addr_reg = register_manager_.acquire_scratch_reg(*this);
     emit(Encoder::create_add_reg(effective_addr_reg, vector_base_reg, offset_reg));
     debug_print("Calculated effective address for vector assignment.");
 
@@ -16133,7 +16241,7 @@ void NewCodeGenerator::handle_vector_assignment(VectorAccess* vec_access, const 
 
     // Release registers used in the store
     register_manager_.release_register(value_to_store_reg);
-    register_manager_.release_register(effective_addr_reg);
+    register_manager_.release_scratch_reg(effective_addr_reg);
 }
 
 void NewCodeGenerator::handle_char_indirection_assignment(CharIndirection* char_indirection, const std::string& value_to_store_reg) {
@@ -16219,6 +16327,10 @@ void NewCodeGenerator::emit(const Instruction& instr) {
     }
     
     instruction_stream_.add(instr);
+    
+    // Update live intervals after adding the instruction
+    // Use AST statement index instead of emitted instruction count for correct liveness tracking
+    register_manager_.update_live_intervals(all_allocations_, current_scope_name_, current_ast_statement_index_);
 }
 
 // Stub implementation for emitting comments
@@ -16361,6 +16473,7 @@ void NewCodeGenerator::generate_function_like_code(
     }
     current_scope_name_ = name;    // Initialize scope tracking
     block_id_counter_ = 0;         // Reset block ID counter for each new function
+    current_ast_statement_index_ = -1;  // Initialize AST statement index (-1 for prologue)
     debug_print("DEBUG: generate_function_like_code called for: " + name);
     debug_print("Generating function-like code for: " + name);
     x28_is_loaded_in_current_function_ = false;
@@ -16973,6 +17086,8 @@ void NewCodeGenerator::generate_function_like_code(
 
         // Generate code for each statement within the block
         for (const auto& stmt : block->statements) {
+            // Update AST statement index for correct liveness tracking
+            current_ast_statement_index_++;
             stmt->accept(*this);
         }
 
@@ -16984,6 +17099,8 @@ void NewCodeGenerator::generate_function_like_code(
 
 
     // --- START MODIFICATION: Insert Cleanup Logic ---
+    // Set AST statement index to after the last statement for epilogue
+    current_ast_statement_index_ = 1000;  // Large value to ensure all intervals are expired
     debug_print("Performing end-of-function scope cleanup for '" + name + "'.");
     if (symbol_table_) {
         // Get all symbols for the function's top-level scope.
@@ -20877,7 +20994,7 @@ bool RegisterManager::is_scratch_register(const std::string& register_name) cons
 
 std::string RegisterManager::find_free_register(const std::vector<std::string>& pool) {
     for (const auto& reg : pool) {
-        if (registers.at(reg).status == FREE) {
+        if (registers.at(reg).status == FREE && !is_pinned(reg)) {
             return reg;
         }
     }
@@ -21096,6 +21213,11 @@ void RegisterManager::sync_with_allocator(const std::map<std::string, std::map<s
     // Clear any previous allocator reservations
     reset_allocations();
     
+    // Cache allocations for live interval tracking
+    cached_allocations_ = allocations;
+    cached_function_name_ = current_function;
+    current_instruction_point_ = 0;
+    
     // Find allocations for the current function
     auto func_it = allocations.find(current_function);
     if (func_it == allocations.end()) {
@@ -21105,40 +21227,97 @@ void RegisterManager::sync_with_allocator(const std::map<std::string, std::map<s
         return;
     }
     
-    const auto& func_allocations = func_it->second;
-    
     if (debug_enabled_) {
-        std::cout << "[SYNC] Syncing RegisterManager with LinearScanAllocator for function: " << current_function << std::endl;
-        std::cout << "[SYNC] Found " << func_allocations.size() << " variable allocations" << std::endl;
+        std::cout << "[SYNC] Caching live intervals for function: " << current_function << std::endl;
+        std::cout << "[SYNC] Found " << func_it->second.size() << " variable allocations" << std::endl;
     }
     
-    // Reserve registers that were allocated by LinearScanAllocator
+    // Initialize with variables that are live at instruction point 0
+    update_live_intervals(allocations, current_function, 0);
+}
+
+void RegisterManager::update_live_intervals(const std::map<std::string, std::map<std::string, LiveInterval>>& allocations,
+                                          const std::string& current_function,
+                                          int instruction_point) {
+    current_instruction_point_ = instruction_point;
+    
+    // Find allocations for the current function
+    auto func_it = allocations.find(current_function);
+    if (func_it == allocations.end()) {
+        return;
+    }
+    
+    const auto& func_allocations = func_it->second;
+    
+    // Clear previous variable-to-register mappings for reused registers
+    std::set<std::string> active_registers;
+    
+    if (debug_enabled_) {
+        std::cout << "[LIVE] Updating live intervals at instruction point " << instruction_point << std::endl;
+    }
+    
+    // Update register assignments based on live intervals
     for (const auto& [variable, interval] : func_allocations) {
         const std::string& physical_reg = interval.assigned_register;
         
-        if (!physical_reg.empty()) {
-            // Mark this register as reserved for the variable
-            if (registers.count(physical_reg)) {
+        if (!physical_reg.empty() && registers.count(physical_reg)) {
+            // Check if this variable is live at the current instruction point
+            bool is_live = (instruction_point >= interval.start_point && instruction_point <= interval.end_point);
+            
+            if (is_live) {
+                active_registers.insert(physical_reg);
+                
+                // Update register state for the currently live variable
                 registers[physical_reg] = {IN_USE_VARIABLE, variable, false};
                 
-                // Add to variable mapping
+                // Update variable mapping
                 if (physical_reg.find("D") == 0) {
                     // Float register
                     fp_variable_to_reg_map_[variable] = physical_reg;
+                    
+                    // Remove from LRU if already present, then add to front
+                    fp_variable_reg_lru_order_.remove(variable);
                     fp_variable_reg_lru_order_.push_front(variable);
                 } else {
                     // Integer register
                     variable_to_reg_map[variable] = physical_reg;
+                    
+                    // Remove from LRU if already present, then add to front
+                    variable_reg_lru_order_.remove(variable);
                     variable_reg_lru_order_.push_front(variable);
                 }
                 
                 if (debug_enabled_) {
-                    std::cout << "[SYNC] Reserved register " << physical_reg << " for variable " << variable << std::endl;
+                    std::cout << "[LIVE] Register " << physical_reg << " active for variable " << variable 
+                              << " [" << interval.start_point << "-" << interval.end_point << "]" << std::endl;
                 }
-            } else {
+            } else if (instruction_point > interval.end_point) {
+                // Variable is no longer live, remove from mappings
+                if (physical_reg.find("D") == 0) {
+                    fp_variable_to_reg_map_.erase(variable);
+                    fp_variable_reg_lru_order_.remove(variable);
+                } else {
+                    variable_to_reg_map.erase(variable);
+                    variable_reg_lru_order_.remove(variable);
+                }
+                
                 if (debug_enabled_) {
-                    std::cout << "[SYNC] Warning: Register " << physical_reg << " not found in register pool" << std::endl;
+                    std::cout << "[LIVE] Variable " << variable << " expired from register " << physical_reg << std::endl;
                 }
+            }
+        }
+    }
+    
+    // Free registers that are no longer active
+    for (auto& [reg_name, reg_info] : registers) {
+        if (reg_info.status == IN_USE_VARIABLE && active_registers.find(reg_name) == active_registers.end()) {
+            // This register was allocated by the LinearScanAllocator but no variable is currently live in it
+            reg_info.status = FREE;
+            reg_info.bound_to = "";
+            reg_info.dirty = false;
+            
+            if (debug_enabled_) {
+                std::cout << "[LIVE] Freed register " << reg_name << " (no active variables)" << std::endl;
             }
         }
     }
@@ -26761,6 +26940,10 @@ VarType StatelessTypeInference::infer_expression_type(const Expression* expr, co
         if ((static_cast<int64_t>(vector_type) & static_cast<int64_t>(VarType::PAIRS)) != 0) {
             return VarType::PAIR;
         }
+        // If accessing a FPAIRS vector, return FPAIR
+        if ((static_cast<int64_t>(vector_type) & static_cast<int64_t>(VarType::FPAIRS)) != 0) {
+            return VarType::FPAIR;
+        }
         // If accessing a float vector, return float
         if ((static_cast<int64_t>(vector_type) & static_cast<int64_t>(VarType::FLOAT)) != 0) {
             return VarType::FLOAT;
@@ -26787,6 +26970,11 @@ VarType StatelessTypeInference::infer_expression_type(const Expression* expr, co
     // PAIRS allocation
     if (const auto* pairs_alloc = dynamic_cast<const PairsAllocationExpression*>(expr)) {
         return VarType::POINTER_TO_PAIRS;
+    }
+
+    // FPAIRS allocation
+    if (const auto* fpairs_alloc = dynamic_cast<const FPairsAllocationExpression*>(expr)) {
+        return VarType::POINTER_TO_FPAIRS;
     }
 
     // String allocation
@@ -27726,6 +27914,9 @@ void SymbolDiscoveryPass::visit(AssignmentStatement& node) {
             } else if (auto* pairs_alloc = dynamic_cast<PairsAllocationExpression*>(node.rhs[0].get())) {
                 pairs_alloc->variable_name = var_access->name;
                 trace("Set variable name for PairsAllocationExpression: " + var_access->name);
+            } else if (auto* fpairs_alloc = dynamic_cast<FPairsAllocationExpression*>(node.rhs[0].get())) {
+                fpairs_alloc->variable_name = var_access->name;
+                trace("Set variable name for FPairsAllocationExpression: " + var_access->name);
             } else if (auto* func_call = dynamic_cast<FunctionCall*>(node.rhs[0].get())) {
                 // Check if this is a GETVEC or FGETVEC function call
                 if (auto* func_var = dynamic_cast<VariableAccess*>(func_call->function_expr.get())) {
@@ -27828,6 +28019,32 @@ void SymbolDiscoveryPass::visit(PairsAllocationExpression& node) {
                 symbol.has_size = true;
                 symbol_table_->updateSymbol(node.variable_name, symbol);
                 trace("Updated PAIRS variable: " + node.variable_name + " with size " + std::to_string(size));
+            }
+        }
+    }
+    
+    // Visit the size expression
+    if (node.size_expr) {
+        node.size_expr->accept(*this);
+    }
+}
+
+void SymbolDiscoveryPass::visit(FPairsAllocationExpression& node) {
+    trace("Processing FPairsAllocationExpression");
+    
+    // Check if size is a constant
+    if (auto* num_lit = dynamic_cast<NumberLiteral*>(node.size_expr.get())) {
+        int64_t size = num_lit->int_value;
+        
+        // If this fpairs allocation is being assigned to a variable, update its symbol
+        if (!node.variable_name.empty()) {
+            Symbol symbol;
+            if (symbol_table_->lookup(node.variable_name, symbol)) {
+                symbol.type = VarType::POINTER_TO_FPAIRS;
+                symbol.size = static_cast<size_t>(size);
+                symbol.has_size = true;
+                symbol_table_->updateSymbol(node.variable_name, symbol);
+                trace("Updated FPAIRS variable: " + node.variable_name + " with size " + std::to_string(size));
             }
         }
     }
@@ -28485,6 +28702,9 @@ void SymbolTableBuilder::visit(AssignmentStatement& node) {
             } else if (auto* pairs_alloc = dynamic_cast<PairsAllocationExpression*>(node.rhs[0].get())) {
                 pairs_alloc->variable_name = var_access->name;
                 trace("Set variable name for PairsAllocationExpression: " + var_access->name);
+            } else if (auto* fpairs_alloc = dynamic_cast<FPairsAllocationExpression*>(node.rhs[0].get())) {
+                fpairs_alloc->variable_name = var_access->name;
+                trace("Set variable name for FPairsAllocationExpression: " + var_access->name);
             }
         }
     }
@@ -28565,6 +28785,32 @@ void SymbolTableBuilder::visit(PairsAllocationExpression& node) {
                 symbol.has_size = true;
                 symbol_table_->updateSymbol(node.variable_name, symbol);
                 trace("Updated PAIRS variable: " + node.variable_name + " with size " + std::to_string(size));
+            }
+        }
+    }
+    
+    // Visit the size expression
+    if (node.size_expr) {
+        node.size_expr->accept(*this);
+    }
+}
+
+void SymbolTableBuilder::visit(FPairsAllocationExpression& node) {
+    trace("Processing FPairsAllocationExpression");
+    
+    // Check if size is a constant
+    if (auto* num_lit = dynamic_cast<NumberLiteral*>(node.size_expr.get())) {
+        int64_t size = num_lit->int_value;
+        
+        // If this fpairs allocation is being assigned to a variable, update its symbol
+        if (!node.variable_name.empty()) {
+            Symbol symbol;
+            if (symbol_table_->lookup(node.variable_name, symbol)) {
+                symbol.type = VarType::POINTER_TO_FPAIRS;
+                symbol.size = static_cast<size_t>(size);
+                symbol.has_size = true;
+                symbol_table_->updateSymbol(node.variable_name, symbol);
+                trace("Updated FPAIRS variable: " + node.variable_name + " with size " + std::to_string(size));
             }
         }
     }
@@ -28803,6 +29049,17 @@ void VariableUsageVisitor::visit(ResultisStatement& node) {
 }
 void VariableUsageVisitor::visit(FreeStatement& node) {
     if (node.list_expr) node.list_expr->accept(*this);
+}
+
+void VariableUsageVisitor::visit(PairwiseReductionLoopStatement& node) {
+    // Record uses of the input vector variables
+    if (!node.vector_a_name.empty()) {
+        variables_.insert(node.vector_a_name);
+    }
+    if (!node.vector_b_name.empty()) {
+        variables_.insert(node.vector_b_name);
+    }
+    // Note: We don't record result_vector_name as a "use" since it's being written to
 }
 // -- end of file
 
@@ -29558,6 +29815,7 @@ VarType ASTAnalyzer::infer_expression_type(const Expression* expr) const {
             case ASTNode::NodeType::VecAllocationExpr:
             case ASTNode::NodeType::FVecAllocationExpr:
             case ASTNode::NodeType::PairsAllocationExpr:
+            case ASTNode::NodeType::FPairsAllocationExpr:
             case ASTNode::NodeType::StringAllocationExpr:
                 return infer_allocation_type(expr);
                 
@@ -29790,6 +30048,15 @@ VarType ASTAnalyzer::infer_function_call_type(const FunctionCall* func_call) con
                     std::cerr << "DEBUG: SUM() inferred return type: PAIR (element of PAIRS)" << std::endl;
                 }
                 return VarType::PAIR;
+            }
+            
+            // If arguments are FPAIRS vectors, return FPAIR (single element)
+            if (arg_type == VarType::FPAIRS || 
+                (static_cast<int64_t>(arg_type) & static_cast<int64_t>(VarType::FPAIRS)) != 0) {
+                if (trace_enabled_) {
+                    std::cerr << "DEBUG: SUM() inferred return type: FPAIR (element of FPAIRS)" << std::endl;
+                }
+                return VarType::FPAIR;
             }
             // If arguments are VEC OF INTEGER, return INTEGER
             else if ((static_cast<int64_t>(arg_type) & static_cast<int64_t>(VarType::VEC)) != 0 &&
@@ -30252,6 +30519,11 @@ VarType ASTAnalyzer::infer_access_type(const Expression* expr) const {
             return VarType::PAIR;
         }
         
+        // Handle FPAIRS vector access - return FPAIR for each element
+        if ((static_cast<int64_t>(vector_type) & static_cast<int64_t>(VarType::FPAIRS)) != 0) {
+            return VarType::FPAIR;
+        }
+        
         // Handle QUAD vector access - return QUAD for each element
         if ((static_cast<int64_t>(vector_type) & static_cast<int64_t>(VarType::QUAD)) != 0) {
             return VarType::QUAD;
@@ -30296,6 +30568,10 @@ VarType ASTAnalyzer::infer_allocation_type(const Expression* expr) const {
     
     if (dynamic_cast<const PairsAllocationExpression*>(expr)) {
         return VarType::POINTER_TO_PAIRS;
+    }
+    
+    if (dynamic_cast<const FPairsAllocationExpression*>(expr)) {
+        return VarType::POINTER_TO_FPAIRS;
     }
     
     if (dynamic_cast<const StringAllocationExpression*>(expr)) {
@@ -39270,8 +39546,8 @@ Instruction Encoder::create_fadd_vector_reg(const std::string& vd, const std::st
     uint32_t rn = get_reg_encoding(vn);
     uint32_t rm = get_reg_encoding(vm);
 
-    // Base encoding for FADD (vector)
-    uint32_t encoding = 0x4E208400 | (rm << 16) | (rn << 5) | rd;
+    // Base encoding for FADD (vector) - corrected opcode from ADD to FADD
+    uint32_t encoding = 0x4E20D400 | (rm << 16) | (rn << 5) | rd;
 
     // Set the size bits based on the arrangement
     if (arrangement == "4S" || arrangement == "2S") {
@@ -40082,9 +40358,16 @@ Instruction Encoder::create_fmul_vector_reg(const std::string& vd, const std::st
     uint32_t rn = get_reg_encoding(vn);
     uint32_t rm = get_reg_encoding(vm);
 
-    // Encoding for FMUL Vd.4S, Vn.4S, Vm.4S (32-bit single-precision floats)
-    // Q(1) | 0 | 0 | 1110 | 1 | M(0) | 1 | Rm | 1001 | Rn | Rd
-    uint32_t encoding = 0x4E209000 | (rm << 16) | (rn << 5) | rd;
+    // Base encoding for FMUL vector - corrected opcode and bit pattern
+    uint32_t encoding = 0x6E20DC00 | (rm << 16) | (rn << 5) | rd;
+    
+    // Set arrangement-specific bits
+    if (arrangement == "2S") {
+        encoding &= ~(1U << 30); // Clear Q bit for 64-bit operation (2S)
+    } else if (arrangement == "2D") {
+        encoding |= (0b01 << 22); // Set sz=01 for double-precision
+        encoding &= ~(1U << 29); // Clear bit 29 for 2D
+    }
 
     std::stringstream ss;
     ss << "FMUL " << vd << "." << arrangement << ", " << vn << "." << arrangement << ", " << vm << "." << arrangement;
@@ -40234,18 +40517,17 @@ Instruction Encoder::enc_create_fsub_vector_reg(const std::string& vd, const std
     // sz=0 for 32-bit (S), sz=1 for 64-bit (D)
     // Q=0 for 64-bit vector (2S/1D), Q=1 for 128-bit vector (4S/2D)
     
-    uint32_t instruction = 0x0E200C00; // Base encoding: 0|0|0|01110|0|1|00000|100010|00000|00000
+    uint32_t instruction = 0x4E20D400; // Base encoding for FSUB vector (corrected opcode)
     
-    // Set Q bit based on arrangement
-    if (arrangement == "4S" || arrangement == "2D") {
-        instruction |= (1U << 30); // Set Q=1 for 128-bit
+    // Set arrangement-specific bits
+    if (arrangement == "4S" || arrangement == "2S") {
+        instruction |= (1U << 23); // Set bit 23 for single-precision arrangements
+        if (arrangement == "2S") {
+            instruction &= ~(1U << 30); // Clear Q bit for 64-bit operation (2S)
+        }
+    } else if (arrangement == "2D") {
+        instruction |= (0b01 << 22); // Set sz=01 for double-precision
     }
-    
-    // Set sz bit based on element size
-    if (arrangement == "2D") {
-        instruction |= (1U << 22); // Set sz=1 for 64-bit elements
-    }
-    // sz=0 for 32-bit elements (2S, 4S)
     
     // Set register fields
     instruction |= (vm_num << 16);  // Rm field
@@ -47138,8 +47420,7 @@ void NewCodeGenerator::visit(FPairExpression& node) {
     // First float goes into bits 0-31 (lower 32 bits)
     // Second float goes into bits 32-63 (upper 32 bits)
     
-    auto& register_manager = RegisterManager::getInstance();
-    std::string result_reg = register_manager.get_free_register(*this);
+    std::string result_reg = register_manager_.get_free_register(*this);
     
     // Initialize result register to 0
     emit(Encoder::create_movz_imm(result_reg, 0));
@@ -47150,14 +47431,14 @@ void NewCodeGenerator::visit(FPairExpression& node) {
         std::string first_reg = expression_result_reg_;
         
         // Convert double to single precision float first
-        std::string single_precision_reg = register_manager.acquire_fp_scratch_reg(); // This gives us D register
+        std::string single_precision_reg = register_manager_.acquire_fp_scratch_reg(); // This gives us D register
         std::string s_reg = "S" + single_precision_reg.substr(1); // Convert D0 -> S0
         debug_print("FCVT registers: s_reg=" + s_reg + ", first_reg=" + first_reg);
         emit(Encoder::create_fcvt_d_to_s(s_reg, first_reg));
         
         // For float values, we need to move from FP register to general register
         // FMOV W_reg, S_reg moves the bit pattern of a 32-bit float
-        std::string temp_gen_reg = register_manager.get_free_register(*this);
+        std::string temp_gen_reg = register_manager_.get_free_register(*this);
         std::string w_reg = "W" + temp_gen_reg.substr(1); // Convert X0 -> W0
         emit(Encoder::create_fmov_s_to_w(w_reg, s_reg));
         
@@ -47166,9 +47447,9 @@ void NewCodeGenerator::visit(FPairExpression& node) {
         // Insert 32 bits from temp_gen_reg starting at bit 0
         emit(Encoder::opt_create_bfxil(result_reg, temp_gen_reg, 0, 32));
         
-        register_manager.release_register(first_reg);
-        register_manager.release_fp_register(single_precision_reg);
-        register_manager.release_register(temp_gen_reg);
+        register_manager_.release_register(first_reg);
+        register_manager_.release_register(single_precision_reg);
+        register_manager_.release_register(temp_gen_reg);
         debug_print("Converted double to float and inserted into bits 0-31 using BFXIL");
     }
     
@@ -47178,12 +47459,12 @@ void NewCodeGenerator::visit(FPairExpression& node) {
         std::string second_reg = expression_result_reg_;
         
         // Convert double to single precision float first
-        std::string single_precision_reg = register_manager.acquire_fp_scratch_reg(); // This gives us D register
+        std::string single_precision_reg = register_manager_.acquire_fp_scratch_reg(); // This gives us D register
         std::string s_reg = "S" + single_precision_reg.substr(1); // Convert D0 -> S0
         emit(Encoder::create_fcvt_d_to_s(s_reg, second_reg));
         
         // For float values, we need to move from FP register to general register
-        std::string temp_gen_reg = register_manager.get_free_register(*this);
+        std::string temp_gen_reg = register_manager_.get_free_register(*this);
         std::string w_reg = "W" + temp_gen_reg.substr(1); // Convert X0 -> W0
         emit(Encoder::create_fmov_s_to_w(w_reg, s_reg));
         
@@ -47191,9 +47472,9 @@ void NewCodeGenerator::visit(FPairExpression& node) {
         // Insert 32 bits from temp_gen_reg starting at bit 32
         emit(Encoder::opt_create_bfi(result_reg, temp_gen_reg, 32, 32));
         
-        register_manager.release_register(second_reg);
-        register_manager.release_fp_register(single_precision_reg);
-        register_manager.release_register(temp_gen_reg);
+        register_manager_.release_register(second_reg);
+        register_manager_.release_register(single_precision_reg);
+        register_manager_.release_register(temp_gen_reg);
         debug_print("Converted double to float and inserted into bits 32-63 using BFI");
     }
     
@@ -47201,6 +47482,59 @@ void NewCodeGenerator::visit(FPairExpression& node) {
     expression_result_reg_ = result_reg;
     
     debug_print("FPairExpression code generation complete - used ARM64 bit manipulation");
+}
+// -- end of file
+
+// -- start of file: generators/gen_FPairsAllocationExpression.cpp
+#include "NewCodeGenerator.h"
+
+void NewCodeGenerator::visit(FPairsAllocationExpression& node) {
+    debug_print("Visiting FPairsAllocationExpression node.");
+    // `FPAIRS size_expr`
+    // This allocates a vector (array) of FPAIR words on the heap and returns its address.
+    // Each FPAIR is 8 bytes (2 x 32-bit floats), so we need size_expr * 2 words.
+    // However, we store the FPAIR count in the header, not the word count.
+
+    // 1. Evaluate the size_expr (number of FPAIRs).
+    generate_expression_code(*node.size_expr);
+    std::string size_fpairs_reg = expression_result_reg_; // Register holding the number of FPAIRs
+    
+    // Keep a copy of the fpair count for the header
+    std::string fpair_count_reg = register_manager_.acquire_spillable_temp_reg(*this);
+    emit(Encoder::create_mov_reg(fpair_count_reg, size_fpairs_reg));
+
+    // 2. Calculate total words needed: size_fpairs * 2 (each FPAIR = 2 words)
+    std::string total_words_reg = register_manager_.acquire_spillable_temp_reg(*this);
+    emit(Encoder::create_lsl_imm(total_words_reg, size_fpairs_reg, 1)); // total_words = size_fpairs << 1
+    
+    // 3. Move the total number of words to X0 (GETVEC expects word count in X0).
+    if (total_words_reg != "X0") {
+        emit(Encoder::create_mov_reg("X0", total_words_reg));
+    }
+    register_manager_.release_register(total_words_reg);
+    register_manager_.release_register(size_fpairs_reg);
+
+    // 4. Call the FGETVEC runtime function for float vectors.
+    // FGETVEC allocates memory and returns the base address in X0.
+    emit(Encoder::create_branch_with_link("FGETVEC"));
+
+    // 5. Fix the length header: Replace word count with FPAIR count
+    // The vector header is at [result_ptr - 8], and currently contains total_words
+    // We need to replace it with fpair_count (the number of FPAIRs)
+    std::string result_reg = register_manager_.acquire_spillable_temp_reg(*this);
+    if (result_reg != "X0") {
+        emit(Encoder::create_mov_reg(result_reg, "X0"));
+    }
+    
+    // Store the FPAIR count in the length header at [result_ptr - 8]
+    std::string header_addr_reg = register_manager_.acquire_scratch_reg(*this);
+    emit(Encoder::create_sub_imm(header_addr_reg, result_reg, 8)); // header_addr = result_ptr - 8
+    emit(Encoder::create_str_imm(fpair_count_reg, header_addr_reg, 0)); // Store FPAIR count in header
+    register_manager_.release_register(header_addr_reg);
+    register_manager_.release_register(fpair_count_reg);
+
+    expression_result_reg_ = result_reg;
+    debug_print("Finished visiting FPairsAllocationExpression node. Result in " + expression_result_reg_);
 }
 // -- end of file
 
@@ -50707,6 +51041,10 @@ void NewCodeGenerator::visit(UnaryOp& node) {
             operand_type == VarType::POINTER_TO_INT_VEC ||
             operand_type == VarType::POINTER_TO_FLOAT_VEC ||
             operand_type == VarType::POINTER_TO_PAIRS ||
+            operand_type == VarType::POINTER_TO_FPAIRS ||
+            operand_type == VarType::POINTER_TO_QUADS ||
+            operand_type == VarType::POINTER_TO_OCTS ||
+            operand_type == VarType::POINTER_TO_FQUADS ||
             operand_type == VarType::POINTER_TO_STRING
         ) {
             // This logic is now correct for both VEC and TABLE.
@@ -52619,7 +52957,16 @@ void LivenessAnalysisPass::collect_variable_uses(ASTNode* node, std::set<std::st
     } else if (auto* unary_op = dynamic_cast<UnaryOp*>(node)) {
         collect_variable_uses(unary_op->operand.get(), vars);
     } else if (auto* func_call = dynamic_cast<FunctionCall*>(node)) {
+        if (trace_enabled_) {
+            std::cout << "[LivenessAnalysisPass] Found FunctionCall with " << func_call->arguments.size() << " arguments" << std::endl;
+            if (auto* func_var = dynamic_cast<VariableAccess*>(func_call->function_expr.get())) {
+                std::cout << "[LivenessAnalysisPass] Function name: " << func_var->name << std::endl;
+            }
+        }
         for (const auto& arg : func_call->arguments) {
+            if (trace_enabled_) {
+                std::cout << "[LivenessAnalysisPass] Processing function argument..." << std::endl;
+            }
             collect_variable_uses(arg.get(), vars);
         }
     } else if (auto* vec_access = dynamic_cast<VectorAccess*>(node)) {
@@ -52694,6 +53041,14 @@ void LivenessAnalysisPass::collect_statement_variable_uses(ASTNode* stmt, std::s
     } else if (auto* return_stmt = dynamic_cast<ReturnStatement*>(stmt)) {
         // ReturnStatement in this AST doesn't have an expression field
         // It's handled separately in other statement types
+    } else if (auto* pairwise_stmt = dynamic_cast<PairwiseReductionLoopStatement*>(stmt)) {
+        // PairwiseReductionLoopStatement uses input vectors
+        if (!pairwise_stmt->vector_a_name.empty()) {
+            vars.insert(pairwise_stmt->vector_a_name);
+        }
+        if (!pairwise_stmt->vector_b_name.empty()) {
+            vars.insert(pairwise_stmt->vector_b_name);
+        }
     }
 }
 
@@ -52736,6 +53091,14 @@ bool LivenessAnalysisPass::statement_contains_call(ASTNode* stmt) {
         }
     }
     // =================== FIX ENDS HERE ===================
+    
+    // Check if this is a PairwiseReductionLoopStatement (treated as a call)
+    if (auto* pairwise_stmt = dynamic_cast<PairwiseReductionLoopStatement*>(stmt)) {
+        if (trace_enabled_) {
+            std::cout << "[LivenessAnalysisPass] Found PairwiseReductionLoopStatement (treated as call)" << std::endl;
+        }
+        return true;
+    }
     
     return false;
 }
@@ -53943,16 +54306,11 @@ if (enable_tracing || trace_ast) std::cout << "AST transformation complete.\n";
             const std::string& func_name = pair.first;
             const auto& intervals = interval_pass.getIntervalsFor(func_name);
 
-            // Combine callee-saved and safe caller-saved registers for complete allocation pool
-            std::vector<std::string> all_int_regs = RegisterManager::VARIABLE_REGS;  // Callee-saved (X20-X27)
-            // Add safe caller-saved registers (X9-X15) - exclude X0-X8 (args/return), X16-X17 (IP0/IP1), X30 (LR)
-            std::vector<std::string> safe_caller_saved = {"X9", "X10", "X11", "X12", "X13", "X14", "X15"};
-            all_int_regs.insert(all_int_regs.end(), safe_caller_saved.begin(), safe_caller_saved.end());
+            // CRITICAL FIX: Only use true variable registers for variable allocation
+            // Scratch registers (X9-X15) must be reserved exclusively for scratch allocation
+            std::vector<std::string> all_int_regs = RegisterManager::VARIABLE_REGS;  // Callee-saved (X19-X27) only
 
-            std::vector<std::string> all_fp_regs = RegisterManager::FP_VARIABLE_REGS;  // Callee-saved (D8-D15)
-            // Add safe caller-saved FP registers (D16-D31) - exclude D0-D7 (args/return)
-            std::vector<std::string> safe_fp_caller_saved = {"D16", "D17", "D18", "D19", "D20", "D21", "D22", "D23", "D24", "D25", "D26", "D27", "D28", "D29", "D30", "D31"};
-            all_fp_regs.insert(all_fp_regs.end(), safe_fp_caller_saved.begin(), safe_fp_caller_saved.end());
+            std::vector<std::string> all_fp_regs = RegisterManager::FP_VARIABLE_REGS;  // Callee-saved (D8-D15) only
 
             // The result of each allocation is stored in the master map.
             all_allocations[func_name] = register_allocator.allocate(
@@ -58029,6 +58387,9 @@ ExprPtr Parser::parse_primary_expression() {
     if (match(TokenType::Pairs)) {
         return std::make_unique<PairsAllocationExpression>(parse_expression());
     }
+    if (match(TokenType::FPairs)) {
+        return std::make_unique<FPairsAllocationExpression>(parse_expression());
+    }
     if (match(TokenType::String)) {
         return std::make_unique<StringAllocationExpression>(parse_expression());
     }
@@ -60041,6 +60402,25 @@ void RegisterManager::mark_dirty(const std::string& reg_name, bool is_dirty) {
     }
 }
 
+// -- end of file
+
+// -- start of file: rm_pin_register.cpp
+#include "RegisterManager.h"
+#include <iostream>
+
+void RegisterManager::pin_register(const std::string& reg_name) {
+    pinned_registers_.insert(reg_name);
+    std::cout << "[REGISTER PIN] Pinned register: " << reg_name << std::endl;
+}
+
+void RegisterManager::unpin_register(const std::string& reg_name) {
+    pinned_registers_.erase(reg_name);
+    std::cout << "[REGISTER UNPIN] Unpinned register: " << reg_name << std::endl;
+}
+
+bool RegisterManager::is_pinned(const std::string& reg_name) const {
+    return pinned_registers_.find(reg_name) != pinned_registers_.end();
+}
 // -- end of file
 
 // -- start of file: rm_release_callee_saved_temp_reg.cpp

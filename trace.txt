@@ -1,6 +1,7 @@
+NeonReducerRegistry: Registered 13 NEON reduction encoders
 Debug: Processing argument 3: --trace-codegen
 Debug: Processing argument 4: --run
-Debug: parse_arguments successful, input_filepath=test_fpair_debug.bcl
+Debug: parse_arguments successful, input_filepath=test_pairwise_liveness_fix.bcl
 Debug: Arguments parsed successfully
 DEBUG: HeapManager constructor called
 SAMM: Background worker thread created and started
@@ -8,140 +9,122 @@ SAMM: ENABLED and background worker started
 SAMM (Scope Aware Memory Management): ENABLED
 SAMM: Background cleanup worker thread started (DEBUG)
 SAMM: Worker waiting for cleanup queue (queue size: 0)
-NewBCPL Compiler Version 1.0.1990
+NewBCPL Compiler Version 1.0.2257
 Compiling this source Code:
-//LINE 1 "/Users/oberon/projects/NewBCPL/test_fpair_debug.bcl"
+//LINE 1 "/Users/oberon/projects/NewBCPL/test_pairwise_liveness_fix.bcl"
 LET START() BE {
-    WRITEF("Testing FPAIR bit patterns and debugging*N")
 
-    // Test simple values first
-   
-    WRITEF("Test 1: Simple float values*N")
-    LET f1 = FPAIR(1.0, 2.0)
-    WRITEF("f1 created with (1.0, 2.0)*N")
-    WRITEF("f1 lane 0 = %F*N", f1.|0|)
-    WRITEF("f1 lane 1 = %F*N", f1.|1|)
+    WRITEF("Testing Pairwise Operation Liveness Fix*N")
 
-    // Test with our original values
-    WRITEF("Test 2: Original test values*N")
-    LET f2 = FPAIR(10.0, 20.0)
-    WRITEF("f2 created with (10.0, 20.0)*N")
-    WRITEF("f2 lane 0 = %F*N", f2.|0|)
-    WRITEF("f2 lane 1 = %F*N", f2.|1|)
+    LET vec_a = FPAIRS 4  // First vector - should stay live until PAIRWISE_MIN
+    LET vec_b = FPAIRS 4  // Second vector - should stay live until PAIRWISE_MIN
 
-    // Test with different values
-    WRITEF("Test 3: Different values*N")
-    LET f3 = FPAIR(3.14159, 2.71828)
-    WRITEF("f3 created with (3.14159, 2.71828)*N")
-    WRITEF("f3 lane 0 = %F*N", f3.|0|)
-    WRITEF("f3 lane 1 = %F*N", f3.|1|)
+    // Initialize vectors with test data
+    vec_a!0 := FPAIR(2.0, 3.0)
 
-    // Test negative values
-    WRITEF("Test 4: Negative values*N")
-    LET f4 = FPAIR(-1.0, -2.0)
-    WRITEF("f4 created with (-1.0, -2.0)*N")
-    WRITEF("f4 lane 0 = %F*N", f4.|0|)
-    WRITEF("f4 lane 1 = %F*N", f4.|1|)
 
-    WRITEF("End of debugging test*N")
+//    LET result_min = PAIRWISE_MIN(vec_a, vec_b)
+
+//    WRITEF("%Q", vec_a!0)
+
 }
 
 BCPL Runtime v1.0.0 initialized
-DEBUG: Registering FREEVEC with bcpl_free at address 0x102e403e0
+DEBUG: Registering FREEVEC with bcpl_free at address 0x102bbf914
 Registered 92 runtime functions
 === Registered Runtime Functions ===
-  NEWLINE          | address: 0x102e3f114 | args: 0 | table_offset: 720
-  FINISH           | address: 0x102e3dec4 | args: 0 | table_offset: 712
-  FABS             | address: 0x102e3e274 | args: 1 | table_offset: 680
-  FSIN             | address: 0x102e3e238 | args: 1 | table_offset: 656
-  FILE_EOF         | address: 0x102e415cc | args: 1 | table_offset: 624
-  RAND             | address: 0x102e3e0c4 | args: 1 | table_offset: 632
-  FILE_TELL        | address: 0x102e41574 | args: 1 | table_offset: 616
-  FILE_SEEK        | address: 0x102e414b0 | args: 3 | table_offset: 608
-  FILE_WRITE       | address: 0x102e41398 | args: 3 | table_offset: 600
-  FIX              | address: 0x102e3e2b4 | args: 1 | table_offset: 704
-  FILE_READS       | address: 0x102e40de4 | args: 1 | table_offset: 584
-  FILE_WRITES      | address: 0x102e40b08 | args: 2 | table_offset: 576
-  FEXP             | address: 0x102e3e2a0 | args: 1 | table_offset: 696
-  FILE_CLOSE       | address: 0x102e40a9c | args: 1 | table_offset: 568
-  FILE_OPEN_APPEND | address: 0x102e40a0c | args: 1 | table_offset: 560
-  PACKSTRING       | address: 0x102e3e2cc | args: 1 | table_offset: 512
-  STRLEN           | address: 0x102e3ded4 | args: 1 | table_offset: 504
-  FCOS             | address: 0x102e3e24c | args: 1 | table_offset: 664
-  STRCMP           | address: 0x102e3df34 | args: 2 | table_offset: 496
-  STRCOPY          | address: 0x102e3e018 | args: 2 | table_offset: 488
-  FIND             | address: 0x102e44cd0 | args: 3 | table_offset: 456
-  DEEPCOPYLITERALLIST | address: 0x102e44948 | args: 1 | table_offset: 440
-  DEEPCOPYLIST     | address: 0x102e447b0 | args: 1 | table_offset: 432
-  COPYLIST         | address: 0x102e446b0 | args: 1 | table_offset: 424
-  CONCAT           | address: 0x102e44ae8 | args: 2 | table_offset: 416
-  BCPL_CONCAT_LISTS | address: 0x102e44ae8 | args: 2 | table_offset: 408
-  SPIT             | address: 0x102e3eec8 | args: 2 | table_offset: 536
-  JOIN             | address: 0x102e43d4c | args: 2 | table_offset: 480
-  LPND             | address: 0x102e4425c | args: 2 | table_offset: 400
-  SPND             | address: 0x102e4418c | args: 2 | table_offset: 392
-  FPND             | address: 0x102e440bc | args: 2 | table_offset: 384
-  APND             | address: 0x102e43fec | args: 2 | table_offset: 376
-  RETURNNODETOFREELIST | address: 0x102e451a0 | args: 1 | table_offset: 728
-  BCPL_LIST_APPEND_INT | address: 0x102e43fec | args: 2 | table_offset: 352
-  GETVEC           | address: 0x102e404a4 | args: 1 | table_offset: 128
-  HEAPMANAGER_WAITFORSAMM | address: 0x102e053f0 | args: 0 | table_offset: 320
-  HEAPMANAGER_ENTER_SCOPE | address: 0x102e05328 | args: 0 | table_offset: 288
-  HEAPMANAGER_SETSAMMENABLED | address: 0x102e052d4 | args: 1 | table_offset: 304
-  HEAPMANAGER_EXIT_SCOPE | address: 0x102e05354 | args: 0 | table_offset: 296
-  PIC_RUNTIME_HELPER | address: 0x102e4058c | args: 0 | table_offset: 280
-  OBJECT_HEAP_FREE | address: 0x102e40550 | args: 1 | table_offset: 264
-  OBJECT_HEAP_ALLOC | address: 0x102e4052c | args: 1 | table_offset: 256
-  BCPL_LIST_GET_REST | address: 0x102e44518 | args: 1 | table_offset: 224
-  FRND             | address: 0x102e3e150 | args: 0 | table_offset: 648
-  BCPL_LIST_GET_HEAD_AS_FLOAT | address: 0x102e44460 | args: 1 | table_offset: 208
-  BCPL_LIST_GET_HEAD_AS_INT | address: 0x102e443fc | args: 1 | table_offset: 200
-  RUNTIME_METHOD_LOOKUP | address: 0x102e40574 | args: 2 | table_offset: 272
-  FREEVEC          | address: 0x102e403e0 | args: 1 | table_offset: 144
-  BCPL_BOUNDS_ERROR | address: 0x102e3c01c | args: 3 | table_offset: 192
-  BCPL_CHECK_AND_DISPLAY_ERRORS | address: 0x102e451e8 | args: 0 | table_offset: 184
-  WRITEF4          | address: 0x102e3d9f8 | args: 5 | table_offset: 56
-  BCPL_FREE_LIST   | address: 0x102e44e74 | args: 1 | table_offset: 152
-  BCPL_ALLOC_CHARS | address: 0x102e40388 | args: 1 | table_offset: 112
-  BCPL_LIST_APPEND_FLOAT | address: 0x102e440bc | args: 2 | table_offset: 360
-  GET_FREE_LIST_HEAD_ADDR | address: 0x102e45194 | args: 0 | table_offset: 336
-  BCPL_GET_ATOM_TYPE | address: 0x102e4457c | args: 1 | table_offset: 232
-  FWRITE           | address: 0x102e3d338 | args: 1 | table_offset: 16
-  BCPL_LIST_CREATE_EMPTY | address: 0x102e43f8c | args: 0 | table_offset: 344
-  SPLIT            | address: 0x102e439e0 | args: 2 | table_offset: 472
-  BCPL_FREE_CELLS  | address: 0x102e45190 | args: 0 | table_offset: 328
-  RND              | address: 0x102e3e1a4 | args: 1 | table_offset: 640
-  HEAPMANAGER_ISSAMMENABLED | address: 0x102e05304 | args: 0 | table_offset: 312
-  WRITEC           | address: 0x102e3dcb4 | args: 1 | table_offset: 88
-  MALLOC           | address: 0x102e40328 | args: 1 | table_offset: 120
-  BCPL_ALLOC_WORDS | address: 0x102e40328 | args: 3 | table_offset: 104
-  FTAN             | address: 0x102e3e260 | args: 1 | table_offset: 672
+  NEWLINE          | address: 0x102bbe648 | args: 0 | table_offset: 720
+  FINISH           | address: 0x102bbd3f8 | args: 0 | table_offset: 712
+  FABS             | address: 0x102bbd7a8 | args: 1 | table_offset: 680
+  FSIN             | address: 0x102bbd76c | args: 1 | table_offset: 656
+  FILE_EOF         | address: 0x102bc0b00 | args: 1 | table_offset: 624
+  RAND             | address: 0x102bbd5f8 | args: 1 | table_offset: 632
+  FILE_TELL        | address: 0x102bc0aa8 | args: 1 | table_offset: 616
+  FILE_SEEK        | address: 0x102bc09e4 | args: 3 | table_offset: 608
+  FILE_WRITE       | address: 0x102bc08cc | args: 3 | table_offset: 600
+  FIX              | address: 0x102bbd7e8 | args: 1 | table_offset: 704
+  FILE_READS       | address: 0x102bc0318 | args: 1 | table_offset: 584
+  FILE_WRITES      | address: 0x102bc003c | args: 2 | table_offset: 576
+  FEXP             | address: 0x102bbd7d4 | args: 1 | table_offset: 696
+  FILE_CLOSE       | address: 0x102bbffd0 | args: 1 | table_offset: 568
+  FILE_OPEN_APPEND | address: 0x102bbff40 | args: 1 | table_offset: 560
+  PACKSTRING       | address: 0x102bbd800 | args: 1 | table_offset: 512
+  STRLEN           | address: 0x102bbd408 | args: 1 | table_offset: 504
+  FCOS             | address: 0x102bbd780 | args: 1 | table_offset: 664
+  STRCMP           | address: 0x102bbd468 | args: 2 | table_offset: 496
+  STRCOPY          | address: 0x102bbd54c | args: 2 | table_offset: 488
+  FIND             | address: 0x102bc4204 | args: 3 | table_offset: 456
+  DEEPCOPYLITERALLIST | address: 0x102bc3e7c | args: 1 | table_offset: 440
+  DEEPCOPYLIST     | address: 0x102bc3ce4 | args: 1 | table_offset: 432
+  COPYLIST         | address: 0x102bc3be4 | args: 1 | table_offset: 424
+  CONCAT           | address: 0x102bc401c | args: 2 | table_offset: 416
+  BCPL_CONCAT_LISTS | address: 0x102bc401c | args: 2 | table_offset: 408
+  SPIT             | address: 0x102bbe3fc | args: 2 | table_offset: 536
+  JOIN             | address: 0x102bc3280 | args: 2 | table_offset: 480
+  LPND             | address: 0x102bc3790 | args: 2 | table_offset: 400
+  SPND             | address: 0x102bc36c0 | args: 2 | table_offset: 392
+  FPND             | address: 0x102bc35f0 | args: 2 | table_offset: 384
+  APND             | address: 0x102bc3520 | args: 2 | table_offset: 376
+  RETURNNODETOFREELIST | address: 0x102bc46d4 | args: 1 | table_offset: 728
+  BCPL_LIST_APPEND_INT | address: 0x102bc3520 | args: 2 | table_offset: 352
+  GETVEC           | address: 0x102bbf9d8 | args: 1 | table_offset: 128
+  HEAPMANAGER_WAITFORSAMM | address: 0x102b7c924 | args: 0 | table_offset: 320
+  HEAPMANAGER_ENTER_SCOPE | address: 0x102b7c85c | args: 0 | table_offset: 288
+  HEAPMANAGER_SETSAMMENABLED | address: 0x102b7c808 | args: 1 | table_offset: 304
+  HEAPMANAGER_EXIT_SCOPE | address: 0x102b7c888 | args: 0 | table_offset: 296
+  PIC_RUNTIME_HELPER | address: 0x102bbfac0 | args: 0 | table_offset: 280
+  OBJECT_HEAP_FREE | address: 0x102bbfa84 | args: 1 | table_offset: 264
+  OBJECT_HEAP_ALLOC | address: 0x102bbfa60 | args: 1 | table_offset: 256
+  BCPL_LIST_GET_REST | address: 0x102bc3a4c | args: 1 | table_offset: 224
+  FRND             | address: 0x102bbd684 | args: 0 | table_offset: 648
+  BCPL_LIST_GET_HEAD_AS_FLOAT | address: 0x102bc3994 | args: 1 | table_offset: 208
+  BCPL_LIST_GET_HEAD_AS_INT | address: 0x102bc3930 | args: 1 | table_offset: 200
+  RUNTIME_METHOD_LOOKUP | address: 0x102bbfaa8 | args: 2 | table_offset: 272
+  FREEVEC          | address: 0x102bbf914 | args: 1 | table_offset: 144
+  BCPL_BOUNDS_ERROR | address: 0x102bbb550 | args: 3 | table_offset: 192
+  BCPL_CHECK_AND_DISPLAY_ERRORS | address: 0x102bc471c | args: 0 | table_offset: 184
+  WRITEF4          | address: 0x102bbcf2c | args: 5 | table_offset: 56
+  BCPL_FREE_LIST   | address: 0x102bc43a8 | args: 1 | table_offset: 152
+  BCPL_ALLOC_CHARS | address: 0x102bbf8bc | args: 1 | table_offset: 112
+  BCPL_LIST_APPEND_FLOAT | address: 0x102bc35f0 | args: 2 | table_offset: 360
+  GET_FREE_LIST_HEAD_ADDR | address: 0x102bc46c8 | args: 0 | table_offset: 336
+  BCPL_GET_ATOM_TYPE | address: 0x102bc3ab0 | args: 1 | table_offset: 232
+  FWRITE           | address: 0x102bbc86c | args: 1 | table_offset: 16
+  BCPL_LIST_CREATE_EMPTY | address: 0x102bc34c0 | args: 0 | table_offset: 344
+  SPLIT            | address: 0x102bc2f14 | args: 2 | table_offset: 472
+  BCPL_FREE_CELLS  | address: 0x102bc46c4 | args: 0 | table_offset: 328
+  RND              | address: 0x102bbd6d8 | args: 1 | table_offset: 640
+  HEAPMANAGER_ISSAMMENABLED | address: 0x102b7c838 | args: 0 | table_offset: 312
+  WRITEC           | address: 0x102bbd1e8 | args: 1 | table_offset: 88
+  MALLOC           | address: 0x102bbf85c | args: 1 | table_offset: 120
+  BCPL_ALLOC_WORDS | address: 0x102bbf85c | args: 3 | table_offset: 104
+  FTAN             | address: 0x102bbd794 | args: 1 | table_offset: 672
   SETTYPE          | address: 0x0 | args: 2 | table_offset: 248
-  BCPL_GET_LAST_ERROR | address: 0x102e3be9c | args: 1 | table_offset: 168
-  RDCH             | address: 0x102e3de78 | args: 0 | table_offset: 96
-  FILE_READ        | address: 0x102e41284 | args: 3 | table_offset: 592
-  UNPACKSTRING     | address: 0x102e3e604 | args: 1 | table_offset: 520
-  WRITEF5          | address: 0x102e3da84 | args: 6 | table_offset: 64
-  FILTER           | address: 0x102e44dc4 | args: 2 | table_offset: 464
-  BCPL_FREE_LIST_SAFE | address: 0x102e44f7c | args: 1 | table_offset: 160
-  FILE_OPEN_WRITE  | address: 0x102e4097c | args: 1 | table_offset: 552
-  FILE_OPEN_READ   | address: 0x102e405fc | args: 1 | table_offset: 544
-  BCPL_LIST_GET_NTH | address: 0x102e445e4 | args: 2 | table_offset: 240
-  WRITEF7          | address: 0x102e3dbc0 | args: 8 | table_offset: 80
-  WRITEF3          | address: 0x102e3d978 | args: 4 | table_offset: 48
-  WRITEF6          | address: 0x102e3db1c | args: 7 | table_offset: 72
-  REVERSE          | address: 0x102e44be8 | args: 1 | table_offset: 448
-  WRITEF2          | address: 0x102e3d904 | args: 3 | table_offset: 40
-  WRITEF1          | address: 0x102e3d89c | args: 2 | table_offset: 32
-  BCPL_LIST_GET_TAIL | address: 0x102e444c8 | args: 1 | table_offset: 216
-  BCPL_CLEAR_ERRORS | address: 0x102e3bf4c | args: 0 | table_offset: 176
-  WRITEF           | address: 0x102e3d37c | args: 1 | table_offset: 24
-  BCPL_LIST_APPEND_STRING | address: 0x102e4418c | args: 2 | table_offset: 368
-  WRITES           | address: 0x102e3cddc | args: 1 | table_offset: 0
-  SLURP            | address: 0x102e3e99c | args: 1 | table_offset: 528
-  FGETVEC          | address: 0x102e404d8 | args: 1 | table_offset: 136
-  FLOG             | address: 0x102e3e28c | args: 1 | table_offset: 688
-  WRITEN           | address: 0x102e3dc70 | args: 1 | table_offset: 8
+  BCPL_GET_LAST_ERROR | address: 0x102bbb3d0 | args: 1 | table_offset: 168
+  RDCH             | address: 0x102bbd3ac | args: 0 | table_offset: 96
+  FILE_READ        | address: 0x102bc07b8 | args: 3 | table_offset: 592
+  UNPACKSTRING     | address: 0x102bbdb38 | args: 1 | table_offset: 520
+  WRITEF5          | address: 0x102bbcfb8 | args: 6 | table_offset: 64
+  FILTER           | address: 0x102bc42f8 | args: 2 | table_offset: 464
+  BCPL_FREE_LIST_SAFE | address: 0x102bc44b0 | args: 1 | table_offset: 160
+  FILE_OPEN_WRITE  | address: 0x102bbfeb0 | args: 1 | table_offset: 552
+  FILE_OPEN_READ   | address: 0x102bbfb30 | args: 1 | table_offset: 544
+  BCPL_LIST_GET_NTH | address: 0x102bc3b18 | args: 2 | table_offset: 240
+  WRITEF7          | address: 0x102bbd0f4 | args: 8 | table_offset: 80
+  WRITEF3          | address: 0x102bbceac | args: 4 | table_offset: 48
+  WRITEF6          | address: 0x102bbd050 | args: 7 | table_offset: 72
+  REVERSE          | address: 0x102bc411c | args: 1 | table_offset: 448
+  WRITEF2          | address: 0x102bbce38 | args: 3 | table_offset: 40
+  WRITEF1          | address: 0x102bbcdd0 | args: 2 | table_offset: 32
+  BCPL_LIST_GET_TAIL | address: 0x102bc39fc | args: 1 | table_offset: 216
+  BCPL_CLEAR_ERRORS | address: 0x102bbb480 | args: 0 | table_offset: 176
+  WRITEF           | address: 0x102bbc8b0 | args: 1 | table_offset: 24
+  BCPL_LIST_APPEND_STRING | address: 0x102bc36c0 | args: 2 | table_offset: 368
+  WRITES           | address: 0x102bbc310 | args: 1 | table_offset: 0
+  SLURP            | address: 0x102bbded0 | args: 1 | table_offset: 528
+  FGETVEC          | address: 0x102bbfa0c | args: 1 | table_offset: 136
+  FLOG             | address: 0x102bbd7c0 | args: 1 | table_offset: 688
+  WRITEN           | address: 0x102bbd1a4 | args: 1 | table_offset: 8
 ====================================
 Core runtime registered. SDL2 registration will follow...
 SDL2 runtime functions registered immediately
@@ -160,126 +143,22 @@ Program:
               Callee:
                 VariableAccess: WRITEF
               Arguments:
-                StringLiteral: "Testing FPAIR bit patterns and debugging
-"
-            RoutineCallStatement:
-              Callee:
-                VariableAccess: WRITEF
-              Arguments:
-                StringLiteral: "Test 1: Simple float values
+                StringLiteral: "Testing Pairwise Operation Liveness Fix
 "
             AssignmentStatement:
               LHS:
-                VariableAccess: f1
+                VariableAccess: vec_a
               RHS:
-            RoutineCallStatement:
-              Callee:
-                VariableAccess: WRITEF
-              Arguments:
-                StringLiteral: "f1 created with (1.0, 2.0)
-"
-            RoutineCallStatement:
-              Callee:
-                VariableAccess: WRITEF
-              Arguments:
-                StringLiteral: "f1 lane 0 = %F
-"
-            RoutineCallStatement:
-              Callee:
-                VariableAccess: WRITEF
-              Arguments:
-                StringLiteral: "f1 lane 1 = %F
-"
-            RoutineCallStatement:
-              Callee:
-                VariableAccess: WRITEF
-              Arguments:
-                StringLiteral: "Test 2: Original test values
-"
             AssignmentStatement:
               LHS:
-                VariableAccess: f2
+                VariableAccess: vec_b
               RHS:
-            RoutineCallStatement:
-              Callee:
-                VariableAccess: WRITEF
-              Arguments:
-                StringLiteral: "f2 created with (10.0, 20.0)
-"
-            RoutineCallStatement:
-              Callee:
-                VariableAccess: WRITEF
-              Arguments:
-                StringLiteral: "f2 lane 0 = %F
-"
-            RoutineCallStatement:
-              Callee:
-                VariableAccess: WRITEF
-              Arguments:
-                StringLiteral: "f2 lane 1 = %F
-"
-            RoutineCallStatement:
-              Callee:
-                VariableAccess: WRITEF
-              Arguments:
-                StringLiteral: "Test 3: Different values
-"
             AssignmentStatement:
               LHS:
-                VariableAccess: f3
+                VectorAccess (!):
+                  VariableAccess: vec_a
+                  NumberLiteral: 0
               RHS:
-            RoutineCallStatement:
-              Callee:
-                VariableAccess: WRITEF
-              Arguments:
-                StringLiteral: "f3 created with (3.14159, 2.71828)
-"
-            RoutineCallStatement:
-              Callee:
-                VariableAccess: WRITEF
-              Arguments:
-                StringLiteral: "f3 lane 0 = %F
-"
-            RoutineCallStatement:
-              Callee:
-                VariableAccess: WRITEF
-              Arguments:
-                StringLiteral: "f3 lane 1 = %F
-"
-            RoutineCallStatement:
-              Callee:
-                VariableAccess: WRITEF
-              Arguments:
-                StringLiteral: "Test 4: Negative values
-"
-            AssignmentStatement:
-              LHS:
-                VariableAccess: f4
-              RHS:
-            RoutineCallStatement:
-              Callee:
-                VariableAccess: WRITEF
-              Arguments:
-                StringLiteral: "f4 created with (-1.0, -2.0)
-"
-            RoutineCallStatement:
-              Callee:
-                VariableAccess: WRITEF
-              Arguments:
-                StringLiteral: "f4 lane 0 = %F
-"
-            RoutineCallStatement:
-              Callee:
-                VariableAccess: WRITEF
-              Arguments:
-                StringLiteral: "f4 lane 1 = %F
-"
-            RoutineCallStatement:
-              Callee:
-                VariableAccess: WRITEF
-              Arguments:
-                StringLiteral: "End of debugging test
-"
 ----------------------------------
 
 Applying Manifest Resolution Pass...
@@ -296,126 +175,22 @@ Program:
               Callee:
                 VariableAccess: WRITEF
               Arguments:
-                StringLiteral: "Testing FPAIR bit patterns and debugging
-"
-            RoutineCallStatement:
-              Callee:
-                VariableAccess: WRITEF
-              Arguments:
-                StringLiteral: "Test 1: Simple float values
+                StringLiteral: "Testing Pairwise Operation Liveness Fix
 "
             AssignmentStatement:
               LHS:
-                VariableAccess: f1
+                VariableAccess: vec_a
               RHS:
-            RoutineCallStatement:
-              Callee:
-                VariableAccess: WRITEF
-              Arguments:
-                StringLiteral: "f1 created with (1.0, 2.0)
-"
-            RoutineCallStatement:
-              Callee:
-                VariableAccess: WRITEF
-              Arguments:
-                StringLiteral: "f1 lane 0 = %F
-"
-            RoutineCallStatement:
-              Callee:
-                VariableAccess: WRITEF
-              Arguments:
-                StringLiteral: "f1 lane 1 = %F
-"
-            RoutineCallStatement:
-              Callee:
-                VariableAccess: WRITEF
-              Arguments:
-                StringLiteral: "Test 2: Original test values
-"
             AssignmentStatement:
               LHS:
-                VariableAccess: f2
+                VariableAccess: vec_b
               RHS:
-            RoutineCallStatement:
-              Callee:
-                VariableAccess: WRITEF
-              Arguments:
-                StringLiteral: "f2 created with (10.0, 20.0)
-"
-            RoutineCallStatement:
-              Callee:
-                VariableAccess: WRITEF
-              Arguments:
-                StringLiteral: "f2 lane 0 = %F
-"
-            RoutineCallStatement:
-              Callee:
-                VariableAccess: WRITEF
-              Arguments:
-                StringLiteral: "f2 lane 1 = %F
-"
-            RoutineCallStatement:
-              Callee:
-                VariableAccess: WRITEF
-              Arguments:
-                StringLiteral: "Test 3: Different values
-"
             AssignmentStatement:
               LHS:
-                VariableAccess: f3
+                VectorAccess (!):
+                  VariableAccess: vec_a
+                  NumberLiteral: 0
               RHS:
-            RoutineCallStatement:
-              Callee:
-                VariableAccess: WRITEF
-              Arguments:
-                StringLiteral: "f3 created with (3.14159, 2.71828)
-"
-            RoutineCallStatement:
-              Callee:
-                VariableAccess: WRITEF
-              Arguments:
-                StringLiteral: "f3 lane 0 = %F
-"
-            RoutineCallStatement:
-              Callee:
-                VariableAccess: WRITEF
-              Arguments:
-                StringLiteral: "f3 lane 1 = %F
-"
-            RoutineCallStatement:
-              Callee:
-                VariableAccess: WRITEF
-              Arguments:
-                StringLiteral: "Test 4: Negative values
-"
-            AssignmentStatement:
-              LHS:
-                VariableAccess: f4
-              RHS:
-            RoutineCallStatement:
-              Callee:
-                VariableAccess: WRITEF
-              Arguments:
-                StringLiteral: "f4 created with (-1.0, -2.0)
-"
-            RoutineCallStatement:
-              Callee:
-                VariableAccess: WRITEF
-              Arguments:
-                StringLiteral: "f4 lane 0 = %F
-"
-            RoutineCallStatement:
-              Callee:
-                VariableAccess: WRITEF
-              Arguments:
-                StringLiteral: "f4 lane 1 = %F
-"
-            RoutineCallStatement:
-              Callee:
-                VariableAccess: WRITEF
-              Arguments:
-                StringLiteral: "End of debugging test
-"
 ------------------------------------------
 
 Building symbol table...
@@ -424,13 +199,15 @@ Building symbol table...
 [SymbolDiscoveryPass] Added routine: START
 [SymbolDiscoveryPass] Entering block scope
 [SymbolDiscoveryPass] Processing let declaration
-[SymbolDiscoveryPass] Added let variable: f1 as INTEGER (default INTEGER)
+[SymbolDiscoveryPass] Added let variable: vec_a as INTEGER (default INTEGER)
 [SymbolDiscoveryPass] Processing let declaration
-[SymbolDiscoveryPass] Added let variable: f2 as INTEGER (default INTEGER)
-[SymbolDiscoveryPass] Processing let declaration
-[SymbolDiscoveryPass] Added let variable: f3 as INTEGER (default INTEGER)
-[SymbolDiscoveryPass] Processing let declaration
-[SymbolDiscoveryPass] Added let variable: f4 as INTEGER (default INTEGER)
+[SymbolDiscoveryPass] Added let variable: vec_b as INTEGER (default INTEGER)
+[SymbolDiscoveryPass] Set variable name for FPairsAllocationExpression: vec_a
+[SymbolDiscoveryPass] Processing FPairsAllocationExpression
+[SymbolDiscoveryPass] Updated FPAIRS variable: vec_a with size 4
+[SymbolDiscoveryPass] Set variable name for FPairsAllocationExpression: vec_b
+[SymbolDiscoveryPass] Processing FPairsAllocationExpression
+[SymbolDiscoveryPass] Updated FPAIRS variable: vec_b with size 4
 
 === SYMBOL TABLE DUMP AFTER SYMBOL DISCOVERY ===
 Symbol Table (Persistent, All Symbols)
@@ -438,10 +215,8 @@ Symbol Table (Persistent, All Symbols)
 Symbol 'HeapManager_enter_scope' (FUNCTION, INTEGER, scope=0, block=0, class_name='', function_name='Global')
 Symbol 'HeapManager_exit_scope' (FUNCTION, INTEGER, scope=0, block=0, class_name='', function_name='Global')
 Symbol 'START' (ROUTINE, INTEGER, scope=0, block=0, class_name='', function_name='START')
-Symbol 'f1' (LOCAL_VAR, INTEGER, scope=2, block=0, class_name='', function_name='START')
-Symbol 'f2' (LOCAL_VAR, INTEGER, scope=2, block=0, class_name='', function_name='START')
-Symbol 'f3' (LOCAL_VAR, INTEGER, scope=2, block=0, class_name='', function_name='START')
-Symbol 'f4' (LOCAL_VAR, INTEGER, scope=2, block=0, class_name='', function_name='START')
+Symbol 'vec_a' (LOCAL_VAR, POINTER_TO|FPAIRS, scope=2, block=0, size=4, class_name='', function_name='START')
+Symbol 'vec_b' (LOCAL_VAR, POINTER_TO|FPAIRS, scope=2, block=0, size=4, class_name='', function_name='START')
 
 ================================================
 
@@ -468,271 +243,37 @@ Cleared FOR loop state before analysis to prevent corruption
 [ANALYZER] Starting parameter type inference for function: START
 [ANALYZER TRACE] ASTAnalyzer::visit(RoutineDeclaration&) is traversing body for routine: START
 [ANALYZER TRACE] Entering block scope: START_block_0 (Function scope remains: START)
-[ANALYZER TRACE] BlockStatement: Traversing 22 statements.
-[ANALYZER TRACE] BlockStatement: Calling accept on statement 0 of type 50
-[ANALYZER TRACE] Entered ASTAnalyzer::visit(RoutineCallStatement&) for node at 0x103d84900
+[ANALYZER TRACE] BlockStatement: Traversing 4 statements.
+[ANALYZER TRACE] BlockStatement: Calling accept on statement 0 of type 53
+[ANALYZER TRACE] Entered ASTAnalyzer::visit(RoutineCallStatement&) for node at 0x103e94290
 [ANALYZER TRACE] WRITEF format specifiers detected: [] (count = 0)
 [ANALYZER TRACE]   Detected call to runtime function: WRITEF, Type: INTEGER
-[ANALYZER TRACE] BlockStatement: Calling accept on statement 1 of type 50
-[ANALYZER TRACE] Entered ASTAnalyzer::visit(RoutineCallStatement&) for node at 0x103d85000
-[ANALYZER TRACE] WRITEF format specifiers detected: [] (count = 0)
-[ANALYZER TRACE]   Detected call to runtime function: WRITEF, Type: INTEGER
-[ANALYZER TRACE] BlockStatement: Calling accept on statement 2 of type 49
+[ANALYZER TRACE] BlockStatement: Calling accept on statement 1 of type 52
+[ANALYZER TRACE] Visiting VariableAccess: vec_a
+[DEBUG get_effective_variable_name] Called with: 'vec_a'
+[DEBUG get_effective_variable_name] Loop context stack size: 0
+[DEBUG get_effective_variable_name] Active FOR loop scopes size: 0
+[DEBUG get_effective_variable_name] FOR variable aliases size: 0
+[DEBUG get_effective_variable_name] In FOR loop context: NO
+[DEBUG get_effective_variable_name] Not in FOR loop context, returning original: 'vec_a'
+[ANALYZER TRACE] BlockStatement: Calling accept on statement 2 of type 52
+[ANALYZER TRACE] Visiting VariableAccess: vec_b
+[DEBUG get_effective_variable_name] Called with: 'vec_b'
+[DEBUG get_effective_variable_name] Loop context stack size: 0
+[DEBUG get_effective_variable_name] Active FOR loop scopes size: 0
+[DEBUG get_effective_variable_name] FOR variable aliases size: 0
+[DEBUG get_effective_variable_name] In FOR loop context: NO
+[DEBUG get_effective_variable_name] Not in FOR loop context, returning original: 'vec_b'
+[ANALYZER TRACE] BlockStatement: Calling accept on statement 3 of type 52
 [ANALYZER TRACE] Visiting FPairExpression
 [ANALYZER TRACE] FPairExpression analysis complete
-[ANALYZER TRACE] Visiting VariableAccess: f1
-[DEBUG get_effective_variable_name] Called with: 'f1'
+[ANALYZER TRACE] Visiting VariableAccess: vec_a
+[DEBUG get_effective_variable_name] Called with: 'vec_a'
 [DEBUG get_effective_variable_name] Loop context stack size: 0
 [DEBUG get_effective_variable_name] Active FOR loop scopes size: 0
 [DEBUG get_effective_variable_name] FOR variable aliases size: 0
 [DEBUG get_effective_variable_name] In FOR loop context: NO
-[DEBUG get_effective_variable_name] Not in FOR loop context, returning original: 'f1'
-[ANALYZER TRACE] BlockStatement: Calling accept on statement 3 of type 50
-[ANALYZER TRACE] Entered ASTAnalyzer::visit(RoutineCallStatement&) for node at 0x103d851f0
-[ANALYZER TRACE] WRITEF format specifiers detected: [] (count = 0)
-[ANALYZER TRACE]   Detected call to runtime function: WRITEF, Type: INTEGER
-[ANALYZER TRACE] BlockStatement: Calling accept on statement 4 of type 50
-[ANALYZER TRACE] Entered ASTAnalyzer::visit(RoutineCallStatement&) for node at 0x103d86db0
-[ANALYZER TRACE] WRITEF format specifiers detected: [%F] (count = 1)
-[DEBUG get_variable_type] Looking for 'f1' in function 'START'
-[DEBUG get_variable_type] Found function metrics for 'START'
-[DEBUG get_variable_type] Parameter types count: 0
-[DEBUG get_variable_type] Variable types count: 4
-[DEBUG get_variable_type] Found in variable_types: f1 -> 32
-[ANALYZER TRACE]   Detected call to runtime function: WRITEF, Type: INTEGER
-[ANALYZER TRACE] Visiting LaneAccessExpression
-[ANALYZER TRACE] Visiting VariableAccess: f1
-[DEBUG get_effective_variable_name] Called with: 'f1'
-[DEBUG get_effective_variable_name] Loop context stack size: 0
-[DEBUG get_effective_variable_name] Active FOR loop scopes size: 0
-[DEBUG get_effective_variable_name] FOR variable aliases size: 0
-[DEBUG get_effective_variable_name] In FOR loop context: NO
-[DEBUG get_effective_variable_name] Not in FOR loop context, returning original: 'f1'
-[DEBUG get_variable_type] Looking for 'f1' in function 'START'
-[DEBUG get_variable_type] Found function metrics for 'START'
-[DEBUG get_variable_type] Parameter types count: 0
-[DEBUG get_variable_type] Variable types count: 4
-[DEBUG get_variable_type] Found in variable_types: f1 -> 32
-[ANALYZER TRACE] LaneAccessExpression analysis complete - element type: FLOAT
-[ANALYZER TRACE] BlockStatement: Calling accept on statement 5 of type 50
-[ANALYZER TRACE] Entered ASTAnalyzer::visit(RoutineCallStatement&) for node at 0x103d86ea0
-[ANALYZER TRACE] WRITEF format specifiers detected: [%F] (count = 1)
-[DEBUG get_variable_type] Looking for 'f1' in function 'START'
-[DEBUG get_variable_type] Found function metrics for 'START'
-[DEBUG get_variable_type] Parameter types count: 0
-[DEBUG get_variable_type] Variable types count: 4
-[DEBUG get_variable_type] Found in variable_types: f1 -> 32
-[ANALYZER TRACE]   Detected call to runtime function: WRITEF, Type: INTEGER
-[ANALYZER TRACE] Visiting LaneAccessExpression
-[ANALYZER TRACE] Visiting VariableAccess: f1
-[DEBUG get_effective_variable_name] Called with: 'f1'
-[DEBUG get_effective_variable_name] Loop context stack size: 0
-[DEBUG get_effective_variable_name] Active FOR loop scopes size: 0
-[DEBUG get_effective_variable_name] FOR variable aliases size: 0
-[DEBUG get_effective_variable_name] In FOR loop context: NO
-[DEBUG get_effective_variable_name] Not in FOR loop context, returning original: 'f1'
-[DEBUG get_variable_type] Looking for 'f1' in function 'START'
-[DEBUG get_variable_type] Found function metrics for 'START'
-[DEBUG get_variable_type] Parameter types count: 0
-[DEBUG get_variable_type] Variable types count: 4
-[DEBUG get_variable_type] Found in variable_types: f1 -> 32
-[ANALYZER TRACE] LaneAccessExpression analysis complete - element type: FLOAT
-[ANALYZER TRACE] BlockStatement: Calling accept on statement 6 of type 50
-[ANALYZER TRACE] Entered ASTAnalyzer::visit(RoutineCallStatement&) for node at 0x103d86f10
-[ANALYZER TRACE] WRITEF format specifiers detected: [] (count = 0)
-[ANALYZER TRACE]   Detected call to runtime function: WRITEF, Type: INTEGER
-[ANALYZER TRACE] BlockStatement: Calling accept on statement 7 of type 49
-[ANALYZER TRACE] Visiting FPairExpression
-[ANALYZER TRACE] FPairExpression analysis complete
-[ANALYZER TRACE] Visiting VariableAccess: f2
-[DEBUG get_effective_variable_name] Called with: 'f2'
-[DEBUG get_effective_variable_name] Loop context stack size: 0
-[DEBUG get_effective_variable_name] Active FOR loop scopes size: 0
-[DEBUG get_effective_variable_name] FOR variable aliases size: 0
-[DEBUG get_effective_variable_name] In FOR loop context: NO
-[DEBUG get_effective_variable_name] Not in FOR loop context, returning original: 'f2'
-[ANALYZER TRACE] BlockStatement: Calling accept on statement 8 of type 50
-[ANALYZER TRACE] Entered ASTAnalyzer::visit(RoutineCallStatement&) for node at 0x103d87140
-[ANALYZER TRACE] WRITEF format specifiers detected: [] (count = 0)
-[ANALYZER TRACE]   Detected call to runtime function: WRITEF, Type: INTEGER
-[ANALYZER TRACE] BlockStatement: Calling accept on statement 9 of type 50
-[ANALYZER TRACE] Entered ASTAnalyzer::visit(RoutineCallStatement&) for node at 0x103d87260
-[ANALYZER TRACE] WRITEF format specifiers detected: [%F] (count = 1)
-[DEBUG get_variable_type] Looking for 'f2' in function 'START'
-[DEBUG get_variable_type] Found function metrics for 'START'
-[DEBUG get_variable_type] Parameter types count: 0
-[DEBUG get_variable_type] Variable types count: 4
-[DEBUG get_variable_type] Found in variable_types: f2 -> 32
-[ANALYZER TRACE]   Detected call to runtime function: WRITEF, Type: INTEGER
-[ANALYZER TRACE] Visiting LaneAccessExpression
-[ANALYZER TRACE] Visiting VariableAccess: f2
-[DEBUG get_effective_variable_name] Called with: 'f2'
-[DEBUG get_effective_variable_name] Loop context stack size: 0
-[DEBUG get_effective_variable_name] Active FOR loop scopes size: 0
-[DEBUG get_effective_variable_name] FOR variable aliases size: 0
-[DEBUG get_effective_variable_name] In FOR loop context: NO
-[DEBUG get_effective_variable_name] Not in FOR loop context, returning original: 'f2'
-[DEBUG get_variable_type] Looking for 'f2' in function 'START'
-[DEBUG get_variable_type] Found function metrics for 'START'
-[DEBUG get_variable_type] Parameter types count: 0
-[DEBUG get_variable_type] Variable types count: 4
-[DEBUG get_variable_type] Found in variable_types: f2 -> 32
-[ANALYZER TRACE] LaneAccessExpression analysis complete - element type: FLOAT
-[ANALYZER TRACE] BlockStatement: Calling accept on statement 10 of type 50
-[ANALYZER TRACE] Entered ASTAnalyzer::visit(RoutineCallStatement&) for node at 0x103d872c0
-[ANALYZER TRACE] WRITEF format specifiers detected: [%F] (count = 1)
-[DEBUG get_variable_type] Looking for 'f2' in function 'START'
-[DEBUG get_variable_type] Found function metrics for 'START'
-[DEBUG get_variable_type] Parameter types count: 0
-[DEBUG get_variable_type] Variable types count: 4
-[DEBUG get_variable_type] Found in variable_types: f2 -> 32
-[ANALYZER TRACE]   Detected call to runtime function: WRITEF, Type: INTEGER
-[ANALYZER TRACE] Visiting LaneAccessExpression
-[ANALYZER TRACE] Visiting VariableAccess: f2
-[DEBUG get_effective_variable_name] Called with: 'f2'
-[DEBUG get_effective_variable_name] Loop context stack size: 0
-[DEBUG get_effective_variable_name] Active FOR loop scopes size: 0
-[DEBUG get_effective_variable_name] FOR variable aliases size: 0
-[DEBUG get_effective_variable_name] In FOR loop context: NO
-[DEBUG get_effective_variable_name] Not in FOR loop context, returning original: 'f2'
-[DEBUG get_variable_type] Looking for 'f2' in function 'START'
-[DEBUG get_variable_type] Found function metrics for 'START'
-[DEBUG get_variable_type] Parameter types count: 0
-[DEBUG get_variable_type] Variable types count: 4
-[DEBUG get_variable_type] Found in variable_types: f2 -> 32
-[ANALYZER TRACE] LaneAccessExpression analysis complete - element type: FLOAT
-[ANALYZER TRACE] BlockStatement: Calling accept on statement 11 of type 50
-[ANALYZER TRACE] Entered ASTAnalyzer::visit(RoutineCallStatement&) for node at 0x103d872f0
-[ANALYZER TRACE] WRITEF format specifiers detected: [] (count = 0)
-[ANALYZER TRACE]   Detected call to runtime function: WRITEF, Type: INTEGER
-[ANALYZER TRACE] BlockStatement: Calling accept on statement 12 of type 49
-[ANALYZER TRACE] Visiting FPairExpression
-[ANALYZER TRACE] FPairExpression analysis complete
-[ANALYZER TRACE] Visiting VariableAccess: f3
-[DEBUG get_effective_variable_name] Called with: 'f3'
-[DEBUG get_effective_variable_name] Loop context stack size: 0
-[DEBUG get_effective_variable_name] Active FOR loop scopes size: 0
-[DEBUG get_effective_variable_name] FOR variable aliases size: 0
-[DEBUG get_effective_variable_name] In FOR loop context: NO
-[DEBUG get_effective_variable_name] Not in FOR loop context, returning original: 'f3'
-[ANALYZER TRACE] BlockStatement: Calling accept on statement 13 of type 50
-[ANALYZER TRACE] Entered ASTAnalyzer::visit(RoutineCallStatement&) for node at 0x103d874f0
-[ANALYZER TRACE] WRITEF format specifiers detected: [] (count = 0)
-[ANALYZER TRACE]   Detected call to runtime function: WRITEF, Type: INTEGER
-[ANALYZER TRACE] BlockStatement: Calling accept on statement 14 of type 50
-[ANALYZER TRACE] Entered ASTAnalyzer::visit(RoutineCallStatement&) for node at 0x92700c000
-[ANALYZER TRACE] WRITEF format specifiers detected: [%F] (count = 1)
-[DEBUG get_variable_type] Looking for 'f3' in function 'START'
-[DEBUG get_variable_type] Found function metrics for 'START'
-[DEBUG get_variable_type] Parameter types count: 0
-[DEBUG get_variable_type] Variable types count: 4
-[DEBUG get_variable_type] Found in variable_types: f3 -> 32
-[ANALYZER TRACE]   Detected call to runtime function: WRITEF, Type: INTEGER
-[ANALYZER TRACE] Visiting LaneAccessExpression
-[ANALYZER TRACE] Visiting VariableAccess: f3
-[DEBUG get_effective_variable_name] Called with: 'f3'
-[DEBUG get_effective_variable_name] Loop context stack size: 0
-[DEBUG get_effective_variable_name] Active FOR loop scopes size: 0
-[DEBUG get_effective_variable_name] FOR variable aliases size: 0
-[DEBUG get_effective_variable_name] In FOR loop context: NO
-[DEBUG get_effective_variable_name] Not in FOR loop context, returning original: 'f3'
-[DEBUG get_variable_type] Looking for 'f3' in function 'START'
-[DEBUG get_variable_type] Found function metrics for 'START'
-[DEBUG get_variable_type] Parameter types count: 0
-[DEBUG get_variable_type] Variable types count: 4
-[DEBUG get_variable_type] Found in variable_types: f3 -> 32
-[ANALYZER TRACE] LaneAccessExpression analysis complete - element type: FLOAT
-[ANALYZER TRACE] BlockStatement: Calling accept on statement 15 of type 50
-[ANALYZER TRACE] Entered ASTAnalyzer::visit(RoutineCallStatement&) for node at 0x92700c030
-[ANALYZER TRACE] WRITEF format specifiers detected: [%F] (count = 1)
-[DEBUG get_variable_type] Looking for 'f3' in function 'START'
-[DEBUG get_variable_type] Found function metrics for 'START'
-[DEBUG get_variable_type] Parameter types count: 0
-[DEBUG get_variable_type] Variable types count: 4
-[DEBUG get_variable_type] Found in variable_types: f3 -> 32
-[ANALYZER TRACE]   Detected call to runtime function: WRITEF, Type: INTEGER
-[ANALYZER TRACE] Visiting LaneAccessExpression
-[ANALYZER TRACE] Visiting VariableAccess: f3
-[DEBUG get_effective_variable_name] Called with: 'f3'
-[DEBUG get_effective_variable_name] Loop context stack size: 0
-[DEBUG get_effective_variable_name] Active FOR loop scopes size: 0
-[DEBUG get_effective_variable_name] FOR variable aliases size: 0
-[DEBUG get_effective_variable_name] In FOR loop context: NO
-[DEBUG get_effective_variable_name] Not in FOR loop context, returning original: 'f3'
-[DEBUG get_variable_type] Looking for 'f3' in function 'START'
-[DEBUG get_variable_type] Found function metrics for 'START'
-[DEBUG get_variable_type] Parameter types count: 0
-[DEBUG get_variable_type] Variable types count: 4
-[DEBUG get_variable_type] Found in variable_types: f3 -> 32
-[ANALYZER TRACE] LaneAccessExpression analysis complete - element type: FLOAT
-[ANALYZER TRACE] BlockStatement: Calling accept on statement 16 of type 50
-[ANALYZER TRACE] Entered ASTAnalyzer::visit(RoutineCallStatement&) for node at 0x92700c060
-[ANALYZER TRACE] WRITEF format specifiers detected: [] (count = 0)
-[ANALYZER TRACE]   Detected call to runtime function: WRITEF, Type: INTEGER
-[ANALYZER TRACE] BlockStatement: Calling accept on statement 17 of type 49
-[ANALYZER TRACE] Visiting FPairExpression
-[ANALYZER TRACE] FPairExpression analysis complete
-[ANALYZER TRACE] Visiting VariableAccess: f4
-[DEBUG get_effective_variable_name] Called with: 'f4'
-[DEBUG get_effective_variable_name] Loop context stack size: 0
-[DEBUG get_effective_variable_name] Active FOR loop scopes size: 0
-[DEBUG get_effective_variable_name] FOR variable aliases size: 0
-[DEBUG get_effective_variable_name] In FOR loop context: NO
-[DEBUG get_effective_variable_name] Not in FOR loop context, returning original: 'f4'
-[ANALYZER TRACE] BlockStatement: Calling accept on statement 18 of type 50
-[ANALYZER TRACE] Entered ASTAnalyzer::visit(RoutineCallStatement&) for node at 0x92700c090
-[ANALYZER TRACE] WRITEF format specifiers detected: [] (count = 0)
-[ANALYZER TRACE]   Detected call to runtime function: WRITEF, Type: INTEGER
-[ANALYZER TRACE] BlockStatement: Calling accept on statement 19 of type 50
-[ANALYZER TRACE] Entered ASTAnalyzer::visit(RoutineCallStatement&) for node at 0x92700c0c0
-[ANALYZER TRACE] WRITEF format specifiers detected: [%F] (count = 1)
-[DEBUG get_variable_type] Looking for 'f4' in function 'START'
-[DEBUG get_variable_type] Found function metrics for 'START'
-[DEBUG get_variable_type] Parameter types count: 0
-[DEBUG get_variable_type] Variable types count: 4
-[DEBUG get_variable_type] Found in variable_types: f4 -> 32
-[ANALYZER TRACE]   Detected call to runtime function: WRITEF, Type: INTEGER
-[ANALYZER TRACE] Visiting LaneAccessExpression
-[ANALYZER TRACE] Visiting VariableAccess: f4
-[DEBUG get_effective_variable_name] Called with: 'f4'
-[DEBUG get_effective_variable_name] Loop context stack size: 0
-[DEBUG get_effective_variable_name] Active FOR loop scopes size: 0
-[DEBUG get_effective_variable_name] FOR variable aliases size: 0
-[DEBUG get_effective_variable_name] In FOR loop context: NO
-[DEBUG get_effective_variable_name] Not in FOR loop context, returning original: 'f4'
-[DEBUG get_variable_type] Looking for 'f4' in function 'START'
-[DEBUG get_variable_type] Found function metrics for 'START'
-[DEBUG get_variable_type] Parameter types count: 0
-[DEBUG get_variable_type] Variable types count: 4
-[DEBUG get_variable_type] Found in variable_types: f4 -> 32
-[ANALYZER TRACE] LaneAccessExpression analysis complete - element type: FLOAT
-[ANALYZER TRACE] BlockStatement: Calling accept on statement 20 of type 50
-[ANALYZER TRACE] Entered ASTAnalyzer::visit(RoutineCallStatement&) for node at 0x92700c0f0
-[ANALYZER TRACE] WRITEF format specifiers detected: [%F] (count = 1)
-[DEBUG get_variable_type] Looking for 'f4' in function 'START'
-[DEBUG get_variable_type] Found function metrics for 'START'
-[DEBUG get_variable_type] Parameter types count: 0
-[DEBUG get_variable_type] Variable types count: 4
-[DEBUG get_variable_type] Found in variable_types: f4 -> 32
-[ANALYZER TRACE]   Detected call to runtime function: WRITEF, Type: INTEGER
-[ANALYZER TRACE] Visiting LaneAccessExpression
-[ANALYZER TRACE] Visiting VariableAccess: f4
-[DEBUG get_effective_variable_name] Called with: 'f4'
-[DEBUG get_effective_variable_name] Loop context stack size: 0
-[DEBUG get_effective_variable_name] Active FOR loop scopes size: 0
-[DEBUG get_effective_variable_name] FOR variable aliases size: 0
-[DEBUG get_effective_variable_name] In FOR loop context: NO
-[DEBUG get_effective_variable_name] Not in FOR loop context, returning original: 'f4'
-[DEBUG get_variable_type] Looking for 'f4' in function 'START'
-[DEBUG get_variable_type] Found function metrics for 'START'
-[DEBUG get_variable_type] Parameter types count: 0
-[DEBUG get_variable_type] Variable types count: 4
-[DEBUG get_variable_type] Found in variable_types: f4 -> 32
-[ANALYZER TRACE] LaneAccessExpression analysis complete - element type: FLOAT
-[ANALYZER TRACE] BlockStatement: Calling accept on statement 21 of type 50
-[ANALYZER TRACE] Entered ASTAnalyzer::visit(RoutineCallStatement&) for node at 0x92700c120
-[ANALYZER TRACE] WRITEF format specifiers detected: [] (count = 0)
-[ANALYZER TRACE]   Detected call to runtime function: WRITEF, Type: INTEGER
+[DEBUG get_effective_variable_name] Not in FOR loop context, returning original: 'vec_a'
 [ANALYZER TRACE] Exiting block scope, returning to: START
 [SAMM OPTIMIZATION] Starting heap allocation propagation...
 [SAMM OPTIMIZATION] Propagation iteration 1
@@ -748,9 +289,9 @@ Initial AST analysis complete.
 Function: START
   Type: int
   Parameters: 0
-  Integer Locals: 8
+  Integer Locals: 4
   Float Locals: 0
-  Runtime Calls: 18
+  Runtime Calls: 1
   Local Function Calls: 0
   Local Routine Calls: 0
   Vector Allocations: no
@@ -785,10 +326,8 @@ Cleared FOR loop state before CFGBuilderPass to prevent corruption
 [CFGBuilderPass] Visiting BlockStatement with SAMM scope management.
 [SAMM OPTIMIZATION] Skipping scope calls for allocation-free function: START (call tree)
 [CFGBuilderPass] Starting optimized block 1 variable tracking
-[CFGBuilderPass] Tracking variable 'f1' in current block
-[CFGBuilderPass] Tracking variable 'f2' in current block
-[CFGBuilderPass] Tracking variable 'f3' in current block
-[CFGBuilderPass] Tracking variable 'f4' in current block
+[CFGBuilderPass] Tracking variable 'vec_a' in current block
+[CFGBuilderPass] Tracking variable 'vec_b' in current block
 [CFGBuilderPass] Created new basic block: START_Exit_1
 [CFGBuilderPass] Resolving 0 GOTO statements...
 [CFGBuilderPass] visit(Program) complete.
@@ -822,60 +361,37 @@ Applying CFG Simplification Pass (Branch Chaining)...
 [LivenessAnalysisPass] Exiting analyze_block for block: START_Exit_1
 [LivenessAnalysisPass] Analyzing block #2 (id=START_Entry_0) in function 'START'
 [LivenessAnalysisPass] Entering analyze_block for block: START_Entry_0
-[LivenessAnalysisPass] Starting intra-block analysis for START_Entry_0 with 22 statements
+[LivenessAnalysisPass] Starting intra-block analysis for START_Entry_0 with 4 statements
+[LivenessAnalysisPass] Reverse scan - processing statement 3 type: 19AssignmentStatement
+[LivenessAnalysisPass] Collecting uses from node type: 15FPairExpression
+[LivenessAnalysisPass] Collecting uses from node type: 13NumberLiteral
+[LivenessAnalysisPass] Testing dynamic_cast<LaneAccessExpression*>: FAILED
+[LivenessAnalysisPass] Unhandled node type in collect_variable_uses: 13NumberLiteral
+[LivenessAnalysisPass] Collecting uses from node type: 13NumberLiteral
+[LivenessAnalysisPass] Testing dynamic_cast<LaneAccessExpression*>: FAILED
+[LivenessAnalysisPass] Unhandled node type in collect_variable_uses: 13NumberLiteral
+[LivenessAnalysisPass] Reverse scan - Statement 3 uses no variables
+[LivenessAnalysisPass] Reverse scan - Statement 3 contains call: NO
+[LivenessAnalysisPass] Reverse scan - processing statement 2 type: 19AssignmentStatement
+[LivenessAnalysisPass] Collecting uses from node type: 26FPairsAllocationExpression
+[LivenessAnalysisPass] Testing dynamic_cast<LaneAccessExpression*>: FAILED
+[LivenessAnalysisPass] Unhandled node type in collect_variable_uses: 26FPairsAllocationExpression
+[LivenessAnalysisPass] Reverse scan - Statement 2 uses no variables
+[LivenessAnalysisPass] Reverse scan - Statement 2 contains call: NO
+[LivenessAnalysisPass] Reverse scan - processing statement 1 type: 19AssignmentStatement
+[LivenessAnalysisPass] Collecting uses from node type: 26FPairsAllocationExpression
+[LivenessAnalysisPass] Testing dynamic_cast<LaneAccessExpression*>: FAILED
+[LivenessAnalysisPass] Unhandled node type in collect_variable_uses: 26FPairsAllocationExpression
+[LivenessAnalysisPass] Reverse scan - Statement 1 uses no variables
+[LivenessAnalysisPass] Reverse scan - Statement 1 contains call: NO
+[LivenessAnalysisPass] Reverse scan - processing statement 0 type: 20RoutineCallStatement
+[LivenessAnalysisPass] Collecting uses from node type: 13StringLiteral
+[LivenessAnalysisPass] Testing dynamic_cast<LaneAccessExpression*>: FAILED
+[LivenessAnalysisPass] Unhandled node type in collect_variable_uses: 13StringLiteral
+[LivenessAnalysisPass] Reverse scan - Statement 0 uses no variables
 [LivenessAnalysisPass] Found RoutineCallStatement
-[LivenessAnalysisPass] Found call in statement
-[LivenessAnalysisPass] Found RoutineCallStatement
-[LivenessAnalysisPass] Found call in statement
-[LivenessAnalysisPass] Found RoutineCallStatement
-[LivenessAnalysisPass] Found call in statement
-[LivenessAnalysisPass] Found RoutineCallStatement
-[LivenessAnalysisPass] Found call in statement
-[LivenessAnalysisPass] Found RoutineCallStatement
-[LivenessAnalysisPass] Found call in statement
-[LivenessAnalysisPass] Found RoutineCallStatement
-[LivenessAnalysisPass] Found call in statement
-[LivenessAnalysisPass] Found RoutineCallStatement
-[LivenessAnalysisPass] Found call in statement
-[LivenessAnalysisPass] Found RoutineCallStatement
-[LivenessAnalysisPass] Found call in statement
-[LivenessAnalysisPass] Found RoutineCallStatement
-[LivenessAnalysisPass] Found call in statement
-[LivenessAnalysisPass] Found RoutineCallStatement
-[LivenessAnalysisPass] Found call in statement
-[LivenessAnalysisPass] Found RoutineCallStatement
-[LivenessAnalysisPass] Found call in statement
-[LivenessAnalysisPass] Found RoutineCallStatement
-[LivenessAnalysisPass] Found call in statement
-[LivenessAnalysisPass] Found RoutineCallStatement
-[LivenessAnalysisPass] Found call in statement
-[LivenessAnalysisPass] Found RoutineCallStatement
-[LivenessAnalysisPass] Found call in statement
-[LivenessAnalysisPass] Found RoutineCallStatement
-[LivenessAnalysisPass] Found call in statement
-[LivenessAnalysisPass] Found RoutineCallStatement
-[LivenessAnalysisPass] Found call in statement
-[LivenessAnalysisPass] Found RoutineCallStatement
-[LivenessAnalysisPass] Found call in statement
-[LivenessAnalysisPass] Found RoutineCallStatement
-[LivenessAnalysisPass] Found call in statement
-[LivenessAnalysisPass] Block START_Entry_0 contains routine call - marked for call interval fix
-[LivenessAnalysisPass] Block START_Entry_0 contains routine call - marked for call interval fix
-[LivenessAnalysisPass] Block START_Entry_0 contains routine call - marked for call interval fix
-[LivenessAnalysisPass] Block START_Entry_0 contains routine call - marked for call interval fix
-[LivenessAnalysisPass] Block START_Entry_0 contains routine call - marked for call interval fix
-[LivenessAnalysisPass] Block START_Entry_0 contains routine call - marked for call interval fix
-[LivenessAnalysisPass] Block START_Entry_0 contains routine call - marked for call interval fix
-[LivenessAnalysisPass] Block START_Entry_0 contains routine call - marked for call interval fix
-[LivenessAnalysisPass] Block START_Entry_0 contains routine call - marked for call interval fix
-[LivenessAnalysisPass] Block START_Entry_0 contains routine call - marked for call interval fix
-[LivenessAnalysisPass] Block START_Entry_0 contains routine call - marked for call interval fix
-[LivenessAnalysisPass] Block START_Entry_0 contains routine call - marked for call interval fix
-[LivenessAnalysisPass] Block START_Entry_0 contains routine call - marked for call interval fix
-[LivenessAnalysisPass] Block START_Entry_0 contains routine call - marked for call interval fix
-[LivenessAnalysisPass] Block START_Entry_0 contains routine call - marked for call interval fix
-[LivenessAnalysisPass] Block START_Entry_0 contains routine call - marked for call interval fix
-[LivenessAnalysisPass] Block START_Entry_0 contains routine call - marked for call interval fix
+[LivenessAnalysisPass] Reverse scan - Statement 0 contains call: YES
+[LivenessAnalysisPass] Reverse scan - Marking found_call=true at statement 0
 [LivenessAnalysisPass] Block START_Entry_0 contains routine call - marked for call interval fix
 [LivenessAnalysisPass] Exiting analyze_block for block: START_Entry_0
 [LivenessAnalysisPass] Exiting compute_use_def_sets()
@@ -899,7 +415,7 @@ Block ID: START_Exit_1
   Out: { }
 Block ID: START_Entry_0
   Use: { }
-  Def: { f1 f2 f3 f4 }
+  Def: { vec_a vec_b }
   In : { }
   Out: { }
 
@@ -917,27 +433,9 @@ Block ID: START_Exit_1 (Exit)
 Block ID: START_Entry_0 (Entry)
   Statements:
     - RoutineCallStmt
-    - RoutineCallStmt
     - AssignmentStmt
-    - RoutineCallStmt
-    - RoutineCallStmt
-    - RoutineCallStmt
-    - RoutineCallStmt
     - AssignmentStmt
-    - RoutineCallStmt
-    - RoutineCallStmt
-    - RoutineCallStmt
-    - RoutineCallStmt
     - AssignmentStmt
-    - RoutineCallStmt
-    - RoutineCallStmt
-    - RoutineCallStmt
-    - RoutineCallStmt
-    - AssignmentStmt
-    - RoutineCallStmt
-    - RoutineCallStmt
-    - RoutineCallStmt
-    - RoutineCallStmt
   Successors: START_Exit_1
   Predecessors: (none)
 ----------------------------------------
@@ -953,174 +451,57 @@ Program:
               Callee:
                 VariableAccess: WRITEF
               Arguments:
-                StringLiteral: "Testing FPAIR bit patterns and debugging
-"
-            RoutineCallStatement:
-              Callee:
-                VariableAccess: WRITEF
-              Arguments:
-                StringLiteral: "Test 1: Simple float values
+                StringLiteral: "Testing Pairwise Operation Liveness Fix
 "
             AssignmentStatement:
               LHS:
-                VariableAccess: f1
+                VariableAccess: vec_a
               RHS:
-            RoutineCallStatement:
-              Callee:
-                VariableAccess: WRITEF
-              Arguments:
-                StringLiteral: "f1 created with (1.0, 2.0)
-"
-            RoutineCallStatement:
-              Callee:
-                VariableAccess: WRITEF
-              Arguments:
-                StringLiteral: "f1 lane 0 = %F
-"
-            RoutineCallStatement:
-              Callee:
-                VariableAccess: WRITEF
-              Arguments:
-                StringLiteral: "f1 lane 1 = %F
-"
-            RoutineCallStatement:
-              Callee:
-                VariableAccess: WRITEF
-              Arguments:
-                StringLiteral: "Test 2: Original test values
-"
             AssignmentStatement:
               LHS:
-                VariableAccess: f2
+                VariableAccess: vec_b
               RHS:
-            RoutineCallStatement:
-              Callee:
-                VariableAccess: WRITEF
-              Arguments:
-                StringLiteral: "f2 created with (10.0, 20.0)
-"
-            RoutineCallStatement:
-              Callee:
-                VariableAccess: WRITEF
-              Arguments:
-                StringLiteral: "f2 lane 0 = %F
-"
-            RoutineCallStatement:
-              Callee:
-                VariableAccess: WRITEF
-              Arguments:
-                StringLiteral: "f2 lane 1 = %F
-"
-            RoutineCallStatement:
-              Callee:
-                VariableAccess: WRITEF
-              Arguments:
-                StringLiteral: "Test 3: Different values
-"
             AssignmentStatement:
               LHS:
-                VariableAccess: f3
+                VectorAccess (!):
+                  VariableAccess: vec_a
+                  NumberLiteral: 0
               RHS:
-            RoutineCallStatement:
-              Callee:
-                VariableAccess: WRITEF
-              Arguments:
-                StringLiteral: "f3 created with (3.14159, 2.71828)
-"
-            RoutineCallStatement:
-              Callee:
-                VariableAccess: WRITEF
-              Arguments:
-                StringLiteral: "f3 lane 0 = %F
-"
-            RoutineCallStatement:
-              Callee:
-                VariableAccess: WRITEF
-              Arguments:
-                StringLiteral: "f3 lane 1 = %F
-"
-            RoutineCallStatement:
-              Callee:
-                VariableAccess: WRITEF
-              Arguments:
-                StringLiteral: "Test 4: Negative values
-"
-            AssignmentStatement:
-              LHS:
-                VariableAccess: f4
-              RHS:
-            RoutineCallStatement:
-              Callee:
-                VariableAccess: WRITEF
-              Arguments:
-                StringLiteral: "f4 created with (-1.0, -2.0)
-"
-            RoutineCallStatement:
-              Callee:
-                VariableAccess: WRITEF
-              Arguments:
-                StringLiteral: "f4 lane 0 = %F
-"
-            RoutineCallStatement:
-              Callee:
-                VariableAccess: WRITEF
-              Arguments:
-                StringLiteral: "f4 lane 1 = %F
-"
-            RoutineCallStatement:
-              Callee:
-                VariableAccess: WRITEF
-              Arguments:
-                StringLiteral: "End of debugging test
-"
 ----------------------------------
 
 Updating register pressure from liveness data...
 
 [INFO] Building Live Intervals for all functions...
 [LiveIntervalPass] Building intervals for function: START
-[LiveIntervalPass] Created 4 intervals for function: START
-  f1: [2-2]
-  f2: [7-7]
-  f3: [12-12]
-  f4: [17-17]
+[LiveIntervalPass] Created 2 intervals for function: START
+  vec_a: [1-3]
+  vec_b: [2-2]
 
 [INFO] Performing Linear Scan Register Allocation for ALL functions...
 [Allocator] Starting partitioned linear scan for function: START
 [Allocator] Available integer registers: 16, float registers: 24
-[Allocator] Function has 18 call sites at: 0 4 8 12 19 26 30 34 41 48 52 56 63 70 74 78 85 92 
-[Allocator] Partitioned: 1 call-crossing, 3 local-only intervals
+[Allocator] Function has 1 call sites at: 0 
+[Allocator] Partitioned: 0 call-crossing, 2 local-only intervals
 [Allocator] Register pools - Callee-saved INT: 9, Caller-saved INT: 4, Reserved scratch INT: 3
 [Allocator] Register pools - Callee-saved FP: 8, Caller-saved FP: 16
 [Allocator] Stage 1: Allocating call-crossing intervals
-[Allocator] Allocating call-crossing f3 [12-12]
-  Assigned callee-saved register X27 to f3
-[ALLOC] Updated allocations for f3: spilled=0, register='X27'
 [Allocator] Stage 2: Allocating local-only intervals
-[Allocator] Allocating local-only f1 [2-2]
-  Assigned register X15 to f1
-[ALLOC] Updated allocations for f1: spilled=0, register='X15'
-[Allocator] Allocating local-only f2 [7-7]
-  Expiring interval for f1, freeing register X15
-  Assigned register X15 to f2
-[ALLOC] Updated allocations for f2: spilled=0, register='X15'
-[Allocator] Allocating local-only f4 [17-17]
-  Expiring interval for f2, freeing register X15
-  Expiring interval for f3, freeing register X27
-  Assigned register X27 to f4
-[ALLOC] Updated allocations for f4: spilled=0, register='X27'
+[Allocator] Allocating local-only vec_a [1-3]
+  Assigned register X15 to vec_a
+[ALLOC] Updated allocations for vec_a: spilled=0, register='X15'
+[Allocator] Allocating local-only vec_b [2-2]
+  Assigned register X14 to vec_b
+[ALLOC] Updated allocations for vec_b: spilled=0, register='X14'
 [Allocator] Partitioned allocation complete for START
 [Allocator] Reserved 3 scratch registers for code generation: X9 X10 X11 
 [Allocator] Final state validation:
-  Active intervals remaining: 1
-  Free integer registers: 12
+  Active intervals remaining: 2
+  Free integer registers: 11
   Free float registers: 24
   ✓ No register conflicts detected
 [Allocator] Results:
-  f1: reg X15 (caller-saved) [local-only]
-  f2: reg X15 (caller-saved) [local-only]
-  f3: reg X27 (callee-saved) [call-crossing]
-  f4: reg X27 (callee-saved) [local-only]
+  vec_a: reg X15 (caller-saved) [local-only]
+  vec_b: reg X14 (caller-saved) [local-only]
 
 [INFO] Synchronizing RegisterManager with LinearScanAllocator decisions...
 
@@ -1129,9 +510,9 @@ Updating register pressure from liveness data...
 Function: START
   Type: int
   Parameters: 0
-  Integer Locals: 8
+  Integer Locals: 4
   Float Locals: 0
-  Runtime Calls: 18
+  Runtime Calls: 1
   Local Function Calls: 0
   Local Routine Calls: 0
   Vector Allocations: no
@@ -1141,7 +522,7 @@ Function: START
 --------------------------------------------
 --------------------------------------------------
 
-[DEBUG] Initialized veneer manager with base address: 0x4430675968
+[DEBUG] Initialized veneer manager with base address: 0x4431773696
 [DEBUG] Starting code generation for program.
 [DEBUG] Step 1: Performing pre-analysis scan for external functions...
 [DEBUG] Found 1 unique external functions:
@@ -1172,75 +553,61 @@ Function: START
 [DEBUG] Generating function-like code for: START
 [DEBUG] Clearing local value tracking for function: START
 [SYNC] Resetting all LinearScanAllocator reservations
-[SYNC] Syncing RegisterManager with LinearScanAllocator for function: START
-[SYNC] Found 4 variable allocations
-[SYNC] Reserved register X15 for variable f1
-[SYNC] Reserved register X15 for variable f2
-[SYNC] Reserved register X27 for variable f3
-[SYNC] Reserved register X27 for variable f4
+[SYNC] Caching live intervals for function: START
+[SYNC] Found 2 variable allocations
+[LIVE] Updating live intervals at instruction point 0
 [DEBUG] Synced RegisterManager with LinearScanAllocator for function: START
 [DEBUG] Using name as-is for lookup: START
 Call Frame Layout for function: START
 [DEBUG] Registering all parameters as locals in CallFrameManager for 'START'.
-[DEBUG] DEBUG: metrics.variable_types size for 'START': 4
-[DEBUG] DEBUG: variable_types['f1'] = FPAIR
-[DEBUG] DEBUG: variable_types['f2'] = FPAIR
-[DEBUG] DEBUG: variable_types['f3'] = FPAIR
-[DEBUG] DEBUG: variable_types['f4'] = FPAIR
+[DEBUG] DEBUG: metrics.variable_types size for 'START': 2
+[DEBUG] DEBUG: variable_types['vec_a'] = POINTER_TO|FPAIRS
+[DEBUG] DEBUG: variable_types['vec_b'] = POINTER_TO|FPAIRS
 [DEBUG] Registering all local variables from ASTAnalyzer metrics for 'START'.
-Added local variable 'f1' of type 32 at offset 16 (size 8)
-[DEBUG] Registered local 'f1' from analyzer metrics.
-Added local variable 'f2' of type 32 at offset 24 (size 8)
-[DEBUG] Registered local 'f2' from analyzer metrics.
-Added local variable 'f3' of type 32 at offset 32 (size 8)
-[DEBUG] Registered local 'f3' from analyzer metrics.
-Added local variable 'f4' of type 32 at offset 40 (size 8)
-[DEBUG] Registered local 'f4' from analyzer metrics.
+Added local variable 'vec_a' of type 1050624 at offset 16 (size 8)
+[DEBUG] Registered local 'vec_a' from analyzer metrics.
+Added local variable 'vec_b' of type 1050624 at offset 24 (size 8)
+[DEBUG] Registered local 'vec_b' from analyzer metrics.
 [DEBUG] Entered new scope. Scope stack size: 1
 [DEBUG] Using pre-computed register allocation for 'START'.
 [DEBUG] No spills needed - all variables fit in registers.
-Added X27 to callee_saved_registers_to_save list.
 [DEBUG] Attempting to generate prologue for 'START'.
---- Call Frame Layout for function: START (Total Size: 80 bytes) ---
+--- Call Frame Layout for function: START (Total Size: 48 bytes) ---
 Offset   | Content                               | Type
 ------------------------------------------------------
 +0       | Old Frame Pointer (x29)     <-- FP (x29) points here
 +8       | Return Address (Caller's PC)
-+16      | Local: f1                             | 
-+24      | Local: f2                             | 
-+32      | Local: f3                             | 
-+40      | Local: f4                             | 
-+48      | Saved Reg: X19                        | UNKNOWN
-+56      | Saved Reg: X27                        | UNKNOWN
-+64      | Saved Reg: X28                        | UNKNOWN
++16      | Local: vec_a                          | POINTER_TO
++24      | Local: vec_b                          | POINTER_TO
++32      | Saved Reg: X19                        | UNKNOWN
++40      | Saved Reg: X28                        | UNKNOWN
 ------------------------------------------------------
-                                     <-- SP (+80 from FP)
+                                     <-- SP (+48 from FP)
 
-[DEBUG LEVEL 5] Emitting instruction: STP X29, X30, [SP, #-80]!
+[DEBUG LEVEL 5] Emitting instruction: STP X29, X30, [SP, #-48]!
+[LIVE] Updating live intervals at instruction point -1
 [DEBUG LEVEL 5] Emitting instruction: MOV X29, SP
-[DEBUG LEVEL 5] Emitting instruction: STR X19, [X29, #48] ; Saved Reg: X19 @ FP+48
-[DEBUG LEVEL 5] Emitting instruction: STR X27, [X29, #56] ; Saved Reg: X27 @ FP+56
-[DEBUG LEVEL 5] Emitting instruction: STR X28, [X29, #64] ; Saved Reg: X28 @ FP+64
+[LIVE] Updating live intervals at instruction point -1
+[DEBUG LEVEL 5] Emitting instruction: STR X19, [X29, #32] ; Saved Reg: X19 @ FP+32
+[LIVE] Updating live intervals at instruction point -1
+[DEBUG LEVEL 5] Emitting instruction: STR X28, [X29, #40] ; Saved Reg: X28 @ FP+40
+[LIVE] Updating live intervals at instruction point -1
 [DEBUG] Mapping incoming parameters to home registers or stack slots as per allocation plan.
 [DEBUG] Registered local variable 'X28' with the allocation system (spilled)
-[DEBUG] Registered local variable 'X27' with the allocation system (spilled)
 [DEBUG] Registered local variable 'X19' with the allocation system (spilled)
 [DEBUG] Emitted JIT address load sequence for global base pointer (X28).
 [DEBUG] Skipping duplicate parameter storage
-[DEBUG] --- Call Frame Layout for function: START (Total Size: 80 bytes) ---
+[DEBUG] --- Call Frame Layout for function: START (Total Size: 48 bytes) ---
 Offset   | Content                               | Type
 ------------------------------------------------------
 +0       | Old Frame Pointer (x29)     <-- FP (x29) points here
 +8       | Return Address (Caller's PC)
-+16      | Local: f1                             | 
-+24      | Local: f2                             | 
-+32      | Local: f3                             | 
-+40      | Local: f4                             | 
-+48      | Saved Reg: X19                        | UNKNOWN
-+56      | Saved Reg: X27                        | UNKNOWN
-+64      | Saved Reg: X28                        | UNKNOWN
++16      | Local: vec_a                          | POINTER_TO
++24      | Local: vec_b                          | POINTER_TO
++32      | Saved Reg: X19                        | UNKNOWN
++40      | Saved Reg: X28                        | UNKNOWN
 ------------------------------------------------------
-                                     <-- SP (+80 from FP)
+                                     <-- SP (+48 from FP)
 
 [DEBUG] --- DEBUG: Available CFGs in the map ---
 [DEBUG]   Available CFG: 'START'
@@ -1251,475 +618,217 @@ Offset   | Content                               | Type
 [DEBUG] Generating code for StringLiteral.
 [DEBUG] Allocated register X9 for the string address.
 [DEBUG LEVEL 5] Emitting instruction: ADRP X9, L_str0
+[LIVE] Updating live intervals at instruction point 0
 [DEBUG LEVEL 5] Emitting instruction: ADD X9, X9, #:lo12:L_str0
+[LIVE] Updating live intervals at instruction point 0
 [DEBUG LEVEL 5] Emitting instruction: ADD X9, X9, #8
-[DEBUG] Emitted ADRP/ADD sequence and offset adjustment for string literal 'Testing FPAIR bit patterns and debugging
+[LIVE] Updating live intervals at instruction point 0
+[DEBUG] Emitted ADRP/ADD sequence and offset adjustment for string literal 'Testing Pairwise Operation Liveness Fix
 '.
 [DEBUG LEVEL 5] Emitting instruction: MOV X0, X9
+[LIVE] Updating live intervals at instruction point 0
 [DEBUG LEVEL 5] Emitting instruction: BL WRITEF_veneer
+[LIVE] Updating live intervals at instruction point 0
 [DEBUG] --- Exiting NewCodeGenerator::visit(RoutineCallStatement& node) ---
-[DEBUG] --- Entering NewCodeGenerator::visit(RoutineCallStatement& node) [ARM64 ABI COMPLIANT] ---
-[DEBUG] Detected a regular function/routine call.
-[DEBUG] Generating code for StringLiteral.
-[DEBUG] Allocated register X9 for the string address.
-[DEBUG LEVEL 5] Emitting instruction: ADRP X9, L_str1
-[DEBUG LEVEL 5] Emitting instruction: ADD X9, X9, #:lo12:L_str1
-[DEBUG LEVEL 5] Emitting instruction: ADD X9, X9, #8
-[DEBUG] Emitted ADRP/ADD sequence and offset adjustment for string literal 'Test 1: Simple float values
-'.
-[DEBUG LEVEL 5] Emitting instruction: MOV X0, X9
-[DEBUG LEVEL 5] Emitting instruction: BL WRITEF_veneer
-[DEBUG] --- Exiting NewCodeGenerator::visit(RoutineCallStatement& node) ---
+[DEBUG] Visiting AssignmentStatement node.
+[DEBUG]   [CSE DEBUG] *** PROCESSING ASSIGNMENT STATEMENT ***
+[DEBUG]   [CSE DEBUG] LHS count: 1, RHS count: 1
+[DEBUG] Visiting FPairsAllocationExpression node.
+[DEBUG] Visiting NumberLiteral node.
+[DEBUG LEVEL 5] Emitting instruction: MOVZ X9, #4
+[LIVE] Updating live intervals at instruction point 1
+[LIVE] Register X15 active for variable vec_a [1-3]
+[DEBUG] Loaded integer literal 4 into X9 using MOVZ.
+[DEBUG LEVEL 5] Emitting instruction: MOV X20, X9
+[LIVE] Updating live intervals at instruction point 1
+[LIVE] Register X15 active for variable vec_a [1-3]
+[LIVE] Freed register X20 (no active variables)
+[DEBUG LEVEL 5] Emitting instruction: LSL X20, X9, #1
+[LIVE] Updating live intervals at instruction point 1
+[LIVE] Register X15 active for variable vec_a [1-3]
+[LIVE] Freed register X20 (no active variables)
+[DEBUG LEVEL 5] Emitting instruction: MOV X0, X20
+[LIVE] Updating live intervals at instruction point 1
+[LIVE] Register X15 active for variable vec_a [1-3]
+[DEBUG LEVEL 5] Emitting instruction: BL FGETVEC
+[LIVE] Updating live intervals at instruction point 1
+[LIVE] Register X15 active for variable vec_a [1-3]
+[DEBUG LEVEL 5] Emitting instruction: MOV X20, X0
+[LIVE] Updating live intervals at instruction point 1
+[LIVE] Register X15 active for variable vec_a [1-3]
+[LIVE] Freed register X20 (no active variables)
+[DEBUG LEVEL 5] Emitting instruction: SUB X9, X20, #8
+[LIVE] Updating live intervals at instruction point 1
+[LIVE] Register X15 active for variable vec_a [1-3]
+[DEBUG LEVEL 5] Emitting instruction: STR X20, [X9, #0]
+[LIVE] Updating live intervals at instruction point 1
+[LIVE] Register X15 active for variable vec_a [1-3]
+[DEBUG] Finished visiting FPairsAllocationExpression node. Result in X20
+[DEBUG] Handling assignment for variable: vec_a
+[DEBUG] store_variable_register for 'vec_a' from register 'X20'
+[DEBUG]   [ALLOCATOR HIT] Variable 'vec_a' lives in X15. Emitting MOV.
+[DEBUG LEVEL 5] Emitting instruction: MOV X15, X20
+[LIVE] Updating live intervals at instruction point 1
+[LIVE] Register X15 active for variable vec_a [1-3]
+[DEBUG]   Updating home register X15 for variable 'vec_a' after store.
+[DEBUG LEVEL 5] Emitting instruction: MOV X15, X20
+[DEBUG LEVEL 3] Skipping duplicate MOV instruction: MOV X15, X20
+[DEBUG] Finished visiting AssignmentStatement node.
+[DEBUG] Visiting AssignmentStatement node.
+[DEBUG]   [CSE DEBUG] *** PROCESSING ASSIGNMENT STATEMENT ***
+[DEBUG]   [CSE DEBUG] LHS count: 1, RHS count: 1
+[DEBUG] Visiting FPairsAllocationExpression node.
+[DEBUG] Visiting NumberLiteral node.
+[DEBUG LEVEL 5] Emitting instruction: MOVZ X9, #4
+[LIVE] Updating live intervals at instruction point 2
+[LIVE] Register X15 active for variable vec_a [1-3]
+[LIVE] Register X14 active for variable vec_b [2-2]
+[DEBUG] Loaded integer literal 4 into X9 using MOVZ.
+[DEBUG LEVEL 5] Emitting instruction: MOV X20, X9
+[LIVE] Updating live intervals at instruction point 2
+[LIVE] Register X15 active for variable vec_a [1-3]
+[LIVE] Register X14 active for variable vec_b [2-2]
+[LIVE] Freed register X20 (no active variables)
+[DEBUG LEVEL 5] Emitting instruction: LSL X20, X9, #1
+[LIVE] Updating live intervals at instruction point 2
+[LIVE] Register X15 active for variable vec_a [1-3]
+[LIVE] Register X14 active for variable vec_b [2-2]
+[LIVE] Freed register X20 (no active variables)
+[DEBUG LEVEL 5] Emitting instruction: MOV X0, X20
+[LIVE] Updating live intervals at instruction point 2
+[LIVE] Register X15 active for variable vec_a [1-3]
+[LIVE] Register X14 active for variable vec_b [2-2]
+[DEBUG LEVEL 5] Emitting instruction: BL FGETVEC
+[LIVE] Updating live intervals at instruction point 2
+[LIVE] Register X15 active for variable vec_a [1-3]
+[LIVE] Register X14 active for variable vec_b [2-2]
+[DEBUG LEVEL 5] Emitting instruction: MOV X20, X0
+[LIVE] Updating live intervals at instruction point 2
+[LIVE] Register X15 active for variable vec_a [1-3]
+[LIVE] Register X14 active for variable vec_b [2-2]
+[LIVE] Freed register X20 (no active variables)
+[DEBUG LEVEL 5] Emitting instruction: SUB X9, X20, #8
+[LIVE] Updating live intervals at instruction point 2
+[LIVE] Register X15 active for variable vec_a [1-3]
+[LIVE] Register X14 active for variable vec_b [2-2]
+[DEBUG LEVEL 5] Emitting instruction: STR X20, [X9, #0]
+[LIVE] Updating live intervals at instruction point 2
+[LIVE] Register X15 active for variable vec_a [1-3]
+[LIVE] Register X14 active for variable vec_b [2-2]
+[DEBUG] Finished visiting FPairsAllocationExpression node. Result in X20
+[DEBUG] Handling assignment for variable: vec_b
+[DEBUG] store_variable_register for 'vec_b' from register 'X20'
+[DEBUG]   [ALLOCATOR HIT] Variable 'vec_b' lives in X14. Emitting MOV.
+[DEBUG LEVEL 5] Emitting instruction: MOV X14, X20
+[LIVE] Updating live intervals at instruction point 2
+[LIVE] Register X15 active for variable vec_a [1-3]
+[LIVE] Register X14 active for variable vec_b [2-2]
+[DEBUG]   Updating home register X14 for variable 'vec_b' after store.
+[DEBUG LEVEL 5] Emitting instruction: MOV X14, X20
+[DEBUG LEVEL 3] Skipping duplicate MOV instruction: MOV X14, X20
+[DEBUG] Finished visiting AssignmentStatement node.
 [DEBUG] Visiting AssignmentStatement node.
 [DEBUG]   [CSE DEBUG] *** PROCESSING ASSIGNMENT STATEMENT ***
 [DEBUG]   [CSE DEBUG] LHS count: 1, RHS count: 1
 [DEBUG] Generating code for FPairExpression using ARM64 bit manipulation
 [DEBUG LEVEL 5] Emitting instruction: MOVZ X9, #0
+[LIVE] Updating live intervals at instruction point 3
+[LIVE] Register X15 active for variable vec_a [1-3]
+[LIVE] Variable vec_b expired from register X14
+[LIVE] Freed register X14 (no active variables)
 [DEBUG] Visiting NumberLiteral node.
 [DEBUG LEVEL 5] Emitting instruction: ADRP X11, L_float0
+[LIVE] Updating live intervals at instruction point 3
+[LIVE] Register X15 active for variable vec_a [1-3]
+[LIVE] Variable vec_b expired from register X14
 [DEBUG LEVEL 5] Emitting instruction: ADD X11, X11, #:lo12:L_float0
+[LIVE] Updating live intervals at instruction point 3
+[LIVE] Register X15 active for variable vec_a [1-3]
+[LIVE] Variable vec_b expired from register X14
 [DEBUG LEVEL 5] Emitting instruction: LDR D0, [X11, #0]
-[DEBUG] Loaded float literal 1.000000 into D0.
+[LIVE] Updating live intervals at instruction point 3
+[LIVE] Register X15 active for variable vec_a [1-3]
+[LIVE] Variable vec_b expired from register X14
+[DEBUG] Loaded float literal 2.000000 into D0.
 [DEBUG] FCVT registers: s_reg=S1, first_reg=D0
 [DEBUG LEVEL 5] Emitting instruction: FCVT S1, D0 ;encoder.
+[LIVE] Updating live intervals at instruction point 3
+[LIVE] Register X15 active for variable vec_a [1-3]
+[LIVE] Variable vec_b expired from register X14
 [DEBUG LEVEL 5] Emitting instruction: FMOV W11, S1
+[LIVE] Updating live intervals at instruction point 3
+[LIVE] Register X15 active for variable vec_a [1-3]
+[LIVE] Variable vec_b expired from register X14
 [DEBUG LEVEL 5] Emitting instruction: BFXIL X9, X11, #0, #32
+[LIVE] Updating live intervals at instruction point 3
+[LIVE] Register X15 active for variable vec_a [1-3]
+[LIVE] Variable vec_b expired from register X14
 [DEBUG] Converted double to float and inserted into bits 0-31 using BFXIL
 [DEBUG] Visiting NumberLiteral node.
 [DEBUG LEVEL 5] Emitting instruction: ADRP X12, L_float1
+[LIVE] Updating live intervals at instruction point 3
+[LIVE] Register X15 active for variable vec_a [1-3]
+[LIVE] Variable vec_b expired from register X14
 [DEBUG LEVEL 5] Emitting instruction: ADD X12, X12, #:lo12:L_float1
+[LIVE] Updating live intervals at instruction point 3
+[LIVE] Register X15 active for variable vec_a [1-3]
+[LIVE] Variable vec_b expired from register X14
 [DEBUG LEVEL 5] Emitting instruction: LDR D0, [X12, #0]
-[DEBUG] Loaded float literal 2.000000 into D0.
+[LIVE] Updating live intervals at instruction point 3
+[LIVE] Register X15 active for variable vec_a [1-3]
+[LIVE] Variable vec_b expired from register X14
+[DEBUG] Loaded float literal 3.000000 into D0.
 [DEBUG LEVEL 5] Emitting instruction: FCVT S1, D0 ;encoder.
+[LIVE] Updating live intervals at instruction point 3
+[LIVE] Register X15 active for variable vec_a [1-3]
+[LIVE] Variable vec_b expired from register X14
 [DEBUG LEVEL 5] Emitting instruction: FMOV W12, S1
+[LIVE] Updating live intervals at instruction point 3
+[LIVE] Register X15 active for variable vec_a [1-3]
+[LIVE] Variable vec_b expired from register X14
 [DEBUG LEVEL 5] Emitting instruction: BFI X9, X12, #32, #32
+[LIVE] Updating live intervals at instruction point 3
+[LIVE] Register X15 active for variable vec_a [1-3]
+[LIVE] Variable vec_b expired from register X14
 [DEBUG] Converted double to float and inserted into bits 32-63 using BFI
 [DEBUG] FPairExpression code generation complete - used ARM64 bit manipulation
-[DEBUG] Handling assignment for variable: f1
-[DEBUG] store_variable_register for 'f1' from register 'X9'
-[DEBUG]   [ALLOCATOR HIT] Variable 'f1' lives in X15. Emitting MOV.
-[DEBUG LEVEL 5] Emitting instruction: MOV X15, X9
-[DEBUG]   Updating home register X15 for variable 'f1' after store.
-[DEBUG LEVEL 5] Emitting instruction: MOV X15, X9
-[DEBUG LEVEL 3] Skipping duplicate MOV instruction: MOV X15, X9
-[DEBUG] Finished visiting AssignmentStatement node.
-[DEBUG] --- Entering NewCodeGenerator::visit(RoutineCallStatement& node) [ARM64 ABI COMPLIANT] ---
-[DEBUG] Detected a regular function/routine call.
-[DEBUG] Generating code for StringLiteral.
-[DEBUG] Allocated register X9 for the string address.
-[DEBUG LEVEL 5] Emitting instruction: ADRP X9, L_str2
-[DEBUG LEVEL 5] Emitting instruction: ADD X9, X9, #:lo12:L_str2
-[DEBUG LEVEL 5] Emitting instruction: ADD X9, X9, #8
-[DEBUG] Emitted ADRP/ADD sequence and offset adjustment for string literal 'f1 created with (1.0, 2.0)
-'.
-[DEBUG LEVEL 5] Emitting instruction: MOV X0, X9
-[DEBUG LEVEL 5] Emitting instruction: BL WRITEF_veneer
-[DEBUG] --- Exiting NewCodeGenerator::visit(RoutineCallStatement& node) ---
-[DEBUG] --- Entering NewCodeGenerator::visit(RoutineCallStatement& node) [ARM64 ABI COMPLIANT] ---
-[DEBUG] Detected a regular function/routine call.
-[DEBUG] Generating code for StringLiteral.
-[DEBUG] Allocated register X9 for the string address.
-[DEBUG LEVEL 5] Emitting instruction: ADRP X9, L_str3
-[DEBUG LEVEL 5] Emitting instruction: ADD X9, X9, #:lo12:L_str3
-[DEBUG LEVEL 5] Emitting instruction: ADD X9, X9, #8
-[DEBUG] Emitted ADRP/ADD sequence and offset adjustment for string literal 'f1 lane 0 = %F
-'.
-[DEBUG LEVEL 5] Emitting instruction: MOV X0, X9
-[CODE GEN] Generating code for LaneAccessExpression
-[DEBUG] Visiting VariableAccess node for 'f1'.
-[DEBUG]   [DEBUG] About to call get_variable_register for 'f1' in function 'START'
-[DEBUG] get_variable_register for: 'f1' in function 'START'
+[DEBUG] Visiting VariableAccess node for 'vec_a'.
+[DEBUG]   [DEBUG] About to call get_variable_register for 'vec_a' in function 'START'
+[DEBUG] get_variable_register for: 'vec_a' in function 'START'
 [DEBUG]   [DEBUG] Current function allocations exist: YES
-[DEBUG]   ✅ REGISTER ALLOCATED: Variable 'f1' lives in register X15
-[DEBUG] Variable 'f1' value loaded into X15
+[DEBUG]   ✅ REGISTER ALLOCATED: Variable 'vec_a' lives in register X15
+[DEBUG] Variable 'vec_a' value loaded into X15
 [DEBUG]   [DEBUG] get_variable_register returned: 'X15'
-[DEBUG LEVEL 5] Emitting instruction: fmov D1, X15
-[DEBUG LEVEL 5] Emitting instruction: UBFX X20, X15, #0, #32
-[DEBUG LEVEL 5] Emitting instruction: fmov S2, W20
-[DEBUG LEVEL 5] Emitting instruction: fcvt D0, S2
-[CODE GEN] Lane access expression result in register: D0 (element type: FLOAT)
-[DEBUG LEVEL 5] Emitting instruction: FMOV X9, D0
-[DEBUG LEVEL 5] Emitting instruction: MOV X1, X9
-[DEBUG LEVEL 5] Emitting instruction: BL WRITEF1_veneer
-[DEBUG] --- Exiting NewCodeGenerator::visit(RoutineCallStatement& node) ---
-[DEBUG] --- Entering NewCodeGenerator::visit(RoutineCallStatement& node) [ARM64 ABI COMPLIANT] ---
-[DEBUG] Detected a regular function/routine call.
-[DEBUG] Generating code for StringLiteral.
-[DEBUG] Allocated register X9 for the string address.
-[DEBUG LEVEL 5] Emitting instruction: ADRP X9, L_str4
-[DEBUG LEVEL 5] Emitting instruction: ADD X9, X9, #:lo12:L_str4
-[DEBUG LEVEL 5] Emitting instruction: ADD X9, X9, #8
-[DEBUG] Emitted ADRP/ADD sequence and offset adjustment for string literal 'f1 lane 1 = %F
-'.
-[DEBUG LEVEL 5] Emitting instruction: MOV X0, X9
-[CODE GEN] Generating code for LaneAccessExpression
-[DEBUG] Visiting VariableAccess node for 'f1'.
-[DEBUG]   [DEBUG] About to call get_variable_register for 'f1' in function 'START'
-[DEBUG] get_variable_register for: 'f1' in function 'START'
-[DEBUG]   [DEBUG] Current function allocations exist: YES
-[DEBUG]   ✅ REGISTER ALLOCATED: Variable 'f1' lives in register X15
-[DEBUG] Variable 'f1' value loaded into X15
-[DEBUG]   [DEBUG] get_variable_register returned: 'X15'
-[DEBUG LEVEL 5] Emitting instruction: fmov D1, X15
-[DEBUG LEVEL 5] Emitting instruction: UBFX X20, X15, #32, #32
-[DEBUG LEVEL 5] Emitting instruction: fmov S2, W20
-[DEBUG LEVEL 5] Emitting instruction: fcvt D0, S2
-[CODE GEN] Lane access expression result in register: D0 (element type: FLOAT)
-[DEBUG LEVEL 5] Emitting instruction: FMOV X9, D0
-[DEBUG LEVEL 5] Emitting instruction: MOV X1, X9
-[DEBUG LEVEL 5] Emitting instruction: BL WRITEF1_veneer
-[DEBUG] --- Exiting NewCodeGenerator::visit(RoutineCallStatement& node) ---
-[DEBUG] --- Entering NewCodeGenerator::visit(RoutineCallStatement& node) [ARM64 ABI COMPLIANT] ---
-[DEBUG] Detected a regular function/routine call.
-[DEBUG] Generating code for StringLiteral.
-[DEBUG] Allocated register X9 for the string address.
-[DEBUG LEVEL 5] Emitting instruction: ADRP X9, L_str5
-[DEBUG LEVEL 5] Emitting instruction: ADD X9, X9, #:lo12:L_str5
-[DEBUG LEVEL 5] Emitting instruction: ADD X9, X9, #8
-[DEBUG] Emitted ADRP/ADD sequence and offset adjustment for string literal 'Test 2: Original test values
-'.
-[DEBUG LEVEL 5] Emitting instruction: MOV X0, X9
-[DEBUG LEVEL 5] Emitting instruction: BL WRITEF_veneer
-[DEBUG] --- Exiting NewCodeGenerator::visit(RoutineCallStatement& node) ---
-[DEBUG] Visiting AssignmentStatement node.
-[DEBUG]   [CSE DEBUG] *** PROCESSING ASSIGNMENT STATEMENT ***
-[DEBUG]   [CSE DEBUG] LHS count: 1, RHS count: 1
-[DEBUG] Generating code for FPairExpression using ARM64 bit manipulation
-[DEBUG LEVEL 5] Emitting instruction: MOVZ X9, #0
 [DEBUG] Visiting NumberLiteral node.
-[DEBUG LEVEL 5] Emitting instruction: ADRP X11, L_float2
-[DEBUG LEVEL 5] Emitting instruction: ADD X11, X11, #:lo12:L_float2
-[DEBUG LEVEL 5] Emitting instruction: LDR D0, [X11, #0]
-[DEBUG] Loaded float literal 10.000000 into D0.
-[DEBUG] FCVT registers: s_reg=S1, first_reg=D0
-[DEBUG LEVEL 5] Emitting instruction: FCVT S1, D0 ;encoder.
-[DEBUG LEVEL 5] Emitting instruction: FMOV W11, S1
-[DEBUG LEVEL 5] Emitting instruction: BFXIL X9, X11, #0, #32
-[DEBUG] Converted double to float and inserted into bits 0-31 using BFXIL
-[DEBUG] Visiting NumberLiteral node.
-[DEBUG LEVEL 5] Emitting instruction: ADRP X12, L_float3
-[DEBUG LEVEL 5] Emitting instruction: ADD X12, X12, #:lo12:L_float3
-[DEBUG LEVEL 5] Emitting instruction: LDR D0, [X12, #0]
-[DEBUG] Loaded float literal 20.000000 into D0.
-[DEBUG LEVEL 5] Emitting instruction: FCVT S1, D0 ;encoder.
-[DEBUG LEVEL 5] Emitting instruction: FMOV W12, S1
-[DEBUG LEVEL 5] Emitting instruction: BFI X9, X12, #32, #32
-[DEBUG] Converted double to float and inserted into bits 32-63 using BFI
-[DEBUG] FPairExpression code generation complete - used ARM64 bit manipulation
-[DEBUG] Handling assignment for variable: f2
-[DEBUG] store_variable_register for 'f2' from register 'X9'
-[DEBUG]   [ALLOCATOR HIT] Variable 'f2' lives in X15. Emitting MOV.
-[DEBUG LEVEL 5] Emitting instruction: MOV X15, X9
-[DEBUG]   Updating home register X15 for variable 'f2' after store.
-[DEBUG LEVEL 5] Emitting instruction: MOV X15, X9
-[DEBUG LEVEL 3] Skipping duplicate MOV instruction: MOV X15, X9
+[DEBUG LEVEL 5] Emitting instruction: MOVZ X12, #0
+[LIVE] Updating live intervals at instruction point 3
+[LIVE] Register X15 active for variable vec_a [1-3]
+[LIVE] Variable vec_b expired from register X14
+[DEBUG] Loaded integer literal 0 into X12 using MOVZ.
+[DEBUG LEVEL 5] Emitting instruction: LSL X13, X12, #3
+[LIVE] Updating live intervals at instruction point 3
+[LIVE] Register X15 active for variable vec_a [1-3]
+[LIVE] Variable vec_b expired from register X14
+[DEBUG] Calculated byte offset for vector assignment.
+[DEBUG LEVEL 5] Emitting instruction: ADD X14, X15, X13
+[LIVE] Updating live intervals at instruction point 3
+[LIVE] Register X15 active for variable vec_a [1-3]
+[LIVE] Variable vec_b expired from register X14
+[DEBUG] Calculated effective address for vector assignment.
+[DEBUG LEVEL 5] Emitting instruction: STR X9, [X14, #0]
+[LIVE] Updating live intervals at instruction point 3
+[LIVE] Register X15 active for variable vec_a [1-3]
+[LIVE] Variable vec_b expired from register X14
+[DEBUG] Stored value to vector element.
 [DEBUG] Finished visiting AssignmentStatement node.
-[DEBUG] --- Entering NewCodeGenerator::visit(RoutineCallStatement& node) [ARM64 ABI COMPLIANT] ---
-[DEBUG] Detected a regular function/routine call.
-[DEBUG] Generating code for StringLiteral.
-[DEBUG] Allocated register X9 for the string address.
-[DEBUG LEVEL 5] Emitting instruction: ADRP X9, L_str6
-[DEBUG LEVEL 5] Emitting instruction: ADD X9, X9, #:lo12:L_str6
-[DEBUG LEVEL 5] Emitting instruction: ADD X9, X9, #8
-[DEBUG] Emitted ADRP/ADD sequence and offset adjustment for string literal 'f2 created with (10.0, 20.0)
-'.
-[DEBUG LEVEL 5] Emitting instruction: MOV X0, X9
-[DEBUG LEVEL 5] Emitting instruction: BL WRITEF_veneer
-[DEBUG] --- Exiting NewCodeGenerator::visit(RoutineCallStatement& node) ---
-[DEBUG] --- Entering NewCodeGenerator::visit(RoutineCallStatement& node) [ARM64 ABI COMPLIANT] ---
-[DEBUG] Detected a regular function/routine call.
-[DEBUG] Generating code for StringLiteral.
-[DEBUG] Allocated register X9 for the string address.
-[DEBUG LEVEL 5] Emitting instruction: ADRP X9, L_str7
-[DEBUG LEVEL 5] Emitting instruction: ADD X9, X9, #:lo12:L_str7
-[DEBUG LEVEL 5] Emitting instruction: ADD X9, X9, #8
-[DEBUG] Emitted ADRP/ADD sequence and offset adjustment for string literal 'f2 lane 0 = %F
-'.
-[DEBUG LEVEL 5] Emitting instruction: MOV X0, X9
-[CODE GEN] Generating code for LaneAccessExpression
-[DEBUG] Visiting VariableAccess node for 'f2'.
-[DEBUG]   [DEBUG] About to call get_variable_register for 'f2' in function 'START'
-[DEBUG] get_variable_register for: 'f2' in function 'START'
-[DEBUG]   [DEBUG] Current function allocations exist: YES
-[DEBUG]   ✅ REGISTER ALLOCATED: Variable 'f2' lives in register X15
-[DEBUG] Variable 'f2' value loaded into X15
-[DEBUG]   [DEBUG] get_variable_register returned: 'X15'
-[DEBUG LEVEL 5] Emitting instruction: fmov D1, X15
-[DEBUG LEVEL 5] Emitting instruction: UBFX X20, X15, #0, #32
-[DEBUG LEVEL 5] Emitting instruction: fmov S2, W20
-[DEBUG LEVEL 5] Emitting instruction: fcvt D0, S2
-[CODE GEN] Lane access expression result in register: D0 (element type: FLOAT)
-[DEBUG LEVEL 5] Emitting instruction: FMOV X9, D0
-[DEBUG LEVEL 5] Emitting instruction: MOV X1, X9
-[DEBUG LEVEL 5] Emitting instruction: BL WRITEF1_veneer
-[DEBUG] --- Exiting NewCodeGenerator::visit(RoutineCallStatement& node) ---
-[DEBUG] --- Entering NewCodeGenerator::visit(RoutineCallStatement& node) [ARM64 ABI COMPLIANT] ---
-[DEBUG] Detected a regular function/routine call.
-[DEBUG] Generating code for StringLiteral.
-[DEBUG] Allocated register X9 for the string address.
-[DEBUG LEVEL 5] Emitting instruction: ADRP X9, L_str8
-[DEBUG LEVEL 5] Emitting instruction: ADD X9, X9, #:lo12:L_str8
-[DEBUG LEVEL 5] Emitting instruction: ADD X9, X9, #8
-[DEBUG] Emitted ADRP/ADD sequence and offset adjustment for string literal 'f2 lane 1 = %F
-'.
-[DEBUG LEVEL 5] Emitting instruction: MOV X0, X9
-[CODE GEN] Generating code for LaneAccessExpression
-[DEBUG] Visiting VariableAccess node for 'f2'.
-[DEBUG]   [DEBUG] About to call get_variable_register for 'f2' in function 'START'
-[DEBUG] get_variable_register for: 'f2' in function 'START'
-[DEBUG]   [DEBUG] Current function allocations exist: YES
-[DEBUG]   ✅ REGISTER ALLOCATED: Variable 'f2' lives in register X15
-[DEBUG] Variable 'f2' value loaded into X15
-[DEBUG]   [DEBUG] get_variable_register returned: 'X15'
-[DEBUG LEVEL 5] Emitting instruction: fmov D1, X15
-[DEBUG LEVEL 5] Emitting instruction: UBFX X20, X15, #32, #32
-[DEBUG LEVEL 5] Emitting instruction: fmov S2, W20
-[DEBUG LEVEL 5] Emitting instruction: fcvt D0, S2
-[CODE GEN] Lane access expression result in register: D0 (element type: FLOAT)
-[DEBUG LEVEL 5] Emitting instruction: FMOV X9, D0
-[DEBUG LEVEL 5] Emitting instruction: MOV X1, X9
-[DEBUG LEVEL 5] Emitting instruction: BL WRITEF1_veneer
-[DEBUG] --- Exiting NewCodeGenerator::visit(RoutineCallStatement& node) ---
-[DEBUG] --- Entering NewCodeGenerator::visit(RoutineCallStatement& node) [ARM64 ABI COMPLIANT] ---
-[DEBUG] Detected a regular function/routine call.
-[DEBUG] Generating code for StringLiteral.
-[DEBUG] Allocated register X9 for the string address.
-[DEBUG LEVEL 5] Emitting instruction: ADRP X9, L_str9
-[DEBUG LEVEL 5] Emitting instruction: ADD X9, X9, #:lo12:L_str9
-[DEBUG LEVEL 5] Emitting instruction: ADD X9, X9, #8
-[DEBUG] Emitted ADRP/ADD sequence and offset adjustment for string literal 'Test 3: Different values
-'.
-[DEBUG LEVEL 5] Emitting instruction: MOV X0, X9
-[DEBUG LEVEL 5] Emitting instruction: BL WRITEF_veneer
-[DEBUG] --- Exiting NewCodeGenerator::visit(RoutineCallStatement& node) ---
-[DEBUG] Visiting AssignmentStatement node.
-[DEBUG]   [CSE DEBUG] *** PROCESSING ASSIGNMENT STATEMENT ***
-[DEBUG]   [CSE DEBUG] LHS count: 1, RHS count: 1
-[DEBUG] Generating code for FPairExpression using ARM64 bit manipulation
-[DEBUG LEVEL 5] Emitting instruction: MOVZ X9, #0
-[DEBUG] Visiting NumberLiteral node.
-[DEBUG LEVEL 5] Emitting instruction: ADRP X11, L_float4
-[DEBUG LEVEL 5] Emitting instruction: ADD X11, X11, #:lo12:L_float4
-[DEBUG LEVEL 5] Emitting instruction: LDR D0, [X11, #0]
-[DEBUG] Loaded float literal 3.141590 into D0.
-[DEBUG] FCVT registers: s_reg=S1, first_reg=D0
-[DEBUG LEVEL 5] Emitting instruction: FCVT S1, D0 ;encoder.
-[DEBUG LEVEL 5] Emitting instruction: FMOV W11, S1
-[DEBUG LEVEL 5] Emitting instruction: BFXIL X9, X11, #0, #32
-[DEBUG] Converted double to float and inserted into bits 0-31 using BFXIL
-[DEBUG] Visiting NumberLiteral node.
-[DEBUG LEVEL 5] Emitting instruction: ADRP X12, L_float5
-[DEBUG LEVEL 5] Emitting instruction: ADD X12, X12, #:lo12:L_float5
-[DEBUG LEVEL 5] Emitting instruction: LDR D0, [X12, #0]
-[DEBUG] Loaded float literal 2.718280 into D0.
-[DEBUG LEVEL 5] Emitting instruction: FCVT S1, D0 ;encoder.
-[DEBUG LEVEL 5] Emitting instruction: FMOV W12, S1
-[DEBUG LEVEL 5] Emitting instruction: BFI X9, X12, #32, #32
-[DEBUG] Converted double to float and inserted into bits 32-63 using BFI
-[DEBUG] FPairExpression code generation complete - used ARM64 bit manipulation
-[DEBUG] Handling assignment for variable: f3
-[DEBUG] store_variable_register for 'f3' from register 'X9'
-[DEBUG]   [ALLOCATOR HIT] Variable 'f3' lives in X27. Emitting MOV.
-[DEBUG LEVEL 5] Emitting instruction: MOV X27, X9
-[DEBUG]   Updating home register X27 for variable 'f3' after store.
-[DEBUG LEVEL 5] Emitting instruction: MOV X27, X9
-[DEBUG LEVEL 3] Skipping duplicate MOV instruction: MOV X27, X9
-[DEBUG] Finished visiting AssignmentStatement node.
-[DEBUG] --- Entering NewCodeGenerator::visit(RoutineCallStatement& node) [ARM64 ABI COMPLIANT] ---
-[DEBUG] Detected a regular function/routine call.
-[DEBUG] Generating code for StringLiteral.
-[DEBUG] Allocated register X9 for the string address.
-[DEBUG LEVEL 5] Emitting instruction: ADRP X9, L_str10
-[DEBUG LEVEL 5] Emitting instruction: ADD X9, X9, #:lo12:L_str10
-[DEBUG LEVEL 5] Emitting instruction: ADD X9, X9, #8
-[DEBUG] Emitted ADRP/ADD sequence and offset adjustment for string literal 'f3 created with (3.14159, 2.71828)
-'.
-[DEBUG LEVEL 5] Emitting instruction: MOV X0, X9
-[DEBUG LEVEL 5] Emitting instruction: BL WRITEF_veneer
-[DEBUG] --- Exiting NewCodeGenerator::visit(RoutineCallStatement& node) ---
-[DEBUG] --- Entering NewCodeGenerator::visit(RoutineCallStatement& node) [ARM64 ABI COMPLIANT] ---
-[DEBUG] Detected a regular function/routine call.
-[DEBUG] Generating code for StringLiteral.
-[DEBUG] Allocated register X9 for the string address.
-[DEBUG LEVEL 5] Emitting instruction: ADRP X9, L_str11
-[DEBUG LEVEL 5] Emitting instruction: ADD X9, X9, #:lo12:L_str11
-[DEBUG LEVEL 5] Emitting instruction: ADD X9, X9, #8
-[DEBUG] Emitted ADRP/ADD sequence and offset adjustment for string literal 'f3 lane 0 = %F
-'.
-[DEBUG LEVEL 5] Emitting instruction: MOV X0, X9
-[CODE GEN] Generating code for LaneAccessExpression
-[DEBUG] Visiting VariableAccess node for 'f3'.
-[DEBUG]   [DEBUG] About to call get_variable_register for 'f3' in function 'START'
-[DEBUG] get_variable_register for: 'f3' in function 'START'
-[DEBUG]   [DEBUG] Current function allocations exist: YES
-[DEBUG]   ✅ REGISTER ALLOCATED: Variable 'f3' lives in register X27
-[DEBUG] Variable 'f3' value loaded into X27
-[DEBUG]   [DEBUG] get_variable_register returned: 'X27'
-[DEBUG LEVEL 5] Emitting instruction: fmov D1, X27
-[DEBUG LEVEL 5] Emitting instruction: UBFX X20, X27, #0, #32
-[DEBUG LEVEL 5] Emitting instruction: fmov S2, W20
-[DEBUG LEVEL 5] Emitting instruction: fcvt D0, S2
-[CODE GEN] Lane access expression result in register: D0 (element type: FLOAT)
-[DEBUG LEVEL 5] Emitting instruction: FMOV X9, D0
-[DEBUG LEVEL 5] Emitting instruction: MOV X1, X9
-[DEBUG LEVEL 5] Emitting instruction: BL WRITEF1_veneer
-[DEBUG] --- Exiting NewCodeGenerator::visit(RoutineCallStatement& node) ---
-[DEBUG] --- Entering NewCodeGenerator::visit(RoutineCallStatement& node) [ARM64 ABI COMPLIANT] ---
-[DEBUG] Detected a regular function/routine call.
-[DEBUG] Generating code for StringLiteral.
-[DEBUG] Allocated register X9 for the string address.
-[DEBUG LEVEL 5] Emitting instruction: ADRP X9, L_str12
-[DEBUG LEVEL 5] Emitting instruction: ADD X9, X9, #:lo12:L_str12
-[DEBUG LEVEL 5] Emitting instruction: ADD X9, X9, #8
-[DEBUG] Emitted ADRP/ADD sequence and offset adjustment for string literal 'f3 lane 1 = %F
-'.
-[DEBUG LEVEL 5] Emitting instruction: MOV X0, X9
-[CODE GEN] Generating code for LaneAccessExpression
-[DEBUG] Visiting VariableAccess node for 'f3'.
-[DEBUG]   [DEBUG] About to call get_variable_register for 'f3' in function 'START'
-[DEBUG] get_variable_register for: 'f3' in function 'START'
-[DEBUG]   [DEBUG] Current function allocations exist: YES
-[DEBUG]   ✅ REGISTER ALLOCATED: Variable 'f3' lives in register X27
-[DEBUG] Variable 'f3' value loaded into X27
-[DEBUG]   [DEBUG] get_variable_register returned: 'X27'
-[DEBUG LEVEL 5] Emitting instruction: fmov D1, X27
-[DEBUG LEVEL 5] Emitting instruction: UBFX X20, X27, #32, #32
-[DEBUG LEVEL 5] Emitting instruction: fmov S2, W20
-[DEBUG LEVEL 5] Emitting instruction: fcvt D0, S2
-[CODE GEN] Lane access expression result in register: D0 (element type: FLOAT)
-[DEBUG LEVEL 5] Emitting instruction: FMOV X9, D0
-[DEBUG LEVEL 5] Emitting instruction: MOV X1, X9
-[DEBUG LEVEL 5] Emitting instruction: BL WRITEF1_veneer
-[DEBUG] --- Exiting NewCodeGenerator::visit(RoutineCallStatement& node) ---
-[DEBUG] --- Entering NewCodeGenerator::visit(RoutineCallStatement& node) [ARM64 ABI COMPLIANT] ---
-[DEBUG] Detected a regular function/routine call.
-[DEBUG] Generating code for StringLiteral.
-[DEBUG] Allocated register X9 for the string address.
-[DEBUG LEVEL 5] Emitting instruction: ADRP X9, L_str13
-[DEBUG LEVEL 5] Emitting instruction: ADD X9, X9, #:lo12:L_str13
-[DEBUG LEVEL 5] Emitting instruction: ADD X9, X9, #8
-[DEBUG] Emitted ADRP/ADD sequence and offset adjustment for string literal 'Test 4: Negative values
-'.
-[DEBUG LEVEL 5] Emitting instruction: MOV X0, X9
-[DEBUG LEVEL 5] Emitting instruction: BL WRITEF_veneer
-[DEBUG] --- Exiting NewCodeGenerator::visit(RoutineCallStatement& node) ---
-[DEBUG] Visiting AssignmentStatement node.
-[DEBUG]   [CSE DEBUG] *** PROCESSING ASSIGNMENT STATEMENT ***
-[DEBUG]   [CSE DEBUG] LHS count: 1, RHS count: 1
-[DEBUG] Generating code for FPairExpression using ARM64 bit manipulation
-[DEBUG LEVEL 5] Emitting instruction: MOVZ X9, #0
-[DEBUG] Visiting UnaryOp node.
-[DEBUG] Visiting NumberLiteral node.
-[DEBUG LEVEL 5] Emitting instruction: ADRP X11, L_float0
-[DEBUG LEVEL 5] Emitting instruction: ADD X11, X11, #:lo12:L_float0
-[DEBUG LEVEL 5] Emitting instruction: LDR D0, [X11, #0]
-[DEBUG] Loaded float literal 1.000000 into D0.
-[DEBUG LEVEL 5] Emitting instruction: FNEG D1, D0
-[DEBUG] FCVT registers: s_reg=S0, first_reg=D1
-[DEBUG LEVEL 5] Emitting instruction: FCVT S0, D1 ;encoder.
-[DEBUG LEVEL 5] Emitting instruction: FMOV W11, S0
-[DEBUG LEVEL 5] Emitting instruction: BFXIL X9, X11, #0, #32
-[DEBUG] Converted double to float and inserted into bits 0-31 using BFXIL
-[DEBUG] Visiting UnaryOp node.
-[DEBUG] Visiting NumberLiteral node.
-[DEBUG LEVEL 5] Emitting instruction: ADRP X12, L_float1
-[DEBUG LEVEL 5] Emitting instruction: ADD X12, X12, #:lo12:L_float1
-[DEBUG LEVEL 5] Emitting instruction: LDR D0, [X12, #0]
-[DEBUG] Loaded float literal 2.000000 into D0.
-[DEBUG LEVEL 5] Emitting instruction: FNEG D1, D0
-[DEBUG LEVEL 5] Emitting instruction: FCVT S0, D1 ;encoder.
-[DEBUG LEVEL 5] Emitting instruction: FMOV W12, S0
-[DEBUG LEVEL 5] Emitting instruction: BFI X9, X12, #32, #32
-[DEBUG] Converted double to float and inserted into bits 32-63 using BFI
-[DEBUG] FPairExpression code generation complete - used ARM64 bit manipulation
-[DEBUG] Handling assignment for variable: f4
-[DEBUG] store_variable_register for 'f4' from register 'X9'
-[DEBUG]   [ALLOCATOR HIT] Variable 'f4' lives in X27. Emitting MOV.
-[DEBUG LEVEL 5] Emitting instruction: MOV X27, X9
-[DEBUG]   Updating home register X27 for variable 'f4' after store.
-[DEBUG LEVEL 5] Emitting instruction: MOV X27, X9
-[DEBUG LEVEL 3] Skipping duplicate MOV instruction: MOV X27, X9
-[DEBUG] Finished visiting AssignmentStatement node.
-[DEBUG] --- Entering NewCodeGenerator::visit(RoutineCallStatement& node) [ARM64 ABI COMPLIANT] ---
-[DEBUG] Detected a regular function/routine call.
-[DEBUG] Generating code for StringLiteral.
-[DEBUG] Allocated register X9 for the string address.
-[DEBUG LEVEL 5] Emitting instruction: ADRP X9, L_str14
-[DEBUG LEVEL 5] Emitting instruction: ADD X9, X9, #:lo12:L_str14
-[DEBUG LEVEL 5] Emitting instruction: ADD X9, X9, #8
-[DEBUG] Emitted ADRP/ADD sequence and offset adjustment for string literal 'f4 created with (-1.0, -2.0)
-'.
-[DEBUG LEVEL 5] Emitting instruction: MOV X0, X9
-[DEBUG LEVEL 5] Emitting instruction: BL WRITEF_veneer
-[DEBUG] --- Exiting NewCodeGenerator::visit(RoutineCallStatement& node) ---
-[DEBUG] --- Entering NewCodeGenerator::visit(RoutineCallStatement& node) [ARM64 ABI COMPLIANT] ---
-[DEBUG] Detected a regular function/routine call.
-[DEBUG] Generating code for StringLiteral.
-[DEBUG] Allocated register X9 for the string address.
-[DEBUG LEVEL 5] Emitting instruction: ADRP X9, L_str15
-[DEBUG LEVEL 5] Emitting instruction: ADD X9, X9, #:lo12:L_str15
-[DEBUG LEVEL 5] Emitting instruction: ADD X9, X9, #8
-[DEBUG] Emitted ADRP/ADD sequence and offset adjustment for string literal 'f4 lane 0 = %F
-'.
-[DEBUG LEVEL 5] Emitting instruction: MOV X0, X9
-[CODE GEN] Generating code for LaneAccessExpression
-[DEBUG] Visiting VariableAccess node for 'f4'.
-[DEBUG]   [DEBUG] About to call get_variable_register for 'f4' in function 'START'
-[DEBUG] get_variable_register for: 'f4' in function 'START'
-[DEBUG]   [DEBUG] Current function allocations exist: YES
-[DEBUG]   ✅ REGISTER ALLOCATED: Variable 'f4' lives in register X27
-[DEBUG] Variable 'f4' value loaded into X27
-[DEBUG]   [DEBUG] get_variable_register returned: 'X27'
-[DEBUG LEVEL 5] Emitting instruction: fmov D1, X27
-[DEBUG LEVEL 5] Emitting instruction: UBFX X20, X27, #0, #32
-[DEBUG LEVEL 5] Emitting instruction: fmov S2, W20
-[DEBUG LEVEL 5] Emitting instruction: fcvt D0, S2
-[CODE GEN] Lane access expression result in register: D0 (element type: FLOAT)
-[DEBUG LEVEL 5] Emitting instruction: FMOV X9, D0
-[DEBUG LEVEL 5] Emitting instruction: MOV X1, X9
-[DEBUG LEVEL 5] Emitting instruction: BL WRITEF1_veneer
-[DEBUG] --- Exiting NewCodeGenerator::visit(RoutineCallStatement& node) ---
-[DEBUG] --- Entering NewCodeGenerator::visit(RoutineCallStatement& node) [ARM64 ABI COMPLIANT] ---
-[DEBUG] Detected a regular function/routine call.
-[DEBUG] Generating code for StringLiteral.
-[DEBUG] Allocated register X9 for the string address.
-[DEBUG LEVEL 5] Emitting instruction: ADRP X9, L_str16
-[DEBUG LEVEL 5] Emitting instruction: ADD X9, X9, #:lo12:L_str16
-[DEBUG LEVEL 5] Emitting instruction: ADD X9, X9, #8
-[DEBUG] Emitted ADRP/ADD sequence and offset adjustment for string literal 'f4 lane 1 = %F
-'.
-[DEBUG LEVEL 5] Emitting instruction: MOV X0, X9
-[CODE GEN] Generating code for LaneAccessExpression
-[DEBUG] Visiting VariableAccess node for 'f4'.
-[DEBUG]   [DEBUG] About to call get_variable_register for 'f4' in function 'START'
-[DEBUG] get_variable_register for: 'f4' in function 'START'
-[DEBUG]   [DEBUG] Current function allocations exist: YES
-[DEBUG]   ✅ REGISTER ALLOCATED: Variable 'f4' lives in register X27
-[DEBUG] Variable 'f4' value loaded into X27
-[DEBUG]   [DEBUG] get_variable_register returned: 'X27'
-[DEBUG LEVEL 5] Emitting instruction: fmov D1, X27
-[DEBUG LEVEL 5] Emitting instruction: UBFX X20, X27, #32, #32
-[DEBUG LEVEL 5] Emitting instruction: fmov S2, W20
-[DEBUG LEVEL 5] Emitting instruction: fcvt D0, S2
-[CODE GEN] Lane access expression result in register: D0 (element type: FLOAT)
-[DEBUG LEVEL 5] Emitting instruction: FMOV X9, D0
-[DEBUG LEVEL 5] Emitting instruction: MOV X1, X9
-[DEBUG LEVEL 5] Emitting instruction: BL WRITEF1_veneer
-[DEBUG] --- Exiting NewCodeGenerator::visit(RoutineCallStatement& node) ---
-[DEBUG] --- Entering NewCodeGenerator::visit(RoutineCallStatement& node) [ARM64 ABI COMPLIANT] ---
-[DEBUG] Detected a regular function/routine call.
-[DEBUG] Generating code for StringLiteral.
-[DEBUG] Allocated register X9 for the string address.
-[DEBUG LEVEL 5] Emitting instruction: ADRP X9, L_str17
-[DEBUG LEVEL 5] Emitting instruction: ADD X9, X9, #:lo12:L_str17
-[DEBUG LEVEL 5] Emitting instruction: ADD X9, X9, #8
-[DEBUG] Emitted ADRP/ADD sequence and offset adjustment for string literal 'End of debugging test
-'.
-[DEBUG LEVEL 5] Emitting instruction: MOV X0, X9
-[DEBUG LEVEL 5] Emitting instruction: BL WRITEF_veneer
-[DEBUG] --- Exiting NewCodeGenerator::visit(RoutineCallStatement& node) ---
 [DEBUG LEVEL 5] Emitting instruction: B START_Exit_1
+[LIVE] Updating live intervals at instruction point 3
+[LIVE] Register X15 active for variable vec_a [1-3]
+[LIVE] Variable vec_b expired from register X14
 [DEBUG LEVEL 5] Emitting instruction: B .L0
+[LIVE] Updating live intervals at instruction point 3
+[LIVE] Register X15 active for variable vec_a [1-3]
+[LIVE] Variable vec_b expired from register X14
 [DEBUG] Performing end-of-function scope cleanup for 'START'.
 [DEBUG] Defining epilogue label: .L0
 [DEBUG] Attempting to generate epilogue for 'START'.
@@ -1728,29 +837,8 @@ Offset   | Content                               | Type
 [DEBUG] Code Generator: Generating code for top-level statements.
 [DEBUG] Finished visiting Program node.
 [InstructionStream TRACE] Adding label definition: L_str0
-[InstructionStream TRACE] Adding label definition: L_str1
-[InstructionStream TRACE] Adding label definition: L_str2
-[InstructionStream TRACE] Adding label definition: L_str3
-[InstructionStream TRACE] Adding label definition: L_str4
-[InstructionStream TRACE] Adding label definition: L_str5
-[InstructionStream TRACE] Adding label definition: L_str6
-[InstructionStream TRACE] Adding label definition: L_str7
-[InstructionStream TRACE] Adding label definition: L_str8
-[InstructionStream TRACE] Adding label definition: L_str9
-[InstructionStream TRACE] Adding label definition: L_str10
-[InstructionStream TRACE] Adding label definition: L_str11
-[InstructionStream TRACE] Adding label definition: L_str12
-[InstructionStream TRACE] Adding label definition: L_str13
-[InstructionStream TRACE] Adding label definition: L_str14
-[InstructionStream TRACE] Adding label definition: L_str15
-[InstructionStream TRACE] Adding label definition: L_str16
-[InstructionStream TRACE] Adding label definition: L_str17
 [InstructionStream TRACE] Adding label definition: L_float0
 [InstructionStream TRACE] Adding label definition: L_float1
-[InstructionStream TRACE] Adding label definition: L_float2
-[InstructionStream TRACE] Adding label definition: L_float3
-[InstructionStream TRACE] Adding label definition: L_float4
-[InstructionStream TRACE] Adding label definition: L_float5
 [DataGenerator TRACE] Entering generate_rodata_section.
 [DataGenerator TRACE] Size of list_literals_ vector is: 0
 [InstructionStream TRACE] Adding label definition: L__data_segment_base
@@ -1763,10 +851,8 @@ Symbol Table (Persistent, All Symbols)
 Symbol 'HeapManager_enter_scope' (FUNCTION, INTEGER, scope=0, block=0, class_name='', function_name='Global')
 Symbol 'HeapManager_exit_scope' (FUNCTION, INTEGER, scope=0, block=0, class_name='', function_name='Global')
 Symbol 'START' (ROUTINE, INTEGER, scope=0, block=0, class_name='', function_name='START')
-Symbol 'f1' (LOCAL_VAR, FPAIR, scope=2, block=0, class_name='', function_name='START')
-Symbol 'f2' (LOCAL_VAR, FPAIR, scope=2, block=0, class_name='', function_name='START')
-Symbol 'f3' (LOCAL_VAR, FPAIR, scope=2, block=0, class_name='', function_name='START')
-Symbol 'f4' (LOCAL_VAR, FPAIR, scope=2, block=0, class_name='', function_name='START')
+Symbol 'vec_a' (LOCAL_VAR, POINTER_TO|FPAIRS, scope=2, block=0, size=4, class_name='', function_name='START')
+Symbol 'vec_b' (LOCAL_VAR, POINTER_TO|FPAIRS, scope=2, block=0, size=4, class_name='', function_name='START')
 Symbol 'READN' (RUNTIME_FUNCTION, INTEGER, scope=0, block=0, class_name='', function_name='')
 Symbol 'RND' (RUNTIME_FLOAT_FUNCTION, FLOAT, scope=0, block=0, class_name='', function_name='', parameters=[INTEGER])
 Symbol 'RAND' (RUNTIME_FUNCTION, INTEGER, scope=0, block=0, class_name='', function_name='', parameters=[INTEGER])
@@ -1838,31 +924,31 @@ Symbol 'SDL2_TEST_BASIC' (RUNTIME_FUNCTION, INTEGER, scope=0, block=0, class_nam
 Data sections generated.
 
 === Peephole Optimization ===
-Analyzing 793 ARM64 instructions...
+Analyzing 165 ARM64 instructions...
 Maximum optimization passes: 5
 
 [Peephole Optimizer] Applied: Combine adjacent X-register STRs into STP
   Position: 55
   Before:
-    STR X19, [X29, #48] ; Saved Reg: X19 @ FP+48  [Opcode=26, Dest=-1, Src1=19, Imm=48, Base=29, Offset=48]
-    STR X27, [X29, #56] ; Saved Reg: X27 @ FP+56  [Opcode=26, Dest=-1, Src1=27, Imm=56, Base=29, Offset=56]
+    STR X19, [X29, #32] ; Saved Reg: X19 @ FP+32  [Opcode=26, Dest=-1, Src1=19, Imm=32, Base=29, Offset=32]
+    STR X28, [X29, #40] ; Saved Reg: X28 @ FP+40  [Opcode=26, Dest=-1, Src1=28, Imm=40, Base=29, Offset=40]
   After:
-    STP x19, x27, [x29, #48]  [Opcode=30, Dest=-1, Src1=19, Imm=48, Base=29, Offset=48]
+    STP x19, x28, [x29, #32]  [Opcode=30, Dest=-1, Src1=19, Imm=32, Base=29, Offset=32]
   Instruction count: 2 -> 1
 
 
 [Peephole Optimizer] Applied: Combine adjacent X-register LDRs into LDP
-  Position: 262
+  Position: 105
   Before:
-    LDR X19, [X29, #48] ; Restored Reg: X19 @ FP+48  [Opcode=27, Dest=19, Src1=-1, Imm=48, Base=29, Offset=48]
-    LDR X27, [X29, #56] ; Restored Reg: X27 @ FP+56  [Opcode=27, Dest=27, Src1=-1, Imm=56, Base=29, Offset=56]
+    LDR X19, [X29, #32] ; Restored Reg: X19 @ FP+32  [Opcode=27, Dest=19, Src1=-1, Imm=32, Base=29, Offset=32]
+    LDR X28, [X29, #40] ; Restored Reg: X28 @ FP+40  [Opcode=27, Dest=28, Src1=-1, Imm=40, Base=29, Offset=40]
   After:
-    LDP x19, x27, [x29, #48]  [Opcode=31, Dest=19, Src1=27, Imm=48, Base=29, Offset=48]
+    LDP x19, x28, [x29, #32]  [Opcode=31, Dest=19, Src1=28, Imm=32, Base=29, Offset=32]
   Instruction count: 2 -> 1
 
 
 [Peephole Optimizer] Applied: Combine adjacent X-register LDRs into LDP
-  Position: 265
+  Position: 107
   Before:
     LDR X29, [SP, #0] ; Restore caller's Frame Pointer  [Opcode=27, Dest=29, Src1=-1, Imm=0, Base=31, Offset=0]
     LDR X30, [SP, #8] ; Restore Link Register  [Opcode=27, Dest=30, Src1=-1, Imm=8, Base=31, Offset=8]
@@ -1874,8 +960,8 @@ Maximum optimization passes: 5
 Peephole optimization completed 2 
   Passes with changes: 1
 Peephole optimization completed 2 passes:
-  Instructions before: 793
-  Instructions after:  790
+  Instructions before: 165
+  Instructions after:  162
   Total optimizations: 3
   Patterns matched:
     - Combine adjacent X-register LDRs into LDP: 2
@@ -1884,796 +970,172 @@ Peephole optimization completed 2 passes:
 [Peephole Optimizer] Detailed peephole optimization trace complete
 Populating JIT memory according to linker layout...
 
---- CodeBuffer JIT Listing ------ Code Section Listing (Base Address: 0x10816c000) ---
+--- CodeBuffer JIT Listing ------ Code Section Listing (Base Address: 0x108278000) ---
 Address Hex Code    Assembly
 --------------------------------------------------
- 10816c000 0x00000000  
+ 108278000 0x00000000  
 ; --- Veneer Section ---
 HeapManager_enter_scope_veneer:
- 10816c004 0xd28a6510  MOVZ X16, #21288
- 10816c008 0xf2a05c10  MOVK X16, #736, LSL #16
- 10816c00c 0xf2c00030  MOVK X16, #1, LSL #32
- 10816c010 0xd61f0200  BR X16
+ 108278004 0xd2990b90  MOVZ X16, #51292
+ 108278008 0xf2a056f0  MOVK X16, #695, LSL #16
+ 10827800c 0xf2c00030  MOVK X16, #1, LSL #32
+ 108278010 0xd61f0200  BR X16
 HeapManager_exit_scope_veneer:
- 10816c014 0xd28a6a90  MOVZ X16, #21332
- 10816c018 0xf2a05c10  MOVK X16, #736, LSL #16
- 10816c01c 0xf2c00030  MOVK X16, #1, LSL #32
- 10816c020 0xd61f0200  BR X16
+ 108278014 0xd2991110  MOVZ X16, #51336
+ 108278018 0xf2a056f0  MOVK X16, #695, LSL #16
+ 10827801c 0xf2c00030  MOVK X16, #1, LSL #32
+ 108278020 0xd61f0200  BR X16
 WRITEF_veneer:
- 10816c024 0xd29a6f90  MOVZ X16, #54140
- 10816c028 0xf2a05c70  MOVK X16, #739, LSL #16
- 10816c02c 0xf2c00030  MOVK X16, #1, LSL #32
- 10816c030 0xd61f0200  BR X16
+ 108278024 0xd2991610  MOVZ X16, #51376
+ 108278028 0xf2a05770  MOVK X16, #699, LSL #16
+ 10827802c 0xf2c00030  MOVK X16, #1, LSL #32
+ 108278030 0xd61f0200  BR X16
 WRITEF1_veneer:
- 10816c034 0xd29b1390  MOVZ X16, #55452
- 10816c038 0xf2a05c70  MOVK X16, #739, LSL #16
- 10816c03c 0xf2c00030  MOVK X16, #1, LSL #32
- 10816c040 0xd61f0200  BR X16
+ 108278034 0xd299ba10  MOVZ X16, #52688
+ 108278038 0xf2a05770  MOVK X16, #699, LSL #16
+ 10827803c 0xf2c00030  MOVK X16, #1, LSL #32
+ 108278040 0xd61f0200  BR X16
 WRITEF2_veneer:
- 10816c044 0xd29b2090  MOVZ X16, #55556
- 10816c048 0xf2a05c70  MOVK X16, #739, LSL #16
- 10816c04c 0xf2c00030  MOVK X16, #1, LSL #32
- 10816c050 0xd61f0200  BR X16
+ 108278044 0xd299c710  MOVZ X16, #52792
+ 108278048 0xf2a05770  MOVK X16, #699, LSL #16
+ 10827804c 0xf2c00030  MOVK X16, #1, LSL #32
+ 108278050 0xd61f0200  BR X16
 WRITEF3_veneer:
- 10816c054 0xd29b2f10  MOVZ X16, #55672
- 10816c058 0xf2a05c70  MOVK X16, #739, LSL #16
- 10816c05c 0xf2c00030  MOVK X16, #1, LSL #32
- 10816c060 0xd61f0200  BR X16
+ 108278054 0xd299d590  MOVZ X16, #52908
+ 108278058 0xf2a05770  MOVK X16, #699, LSL #16
+ 10827805c 0xf2c00030  MOVK X16, #1, LSL #32
+ 108278060 0xd61f0200  BR X16
 WRITEF4_veneer:
- 10816c064 0xd29b3f10  MOVZ X16, #55800
- 10816c068 0xf2a05c70  MOVK X16, #739, LSL #16
- 10816c06c 0xf2c00030  MOVK X16, #1, LSL #32
- 10816c070 0xd61f0200  BR X16
+ 108278064 0xd299e590  MOVZ X16, #53036
+ 108278068 0xf2a05770  MOVK X16, #699, LSL #16
+ 10827806c 0xf2c00030  MOVK X16, #1, LSL #32
+ 108278070 0xd61f0200  BR X16
 WRITEF5_veneer:
- 10816c074 0xd29b5090  MOVZ X16, #55940
- 10816c078 0xf2a05c70  MOVK X16, #739, LSL #16
- 10816c07c 0xf2c00030  MOVK X16, #1, LSL #32
- 10816c080 0xd61f0200  BR X16
+ 108278074 0xd299f710  MOVZ X16, #53176
+ 108278078 0xf2a05770  MOVK X16, #699, LSL #16
+ 10827807c 0xf2c00030  MOVK X16, #1, LSL #32
+ 108278080 0xd61f0200  BR X16
 WRITEF6_veneer:
- 10816c084 0xd29b6390  MOVZ X16, #56092
- 10816c088 0xf2a05c70  MOVK X16, #739, LSL #16
- 10816c08c 0xf2c00030  MOVK X16, #1, LSL #32
- 10816c090 0xd61f0200  BR X16
+ 108278084 0xd29a0a10  MOVZ X16, #53328
+ 108278088 0xf2a05770  MOVK X16, #699, LSL #16
+ 10827808c 0xf2c00030  MOVK X16, #1, LSL #32
+ 108278090 0xd61f0200  BR X16
 WRITEF7_veneer:
- 10816c094 0xd29b7810  MOVZ X16, #56256
- 10816c098 0xf2a05c70  MOVK X16, #739, LSL #16
- 10816c09c 0xf2c00030  MOVK X16, #1, LSL #32
- 10816c0a0 0xd61f0200  BR X16
- 10816c0a4 0x00000000  ; --- End Veneer Section ---
+ 108278094 0xd29a1e90  MOVZ X16, #53492
+ 108278098 0xf2a05770  MOVK X16, #699, LSL #16
+ 10827809c 0xf2c00030  MOVK X16, #1, LSL #32
+ 1082780a0 0xd61f0200  BR X16
+ 1082780a4 0x00000000  ; --- End Veneer Section ---
 
 START:
- 10816c0a8 0xa9bb7bfd  STP X29, X30, [SP, #-80]!
- 10816c0ac 0x910003fd  MOV X29, SP
- 10816c0b0 0xa9036fb3  STP x19, x27, [x29, #48]
- 10816c0b4 0xf90023bc  STR X28, [X29, #64] ; Saved Reg: X28 @ FP+64
- 10816c0b8 0xd280001c  MOVZ X28, #0
- 10816c0bc 0xf2a06d3c  MOVK X28, #873, LSL #16
- 10816c0c0 0xf2c0003c  MOVK X28, #1, LSL #32
- 10816c0c4 0xf2e0001c  MOVK X28, #0, LSL #48
+ 1082780a8 0xa9bd7bfd  STP X29, X30, [SP, #-48]!
+ 1082780ac 0x910003fd  MOV X29, SP
+ 1082780b0 0xa90273b3  STP x19, x28, [x29, #32]
+ 1082780b4 0xd288001c  MOVZ X28, #16384
+ 1082780b8 0xf2a06adc  MOVK X28, #854, LSL #16
+ 1082780bc 0xf2c0003c  MOVK X28, #1, LSL #32
+ 1082780c0 0xf2e0001c  MOVK X28, #0, LSL #48
 START_Entry_0:
- 10816c0c8 0xb0000029  ADRP X9, L_str0    ; Reloc -> 'L_str0' @ 0x108171000
- 10816c0cc 0x91000129  ADD X9, X9, #:lo12:L_str0    ; Reloc -> 'L_str0' @ 0x108171000
- 10816c0d0 0x91002129  ADD X9, X9, #8
- 10816c0d4 0xaa0903e0  MOV X0, X9
- 10816c0d8 0x97ffffd3  BL WRITEF_veneer    ; Reloc -> 'WRITEF_veneer' @ 0x10816c024
- 10816c0dc 0xb0000029  ADRP X9, L_str1    ; Reloc -> 'L_str1' @ 0x1081710b4
- 10816c0e0 0x9102d129  ADD X9, X9, #:lo12:L_str1    ; Reloc -> 'L_str1' @ 0x1081710b4
- 10816c0e4 0x91002129  ADD X9, X9, #8
- 10816c0e8 0xaa0903e0  MOV X0, X9
- 10816c0ec 0x97ffffce  BL WRITEF_veneer    ; Reloc -> 'WRITEF_veneer' @ 0x10816c024
- 10816c0f0 0xd2800009  MOVZ X9, #0
- 10816c0f4 0xb000002b  ADRP X11, L_float0    ; Reloc -> 'L_float0' @ 0x108171784
- 10816c0f8 0x911e116b  ADD X11, X11, #:lo12:L_float0    ; Reloc -> 'L_float0' @ 0x108171784
- 10816c0fc 0xfd400160  LDR D0, [X11, #0]
- 10816c100 0x1e624001  FCVT S1, D0 ;encoder.
- 10816c104 0x1e26002b  FMOV W11, S1
- 10816c108 0xb3407d69  BFXIL X9, X11, #0, #32
- 10816c10c 0xb000002c  ADRP X12, L_float1    ; Reloc -> 'L_float1' @ 0x10817178c
- 10816c110 0x911e318c  ADD X12, X12, #:lo12:L_float1    ; Reloc -> 'L_float1' @ 0x10817178c
- 10816c114 0xfd400180  LDR D0, [X12, #0]
- 10816c118 0x1e624001  FCVT S1, D0 ;encoder.
- 10816c11c 0x1e26002c  FMOV W12, S1
- 10816c120 0xb3607d89  BFI X9, X12, #32, #32
- 10816c124 0xaa0903ef  MOV X15, X9
- 10816c128 0xb0000029  ADRP X9, L_str2    ; Reloc -> 'L_str2' @ 0x108171134
- 10816c12c 0x9104d129  ADD X9, X9, #:lo12:L_str2    ; Reloc -> 'L_str2' @ 0x108171134
- 10816c130 0x91002129  ADD X9, X9, #8
- 10816c134 0xaa0903e0  MOV X0, X9
- 10816c138 0x97ffffbb  BL WRITEF_veneer    ; Reloc -> 'WRITEF_veneer' @ 0x10816c024
- 10816c13c 0xb0000029  ADRP X9, L_str3    ; Reloc -> 'L_str3' @ 0x1081711b0
- 10816c140 0x9106c129  ADD X9, X9, #:lo12:L_str3    ; Reloc -> 'L_str3' @ 0x1081711b0
- 10816c144 0x91002129  ADD X9, X9, #8
- 10816c148 0xaa0903e0  MOV X0, X9
- 10816c14c 0x9e6701e1  fmov D1, X15
- 10816c150 0xd3407df4  UBFX X20, X15, #0, #32
- 10816c154 0x1e270282  fmov S2, W20
- 10816c158 0x1e22c040  fcvt D0, S2
- 10816c15c 0x9e660009  FMOV X9, D0
- 10816c160 0xaa0903e1  MOV X1, X9
- 10816c164 0x97ffffb4  BL WRITEF1_veneer    ; Reloc -> 'WRITEF1_veneer' @ 0x10816c034
- 10816c168 0xb0000029  ADRP X9, L_str4    ; Reloc -> 'L_str4' @ 0x1081711fc
- 10816c16c 0x9107f129  ADD X9, X9, #:lo12:L_str4    ; Reloc -> 'L_str4' @ 0x1081711fc
- 10816c170 0x91002129  ADD X9, X9, #8
- 10816c174 0xaa0903e0  MOV X0, X9
- 10816c178 0x9e6701e1  fmov D1, X15
- 10816c17c 0xd360fdf4  UBFX X20, X15, #32, #32
- 10816c180 0x1e270282  fmov S2, W20
- 10816c184 0x1e22c040  fcvt D0, S2
- 10816c188 0x9e660009  FMOV X9, D0
- 10816c18c 0xaa0903e1  MOV X1, X9
- 10816c190 0x97ffffa9  BL WRITEF1_veneer    ; Reloc -> 'WRITEF1_veneer' @ 0x10816c034
- 10816c194 0xb0000029  ADRP X9, L_str5    ; Reloc -> 'L_str5' @ 0x108171248
- 10816c198 0x91092129  ADD X9, X9, #:lo12:L_str5    ; Reloc -> 'L_str5' @ 0x108171248
- 10816c19c 0x91002129  ADD X9, X9, #8
- 10816c1a0 0xaa0903e0  MOV X0, X9
- 10816c1a4 0x97ffffa0  BL WRITEF_veneer    ; Reloc -> 'WRITEF_veneer' @ 0x10816c024
- 10816c1a8 0xd2800009  MOVZ X9, #0
- 10816c1ac 0xb000002b  ADRP X11, L_float2    ; Reloc -> 'L_float2' @ 0x108171794
- 10816c1b0 0x911e516b  ADD X11, X11, #:lo12:L_float2    ; Reloc -> 'L_float2' @ 0x108171794
- 10816c1b4 0xfd400160  LDR D0, [X11, #0]
- 10816c1b8 0x1e624001  FCVT S1, D0 ;encoder.
- 10816c1bc 0x1e26002b  FMOV W11, S1
- 10816c1c0 0xb3407d69  BFXIL X9, X11, #0, #32
- 10816c1c4 0xb000002c  ADRP X12, L_float3    ; Reloc -> 'L_float3' @ 0x10817179c
- 10816c1c8 0x911e718c  ADD X12, X12, #:lo12:L_float3    ; Reloc -> 'L_float3' @ 0x10817179c
- 10816c1cc 0xfd400180  LDR D0, [X12, #0]
- 10816c1d0 0x1e624001  FCVT S1, D0 ;encoder.
- 10816c1d4 0x1e26002c  FMOV W12, S1
- 10816c1d8 0xb3607d89  BFI X9, X12, #32, #32
- 10816c1dc 0xaa0903ef  MOV X15, X9
- 10816c1e0 0xb0000029  ADRP X9, L_str6    ; Reloc -> 'L_str6' @ 0x1081712cc
- 10816c1e4 0x910b3129  ADD X9, X9, #:lo12:L_str6    ; Reloc -> 'L_str6' @ 0x1081712cc
- 10816c1e8 0x91002129  ADD X9, X9, #8
- 10816c1ec 0xaa0903e0  MOV X0, X9
- 10816c1f0 0x97ffff8d  BL WRITEF_veneer    ; Reloc -> 'WRITEF_veneer' @ 0x10816c024
- 10816c1f4 0xb0000029  ADRP X9, L_str7    ; Reloc -> 'L_str7' @ 0x108171350
- 10816c1f8 0x910d4129  ADD X9, X9, #:lo12:L_str7    ; Reloc -> 'L_str7' @ 0x108171350
- 10816c1fc 0x91002129  ADD X9, X9, #8
- 10816c200 0xaa0903e0  MOV X0, X9
- 10816c204 0x9e6701e1  fmov D1, X15
- 10816c208 0xd3407df4  UBFX X20, X15, #0, #32
- 10816c20c 0x1e270282  fmov S2, W20
- 10816c210 0x1e22c040  fcvt D0, S2
- 10816c214 0x9e660009  FMOV X9, D0
- 10816c218 0xaa0903e1  MOV X1, X9
- 10816c21c 0x97ffff86  BL WRITEF1_veneer    ; Reloc -> 'WRITEF1_veneer' @ 0x10816c034
- 10816c220 0xb0000029  ADRP X9, L_str8    ; Reloc -> 'L_str8' @ 0x10817139c
- 10816c224 0x910e7129  ADD X9, X9, #:lo12:L_str8    ; Reloc -> 'L_str8' @ 0x10817139c
- 10816c228 0x91002129  ADD X9, X9, #8
- 10816c22c 0xaa0903e0  MOV X0, X9
- 10816c230 0x9e6701e1  fmov D1, X15
- 10816c234 0xd360fdf4  UBFX X20, X15, #32, #32
- 10816c238 0x1e270282  fmov S2, W20
- 10816c23c 0x1e22c040  fcvt D0, S2
- 10816c240 0x9e660009  FMOV X9, D0
- 10816c244 0xaa0903e1  MOV X1, X9
- 10816c248 0x97ffff7b  BL WRITEF1_veneer    ; Reloc -> 'WRITEF1_veneer' @ 0x10816c034
- 10816c24c 0xb0000029  ADRP X9, L_str9    ; Reloc -> 'L_str9' @ 0x1081713e8
- 10816c250 0x910fa129  ADD X9, X9, #:lo12:L_str9    ; Reloc -> 'L_str9' @ 0x1081713e8
- 10816c254 0x91002129  ADD X9, X9, #8
- 10816c258 0xaa0903e0  MOV X0, X9
- 10816c25c 0x97ffff72  BL WRITEF_veneer    ; Reloc -> 'WRITEF_veneer' @ 0x10816c024
- 10816c260 0xd2800009  MOVZ X9, #0
- 10816c264 0xb000002b  ADRP X11, L_float4    ; Reloc -> 'L_float4' @ 0x1081717a4
- 10816c268 0x911e916b  ADD X11, X11, #:lo12:L_float4    ; Reloc -> 'L_float4' @ 0x1081717a4
- 10816c26c 0xfd400160  LDR D0, [X11, #0]
- 10816c270 0x1e624001  FCVT S1, D0 ;encoder.
- 10816c274 0x1e26002b  FMOV W11, S1
- 10816c278 0xb3407d69  BFXIL X9, X11, #0, #32
- 10816c27c 0xb000002c  ADRP X12, L_float5    ; Reloc -> 'L_float5' @ 0x1081717ac
- 10816c280 0x911eb18c  ADD X12, X12, #:lo12:L_float5    ; Reloc -> 'L_float5' @ 0x1081717ac
- 10816c284 0xfd400180  LDR D0, [X12, #0]
- 10816c288 0x1e624001  FCVT S1, D0 ;encoder.
- 10816c28c 0x1e26002c  FMOV W12, S1
- 10816c290 0xb3607d89  BFI X9, X12, #32, #32
- 10816c294 0xaa0903fb  MOV X27, X9
- 10816c298 0xb0000029  ADRP X9, L_str10    ; Reloc -> 'L_str10' @ 0x10817145c
- 10816c29c 0x91117129  ADD X9, X9, #:lo12:L_str10    ; Reloc -> 'L_str10' @ 0x10817145c
- 10816c2a0 0x91002129  ADD X9, X9, #8
- 10816c2a4 0xaa0903e0  MOV X0, X9
- 10816c2a8 0x97ffff5f  BL WRITEF_veneer    ; Reloc -> 'WRITEF_veneer' @ 0x10816c024
- 10816c2ac 0xb0000029  ADRP X9, L_str11    ; Reloc -> 'L_str11' @ 0x1081714f8
- 10816c2b0 0x9113e129  ADD X9, X9, #:lo12:L_str11    ; Reloc -> 'L_str11' @ 0x1081714f8
- 10816c2b4 0x91002129  ADD X9, X9, #8
- 10816c2b8 0xaa0903e0  MOV X0, X9
- 10816c2bc 0x9e670361  fmov D1, X27
- 10816c2c0 0xd3407f74  UBFX X20, X27, #0, #32
- 10816c2c4 0x1e270282  fmov S2, W20
- 10816c2c8 0x1e22c040  fcvt D0, S2
- 10816c2cc 0x9e660009  FMOV X9, D0
- 10816c2d0 0xaa0903e1  MOV X1, X9
- 10816c2d4 0x97ffff58  BL WRITEF1_veneer    ; Reloc -> 'WRITEF1_veneer' @ 0x10816c034
- 10816c2d8 0xb0000029  ADRP X9, L_str12    ; Reloc -> 'L_str12' @ 0x108171544
- 10816c2dc 0x91151129  ADD X9, X9, #:lo12:L_str12    ; Reloc -> 'L_str12' @ 0x108171544
- 10816c2e0 0x91002129  ADD X9, X9, #8
- 10816c2e4 0xaa0903e0  MOV X0, X9
- 10816c2e8 0x9e670361  fmov D1, X27
- 10816c2ec 0xd360ff74  UBFX X20, X27, #32, #32
- 10816c2f0 0x1e270282  fmov S2, W20
- 10816c2f4 0x1e22c040  fcvt D0, S2
- 10816c2f8 0x9e660009  FMOV X9, D0
- 10816c2fc 0xaa0903e1  MOV X1, X9
- 10816c300 0x97ffff4d  BL WRITEF1_veneer    ; Reloc -> 'WRITEF1_veneer' @ 0x10816c034
- 10816c304 0xb0000029  ADRP X9, L_str13    ; Reloc -> 'L_str13' @ 0x108171590
- 10816c308 0x91164129  ADD X9, X9, #:lo12:L_str13    ; Reloc -> 'L_str13' @ 0x108171590
- 10816c30c 0x91002129  ADD X9, X9, #8
- 10816c310 0xaa0903e0  MOV X0, X9
- 10816c314 0x97ffff44  BL WRITEF_veneer    ; Reloc -> 'WRITEF_veneer' @ 0x10816c024
- 10816c318 0xd2800009  MOVZ X9, #0
- 10816c31c 0xb000002b  ADRP X11, L_float0    ; Reloc -> 'L_float0' @ 0x108171784
- 10816c320 0x911e116b  ADD X11, X11, #:lo12:L_float0    ; Reloc -> 'L_float0' @ 0x108171784
- 10816c324 0xfd400160  LDR D0, [X11, #0]
- 10816c328 0x1e614001  FNEG D1, D0
- 10816c32c 0x1e624020  FCVT S0, D1 ;encoder.
- 10816c330 0x1e26000b  FMOV W11, S0
- 10816c334 0xb3407d69  BFXIL X9, X11, #0, #32
- 10816c338 0xb000002c  ADRP X12, L_float1    ; Reloc -> 'L_float1' @ 0x10817178c
- 10816c33c 0x911e318c  ADD X12, X12, #:lo12:L_float1    ; Reloc -> 'L_float1' @ 0x10817178c
- 10816c340 0xfd400180  LDR D0, [X12, #0]
- 10816c344 0x1e614001  FNEG D1, D0
- 10816c348 0x1e624020  FCVT S0, D1 ;encoder.
- 10816c34c 0x1e26000c  FMOV W12, S0
- 10816c350 0xb3607d89  BFI X9, X12, #32, #32
- 10816c354 0xaa0903fb  MOV X27, X9
- 10816c358 0xb0000029  ADRP X9, L_str14    ; Reloc -> 'L_str14' @ 0x108171600
- 10816c35c 0x91180129  ADD X9, X9, #:lo12:L_str14    ; Reloc -> 'L_str14' @ 0x108171600
- 10816c360 0x91002129  ADD X9, X9, #8
- 10816c364 0xaa0903e0  MOV X0, X9
- 10816c368 0x97ffff2f  BL WRITEF_veneer    ; Reloc -> 'WRITEF_veneer' @ 0x10816c024
- 10816c36c 0xb0000029  ADRP X9, L_str15    ; Reloc -> 'L_str15' @ 0x108171684
- 10816c370 0x911a1129  ADD X9, X9, #:lo12:L_str15    ; Reloc -> 'L_str15' @ 0x108171684
- 10816c374 0x91002129  ADD X9, X9, #8
- 10816c378 0xaa0903e0  MOV X0, X9
- 10816c37c 0x9e670361  fmov D1, X27
- 10816c380 0xd3407f74  UBFX X20, X27, #0, #32
- 10816c384 0x1e270282  fmov S2, W20
- 10816c388 0x1e22c040  fcvt D0, S2
- 10816c38c 0x9e660009  FMOV X9, D0
- 10816c390 0xaa0903e1  MOV X1, X9
- 10816c394 0x97ffff28  BL WRITEF1_veneer    ; Reloc -> 'WRITEF1_veneer' @ 0x10816c034
- 10816c398 0xb0000029  ADRP X9, L_str16    ; Reloc -> 'L_str16' @ 0x1081716d0
- 10816c39c 0x911b4129  ADD X9, X9, #:lo12:L_str16    ; Reloc -> 'L_str16' @ 0x1081716d0
- 10816c3a0 0x91002129  ADD X9, X9, #8
- 10816c3a4 0xaa0903e0  MOV X0, X9
- 10816c3a8 0x9e670361  fmov D1, X27
- 10816c3ac 0xd360ff74  UBFX X20, X27, #32, #32
- 10816c3b0 0x1e270282  fmov S2, W20
- 10816c3b4 0x1e22c040  fcvt D0, S2
- 10816c3b8 0x9e660009  FMOV X9, D0
- 10816c3bc 0xaa0903e1  MOV X1, X9
- 10816c3c0 0x97ffff1d  BL WRITEF1_veneer    ; Reloc -> 'WRITEF1_veneer' @ 0x10816c034
- 10816c3c4 0xb0000029  ADRP X9, L_str17    ; Reloc -> 'L_str17' @ 0x10817171c
- 10816c3c8 0x911c7129  ADD X9, X9, #:lo12:L_str17    ; Reloc -> 'L_str17' @ 0x10817171c
- 10816c3cc 0x91002129  ADD X9, X9, #8
- 10816c3d0 0xaa0903e0  MOV X0, X9
- 10816c3d4 0x97ffff14  BL WRITEF_veneer    ; Reloc -> 'WRITEF_veneer' @ 0x10816c024
- 10816c3d8 0x14000001  B START_Exit_1    ; Reloc -> 'START_Exit_1' @ 0x10816c3dc
+ 1082780c4 0xb0000029  ADRP X9, L_str0    ; Reloc -> 'L_str0' @ 0x10827d000
+ 1082780c8 0x91000129  ADD X9, X9, #:lo12:L_str0    ; Reloc -> 'L_str0' @ 0x10827d000
+ 1082780cc 0x91002129  ADD X9, X9, #8
+ 1082780d0 0xaa0903e0  MOV X0, X9
+ 1082780d4 0x97ffffd4  BL WRITEF_veneer    ; Reloc -> 'WRITEF_veneer' @ 0x108278024
+ 1082780d8 0xd2800089  MOVZ X9, #4
+ 1082780dc 0xaa0903f4  MOV X20, X9
+ 1082780e0 0xd37ff934  LSL X20, X9, #1
+ 1082780e4 0xaa1403e0  MOV X0, X20
+ 1082780e8 0x96a51e49  BL FGETVEC    ; Reloc -> 'FGETVEC' @ 0x102bbfa0c
+ 1082780ec 0xaa0003f4  MOV X20, X0
+ 1082780f0 0xd1002289  SUB X9, X20, #8
+ 1082780f4 0xf9000134  STR X20, [X9, #0]
+ 1082780f8 0xaa1403ef  MOV X15, X20
+ 1082780fc 0xd2800089  MOVZ X9, #4
+ 108278100 0xaa0903f4  MOV X20, X9
+ 108278104 0xd37ff934  LSL X20, X9, #1
+ 108278108 0xaa1403e0  MOV X0, X20
+ 10827810c 0x96a51e40  BL FGETVEC    ; Reloc -> 'FGETVEC' @ 0x102bbfa0c
+ 108278110 0xaa0003f4  MOV X20, X0
+ 108278114 0xd1002289  SUB X9, X20, #8
+ 108278118 0xf9000134  STR X20, [X9, #0]
+ 10827811c 0xaa1403ee  MOV X14, X20
+ 108278120 0xd2800009  MOVZ X9, #0
+ 108278124 0xb000002b  ADRP X11, L_float0    ; Reloc -> 'L_float0' @ 0x10827d0b0
+ 108278128 0x9102c16b  ADD X11, X11, #:lo12:L_float0    ; Reloc -> 'L_float0' @ 0x10827d0b0
+ 10827812c 0xfd400160  LDR D0, [X11, #0]
+ 108278130 0x1e624001  FCVT S1, D0 ;encoder.
+ 108278134 0x1e26002b  FMOV W11, S1
+ 108278138 0xb3407d69  BFXIL X9, X11, #0, #32
+ 10827813c 0xb000002c  ADRP X12, L_float1    ; Reloc -> 'L_float1' @ 0x10827d0b8
+ 108278140 0x9102e18c  ADD X12, X12, #:lo12:L_float1    ; Reloc -> 'L_float1' @ 0x10827d0b8
+ 108278144 0xfd400180  LDR D0, [X12, #0]
+ 108278148 0x1e624001  FCVT S1, D0 ;encoder.
+ 10827814c 0x1e26002c  FMOV W12, S1
+ 108278150 0xb3607d89  BFI X9, X12, #32, #32
+ 108278154 0xd280000c  MOVZ X12, #0
+ 108278158 0xd37df18d  LSL X13, X12, #3
+ 10827815c 0x8b0d01ee  ADD X14, X15, X13
+ 108278160 0xf90001c9  STR X9, [X14, #0]
+ 108278164 0x14000001  B START_Exit_1    ; Reloc -> 'START_Exit_1' @ 0x108278168
 START_Exit_1:
- 10816c3dc 0x14000001  B .L0    ; Reloc -> '.L0' @ 0x10816c3e0
+ 108278168 0x14000001  B .L0    ; Reloc -> '.L0' @ 0x10827816c
 .L0:
- 10816c3e0 0xa9436fb3  LDP x19, x27, [x29, #48]
- 10816c3e4 0xf94023bc  LDR X28, [X29, #64] ; Restored Reg: X28 @ FP+64
- 10816c3e8 0x910003bf  MOV SP, X29 ; Deallocate frame by moving FP to SP
- 10816c3ec 0xa9407bfd  LDP x29, x30, [SP, #0]
- 10816c3f0 0x910043ff  ADD SP, SP, #16 ; Deallocate space for saved FP/LR
- 10816c3f4 0xd65f03c0  RET
+ 10827816c 0xa94273b3  LDP x19, x28, [x29, #32]
+ 108278170 0x910003bf  MOV SP, X29 ; Deallocate frame by moving FP to SP
+ 108278174 0xa9407bfd  LDP x29, x30, [SP, #0]
+ 108278178 0x910043ff  ADD SP, SP, #16 ; Deallocate space for saved FP/LR
+ 10827817c 0xd65f03c0  RET
 L_str0:
- 108171000 0x29000000  .quad 0x29
- 108171004 0x00000000  ; (upper half)
- 108171008 0x54000000  DCD 0x54
- 10817100c 0x65000000  DCD 0x65
- 108171010 0x73000000  DCD 0x73
- 108171014 0x74000000  DCD 0x74
- 108171018 0x69000000  DCD 0x69
- 10817101c 0x6e000000  DCD 0x6e
- 108171020 0x67000000  DCD 0x67
- 108171024 0x20000000  DCD 0x20
- 108171028 0x46000000  DCD 0x46
- 10817102c 0x50000000  DCD 0x50
- 108171030 0x41000000  DCD 0x41
- 108171034 0x49000000  DCD 0x49
- 108171038 0x52000000  DCD 0x52
- 10817103c 0x20000000  DCD 0x20
- 108171040 0x62000000  DCD 0x62
- 108171044 0x69000000  DCD 0x69
- 108171048 0x74000000  DCD 0x74
- 10817104c 0x20000000  DCD 0x20
- 108171050 0x70000000  DCD 0x70
- 108171054 0x61000000  DCD 0x61
- 108171058 0x74000000  DCD 0x74
- 10817105c 0x74000000  DCD 0x74
- 108171060 0x65000000  DCD 0x65
- 108171064 0x72000000  DCD 0x72
- 108171068 0x6e000000  DCD 0x6e
- 10817106c 0x73000000  DCD 0x73
- 108171070 0x20000000  DCD 0x20
- 108171074 0x61000000  DCD 0x61
- 108171078 0x6e000000  DCD 0x6e
- 10817107c 0x64000000  DCD 0x64
- 108171080 0x20000000  DCD 0x20
- 108171084 0x64000000  DCD 0x64
- 108171088 0x65000000  DCD 0x65
- 10817108c 0x62000000  DCD 0x62
- 108171090 0x75000000  DCD 0x75
- 108171094 0x67000000  DCD 0x67
- 108171098 0x67000000  DCD 0x67
- 10817109c 0x69000000  DCD 0x69
- 1081710a0 0x6e000000  DCD 0x6e
- 1081710a4 0x67000000  DCD 0x67
- 1081710a8 0xa0000000  DCD 0xa
- 1081710ac 0x00000000  DCD 0x0
- 1081710b0 0x00000000  DCD 0x0
-L_str1:
- 1081710b4 0x1c000000  .quad 0x1c
- 1081710b8 0x00000000  ; (upper half)
- 1081710bc 0x54000000  DCD 0x54
- 1081710c0 0x65000000  DCD 0x65
- 1081710c4 0x73000000  DCD 0x73
- 1081710c8 0x74000000  DCD 0x74
- 1081710cc 0x20000000  DCD 0x20
- 1081710d0 0x31000000  DCD 0x31
- 1081710d4 0x3a000000  DCD 0x3a
- 1081710d8 0x20000000  DCD 0x20
- 1081710dc 0x53000000  DCD 0x53
- 1081710e0 0x69000000  DCD 0x69
- 1081710e4 0x6d000000  DCD 0x6d
- 1081710e8 0x70000000  DCD 0x70
- 1081710ec 0x6c000000  DCD 0x6c
- 1081710f0 0x65000000  DCD 0x65
- 1081710f4 0x20000000  DCD 0x20
- 1081710f8 0x66000000  DCD 0x66
- 1081710fc 0x6c000000  DCD 0x6c
- 108171100 0x6f000000  DCD 0x6f
- 108171104 0x61000000  DCD 0x61
- 108171108 0x74000000  DCD 0x74
- 10817110c 0x20000000  DCD 0x20
- 108171110 0x76000000  DCD 0x76
- 108171114 0x61000000  DCD 0x61
- 108171118 0x6c000000  DCD 0x6c
- 10817111c 0x75000000  DCD 0x75
- 108171120 0x65000000  DCD 0x65
- 108171124 0x73000000  DCD 0x73
- 108171128 0xa0000000  DCD 0xa
- 10817112c 0x00000000  DCD 0x0
- 108171130 0x00000000  DCD 0x0
-L_str2:
- 108171134 0x1b000000  .quad 0x1b
- 108171138 0x00000000  ; (upper half)
- 10817113c 0x66000000  DCD 0x66
- 108171140 0x31000000  DCD 0x31
- 108171144 0x20000000  DCD 0x20
- 108171148 0x63000000  DCD 0x63
- 10817114c 0x72000000  DCD 0x72
- 108171150 0x65000000  DCD 0x65
- 108171154 0x61000000  DCD 0x61
- 108171158 0x74000000  DCD 0x74
- 10817115c 0x65000000  DCD 0x65
- 108171160 0x64000000  DCD 0x64
- 108171164 0x20000000  DCD 0x20
- 108171168 0x77000000  DCD 0x77
- 10817116c 0x69000000  DCD 0x69
- 108171170 0x74000000  DCD 0x74
- 108171174 0x68000000  DCD 0x68
- 108171178 0x20000000  DCD 0x20
- 10817117c 0x28000000  DCD 0x28
- 108171180 0x31000000  DCD 0x31
- 108171184 0x2e000000  DCD 0x2e
- 108171188 0x30000000  DCD 0x30
- 10817118c 0x2c000000  DCD 0x2c
- 108171190 0x20000000  DCD 0x20
- 108171194 0x32000000  DCD 0x32
- 108171198 0x2e000000  DCD 0x2e
- 10817119c 0x30000000  DCD 0x30
- 1081711a0 0x29000000  DCD 0x29
- 1081711a4 0xa0000000  DCD 0xa
- 1081711a8 0x00000000  DCD 0x0
- 1081711ac 0x00000000  DCD 0x0
-L_str3:
- 1081711b0 0xf0000000  .quad 0xf
- 1081711b4 0x00000000  ; (upper half)
- 1081711b8 0x66000000  DCD 0x66
- 1081711bc 0x31000000  DCD 0x31
- 1081711c0 0x20000000  DCD 0x20
- 1081711c4 0x6c000000  DCD 0x6c
- 1081711c8 0x61000000  DCD 0x61
- 1081711cc 0x6e000000  DCD 0x6e
- 1081711d0 0x65000000  DCD 0x65
- 1081711d4 0x20000000  DCD 0x20
- 1081711d8 0x30000000  DCD 0x30
- 1081711dc 0x20000000  DCD 0x20
- 1081711e0 0x3d000000  DCD 0x3d
- 1081711e4 0x20000000  DCD 0x20
- 1081711e8 0x25000000  DCD 0x25
- 1081711ec 0x46000000  DCD 0x46
- 1081711f0 0xa0000000  DCD 0xa
- 1081711f4 0x00000000  DCD 0x0
- 1081711f8 0x00000000  DCD 0x0
-L_str4:
- 1081711fc 0xf0000000  .quad 0xf
- 108171200 0x00000000  ; (upper half)
- 108171204 0x66000000  DCD 0x66
- 108171208 0x31000000  DCD 0x31
- 10817120c 0x20000000  DCD 0x20
- 108171210 0x6c000000  DCD 0x6c
- 108171214 0x61000000  DCD 0x61
- 108171218 0x6e000000  DCD 0x6e
- 10817121c 0x65000000  DCD 0x65
- 108171220 0x20000000  DCD 0x20
- 108171224 0x31000000  DCD 0x31
- 108171228 0x20000000  DCD 0x20
- 10817122c 0x3d000000  DCD 0x3d
- 108171230 0x20000000  DCD 0x20
- 108171234 0x25000000  DCD 0x25
- 108171238 0x46000000  DCD 0x46
- 10817123c 0xa0000000  DCD 0xa
- 108171240 0x00000000  DCD 0x0
- 108171244 0x00000000  DCD 0x0
-L_str5:
- 108171248 0x1d000000  .quad 0x1d
- 10817124c 0x00000000  ; (upper half)
- 108171250 0x54000000  DCD 0x54
- 108171254 0x65000000  DCD 0x65
- 108171258 0x73000000  DCD 0x73
- 10817125c 0x74000000  DCD 0x74
- 108171260 0x20000000  DCD 0x20
- 108171264 0x32000000  DCD 0x32
- 108171268 0x3a000000  DCD 0x3a
- 10817126c 0x20000000  DCD 0x20
- 108171270 0x4f000000  DCD 0x4f
- 108171274 0x72000000  DCD 0x72
- 108171278 0x69000000  DCD 0x69
- 10817127c 0x67000000  DCD 0x67
- 108171280 0x69000000  DCD 0x69
- 108171284 0x6e000000  DCD 0x6e
- 108171288 0x61000000  DCD 0x61
- 10817128c 0x6c000000  DCD 0x6c
- 108171290 0x20000000  DCD 0x20
- 108171294 0x74000000  DCD 0x74
- 108171298 0x65000000  DCD 0x65
- 10817129c 0x73000000  DCD 0x73
- 1081712a0 0x74000000  DCD 0x74
- 1081712a4 0x20000000  DCD 0x20
- 1081712a8 0x76000000  DCD 0x76
- 1081712ac 0x61000000  DCD 0x61
- 1081712b0 0x6c000000  DCD 0x6c
- 1081712b4 0x75000000  DCD 0x75
- 1081712b8 0x65000000  DCD 0x65
- 1081712bc 0x73000000  DCD 0x73
- 1081712c0 0xa0000000  DCD 0xa
- 1081712c4 0x00000000  DCD 0x0
- 1081712c8 0x00000000  DCD 0x0
-L_str6:
- 1081712cc 0x1d000000  .quad 0x1d
- 1081712d0 0x00000000  ; (upper half)
- 1081712d4 0x66000000  DCD 0x66
- 1081712d8 0x32000000  DCD 0x32
- 1081712dc 0x20000000  DCD 0x20
- 1081712e0 0x63000000  DCD 0x63
- 1081712e4 0x72000000  DCD 0x72
- 1081712e8 0x65000000  DCD 0x65
- 1081712ec 0x61000000  DCD 0x61
- 1081712f0 0x74000000  DCD 0x74
- 1081712f4 0x65000000  DCD 0x65
- 1081712f8 0x64000000  DCD 0x64
- 1081712fc 0x20000000  DCD 0x20
- 108171300 0x77000000  DCD 0x77
- 108171304 0x69000000  DCD 0x69
- 108171308 0x74000000  DCD 0x74
- 10817130c 0x68000000  DCD 0x68
- 108171310 0x20000000  DCD 0x20
- 108171314 0x28000000  DCD 0x28
- 108171318 0x31000000  DCD 0x31
- 10817131c 0x30000000  DCD 0x30
- 108171320 0x2e000000  DCD 0x2e
- 108171324 0x30000000  DCD 0x30
- 108171328 0x2c000000  DCD 0x2c
- 10817132c 0x20000000  DCD 0x20
- 108171330 0x32000000  DCD 0x32
- 108171334 0x30000000  DCD 0x30
- 108171338 0x2e000000  DCD 0x2e
- 10817133c 0x30000000  DCD 0x30
- 108171340 0x29000000  DCD 0x29
- 108171344 0xa0000000  DCD 0xa
- 108171348 0x00000000  DCD 0x0
- 10817134c 0x00000000  DCD 0x0
-L_str7:
- 108171350 0xf0000000  .quad 0xf
- 108171354 0x00000000  ; (upper half)
- 108171358 0x66000000  DCD 0x66
- 10817135c 0x32000000  DCD 0x32
- 108171360 0x20000000  DCD 0x20
- 108171364 0x6c000000  DCD 0x6c
- 108171368 0x61000000  DCD 0x61
- 10817136c 0x6e000000  DCD 0x6e
- 108171370 0x65000000  DCD 0x65
- 108171374 0x20000000  DCD 0x20
- 108171378 0x30000000  DCD 0x30
- 10817137c 0x20000000  DCD 0x20
- 108171380 0x3d000000  DCD 0x3d
- 108171384 0x20000000  DCD 0x20
- 108171388 0x25000000  DCD 0x25
- 10817138c 0x46000000  DCD 0x46
- 108171390 0xa0000000  DCD 0xa
- 108171394 0x00000000  DCD 0x0
- 108171398 0x00000000  DCD 0x0
-L_str8:
- 10817139c 0xf0000000  .quad 0xf
- 1081713a0 0x00000000  ; (upper half)
- 1081713a4 0x66000000  DCD 0x66
- 1081713a8 0x32000000  DCD 0x32
- 1081713ac 0x20000000  DCD 0x20
- 1081713b0 0x6c000000  DCD 0x6c
- 1081713b4 0x61000000  DCD 0x61
- 1081713b8 0x6e000000  DCD 0x6e
- 1081713bc 0x65000000  DCD 0x65
- 1081713c0 0x20000000  DCD 0x20
- 1081713c4 0x31000000  DCD 0x31
- 1081713c8 0x20000000  DCD 0x20
- 1081713cc 0x3d000000  DCD 0x3d
- 1081713d0 0x20000000  DCD 0x20
- 1081713d4 0x25000000  DCD 0x25
- 1081713d8 0x46000000  DCD 0x46
- 1081713dc 0xa0000000  DCD 0xa
- 1081713e0 0x00000000  DCD 0x0
- 1081713e4 0x00000000  DCD 0x0
-L_str9:
- 1081713e8 0x19000000  .quad 0x19
- 1081713ec 0x00000000  ; (upper half)
- 1081713f0 0x54000000  DCD 0x54
- 1081713f4 0x65000000  DCD 0x65
- 1081713f8 0x73000000  DCD 0x73
- 1081713fc 0x74000000  DCD 0x74
- 108171400 0x20000000  DCD 0x20
- 108171404 0x33000000  DCD 0x33
- 108171408 0x3a000000  DCD 0x3a
- 10817140c 0x20000000  DCD 0x20
- 108171410 0x44000000  DCD 0x44
- 108171414 0x69000000  DCD 0x69
- 108171418 0x66000000  DCD 0x66
- 10817141c 0x66000000  DCD 0x66
- 108171420 0x65000000  DCD 0x65
- 108171424 0x72000000  DCD 0x72
- 108171428 0x65000000  DCD 0x65
- 10817142c 0x6e000000  DCD 0x6e
- 108171430 0x74000000  DCD 0x74
- 108171434 0x20000000  DCD 0x20
- 108171438 0x76000000  DCD 0x76
- 10817143c 0x61000000  DCD 0x61
- 108171440 0x6c000000  DCD 0x6c
- 108171444 0x75000000  DCD 0x75
- 108171448 0x65000000  DCD 0x65
- 10817144c 0x73000000  DCD 0x73
- 108171450 0xa0000000  DCD 0xa
- 108171454 0x00000000  DCD 0x0
- 108171458 0x00000000  DCD 0x0
-L_str10:
- 10817145c 0x23000000  .quad 0x23
- 108171460 0x00000000  ; (upper half)
- 108171464 0x66000000  DCD 0x66
- 108171468 0x33000000  DCD 0x33
- 10817146c 0x20000000  DCD 0x20
- 108171470 0x63000000  DCD 0x63
- 108171474 0x72000000  DCD 0x72
- 108171478 0x65000000  DCD 0x65
- 10817147c 0x61000000  DCD 0x61
- 108171480 0x74000000  DCD 0x74
- 108171484 0x65000000  DCD 0x65
- 108171488 0x64000000  DCD 0x64
- 10817148c 0x20000000  DCD 0x20
- 108171490 0x77000000  DCD 0x77
- 108171494 0x69000000  DCD 0x69
- 108171498 0x74000000  DCD 0x74
- 10817149c 0x68000000  DCD 0x68
- 1081714a0 0x20000000  DCD 0x20
- 1081714a4 0x28000000  DCD 0x28
- 1081714a8 0x33000000  DCD 0x33
- 1081714ac 0x2e000000  DCD 0x2e
- 1081714b0 0x31000000  DCD 0x31
- 1081714b4 0x34000000  DCD 0x34
- 1081714b8 0x31000000  DCD 0x31
- 1081714bc 0x35000000  DCD 0x35
- 1081714c0 0x39000000  DCD 0x39
- 1081714c4 0x2c000000  DCD 0x2c
- 1081714c8 0x20000000  DCD 0x20
- 1081714cc 0x32000000  DCD 0x32
- 1081714d0 0x2e000000  DCD 0x2e
- 1081714d4 0x37000000  DCD 0x37
- 1081714d8 0x31000000  DCD 0x31
- 1081714dc 0x38000000  DCD 0x38
- 1081714e0 0x32000000  DCD 0x32
- 1081714e4 0x38000000  DCD 0x38
- 1081714e8 0x29000000  DCD 0x29
- 1081714ec 0xa0000000  DCD 0xa
- 1081714f0 0x00000000  DCD 0x0
- 1081714f4 0x00000000  DCD 0x0
-L_str11:
- 1081714f8 0xf0000000  .quad 0xf
- 1081714fc 0x00000000  ; (upper half)
- 108171500 0x66000000  DCD 0x66
- 108171504 0x33000000  DCD 0x33
- 108171508 0x20000000  DCD 0x20
- 10817150c 0x6c000000  DCD 0x6c
- 108171510 0x61000000  DCD 0x61
- 108171514 0x6e000000  DCD 0x6e
- 108171518 0x65000000  DCD 0x65
- 10817151c 0x20000000  DCD 0x20
- 108171520 0x30000000  DCD 0x30
- 108171524 0x20000000  DCD 0x20
- 108171528 0x3d000000  DCD 0x3d
- 10817152c 0x20000000  DCD 0x20
- 108171530 0x25000000  DCD 0x25
- 108171534 0x46000000  DCD 0x46
- 108171538 0xa0000000  DCD 0xa
- 10817153c 0x00000000  DCD 0x0
- 108171540 0x00000000  DCD 0x0
-L_str12:
- 108171544 0xf0000000  .quad 0xf
- 108171548 0x00000000  ; (upper half)
- 10817154c 0x66000000  DCD 0x66
- 108171550 0x33000000  DCD 0x33
- 108171554 0x20000000  DCD 0x20
- 108171558 0x6c000000  DCD 0x6c
- 10817155c 0x61000000  DCD 0x61
- 108171560 0x6e000000  DCD 0x6e
- 108171564 0x65000000  DCD 0x65
- 108171568 0x20000000  DCD 0x20
- 10817156c 0x31000000  DCD 0x31
- 108171570 0x20000000  DCD 0x20
- 108171574 0x3d000000  DCD 0x3d
- 108171578 0x20000000  DCD 0x20
- 10817157c 0x25000000  DCD 0x25
- 108171580 0x46000000  DCD 0x46
- 108171584 0xa0000000  DCD 0xa
- 108171588 0x00000000  DCD 0x0
- 10817158c 0x00000000  DCD 0x0
-L_str13:
- 108171590 0x18000000  .quad 0x18
- 108171594 0x00000000  ; (upper half)
- 108171598 0x54000000  DCD 0x54
- 10817159c 0x65000000  DCD 0x65
- 1081715a0 0x73000000  DCD 0x73
- 1081715a4 0x74000000  DCD 0x74
- 1081715a8 0x20000000  DCD 0x20
- 1081715ac 0x34000000  DCD 0x34
- 1081715b0 0x3a000000  DCD 0x3a
- 1081715b4 0x20000000  DCD 0x20
- 1081715b8 0x4e000000  DCD 0x4e
- 1081715bc 0x65000000  DCD 0x65
- 1081715c0 0x67000000  DCD 0x67
- 1081715c4 0x61000000  DCD 0x61
- 1081715c8 0x74000000  DCD 0x74
- 1081715cc 0x69000000  DCD 0x69
- 1081715d0 0x76000000  DCD 0x76
- 1081715d4 0x65000000  DCD 0x65
- 1081715d8 0x20000000  DCD 0x20
- 1081715dc 0x76000000  DCD 0x76
- 1081715e0 0x61000000  DCD 0x61
- 1081715e4 0x6c000000  DCD 0x6c
- 1081715e8 0x75000000  DCD 0x75
- 1081715ec 0x65000000  DCD 0x65
- 1081715f0 0x73000000  DCD 0x73
- 1081715f4 0xa0000000  DCD 0xa
- 1081715f8 0x00000000  DCD 0x0
- 1081715fc 0x00000000  DCD 0x0
-L_str14:
- 108171600 0x1d000000  .quad 0x1d
- 108171604 0x00000000  ; (upper half)
- 108171608 0x66000000  DCD 0x66
- 10817160c 0x34000000  DCD 0x34
- 108171610 0x20000000  DCD 0x20
- 108171614 0x63000000  DCD 0x63
- 108171618 0x72000000  DCD 0x72
- 10817161c 0x65000000  DCD 0x65
- 108171620 0x61000000  DCD 0x61
- 108171624 0x74000000  DCD 0x74
- 108171628 0x65000000  DCD 0x65
- 10817162c 0x64000000  DCD 0x64
- 108171630 0x20000000  DCD 0x20
- 108171634 0x77000000  DCD 0x77
- 108171638 0x69000000  DCD 0x69
- 10817163c 0x74000000  DCD 0x74
- 108171640 0x68000000  DCD 0x68
- 108171644 0x20000000  DCD 0x20
- 108171648 0x28000000  DCD 0x28
- 10817164c 0x2d000000  DCD 0x2d
- 108171650 0x31000000  DCD 0x31
- 108171654 0x2e000000  DCD 0x2e
- 108171658 0x30000000  DCD 0x30
- 10817165c 0x2c000000  DCD 0x2c
- 108171660 0x20000000  DCD 0x20
- 108171664 0x2d000000  DCD 0x2d
- 108171668 0x32000000  DCD 0x32
- 10817166c 0x2e000000  DCD 0x2e
- 108171670 0x30000000  DCD 0x30
- 108171674 0x29000000  DCD 0x29
- 108171678 0xa0000000  DCD 0xa
- 10817167c 0x00000000  DCD 0x0
- 108171680 0x00000000  DCD 0x0
-L_str15:
- 108171684 0xf0000000  .quad 0xf
- 108171688 0x00000000  ; (upper half)
- 10817168c 0x66000000  DCD 0x66
- 108171690 0x34000000  DCD 0x34
- 108171694 0x20000000  DCD 0x20
- 108171698 0x6c000000  DCD 0x6c
- 10817169c 0x61000000  DCD 0x61
- 1081716a0 0x6e000000  DCD 0x6e
- 1081716a4 0x65000000  DCD 0x65
- 1081716a8 0x20000000  DCD 0x20
- 1081716ac 0x30000000  DCD 0x30
- 1081716b0 0x20000000  DCD 0x20
- 1081716b4 0x3d000000  DCD 0x3d
- 1081716b8 0x20000000  DCD 0x20
- 1081716bc 0x25000000  DCD 0x25
- 1081716c0 0x46000000  DCD 0x46
- 1081716c4 0xa0000000  DCD 0xa
- 1081716c8 0x00000000  DCD 0x0
- 1081716cc 0x00000000  DCD 0x0
-L_str16:
- 1081716d0 0xf0000000  .quad 0xf
- 1081716d4 0x00000000  ; (upper half)
- 1081716d8 0x66000000  DCD 0x66
- 1081716dc 0x34000000  DCD 0x34
- 1081716e0 0x20000000  DCD 0x20
- 1081716e4 0x6c000000  DCD 0x6c
- 1081716e8 0x61000000  DCD 0x61
- 1081716ec 0x6e000000  DCD 0x6e
- 1081716f0 0x65000000  DCD 0x65
- 1081716f4 0x20000000  DCD 0x20
- 1081716f8 0x31000000  DCD 0x31
- 1081716fc 0x20000000  DCD 0x20
- 108171700 0x3d000000  DCD 0x3d
- 108171704 0x20000000  DCD 0x20
- 108171708 0x25000000  DCD 0x25
- 10817170c 0x46000000  DCD 0x46
- 108171710 0xa0000000  DCD 0xa
- 108171714 0x00000000  DCD 0x0
- 108171718 0x00000000  DCD 0x0
-L_str17:
- 10817171c 0x16000000  .quad 0x16
- 108171720 0x00000000  ; (upper half)
- 108171724 0x45000000  DCD 0x45
- 108171728 0x6e000000  DCD 0x6e
- 10817172c 0x64000000  DCD 0x64
- 108171730 0x20000000  DCD 0x20
- 108171734 0x6f000000  DCD 0x6f
- 108171738 0x66000000  DCD 0x66
- 10817173c 0x20000000  DCD 0x20
- 108171740 0x64000000  DCD 0x64
- 108171744 0x65000000  DCD 0x65
- 108171748 0x62000000  DCD 0x62
- 10817174c 0x75000000  DCD 0x75
- 108171750 0x67000000  DCD 0x67
- 108171754 0x67000000  DCD 0x67
- 108171758 0x69000000  DCD 0x69
- 10817175c 0x6e000000  DCD 0x6e
- 108171760 0x67000000  DCD 0x67
- 108171764 0x20000000  DCD 0x20
- 108171768 0x74000000  DCD 0x74
- 10817176c 0x65000000  DCD 0x65
- 108171770 0x73000000  DCD 0x73
- 108171774 0x74000000  DCD 0x74
- 108171778 0xa0000000  DCD 0xa
- 10817177c 0x00000000  DCD 0x0
- 108171780 0x00000000  DCD 0x0
+ 10827d000 0x28000000  .quad 0x28
+ 10827d004 0x00000000  ; (upper half)
+ 10827d008 0x54000000  DCD 0x54
+ 10827d00c 0x65000000  DCD 0x65
+ 10827d010 0x73000000  DCD 0x73
+ 10827d014 0x74000000  DCD 0x74
+ 10827d018 0x69000000  DCD 0x69
+ 10827d01c 0x6e000000  DCD 0x6e
+ 10827d020 0x67000000  DCD 0x67
+ 10827d024 0x20000000  DCD 0x20
+ 10827d028 0x50000000  DCD 0x50
+ 10827d02c 0x61000000  DCD 0x61
+ 10827d030 0x69000000  DCD 0x69
+ 10827d034 0x72000000  DCD 0x72
+ 10827d038 0x77000000  DCD 0x77
+ 10827d03c 0x69000000  DCD 0x69
+ 10827d040 0x73000000  DCD 0x73
+ 10827d044 0x65000000  DCD 0x65
+ 10827d048 0x20000000  DCD 0x20
+ 10827d04c 0x4f000000  DCD 0x4f
+ 10827d050 0x70000000  DCD 0x70
+ 10827d054 0x65000000  DCD 0x65
+ 10827d058 0x72000000  DCD 0x72
+ 10827d05c 0x61000000  DCD 0x61
+ 10827d060 0x74000000  DCD 0x74
+ 10827d064 0x69000000  DCD 0x69
+ 10827d068 0x6f000000  DCD 0x6f
+ 10827d06c 0x6e000000  DCD 0x6e
+ 10827d070 0x20000000  DCD 0x20
+ 10827d074 0x4c000000  DCD 0x4c
+ 10827d078 0x69000000  DCD 0x69
+ 10827d07c 0x76000000  DCD 0x76
+ 10827d080 0x65000000  DCD 0x65
+ 10827d084 0x6e000000  DCD 0x6e
+ 10827d088 0x65000000  DCD 0x65
+ 10827d08c 0x73000000  DCD 0x73
+ 10827d090 0x73000000  DCD 0x73
+ 10827d094 0x20000000  DCD 0x20
+ 10827d098 0x46000000  DCD 0x46
+ 10827d09c 0x69000000  DCD 0x69
+ 10827d0a0 0x78000000  DCD 0x78
+ 10827d0a4 0xa0000000  DCD 0xa
+ 10827d0a8 0x00000000  DCD 0x0
+ 10827d0ac 0x00000000  DCD 0x0
 L_float0:
- 108171784 0x00000000  .quad 0x3ff0000000000000
- 108171788 0x3ff00000  ; (upper half)
+ 10827d0b0 0x00000000  .quad 0x4000000000000000
+ 10827d0b4 0x40000000  ; (upper half)
 L_float1:
- 10817178c 0x00000000  .quad 0x4000000000000000
- 108171790 0x40000000  ; (upper half)
-L_float2:
- 108171794 0x00000000  .quad 0x4024000000000000
- 108171798 0x40240000  ; (upper half)
-L_float3:
- 10817179c 0x00000000  .quad 0x4034000000000000
- 1081717a0 0x40340000  ; (upper half)
-L_float4:
- 1081717a4 0xf01b866e  .quad 0x400921f9f01b866e
- 1081717a8 0x400921f9  ; (upper half)
-L_float5:
- 1081717ac 0x95aaf790  .quad 0x4005bf0995aaf790
- 1081717b0 0x4005bf09  ; (upper half)
+ 10827d0b8 0x00000000  .quad 0x4008000000000000
+ 10827d0bc 0x40080000  ; (upper half)
 
 --------------------------
 
@@ -2681,893 +1143,6 @@ JIT runtime table populated with 124 function pointers.
 Set runtime function table memory to read-only.
 
 --- JIT Execution ---
-JIT execution enabled. Entry point 'START' at 0x10816c0a8
-[JITExecutor] Starting execution of JIT-compiled function at address: 0x10816c0a8
-Testing FPAIR bit patterns and debugging
-Test 1: Simple float values
-f1 created with (1.0, 2.0)
-f1 lane 0 = 0.000000
-f1 lane 1 = 0.000000
-Test 2: Original test values
-f2 created with (10.0, 20.0)
-f2 lane 0 = 0.000000
-f2 lane 1 = 0.000000
-Test 3: Different values
-f3 created with (3.14159, 2.71828)
-f3 lane 0 = 3.141590
-f3 lane 1 = 2.718280
-Test 4: Negative values
-f4 created with (-1.0, -2.0)
-f4 lane 0 = -1.000000
-f4 lane 1 = -2.000000
-End of debugging test
-JIT Execution completed with result: 0
-  Same value as double: 0
-[JITExecutor] Execution completed. Result: 0
-
---- JIT returned with result: 0 ---
-
---- Generated Assembly Code (After Linking) ---
---- Code Section Listing (Base Address: 0x10816c000) ---
-Address Hex Code    Assembly
---------------------------------------------------
- 10816c000 0x00000000  
-; --- Veneer Section ---
- 0000000 0x00000000  DCD 0
-HeapManager_enter_scope_veneer:
- 10816c004 0xd28a6510  MOVZ X16, #21288
- 10816c008 0xf2a05c10  MOVK X16, #736, LSL #16
- 10816c00c 0xf2c00030  MOVK X16, #1, LSL #32
- 10816c010 0xd61f0200  BR X16
- 0000000 0x00000000  DCD 0
-HeapManager_exit_scope_veneer:
- 10816c014 0xd28a6a90  MOVZ X16, #21332
- 10816c018 0xf2a05c10  MOVK X16, #736, LSL #16
- 10816c01c 0xf2c00030  MOVK X16, #1, LSL #32
- 10816c020 0xd61f0200  BR X16
- 0000000 0x00000000  DCD 0
-WRITEF_veneer:
- 10816c024 0xd29a6f90  MOVZ X16, #54140
- 10816c028 0xf2a05c70  MOVK X16, #739, LSL #16
- 10816c02c 0xf2c00030  MOVK X16, #1, LSL #32
- 10816c030 0xd61f0200  BR X16
- 0000000 0x00000000  DCD 0
-WRITEF1_veneer:
- 10816c034 0xd29b1390  MOVZ X16, #55452
- 10816c038 0xf2a05c70  MOVK X16, #739, LSL #16
- 10816c03c 0xf2c00030  MOVK X16, #1, LSL #32
- 10816c040 0xd61f0200  BR X16
- 0000000 0x00000000  DCD 0
-WRITEF2_veneer:
- 10816c044 0xd29b2090  MOVZ X16, #55556
- 10816c048 0xf2a05c70  MOVK X16, #739, LSL #16
- 10816c04c 0xf2c00030  MOVK X16, #1, LSL #32
- 10816c050 0xd61f0200  BR X16
- 0000000 0x00000000  DCD 0
-WRITEF3_veneer:
- 10816c054 0xd29b2f10  MOVZ X16, #55672
- 10816c058 0xf2a05c70  MOVK X16, #739, LSL #16
- 10816c05c 0xf2c00030  MOVK X16, #1, LSL #32
- 10816c060 0xd61f0200  BR X16
- 0000000 0x00000000  DCD 0
-WRITEF4_veneer:
- 10816c064 0xd29b3f10  MOVZ X16, #55800
- 10816c068 0xf2a05c70  MOVK X16, #739, LSL #16
- 10816c06c 0xf2c00030  MOVK X16, #1, LSL #32
- 10816c070 0xd61f0200  BR X16
- 0000000 0x00000000  DCD 0
-WRITEF5_veneer:
- 10816c074 0xd29b5090  MOVZ X16, #55940
- 10816c078 0xf2a05c70  MOVK X16, #739, LSL #16
- 10816c07c 0xf2c00030  MOVK X16, #1, LSL #32
- 10816c080 0xd61f0200  BR X16
- 0000000 0x00000000  DCD 0
-WRITEF6_veneer:
- 10816c084 0xd29b6390  MOVZ X16, #56092
- 10816c088 0xf2a05c70  MOVK X16, #739, LSL #16
- 10816c08c 0xf2c00030  MOVK X16, #1, LSL #32
- 10816c090 0xd61f0200  BR X16
- 0000000 0x00000000  DCD 0
-WRITEF7_veneer:
- 10816c094 0xd29b7810  MOVZ X16, #56256
- 10816c098 0xf2a05c70  MOVK X16, #739, LSL #16
- 10816c09c 0xf2c00030  MOVK X16, #1, LSL #32
- 10816c0a0 0xd61f0200  BR X16
- 10816c0a4 0x00000000  ; --- End Veneer Section ---
-
- 0000000 0x00000000  DCD 0
-START:
- 10816c0a8 0xa9bb7bfd  STP X29, X30, [SP, #-80]!
- 10816c0ac 0x910003fd  MOV X29, SP
- 10816c0b0 0xa9036fb3  STP x19, x27, [x29, #48]
- 10816c0b4 0xf90023bc  STR X28, [X29, #64] ; Saved Reg: X28 @ FP+64
- 10816c0b8 0xd280001c  MOVZ X28, #0
- 10816c0bc 0xf2a06d3c  MOVK X28, #873, LSL #16
- 10816c0c0 0xf2c0003c  MOVK X28, #1, LSL #32
- 10816c0c4 0xf2e0001c  MOVK X28, #0, LSL #48
- 0000000 0x00000000  DCD 0
-START_Entry_0:
- 10816c0c8 0xb0000029  ADRP X9, L_str0    ; Reloc -> 'L_str0' @ 0x108171000
- 10816c0cc 0x91000129  ADD X9, X9, #:lo12:L_str0    ; Reloc -> 'L_str0' @ 0x108171000
- 10816c0d0 0x91002129  ADD X9, X9, #8
- 10816c0d4 0xaa0903e0  MOV X0, X9
- 10816c0d8 0x97ffffd3  BL WRITEF_veneer    ; Reloc -> 'WRITEF_veneer' @ 0x10816c024
- 10816c0dc 0xb0000029  ADRP X9, L_str1    ; Reloc -> 'L_str1' @ 0x1081710b4
- 10816c0e0 0x9102d129  ADD X9, X9, #:lo12:L_str1    ; Reloc -> 'L_str1' @ 0x1081710b4
- 10816c0e4 0x91002129  ADD X9, X9, #8
- 10816c0e8 0xaa0903e0  MOV X0, X9
- 10816c0ec 0x97ffffce  BL WRITEF_veneer    ; Reloc -> 'WRITEF_veneer' @ 0x10816c024
- 10816c0f0 0xd2800009  MOVZ X9, #0
- 10816c0f4 0xb000002b  ADRP X11, L_float0    ; Reloc -> 'L_float0' @ 0x108171784
- 10816c0f8 0x911e116b  ADD X11, X11, #:lo12:L_float0    ; Reloc -> 'L_float0' @ 0x108171784
- 10816c0fc 0xfd400160  LDR D0, [X11, #0]
- 10816c100 0x1e624001  FCVT S1, D0 ;encoder.
- 10816c104 0x1e26002b  FMOV W11, S1
- 10816c108 0xb3407d69  BFXIL X9, X11, #0, #32
- 10816c10c 0xb000002c  ADRP X12, L_float1    ; Reloc -> 'L_float1' @ 0x10817178c
- 10816c110 0x911e318c  ADD X12, X12, #:lo12:L_float1    ; Reloc -> 'L_float1' @ 0x10817178c
- 10816c114 0xfd400180  LDR D0, [X12, #0]
- 10816c118 0x1e624001  FCVT S1, D0 ;encoder.
- 10816c11c 0x1e26002c  FMOV W12, S1
- 10816c120 0xb3607d89  BFI X9, X12, #32, #32
- 10816c124 0xaa0903ef  MOV X15, X9
- 10816c128 0xb0000029  ADRP X9, L_str2    ; Reloc -> 'L_str2' @ 0x108171134
- 10816c12c 0x9104d129  ADD X9, X9, #:lo12:L_str2    ; Reloc -> 'L_str2' @ 0x108171134
- 10816c130 0x91002129  ADD X9, X9, #8
- 10816c134 0xaa0903e0  MOV X0, X9
- 10816c138 0x97ffffbb  BL WRITEF_veneer    ; Reloc -> 'WRITEF_veneer' @ 0x10816c024
- 10816c13c 0xb0000029  ADRP X9, L_str3    ; Reloc -> 'L_str3' @ 0x1081711b0
- 10816c140 0x9106c129  ADD X9, X9, #:lo12:L_str3    ; Reloc -> 'L_str3' @ 0x1081711b0
- 10816c144 0x91002129  ADD X9, X9, #8
- 10816c148 0xaa0903e0  MOV X0, X9
- 10816c14c 0x9e6701e1  fmov D1, X15
- 10816c150 0xd3407df4  UBFX X20, X15, #0, #32
- 10816c154 0x1e270282  fmov S2, W20
- 10816c158 0x1e22c040  fcvt D0, S2
- 10816c15c 0x9e660009  FMOV X9, D0
- 10816c160 0xaa0903e1  MOV X1, X9
- 10816c164 0x97ffffb4  BL WRITEF1_veneer    ; Reloc -> 'WRITEF1_veneer' @ 0x10816c034
- 10816c168 0xb0000029  ADRP X9, L_str4    ; Reloc -> 'L_str4' @ 0x1081711fc
- 10816c16c 0x9107f129  ADD X9, X9, #:lo12:L_str4    ; Reloc -> 'L_str4' @ 0x1081711fc
- 10816c170 0x91002129  ADD X9, X9, #8
- 10816c174 0xaa0903e0  MOV X0, X9
- 10816c178 0x9e6701e1  fmov D1, X15
- 10816c17c 0xd360fdf4  UBFX X20, X15, #32, #32
- 10816c180 0x1e270282  fmov S2, W20
- 10816c184 0x1e22c040  fcvt D0, S2
- 10816c188 0x9e660009  FMOV X9, D0
- 10816c18c 0xaa0903e1  MOV X1, X9
- 10816c190 0x97ffffa9  BL WRITEF1_veneer    ; Reloc -> 'WRITEF1_veneer' @ 0x10816c034
- 10816c194 0xb0000029  ADRP X9, L_str5    ; Reloc -> 'L_str5' @ 0x108171248
- 10816c198 0x91092129  ADD X9, X9, #:lo12:L_str5    ; Reloc -> 'L_str5' @ 0x108171248
- 10816c19c 0x91002129  ADD X9, X9, #8
- 10816c1a0 0xaa0903e0  MOV X0, X9
- 10816c1a4 0x97ffffa0  BL WRITEF_veneer    ; Reloc -> 'WRITEF_veneer' @ 0x10816c024
- 10816c1a8 0xd2800009  MOVZ X9, #0
- 10816c1ac 0xb000002b  ADRP X11, L_float2    ; Reloc -> 'L_float2' @ 0x108171794
- 10816c1b0 0x911e516b  ADD X11, X11, #:lo12:L_float2    ; Reloc -> 'L_float2' @ 0x108171794
- 10816c1b4 0xfd400160  LDR D0, [X11, #0]
- 10816c1b8 0x1e624001  FCVT S1, D0 ;encoder.
- 10816c1bc 0x1e26002b  FMOV W11, S1
- 10816c1c0 0xb3407d69  BFXIL X9, X11, #0, #32
- 10816c1c4 0xb000002c  ADRP X12, L_float3    ; Reloc -> 'L_float3' @ 0x10817179c
- 10816c1c8 0x911e718c  ADD X12, X12, #:lo12:L_float3    ; Reloc -> 'L_float3' @ 0x10817179c
- 10816c1cc 0xfd400180  LDR D0, [X12, #0]
- 10816c1d0 0x1e624001  FCVT S1, D0 ;encoder.
- 10816c1d4 0x1e26002c  FMOV W12, S1
- 10816c1d8 0xb3607d89  BFI X9, X12, #32, #32
- 10816c1dc 0xaa0903ef  MOV X15, X9
- 10816c1e0 0xb0000029  ADRP X9, L_str6    ; Reloc -> 'L_str6' @ 0x1081712cc
- 10816c1e4 0x910b3129  ADD X9, X9, #:lo12:L_str6    ; Reloc -> 'L_str6' @ 0x1081712cc
- 10816c1e8 0x91002129  ADD X9, X9, #8
- 10816c1ec 0xaa0903e0  MOV X0, X9
- 10816c1f0 0x97ffff8d  BL WRITEF_veneer    ; Reloc -> 'WRITEF_veneer' @ 0x10816c024
- 10816c1f4 0xb0000029  ADRP X9, L_str7    ; Reloc -> 'L_str7' @ 0x108171350
- 10816c1f8 0x910d4129  ADD X9, X9, #:lo12:L_str7    ; Reloc -> 'L_str7' @ 0x108171350
- 10816c1fc 0x91002129  ADD X9, X9, #8
- 10816c200 0xaa0903e0  MOV X0, X9
- 10816c204 0x9e6701e1  fmov D1, X15
- 10816c208 0xd3407df4  UBFX X20, X15, #0, #32
- 10816c20c 0x1e270282  fmov S2, W20
- 10816c210 0x1e22c040  fcvt D0, S2
- 10816c214 0x9e660009  FMOV X9, D0
- 10816c218 0xaa0903e1  MOV X1, X9
- 10816c21c 0x97ffff86  BL WRITEF1_veneer    ; Reloc -> 'WRITEF1_veneer' @ 0x10816c034
- 10816c220 0xb0000029  ADRP X9, L_str8    ; Reloc -> 'L_str8' @ 0x10817139c
- 10816c224 0x910e7129  ADD X9, X9, #:lo12:L_str8    ; Reloc -> 'L_str8' @ 0x10817139c
- 10816c228 0x91002129  ADD X9, X9, #8
- 10816c22c 0xaa0903e0  MOV X0, X9
- 10816c230 0x9e6701e1  fmov D1, X15
- 10816c234 0xd360fdf4  UBFX X20, X15, #32, #32
- 10816c238 0x1e270282  fmov S2, W20
- 10816c23c 0x1e22c040  fcvt D0, S2
- 10816c240 0x9e660009  FMOV X9, D0
- 10816c244 0xaa0903e1  MOV X1, X9
- 10816c248 0x97ffff7b  BL WRITEF1_veneer    ; Reloc -> 'WRITEF1_veneer' @ 0x10816c034
- 10816c24c 0xb0000029  ADRP X9, L_str9    ; Reloc -> 'L_str9' @ 0x1081713e8
- 10816c250 0x910fa129  ADD X9, X9, #:lo12:L_str9    ; Reloc -> 'L_str9' @ 0x1081713e8
- 10816c254 0x91002129  ADD X9, X9, #8
- 10816c258 0xaa0903e0  MOV X0, X9
- 10816c25c 0x97ffff72  BL WRITEF_veneer    ; Reloc -> 'WRITEF_veneer' @ 0x10816c024
- 10816c260 0xd2800009  MOVZ X9, #0
- 10816c264 0xb000002b  ADRP X11, L_float4    ; Reloc -> 'L_float4' @ 0x1081717a4
- 10816c268 0x911e916b  ADD X11, X11, #:lo12:L_float4    ; Reloc -> 'L_float4' @ 0x1081717a4
- 10816c26c 0xfd400160  LDR D0, [X11, #0]
- 10816c270 0x1e624001  FCVT S1, D0 ;encoder.
- 10816c274 0x1e26002b  FMOV W11, S1
- 10816c278 0xb3407d69  BFXIL X9, X11, #0, #32
- 10816c27c 0xb000002c  ADRP X12, L_float5    ; Reloc -> 'L_float5' @ 0x1081717ac
- 10816c280 0x911eb18c  ADD X12, X12, #:lo12:L_float5    ; Reloc -> 'L_float5' @ 0x1081717ac
- 10816c284 0xfd400180  LDR D0, [X12, #0]
- 10816c288 0x1e624001  FCVT S1, D0 ;encoder.
- 10816c28c 0x1e26002c  FMOV W12, S1
- 10816c290 0xb3607d89  BFI X9, X12, #32, #32
- 10816c294 0xaa0903fb  MOV X27, X9
- 10816c298 0xb0000029  ADRP X9, L_str10    ; Reloc -> 'L_str10' @ 0x10817145c
- 10816c29c 0x91117129  ADD X9, X9, #:lo12:L_str10    ; Reloc -> 'L_str10' @ 0x10817145c
- 10816c2a0 0x91002129  ADD X9, X9, #8
- 10816c2a4 0xaa0903e0  MOV X0, X9
- 10816c2a8 0x97ffff5f  BL WRITEF_veneer    ; Reloc -> 'WRITEF_veneer' @ 0x10816c024
- 10816c2ac 0xb0000029  ADRP X9, L_str11    ; Reloc -> 'L_str11' @ 0x1081714f8
- 10816c2b0 0x9113e129  ADD X9, X9, #:lo12:L_str11    ; Reloc -> 'L_str11' @ 0x1081714f8
- 10816c2b4 0x91002129  ADD X9, X9, #8
- 10816c2b8 0xaa0903e0  MOV X0, X9
- 10816c2bc 0x9e670361  fmov D1, X27
- 10816c2c0 0xd3407f74  UBFX X20, X27, #0, #32
- 10816c2c4 0x1e270282  fmov S2, W20
- 10816c2c8 0x1e22c040  fcvt D0, S2
- 10816c2cc 0x9e660009  FMOV X9, D0
- 10816c2d0 0xaa0903e1  MOV X1, X9
- 10816c2d4 0x97ffff58  BL WRITEF1_veneer    ; Reloc -> 'WRITEF1_veneer' @ 0x10816c034
- 10816c2d8 0xb0000029  ADRP X9, L_str12    ; Reloc -> 'L_str12' @ 0x108171544
- 10816c2dc 0x91151129  ADD X9, X9, #:lo12:L_str12    ; Reloc -> 'L_str12' @ 0x108171544
- 10816c2e0 0x91002129  ADD X9, X9, #8
- 10816c2e4 0xaa0903e0  MOV X0, X9
- 10816c2e8 0x9e670361  fmov D1, X27
- 10816c2ec 0xd360ff74  UBFX X20, X27, #32, #32
- 10816c2f0 0x1e270282  fmov S2, W20
- 10816c2f4 0x1e22c040  fcvt D0, S2
- 10816c2f8 0x9e660009  FMOV X9, D0
- 10816c2fc 0xaa0903e1  MOV X1, X9
- 10816c300 0x97ffff4d  BL WRITEF1_veneer    ; Reloc -> 'WRITEF1_veneer' @ 0x10816c034
- 10816c304 0xb0000029  ADRP X9, L_str13    ; Reloc -> 'L_str13' @ 0x108171590
- 10816c308 0x91164129  ADD X9, X9, #:lo12:L_str13    ; Reloc -> 'L_str13' @ 0x108171590
- 10816c30c 0x91002129  ADD X9, X9, #8
- 10816c310 0xaa0903e0  MOV X0, X9
- 10816c314 0x97ffff44  BL WRITEF_veneer    ; Reloc -> 'WRITEF_veneer' @ 0x10816c024
- 10816c318 0xd2800009  MOVZ X9, #0
- 10816c31c 0xb000002b  ADRP X11, L_float0    ; Reloc -> 'L_float0' @ 0x108171784
- 10816c320 0x911e116b  ADD X11, X11, #:lo12:L_float0    ; Reloc -> 'L_float0' @ 0x108171784
- 10816c324 0xfd400160  LDR D0, [X11, #0]
- 10816c328 0x1e614001  FNEG D1, D0
- 10816c32c 0x1e624020  FCVT S0, D1 ;encoder.
- 10816c330 0x1e26000b  FMOV W11, S0
- 10816c334 0xb3407d69  BFXIL X9, X11, #0, #32
- 10816c338 0xb000002c  ADRP X12, L_float1    ; Reloc -> 'L_float1' @ 0x10817178c
- 10816c33c 0x911e318c  ADD X12, X12, #:lo12:L_float1    ; Reloc -> 'L_float1' @ 0x10817178c
- 10816c340 0xfd400180  LDR D0, [X12, #0]
- 10816c344 0x1e614001  FNEG D1, D0
- 10816c348 0x1e624020  FCVT S0, D1 ;encoder.
- 10816c34c 0x1e26000c  FMOV W12, S0
- 10816c350 0xb3607d89  BFI X9, X12, #32, #32
- 10816c354 0xaa0903fb  MOV X27, X9
- 10816c358 0xb0000029  ADRP X9, L_str14    ; Reloc -> 'L_str14' @ 0x108171600
- 10816c35c 0x91180129  ADD X9, X9, #:lo12:L_str14    ; Reloc -> 'L_str14' @ 0x108171600
- 10816c360 0x91002129  ADD X9, X9, #8
- 10816c364 0xaa0903e0  MOV X0, X9
- 10816c368 0x97ffff2f  BL WRITEF_veneer    ; Reloc -> 'WRITEF_veneer' @ 0x10816c024
- 10816c36c 0xb0000029  ADRP X9, L_str15    ; Reloc -> 'L_str15' @ 0x108171684
- 10816c370 0x911a1129  ADD X9, X9, #:lo12:L_str15    ; Reloc -> 'L_str15' @ 0x108171684
- 10816c374 0x91002129  ADD X9, X9, #8
- 10816c378 0xaa0903e0  MOV X0, X9
- 10816c37c 0x9e670361  fmov D1, X27
- 10816c380 0xd3407f74  UBFX X20, X27, #0, #32
- 10816c384 0x1e270282  fmov S2, W20
- 10816c388 0x1e22c040  fcvt D0, S2
- 10816c38c 0x9e660009  FMOV X9, D0
- 10816c390 0xaa0903e1  MOV X1, X9
- 10816c394 0x97ffff28  BL WRITEF1_veneer    ; Reloc -> 'WRITEF1_veneer' @ 0x10816c034
- 10816c398 0xb0000029  ADRP X9, L_str16    ; Reloc -> 'L_str16' @ 0x1081716d0
- 10816c39c 0x911b4129  ADD X9, X9, #:lo12:L_str16    ; Reloc -> 'L_str16' @ 0x1081716d0
- 10816c3a0 0x91002129  ADD X9, X9, #8
- 10816c3a4 0xaa0903e0  MOV X0, X9
- 10816c3a8 0x9e670361  fmov D1, X27
- 10816c3ac 0xd360ff74  UBFX X20, X27, #32, #32
- 10816c3b0 0x1e270282  fmov S2, W20
- 10816c3b4 0x1e22c040  fcvt D0, S2
- 10816c3b8 0x9e660009  FMOV X9, D0
- 10816c3bc 0xaa0903e1  MOV X1, X9
- 10816c3c0 0x97ffff1d  BL WRITEF1_veneer    ; Reloc -> 'WRITEF1_veneer' @ 0x10816c034
- 10816c3c4 0xb0000029  ADRP X9, L_str17    ; Reloc -> 'L_str17' @ 0x10817171c
- 10816c3c8 0x911c7129  ADD X9, X9, #:lo12:L_str17    ; Reloc -> 'L_str17' @ 0x10817171c
- 10816c3cc 0x91002129  ADD X9, X9, #8
- 10816c3d0 0xaa0903e0  MOV X0, X9
- 10816c3d4 0x97ffff14  BL WRITEF_veneer    ; Reloc -> 'WRITEF_veneer' @ 0x10816c024
- 10816c3d8 0x14000001  B START_Exit_1    ; Reloc -> 'START_Exit_1' @ 0x10816c3dc
- 0000000 0x00000000  DCD 0
-START_Exit_1:
- 10816c3dc 0x14000001  B .L0    ; Reloc -> '.L0' @ 0x10816c3e0
- 0000000 0x00000000  DCD 0
-.L0:
- 10816c3e0 0xa9436fb3  LDP x19, x27, [x29, #48]
- 10816c3e4 0xf94023bc  LDR X28, [X29, #64] ; Restored Reg: X28 @ FP+64
- 10816c3e8 0x910003bf  MOV SP, X29 ; Deallocate frame by moving FP to SP
- 10816c3ec 0xa9407bfd  LDP x29, x30, [SP, #0]
- 10816c3f0 0x910043ff  ADD SP, SP, #16 ; Deallocate space for saved FP/LR
- 10816c3f4 0xd65f03c0  RET
- 0000000 0x00000000  DCD 0
-L_str0:
- 108171000 0x29000000  .quad 0x29
- 108171004 0x00000000  ; (upper half)
- 108171008 0x54000000  DCD 0x54
- 10817100c 0x65000000  DCD 0x65
- 108171010 0x73000000  DCD 0x73
- 108171014 0x74000000  DCD 0x74
- 108171018 0x69000000  DCD 0x69
- 10817101c 0x6e000000  DCD 0x6e
- 108171020 0x67000000  DCD 0x67
- 108171024 0x20000000  DCD 0x20
- 108171028 0x46000000  DCD 0x46
- 10817102c 0x50000000  DCD 0x50
- 108171030 0x41000000  DCD 0x41
- 108171034 0x49000000  DCD 0x49
- 108171038 0x52000000  DCD 0x52
- 10817103c 0x20000000  DCD 0x20
- 108171040 0x62000000  DCD 0x62
- 108171044 0x69000000  DCD 0x69
- 108171048 0x74000000  DCD 0x74
- 10817104c 0x20000000  DCD 0x20
- 108171050 0x70000000  DCD 0x70
- 108171054 0x61000000  DCD 0x61
- 108171058 0x74000000  DCD 0x74
- 10817105c 0x74000000  DCD 0x74
- 108171060 0x65000000  DCD 0x65
- 108171064 0x72000000  DCD 0x72
- 108171068 0x6e000000  DCD 0x6e
- 10817106c 0x73000000  DCD 0x73
- 108171070 0x20000000  DCD 0x20
- 108171074 0x61000000  DCD 0x61
- 108171078 0x6e000000  DCD 0x6e
- 10817107c 0x64000000  DCD 0x64
- 108171080 0x20000000  DCD 0x20
- 108171084 0x64000000  DCD 0x64
- 108171088 0x65000000  DCD 0x65
- 10817108c 0x62000000  DCD 0x62
- 108171090 0x75000000  DCD 0x75
- 108171094 0x67000000  DCD 0x67
- 108171098 0x67000000  DCD 0x67
- 10817109c 0x69000000  DCD 0x69
- 1081710a0 0x6e000000  DCD 0x6e
- 1081710a4 0x67000000  DCD 0x67
- 1081710a8 0xa0000000  DCD 0xa
- 1081710ac 0x00000000  DCD 0x0
- 1081710b0 0x00000000  DCD 0x0
- 103690000 0x00000000  DCD 0x0
- 0000000 0x00000000  DCD 0
-L_str1:
- 1081710b4 0x1c000000  .quad 0x1c
- 1081710b8 0x00000000  ; (upper half)
- 1081710bc 0x54000000  DCD 0x54
- 1081710c0 0x65000000  DCD 0x65
- 1081710c4 0x73000000  DCD 0x73
- 1081710c8 0x74000000  DCD 0x74
- 1081710cc 0x20000000  DCD 0x20
- 1081710d0 0x31000000  DCD 0x31
- 1081710d4 0x3a000000  DCD 0x3a
- 1081710d8 0x20000000  DCD 0x20
- 1081710dc 0x53000000  DCD 0x53
- 1081710e0 0x69000000  DCD 0x69
- 1081710e4 0x6d000000  DCD 0x6d
- 1081710e8 0x70000000  DCD 0x70
- 1081710ec 0x6c000000  DCD 0x6c
- 1081710f0 0x65000000  DCD 0x65
- 1081710f4 0x20000000  DCD 0x20
- 1081710f8 0x66000000  DCD 0x66
- 1081710fc 0x6c000000  DCD 0x6c
- 108171100 0x6f000000  DCD 0x6f
- 108171104 0x61000000  DCD 0x61
- 108171108 0x74000000  DCD 0x74
- 10817110c 0x20000000  DCD 0x20
- 108171110 0x76000000  DCD 0x76
- 108171114 0x61000000  DCD 0x61
- 108171118 0x6c000000  DCD 0x6c
- 10817111c 0x75000000  DCD 0x75
- 108171120 0x65000000  DCD 0x65
- 108171124 0x73000000  DCD 0x73
- 108171128 0xa0000000  DCD 0xa
- 10817112c 0x00000000  DCD 0x0
- 108171130 0x00000000  DCD 0x0
- 103690004 0x00000000  DCD 0x0
- 0000000 0x00000000  DCD 0
-L_str2:
- 108171134 0x1b000000  .quad 0x1b
- 108171138 0x00000000  ; (upper half)
- 10817113c 0x66000000  DCD 0x66
- 108171140 0x31000000  DCD 0x31
- 108171144 0x20000000  DCD 0x20
- 108171148 0x63000000  DCD 0x63
- 10817114c 0x72000000  DCD 0x72
- 108171150 0x65000000  DCD 0x65
- 108171154 0x61000000  DCD 0x61
- 108171158 0x74000000  DCD 0x74
- 10817115c 0x65000000  DCD 0x65
- 108171160 0x64000000  DCD 0x64
- 108171164 0x20000000  DCD 0x20
- 108171168 0x77000000  DCD 0x77
- 10817116c 0x69000000  DCD 0x69
- 108171170 0x74000000  DCD 0x74
- 108171174 0x68000000  DCD 0x68
- 108171178 0x20000000  DCD 0x20
- 10817117c 0x28000000  DCD 0x28
- 108171180 0x31000000  DCD 0x31
- 108171184 0x2e000000  DCD 0x2e
- 108171188 0x30000000  DCD 0x30
- 10817118c 0x2c000000  DCD 0x2c
- 108171190 0x20000000  DCD 0x20
- 108171194 0x32000000  DCD 0x32
- 108171198 0x2e000000  DCD 0x2e
- 10817119c 0x30000000  DCD 0x30
- 1081711a0 0x29000000  DCD 0x29
- 1081711a4 0xa0000000  DCD 0xa
- 1081711a8 0x00000000  DCD 0x0
- 1081711ac 0x00000000  DCD 0x0
- 0000000 0x00000000  DCD 0
-L_str3:
- 1081711b0 0xf0000000  .quad 0xf
- 1081711b4 0x00000000  ; (upper half)
- 1081711b8 0x66000000  DCD 0x66
- 1081711bc 0x31000000  DCD 0x31
- 1081711c0 0x20000000  DCD 0x20
- 1081711c4 0x6c000000  DCD 0x6c
- 1081711c8 0x61000000  DCD 0x61
- 1081711cc 0x6e000000  DCD 0x6e
- 1081711d0 0x65000000  DCD 0x65
- 1081711d4 0x20000000  DCD 0x20
- 1081711d8 0x30000000  DCD 0x30
- 1081711dc 0x20000000  DCD 0x20
- 1081711e0 0x3d000000  DCD 0x3d
- 1081711e4 0x20000000  DCD 0x20
- 1081711e8 0x25000000  DCD 0x25
- 1081711ec 0x46000000  DCD 0x46
- 1081711f0 0xa0000000  DCD 0xa
- 1081711f4 0x00000000  DCD 0x0
- 1081711f8 0x00000000  DCD 0x0
- 0000000 0x00000000  DCD 0
-L_str4:
- 1081711fc 0xf0000000  .quad 0xf
- 108171200 0x00000000  ; (upper half)
- 108171204 0x66000000  DCD 0x66
- 108171208 0x31000000  DCD 0x31
- 10817120c 0x20000000  DCD 0x20
- 108171210 0x6c000000  DCD 0x6c
- 108171214 0x61000000  DCD 0x61
- 108171218 0x6e000000  DCD 0x6e
- 10817121c 0x65000000  DCD 0x65
- 108171220 0x20000000  DCD 0x20
- 108171224 0x31000000  DCD 0x31
- 108171228 0x20000000  DCD 0x20
- 10817122c 0x3d000000  DCD 0x3d
- 108171230 0x20000000  DCD 0x20
- 108171234 0x25000000  DCD 0x25
- 108171238 0x46000000  DCD 0x46
- 10817123c 0xa0000000  DCD 0xa
- 108171240 0x00000000  DCD 0x0
- 108171244 0x00000000  DCD 0x0
- 0000000 0x00000000  DCD 0
-L_str5:
- 108171248 0x1d000000  .quad 0x1d
- 10817124c 0x00000000  ; (upper half)
- 108171250 0x54000000  DCD 0x54
- 108171254 0x65000000  DCD 0x65
- 108171258 0x73000000  DCD 0x73
- 10817125c 0x74000000  DCD 0x74
- 108171260 0x20000000  DCD 0x20
- 108171264 0x32000000  DCD 0x32
- 108171268 0x3a000000  DCD 0x3a
- 10817126c 0x20000000  DCD 0x20
- 108171270 0x4f000000  DCD 0x4f
- 108171274 0x72000000  DCD 0x72
- 108171278 0x69000000  DCD 0x69
- 10817127c 0x67000000  DCD 0x67
- 108171280 0x69000000  DCD 0x69
- 108171284 0x6e000000  DCD 0x6e
- 108171288 0x61000000  DCD 0x61
- 10817128c 0x6c000000  DCD 0x6c
- 108171290 0x20000000  DCD 0x20
- 108171294 0x74000000  DCD 0x74
- 108171298 0x65000000  DCD 0x65
- 10817129c 0x73000000  DCD 0x73
- 1081712a0 0x74000000  DCD 0x74
- 1081712a4 0x20000000  DCD 0x20
- 1081712a8 0x76000000  DCD 0x76
- 1081712ac 0x61000000  DCD 0x61
- 1081712b0 0x6c000000  DCD 0x6c
- 1081712b4 0x75000000  DCD 0x75
- 1081712b8 0x65000000  DCD 0x65
- 1081712bc 0x73000000  DCD 0x73
- 1081712c0 0xa0000000  DCD 0xa
- 1081712c4 0x00000000  DCD 0x0
- 1081712c8 0x00000000  DCD 0x0
- 0000000 0x00000000  DCD 0
-L_str6:
- 1081712cc 0x1d000000  .quad 0x1d
- 1081712d0 0x00000000  ; (upper half)
- 1081712d4 0x66000000  DCD 0x66
- 1081712d8 0x32000000  DCD 0x32
- 1081712dc 0x20000000  DCD 0x20
- 1081712e0 0x63000000  DCD 0x63
- 1081712e4 0x72000000  DCD 0x72
- 1081712e8 0x65000000  DCD 0x65
- 1081712ec 0x61000000  DCD 0x61
- 1081712f0 0x74000000  DCD 0x74
- 1081712f4 0x65000000  DCD 0x65
- 1081712f8 0x64000000  DCD 0x64
- 1081712fc 0x20000000  DCD 0x20
- 108171300 0x77000000  DCD 0x77
- 108171304 0x69000000  DCD 0x69
- 108171308 0x74000000  DCD 0x74
- 10817130c 0x68000000  DCD 0x68
- 108171310 0x20000000  DCD 0x20
- 108171314 0x28000000  DCD 0x28
- 108171318 0x31000000  DCD 0x31
- 10817131c 0x30000000  DCD 0x30
- 108171320 0x2e000000  DCD 0x2e
- 108171324 0x30000000  DCD 0x30
- 108171328 0x2c000000  DCD 0x2c
- 10817132c 0x20000000  DCD 0x20
- 108171330 0x32000000  DCD 0x32
- 108171334 0x30000000  DCD 0x30
- 108171338 0x2e000000  DCD 0x2e
- 10817133c 0x30000000  DCD 0x30
- 108171340 0x29000000  DCD 0x29
- 108171344 0xa0000000  DCD 0xa
- 108171348 0x00000000  DCD 0x0
- 10817134c 0x00000000  DCD 0x0
- 0000000 0x00000000  DCD 0
-L_str7:
- 108171350 0xf0000000  .quad 0xf
- 108171354 0x00000000  ; (upper half)
- 108171358 0x66000000  DCD 0x66
- 10817135c 0x32000000  DCD 0x32
- 108171360 0x20000000  DCD 0x20
- 108171364 0x6c000000  DCD 0x6c
- 108171368 0x61000000  DCD 0x61
- 10817136c 0x6e000000  DCD 0x6e
- 108171370 0x65000000  DCD 0x65
- 108171374 0x20000000  DCD 0x20
- 108171378 0x30000000  DCD 0x30
- 10817137c 0x20000000  DCD 0x20
- 108171380 0x3d000000  DCD 0x3d
- 108171384 0x20000000  DCD 0x20
- 108171388 0x25000000  DCD 0x25
- 10817138c 0x46000000  DCD 0x46
- 108171390 0xa0000000  DCD 0xa
- 108171394 0x00000000  DCD 0x0
- 108171398 0x00000000  DCD 0x0
- 0000000 0x00000000  DCD 0
-L_str8:
- 10817139c 0xf0000000  .quad 0xf
- 1081713a0 0x00000000  ; (upper half)
- 1081713a4 0x66000000  DCD 0x66
- 1081713a8 0x32000000  DCD 0x32
- 1081713ac 0x20000000  DCD 0x20
- 1081713b0 0x6c000000  DCD 0x6c
- 1081713b4 0x61000000  DCD 0x61
- 1081713b8 0x6e000000  DCD 0x6e
- 1081713bc 0x65000000  DCD 0x65
- 1081713c0 0x20000000  DCD 0x20
- 1081713c4 0x31000000  DCD 0x31
- 1081713c8 0x20000000  DCD 0x20
- 1081713cc 0x3d000000  DCD 0x3d
- 1081713d0 0x20000000  DCD 0x20
- 1081713d4 0x25000000  DCD 0x25
- 1081713d8 0x46000000  DCD 0x46
- 1081713dc 0xa0000000  DCD 0xa
- 1081713e0 0x00000000  DCD 0x0
- 1081713e4 0x00000000  DCD 0x0
- 0000000 0x00000000  DCD 0
-L_str9:
- 1081713e8 0x19000000  .quad 0x19
- 1081713ec 0x00000000  ; (upper half)
- 1081713f0 0x54000000  DCD 0x54
- 1081713f4 0x65000000  DCD 0x65
- 1081713f8 0x73000000  DCD 0x73
- 1081713fc 0x74000000  DCD 0x74
- 108171400 0x20000000  DCD 0x20
- 108171404 0x33000000  DCD 0x33
- 108171408 0x3a000000  DCD 0x3a
- 10817140c 0x20000000  DCD 0x20
- 108171410 0x44000000  DCD 0x44
- 108171414 0x69000000  DCD 0x69
- 108171418 0x66000000  DCD 0x66
- 10817141c 0x66000000  DCD 0x66
- 108171420 0x65000000  DCD 0x65
- 108171424 0x72000000  DCD 0x72
- 108171428 0x65000000  DCD 0x65
- 10817142c 0x6e000000  DCD 0x6e
- 108171430 0x74000000  DCD 0x74
- 108171434 0x20000000  DCD 0x20
- 108171438 0x76000000  DCD 0x76
- 10817143c 0x61000000  DCD 0x61
- 108171440 0x6c000000  DCD 0x6c
- 108171444 0x75000000  DCD 0x75
- 108171448 0x65000000  DCD 0x65
- 10817144c 0x73000000  DCD 0x73
- 108171450 0xa0000000  DCD 0xa
- 108171454 0x00000000  DCD 0x0
- 108171458 0x00000000  DCD 0x0
- 0000000 0x00000000  DCD 0
-L_str10:
- 10817145c 0x23000000  .quad 0x23
- 108171460 0x00000000  ; (upper half)
- 108171464 0x66000000  DCD 0x66
- 108171468 0x33000000  DCD 0x33
- 10817146c 0x20000000  DCD 0x20
- 108171470 0x63000000  DCD 0x63
- 108171474 0x72000000  DCD 0x72
- 108171478 0x65000000  DCD 0x65
- 10817147c 0x61000000  DCD 0x61
- 108171480 0x74000000  DCD 0x74
- 108171484 0x65000000  DCD 0x65
- 108171488 0x64000000  DCD 0x64
- 10817148c 0x20000000  DCD 0x20
- 108171490 0x77000000  DCD 0x77
- 108171494 0x69000000  DCD 0x69
- 108171498 0x74000000  DCD 0x74
- 10817149c 0x68000000  DCD 0x68
- 1081714a0 0x20000000  DCD 0x20
- 1081714a4 0x28000000  DCD 0x28
- 1081714a8 0x33000000  DCD 0x33
- 1081714ac 0x2e000000  DCD 0x2e
- 1081714b0 0x31000000  DCD 0x31
- 1081714b4 0x34000000  DCD 0x34
- 1081714b8 0x31000000  DCD 0x31
- 1081714bc 0x35000000  DCD 0x35
- 1081714c0 0x39000000  DCD 0x39
- 1081714c4 0x2c000000  DCD 0x2c
- 1081714c8 0x20000000  DCD 0x20
- 1081714cc 0x32000000  DCD 0x32
- 1081714d0 0x2e000000  DCD 0x2e
- 1081714d4 0x37000000  DCD 0x37
- 1081714d8 0x31000000  DCD 0x31
- 1081714dc 0x38000000  DCD 0x38
- 1081714e0 0x32000000  DCD 0x32
- 1081714e4 0x38000000  DCD 0x38
- 1081714e8 0x29000000  DCD 0x29
- 1081714ec 0xa0000000  DCD 0xa
- 1081714f0 0x00000000  DCD 0x0
- 1081714f4 0x00000000  DCD 0x0
- 0000000 0x00000000  DCD 0
-L_str11:
- 1081714f8 0xf0000000  .quad 0xf
- 1081714fc 0x00000000  ; (upper half)
- 108171500 0x66000000  DCD 0x66
- 108171504 0x33000000  DCD 0x33
- 108171508 0x20000000  DCD 0x20
- 10817150c 0x6c000000  DCD 0x6c
- 108171510 0x61000000  DCD 0x61
- 108171514 0x6e000000  DCD 0x6e
- 108171518 0x65000000  DCD 0x65
- 10817151c 0x20000000  DCD 0x20
- 108171520 0x30000000  DCD 0x30
- 108171524 0x20000000  DCD 0x20
- 108171528 0x3d000000  DCD 0x3d
- 10817152c 0x20000000  DCD 0x20
- 108171530 0x25000000  DCD 0x25
- 108171534 0x46000000  DCD 0x46
- 108171538 0xa0000000  DCD 0xa
- 10817153c 0x00000000  DCD 0x0
- 108171540 0x00000000  DCD 0x0
- 0000000 0x00000000  DCD 0
-L_str12:
- 108171544 0xf0000000  .quad 0xf
- 108171548 0x00000000  ; (upper half)
- 10817154c 0x66000000  DCD 0x66
- 108171550 0x33000000  DCD 0x33
- 108171554 0x20000000  DCD 0x20
- 108171558 0x6c000000  DCD 0x6c
- 10817155c 0x61000000  DCD 0x61
- 108171560 0x6e000000  DCD 0x6e
- 108171564 0x65000000  DCD 0x65
- 108171568 0x20000000  DCD 0x20
- 10817156c 0x31000000  DCD 0x31
- 108171570 0x20000000  DCD 0x20
- 108171574 0x3d000000  DCD 0x3d
- 108171578 0x20000000  DCD 0x20
- 10817157c 0x25000000  DCD 0x25
- 108171580 0x46000000  DCD 0x46
- 108171584 0xa0000000  DCD 0xa
- 108171588 0x00000000  DCD 0x0
- 10817158c 0x00000000  DCD 0x0
- 0000000 0x00000000  DCD 0
-L_str13:
- 108171590 0x18000000  .quad 0x18
- 108171594 0x00000000  ; (upper half)
- 108171598 0x54000000  DCD 0x54
- 10817159c 0x65000000  DCD 0x65
- 1081715a0 0x73000000  DCD 0x73
- 1081715a4 0x74000000  DCD 0x74
- 1081715a8 0x20000000  DCD 0x20
- 1081715ac 0x34000000  DCD 0x34
- 1081715b0 0x3a000000  DCD 0x3a
- 1081715b4 0x20000000  DCD 0x20
- 1081715b8 0x4e000000  DCD 0x4e
- 1081715bc 0x65000000  DCD 0x65
- 1081715c0 0x67000000  DCD 0x67
- 1081715c4 0x61000000  DCD 0x61
- 1081715c8 0x74000000  DCD 0x74
- 1081715cc 0x69000000  DCD 0x69
- 1081715d0 0x76000000  DCD 0x76
- 1081715d4 0x65000000  DCD 0x65
- 1081715d8 0x20000000  DCD 0x20
- 1081715dc 0x76000000  DCD 0x76
- 1081715e0 0x61000000  DCD 0x61
- 1081715e4 0x6c000000  DCD 0x6c
- 1081715e8 0x75000000  DCD 0x75
- 1081715ec 0x65000000  DCD 0x65
- 1081715f0 0x73000000  DCD 0x73
- 1081715f4 0xa0000000  DCD 0xa
- 1081715f8 0x00000000  DCD 0x0
- 1081715fc 0x00000000  DCD 0x0
- 103690008 0x00000000  DCD 0x0
- 0000000 0x00000000  DCD 0
-L_str14:
- 108171600 0x1d000000  .quad 0x1d
- 108171604 0x00000000  ; (upper half)
- 108171608 0x66000000  DCD 0x66
- 10817160c 0x34000000  DCD 0x34
- 108171610 0x20000000  DCD 0x20
- 108171614 0x63000000  DCD 0x63
- 108171618 0x72000000  DCD 0x72
- 10817161c 0x65000000  DCD 0x65
- 108171620 0x61000000  DCD 0x61
- 108171624 0x74000000  DCD 0x74
- 108171628 0x65000000  DCD 0x65
- 10817162c 0x64000000  DCD 0x64
- 108171630 0x20000000  DCD 0x20
- 108171634 0x77000000  DCD 0x77
- 108171638 0x69000000  DCD 0x69
- 10817163c 0x74000000  DCD 0x74
- 108171640 0x68000000  DCD 0x68
- 108171644 0x20000000  DCD 0x20
- 108171648 0x28000000  DCD 0x28
- 10817164c 0x2d000000  DCD 0x2d
- 108171650 0x31000000  DCD 0x31
- 108171654 0x2e000000  DCD 0x2e
- 108171658 0x30000000  DCD 0x30
- 10817165c 0x2c000000  DCD 0x2c
- 108171660 0x20000000  DCD 0x20
- 108171664 0x2d000000  DCD 0x2d
- 108171668 0x32000000  DCD 0x32
- 10817166c 0x2e000000  DCD 0x2e
- 108171670 0x30000000  DCD 0x30
- 108171674 0x29000000  DCD 0x29
- 108171678 0xa0000000  DCD 0xa
- 10817167c 0x00000000  DCD 0x0
- 108171680 0x00000000  DCD 0x0
- 0000000 0x00000000  DCD 0
-L_str15:
- 108171684 0xf0000000  .quad 0xf
- 108171688 0x00000000  ; (upper half)
- 10817168c 0x66000000  DCD 0x66
- 108171690 0x34000000  DCD 0x34
- 108171694 0x20000000  DCD 0x20
- 108171698 0x6c000000  DCD 0x6c
- 10817169c 0x61000000  DCD 0x61
- 1081716a0 0x6e000000  DCD 0x6e
- 1081716a4 0x65000000  DCD 0x65
- 1081716a8 0x20000000  DCD 0x20
- 1081716ac 0x30000000  DCD 0x30
- 1081716b0 0x20000000  DCD 0x20
- 1081716b4 0x3d000000  DCD 0x3d
- 1081716b8 0x20000000  DCD 0x20
- 1081716bc 0x25000000  DCD 0x25
- 1081716c0 0x46000000  DCD 0x46
- 1081716c4 0xa0000000  DCD 0xa
- 1081716c8 0x00000000  DCD 0x0
- 1081716cc 0x00000000  DCD 0x0
- 0000000 0x00000000  DCD 0
-L_str16:
- 1081716d0 0xf0000000  .quad 0xf
- 1081716d4 0x00000000  ; (upper half)
- 1081716d8 0x66000000  DCD 0x66
- 1081716dc 0x34000000  DCD 0x34
- 1081716e0 0x20000000  DCD 0x20
- 1081716e4 0x6c000000  DCD 0x6c
- 1081716e8 0x61000000  DCD 0x61
- 1081716ec 0x6e000000  DCD 0x6e
- 1081716f0 0x65000000  DCD 0x65
- 1081716f4 0x20000000  DCD 0x20
- 1081716f8 0x31000000  DCD 0x31
- 1081716fc 0x20000000  DCD 0x20
- 108171700 0x3d000000  DCD 0x3d
- 108171704 0x20000000  DCD 0x20
- 108171708 0x25000000  DCD 0x25
- 10817170c 0x46000000  DCD 0x46
- 108171710 0xa0000000  DCD 0xa
- 108171714 0x00000000  DCD 0x0
- 108171718 0x00000000  DCD 0x0
- 0000000 0x00000000  DCD 0
-L_str17:
- 10817171c 0x16000000  .quad 0x16
- 108171720 0x00000000  ; (upper half)
- 108171724 0x45000000  DCD 0x45
- 108171728 0x6e000000  DCD 0x6e
- 10817172c 0x64000000  DCD 0x64
- 108171730 0x20000000  DCD 0x20
- 108171734 0x6f000000  DCD 0x6f
- 108171738 0x66000000  DCD 0x66
- 10817173c 0x20000000  DCD 0x20
- 108171740 0x64000000  DCD 0x64
- 108171744 0x65000000  DCD 0x65
- 108171748 0x62000000  DCD 0x62
- 10817174c 0x75000000  DCD 0x75
- 108171750 0x67000000  DCD 0x67
- 108171754 0x67000000  DCD 0x67
- 108171758 0x69000000  DCD 0x69
- 10817175c 0x6e000000  DCD 0x6e
- 108171760 0x67000000  DCD 0x67
- 108171764 0x20000000  DCD 0x20
- 108171768 0x74000000  DCD 0x74
- 10817176c 0x65000000  DCD 0x65
- 108171770 0x73000000  DCD 0x73
- 108171774 0x74000000  DCD 0x74
- 108171778 0xa0000000  DCD 0xa
- 10817177c 0x00000000  DCD 0x0
- 108171780 0x00000000  DCD 0x0
- 10369000c 0x00000000  DCD 0x0
- 0000000 0x00000000  DCD 0
-L_float0:
- 108171784 0x00000000  .quad 0x3ff0000000000000
- 108171788 0x3ff00000  ; (upper half)
- 0000000 0x00000000  DCD 0
-L_float1:
- 10817178c 0x00000000  .quad 0x4000000000000000
- 108171790 0x40000000  ; (upper half)
- 0000000 0x00000000  DCD 0
-L_float2:
- 108171794 0x00000000  .quad 0x4024000000000000
- 108171798 0x40240000  ; (upper half)
- 0000000 0x00000000  DCD 0
-L_float3:
- 10817179c 0x00000000  .quad 0x4034000000000000
- 1081717a0 0x40340000  ; (upper half)
- 0000000 0x00000000  DCD 0
-L_float4:
- 1081717a4 0xf01b866e  .quad 0x400921f9f01b866e
- 1081717a8 0x400921f9  ; (upper half)
- 0000000 0x00000000  DCD 0
-L_float5:
- 1081717ac 0x95aaf790  .quad 0x4005bf0995aaf790
- 1081717b0 0x4005bf09  ; (upper half)
- 0000000 0x00000000  DCD 0
-
------------------------------------------------
-
-
---- BCPL Runtime Metrics ---
-Memory allocations: 0 (0 bytes)
-Memory frees: 0 (0 bytes)
-Vector allocations: 0
-String allocations: 0
-Double-free attempts: 0
-Current active allocations: 0 (0 bytes)
-Bloom filter statistics:
-  Items tracked: 0
-  Memory usage: 12000000 bytes
-  False positives: 0
-  Est. false positive rate: 0.0000%
-File I/O operations:
-  Files opened: 0
-  Files closed: 0
-  Bytes read: 0
-  Bytes written: 0
-  Open files: 0
---------------------------
-SAMM: Processed all pending cleanup operations
-SAMM: Worker woke up, queue size: 0, running: NO
-SAMM: Background cleanup worker thread stopped (DEBUG)
-SAMM: Background worker stopped
-SAMM: cleanupPointersImmediate called with 0 pointers
-SAMM: cleanupPointersImmediate completed 0 items in 0.000 ms
-SAMM: Shutdown complete
+JIT execution enabled. Entry point 'START' at 0x1082780a8
+[JITExecutor] Starting execution of JIT-compiled function at address: 0x1082780a8
+Testing Pairwise Operation Liveness Fix

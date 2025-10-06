@@ -1,0 +1,3 @@
+LET START() BE {
+    WRITEF("Basic test*N")
+}

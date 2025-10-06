@@ -852,16 +852,11 @@ if (enable_tracing || trace_ast) std::cout << "AST transformation complete.\n";
             const std::string& func_name = pair.first;
             const auto& intervals = interval_pass.getIntervalsFor(func_name);
 
-            // Combine callee-saved and safe caller-saved registers for complete allocation pool
-            std::vector<std::string> all_int_regs = RegisterManager::VARIABLE_REGS;  // Callee-saved (X20-X27)
-            // Add safe caller-saved registers (X9-X15) - exclude X0-X8 (args/return), X16-X17 (IP0/IP1), X30 (LR)
-            std::vector<std::string> safe_caller_saved = {"X9", "X10", "X11", "X12", "X13", "X14", "X15"};
-            all_int_regs.insert(all_int_regs.end(), safe_caller_saved.begin(), safe_caller_saved.end());
+            // CRITICAL FIX: Only use true variable registers for variable allocation
+            // Scratch registers (X9-X15) must be reserved exclusively for scratch allocation
+            std::vector<std::string> all_int_regs = RegisterManager::VARIABLE_REGS;  // Callee-saved (X19-X27) only
 
-            std::vector<std::string> all_fp_regs = RegisterManager::FP_VARIABLE_REGS;  // Callee-saved (D8-D15)
-            // Add safe caller-saved FP registers (D16-D31) - exclude D0-D7 (args/return)
-            std::vector<std::string> safe_fp_caller_saved = {"D16", "D17", "D18", "D19", "D20", "D21", "D22", "D23", "D24", "D25", "D26", "D27", "D28", "D29", "D30", "D31"};
-            all_fp_regs.insert(all_fp_regs.end(), safe_fp_caller_saved.begin(), safe_fp_caller_saved.end());
+            std::vector<std::string> all_fp_regs = RegisterManager::FP_VARIABLE_REGS;  // Callee-saved (D8-D15) only
 
             // The result of each allocation is stored in the master map.
             all_allocations[func_name] = register_allocator.allocate(

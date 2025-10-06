@@ -6,9 +6,16 @@ Instruction Encoder::create_fmul_vector_reg(const std::string& vd, const std::st
     uint32_t rn = get_reg_encoding(vn);
     uint32_t rm = get_reg_encoding(vm);
 
-    // Encoding for FMUL Vd.4S, Vn.4S, Vm.4S (32-bit single-precision floats)
-    // Q(1) | 0 | 0 | 1110 | 1 | M(0) | 1 | Rm | 1001 | Rn | Rd
-    uint32_t encoding = 0x4E209000 | (rm << 16) | (rn << 5) | rd;
+    // Base encoding for FMUL vector - corrected opcode and bit pattern
+    uint32_t encoding = 0x6E20DC00 | (rm << 16) | (rn << 5) | rd;
+    
+    // Set arrangement-specific bits
+    if (arrangement == "2S") {
+        encoding &= ~(1U << 30); // Clear Q bit for 64-bit operation (2S)
+    } else if (arrangement == "2D") {
+        encoding |= (0b01 << 22); // Set sz=01 for double-precision
+        encoding &= ~(1U << 29); // Clear bit 29 for 2D
+    }
 
     std::stringstream ss;
     ss << "FMUL " << vd << "." << arrangement << ", " << vn << "." << arrangement << ", " << vm << "." << arrangement;

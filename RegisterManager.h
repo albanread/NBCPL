@@ -85,6 +85,18 @@ public:
     void force_cleanup_stale_variable_mappings();
 
     /**
+     * @brief Preserve a register from being allocated to prevent liveness conflicts.
+     * @param reg_name The register to preserve (e.g., "X9")
+     */
+    void preserve_register(const std::string& reg_name);
+
+    /**
+     * @brief Release a previously preserved register, making it available for allocation.
+     * @param reg_name The register to release from preservation
+     */
+    void release_preserved_register(const std::string& reg_name);
+
+    /**
      * @brief Sync RegisterManager with LinearScanAllocator decisions.
      * This method must be called after LinearScanAllocator runs to ensure
      * the RegisterManager knows which registers are reserved for variables.
@@ -93,6 +105,24 @@ public:
      */
     void sync_with_allocator(const std::map<std::string, std::map<std::string, LiveInterval>>& allocations, 
                            const std::string& current_function);
+
+    /**
+     * @brief Update register allocation state based on current instruction point.
+     * This method dynamically updates which variables are active in registers
+     * based on their live intervals and the current code generation point.
+     * @param allocations Map from function name to variable->register assignments
+     * @param current_function The function currently being processed
+     * @param instruction_point Current instruction being generated
+     */
+    void update_live_intervals(const std::map<std::string, std::map<std::string, LiveInterval>>& allocations,
+                              const std::string& current_function,
+                              int instruction_point);
+
+    /**
+     * @brief Set the current instruction point for live interval tracking.
+     * @param point The instruction number being generated
+     */
+    void set_instruction_point(int point) { current_instruction_point_ = point; }
 
     /**
      * @brief Reset allocations when starting a new function.
@@ -233,7 +263,8 @@ public:
         IN_USE_VARIABLE,
         IN_USE_SCRATCH,
         IN_USE_ROUTINE_ADDR,
-        IN_USE_DATA_BASE
+        IN_USE_DATA_BASE,
+        PRESERVED
     };
 
     struct RegisterInfo {
@@ -252,6 +283,9 @@ public:
     std::vector<std::string> caller_saved_spills_;
     std::vector<std::string> fp_caller_saved_spills_;
 
+    // Track preserved registers to prevent liveness conflicts
+    std::unordered_set<std::string> preserved_registers_;
+
     // For saving/restoring caller-saved state
 
 
@@ -267,6 +301,11 @@ public:
     static inline const std::vector<std::string> RESERVED_REGS = {"X19", "X28"};
 
     std::unordered_set<std::string> spilled_variables_;
+
+    // Live interval tracking for register reuse
+    std::map<std::string, std::map<std::string, LiveInterval>> cached_allocations_;
+    std::string cached_function_name_;
+    int current_instruction_point_ = 0;
 
     void initialize_registers();
     std::string find_free_register(const std::vector<std::string>& pool);
