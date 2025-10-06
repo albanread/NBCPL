@@ -1,0 +1,45 @@
+
+tests/bcl_tests/lists9.o:	file format mach-o arm64
+
+Disassembly of section __TEXT,__text:
+
+0000000000000000 <ltmp0>:
+       0: 14000001     	b	0x4 <ltmp0+0x4>
+       4: a9bb7bfd     	stp	x29, x30, [sp, #-0x50]!
+       8: 910003fd     	mov	x29, sp
+       c: a90253b3     	stp	x19, x20, [x29, #0x20]
+      10: a9036fba     	stp	x26, x27, [x29, #0x30]
+      14: f90023bc     	str	x28, [x29, #0x40]
+      18: 9000001c     	adrp	x28, 0x0 <ltmp0>
+      1c: 9100039c     	add	x28, x28, #0x0
+      20: 94000000     	bl	0x20 <ltmp0+0x20>
+      24: 90000000     	adrp	x0, 0x0 <ltmp0>
+      28: 91000000     	add	x0, x0, #0x0
+      2c: 94000000     	bl	0x2c <ltmp0+0x2c>
+      30: aa0003fb     	mov	x27, x0
+      34: aa1b03f4     	mov	x20, x27
+      38: 90000009     	adrp	x9, 0x0 <ltmp0>
+      3c: 91000129     	add	x9, x9, #0x0
+      40: 91002129     	add	x9, x9, #0x8
+      44: aa0903f4     	mov	x20, x9
+      48: aa1403e0     	mov	x0, x20
+      4c: aa1403e1     	mov	x1, x20
+      50: 94000000     	bl	0x50 <ltmp0+0x50>
+      54: aa0003fa     	mov	x26, x0
+      58: aa1a03e0     	mov	x0, x26
+      5c: 94000000     	bl	0x5c <ltmp0+0x5c>
+      60: 94000000     	bl	0x60 <ltmp0+0x60>
+      64: 14000001     	b	0x68 <ltmp0+0x68>
+      68: 14000001     	b	0x6c <ltmp0+0x6c>
+      6c: a94253b3     	ldp	x19, x20, [x29, #0x20]
+      70: a9436fba     	ldp	x26, x27, [x29, #0x30]
+      74: f94023bc     	ldr	x28, [x29, #0x40]
+      78: 910003bf     	mov	sp, x29
+      7c: a9407bfd     	ldp	x29, x30, [sp]
+      80: 910043ff     	add	sp, sp, #0x10
+      84: d65f03c0     	ret
+      88: d29fff90     	mov	x16, #0xfffc            ; =65532
+      8c: f2a091f0     	movk	x16, #0x48f, lsl #16
+      90: f2c00030     	movk	x16, #0x1, lsl #32
+      94: f2e00010     	movk	x16, #0x0, lsl #48
+      98: d63f0200     	blr	x16

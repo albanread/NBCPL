@@ -134,6 +134,7 @@ extern "C" {
     void* GETVEC(int64_t num_words) { return bcpl_getvec(num_words); }
     void* FGETVEC(int64_t num_floats) { return bcpl_fgetvec(num_floats); }
     void FREEVEC(void* ptr) { return bcpl_free(ptr); }
+    uint32_t* JOIN(struct ListHeader* list_header, uint32_t* delimiter_payload) { return BCPL_JOIN_LIST(list_header, delimiter_payload); }
 }
 
 // Include the file API implementation

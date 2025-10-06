@@ -1,7 +1,7 @@
 NeonReducerRegistry: Registered 13 NEON reduction encoders
 Debug: Processing argument 3: --trace-codegen
 Debug: Processing argument 4: --run
-Debug: parse_arguments successful, input_filepath=test_pairwise_liveness_fix.bcl
+Debug: parse_arguments successful, input_filepath=tests/bcl_tests/lists9.bcl
 Debug: Arguments parsed successfully
 DEBUG: HeapManager constructor called
 SAMM: Background worker thread created and started
@@ -9,122 +9,112 @@ SAMM: ENABLED and background worker started
 SAMM (Scope Aware Memory Management): ENABLED
 SAMM: Background cleanup worker thread started (DEBUG)
 SAMM: Worker waiting for cleanup queue (queue size: 0)
-NewBCPL Compiler Version 1.0.2257
+NewBCPL Compiler Version 1.0.2266
 Compiling this source Code:
-//LINE 1 "/Users/oberon/projects/NewBCPL/test_pairwise_liveness_fix.bcl"
-LET START() BE {
-
-    WRITEF("Testing Pairwise Operation Liveness Fix*N")
-
-    LET vec_a = FPAIRS 4  // First vector - should stay live until PAIRWISE_MIN
-    LET vec_b = FPAIRS 4  // Second vector - should stay live until PAIRWISE_MIN
-
-    // Initialize vectors with test data
-    vec_a!0 := FPAIR(2.0, 3.0)
-
-
-//    LET result_min = PAIRWISE_MIN(vec_a, vec_b)
-
-//    WRITEF("%Q", vec_a!0)
-
-}
+//LINE 1 "/Users/oberon/projects/NewBCPL/tests/bcl_tests/lists9.bcl"
+LET START() BE
+$(
+   LET L = LIST("This", "is", "the", "age", "of", "the", "train")
+   LET S = JOIN(L, "_")
+   WRITES(S)
+$)
 
 BCPL Runtime v1.0.0 initialized
-DEBUG: Registering FREEVEC with bcpl_free at address 0x102bbf914
+DEBUG: Registering FREEVEC with bcpl_free at address 0x1006db490
 Registered 92 runtime functions
 === Registered Runtime Functions ===
-  NEWLINE          | address: 0x102bbe648 | args: 0 | table_offset: 720
-  FINISH           | address: 0x102bbd3f8 | args: 0 | table_offset: 712
-  FABS             | address: 0x102bbd7a8 | args: 1 | table_offset: 680
-  FSIN             | address: 0x102bbd76c | args: 1 | table_offset: 656
-  FILE_EOF         | address: 0x102bc0b00 | args: 1 | table_offset: 624
-  RAND             | address: 0x102bbd5f8 | args: 1 | table_offset: 632
-  FILE_TELL        | address: 0x102bc0aa8 | args: 1 | table_offset: 616
-  FILE_SEEK        | address: 0x102bc09e4 | args: 3 | table_offset: 608
-  FILE_WRITE       | address: 0x102bc08cc | args: 3 | table_offset: 600
-  FIX              | address: 0x102bbd7e8 | args: 1 | table_offset: 704
-  FILE_READS       | address: 0x102bc0318 | args: 1 | table_offset: 584
-  FILE_WRITES      | address: 0x102bc003c | args: 2 | table_offset: 576
-  FEXP             | address: 0x102bbd7d4 | args: 1 | table_offset: 696
-  FILE_CLOSE       | address: 0x102bbffd0 | args: 1 | table_offset: 568
-  FILE_OPEN_APPEND | address: 0x102bbff40 | args: 1 | table_offset: 560
-  PACKSTRING       | address: 0x102bbd800 | args: 1 | table_offset: 512
-  STRLEN           | address: 0x102bbd408 | args: 1 | table_offset: 504
-  FCOS             | address: 0x102bbd780 | args: 1 | table_offset: 664
-  STRCMP           | address: 0x102bbd468 | args: 2 | table_offset: 496
-  STRCOPY          | address: 0x102bbd54c | args: 2 | table_offset: 488
-  FIND             | address: 0x102bc4204 | args: 3 | table_offset: 456
-  DEEPCOPYLITERALLIST | address: 0x102bc3e7c | args: 1 | table_offset: 440
-  DEEPCOPYLIST     | address: 0x102bc3ce4 | args: 1 | table_offset: 432
-  COPYLIST         | address: 0x102bc3be4 | args: 1 | table_offset: 424
-  CONCAT           | address: 0x102bc401c | args: 2 | table_offset: 416
-  BCPL_CONCAT_LISTS | address: 0x102bc401c | args: 2 | table_offset: 408
-  SPIT             | address: 0x102bbe3fc | args: 2 | table_offset: 536
-  JOIN             | address: 0x102bc3280 | args: 2 | table_offset: 480
-  LPND             | address: 0x102bc3790 | args: 2 | table_offset: 400
-  SPND             | address: 0x102bc36c0 | args: 2 | table_offset: 392
-  FPND             | address: 0x102bc35f0 | args: 2 | table_offset: 384
-  APND             | address: 0x102bc3520 | args: 2 | table_offset: 376
-  RETURNNODETOFREELIST | address: 0x102bc46d4 | args: 1 | table_offset: 728
-  BCPL_LIST_APPEND_INT | address: 0x102bc3520 | args: 2 | table_offset: 352
-  GETVEC           | address: 0x102bbf9d8 | args: 1 | table_offset: 128
-  HEAPMANAGER_WAITFORSAMM | address: 0x102b7c924 | args: 0 | table_offset: 320
-  HEAPMANAGER_ENTER_SCOPE | address: 0x102b7c85c | args: 0 | table_offset: 288
-  HEAPMANAGER_SETSAMMENABLED | address: 0x102b7c808 | args: 1 | table_offset: 304
-  HEAPMANAGER_EXIT_SCOPE | address: 0x102b7c888 | args: 0 | table_offset: 296
-  PIC_RUNTIME_HELPER | address: 0x102bbfac0 | args: 0 | table_offset: 280
-  OBJECT_HEAP_FREE | address: 0x102bbfa84 | args: 1 | table_offset: 264
-  OBJECT_HEAP_ALLOC | address: 0x102bbfa60 | args: 1 | table_offset: 256
-  BCPL_LIST_GET_REST | address: 0x102bc3a4c | args: 1 | table_offset: 224
-  FRND             | address: 0x102bbd684 | args: 0 | table_offset: 648
-  BCPL_LIST_GET_HEAD_AS_FLOAT | address: 0x102bc3994 | args: 1 | table_offset: 208
-  BCPL_LIST_GET_HEAD_AS_INT | address: 0x102bc3930 | args: 1 | table_offset: 200
-  RUNTIME_METHOD_LOOKUP | address: 0x102bbfaa8 | args: 2 | table_offset: 272
-  FREEVEC          | address: 0x102bbf914 | args: 1 | table_offset: 144
-  BCPL_BOUNDS_ERROR | address: 0x102bbb550 | args: 3 | table_offset: 192
-  BCPL_CHECK_AND_DISPLAY_ERRORS | address: 0x102bc471c | args: 0 | table_offset: 184
-  WRITEF4          | address: 0x102bbcf2c | args: 5 | table_offset: 56
-  BCPL_FREE_LIST   | address: 0x102bc43a8 | args: 1 | table_offset: 152
-  BCPL_ALLOC_CHARS | address: 0x102bbf8bc | args: 1 | table_offset: 112
-  BCPL_LIST_APPEND_FLOAT | address: 0x102bc35f0 | args: 2 | table_offset: 360
-  GET_FREE_LIST_HEAD_ADDR | address: 0x102bc46c8 | args: 0 | table_offset: 336
-  BCPL_GET_ATOM_TYPE | address: 0x102bc3ab0 | args: 1 | table_offset: 232
-  FWRITE           | address: 0x102bbc86c | args: 1 | table_offset: 16
-  BCPL_LIST_CREATE_EMPTY | address: 0x102bc34c0 | args: 0 | table_offset: 344
-  SPLIT            | address: 0x102bc2f14 | args: 2 | table_offset: 472
-  BCPL_FREE_CELLS  | address: 0x102bc46c4 | args: 0 | table_offset: 328
-  RND              | address: 0x102bbd6d8 | args: 1 | table_offset: 640
-  HEAPMANAGER_ISSAMMENABLED | address: 0x102b7c838 | args: 0 | table_offset: 312
-  WRITEC           | address: 0x102bbd1e8 | args: 1 | table_offset: 88
-  MALLOC           | address: 0x102bbf85c | args: 1 | table_offset: 120
-  BCPL_ALLOC_WORDS | address: 0x102bbf85c | args: 3 | table_offset: 104
-  FTAN             | address: 0x102bbd794 | args: 1 | table_offset: 672
+  NEWLINE          | address: 0x1006da1c4 | args: 0 | table_offset: 720
+  FINISH           | address: 0x1006d8f74 | args: 0 | table_offset: 712
+  FABS             | address: 0x1006d9324 | args: 1 | table_offset: 680
+  FSIN             | address: 0x1006d92e8 | args: 1 | table_offset: 656
+  FILE_EOF         | address: 0x1006dc67c | args: 1 | table_offset: 624
+  RAND             | address: 0x1006d9174 | args: 1 | table_offset: 632
+  FILE_TELL        | address: 0x1006dc624 | args: 1 | table_offset: 616
+  FILE_SEEK        | address: 0x1006dc560 | args: 3 | table_offset: 608
+  FILE_WRITE       | address: 0x1006dc448 | args: 3 | table_offset: 600
+  FIX              | address: 0x1006d9364 | args: 1 | table_offset: 704
+  FILE_READS       | address: 0x1006dbe94 | args: 1 | table_offset: 584
+  FILE_WRITES      | address: 0x1006dbbb8 | args: 2 | table_offset: 576
+  FEXP             | address: 0x1006d9350 | args: 1 | table_offset: 696
+  FILE_CLOSE       | address: 0x1006dbb4c | args: 1 | table_offset: 568
+  FILE_OPEN_APPEND | address: 0x1006dbabc | args: 1 | table_offset: 560
+  PACKSTRING       | address: 0x1006d937c | args: 1 | table_offset: 512
+  STRLEN           | address: 0x1006d8f84 | args: 1 | table_offset: 504
+  FCOS             | address: 0x1006d92fc | args: 1 | table_offset: 664
+  STRCMP           | address: 0x1006d8fe4 | args: 2 | table_offset: 496
+  STRCOPY          | address: 0x1006d90c8 | args: 2 | table_offset: 488
+  FIND             | address: 0x1006dfd80 | args: 3 | table_offset: 456
+  DEEPCOPYLITERALLIST | address: 0x1006df9f8 | args: 1 | table_offset: 440
+  DEEPCOPYLIST     | address: 0x1006df860 | args: 1 | table_offset: 432
+  COPYLIST         | address: 0x1006df760 | args: 1 | table_offset: 424
+  CONCAT           | address: 0x1006dfb98 | args: 2 | table_offset: 416
+  BCPL_CONCAT_LISTS | address: 0x1006dfb98 | args: 2 | table_offset: 408
+  SPIT             | address: 0x1006d9f78 | args: 2 | table_offset: 536
+  JOIN             | address: 0x1006dedfc | args: 2 | table_offset: 480
+  LPND             | address: 0x1006df30c | args: 2 | table_offset: 400
+  SPND             | address: 0x1006df23c | args: 2 | table_offset: 392
+  FPND             | address: 0x1006df16c | args: 2 | table_offset: 384
+  APND             | address: 0x1006df09c | args: 2 | table_offset: 376
+  RETURNNODETOFREELIST | address: 0x1006e0250 | args: 1 | table_offset: 728
+  BCPL_LIST_APPEND_INT | address: 0x1006df09c | args: 2 | table_offset: 352
+  GETVEC           | address: 0x1006db554 | args: 1 | table_offset: 128
+  HEAPMANAGER_WAITFORSAMM | address: 0x10056de08 | args: 0 | table_offset: 320
+  HEAPMANAGER_ENTER_SCOPE | address: 0x10056dd40 | args: 0 | table_offset: 288
+  HEAPMANAGER_SETSAMMENABLED | address: 0x10056dcec | args: 1 | table_offset: 304
+  HEAPMANAGER_EXIT_SCOPE | address: 0x10056dd6c | args: 0 | table_offset: 296
+  PIC_RUNTIME_HELPER | address: 0x1006db63c | args: 0 | table_offset: 280
+  OBJECT_HEAP_FREE | address: 0x1006db600 | args: 1 | table_offset: 264
+  OBJECT_HEAP_ALLOC | address: 0x1006db5dc | args: 1 | table_offset: 256
+  BCPL_LIST_GET_REST | address: 0x1006df5c8 | args: 1 | table_offset: 224
+  FRND             | address: 0x1006d9200 | args: 0 | table_offset: 648
+  BCPL_LIST_GET_HEAD_AS_FLOAT | address: 0x1006df510 | args: 1 | table_offset: 208
+  BCPL_LIST_GET_HEAD_AS_INT | address: 0x1006df4ac | args: 1 | table_offset: 200
+  RUNTIME_METHOD_LOOKUP | address: 0x1006db624 | args: 2 | table_offset: 272
+  FREEVEC          | address: 0x1006db490 | args: 1 | table_offset: 144
+  BCPL_BOUNDS_ERROR | address: 0x1006d70cc | args: 3 | table_offset: 192
+  BCPL_CHECK_AND_DISPLAY_ERRORS | address: 0x1006e0298 | args: 0 | table_offset: 184
+  WRITEF4          | address: 0x1006d8aa8 | args: 5 | table_offset: 56
+  BCPL_FREE_LIST   | address: 0x1006dff24 | args: 1 | table_offset: 152
+  BCPL_ALLOC_CHARS | address: 0x1006db438 | args: 1 | table_offset: 112
+  BCPL_LIST_APPEND_FLOAT | address: 0x1006df16c | args: 2 | table_offset: 360
+  GET_FREE_LIST_HEAD_ADDR | address: 0x1006e0244 | args: 0 | table_offset: 336
+  BCPL_GET_ATOM_TYPE | address: 0x1006df62c | args: 1 | table_offset: 232
+  FWRITE           | address: 0x1006d83e8 | args: 1 | table_offset: 16
+  BCPL_LIST_CREATE_EMPTY | address: 0x1006df03c | args: 0 | table_offset: 344
+  SPLIT            | address: 0x1006dea90 | args: 2 | table_offset: 472
+  BCPL_FREE_CELLS  | address: 0x1006e0240 | args: 0 | table_offset: 328
+  RND              | address: 0x1006d9254 | args: 1 | table_offset: 640
+  HEAPMANAGER_ISSAMMENABLED | address: 0x10056dd1c | args: 0 | table_offset: 312
+  WRITEC           | address: 0x1006d8d64 | args: 1 | table_offset: 88
+  MALLOC           | address: 0x1006db3d8 | args: 1 | table_offset: 120
+  BCPL_ALLOC_WORDS | address: 0x1006db3d8 | args: 3 | table_offset: 104
+  FTAN             | address: 0x1006d9310 | args: 1 | table_offset: 672
   SETTYPE          | address: 0x0 | args: 2 | table_offset: 248
-  BCPL_GET_LAST_ERROR | address: 0x102bbb3d0 | args: 1 | table_offset: 168
-  RDCH             | address: 0x102bbd3ac | args: 0 | table_offset: 96
-  FILE_READ        | address: 0x102bc07b8 | args: 3 | table_offset: 592
-  UNPACKSTRING     | address: 0x102bbdb38 | args: 1 | table_offset: 520
-  WRITEF5          | address: 0x102bbcfb8 | args: 6 | table_offset: 64
-  FILTER           | address: 0x102bc42f8 | args: 2 | table_offset: 464
-  BCPL_FREE_LIST_SAFE | address: 0x102bc44b0 | args: 1 | table_offset: 160
-  FILE_OPEN_WRITE  | address: 0x102bbfeb0 | args: 1 | table_offset: 552
-  FILE_OPEN_READ   | address: 0x102bbfb30 | args: 1 | table_offset: 544
-  BCPL_LIST_GET_NTH | address: 0x102bc3b18 | args: 2 | table_offset: 240
-  WRITEF7          | address: 0x102bbd0f4 | args: 8 | table_offset: 80
-  WRITEF3          | address: 0x102bbceac | args: 4 | table_offset: 48
-  WRITEF6          | address: 0x102bbd050 | args: 7 | table_offset: 72
-  REVERSE          | address: 0x102bc411c | args: 1 | table_offset: 448
-  WRITEF2          | address: 0x102bbce38 | args: 3 | table_offset: 40
-  WRITEF1          | address: 0x102bbcdd0 | args: 2 | table_offset: 32
-  BCPL_LIST_GET_TAIL | address: 0x102bc39fc | args: 1 | table_offset: 216
-  BCPL_CLEAR_ERRORS | address: 0x102bbb480 | args: 0 | table_offset: 176
-  WRITEF           | address: 0x102bbc8b0 | args: 1 | table_offset: 24
-  BCPL_LIST_APPEND_STRING | address: 0x102bc36c0 | args: 2 | table_offset: 368
-  WRITES           | address: 0x102bbc310 | args: 1 | table_offset: 0
-  SLURP            | address: 0x102bbded0 | args: 1 | table_offset: 528
-  FGETVEC          | address: 0x102bbfa0c | args: 1 | table_offset: 136
-  FLOG             | address: 0x102bbd7c0 | args: 1 | table_offset: 688
-  WRITEN           | address: 0x102bbd1a4 | args: 1 | table_offset: 8
+  BCPL_GET_LAST_ERROR | address: 0x1006d6f4c | args: 1 | table_offset: 168
+  RDCH             | address: 0x1006d8f28 | args: 0 | table_offset: 96
+  FILE_READ        | address: 0x1006dc334 | args: 3 | table_offset: 592
+  UNPACKSTRING     | address: 0x1006d96b4 | args: 1 | table_offset: 520
+  WRITEF5          | address: 0x1006d8b34 | args: 6 | table_offset: 64
+  FILTER           | address: 0x1006dfe74 | args: 2 | table_offset: 464
+  BCPL_FREE_LIST_SAFE | address: 0x1006e002c | args: 1 | table_offset: 160
+  FILE_OPEN_WRITE  | address: 0x1006dba2c | args: 1 | table_offset: 552
+  FILE_OPEN_READ   | address: 0x1006db6ac | args: 1 | table_offset: 544
+  BCPL_LIST_GET_NTH | address: 0x1006df694 | args: 2 | table_offset: 240
+  WRITEF7          | address: 0x1006d8c70 | args: 8 | table_offset: 80
+  WRITEF3          | address: 0x1006d8a28 | args: 4 | table_offset: 48
+  WRITEF6          | address: 0x1006d8bcc | args: 7 | table_offset: 72
+  REVERSE          | address: 0x1006dfc98 | args: 1 | table_offset: 448
+  WRITEF2          | address: 0x1006d89b4 | args: 3 | table_offset: 40
+  WRITEF1          | address: 0x1006d894c | args: 2 | table_offset: 32
+  BCPL_LIST_GET_TAIL | address: 0x1006df578 | args: 1 | table_offset: 216
+  BCPL_CLEAR_ERRORS | address: 0x1006d6ffc | args: 0 | table_offset: 176
+  WRITEF           | address: 0x1006d842c | args: 1 | table_offset: 24
+  BCPL_LIST_APPEND_STRING | address: 0x1006df23c | args: 2 | table_offset: 368
+  WRITES           | address: 0x1006d7e8c | args: 1 | table_offset: 0
+  SLURP            | address: 0x1006d9a4c | args: 1 | table_offset: 528
+  FGETVEC          | address: 0x1006db588 | args: 1 | table_offset: 136
+  FLOG             | address: 0x1006d933c | args: 1 | table_offset: 688
+  WRITEN           | address: 0x1006d8d20 | args: 1 | table_offset: 8
 ====================================
 Core runtime registered. SDL2 registration will follow...
 SDL2 runtime functions registered immediately
@@ -139,26 +129,34 @@ Program:
       Body:
         BlockStatement:
           Statements:
+            AssignmentStatement:
+              LHS:
+                VariableAccess: L
+              RHS:
+                ListExpression:
+                  Initializers:
+                    StringLiteral: "This"
+                    StringLiteral: "is"
+                    StringLiteral: "the"
+                    StringLiteral: "age"
+                    StringLiteral: "of"
+                    StringLiteral: "the"
+                    StringLiteral: "train"
+            AssignmentStatement:
+              LHS:
+                VariableAccess: S
+              RHS:
+                FunctionCall:
+                  Callee:
+                    VariableAccess: JOIN
+                  Arguments:
+                    VariableAccess: L
+                    StringLiteral: "_"
             RoutineCallStatement:
               Callee:
-                VariableAccess: WRITEF
+                VariableAccess: WRITES
               Arguments:
-                StringLiteral: "Testing Pairwise Operation Liveness Fix
-"
-            AssignmentStatement:
-              LHS:
-                VariableAccess: vec_a
-              RHS:
-            AssignmentStatement:
-              LHS:
-                VariableAccess: vec_b
-              RHS:
-            AssignmentStatement:
-              LHS:
-                VectorAccess (!):
-                  VariableAccess: vec_a
-                  NumberLiteral: 0
-              RHS:
+                VariableAccess: S
 ----------------------------------
 
 Applying Manifest Resolution Pass...
@@ -171,26 +169,34 @@ Program:
       Body:
         BlockStatement:
           Statements:
+            AssignmentStatement:
+              LHS:
+                VariableAccess: L
+              RHS:
+                ListExpression:
+                  Initializers:
+                    StringLiteral: "This"
+                    StringLiteral: "is"
+                    StringLiteral: "the"
+                    StringLiteral: "age"
+                    StringLiteral: "of"
+                    StringLiteral: "the"
+                    StringLiteral: "train"
+            AssignmentStatement:
+              LHS:
+                VariableAccess: S
+              RHS:
+                FunctionCall:
+                  Callee:
+                    VariableAccess: JOIN
+                  Arguments:
+                    VariableAccess: L
+                    StringLiteral: "_"
             RoutineCallStatement:
               Callee:
-                VariableAccess: WRITEF
+                VariableAccess: WRITES
               Arguments:
-                StringLiteral: "Testing Pairwise Operation Liveness Fix
-"
-            AssignmentStatement:
-              LHS:
-                VariableAccess: vec_a
-              RHS:
-            AssignmentStatement:
-              LHS:
-                VariableAccess: vec_b
-              RHS:
-            AssignmentStatement:
-              LHS:
-                VectorAccess (!):
-                  VariableAccess: vec_a
-                  NumberLiteral: 0
-              RHS:
+                VariableAccess: S
 ------------------------------------------
 
 Building symbol table...
@@ -199,15 +205,10 @@ Building symbol table...
 [SymbolDiscoveryPass] Added routine: START
 [SymbolDiscoveryPass] Entering block scope
 [SymbolDiscoveryPass] Processing let declaration
-[SymbolDiscoveryPass] Added let variable: vec_a as INTEGER (default INTEGER)
+[SymbolDiscoveryPass] Added let variable: L as INTEGER (default INTEGER)
 [SymbolDiscoveryPass] Processing let declaration
-[SymbolDiscoveryPass] Added let variable: vec_b as INTEGER (default INTEGER)
-[SymbolDiscoveryPass] Set variable name for FPairsAllocationExpression: vec_a
-[SymbolDiscoveryPass] Processing FPairsAllocationExpression
-[SymbolDiscoveryPass] Updated FPAIRS variable: vec_a with size 4
-[SymbolDiscoveryPass] Set variable name for FPairsAllocationExpression: vec_b
-[SymbolDiscoveryPass] Processing FPairsAllocationExpression
-[SymbolDiscoveryPass] Updated FPAIRS variable: vec_b with size 4
+[SymbolDiscoveryPass] Added let variable: S as INTEGER (default INTEGER)
+[SymbolDiscoveryPass] Processing FunctionCall
 
 === SYMBOL TABLE DUMP AFTER SYMBOL DISCOVERY ===
 Symbol Table (Persistent, All Symbols)
@@ -215,8 +216,8 @@ Symbol Table (Persistent, All Symbols)
 Symbol 'HeapManager_enter_scope' (FUNCTION, INTEGER, scope=0, block=0, class_name='', function_name='Global')
 Symbol 'HeapManager_exit_scope' (FUNCTION, INTEGER, scope=0, block=0, class_name='', function_name='Global')
 Symbol 'START' (ROUTINE, INTEGER, scope=0, block=0, class_name='', function_name='START')
-Symbol 'vec_a' (LOCAL_VAR, POINTER_TO|FPAIRS, scope=2, block=0, size=4, class_name='', function_name='START')
-Symbol 'vec_b' (LOCAL_VAR, POINTER_TO|FPAIRS, scope=2, block=0, size=4, class_name='', function_name='START')
+Symbol 'L' (LOCAL_VAR, INTEGER, scope=2, block=0, class_name='', function_name='START')
+Symbol 'S' (LOCAL_VAR, INTEGER, scope=2, block=0, class_name='', function_name='START')
 
 ================================================
 
@@ -243,46 +244,51 @@ Cleared FOR loop state before analysis to prevent corruption
 [ANALYZER] Starting parameter type inference for function: START
 [ANALYZER TRACE] ASTAnalyzer::visit(RoutineDeclaration&) is traversing body for routine: START
 [ANALYZER TRACE] Entering block scope: START_block_0 (Function scope remains: START)
-[ANALYZER TRACE] BlockStatement: Traversing 4 statements.
-[ANALYZER TRACE] BlockStatement: Calling accept on statement 0 of type 53
-[ANALYZER TRACE] Entered ASTAnalyzer::visit(RoutineCallStatement&) for node at 0x103e94290
-[ANALYZER TRACE] WRITEF format specifiers detected: [] (count = 0)
-[ANALYZER TRACE]   Detected call to runtime function: WRITEF, Type: INTEGER
+[ANALYZER TRACE] BlockStatement: Traversing 3 statements.
+[ANALYZER TRACE] BlockStatement: Calling accept on statement 0 of type 52
+[DEBUG] ListExpression: contains_literals = true, num_initializers = 7
+[ANALYZER TRACE] Visiting VariableAccess: L
+[DEBUG get_effective_variable_name] Called with: 'L'
+[DEBUG get_effective_variable_name] Loop context stack size: 0
+[DEBUG get_effective_variable_name] Active FOR loop scopes size: 0
+[DEBUG get_effective_variable_name] FOR variable aliases size: 0
+[DEBUG get_effective_variable_name] In FOR loop context: NO
+[DEBUG get_effective_variable_name] Not in FOR loop context, returning original: 'L'
 [ANALYZER TRACE] BlockStatement: Calling accept on statement 1 of type 52
-[ANALYZER TRACE] Visiting VariableAccess: vec_a
-[DEBUG get_effective_variable_name] Called with: 'vec_a'
+[ANALYZER TRACE]   Detected call to runtime function: JOIN, Type: INTEGER
+[ANALYZER TRACE] Visiting VariableAccess: L
+[DEBUG get_effective_variable_name] Called with: 'L'
 [DEBUG get_effective_variable_name] Loop context stack size: 0
 [DEBUG get_effective_variable_name] Active FOR loop scopes size: 0
 [DEBUG get_effective_variable_name] FOR variable aliases size: 0
 [DEBUG get_effective_variable_name] In FOR loop context: NO
-[DEBUG get_effective_variable_name] Not in FOR loop context, returning original: 'vec_a'
-[ANALYZER TRACE] BlockStatement: Calling accept on statement 2 of type 52
-[ANALYZER TRACE] Visiting VariableAccess: vec_b
-[DEBUG get_effective_variable_name] Called with: 'vec_b'
+[DEBUG get_effective_variable_name] Not in FOR loop context, returning original: 'L'
+[ANALYZER TRACE] Visiting VariableAccess: S
+[DEBUG get_effective_variable_name] Called with: 'S'
 [DEBUG get_effective_variable_name] Loop context stack size: 0
 [DEBUG get_effective_variable_name] Active FOR loop scopes size: 0
 [DEBUG get_effective_variable_name] FOR variable aliases size: 0
 [DEBUG get_effective_variable_name] In FOR loop context: NO
-[DEBUG get_effective_variable_name] Not in FOR loop context, returning original: 'vec_b'
-[ANALYZER TRACE] BlockStatement: Calling accept on statement 3 of type 52
-[ANALYZER TRACE] Visiting FPairExpression
-[ANALYZER TRACE] FPairExpression analysis complete
-[ANALYZER TRACE] Visiting VariableAccess: vec_a
-[DEBUG get_effective_variable_name] Called with: 'vec_a'
+[DEBUG get_effective_variable_name] Not in FOR loop context, returning original: 'S'
+[ANALYZER TRACE] BlockStatement: Calling accept on statement 2 of type 53
+[ANALYZER TRACE] Entered ASTAnalyzer::visit(RoutineCallStatement&) for node at 0x1015ff880
+[ANALYZER TRACE]   Detected call to runtime function: WRITES, Type: INTEGER
+[ANALYZER TRACE] Visiting VariableAccess: S
+[DEBUG get_effective_variable_name] Called with: 'S'
 [DEBUG get_effective_variable_name] Loop context stack size: 0
 [DEBUG get_effective_variable_name] Active FOR loop scopes size: 0
 [DEBUG get_effective_variable_name] FOR variable aliases size: 0
 [DEBUG get_effective_variable_name] In FOR loop context: NO
-[DEBUG get_effective_variable_name] Not in FOR loop context, returning original: 'vec_a'
+[DEBUG get_effective_variable_name] Not in FOR loop context, returning original: 'S'
 [ANALYZER TRACE] Exiting block scope, returning to: START
 [SAMM OPTIMIZATION] Starting heap allocation propagation...
 [SAMM OPTIMIZATION] Propagation iteration 1
 [SAMM OPTIMIZATION] Propagation completed after 1 iterations
 [SAMM OPTIMIZATION] Results:
   Total functions: 1
-  Allocation-free functions: 1
+  Allocation-free functions: 0
   Allocation-free leaf functions: 0
-  Allocation-free non-leaf functions: 1
+  Allocation-free non-leaf functions: 0
 [ANALYZER TRACE] Analysis complete.
 Initial AST analysis complete.
 ==== ASTAnalyzer Function Metrics Report ====
@@ -291,7 +297,7 @@ Function: START
   Parameters: 0
   Integer Locals: 4
   Float Locals: 0
-  Runtime Calls: 1
+  Runtime Calls: 2
   Local Function Calls: 0
   Local Routine Calls: 0
   Vector Allocations: no
@@ -324,10 +330,18 @@ Cleared FOR loop state before CFGBuilderPass to prevent corruption
 [CFGBuilderPass] Created CFG for routine: START
 [CFGBuilderPass] Created new basic block: START_Entry_0
 [CFGBuilderPass] Visiting BlockStatement with SAMM scope management.
-[SAMM OPTIMIZATION] Skipping scope calls for allocation-free function: START (call tree)
-[CFGBuilderPass] Starting optimized block 1 variable tracking
-[CFGBuilderPass] Tracking variable 'vec_a' in current block
-[CFGBuilderPass] Tracking variable 'vec_b' in current block
+[CFGBuilderPass] SAMM: Injecting HeapManager_enter_scope() call at block start
+[ANALYZER DEBUG] Registered call site at instruction 9 for function 'START'
+[CFGBuilderPass] CFGBuilderPass: Registered HeapManager_enter_scope call site at instruction 9 for function 'START'
+[CFGBuilderPass] Starting block 1 variable tracking
+[CFGBuilderPass] Tracking variable 'L' in current block
+[CFGBuilderPass] Tracking variable 'S' in current block
+[CFGBuilderPass] Generating normal block-end cleanup for 2 variables
+[CFGBuilderPass] Generating block-end cleanup for: L
+[CFGBuilderPass] Skipping BCPL_FREE_LIST(L) - SAMM is active
+[CFGBuilderPass] SAMM: Injecting HeapManager_exit_scope() call for normal block exit
+[ANALYZER DEBUG] Registered call site at instruction 10 for function 'START'
+[CFGBuilderPass] CFGBuilderPass: Registered HeapManager_exit_scope call site at instruction 10 for function 'START'
 [CFGBuilderPass] Created new basic block: START_Exit_1
 [CFGBuilderPass] Resolving 0 GOTO statements...
 [CFGBuilderPass] visit(Program) complete.
@@ -361,37 +375,53 @@ Applying CFG Simplification Pass (Branch Chaining)...
 [LivenessAnalysisPass] Exiting analyze_block for block: START_Exit_1
 [LivenessAnalysisPass] Analyzing block #2 (id=START_Entry_0) in function 'START'
 [LivenessAnalysisPass] Entering analyze_block for block: START_Entry_0
-[LivenessAnalysisPass] Starting intra-block analysis for START_Entry_0 with 4 statements
-[LivenessAnalysisPass] Reverse scan - processing statement 3 type: 19AssignmentStatement
-[LivenessAnalysisPass] Collecting uses from node type: 15FPairExpression
-[LivenessAnalysisPass] Collecting uses from node type: 13NumberLiteral
-[LivenessAnalysisPass] Testing dynamic_cast<LaneAccessExpression*>: FAILED
-[LivenessAnalysisPass] Unhandled node type in collect_variable_uses: 13NumberLiteral
-[LivenessAnalysisPass] Collecting uses from node type: 13NumberLiteral
-[LivenessAnalysisPass] Testing dynamic_cast<LaneAccessExpression*>: FAILED
-[LivenessAnalysisPass] Unhandled node type in collect_variable_uses: 13NumberLiteral
-[LivenessAnalysisPass] Reverse scan - Statement 3 uses no variables
-[LivenessAnalysisPass] Reverse scan - Statement 3 contains call: NO
+[LivenessAnalysisPass] Starting intra-block analysis for START_Entry_0 with 5 statements
+[LivenessAnalysisPass] Reverse scan - processing statement 4 type: 20RoutineCallStatement
+[LivenessAnalysisPass] Reverse scan - Statement 4 uses no variables
+[LivenessAnalysisPass] Found RoutineCallStatement
+[LivenessAnalysisPass] Reverse scan - Statement 4 contains call: YES
+[LivenessAnalysisPass] Reverse scan - Marking found_call=true at statement 4
+[LivenessAnalysisPass] Reverse scan - processing statement 3 type: 20RoutineCallStatement
+[LivenessAnalysisPass] Collecting uses from node type: 14VariableAccess
+[LivenessAnalysisPass] Found variable use: S
+[LivenessAnalysisPass] Reverse scan - Statement 3 uses variables: S 
+[LivenessAnalysisPass] Found RoutineCallStatement
+[LivenessAnalysisPass] Reverse scan - Statement 3 contains call: YES
+[LivenessAnalysisPass] Reverse scan - Found 1 variables used after previous calls: S 
+[LivenessAnalysisPass] Reverse scan - Marking found_call=true at statement 3
 [LivenessAnalysisPass] Reverse scan - processing statement 2 type: 19AssignmentStatement
-[LivenessAnalysisPass] Collecting uses from node type: 26FPairsAllocationExpression
-[LivenessAnalysisPass] Testing dynamic_cast<LaneAccessExpression*>: FAILED
-[LivenessAnalysisPass] Unhandled node type in collect_variable_uses: 26FPairsAllocationExpression
-[LivenessAnalysisPass] Reverse scan - Statement 2 uses no variables
-[LivenessAnalysisPass] Reverse scan - Statement 2 contains call: NO
-[LivenessAnalysisPass] Reverse scan - processing statement 1 type: 19AssignmentStatement
-[LivenessAnalysisPass] Collecting uses from node type: 26FPairsAllocationExpression
-[LivenessAnalysisPass] Testing dynamic_cast<LaneAccessExpression*>: FAILED
-[LivenessAnalysisPass] Unhandled node type in collect_variable_uses: 26FPairsAllocationExpression
-[LivenessAnalysisPass] Reverse scan - Statement 1 uses no variables
-[LivenessAnalysisPass] Reverse scan - Statement 1 contains call: NO
-[LivenessAnalysisPass] Reverse scan - processing statement 0 type: 20RoutineCallStatement
+[LivenessAnalysisPass] Collecting uses from node type: 12FunctionCall
+[LivenessAnalysisPass] Found FunctionCall with 2 arguments
+[LivenessAnalysisPass] Function name: JOIN
+[LivenessAnalysisPass] Processing function argument...
+[LivenessAnalysisPass] Collecting uses from node type: 14VariableAccess
+[LivenessAnalysisPass] Found variable use: L
+[LivenessAnalysisPass] Processing function argument...
 [LivenessAnalysisPass] Collecting uses from node type: 13StringLiteral
 [LivenessAnalysisPass] Testing dynamic_cast<LaneAccessExpression*>: FAILED
 [LivenessAnalysisPass] Unhandled node type in collect_variable_uses: 13StringLiteral
+[LivenessAnalysisPass] Reverse scan - Statement 2 uses variables: L 
+[LivenessAnalysisPass] Reverse scan - Statement 2 contains call: YES
+[LivenessAnalysisPass] Reverse scan - Found 1 variables used after previous calls: L 
+[LivenessAnalysisPass] Reverse scan - Marking found_call=true at statement 2
+[LivenessAnalysisPass] Reverse scan - processing statement 1 type: 19AssignmentStatement
+[LivenessAnalysisPass] Collecting uses from node type: 14ListExpression
+[LivenessAnalysisPass] Testing dynamic_cast<LaneAccessExpression*>: FAILED
+[LivenessAnalysisPass] Unhandled node type in collect_variable_uses: 14ListExpression
+[LivenessAnalysisPass] Reverse scan - Statement 1 uses no variables
+[LivenessAnalysisPass] Reverse scan - Statement 1 contains call: NO
+[LivenessAnalysisPass] Reverse scan - Found 0 variables used after previous calls: 
+[LivenessAnalysisPass] Reverse scan - processing statement 0 type: 20RoutineCallStatement
 [LivenessAnalysisPass] Reverse scan - Statement 0 uses no variables
 [LivenessAnalysisPass] Found RoutineCallStatement
 [LivenessAnalysisPass] Reverse scan - Statement 0 contains call: YES
+[LivenessAnalysisPass] Reverse scan - Found 0 variables used after previous calls: 
 [LivenessAnalysisPass] Reverse scan - Marking found_call=true at statement 0
+[LivenessAnalysisPass] Intra-block call interval detected in START_Entry_0 - variables live across calls: L S 
+[LivenessAnalysisPass] Block START_Entry_0 contains routine call - marked for call interval fix
+[LivenessAnalysisPass] Block START_Entry_0 contains function call - marked for call interval fix
+[SYMBOL TABLE TRACE] Lookup FAILED for symbol: 'JOIN'
+[LivenessAnalysisPass] Block START_Entry_0 contains routine call - marked for call interval fix
 [LivenessAnalysisPass] Block START_Entry_0 contains routine call - marked for call interval fix
 [LivenessAnalysisPass] Exiting analyze_block for block: START_Entry_0
 [LivenessAnalysisPass] Exiting compute_use_def_sets()
@@ -401,7 +431,11 @@ Applying CFG Simplification Pass (Branch Chaining)...
 [LivenessAnalysisPass] Data-flow iteration 1
 [LivenessAnalysisPass] Processing block: START_Exit_1 in function: START
 [LivenessAnalysisPass] Processing block: START_Entry_0 in function: START
-[LivenessAnalysisPass] Applying call interval fix to block START_Entry_0 - adding 0 live-out variables to use set
+[LivenessAnalysisPass] Applying call interval fix to block START_Entry_0 - adding 0 live-out variables and 2 intra-statement call variables to use set
+[LivenessAnalysisPass] Data-flow iteration 2
+[LivenessAnalysisPass] Processing block: START_Exit_1 in function: START
+[LivenessAnalysisPass] Processing block: START_Entry_0 in function: START
+[LivenessAnalysisPass] Applying call interval fix to block START_Entry_0 - adding 0 live-out variables and 2 intra-statement call variables to use set
 [LivenessAnalysisPass] Exiting run_data_flow_analysis()
 [LivenessAnalysisPass] Finished run_data_flow_analysis()
 --- Liveness Analysis Complete ---
@@ -414,9 +448,9 @@ Block ID: START_Exit_1
   In : { }
   Out: { }
 Block ID: START_Entry_0
-  Use: { }
-  Def: { vec_a vec_b }
-  In : { }
+  Use: { L S }
+  Def: { L S }
+  In : { L S }
   Out: { }
 
 CFG for function: START
@@ -435,7 +469,8 @@ Block ID: START_Entry_0 (Entry)
     - RoutineCallStmt
     - AssignmentStmt
     - AssignmentStmt
-    - AssignmentStmt
+    - RoutineCallStmt
+    - RoutineCallStmt
   Successors: START_Exit_1
   Predecessors: (none)
 ----------------------------------------
@@ -447,61 +482,70 @@ Program:
       Body:
         BlockStatement:
           Statements:
+            AssignmentStatement:
+              LHS:
+                VariableAccess: L
+              RHS:
+                ListExpression:
+                  Initializers:
+                    StringLiteral: "This"
+                    StringLiteral: "is"
+                    StringLiteral: "the"
+                    StringLiteral: "age"
+                    StringLiteral: "of"
+                    StringLiteral: "the"
+                    StringLiteral: "train"
+            AssignmentStatement:
+              LHS:
+                VariableAccess: S
+              RHS:
+                FunctionCall:
+                  Callee:
+                    VariableAccess: JOIN
+                  Arguments:
+                    VariableAccess: L
+                    StringLiteral: "_"
             RoutineCallStatement:
               Callee:
-                VariableAccess: WRITEF
+                VariableAccess: WRITES
               Arguments:
-                StringLiteral: "Testing Pairwise Operation Liveness Fix
-"
-            AssignmentStatement:
-              LHS:
-                VariableAccess: vec_a
-              RHS:
-            AssignmentStatement:
-              LHS:
-                VariableAccess: vec_b
-              RHS:
-            AssignmentStatement:
-              LHS:
-                VectorAccess (!):
-                  VariableAccess: vec_a
-                  NumberLiteral: 0
-              RHS:
+                VariableAccess: S
 ----------------------------------
 
 Updating register pressure from liveness data...
 
 [INFO] Building Live Intervals for all functions...
 [LiveIntervalPass] Building intervals for function: START
+[SYMBOL TABLE TRACE] Lookup FAILED for symbol: 'JOIN'
 [LiveIntervalPass] Created 2 intervals for function: START
-  vec_a: [1-3]
-  vec_b: [2-2]
+  L: [0-2]
+  S: [0-3]
 
 [INFO] Performing Linear Scan Register Allocation for ALL functions...
 [Allocator] Starting partitioned linear scan for function: START
-[Allocator] Available integer registers: 16, float registers: 24
-[Allocator] Function has 1 call sites at: 0 
-[Allocator] Partitioned: 0 call-crossing, 2 local-only intervals
-[Allocator] Register pools - Callee-saved INT: 9, Caller-saved INT: 4, Reserved scratch INT: 3
-[Allocator] Register pools - Callee-saved FP: 8, Caller-saved FP: 16
+[Allocator] Available integer registers: 9, float registers: 8
+[Allocator] Function has 4 call sites at: 0 5 9 10 
+[Allocator] Partitioned: 2 call-crossing, 0 local-only intervals
+[Allocator] Register pools - Callee-saved INT: 9, Caller-saved INT: 0, Reserved scratch INT: 0
+[Allocator] Register pools - Callee-saved FP: 8, Caller-saved FP: 0
 [Allocator] Stage 1: Allocating call-crossing intervals
+[Allocator] Allocating call-crossing L [0-2]
+  Assigned callee-saved register X27 to L
+[ALLOC] Updated allocations for L: spilled=0, register='X27'
+[Allocator] Allocating call-crossing S [0-3]
+  Assigned callee-saved register X26 to S
+[ALLOC] Updated allocations for S: spilled=0, register='X26'
 [Allocator] Stage 2: Allocating local-only intervals
-[Allocator] Allocating local-only vec_a [1-3]
-  Assigned register X15 to vec_a
-[ALLOC] Updated allocations for vec_a: spilled=0, register='X15'
-[Allocator] Allocating local-only vec_b [2-2]
-  Assigned register X14 to vec_b
-[ALLOC] Updated allocations for vec_b: spilled=0, register='X14'
 [Allocator] Partitioned allocation complete for START
-[Allocator] Reserved 3 scratch registers for code generation: X9 X10 X11 
+[Allocator] Reserved 0 scratch registers for code generation: 
 [Allocator] Final state validation:
   Active intervals remaining: 2
-  Free integer registers: 11
-  Free float registers: 24
+  Free integer registers: 7
+  Free float registers: 8
   ✓ No register conflicts detected
 [Allocator] Results:
-  vec_a: reg X15 (caller-saved) [local-only]
-  vec_b: reg X14 (caller-saved) [local-only]
+  L: reg X27 (callee-saved) [call-crossing]
+  S: reg X26 (callee-saved) [call-crossing]
 
 [INFO] Synchronizing RegisterManager with LinearScanAllocator decisions...
 
@@ -512,35 +556,29 @@ Function: START
   Parameters: 0
   Integer Locals: 4
   Float Locals: 0
-  Runtime Calls: 1
+  Runtime Calls: 2
   Local Function Calls: 0
   Local Routine Calls: 0
   Vector Allocations: no
   Accesses Globals: yes
-  Max Live Variables (Register Pressure): 0
+  Max Live Variables (Register Pressure): 2
   Required Callee-Saved Temps: 0
 --------------------------------------------
 --------------------------------------------------
 
-[DEBUG] Initialized veneer manager with base address: 0x4431773696
+[DEBUG] Initialized veneer manager with base address: 0x4390273024
 [DEBUG] Starting code generation for program.
 [DEBUG] Step 1: Performing pre-analysis scan for external functions...
-[DEBUG] Found 1 unique external functions:
-[DEBUG]   - WRITEF
+[DEBUG] Found 2 unique external functions:
+[DEBUG]   - JOIN
+[DEBUG]   - WRITES
 [DEBUG] Step 2: Generating veneer section using standard pipeline...
-[VeneerManager] WRITEF detected, adding WRITEF1-WRITEF7 variants...
-[VeneerManager] Generating 10 veneers (including function families) using standard pipeline...
+[VeneerManager] Generating 4 veneers (including function families) using standard pipeline...
 [VeneerManager] Created veneer: HeapManager_enter_scope_veneer for function: HeapManager_enter_scope
 [VeneerManager] Created veneer: HeapManager_exit_scope_veneer for function: HeapManager_exit_scope
-[VeneerManager] Created veneer: WRITEF_veneer for function: WRITEF
-[VeneerManager] Created veneer: WRITEF1_veneer for function: WRITEF1
-[VeneerManager] Created veneer: WRITEF2_veneer for function: WRITEF2
-[VeneerManager] Created veneer: WRITEF3_veneer for function: WRITEF3
-[VeneerManager] Created veneer: WRITEF4_veneer for function: WRITEF4
-[VeneerManager] Created veneer: WRITEF5_veneer for function: WRITEF5
-[VeneerManager] Created veneer: WRITEF6_veneer for function: WRITEF6
-[VeneerManager] Created veneer: WRITEF7_veneer for function: WRITEF7
-[VeneerManager] Generated 10 veneers, estimated total size: 200 bytes
+[VeneerManager] Created veneer: JOIN_veneer for function: JOIN
+[VeneerManager] Created veneer: WRITES_veneer for function: WRITES
+[VeneerManager] Generated 4 veneers, estimated total size: 80 bytes
 [DEBUG] Step 3: Generating main function code...
 [DEBUG] Visiting Program node.
 [DEBUG] Moving 'START' routine to the end of the generation queue for JIT compatibility.
@@ -556,58 +594,84 @@ Function: START
 [SYNC] Caching live intervals for function: START
 [SYNC] Found 2 variable allocations
 [LIVE] Updating live intervals at instruction point 0
+[LIVE] Register X27 active for variable L [0-2]
+[LIVE] Register X26 active for variable S [0-3]
 [DEBUG] Synced RegisterManager with LinearScanAllocator for function: START
 [DEBUG] Using name as-is for lookup: START
 Call Frame Layout for function: START
+[SYMBOL TABLE TRACE] Lookup FAILED for symbol: 'JOIN' in function context 'START'
+[SYMBOL TABLE TRACE]   Symbol 'JOIN' not found in ANY context
+[SYMBOL TABLE TRACE] Lookup FAILED for symbol: 'JOIN' in function context 'Global'
+[SYMBOL TABLE TRACE]   Symbol 'JOIN' not found in ANY context
+[SYMBOL TABLE TRACE] Lookup FAILED for symbol: 'JOIN'
 [DEBUG] Registering all parameters as locals in CallFrameManager for 'START'.
 [DEBUG] DEBUG: metrics.variable_types size for 'START': 2
-[DEBUG] DEBUG: variable_types['vec_a'] = POINTER_TO|FPAIRS
-[DEBUG] DEBUG: variable_types['vec_b'] = POINTER_TO|FPAIRS
+[DEBUG] DEBUG: variable_types['L'] = POINTER_TO|LIST|STRING
+[DEBUG] DEBUG: variable_types['S'] = POINTER_TO|STRING
 [DEBUG] Registering all local variables from ASTAnalyzer metrics for 'START'.
-Added local variable 'vec_a' of type 1050624 at offset 16 (size 8)
-[DEBUG] Registered local 'vec_a' from analyzer metrics.
-Added local variable 'vec_b' of type 1050624 at offset 24 (size 8)
-[DEBUG] Registered local 'vec_b' from analyzer metrics.
+Added local variable 'L' of type 1081348 at offset 16 (size 8)
+[DEBUG] Registered local 'L' from analyzer metrics.
+Added local variable 'S' of type 1048580 at offset 24 (size 8)
+[DEBUG] Registered local 'S' from analyzer metrics.
 [DEBUG] Entered new scope. Scope stack size: 1
 [DEBUG] Using pre-computed register allocation for 'START'.
 [DEBUG] No spills needed - all variables fit in registers.
+Added X26 to callee_saved_registers_to_save list.
+Added X27 to callee_saved_registers_to_save list.
 [DEBUG] Attempting to generate prologue for 'START'.
---- Call Frame Layout for function: START (Total Size: 48 bytes) ---
+--- Call Frame Layout for function: START (Total Size: 80 bytes) ---
 Offset   | Content                               | Type
 ------------------------------------------------------
 +0       | Old Frame Pointer (x29)     <-- FP (x29) points here
 +8       | Return Address (Caller's PC)
-+16      | Local: vec_a                          | POINTER_TO
-+24      | Local: vec_b                          | POINTER_TO
++16      | Local: L                              | POINTER_TO|LIST|STRING
++24      | Local: S                              | POINTER_TO|STRING
 +32      | Saved Reg: X19                        | UNKNOWN
-+40      | Saved Reg: X28                        | UNKNOWN
++40      | Saved Reg: X20                        | UNKNOWN
++48      | Saved Reg: X26                        | UNKNOWN
++56      | Saved Reg: X27                        | UNKNOWN
++64      | Saved Reg: X28                        | UNKNOWN
 ------------------------------------------------------
-                                     <-- SP (+48 from FP)
+                                     <-- SP (+80 from FP)
 
-[DEBUG LEVEL 5] Emitting instruction: STP X29, X30, [SP, #-48]!
+[DEBUG LEVEL 5] Emitting instruction: STP X29, X30, [SP, #-80]!
 [LIVE] Updating live intervals at instruction point -1
+[LIVE] Freed register X27 (no active variables)
+[LIVE] Freed register X26 (no active variables)
 [DEBUG LEVEL 5] Emitting instruction: MOV X29, SP
 [LIVE] Updating live intervals at instruction point -1
 [DEBUG LEVEL 5] Emitting instruction: STR X19, [X29, #32] ; Saved Reg: X19 @ FP+32
 [LIVE] Updating live intervals at instruction point -1
-[DEBUG LEVEL 5] Emitting instruction: STR X28, [X29, #40] ; Saved Reg: X28 @ FP+40
+[DEBUG LEVEL 5] Emitting instruction: STR X20, [X29, #40] ; Saved Reg: X20 @ FP+40
+[LIVE] Updating live intervals at instruction point -1
+[DEBUG LEVEL 5] Emitting instruction: STR X26, [X29, #48] ; Saved Reg: X26 @ FP+48
+[LIVE] Updating live intervals at instruction point -1
+[DEBUG LEVEL 5] Emitting instruction: STR X27, [X29, #56] ; Saved Reg: X27 @ FP+56
+[LIVE] Updating live intervals at instruction point -1
+[DEBUG LEVEL 5] Emitting instruction: STR X28, [X29, #64] ; Saved Reg: X28 @ FP+64
 [LIVE] Updating live intervals at instruction point -1
 [DEBUG] Mapping incoming parameters to home registers or stack slots as per allocation plan.
-[DEBUG] Registered local variable 'X28' with the allocation system (spilled)
+[DEBUG] Registered local variable 'X27' with the allocation system (spilled)
+[DEBUG] Registered local variable 'X26' with the allocation system (spilled)
+[DEBUG] Registered local variable 'X20' with the allocation system (spilled)
 [DEBUG] Registered local variable 'X19' with the allocation system (spilled)
+[DEBUG] Registered local variable 'X28' with the allocation system (spilled)
 [DEBUG] Emitted JIT address load sequence for global base pointer (X28).
 [DEBUG] Skipping duplicate parameter storage
-[DEBUG] --- Call Frame Layout for function: START (Total Size: 48 bytes) ---
+[DEBUG] --- Call Frame Layout for function: START (Total Size: 80 bytes) ---
 Offset   | Content                               | Type
 ------------------------------------------------------
 +0       | Old Frame Pointer (x29)     <-- FP (x29) points here
 +8       | Return Address (Caller's PC)
-+16      | Local: vec_a                          | POINTER_TO
-+24      | Local: vec_b                          | POINTER_TO
++16      | Local: L                              | POINTER_TO|LIST|STRING
++24      | Local: S                              | POINTER_TO|STRING
 +32      | Saved Reg: X19                        | UNKNOWN
-+40      | Saved Reg: X28                        | UNKNOWN
++40      | Saved Reg: X20                        | UNKNOWN
++48      | Saved Reg: X26                        | UNKNOWN
++56      | Saved Reg: X27                        | UNKNOWN
++64      | Saved Reg: X28                        | UNKNOWN
 ------------------------------------------------------
-                                     <-- SP (+48 from FP)
+                                     <-- SP (+80 from FP)
 
 [DEBUG] --- DEBUG: Available CFGs in the map ---
 [DEBUG]   Available CFG: 'START'
@@ -615,220 +679,178 @@ Offset   | Content                               | Type
 [DEBUG] Found CFG using lookup_name: START
 [DEBUG] --- Entering NewCodeGenerator::visit(RoutineCallStatement& node) [ARM64 ABI COMPLIANT] ---
 [DEBUG] Detected a regular function/routine call.
-[DEBUG] Generating code for StringLiteral.
-[DEBUG] Allocated register X9 for the string address.
-[DEBUG LEVEL 5] Emitting instruction: ADRP X9, L_str0
+[DEBUG] === ARM64 ABI Argument Coercion ===
+[DEBUG] Total arguments: 0
+[DEBUG] Emitting 0 queued operations
+[DEBUG] Final register usage: NGRN=0, NSRN=0
+[DEBUG] === END ARM64 ABI Argument Coercion ===
+[DEBUG LEVEL 5] Emitting instruction: BL HeapManager_enter_scope_veneer
 [LIVE] Updating live intervals at instruction point 0
-[DEBUG LEVEL 5] Emitting instruction: ADD X9, X9, #:lo12:L_str0
-[LIVE] Updating live intervals at instruction point 0
-[DEBUG LEVEL 5] Emitting instruction: ADD X9, X9, #8
-[LIVE] Updating live intervals at instruction point 0
-[DEBUG] Emitted ADRP/ADD sequence and offset adjustment for string literal 'Testing Pairwise Operation Liveness Fix
-'.
-[DEBUG LEVEL 5] Emitting instruction: MOV X0, X9
-[LIVE] Updating live intervals at instruction point 0
-[DEBUG LEVEL 5] Emitting instruction: BL WRITEF_veneer
-[LIVE] Updating live intervals at instruction point 0
+[LIVE] Register X27 active for variable L [0-2]
+[LIVE] Register X26 active for variable S [0-3]
 [DEBUG] --- Exiting NewCodeGenerator::visit(RoutineCallStatement& node) ---
 [DEBUG] Visiting AssignmentStatement node.
 [DEBUG]   [CSE DEBUG] *** PROCESSING ASSIGNMENT STATEMENT ***
 [DEBUG]   [CSE DEBUG] LHS count: 1, RHS count: 1
-[DEBUG] Visiting FPairsAllocationExpression node.
-[DEBUG] Visiting NumberLiteral node.
-[DEBUG LEVEL 5] Emitting instruction: MOVZ X9, #4
+[DEBUG] Visiting ListExpression node.
+[DEBUG] List is constant. Using static template generation.
+[DataGenerator TRACE] add_list_literal called. Generated Key: "list[string(This),string(is),string(the),string(age),string(of),string(the),string(train)]"
+[DataGenerator TRACE] >> Cache MISS. Generating new labels.
+[DEBUG LEVEL 5] Emitting instruction: ADRP X0, L_list0_header
 [LIVE] Updating live intervals at instruction point 1
-[LIVE] Register X15 active for variable vec_a [1-3]
-[DEBUG] Loaded integer literal 4 into X9 using MOVZ.
-[DEBUG LEVEL 5] Emitting instruction: MOV X20, X9
+[LIVE] Register X27 active for variable L [0-2]
+[LIVE] Register X26 active for variable S [0-3]
+[DEBUG LEVEL 5] Emitting instruction: ADD X0, X0, #:lo12:L_list0_header
 [LIVE] Updating live intervals at instruction point 1
-[LIVE] Register X15 active for variable vec_a [1-3]
-[LIVE] Freed register X20 (no active variables)
-[DEBUG LEVEL 5] Emitting instruction: LSL X20, X9, #1
+[LIVE] Register X27 active for variable L [0-2]
+[LIVE] Register X26 active for variable S [0-3]
+[DEBUG LEVEL 5] Emitting instruction: BL DEEPCOPYLITERALLIST
 [LIVE] Updating live intervals at instruction point 1
-[LIVE] Register X15 active for variable vec_a [1-3]
-[LIVE] Freed register X20 (no active variables)
-[DEBUG LEVEL 5] Emitting instruction: MOV X0, X20
+[LIVE] Register X27 active for variable L [0-2]
+[LIVE] Register X26 active for variable S [0-3]
+[DEBUG] Emitted deep copy logic for LIST.
+[DEBUG] Handling assignment for variable: L
+[DEBUG] store_variable_register for 'L' from register 'X0'
+[DEBUG]   [ALLOCATOR HIT] Variable 'L' lives in X27. Emitting MOV.
+[DEBUG]   [LOOP VAR PROTECTION] Extra protection for loop variable: L
+[DEBUG LEVEL 5] Emitting instruction: MOV X27, X0
 [LIVE] Updating live intervals at instruction point 1
-[LIVE] Register X15 active for variable vec_a [1-3]
-[DEBUG LEVEL 5] Emitting instruction: BL FGETVEC
-[LIVE] Updating live intervals at instruction point 1
-[LIVE] Register X15 active for variable vec_a [1-3]
-[DEBUG LEVEL 5] Emitting instruction: MOV X20, X0
-[LIVE] Updating live intervals at instruction point 1
-[LIVE] Register X15 active for variable vec_a [1-3]
-[LIVE] Freed register X20 (no active variables)
-[DEBUG LEVEL 5] Emitting instruction: SUB X9, X20, #8
-[LIVE] Updating live intervals at instruction point 1
-[LIVE] Register X15 active for variable vec_a [1-3]
-[DEBUG LEVEL 5] Emitting instruction: STR X20, [X9, #0]
-[LIVE] Updating live intervals at instruction point 1
-[LIVE] Register X15 active for variable vec_a [1-3]
-[DEBUG] Finished visiting FPairsAllocationExpression node. Result in X20
-[DEBUG] Handling assignment for variable: vec_a
-[DEBUG] store_variable_register for 'vec_a' from register 'X20'
-[DEBUG]   [ALLOCATOR HIT] Variable 'vec_a' lives in X15. Emitting MOV.
-[DEBUG LEVEL 5] Emitting instruction: MOV X15, X20
-[LIVE] Updating live intervals at instruction point 1
-[LIVE] Register X15 active for variable vec_a [1-3]
-[DEBUG]   Updating home register X15 for variable 'vec_a' after store.
-[DEBUG LEVEL 5] Emitting instruction: MOV X15, X20
-[DEBUG LEVEL 3] Skipping duplicate MOV instruction: MOV X15, X20
+[LIVE] Register X27 active for variable L [0-2]
+[LIVE] Register X26 active for variable S [0-3]
+[DEBUG]   Updating home register X27 for variable 'L' after store.
+[DEBUG LEVEL 5] Emitting instruction: MOV X27, X0
+[DEBUG LEVEL 3] Skipping duplicate MOV instruction: MOV X27, X0
 [DEBUG] Finished visiting AssignmentStatement node.
 [DEBUG] Visiting AssignmentStatement node.
 [DEBUG]   [CSE DEBUG] *** PROCESSING ASSIGNMENT STATEMENT ***
 [DEBUG]   [CSE DEBUG] LHS count: 1, RHS count: 1
-[DEBUG] Visiting FPairsAllocationExpression node.
-[DEBUG] Visiting NumberLiteral node.
-[DEBUG LEVEL 5] Emitting instruction: MOVZ X9, #4
-[LIVE] Updating live intervals at instruction point 2
-[LIVE] Register X15 active for variable vec_a [1-3]
-[LIVE] Register X14 active for variable vec_b [2-2]
-[DEBUG] Loaded integer literal 4 into X9 using MOVZ.
-[DEBUG LEVEL 5] Emitting instruction: MOV X20, X9
-[LIVE] Updating live intervals at instruction point 2
-[LIVE] Register X15 active for variable vec_a [1-3]
-[LIVE] Register X14 active for variable vec_b [2-2]
-[LIVE] Freed register X20 (no active variables)
-[DEBUG LEVEL 5] Emitting instruction: LSL X20, X9, #1
-[LIVE] Updating live intervals at instruction point 2
-[LIVE] Register X15 active for variable vec_a [1-3]
-[LIVE] Register X14 active for variable vec_b [2-2]
-[LIVE] Freed register X20 (no active variables)
-[DEBUG LEVEL 5] Emitting instruction: MOV X0, X20
-[LIVE] Updating live intervals at instruction point 2
-[LIVE] Register X15 active for variable vec_a [1-3]
-[LIVE] Register X14 active for variable vec_b [2-2]
-[DEBUG LEVEL 5] Emitting instruction: BL FGETVEC
-[LIVE] Updating live intervals at instruction point 2
-[LIVE] Register X15 active for variable vec_a [1-3]
-[LIVE] Register X14 active for variable vec_b [2-2]
-[DEBUG LEVEL 5] Emitting instruction: MOV X20, X0
-[LIVE] Updating live intervals at instruction point 2
-[LIVE] Register X15 active for variable vec_a [1-3]
-[LIVE] Register X14 active for variable vec_b [2-2]
-[LIVE] Freed register X20 (no active variables)
-[DEBUG LEVEL 5] Emitting instruction: SUB X9, X20, #8
-[LIVE] Updating live intervals at instruction point 2
-[LIVE] Register X15 active for variable vec_a [1-3]
-[LIVE] Register X14 active for variable vec_b [2-2]
-[DEBUG LEVEL 5] Emitting instruction: STR X20, [X9, #0]
-[LIVE] Updating live intervals at instruction point 2
-[LIVE] Register X15 active for variable vec_a [1-3]
-[LIVE] Register X14 active for variable vec_b [2-2]
-[DEBUG] Finished visiting FPairsAllocationExpression node. Result in X20
-[DEBUG] Handling assignment for variable: vec_b
-[DEBUG] store_variable_register for 'vec_b' from register 'X20'
-[DEBUG]   [ALLOCATOR HIT] Variable 'vec_b' lives in X14. Emitting MOV.
-[DEBUG LEVEL 5] Emitting instruction: MOV X14, X20
-[LIVE] Updating live intervals at instruction point 2
-[LIVE] Register X15 active for variable vec_a [1-3]
-[LIVE] Register X14 active for variable vec_b [2-2]
-[DEBUG]   Updating home register X14 for variable 'vec_b' after store.
-[DEBUG LEVEL 5] Emitting instruction: MOV X14, X20
-[DEBUG LEVEL 3] Skipping duplicate MOV instruction: MOV X14, X20
-[DEBUG] Finished visiting AssignmentStatement node.
-[DEBUG] Visiting AssignmentStatement node.
-[DEBUG]   [CSE DEBUG] *** PROCESSING ASSIGNMENT STATEMENT ***
-[DEBUG]   [CSE DEBUG] LHS count: 1, RHS count: 1
-[DEBUG] Generating code for FPairExpression using ARM64 bit manipulation
-[DEBUG LEVEL 5] Emitting instruction: MOVZ X9, #0
-[LIVE] Updating live intervals at instruction point 3
-[LIVE] Register X15 active for variable vec_a [1-3]
-[LIVE] Variable vec_b expired from register X14
-[LIVE] Freed register X14 (no active variables)
-[DEBUG] Visiting NumberLiteral node.
-[DEBUG LEVEL 5] Emitting instruction: ADRP X11, L_float0
-[LIVE] Updating live intervals at instruction point 3
-[LIVE] Register X15 active for variable vec_a [1-3]
-[LIVE] Variable vec_b expired from register X14
-[DEBUG LEVEL 5] Emitting instruction: ADD X11, X11, #:lo12:L_float0
-[LIVE] Updating live intervals at instruction point 3
-[LIVE] Register X15 active for variable vec_a [1-3]
-[LIVE] Variable vec_b expired from register X14
-[DEBUG LEVEL 5] Emitting instruction: LDR D0, [X11, #0]
-[LIVE] Updating live intervals at instruction point 3
-[LIVE] Register X15 active for variable vec_a [1-3]
-[LIVE] Variable vec_b expired from register X14
-[DEBUG] Loaded float literal 2.000000 into D0.
-[DEBUG] FCVT registers: s_reg=S1, first_reg=D0
-[DEBUG LEVEL 5] Emitting instruction: FCVT S1, D0 ;encoder.
-[LIVE] Updating live intervals at instruction point 3
-[LIVE] Register X15 active for variable vec_a [1-3]
-[LIVE] Variable vec_b expired from register X14
-[DEBUG LEVEL 5] Emitting instruction: FMOV W11, S1
-[LIVE] Updating live intervals at instruction point 3
-[LIVE] Register X15 active for variable vec_a [1-3]
-[LIVE] Variable vec_b expired from register X14
-[DEBUG LEVEL 5] Emitting instruction: BFXIL X9, X11, #0, #32
-[LIVE] Updating live intervals at instruction point 3
-[LIVE] Register X15 active for variable vec_a [1-3]
-[LIVE] Variable vec_b expired from register X14
-[DEBUG] Converted double to float and inserted into bits 0-31 using BFXIL
-[DEBUG] Visiting NumberLiteral node.
-[DEBUG LEVEL 5] Emitting instruction: ADRP X12, L_float1
-[LIVE] Updating live intervals at instruction point 3
-[LIVE] Register X15 active for variable vec_a [1-3]
-[LIVE] Variable vec_b expired from register X14
-[DEBUG LEVEL 5] Emitting instruction: ADD X12, X12, #:lo12:L_float1
-[LIVE] Updating live intervals at instruction point 3
-[LIVE] Register X15 active for variable vec_a [1-3]
-[LIVE] Variable vec_b expired from register X14
-[DEBUG LEVEL 5] Emitting instruction: LDR D0, [X12, #0]
-[LIVE] Updating live intervals at instruction point 3
-[LIVE] Register X15 active for variable vec_a [1-3]
-[LIVE] Variable vec_b expired from register X14
-[DEBUG] Loaded float literal 3.000000 into D0.
-[DEBUG LEVEL 5] Emitting instruction: FCVT S1, D0 ;encoder.
-[LIVE] Updating live intervals at instruction point 3
-[LIVE] Register X15 active for variable vec_a [1-3]
-[LIVE] Variable vec_b expired from register X14
-[DEBUG LEVEL 5] Emitting instruction: FMOV W12, S1
-[LIVE] Updating live intervals at instruction point 3
-[LIVE] Register X15 active for variable vec_a [1-3]
-[LIVE] Variable vec_b expired from register X14
-[DEBUG LEVEL 5] Emitting instruction: BFI X9, X12, #32, #32
-[LIVE] Updating live intervals at instruction point 3
-[LIVE] Register X15 active for variable vec_a [1-3]
-[LIVE] Variable vec_b expired from register X14
-[DEBUG] Converted double to float and inserted into bits 32-63 using BFI
-[DEBUG] FPairExpression code generation complete - used ARM64 bit manipulation
-[DEBUG] Visiting VariableAccess node for 'vec_a'.
-[DEBUG]   [DEBUG] About to call get_variable_register for 'vec_a' in function 'START'
-[DEBUG] get_variable_register for: 'vec_a' in function 'START'
+[DEBUG] Visiting FunctionCall node (Refactored Dispatcher).
+[DEBUG] Visiting VariableAccess node for 'L'.
+[DEBUG]   [DEBUG] About to call get_variable_register for 'L' in function 'START'
+[DEBUG] get_variable_register for: 'L' in function 'START'
 [DEBUG]   [DEBUG] Current function allocations exist: YES
-[DEBUG]   ✅ REGISTER ALLOCATED: Variable 'vec_a' lives in register X15
-[DEBUG] Variable 'vec_a' value loaded into X15
-[DEBUG]   [DEBUG] get_variable_register returned: 'X15'
-[DEBUG] Visiting NumberLiteral node.
-[DEBUG LEVEL 5] Emitting instruction: MOVZ X12, #0
-[LIVE] Updating live intervals at instruction point 3
-[LIVE] Register X15 active for variable vec_a [1-3]
-[LIVE] Variable vec_b expired from register X14
-[DEBUG] Loaded integer literal 0 into X12 using MOVZ.
-[DEBUG LEVEL 5] Emitting instruction: LSL X13, X12, #3
-[LIVE] Updating live intervals at instruction point 3
-[LIVE] Register X15 active for variable vec_a [1-3]
-[LIVE] Variable vec_b expired from register X14
-[DEBUG] Calculated byte offset for vector assignment.
-[DEBUG LEVEL 5] Emitting instruction: ADD X14, X15, X13
-[LIVE] Updating live intervals at instruction point 3
-[LIVE] Register X15 active for variable vec_a [1-3]
-[LIVE] Variable vec_b expired from register X14
-[DEBUG] Calculated effective address for vector assignment.
-[DEBUG LEVEL 5] Emitting instruction: STR X9, [X14, #0]
-[LIVE] Updating live intervals at instruction point 3
-[LIVE] Register X15 active for variable vec_a [1-3]
-[LIVE] Variable vec_b expired from register X14
-[DEBUG] Stored value to vector element.
+[DEBUG]   ✅ REGISTER ALLOCATED: Variable 'L' lives in register X27
+[DEBUG] Variable 'L' value loaded into X27
+[DEBUG]   [DEBUG] get_variable_register returned: 'X27'
+[DEBUG LEVEL 5] Emitting instruction: MOV X20, X27
+[LIVE] Updating live intervals at instruction point 2
+[LIVE] Register X27 active for variable L [0-2]
+[LIVE] Register X26 active for variable S [0-3]
+[LIVE] Freed register X20 (no active variables)
+[DEBUG] Generating code for StringLiteral.
+[DEBUG] Allocated register X9 for the string address.
+[DEBUG LEVEL 5] Emitting instruction: ADRP X9, L_str6
+[LIVE] Updating live intervals at instruction point 2
+[LIVE] Register X27 active for variable L [0-2]
+[LIVE] Register X26 active for variable S [0-3]
+[DEBUG LEVEL 5] Emitting instruction: ADD X9, X9, #:lo12:L_str6
+[LIVE] Updating live intervals at instruction point 2
+[LIVE] Register X27 active for variable L [0-2]
+[LIVE] Register X26 active for variable S [0-3]
+[DEBUG LEVEL 5] Emitting instruction: ADD X9, X9, #8
+[LIVE] Updating live intervals at instruction point 2
+[LIVE] Register X27 active for variable L [0-2]
+[LIVE] Register X26 active for variable S [0-3]
+[DEBUG] Emitted ADRP/ADD sequence and offset adjustment for string literal '_'.
+[DEBUG LEVEL 5] Emitting instruction: MOV X20, X9
+[LIVE] Updating live intervals at instruction point 2
+[LIVE] Register X27 active for variable L [0-2]
+[LIVE] Register X26 active for variable S [0-3]
+[LIVE] Freed register X20 (no active variables)
+[SYMBOL TABLE TRACE] Lookup FAILED for symbol: 'JOIN'
+[DEBUG] Function symbol not found for: JOIN
+[DEBUG] === ARM64 ABI Argument Coercion ===
+[DEBUG] Total arguments: 2
+[DEBUG] Arg 0: src=X20 expr_type=POINTER_TO|LIST|STRING expected=UNKNOWN target=POINTER_TO|LIST|STRING
+[DEBUG] Integer arg 0 -> X0 (NGRN=0)
+[DEBUG] Queued MOV X0, X20
+[DEBUG] Deferring release of source register: X20
+[DEBUG] Arg 1: src=X20 expr_type=POINTER_TO|STRING expected=UNKNOWN target=POINTER_TO|STRING
+[DEBUG] Integer arg 1 -> X1 (NGRN=1)
+[DEBUG] Queued MOV X1, X20
+[DEBUG] Deferring release of source register: X20
+[DEBUG] Emitting 2 queued operations
+[DEBUG LEVEL 5] Emitting instruction: MOV X0, X20
+[LIVE] Updating live intervals at instruction point 2
+[LIVE] Register X27 active for variable L [0-2]
+[LIVE] Register X26 active for variable S [0-3]
+[DEBUG] Executed MOV X0, X20
+[DEBUG LEVEL 5] Emitting instruction: MOV X1, X20
+[LIVE] Updating live intervals at instruction point 2
+[LIVE] Register X27 active for variable L [0-2]
+[LIVE] Register X26 active for variable S [0-3]
+[DEBUG] Executed MOV X1, X20
+[DEBUG] Releasing source register: X20
+[DEBUG] Releasing source register: X20
+[DEBUG] Final register usage: NGRN=2, NSRN=0
+[DEBUG] === END ARM64 ABI Argument Coercion ===
+[DEBUG LEVEL 5] Emitting instruction: BL JOIN_veneer
+[LIVE] Updating live intervals at instruction point 2
+[LIVE] Register X27 active for variable L [0-2]
+[LIVE] Register X26 active for variable S [0-3]
+[DEBUG] Handling assignment for variable: S
+[DEBUG] store_variable_register for 'S' from register 'X0'
+[DEBUG]   [ALLOCATOR HIT] Variable 'S' lives in X26. Emitting MOV.
+[DEBUG]   [LOOP VAR PROTECTION] Extra protection for loop variable: S
+[DEBUG LEVEL 5] Emitting instruction: MOV X26, X0
+[LIVE] Updating live intervals at instruction point 2
+[LIVE] Register X27 active for variable L [0-2]
+[LIVE] Register X26 active for variable S [0-3]
+[DEBUG]   Updating home register X26 for variable 'S' after store.
+[DEBUG LEVEL 5] Emitting instruction: MOV X26, X0
+[DEBUG LEVEL 3] Skipping duplicate MOV instruction: MOV X26, X0
 [DEBUG] Finished visiting AssignmentStatement node.
+[DEBUG] --- Entering NewCodeGenerator::visit(RoutineCallStatement& node) [ARM64 ABI COMPLIANT] ---
+[DEBUG] Detected a regular function/routine call.
+[DEBUG] Visiting VariableAccess node for 'S'.
+[DEBUG]   [DEBUG] About to call get_variable_register for 'S' in function 'START'
+[DEBUG] get_variable_register for: 'S' in function 'START'
+[DEBUG]   [DEBUG] Current function allocations exist: YES
+[DEBUG]   ✅ REGISTER ALLOCATED: Variable 'S' lives in register X26
+[DEBUG] Variable 'S' value loaded into X26
+[DEBUG]   [DEBUG] get_variable_register returned: 'X26'
+[DEBUG] === ARM64 ABI Argument Coercion ===
+[DEBUG] Total arguments: 1
+[DEBUG] Arg 0: src=X26 expr_type=POINTER_TO|STRING expected=INTEGER target=INTEGER
+[DEBUG] Integer arg 0 -> X0 (NGRN=0)
+[DEBUG] Queued MOV X0, X26
+[DEBUG] Deferring release of source register: X26
+[DEBUG] Emitting 1 queued operations
+[DEBUG LEVEL 5] Emitting instruction: MOV X0, X26
+[LIVE] Updating live intervals at instruction point 3
+[LIVE] Variable L expired from register X27
+[LIVE] Register X26 active for variable S [0-3]
+[LIVE] Freed register X27 (no active variables)
+[DEBUG] Executed MOV X0, X26
+[DEBUG] Releasing source register: X26
+[DEBUG] Final register usage: NGRN=1, NSRN=0
+[DEBUG] === END ARM64 ABI Argument Coercion ===
+[DEBUG LEVEL 5] Emitting instruction: BL WRITES_veneer
+[LIVE] Updating live intervals at instruction point 3
+[LIVE] Variable L expired from register X27
+[LIVE] Register X26 active for variable S [0-3]
+[DEBUG] --- Exiting NewCodeGenerator::visit(RoutineCallStatement& node) ---
+[DEBUG] --- Entering NewCodeGenerator::visit(RoutineCallStatement& node) [ARM64 ABI COMPLIANT] ---
+[DEBUG] Detected a regular function/routine call.
+[DEBUG] === ARM64 ABI Argument Coercion ===
+[DEBUG] Total arguments: 0
+[DEBUG] Emitting 0 queued operations
+[DEBUG] Final register usage: NGRN=0, NSRN=0
+[DEBUG] === END ARM64 ABI Argument Coercion ===
+[DEBUG LEVEL 5] Emitting instruction: BL HeapManager_exit_scope_veneer
+[LIVE] Updating live intervals at instruction point 4
+[LIVE] Variable L expired from register X27
+[LIVE] Variable S expired from register X26
+[LIVE] Freed register X26 (no active variables)
+[DEBUG] --- Exiting NewCodeGenerator::visit(RoutineCallStatement& node) ---
 [DEBUG LEVEL 5] Emitting instruction: B START_Exit_1
-[LIVE] Updating live intervals at instruction point 3
-[LIVE] Register X15 active for variable vec_a [1-3]
-[LIVE] Variable vec_b expired from register X14
+[LIVE] Updating live intervals at instruction point 4
+[LIVE] Variable L expired from register X27
+[LIVE] Variable S expired from register X26
 [DEBUG LEVEL 5] Emitting instruction: B .L0
-[LIVE] Updating live intervals at instruction point 3
-[LIVE] Register X15 active for variable vec_a [1-3]
-[LIVE] Variable vec_b expired from register X14
+[LIVE] Updating live intervals at instruction point 4
+[LIVE] Variable L expired from register X27
+[LIVE] Variable S expired from register X26
 [DEBUG] Performing end-of-function scope cleanup for 'START'.
 [DEBUG] Defining epilogue label: .L0
 [DEBUG] Attempting to generate epilogue for 'START'.
@@ -837,10 +859,33 @@ Offset   | Content                               | Type
 [DEBUG] Code Generator: Generating code for top-level statements.
 [DEBUG] Finished visiting Program node.
 [InstructionStream TRACE] Adding label definition: L_str0
-[InstructionStream TRACE] Adding label definition: L_float0
-[InstructionStream TRACE] Adding label definition: L_float1
+[InstructionStream TRACE] Adding label definition: L_str1
+[InstructionStream TRACE] Adding label definition: L_str2
+[InstructionStream TRACE] Adding label definition: L_str3
+[InstructionStream TRACE] Adding label definition: L_str4
+[InstructionStream TRACE] Adding label definition: L_str5
+[InstructionStream TRACE] Adding label definition: L_str6
 [DataGenerator TRACE] Entering generate_rodata_section.
-[DataGenerator TRACE] Size of list_literals_ vector is: 0
+[DataGenerator TRACE] Size of list_literals_ vector is: 1
+[DataGenerator TRACE] >> Processing header: L_list0_header
+[DataGenerator TRACE]   Internal nodes vector size: 7
+[DataGenerator TRACE]   --- Dumping Node Labels ---
+[DataGenerator TRACE]     -> L_list0_node_0
+[DataGenerator TRACE]     -> L_list0_node_1
+[DataGenerator TRACE]     -> L_list0_node_2
+[DataGenerator TRACE]     -> L_list0_node_3
+[DataGenerator TRACE]     -> L_list0_node_4
+[DataGenerator TRACE]     -> L_list0_node_5
+[DataGenerator TRACE]     -> L_list0_node_6
+[DataGenerator TRACE]   --- End Dump ---
+[InstructionStream TRACE] Adding label definition: L_list0_header
+[InstructionStream TRACE] Adding label definition: L_list0_node_0
+[InstructionStream TRACE] Adding label definition: L_list0_node_1
+[InstructionStream TRACE] Adding label definition: L_list0_node_2
+[InstructionStream TRACE] Adding label definition: L_list0_node_3
+[InstructionStream TRACE] Adding label definition: L_list0_node_4
+[InstructionStream TRACE] Adding label definition: L_list0_node_5
+[InstructionStream TRACE] Adding label definition: L_list0_node_6
 [InstructionStream TRACE] Adding label definition: L__data_segment_base
 [DEBUG] Code generation finished.
 Code generation complete.
@@ -851,8 +896,8 @@ Symbol Table (Persistent, All Symbols)
 Symbol 'HeapManager_enter_scope' (FUNCTION, INTEGER, scope=0, block=0, class_name='', function_name='Global')
 Symbol 'HeapManager_exit_scope' (FUNCTION, INTEGER, scope=0, block=0, class_name='', function_name='Global')
 Symbol 'START' (ROUTINE, INTEGER, scope=0, block=0, class_name='', function_name='START')
-Symbol 'vec_a' (LOCAL_VAR, POINTER_TO|FPAIRS, scope=2, block=0, size=4, class_name='', function_name='START')
-Symbol 'vec_b' (LOCAL_VAR, POINTER_TO|FPAIRS, scope=2, block=0, size=4, class_name='', function_name='START')
+Symbol 'L' (LOCAL_VAR, POINTER_TO|LIST|STRING, scope=2, block=0, class_name='', function_name='START')
+Symbol 'S' (LOCAL_VAR, POINTER_TO|STRING, scope=2, block=0, class_name='', function_name='START')
 Symbol 'READN' (RUNTIME_FUNCTION, INTEGER, scope=0, block=0, class_name='', function_name='')
 Symbol 'RND' (RUNTIME_FLOAT_FUNCTION, FLOAT, scope=0, block=0, class_name='', function_name='', parameters=[INTEGER])
 Symbol 'RAND' (RUNTIME_FUNCTION, INTEGER, scope=0, block=0, class_name='', function_name='', parameters=[INTEGER])
@@ -924,31 +969,51 @@ Symbol 'SDL2_TEST_BASIC' (RUNTIME_FUNCTION, INTEGER, scope=0, block=0, class_nam
 Data sections generated.
 
 === Peephole Optimization ===
-Analyzing 165 ARM64 instructions...
+Analyzing 183 ARM64 instructions...
 Maximum optimization passes: 5
 
 [Peephole Optimizer] Applied: Combine adjacent X-register STRs into STP
-  Position: 55
+  Position: 25
   Before:
     STR X19, [X29, #32] ; Saved Reg: X19 @ FP+32  [Opcode=26, Dest=-1, Src1=19, Imm=32, Base=29, Offset=32]
-    STR X28, [X29, #40] ; Saved Reg: X28 @ FP+40  [Opcode=26, Dest=-1, Src1=28, Imm=40, Base=29, Offset=40]
+    STR X20, [X29, #40] ; Saved Reg: X20 @ FP+40  [Opcode=26, Dest=-1, Src1=20, Imm=40, Base=29, Offset=40]
   After:
-    STP x19, x28, [x29, #32]  [Opcode=30, Dest=-1, Src1=19, Imm=32, Base=29, Offset=32]
+    STP x19, x20, [x29, #32]  [Opcode=30, Dest=-1, Src1=19, Imm=32, Base=29, Offset=32]
+  Instruction count: 2 -> 1
+
+
+[Peephole Optimizer] Applied: Combine adjacent X-register STRs into STP
+  Position: 26
+  Before:
+    STR X26, [X29, #48] ; Saved Reg: X26 @ FP+48  [Opcode=26, Dest=-1, Src1=26, Imm=48, Base=29, Offset=48]
+    STR X27, [X29, #56] ; Saved Reg: X27 @ FP+56  [Opcode=26, Dest=-1, Src1=27, Imm=56, Base=29, Offset=56]
+  After:
+    STP x26, x27, [x29, #48]  [Opcode=30, Dest=-1, Src1=26, Imm=48, Base=29, Offset=48]
   Instruction count: 2 -> 1
 
 
 [Peephole Optimizer] Applied: Combine adjacent X-register LDRs into LDP
-  Position: 105
+  Position: 54
   Before:
     LDR X19, [X29, #32] ; Restored Reg: X19 @ FP+32  [Opcode=27, Dest=19, Src1=-1, Imm=32, Base=29, Offset=32]
-    LDR X28, [X29, #40] ; Restored Reg: X28 @ FP+40  [Opcode=27, Dest=28, Src1=-1, Imm=40, Base=29, Offset=40]
+    LDR X20, [X29, #40] ; Restored Reg: X20 @ FP+40  [Opcode=27, Dest=20, Src1=-1, Imm=40, Base=29, Offset=40]
   After:
-    LDP x19, x28, [x29, #32]  [Opcode=31, Dest=19, Src1=28, Imm=32, Base=29, Offset=32]
+    LDP x19, x20, [x29, #32]  [Opcode=31, Dest=19, Src1=20, Imm=32, Base=29, Offset=32]
   Instruction count: 2 -> 1
 
 
 [Peephole Optimizer] Applied: Combine adjacent X-register LDRs into LDP
-  Position: 107
+  Position: 55
+  Before:
+    LDR X26, [X29, #48] ; Restored Reg: X26 @ FP+48  [Opcode=27, Dest=26, Src1=-1, Imm=48, Base=29, Offset=48]
+    LDR X27, [X29, #56] ; Restored Reg: X27 @ FP+56  [Opcode=27, Dest=27, Src1=-1, Imm=56, Base=29, Offset=56]
+  After:
+    LDP x26, x27, [x29, #48]  [Opcode=31, Dest=26, Src1=27, Imm=48, Base=29, Offset=48]
+  Instruction count: 2 -> 1
+
+
+[Peephole Optimizer] Applied: Combine adjacent X-register LDRs into LDP
+  Position: 58
   Before:
     LDR X29, [SP, #0] ; Restore caller's Frame Pointer  [Opcode=27, Dest=29, Src1=-1, Imm=0, Base=31, Offset=0]
     LDR X30, [SP, #8] ; Restore Link Register  [Opcode=27, Dest=30, Src1=-1, Imm=8, Base=31, Offset=8]
@@ -960,182 +1025,180 @@ Maximum optimization passes: 5
 Peephole optimization completed 2 
   Passes with changes: 1
 Peephole optimization completed 2 passes:
-  Instructions before: 165
-  Instructions after:  162
-  Total optimizations: 3
+  Instructions before: 183
+  Instructions after:  178
+  Total optimizations: 5
   Patterns matched:
-    - Combine adjacent X-register LDRs into LDP: 2
-    - Combine adjacent X-register STRs into STP: 1
+    - Combine adjacent X-register LDRs into LDP: 3
+    - Combine adjacent X-register STRs into STP: 2
 ==============================
 [Peephole Optimizer] Detailed peephole optimization trace complete
 Populating JIT memory according to linker layout...
 
---- CodeBuffer JIT Listing ------ Code Section Listing (Base Address: 0x108278000) ---
+--- CodeBuffer JIT Listing ------ Code Section Listing (Base Address: 0x105ae4000) ---
 Address Hex Code    Assembly
 --------------------------------------------------
- 108278000 0x00000000  
+ 105ae4000 0x00000000  
 ; --- Veneer Section ---
 HeapManager_enter_scope_veneer:
- 108278004 0xd2990b90  MOVZ X16, #51292
- 108278008 0xf2a056f0  MOVK X16, #695, LSL #16
- 10827800c 0xf2c00030  MOVK X16, #1, LSL #32
- 108278010 0xd61f0200  BR X16
+ 105ae4004 0xd29ba810  MOVZ X16, #56640
+ 105ae4008 0xf2a00ad0  MOVK X16, #86, LSL #16
+ 105ae400c 0xf2c00030  MOVK X16, #1, LSL #32
+ 105ae4010 0xd61f0200  BR X16
 HeapManager_exit_scope_veneer:
- 108278014 0xd2991110  MOVZ X16, #51336
- 108278018 0xf2a056f0  MOVK X16, #695, LSL #16
- 10827801c 0xf2c00030  MOVK X16, #1, LSL #32
- 108278020 0xd61f0200  BR X16
-WRITEF_veneer:
- 108278024 0xd2991610  MOVZ X16, #51376
- 108278028 0xf2a05770  MOVK X16, #699, LSL #16
- 10827802c 0xf2c00030  MOVK X16, #1, LSL #32
- 108278030 0xd61f0200  BR X16
-WRITEF1_veneer:
- 108278034 0xd299ba10  MOVZ X16, #52688
- 108278038 0xf2a05770  MOVK X16, #699, LSL #16
- 10827803c 0xf2c00030  MOVK X16, #1, LSL #32
- 108278040 0xd61f0200  BR X16
-WRITEF2_veneer:
- 108278044 0xd299c710  MOVZ X16, #52792
- 108278048 0xf2a05770  MOVK X16, #699, LSL #16
- 10827804c 0xf2c00030  MOVK X16, #1, LSL #32
- 108278050 0xd61f0200  BR X16
-WRITEF3_veneer:
- 108278054 0xd299d590  MOVZ X16, #52908
- 108278058 0xf2a05770  MOVK X16, #699, LSL #16
- 10827805c 0xf2c00030  MOVK X16, #1, LSL #32
- 108278060 0xd61f0200  BR X16
-WRITEF4_veneer:
- 108278064 0xd299e590  MOVZ X16, #53036
- 108278068 0xf2a05770  MOVK X16, #699, LSL #16
- 10827806c 0xf2c00030  MOVK X16, #1, LSL #32
- 108278070 0xd61f0200  BR X16
-WRITEF5_veneer:
- 108278074 0xd299f710  MOVZ X16, #53176
- 108278078 0xf2a05770  MOVK X16, #699, LSL #16
- 10827807c 0xf2c00030  MOVK X16, #1, LSL #32
- 108278080 0xd61f0200  BR X16
-WRITEF6_veneer:
- 108278084 0xd29a0a10  MOVZ X16, #53328
- 108278088 0xf2a05770  MOVK X16, #699, LSL #16
- 10827808c 0xf2c00030  MOVK X16, #1, LSL #32
- 108278090 0xd61f0200  BR X16
-WRITEF7_veneer:
- 108278094 0xd29a1e90  MOVZ X16, #53492
- 108278098 0xf2a05770  MOVK X16, #699, LSL #16
- 10827809c 0xf2c00030  MOVK X16, #1, LSL #32
- 1082780a0 0xd61f0200  BR X16
- 1082780a4 0x00000000  ; --- End Veneer Section ---
+ 105ae4014 0xd29bad90  MOVZ X16, #56684
+ 105ae4018 0xf2a00ad0  MOVK X16, #86, LSL #16
+ 105ae401c 0xf2c00030  MOVK X16, #1, LSL #32
+ 105ae4020 0xd61f0200  BR X16
+JOIN_veneer:
+ 105ae4024 0xd29dbf90  MOVZ X16, #60924
+ 105ae4028 0xf2a00db0  MOVK X16, #109, LSL #16
+ 105ae402c 0xf2c00030  MOVK X16, #1, LSL #32
+ 105ae4030 0xd61f0200  BR X16
+WRITES_veneer:
+ 105ae4034 0xd28fd190  MOVZ X16, #32396
+ 105ae4038 0xf2a00db0  MOVK X16, #109, LSL #16
+ 105ae403c 0xf2c00030  MOVK X16, #1, LSL #32
+ 105ae4040 0xd61f0200  BR X16
+ 105ae4044 0x00000000  ; --- End Veneer Section ---
 
 START:
- 1082780a8 0xa9bd7bfd  STP X29, X30, [SP, #-48]!
- 1082780ac 0x910003fd  MOV X29, SP
- 1082780b0 0xa90273b3  STP x19, x28, [x29, #32]
- 1082780b4 0xd288001c  MOVZ X28, #16384
- 1082780b8 0xf2a06adc  MOVK X28, #854, LSL #16
- 1082780bc 0xf2c0003c  MOVK X28, #1, LSL #32
- 1082780c0 0xf2e0001c  MOVK X28, #0, LSL #48
+ 105ae4048 0xa9bb7bfd  STP X29, X30, [SP, #-80]!
+ 105ae404c 0x910003fd  MOV X29, SP
+ 105ae4050 0xa90253b3  STP x19, x20, [x29, #32]
+ 105ae4054 0xa9036fba  STP x26, x27, [x29, #48]
+ 105ae4058 0xf90023bc  STR X28, [X29, #64] ; Saved Reg: X28 @ FP+64
+ 105ae405c 0xd288001c  MOVZ X28, #16384
+ 105ae4060 0xf2a0b3dc  MOVK X28, #1438, LSL #16
+ 105ae4064 0xf2c0003c  MOVK X28, #1, LSL #32
+ 105ae4068 0xf2e0001c  MOVK X28, #0, LSL #48
 START_Entry_0:
- 1082780c4 0xb0000029  ADRP X9, L_str0    ; Reloc -> 'L_str0' @ 0x10827d000
- 1082780c8 0x91000129  ADD X9, X9, #:lo12:L_str0    ; Reloc -> 'L_str0' @ 0x10827d000
- 1082780cc 0x91002129  ADD X9, X9, #8
- 1082780d0 0xaa0903e0  MOV X0, X9
- 1082780d4 0x97ffffd4  BL WRITEF_veneer    ; Reloc -> 'WRITEF_veneer' @ 0x108278024
- 1082780d8 0xd2800089  MOVZ X9, #4
- 1082780dc 0xaa0903f4  MOV X20, X9
- 1082780e0 0xd37ff934  LSL X20, X9, #1
- 1082780e4 0xaa1403e0  MOV X0, X20
- 1082780e8 0x96a51e49  BL FGETVEC    ; Reloc -> 'FGETVEC' @ 0x102bbfa0c
- 1082780ec 0xaa0003f4  MOV X20, X0
- 1082780f0 0xd1002289  SUB X9, X20, #8
- 1082780f4 0xf9000134  STR X20, [X9, #0]
- 1082780f8 0xaa1403ef  MOV X15, X20
- 1082780fc 0xd2800089  MOVZ X9, #4
- 108278100 0xaa0903f4  MOV X20, X9
- 108278104 0xd37ff934  LSL X20, X9, #1
- 108278108 0xaa1403e0  MOV X0, X20
- 10827810c 0x96a51e40  BL FGETVEC    ; Reloc -> 'FGETVEC' @ 0x102bbfa0c
- 108278110 0xaa0003f4  MOV X20, X0
- 108278114 0xd1002289  SUB X9, X20, #8
- 108278118 0xf9000134  STR X20, [X9, #0]
- 10827811c 0xaa1403ee  MOV X14, X20
- 108278120 0xd2800009  MOVZ X9, #0
- 108278124 0xb000002b  ADRP X11, L_float0    ; Reloc -> 'L_float0' @ 0x10827d0b0
- 108278128 0x9102c16b  ADD X11, X11, #:lo12:L_float0    ; Reloc -> 'L_float0' @ 0x10827d0b0
- 10827812c 0xfd400160  LDR D0, [X11, #0]
- 108278130 0x1e624001  FCVT S1, D0 ;encoder.
- 108278134 0x1e26002b  FMOV W11, S1
- 108278138 0xb3407d69  BFXIL X9, X11, #0, #32
- 10827813c 0xb000002c  ADRP X12, L_float1    ; Reloc -> 'L_float1' @ 0x10827d0b8
- 108278140 0x9102e18c  ADD X12, X12, #:lo12:L_float1    ; Reloc -> 'L_float1' @ 0x10827d0b8
- 108278144 0xfd400180  LDR D0, [X12, #0]
- 108278148 0x1e624001  FCVT S1, D0 ;encoder.
- 10827814c 0x1e26002c  FMOV W12, S1
- 108278150 0xb3607d89  BFI X9, X12, #32, #32
- 108278154 0xd280000c  MOVZ X12, #0
- 108278158 0xd37df18d  LSL X13, X12, #3
- 10827815c 0x8b0d01ee  ADD X14, X15, X13
- 108278160 0xf90001c9  STR X9, [X14, #0]
- 108278164 0x14000001  B START_Exit_1    ; Reloc -> 'START_Exit_1' @ 0x108278168
+ 105ae406c 0x97ffffe6  BL HeapManager_enter_scope_veneer    ; Reloc -> 'HeapManager_enter_scope_veneer' @ 0x105ae4004
+ 105ae4070 0xb0000020  ADRP X0, L_list0_header    ; Reloc -> 'L_list0_header' @ 0x105ae90c0
+ 105ae4074 0x91030000  ADD X0, X0, #:lo12:L_list0_header    ; Reloc -> 'L_list0_header' @ 0x105ae90c0
+ 105ae4078 0x96afee60  BL DEEPCOPYLITERALLIST    ; Reloc -> 'DEEPCOPYLITERALLIST' @ 0x1006df9f8
+ 105ae407c 0xaa0003fb  MOV X27, X0
+ 105ae4080 0xaa1b03f4  MOV X20, X27
+ 105ae4084 0xb0000029  ADRP X9, L_str6    ; Reloc -> 'L_str6' @ 0x105ae90ac
+ 105ae4088 0x9102b129  ADD X9, X9, #:lo12:L_str6    ; Reloc -> 'L_str6' @ 0x105ae90ac
+ 105ae408c 0x91002129  ADD X9, X9, #8
+ 105ae4090 0xaa0903f4  MOV X20, X9
+ 105ae4094 0xaa1403e0  MOV X0, X20
+ 105ae4098 0xaa1403e1  MOV X1, X20
+ 105ae409c 0x97ffffe2  BL JOIN_veneer    ; Reloc -> 'JOIN_veneer' @ 0x105ae4024
+ 105ae40a0 0xaa0003fa  MOV X26, X0
+ 105ae40a4 0xaa1a03e0  MOV X0, X26
+ 105ae40a8 0x97ffffe3  BL WRITES_veneer    ; Reloc -> 'WRITES_veneer' @ 0x105ae4034
+ 105ae40ac 0x97ffffda  BL HeapManager_exit_scope_veneer    ; Reloc -> 'HeapManager_exit_scope_veneer' @ 0x105ae4014
+ 105ae40b0 0x14000001  B START_Exit_1    ; Reloc -> 'START_Exit_1' @ 0x105ae40b4
 START_Exit_1:
- 108278168 0x14000001  B .L0    ; Reloc -> '.L0' @ 0x10827816c
+ 105ae40b4 0x14000001  B .L0    ; Reloc -> '.L0' @ 0x105ae40b8
 .L0:
- 10827816c 0xa94273b3  LDP x19, x28, [x29, #32]
- 108278170 0x910003bf  MOV SP, X29 ; Deallocate frame by moving FP to SP
- 108278174 0xa9407bfd  LDP x29, x30, [SP, #0]
- 108278178 0x910043ff  ADD SP, SP, #16 ; Deallocate space for saved FP/LR
- 10827817c 0xd65f03c0  RET
+ 105ae40b8 0xa94253b3  LDP x19, x20, [x29, #32]
+ 105ae40bc 0xa9436fba  LDP x26, x27, [x29, #48]
+ 105ae40c0 0xf94023bc  LDR X28, [X29, #64] ; Restored Reg: X28 @ FP+64
+ 105ae40c4 0x910003bf  MOV SP, X29 ; Deallocate frame by moving FP to SP
+ 105ae40c8 0xa9407bfd  LDP x29, x30, [SP, #0]
+ 105ae40cc 0x910043ff  ADD SP, SP, #16 ; Deallocate space for saved FP/LR
+ 105ae40d0 0xd65f03c0  RET
 L_str0:
- 10827d000 0x28000000  .quad 0x28
- 10827d004 0x00000000  ; (upper half)
- 10827d008 0x54000000  DCD 0x54
- 10827d00c 0x65000000  DCD 0x65
- 10827d010 0x73000000  DCD 0x73
- 10827d014 0x74000000  DCD 0x74
- 10827d018 0x69000000  DCD 0x69
- 10827d01c 0x6e000000  DCD 0x6e
- 10827d020 0x67000000  DCD 0x67
- 10827d024 0x20000000  DCD 0x20
- 10827d028 0x50000000  DCD 0x50
- 10827d02c 0x61000000  DCD 0x61
- 10827d030 0x69000000  DCD 0x69
- 10827d034 0x72000000  DCD 0x72
- 10827d038 0x77000000  DCD 0x77
- 10827d03c 0x69000000  DCD 0x69
- 10827d040 0x73000000  DCD 0x73
- 10827d044 0x65000000  DCD 0x65
- 10827d048 0x20000000  DCD 0x20
- 10827d04c 0x4f000000  DCD 0x4f
- 10827d050 0x70000000  DCD 0x70
- 10827d054 0x65000000  DCD 0x65
- 10827d058 0x72000000  DCD 0x72
- 10827d05c 0x61000000  DCD 0x61
- 10827d060 0x74000000  DCD 0x74
- 10827d064 0x69000000  DCD 0x69
- 10827d068 0x6f000000  DCD 0x6f
- 10827d06c 0x6e000000  DCD 0x6e
- 10827d070 0x20000000  DCD 0x20
- 10827d074 0x4c000000  DCD 0x4c
- 10827d078 0x69000000  DCD 0x69
- 10827d07c 0x76000000  DCD 0x76
- 10827d080 0x65000000  DCD 0x65
- 10827d084 0x6e000000  DCD 0x6e
- 10827d088 0x65000000  DCD 0x65
- 10827d08c 0x73000000  DCD 0x73
- 10827d090 0x73000000  DCD 0x73
- 10827d094 0x20000000  DCD 0x20
- 10827d098 0x46000000  DCD 0x46
- 10827d09c 0x69000000  DCD 0x69
- 10827d0a0 0x78000000  DCD 0x78
- 10827d0a4 0xa0000000  DCD 0xa
- 10827d0a8 0x00000000  DCD 0x0
- 10827d0ac 0x00000000  DCD 0x0
-L_float0:
- 10827d0b0 0x00000000  .quad 0x4000000000000000
- 10827d0b4 0x40000000  ; (upper half)
-L_float1:
- 10827d0b8 0x00000000  .quad 0x4008000000000000
- 10827d0bc 0x40080000  ; (upper half)
+ 105ae9000 0x40000000  .quad 0x4
+ 105ae9004 0x00000000  ; (upper half)
+ 105ae9008 0x54000000  DCD 0x54
+ 105ae900c 0x68000000  DCD 0x68
+ 105ae9010 0x69000000  DCD 0x69
+ 105ae9014 0x73000000  DCD 0x73
+ 105ae9018 0x00000000  DCD 0x0
+ 105ae901c 0x00000000  DCD 0x0
+L_str1:
+ 105ae9020 0x20000000  .quad 0x2
+ 105ae9024 0x00000000  ; (upper half)
+ 105ae9028 0x69000000  DCD 0x69
+ 105ae902c 0x73000000  DCD 0x73
+ 105ae9030 0x00000000  DCD 0x0
+ 105ae9034 0x00000000  DCD 0x0
+L_str2:
+ 105ae9038 0x30000000  .quad 0x3
+ 105ae903c 0x00000000  ; (upper half)
+ 105ae9040 0x74000000  DCD 0x74
+ 105ae9044 0x68000000  DCD 0x68
+ 105ae9048 0x65000000  DCD 0x65
+ 105ae904c 0x00000000  DCD 0x0
+ 105ae9050 0x00000000  DCD 0x0
+L_str3:
+ 105ae9054 0x30000000  .quad 0x3
+ 105ae9058 0x00000000  ; (upper half)
+ 105ae905c 0x61000000  DCD 0x61
+ 105ae9060 0x67000000  DCD 0x67
+ 105ae9064 0x65000000  DCD 0x65
+ 105ae9068 0x00000000  DCD 0x0
+ 105ae906c 0x00000000  DCD 0x0
+L_str4:
+ 105ae9070 0x20000000  .quad 0x2
+ 105ae9074 0x00000000  ; (upper half)
+ 105ae9078 0x6f000000  DCD 0x6f
+ 105ae907c 0x66000000  DCD 0x66
+ 105ae9080 0x00000000  DCD 0x0
+ 105ae9084 0x00000000  DCD 0x0
+L_str5:
+ 105ae9088 0x50000000  .quad 0x5
+ 105ae908c 0x00000000  ; (upper half)
+ 105ae9090 0x74000000  DCD 0x74
+ 105ae9094 0x72000000  DCD 0x72
+ 105ae9098 0x61000000  DCD 0x61
+ 105ae909c 0x69000000  DCD 0x69
+ 105ae90a0 0x6e000000  DCD 0x6e
+ 105ae90a4 0x00000000  DCD 0x0
+ 105ae90a8 0x00000000  DCD 0x0
+L_str6:
+ 105ae90ac 0x10000000  .quad 0x1
+ 105ae90b0 0x00000000  ; (upper half)
+ 105ae90b4 0x5f000000  DCD 0x5f
+ 105ae90b8 0x00000000  DCD 0x0
+ 105ae90bc 0x00000000  DCD 0x0
+L_list0_header:
+ 105ae90c0 0x00000000  DCD 0x0
+ 105ae90c4 0x00000000  DCD 0x0
+ 105ae90c8 0x5ae91700  .quad L_list0_node_6    ; Reloc -> 'L_list0_node_6' @ 0x105ae9170
+ 105ae90d0 0x5ae90e00  .quad L_list0_node_0    ; Reloc -> 'L_list0_node_0' @ 0x105ae90e0
+ 105ae90d8 0x70000000  .quad 0x7
+ 105ae90dc 0x00000000  ; (upper half)
+L_list0_node_0:
+ 105ae90e0 0x30000000  DCD 0x3
+ 105ae90e4 0x00000000  DCD 0x0
+ 105ae90e8 0x5ae90000  .quad L_str0    ; Reloc -> 'L_str0' @ 0x105ae9000
+ 105ae90f0 0x5ae90f80  .quad L_list0_node_1    ; Reloc -> 'L_list0_node_1' @ 0x105ae90f8
+L_list0_node_1:
+ 105ae90f8 0x30000000  DCD 0x3
+ 105ae90fc 0x00000000  DCD 0x0
+ 105ae9100 0x5ae90200  .quad L_str1    ; Reloc -> 'L_str1' @ 0x105ae9020
+ 105ae9108 0x5ae91100  .quad L_list0_node_2    ; Reloc -> 'L_list0_node_2' @ 0x105ae9110
+L_list0_node_2:
+ 105ae9110 0x30000000  DCD 0x3
+ 105ae9114 0x00000000  DCD 0x0
+ 105ae9118 0x5ae90380  .quad L_str2    ; Reloc -> 'L_str2' @ 0x105ae9038
+ 105ae9120 0x5ae91280  .quad L_list0_node_3    ; Reloc -> 'L_list0_node_3' @ 0x105ae9128
+L_list0_node_3:
+ 105ae9128 0x30000000  DCD 0x3
+ 105ae912c 0x00000000  DCD 0x0
+ 105ae9130 0x5ae90540  .quad L_str3    ; Reloc -> 'L_str3' @ 0x105ae9054
+ 105ae9138 0x5ae91400  .quad L_list0_node_4    ; Reloc -> 'L_list0_node_4' @ 0x105ae9140
+L_list0_node_4:
+ 105ae9140 0x30000000  DCD 0x3
+ 105ae9144 0x00000000  DCD 0x0
+ 105ae9148 0x5ae90700  .quad L_str4    ; Reloc -> 'L_str4' @ 0x105ae9070
+ 105ae9150 0x5ae91580  .quad L_list0_node_5    ; Reloc -> 'L_list0_node_5' @ 0x105ae9158
+L_list0_node_5:
+ 105ae9158 0x30000000  DCD 0x3
+ 105ae915c 0x00000000  DCD 0x0
+ 105ae9160 0x5ae90380  .quad L_str2    ; Reloc -> 'L_str2' @ 0x105ae9038
+ 105ae9168 0x5ae91700  .quad L_list0_node_6    ; Reloc -> 'L_list0_node_6' @ 0x105ae9170
+L_list0_node_6:
+ 105ae9170 0x30000000  DCD 0x3
+ 105ae9174 0x00000000  DCD 0x0
+ 105ae9178 0x5ae90880  .quad L_str5    ; Reloc -> 'L_str5' @ 0x105ae9088
+ 105ae9180 0x00000000  .quad 0x0
+ 105ae9184 0x00000000  ; (upper half)
 
 --------------------------
 
@@ -1143,6 +1206,5 @@ JIT runtime table populated with 124 function pointers.
 Set runtime function table memory to read-only.
 
 --- JIT Execution ---
-JIT execution enabled. Entry point 'START' at 0x1082780a8
-[JITExecutor] Starting execution of JIT-compiled function at address: 0x1082780a8
-Testing Pairwise Operation Liveness Fix
+JIT execution enabled. Entry point 'START' at 0x105ae4048
+[JITExecutor] Starting execution of JIT-compiled function at address: 0x105ae4048
