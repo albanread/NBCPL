@@ -68,6 +68,8 @@ ACCEPT_METHOD_IMPL(FPairExpression)
 ACCEPT_METHOD_IMPL(FPairAccessExpression)
 ACCEPT_METHOD_IMPL(QuadExpression)
 ACCEPT_METHOD_IMPL(QuadAccessExpression)
+ACCEPT_METHOD_IMPL(FQuadExpression)
+ACCEPT_METHOD_IMPL(FQuadAccessExpression)
 ACCEPT_METHOD_IMPL(OctExpression)
 ACCEPT_METHOD_IMPL(FOctExpression)
 ACCEPT_METHOD_IMPL(LaneAccessExpression)
@@ -152,6 +154,22 @@ ASTNodePtr QuadExpression::clone() const {
         second_expr ? std::unique_ptr<Expression>(static_cast<Expression*>(second_expr->clone().release())) : nullptr,
         third_expr ? std::unique_ptr<Expression>(static_cast<Expression*>(third_expr->clone().release())) : nullptr,
         fourth_expr ? std::unique_ptr<Expression>(static_cast<Expression*>(fourth_expr->clone().release())) : nullptr
+    );
+}
+
+ASTNodePtr FQuadExpression::clone() const {
+    return std::make_unique<FQuadExpression>(
+        first_expr ? std::unique_ptr<Expression>(static_cast<Expression*>(first_expr->clone().release())) : nullptr,
+        second_expr ? std::unique_ptr<Expression>(static_cast<Expression*>(second_expr->clone().release())) : nullptr,
+        third_expr ? std::unique_ptr<Expression>(static_cast<Expression*>(third_expr->clone().release())) : nullptr,
+        fourth_expr ? std::unique_ptr<Expression>(static_cast<Expression*>(fourth_expr->clone().release())) : nullptr
+    );
+}
+
+ASTNodePtr FQuadAccessExpression::clone() const {
+    return std::make_unique<FQuadAccessExpression>(
+        quad_expr ? std::unique_ptr<Expression>(static_cast<Expression*>(quad_expr->clone().release())) : nullptr,
+        access_type
     );
 }
 

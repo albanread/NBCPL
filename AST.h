@@ -75,6 +75,7 @@ public:
         PairExpr, PairAccessExpr, // New: For pair(x,y) and p.first/p.second
         FPairExpr, FPairAccessExpr, // New: For fpair(x,y) and fp.first/fp.second
         QuadExpr, QuadAccessExpr, // New: For quad(a,b,c,d) and q.first/q.second/q.third/q.fourth
+        FQuadExpr, FQuadAccessExpr, // New: For fquad(a,b,c,d) and fq.first/fq.second/fq.third/fq.fourth
         OctExpr, FOctExpr, // New: For oct(...) and foct(...) 8-lane vectors
         LaneAccessExpr, // New: For vector.|n| lane access
         ConditionalExpr, ValofExpr, FloatValofExpr, VecAllocationExpr, FVecAllocationExpr, PairsAllocationExpr, StringAllocationExpr, TableExpr,
@@ -843,6 +844,35 @@ public:
                fifth_expr->is_literal() && sixth_expr->is_literal() &&
                seventh_expr->is_literal() && eighth_expr->is_literal(); 
     }
+        
+    void accept(ASTVisitor& visitor) override;
+    ASTNodePtr clone() const override;
+};
+
+class FQuadExpression : public Expression {
+public:
+    ExprPtr first_expr;
+    ExprPtr second_expr;
+    ExprPtr third_expr;
+    ExprPtr fourth_expr;
+    
+    FQuadExpression(ExprPtr first, ExprPtr second, ExprPtr third, ExprPtr fourth) 
+        : Expression(NodeType::FQuadExpr), first_expr(std::move(first)), second_expr(std::move(second)), 
+          third_expr(std::move(third)), fourth_expr(std::move(fourth)) {}
+        
+    void accept(ASTVisitor& visitor) override;
+    ASTNodePtr clone() const override;
+};
+
+class FQuadAccessExpression : public Expression {
+public:
+    enum AccessType { FIRST, SECOND, THIRD, FOURTH };
+    
+    ExprPtr quad_expr;
+    AccessType access_type;
+    
+    FQuadAccessExpression(ExprPtr quad, AccessType type) 
+        : Expression(NodeType::FQuadAccessExpr), quad_expr(std::move(quad)), access_type(type) {}
         
     void accept(ASTVisitor& visitor) override;
     ASTNodePtr clone() const override;

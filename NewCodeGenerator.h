@@ -208,6 +208,8 @@ private:
     void visit(FPairAccessExpression& node) override; // New: for FPAIR access (.first/.second)
     void visit(QuadExpression& node) override; // New: for QUAD expressions
     void visit(QuadAccessExpression& node) override; // New: for QUAD access (.first/.second/.third/.fourth)
+    void visit(FQuadExpression& node) override; // New: for FQUAD expressions
+    void visit(FQuadAccessExpression& node) override; // New: for FQUAD access (.first/.second/.third/.fourth)
 
     void visit(FreeStatement& node) override;
 
@@ -241,6 +243,7 @@ private:
     
     // Type-aware PAIRWISE_MIN helper methods
     void generateFPairPairwiseMin(const PairwiseReductionLoopStatement& node);
+    void generateFQuadPairwiseMin(const PairwiseReductionLoopStatement& node);
     void generateFOctPairwiseMin(const PairwiseReductionLoopStatement& node);
     void generateFloatVectorPairwiseMin(const PairwiseReductionLoopStatement& node);
     void generatePairPairwiseMin(const PairwiseReductionLoopStatement& node);

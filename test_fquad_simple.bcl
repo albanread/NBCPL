@@ -1,0 +1,28 @@
+// Simple FQUAD test - testing basic 4x32-bit float vector operations
+
+LET main() = VALOF {
+    // Create an FQUAD with 4 float values
+    LET fq1 = FQUAD(1.0, 2.0, 3.0, 4.0)
+    LET fq2 = FQUAD(0.5, 1.5, 2.5, 3.5)
+
+    WRITEF("Testing FQUAD creation and access...*N")
+
+    // Test individual element access (only first two elements for now)
+    WRITEF("fq1.first = %F*N", fq1.first)
+    WRITEF("fq1.second = %F*N", fq1.second)
+    // Note: .third and .fourth access not yet implemented
+
+    // Test FQUAD arithmetic
+    LET fq_result = fq1 + fq2
+
+    WRITEF("After addition (fq1 + fq2):*N")
+    WRITEF("Result.first = %F*N", fq_result.first)
+    WRITEF("Result.second = %F*N", fq_result.second)
+    // Note: Only first two elements are currently supported
+
+    // Test PAIRWISE_MIN operation
+    LET min_result = PAIRWISE_MIN(fq1)
+    WRITEF("PAIRWISE_MIN of fq1 = %F*N", min_result)
+
+    RESULTIS 0
+}

@@ -256,6 +256,7 @@ std::string ASTAnalyzer::var_type_to_string(VarType type) {
         case VarType::PAIR:         base_type_str = "PAIR"; break;
         case VarType::FPAIR:        base_type_str = "FPAIR"; break;
         case VarType::QUAD:         base_type_str = "QUAD"; break;
+        case VarType::FQUAD:        base_type_str = "FQUAD"; break;
 
         // Container Types
         case VarType::VEC:          base_type_str = "VEC"; break;

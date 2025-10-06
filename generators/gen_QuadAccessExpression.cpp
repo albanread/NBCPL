@@ -45,6 +45,22 @@ void NewCodeGenerator::visit(QuadAccessExpression& node) {
             emit(Encoder::opt_create_sbfx(result_reg, packed_reg, 32, 32));
             debug_print("Extracted second (bits 32-63) from " + vartype_to_string(expr_type) + " using SBFX for sign extension");
         }
+    } else if (expr_type == VarType::FQUAD) {
+        // FQUAD: 32-bit float components (all four components are valid)
+        // For FQUAD, we extract 32-bit float values from the 64-bit packed representation
+        // Note: This is a simplified implementation that only handles first two components
+        if (node.access_type == QuadAccessExpression::FIRST) {
+            // Extract lower 32 bits (bits 0-31) - first float
+            emit(Encoder::opt_create_ubfx(result_reg, packed_reg, 0, 32));
+            debug_print("Extracted first float (bits 0-31) from FQUAD using UBFX");
+        } else if (node.access_type == QuadAccessExpression::SECOND) {
+            // Extract upper 32 bits (bits 32-63) - second float
+            emit(Encoder::opt_create_ubfx(result_reg, packed_reg, 32, 32));
+            debug_print("Extracted second float (bits 32-63) from FQUAD using UBFX");
+        } else {
+            // Third and fourth components not yet implemented for FQUAD
+            throw std::runtime_error("FQUAD ." + access_name + " access not yet implemented (requires 128-bit support)");
+        }
     } else if (expr_type == VarType::QUAD) {
         // QUAD: 16-bit components (all four components are valid)
         if (node.access_type == QuadAccessExpression::FIRST) {
@@ -65,7 +81,7 @@ void NewCodeGenerator::visit(QuadAccessExpression& node) {
             debug_print("Extracted fourth (bits 48-63) from QUAD using SBFX for sign extension");
         }
     } else {
-        throw std::runtime_error("Invalid component access: ." + access_name + " can only be used on PAIR, FPAIR, or QUAD types, got " + 
+        throw std::runtime_error("Invalid component access: ." + access_name + " can only be used on PAIR, FPAIR, QUAD, or FQUAD types, got " + 
                                vartype_to_string(expr_type));
     }
     

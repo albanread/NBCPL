@@ -36,13 +36,13 @@ void ASTAnalyzer::visit(QuadAccessExpression& node) {
                                       var_type_to_string(expr_type) + " type (only .first and .second are supported)";
                     semantic_errors_.push_back(error);
                 }
-            } else if (expr_type != VarType::QUAD) {
+            } else if (expr_type != VarType::QUAD && expr_type != VarType::FQUAD) {
                 // Not a packed type at all
                 std::string error = "Cannot access ." + access_name + " on non-packed type: " + 
                                   var_type_to_string(expr_type);
                 semantic_errors_.push_back(error);
             }
-            // QUAD supports all four components, so no additional validation needed
+            // QUAD and FQUAD support all four components, so no additional validation needed
         }
     } else {
         semantic_errors_.push_back("QuadAccessExpression missing quad expression");

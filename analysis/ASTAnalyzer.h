@@ -171,6 +171,8 @@ class ASTAnalyzer : public ASTVisitor {
     void visit(FPairAccessExpression& node) override; // New: for fp.first/fp.second access
     void visit(QuadExpression& node) override; // New: for quad(a,b,c,d) expressions
     void visit(QuadAccessExpression& node) override; // New: for q.first/q.second/q.third/q.fourth access
+    void visit(FQuadExpression& node) override; // New: for fquad(a,b,c,d) expressions
+    void visit(FQuadAccessExpression& node) override; // New: for fq.first/fq.second/fq.third/fq.fourth access
     void visit(OctExpression& node) override; // New: for oct(...) 8-lane vector expressions
     void visit(FOctExpression& node) override; // New: for foct(...) 8-lane float vector expressions
     void visit(LaneAccessExpression& node) override; // New: for vector.|n| lane access

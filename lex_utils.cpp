@@ -9,6 +9,10 @@ std::string to_string(TokenType type) {
         case TokenType::Static: return "Static"; case TokenType::FStatic: return "FStatic"; case TokenType::Table: return "Table"; case TokenType::FTable: return "FTable"; case TokenType::Len: return "Len"; case TokenType::Global: return "Global"; case TokenType::Globals: return "Globals";
         case TokenType::Function: return "Function"; case TokenType::Routine: return "Routine";
         case TokenType::And: return "And"; case TokenType::Vec: return "Vec";
+        case TokenType::FVec: return "FVec"; case TokenType::Pair: return "Pair";
+        case TokenType::FPair: return "FPair"; case TokenType::Pairs: return "Pairs";
+        case TokenType::Quad: return "Quad"; case TokenType::FQuad: return "FQuad";
+        case TokenType::Oct: return "Oct"; case TokenType::FOct: return "FOct";
         case TokenType::If: return "If"; case TokenType::Unless: return "Unless";
         case TokenType::Test: return "Test"; case TokenType::While: return "While";
         case TokenType::Until: return "Until"; case TokenType::Repeat: return "Repeat";

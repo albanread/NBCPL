@@ -28,15 +28,17 @@ enum class VarType : int64_t {
     PAIR         = 1 << 4, // 16
     FPAIR        = 1 << 5, // 32
     QUAD         = 1 << 6, // 64
-    OCT          = 1 << 7, // 128
-    FOCT         = 1 << 8, // 256
-    PAIRS        = 1 << 9, // 512 - Vector of PAIRs
+    FQUAD        = 1 << 7, // 128 - 4x16-bit float lanes
+    OCT          = 1 << 8, // 256
+    FOCT         = 1 << 9, // 512
+    PAIRS        = 1 << 10, // 1024 - Vector of PAIRs
+    FQUADS       = 1 << 11, // 2048 - Vector of FQUADs
     
     // Container types (higher bits, higher priority)
-    VEC          = 1 << 10, // 1024
-    LIST         = 1 << 11, // 2048  
-    TABLE        = 1 << 12, // 4096
-    OBJECT       = 1 << 13, // 8192
+    VEC          = 1 << 12, // 4096
+    LIST         = 1 << 13, // 8192  
+    TABLE        = 1 << 14, // 16384
+    OBJECT       = 1 << 15, // 32768
     
     // Type Modifiers (highest bits, highest priority when combined)
     POINTER_TO   = 1 << 20, // 1048576
@@ -111,9 +113,11 @@ inline std::string vartype_to_string(VarType t) {
     if (v & static_cast<int64_t>(VarType::PAIR)) result += "PAIR|";
     if (v & static_cast<int64_t>(VarType::FPAIR)) result += "FPAIR|";
     if (v & static_cast<int64_t>(VarType::QUAD)) result += "QUAD|";
+    if (v & static_cast<int64_t>(VarType::FQUAD)) result += "FQUAD|";
     if (v & static_cast<int64_t>(VarType::OCT)) result += "OCT|";
     if (v & static_cast<int64_t>(VarType::FOCT)) result += "FOCT|";
     if (v & static_cast<int64_t>(VarType::PAIRS)) result += "PAIRS|";
+    if (v & static_cast<int64_t>(VarType::FQUADS)) result += "FQUADS|";
     if (v & static_cast<int64_t>(VarType::NOTUSED)) result += "NOTUSED|";
 
     // Remove trailing '|'

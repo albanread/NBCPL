@@ -375,6 +375,19 @@ void LivenessAnalysisPass::visit(QuadAccessExpression& node) {
     if (node.quad_expr) node.quad_expr->accept(*this);
 }
 
+void LivenessAnalysisPass::visit(FQuadExpression& node) {
+    if (node.first_expr) node.first_expr->accept(*this);
+    if (node.second_expr) node.second_expr->accept(*this);
+    if (node.third_expr) node.third_expr->accept(*this);
+    if (node.fourth_expr) node.fourth_expr->accept(*this);
+}
+
+void LivenessAnalysisPass::visit(FQuadAccessExpression& node) {
+    // When accessing .first/.second/.third/.fourth on an fquad,
+    // we must visit the underlying fquad expression to mark it as live
+    if (node.quad_expr) node.quad_expr->accept(*this);
+}
+
 void LivenessAnalysisPass::visit(MemberAccessExpression& node) {
     if (node.object_expr) node.object_expr->accept(*this);
 }

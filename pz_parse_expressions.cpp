@@ -310,7 +310,22 @@ ExprPtr Parser::parse_primary_expression() {
         ExprPtr fourth_expr = parse_expression();
         consume(TokenType::RParen, "Expect ')' after quad elements");
         return std::make_unique<QuadExpression>(std::move(first_expr), std::move(second_expr), 
-                                               std::move(third_expr), std::move(fourth_expr));
+                                                std::move(third_expr), std::move(fourth_expr));
+    }
+
+    // --- FQUAD expression parsing ---
+    if (match(TokenType::FQuad)) {
+        consume(TokenType::LParen, "Expect '(' after 'fquad'");
+        ExprPtr first_expr = parse_expression();
+        consume(TokenType::Comma, "Expect ',' between fquad elements");
+        ExprPtr second_expr = parse_expression();
+        consume(TokenType::Comma, "Expect ',' between fquad elements");
+        ExprPtr third_expr = parse_expression();
+        consume(TokenType::Comma, "Expect ',' between fquad elements");
+        ExprPtr fourth_expr = parse_expression();
+        consume(TokenType::RParen, "Expect ')' after fquad elements");
+        return std::make_unique<FQuadExpression>(std::move(first_expr), std::move(second_expr), 
+                                                 std::move(third_expr), std::move(fourth_expr));
     }
 
     // --- OCT expression parsing ---

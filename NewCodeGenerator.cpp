@@ -127,6 +127,10 @@ void NewCodeGenerator::visit(PairwiseReductionLoopStatement& node) {
             // FPAIR: 2 floats in 64 bits
             std::cout << "[DEBUG CODEGEN] Generating FPAIR pairwise min" << std::endl;
             generateFPairPairwiseMin(node);
+        } else if (base_type == VarType::FQUAD) {
+            // FQUAD: 4 floats in 128 bits
+            std::cout << "[DEBUG CODEGEN] Generating FQUAD pairwise min" << std::endl;
+            generateFQuadPairwiseMin(node);
         } else if (base_type == VarType::FOCT) {
             // FOCT: 8 floats in 64 bits
             std::cout << "[DEBUG CODEGEN] Generating FOCT pairwise min" << std::endl;
@@ -192,6 +196,34 @@ void NewCodeGenerator::generateFPairPairwiseMin(const PairwiseReductionLoopState
     register_manager_.release_vec_scratch_reg(va_neon);
     register_manager_.release_vec_scratch_reg(vb_neon);  
     register_manager_.release_vec_scratch_reg(vresult_neon);
+}
+
+// Helper function for FQUAD (4 floats in 128 bits)
+void NewCodeGenerator::generateFQuadPairwiseMin(const PairwiseReductionLoopStatement& node) {
+    debug_print("Generating FQUAD pairwise minimum (4 floats, 128-bit)");
+    
+    std::string vector_a_reg = get_variable_register(node.vector_a_name);
+    std::string vector_b_reg = get_variable_register(node.vector_b_name);
+    std::string result_reg = get_variable_register(node.result_vector_name);
+    
+    std::string va_neon = register_manager_.acquire_vec_scratch_reg();
+    std::string vb_neon = register_manager_.acquire_vec_scratch_reg();
+    std::string vresult_neon = register_manager_.acquire_vec_scratch_reg();
+    
+    // Load 128-bit FQUAD values into NEON registers
+    emit(Encoder::create_ld1_vector_reg(va_neon, vector_a_reg, "4S")); // 4x32-bit floats
+    emit(Encoder::create_ld1_vector_reg(vb_neon, vector_b_reg, "4S")); // 4x32-bit floats
+    
+    // Perform component-wise minimum
+    emit(Encoder::create_fmin_vector_reg(vresult_neon, va_neon, vb_neon, "4S"));
+    
+    // Store result
+    emit(Encoder::create_st1_vector_reg(vresult_neon, result_reg, "4S"));
+    
+    // Release NEON registers
+    register_manager_.release_register(va_neon);
+    register_manager_.release_register(vb_neon); 
+    register_manager_.release_register(vresult_neon);
 }
 
 // Helper function for FOCT (8 floats in 64 bits - actually should be 128 bits)
@@ -845,7 +877,7 @@ void NewCodeGenerator::visit(SuperMethodAccessExpression& node) {
 void NewCodeGenerator::visit(BinaryOp& node) {
     debug_print("Visiting BinaryOp node.");
 
-    // Check for all vector operations (PAIR, FPAIR, QUAD, OCT, FOCT)
+    // Check for all vector operations (PAIR, FPAIR, QUAD, FQUAD, OCT, FOCT)
     VarType left_type = infer_expression_type_local(node.left.get());
     VarType right_type = infer_expression_type_local(node.right.get());
     
@@ -951,6 +983,7 @@ void NewCodeGenerator::visit(BinaryOp& node) {
     bool is_pair_op = (left_type == VarType::PAIR && right_type == VarType::PAIR);
     bool is_fpair_op = (left_type == VarType::FPAIR && right_type == VarType::FPAIR);
     bool is_quad_op = (left_type == VarType::QUAD && right_type == VarType::QUAD);
+    bool is_fquad_op = (left_type == VarType::FQUAD && right_type == VarType::FQUAD);
     
     // Scalar-PAIR operations: PAIR + scalar or scalar + PAIR
     bool is_scalar_pair_op = ((left_type == VarType::PAIR && right_type == VarType::INTEGER) ||
@@ -969,6 +1002,12 @@ void NewCodeGenerator::visit(BinaryOp& node) {
                               (left_type == VarType::INTEGER && right_type == VarType::QUAD) ||
                               (left_type == VarType::QUAD && right_type == VarType::FLOAT) ||
                               (left_type == VarType::FLOAT && right_type == VarType::QUAD));
+    
+    // Scalar-FQUAD operations: FQUAD + scalar or scalar + FQUAD
+    bool is_scalar_fquad_op = ((left_type == VarType::FQUAD && right_type == VarType::FLOAT) ||
+                               (left_type == VarType::FLOAT && right_type == VarType::FQUAD) ||
+                               (left_type == VarType::FQUAD && right_type == VarType::INTEGER) ||
+                               (left_type == VarType::INTEGER && right_type == VarType::FQUAD));
 
     // ====================== START OF FIX ======================
     // Check if left_reg is a variable's home register from the LinearScanAllocator.

@@ -69,6 +69,8 @@ ACCEPT_METHOD_IMPL(FPairExpression)
 ACCEPT_METHOD_IMPL(FPairAccessExpression)
 ACCEPT_METHOD_IMPL(QuadExpression)
 ACCEPT_METHOD_IMPL(QuadAccessExpression)
+ACCEPT_METHOD_IMPL(FQuadExpression)
+ACCEPT_METHOD_IMPL(FQuadAccessExpression)
 ACCEPT_METHOD_IMPL(OctExpression)
 ACCEPT_METHOD_IMPL(FOctExpression)
 ACCEPT_METHOD_IMPL(LaneAccessExpression)
@@ -153,6 +155,22 @@ ASTNodePtr QuadExpression::clone() const {
         second_expr ? std::unique_ptr<Expression>(static_cast<Expression*>(second_expr->clone().release())) : nullptr,
         third_expr ? std::unique_ptr<Expression>(static_cast<Expression*>(third_expr->clone().release())) : nullptr,
         fourth_expr ? std::unique_ptr<Expression>(static_cast<Expression*>(fourth_expr->clone().release())) : nullptr
+    );
+}
+
+ASTNodePtr FQuadExpression::clone() const {
+    return std::make_unique<FQuadExpression>(
+        first_expr ? std::unique_ptr<Expression>(static_cast<Expression*>(first_expr->clone().release())) : nullptr,
+        second_expr ? std::unique_ptr<Expression>(static_cast<Expression*>(second_expr->clone().release())) : nullptr,
+        third_expr ? std::unique_ptr<Expression>(static_cast<Expression*>(third_expr->clone().release())) : nullptr,
+        fourth_expr ? std::unique_ptr<Expression>(static_cast<Expression*>(fourth_expr->clone().release())) : nullptr
+    );
+}
+
+ASTNodePtr FQuadAccessExpression::clone() const {
+    return std::make_unique<FQuadAccessExpression>(
+        quad_expr ? std::unique_ptr<Expression>(static_cast<Expression*>(quad_expr->clone().release())) : nullptr,
+        access_type
     );
 }
 
@@ -6811,6 +6829,8 @@ std::string to_string(ASTNode::NodeType type) {
         case ASTNode::NodeType::FPairAccessExpr: return "FPairAccessExpression";
         case ASTNode::NodeType::QuadExpr: return "QuadExpression";
         case ASTNode::NodeType::QuadAccessExpr: return "QuadAccessExpression";
+        case ASTNode::NodeType::FQuadExpr: return "FQuadExpression";
+        case ASTNode::NodeType::FQuadAccessExpr: return "FQuadAccessExpression";
         case ASTNode::NodeType::OctExpr: return "OctExpression";
         case ASTNode::NodeType::FOctExpr: return "FOctExpression";
         case ASTNode::NodeType::LaneAccessExpr: return "LaneAccessExpression";
@@ -11915,6 +11935,7 @@ const std::unordered_map<std::string, TokenType> Lexer::keywords_ = {
     {"FPAIR", TokenType::FPair}, // Added FPAIR as a keyword
     {"PAIRS", TokenType::Pairs}, // Added PAIRS as a keyword
     {"QUAD", TokenType::Quad}, // Added QUAD as a keyword
+    {"FQUAD", TokenType::FQuad}, // Added FQUAD as a keyword
     {"OCT", TokenType::Oct}, // Added OCT as a keyword
     {"FOCT", TokenType::FOct}, // Added FOCT as a keyword
     {"UNLESS", TokenType::Unless}, {"TEST", TokenType::Test}, {"WHILE", TokenType::While},
@@ -12785,6 +12806,19 @@ void LivenessAnalysisPass::visit(QuadAccessExpression& node) {
     if (node.quad_expr) node.quad_expr->accept(*this);
 }
 
+void LivenessAnalysisPass::visit(FQuadExpression& node) {
+    if (node.first_expr) node.first_expr->accept(*this);
+    if (node.second_expr) node.second_expr->accept(*this);
+    if (node.third_expr) node.third_expr->accept(*this);
+    if (node.fourth_expr) node.fourth_expr->accept(*this);
+}
+
+void LivenessAnalysisPass::visit(FQuadAccessExpression& node) {
+    // When accessing .first/.second/.third/.fourth on an fquad,
+    // we must visit the underlying fquad expression to mark it as live
+    if (node.quad_expr) node.quad_expr->accept(*this);
+}
+
 void LivenessAnalysisPass::visit(MemberAccessExpression& node) {
     if (node.object_expr) node.object_expr->accept(*this);
 }
@@ -13618,6 +13652,10 @@ void NewCodeGenerator::visit(PairwiseReductionLoopStatement& node) {
             // FPAIR: 2 floats in 64 bits
             std::cout << "[DEBUG CODEGEN] Generating FPAIR pairwise min" << std::endl;
             generateFPairPairwiseMin(node);
+        } else if (base_type == VarType::FQUAD) {
+            // FQUAD: 4 floats in 128 bits
+            std::cout << "[DEBUG CODEGEN] Generating FQUAD pairwise min" << std::endl;
+            generateFQuadPairwiseMin(node);
         } else if (base_type == VarType::FOCT) {
             // FOCT: 8 floats in 64 bits
             std::cout << "[DEBUG CODEGEN] Generating FOCT pairwise min" << std::endl;
@@ -13683,6 +13721,34 @@ void NewCodeGenerator::generateFPairPairwiseMin(const PairwiseReductionLoopState
     register_manager_.release_vec_scratch_reg(va_neon);
     register_manager_.release_vec_scratch_reg(vb_neon);  
     register_manager_.release_vec_scratch_reg(vresult_neon);
+}
+
+// Helper function for FQUAD (4 floats in 128 bits)
+void NewCodeGenerator::generateFQuadPairwiseMin(const PairwiseReductionLoopStatement& node) {
+    debug_print("Generating FQUAD pairwise minimum (4 floats, 128-bit)");
+    
+    std::string vector_a_reg = get_variable_register(node.vector_a_name);
+    std::string vector_b_reg = get_variable_register(node.vector_b_name);
+    std::string result_reg = get_variable_register(node.result_vector_name);
+    
+    std::string va_neon = register_manager_.acquire_vec_scratch_reg();
+    std::string vb_neon = register_manager_.acquire_vec_scratch_reg();
+    std::string vresult_neon = register_manager_.acquire_vec_scratch_reg();
+    
+    // Load 128-bit FQUAD values into NEON registers
+    emit(Encoder::create_ld1_vector_reg(va_neon, vector_a_reg, "4S")); // 4x32-bit floats
+    emit(Encoder::create_ld1_vector_reg(vb_neon, vector_b_reg, "4S")); // 4x32-bit floats
+    
+    // Perform component-wise minimum
+    emit(Encoder::create_fmin_vector_reg(vresult_neon, va_neon, vb_neon, "4S"));
+    
+    // Store result
+    emit(Encoder::create_st1_vector_reg(vresult_neon, result_reg, "4S"));
+    
+    // Release NEON registers
+    register_manager_.release_register(va_neon);
+    register_manager_.release_register(vb_neon); 
+    register_manager_.release_register(vresult_neon);
 }
 
 // Helper function for FOCT (8 floats in 64 bits - actually should be 128 bits)
@@ -14336,7 +14402,7 @@ void NewCodeGenerator::visit(SuperMethodAccessExpression& node) {
 void NewCodeGenerator::visit(BinaryOp& node) {
     debug_print("Visiting BinaryOp node.");
 
-    // Check for all vector operations (PAIR, FPAIR, QUAD, OCT, FOCT)
+    // Check for all vector operations (PAIR, FPAIR, QUAD, FQUAD, OCT, FOCT)
     VarType left_type = infer_expression_type_local(node.left.get());
     VarType right_type = infer_expression_type_local(node.right.get());
     
@@ -14442,6 +14508,7 @@ void NewCodeGenerator::visit(BinaryOp& node) {
     bool is_pair_op = (left_type == VarType::PAIR && right_type == VarType::PAIR);
     bool is_fpair_op = (left_type == VarType::FPAIR && right_type == VarType::FPAIR);
     bool is_quad_op = (left_type == VarType::QUAD && right_type == VarType::QUAD);
+    bool is_fquad_op = (left_type == VarType::FQUAD && right_type == VarType::FQUAD);
     
     // Scalar-PAIR operations: PAIR + scalar or scalar + PAIR
     bool is_scalar_pair_op = ((left_type == VarType::PAIR && right_type == VarType::INTEGER) ||
@@ -14460,6 +14527,12 @@ void NewCodeGenerator::visit(BinaryOp& node) {
                               (left_type == VarType::INTEGER && right_type == VarType::QUAD) ||
                               (left_type == VarType::QUAD && right_type == VarType::FLOAT) ||
                               (left_type == VarType::FLOAT && right_type == VarType::QUAD));
+    
+    // Scalar-FQUAD operations: FQUAD + scalar or scalar + FQUAD
+    bool is_scalar_fquad_op = ((left_type == VarType::FQUAD && right_type == VarType::FLOAT) ||
+                               (left_type == VarType::FLOAT && right_type == VarType::FQUAD) ||
+                               (left_type == VarType::FQUAD && right_type == VarType::INTEGER) ||
+                               (left_type == VarType::INTEGER && right_type == VarType::FQUAD));
 
     // ====================== START OF FIX ======================
     // Check if left_reg is a variable's home register from the LinearScanAllocator.
@@ -23378,12 +23451,14 @@ bool VectorCodeGen::isSimdOperation(VarType left_type, VarType right_type) {
     int pointer_to_int = static_cast<int>(VarType::POINTER_TO);
 
     bool left_is_simd = (left_type == VarType::PAIR || left_type == VarType::FPAIR ||
-                        left_type == VarType::QUAD || left_type == VarType::OCT ||
-                        left_type == VarType::FOCT || left_type == VarType::PAIRS ||
+                        left_type == VarType::QUAD || left_type == VarType::FQUAD ||
+                        left_type == VarType::OCT || left_type == VarType::FOCT || 
+                        left_type == VarType::PAIRS ||
                         ((left_int & pairs_int) && (left_int & pointer_to_int)));
     bool right_is_simd = (right_type == VarType::PAIR || right_type == VarType::FPAIR ||
-                         right_type == VarType::QUAD || right_type == VarType::OCT ||
-                         right_type == VarType::FOCT || right_type == VarType::PAIRS ||
+                         right_type == VarType::QUAD || right_type == VarType::FQUAD ||
+                         right_type == VarType::OCT || right_type == VarType::FOCT || 
+                         right_type == VarType::PAIRS ||
                          ((right_int & pairs_int) && (right_int & pointer_to_int)));
 
     return left_is_simd || right_is_simd;
@@ -23409,6 +23484,7 @@ int VectorCodeGen::getLaneCount(VarType type) {
         case VarType::FPAIR:
             return 2;
         case VarType::QUAD:
+        case VarType::FQUAD:
             return 4;
         case VarType::OCT:
         case VarType::FOCT:
@@ -23425,6 +23501,7 @@ VarType VectorCodeGen::getElementType(VarType type) {
         case VarType::OCT:
             return VarType::INTEGER;
         case VarType::FPAIR:
+        case VarType::FQUAD:
         case VarType::FOCT:
             return VarType::FLOAT;
         default:
@@ -23441,6 +23518,8 @@ std::string VectorCodeGen::getNeonArrangement(VarType type) {
             return "2S";  // 2 x 32-bit floats
         case VarType::QUAD:
             return "4H";  // 4 x 16-bit signed integers
+        case VarType::FQUAD:
+            return "4S";  // 4 x 32-bit floats
         case VarType::OCT:
             return "8B";  // 8 x 8-bit signed integers
         case VarType::FOCT:
@@ -23468,7 +23547,7 @@ void VectorCodeGen::generateNeonBinaryOp(BinaryOp& node, VarType result_type) {
     bool is_vector_scalar = false;
     bool left_is_vector = (left_type == VarType::OCT || left_type == VarType::FOCT ||
                           left_type == VarType::PAIR || left_type == VarType::FPAIR ||
-                          left_type == VarType::QUAD);
+                          left_type == VarType::QUAD || left_type == VarType::FQUAD);
     bool right_is_scalar = (right_type == VarType::INTEGER || right_type == VarType::FLOAT);
 
     if (left_is_vector && right_is_scalar) {
@@ -23481,6 +23560,9 @@ void VectorCodeGen::generateNeonBinaryOp(BinaryOp& node, VarType result_type) {
     if (result_type == VarType::PAIR || result_type == VarType::FPAIR || result_type == VarType::QUAD) {
         left_neon_reg = register_manager_.acquire_fp_scratch_reg(); // D register
         right_neon_reg = register_manager_.acquire_fp_scratch_reg(); // D register
+    } else if (result_type == VarType::FQUAD) {
+        left_neon_reg = register_manager_.acquire_vec_scratch_reg(); // Q register
+        right_neon_reg = register_manager_.acquire_vec_scratch_reg(); // Q register
     } else {
         left_neon_reg = register_manager_.acquire_q_scratch_reg(code_gen_); // Q register
         right_neon_reg = register_manager_.acquire_q_scratch_reg(code_gen_); // Q register
@@ -23499,6 +23581,15 @@ void VectorCodeGen::generateNeonBinaryOp(BinaryOp& node, VarType result_type) {
         }
     } else if (result_type == VarType::FPAIR) {
         // For FPAIR, use 64-bit D registers but handle as floats
+        loadVectorToNeon(left_reg, left_neon_reg, left_type);
+
+        if (is_vector_scalar) {
+            broadcastScalarToNeon(right_reg, right_neon_reg, result_type);
+        } else {
+            loadVectorToNeon(right_reg, right_neon_reg, right_type);
+        }
+    } else if (result_type == VarType::FQUAD) {
+        // For FQUAD, use 128-bit Q registers and handle as floats
         loadVectorToNeon(left_reg, left_neon_reg, left_type);
 
         if (is_vector_scalar) {
@@ -23526,7 +23617,8 @@ void VectorCodeGen::generateNeonBinaryOp(BinaryOp& node, VarType result_type) {
             emit_(vecgen_fadd_vector(qreg_to_vreg(left_neon_reg), qreg_to_vreg(left_neon_reg), qreg_to_vreg(right_neon_reg), arrangement));
         } else if (result_type == VarType::FPAIR) {
             emit_(fadd_vector_2s(qreg_to_vreg(left_neon_reg), qreg_to_vreg(left_neon_reg), qreg_to_vreg(right_neon_reg)));
-
+        } else if (result_type == VarType::FQUAD) {
+            emit_(vecgen_fadd_vector(qreg_to_vreg(left_neon_reg), qreg_to_vreg(left_neon_reg), qreg_to_vreg(right_neon_reg), arrangement));
         } else if (result_type == VarType::PAIR) {
             emit_(add_vector_2s(qreg_to_vreg(left_neon_reg), qreg_to_vreg(left_neon_reg), qreg_to_vreg(right_neon_reg)));
 
@@ -23541,7 +23633,8 @@ void VectorCodeGen::generateNeonBinaryOp(BinaryOp& node, VarType result_type) {
             emit_(vecgen_fsub_vector(qreg_to_vreg(left_neon_reg), qreg_to_vreg(left_neon_reg), qreg_to_vreg(right_neon_reg), arrangement));
         } else if (result_type == VarType::FPAIR) {
             emit_(fsub_vector_2s(qreg_to_vreg(left_neon_reg), qreg_to_vreg(left_neon_reg), qreg_to_vreg(right_neon_reg)));
-
+        } else if (result_type == VarType::FQUAD) {
+            emit_(vecgen_fsub_vector(qreg_to_vreg(left_neon_reg), qreg_to_vreg(left_neon_reg), qreg_to_vreg(right_neon_reg), arrangement));
         } else if (result_type == VarType::PAIR) {
             emit_(sub_vector_2s(qreg_to_vreg(left_neon_reg), qreg_to_vreg(left_neon_reg), qreg_to_vreg(right_neon_reg)));
 
@@ -23556,7 +23649,8 @@ void VectorCodeGen::generateNeonBinaryOp(BinaryOp& node, VarType result_type) {
             emit_(vecgen_fmul_vector(qreg_to_vreg(left_neon_reg), qreg_to_vreg(left_neon_reg), qreg_to_vreg(right_neon_reg), arrangement));
         } else if (result_type == VarType::FPAIR) {
             emit_(fmul_vector_2s(qreg_to_vreg(left_neon_reg), qreg_to_vreg(left_neon_reg), qreg_to_vreg(right_neon_reg)));
-
+        } else if (result_type == VarType::FQUAD) {
+            emit_(vecgen_fmul_vector(qreg_to_vreg(left_neon_reg), qreg_to_vreg(left_neon_reg), qreg_to_vreg(right_neon_reg), arrangement));
         } else if (result_type == VarType::PAIR) {
             emit_(mul_vector_2s(qreg_to_vreg(left_neon_reg), qreg_to_vreg(left_neon_reg), qreg_to_vreg(right_neon_reg)));
 
@@ -23569,10 +23663,10 @@ void VectorCodeGen::generateNeonBinaryOp(BinaryOp& node, VarType result_type) {
     case BinaryOp::Operator::Divide:
         if (result_type == VarType::FOCT) {
             emit_(vecgen_fdiv_vector(qreg_to_vreg(left_neon_reg), qreg_to_vreg(left_neon_reg), qreg_to_vreg(right_neon_reg), arrangement));
-
         } else if (result_type == VarType::FPAIR) {
             emit_(fdiv_vector_2s(qreg_to_vreg(left_neon_reg), qreg_to_vreg(left_neon_reg), qreg_to_vreg(right_neon_reg)));
-
+        } else if (result_type == VarType::FQUAD) {
+            emit_(vecgen_fdiv_vector(qreg_to_vreg(left_neon_reg), qreg_to_vreg(left_neon_reg), qreg_to_vreg(right_neon_reg), arrangement));
         } else {
             throw std::runtime_error("Integer division not supported in NEON vector operations");
         }
@@ -23608,6 +23702,9 @@ void VectorCodeGen::generateNeonBinaryOp(BinaryOp& node, VarType result_type) {
     if (result_type == VarType::PAIR || result_type == VarType::FPAIR || result_type == VarType::QUAD) {
         register_manager_.release_fp_register(left_neon_reg);
         register_manager_.release_fp_register(right_neon_reg);
+    } else if (result_type == VarType::FQUAD) {
+        register_manager_.release_register(left_neon_reg);
+        register_manager_.release_register(right_neon_reg);
     } else {
         register_manager_.release_q_register(left_neon_reg);
         register_manager_.release_q_register(right_neon_reg);
@@ -23754,6 +23851,8 @@ void VectorCodeGen::generateNeonLaneRead(LaneAccessExpression& node, VarType vec
     std::string neon_reg;
     if (vector_type == VarType::PAIR || vector_type == VarType::FPAIR || vector_type == VarType::QUAD) {
         neon_reg = register_manager_.acquire_fp_scratch_reg(); // D register
+    } else if (vector_type == VarType::FQUAD) {
+        neon_reg = register_manager_.acquire_vec_scratch_reg(); // Q register
     } else {
         neon_reg = register_manager_.acquire_q_scratch_reg(code_gen_); // Q register
     }
@@ -23799,6 +23898,9 @@ void VectorCodeGen::generateNeonLaneRead(LaneAccessExpression& node, VarType vec
                 // Convert D register to V register for lane extraction
                 std::string v_reg = "V" + neon_reg.substr(1); // Convert D0 -> V0
                 emit_(vecgen_fmov_s_lane(s_reg, v_reg, node.index));
+            } else if (vector_type == VarType::FQUAD) {
+                // For FQUAD, use Q register operations for 128-bit vectors with 4 float lanes
+                emit_(vecgen_fmov_s_lane(s_reg, qreg_to_vreg(neon_reg), node.index));
             } else {
                 // Use Q register operations for 128-bit vectors
                 emit_(vecgen_fmov_s_lane(s_reg, qreg_to_vreg(neon_reg), node.index));
@@ -23866,6 +23968,8 @@ void VectorCodeGen::generateNeonLaneRead(LaneAccessExpression& node, VarType vec
     if (vector_type != VarType::FPAIR) {
         if (vector_type == VarType::PAIR || vector_type == VarType::QUAD) {
             register_manager_.release_fp_register(neon_reg);
+        } else if (vector_type == VarType::FQUAD) {
+            register_manager_.release_register(neon_reg);
         } else {
             register_manager_.release_q_register(neon_reg);
         }
@@ -29479,6 +29583,9 @@ VarType ASTAnalyzer::infer_expression_type(const Expression* expr) const {
             case ASTNode::NodeType::QuadExpr:
                 return VarType::QUAD;
                 
+            case ASTNode::NodeType::FQuadExpr:
+                return VarType::FQUAD;
+                
             case ASTNode::NodeType::OctExpr:
                 return VarType::OCT;
                 
@@ -29506,6 +29613,9 @@ VarType ASTAnalyzer::infer_expression_type(const Expression* expr) const {
                 
             case ASTNode::NodeType::QuadAccessExpr:
                 return VarType::INTEGER;  // .first/.second/.third/.fourth return integers for QUAD
+                
+            case ASTNode::NodeType::FQuadAccessExpr:
+                return VarType::FLOAT;  // .first/.second/.third/.fourth return floats for FQUAD
                 
             default:
                 if (trace_enabled_) {
@@ -29798,6 +29908,11 @@ VarType ASTAnalyzer::infer_binary_op_type(const BinaryOp* bin_op) const {
             return VarType::INTEGER;
         }
         
+        // For FQUAD types, both operands must be FQUAD
+        if (left_type == VarType::FQUAD && right_type == VarType::FQUAD) {
+            return VarType::INTEGER;
+        }
+        
         // For scalar types, allow standard comparisons
         if ((left_type == VarType::INTEGER || left_type == VarType::FLOAT) &&
             (right_type == VarType::INTEGER || right_type == VarType::FLOAT)) {
@@ -29820,10 +29935,11 @@ VarType ASTAnalyzer::infer_binary_op_type(const BinaryOp* bin_op) const {
         bin_op->op == BinaryOp::Operator::Greater ||
         bin_op->op == BinaryOp::Operator::GreaterEqual) {
         
-        // PAIR and QUAD types don't support ordering comparisons
+        // PAIR, QUAD, and FQUAD types don't support ordering comparisons
         if (left_type == VarType::PAIR || right_type == VarType::PAIR || 
-            left_type == VarType::QUAD || right_type == VarType::QUAD) {
-            throw std::runtime_error("PAIR and QUAD types do not support ordering comparisons (<, <=, >, >=)");
+            left_type == VarType::QUAD || right_type == VarType::QUAD ||
+            left_type == VarType::FQUAD || right_type == VarType::FQUAD) {
+            throw std::runtime_error("PAIR, QUAD, and FQUAD types do not support ordering comparisons (<, <=, >, >=)");
         }
         
         return VarType::INTEGER;
@@ -29868,6 +29984,17 @@ VarType ASTAnalyzer::infer_binary_op_type(const BinaryOp* bin_op) const {
         }
     }
     
+    // For arithmetic operations with FQUAD types: FQUAD OP FQUAD = FQUAD
+    if (left_type == VarType::FQUAD && right_type == VarType::FQUAD) {
+        // Only allow arithmetic operations on FQUADs
+        if (bin_op->op == BinaryOp::Operator::Add ||
+            bin_op->op == BinaryOp::Operator::Subtract ||
+            bin_op->op == BinaryOp::Operator::Multiply ||
+            bin_op->op == BinaryOp::Operator::Divide) {
+            return VarType::FQUAD;
+        }
+    }
+    
     // For scalar-PAIR operations: PAIR OP INTEGER = PAIR, INTEGER OP PAIR = PAIR
     if ((left_type == VarType::PAIR && right_type == VarType::INTEGER) ||
         (left_type == VarType::INTEGER && right_type == VarType::PAIR)) {
@@ -29901,6 +30028,28 @@ VarType ASTAnalyzer::infer_binary_op_type(const BinaryOp* bin_op) const {
         }
     }
     
+    // For scalar-FQUAD operations: FQUAD OP FLOAT = FQUAD, FLOAT OP FQUAD = FQUAD
+    if ((left_type == VarType::FQUAD && right_type == VarType::FLOAT) ||
+        (left_type == VarType::FLOAT && right_type == VarType::FQUAD)) {
+        if (bin_op->op == BinaryOp::Operator::Add ||
+            bin_op->op == BinaryOp::Operator::Subtract ||
+            bin_op->op == BinaryOp::Operator::Multiply ||
+            bin_op->op == BinaryOp::Operator::Divide) {
+            return VarType::FQUAD;
+        }
+    }
+    
+    // For scalar-FQUAD operations: FQUAD OP INTEGER = FQUAD, INTEGER OP FQUAD = FQUAD
+    if ((left_type == VarType::FQUAD && right_type == VarType::INTEGER) ||
+        (left_type == VarType::INTEGER && right_type == VarType::FQUAD)) {
+        if (bin_op->op == BinaryOp::Operator::Add ||
+            bin_op->op == BinaryOp::Operator::Subtract ||
+            bin_op->op == BinaryOp::Operator::Multiply ||
+            bin_op->op == BinaryOp::Operator::Divide) {
+            return VarType::FQUAD;
+        }
+    }
+
     // For mixed scalar-PAIR operations: PAIR OP FLOAT = FPAIR, FLOAT OP PAIR = FPAIR  
     if ((left_type == VarType::PAIR && right_type == VarType::FLOAT) ||
         (left_type == VarType::FLOAT && right_type == VarType::PAIR)) {
@@ -32365,6 +32514,80 @@ void ASTAnalyzer::visit(FPairExpression& node) {
 }
 // -- end of file
 
+// -- start of file: analysis/az_impl/az_visit_FQuadAccessExpression.cpp
+#include "ASTAnalyzer.h"
+
+void ASTAnalyzer::visit(FQuadAccessExpression& node) {
+    if (trace_enabled_) {
+        std::cout << "[ANALYZER TRACE] Visiting FQuadAccessExpression ("
+                  << (node.access_type == FQuadAccessExpression::FIRST ? "first" : 
+                     node.access_type == FQuadAccessExpression::SECOND ? "second" :
+                     node.access_type == FQuadAccessExpression::THIRD ? "third" : "fourth") 
+                  << ")" << std::endl;
+    }
+    
+    // Track that we're accessing an FQUAD component
+    if (!current_function_scope_.empty()) {
+        auto& metrics = function_metrics_[current_function_scope_];
+        // FQUAD component access is relatively lightweight
+        metrics.instruction_count += 2; // Approximate instructions for bit field extraction
+        metrics.num_float_variables++; // Track float usage from vector access
+    }
+
+    // Analyze the underlying fquad expression
+    if (node.quad_expr) {
+        node.quad_expr->accept(*this);
+    } else {
+        throw std::runtime_error("FQuadAccessExpression has null quad_expr");
+    }
+    
+    // Validate access bounds at compile time if possible
+    // FQUAD supports .first, .second, .third, .fourth access
+    switch (node.access_type) {
+        case FQuadAccessExpression::FIRST:
+        case FQuadAccessExpression::SECOND:
+        case FQuadAccessExpression::THIRD:
+        case FQuadAccessExpression::FOURTH:
+            // All four access types are valid for FQUAD
+            break;
+        default:
+            throw std::runtime_error("Invalid FQUAD access type");
+    }
+}
+// -- end of file
+
+// -- start of file: analysis/az_impl/az_visit_FQuadExpression.cpp
+#include "ASTAnalyzer.h"
+
+void ASTAnalyzer::visit(FQuadExpression& node) {
+    if (trace_enabled_) {
+        std::cout << "[ANALYZER TRACE] Visiting FQuadExpression" << std::endl;
+    }
+    
+    // Track that we're processing an FQUAD expression
+    if (!current_function_scope_.empty()) {
+        auto& metrics = function_metrics_[current_function_scope_];
+        // FQUAD operations may use multiple registers for intermediate calculations
+        metrics.instruction_count += 6; // Approximate instructions for 4-element float vector construction
+        metrics.num_float_variables++; // Track float vector usage
+    }
+
+    // Analyze all four expressions in the fquad
+    if (node.first_expr) {
+        node.first_expr->accept(*this);
+    }
+    if (node.second_expr) {
+        node.second_expr->accept(*this);
+    }
+    if (node.third_expr) {
+        node.third_expr->accept(*this);
+    }
+    if (node.fourth_expr) {
+        node.fourth_expr->accept(*this);
+    }
+}
+// -- end of file
+
 // -- start of file: analysis/az_impl/az_visit_FVecAllocationExpression.cpp
 #include "ASTAnalyzer.h"
 
@@ -33737,13 +33960,13 @@ void ASTAnalyzer::visit(QuadAccessExpression& node) {
                                       var_type_to_string(expr_type) + " type (only .first and .second are supported)";
                     semantic_errors_.push_back(error);
                 }
-            } else if (expr_type != VarType::QUAD) {
+            } else if (expr_type != VarType::QUAD && expr_type != VarType::FQUAD) {
                 // Not a packed type at all
                 std::string error = "Cannot access ." + access_name + " on non-packed type: " + 
                                   var_type_to_string(expr_type);
                 semantic_errors_.push_back(error);
             }
-            // QUAD supports all four components, so no additional validation needed
+            // QUAD and FQUAD support all four components, so no additional validation needed
         }
     } else {
         semantic_errors_.push_back("QuadAccessExpression missing quad expression");
@@ -34155,6 +34378,7 @@ std::string ASTAnalyzer::var_type_to_string(VarType type) {
         case VarType::PAIR:         base_type_str = "PAIR"; break;
         case VarType::FPAIR:        base_type_str = "FPAIR"; break;
         case VarType::QUAD:         base_type_str = "QUAD"; break;
+        case VarType::FQUAD:        base_type_str = "FQUAD"; break;
 
         // Container Types
         case VarType::VEC:          base_type_str = "VEC"; break;
@@ -38895,6 +39119,44 @@ Instruction Encoder::create_fmaxp_vector_reg(const std::string& vd, const std::s
     ss << "FMAXP " << vd << "." << arrangement << ", " << vn << "." << arrangement << ", " << vm << "." << arrangement;
     
     return Instruction(encoding, ss.str());
+}
+// -- end of file
+
+// -- start of file: encoders/enc_create_fmin_vector_reg.cpp
+#include "Encoder.h"
+#include <sstream>
+
+Instruction Encoder::create_fmin_vector_reg(const std::string& vd, const std::string& vn, const std::string& vm, const std::string& arrangement) {
+    uint32_t rd = get_reg_encoding(vd);
+    uint32_t rn = get_reg_encoding(vn);
+    uint32_t rm = get_reg_encoding(vm);
+
+    // Base encoding for FMIN (vector)
+    // FMIN vector encoding: 0x4EA0F400 (based on ARM64 reference)
+    uint32_t encoding = 0x4EA0F400 | (rm << 16) | (rn << 5) | rd;
+
+    // Set the size bits based on the arrangement
+    if (arrangement == "4S" || arrangement == "2S") {
+        // size bits (22, 23) = 00 for single-precision, Q bit determines 2S vs 4S
+        encoding &= ~(0b11 << 22); // Clear size bits (set to 00)
+        if (arrangement == "2S") {
+            encoding &= ~(1 << 30); // Clear Q bit for 64-bit operation
+        }
+    } else if (arrangement == "2D") {
+        // size bits (22, 23) = 01 for double-precision
+        encoding |= (0b01 << 22);
+    } else {
+        throw std::runtime_error("Unsupported arrangement for FMIN: " + arrangement);
+    }
+
+    std::stringstream ss;
+    ss << "FMIN " << vd << "." << arrangement << ", " << vn << "." << arrangement << ", " << vm << "." << arrangement;
+    Instruction instr(encoding, ss.str());
+    instr.opcode = InstructionDecoder::OpType::FMIN_VECTOR;
+    instr.dest_reg = Encoder::get_reg_encoding(vd);
+    instr.src_reg1 = Encoder::get_reg_encoding(vn);
+    instr.src_reg2 = Encoder::get_reg_encoding(vm);
+    return instr;
 }
 // -- end of file
 
@@ -46231,6 +46493,198 @@ void NewCodeGenerator::visit(FPairExpression& node) {
 }
 // -- end of file
 
+// -- start of file: generators/gen_FQuadAccessExpression.cpp
+#include "../NewCodeGenerator.h"
+#include "../DataGenerator.h"
+#include "../RegisterManager.h"
+#include "../Encoder.h"
+
+void NewCodeGenerator::visit(FQuadAccessExpression& node) {
+    debug_print("Generating code for FQuadAccessExpression");
+    
+    // First, evaluate the underlying fquad expression
+    if (!node.quad_expr) {
+        throw std::runtime_error("FQuadAccessExpression has no underlying quad expression");
+    }
+    
+    node.quad_expr->accept(*this);
+    std::string fquad_reg = expression_result_reg_;
+    
+    auto& register_manager = RegisterManager::getInstance();
+    std::string result_reg = register_manager.get_free_register(*this);
+    
+    // For FQUAD access, we extract 32-bit float values from the packed 64-bit representation
+    // Currently we only support accessing the first two elements (first and second)
+    // since we store FQUAD as a 64-bit value containing two 32-bit floats
+    
+    switch (node.access_type) {
+        case FQuadAccessExpression::FIRST:
+            debug_print("Accessing .first element of FQUAD");
+            // Extract bits 0-31 (first float)
+            emit(Encoder::opt_create_ubfx(result_reg, fquad_reg, 0, 32));
+            break;
+            
+        case FQuadAccessExpression::SECOND:
+            debug_print("Accessing .second element of FQUAD");
+            // Extract bits 32-63 (second float)
+            emit(Encoder::opt_create_ubfx(result_reg, fquad_reg, 32, 32));
+            break;
+            
+        case FQuadAccessExpression::THIRD:
+            debug_print("Accessing .third element of FQUAD");
+            // TODO: Implement when full 128-bit FQUAD support is added
+            throw std::runtime_error("FQUAD .third access not yet implemented (requires 128-bit support)");
+            break;
+            
+        case FQuadAccessExpression::FOURTH:
+            debug_print("Accessing .fourth element of FQUAD");
+            // TODO: Implement when full 128-bit FQUAD support is added
+            throw std::runtime_error("FQUAD .fourth access not yet implemented (requires 128-bit support)");
+            break;
+            
+        default:
+            throw std::runtime_error("Invalid FQUAD access type");
+    }
+    
+    // Clean up
+    register_manager.release_register(fquad_reg);
+    
+    expression_result_reg_ = result_reg;
+    debug_print("FQuadAccessExpression result in register: " + result_reg);
+}
+// -- end of file
+
+// -- start of file: generators/gen_FQuadExpression.cpp
+#include "../NewCodeGenerator.h"
+#include "../DataGenerator.h"
+#include "../RegisterManager.h"
+#include "../Encoder.h"
+
+void NewCodeGenerator::visit(FQuadExpression& node) {
+    debug_print("Generating code for FQuadExpression using ARM64 bit manipulation");
+    
+    // An FQUAD combines four 32-bit floats into a 128-bit value
+    // For now, we'll represent this as two 64-bit registers or use stack storage
+    // This is a simplified implementation that stores to memory and loads back
+    
+    auto& register_manager = RegisterManager::getInstance();
+    std::string result_reg = register_manager.get_free_register(*this);
+    
+    // Check if this is a literal fquad (all expressions are literals)
+    if (node.first_expr && node.second_expr && node.third_expr && node.fourth_expr) {
+        bool all_literals = true;
+        float first_val = 0.0f, second_val = 0.0f, third_val = 0.0f, fourth_val = 0.0f;
+        
+        if (auto* first_lit = dynamic_cast<NumberLiteral*>(node.first_expr.get())) {
+            first_val = (first_lit->literal_type == NumberLiteral::LiteralType::Float) ? 
+                       static_cast<float>(first_lit->float_value) : static_cast<float>(first_lit->int_value);
+        } else {
+            all_literals = false;
+        }
+        
+        if (auto* second_lit = dynamic_cast<NumberLiteral*>(node.second_expr.get())) {
+            second_val = (second_lit->literal_type == NumberLiteral::LiteralType::Float) ? 
+                        static_cast<float>(second_lit->float_value) : static_cast<float>(second_lit->int_value);
+        } else {
+            all_literals = false;
+        }
+        
+        if (auto* third_lit = dynamic_cast<NumberLiteral*>(node.third_expr.get())) {
+            third_val = (third_lit->literal_type == NumberLiteral::LiteralType::Float) ? 
+                       static_cast<float>(third_lit->float_value) : static_cast<float>(third_lit->int_value);
+        } else {
+            all_literals = false;
+        }
+        
+        if (auto* fourth_lit = dynamic_cast<NumberLiteral*>(node.fourth_expr.get())) {
+            fourth_val = (fourth_lit->literal_type == NumberLiteral::LiteralType::Float) ? 
+                        static_cast<float>(fourth_lit->float_value) : static_cast<float>(fourth_lit->int_value);
+        } else {
+            all_literals = false;
+        }
+        
+        if (all_literals) {
+            debug_print("FQuadExpression is literal - generating packed representation");
+            
+            // For literal FQUAD, we can generate the packed data directly
+            // Pack the first two floats into the lower 64 bits
+            uint32_t first_bits, second_bits, third_bits, fourth_bits;
+            memcpy(&first_bits, &first_val, sizeof(uint32_t));
+            memcpy(&second_bits, &second_val, sizeof(uint32_t));
+            memcpy(&third_bits, &third_val, sizeof(uint32_t));
+            memcpy(&fourth_bits, &fourth_val, sizeof(uint32_t));
+            
+            // Combine first two floats into lower 64 bits
+            uint64_t lower_bits = static_cast<uint64_t>(first_bits) | (static_cast<uint64_t>(second_bits) << 32);
+            
+            // Load the lower 64 bits into result register
+            emit(Encoder::create_movz_imm(result_reg, lower_bits & 0xFFFF));
+            if ((lower_bits >> 16) & 0xFFFF) {
+                emit(Encoder::create_movk_imm(result_reg, (lower_bits >> 16) & 0xFFFF, 16));
+            }
+            if ((lower_bits >> 32) & 0xFFFF) {
+                emit(Encoder::create_movk_imm(result_reg, (lower_bits >> 32) & 0xFFFF, 32));
+            }
+            if ((lower_bits >> 48) & 0xFFFF) {
+                emit(Encoder::create_movk_imm(result_reg, (lower_bits >> 48) & 0xFFFF, 48));
+            }
+            
+            // For now, we only handle the lower 64 bits (first two floats)
+            // TODO: Implement full 128-bit support when needed
+            
+            expression_result_reg_ = result_reg;
+            debug_print("Literal FQuadExpression result in register: " + result_reg);
+            return;
+        }
+    }
+    
+    // Non-literal case: evaluate each expression and construct FQUAD at runtime
+    debug_print("FQuadExpression is non-literal - constructing at runtime");
+    
+    // For simplicity, we'll construct the FQUAD by evaluating each component
+    // and combining them using bit manipulation (similar to QUAD and FPAIR)
+    
+    // Initialize result register to 0
+    emit(Encoder::create_movz_imm(result_reg, 0));
+    
+    // Generate code for first expression (bits 0-31)
+    if (node.first_expr) {
+        node.first_expr->accept(*this);
+        std::string first_reg = expression_result_reg_;
+        
+        // Convert to float bits and insert into lower 32 bits
+        // For now, assume the value is already in the right format
+        emit(Encoder::opt_create_bfi(result_reg, first_reg, 0, 32));
+        
+        register_manager.release_register(first_reg);
+        debug_print("Inserted first expression into bits 0-31 using BFI");
+    }
+    
+    // Generate code for second expression (bits 32-63)
+    if (node.second_expr) {
+        node.second_expr->accept(*this);
+        std::string second_reg = expression_result_reg_;
+        
+        // Convert to float bits and insert into upper 32 bits
+        emit(Encoder::opt_create_bfi(result_reg, second_reg, 32, 32));
+        
+        register_manager.release_register(second_reg);
+        debug_print("Inserted second expression into bits 32-63 using BFI");
+    }
+    
+    // For now, we only handle the first two elements (64-bit representation)
+    // The third and fourth elements would require additional register or memory storage
+    // TODO: Implement full 128-bit FQUAD when register allocation supports it
+    
+    if (node.third_expr || node.fourth_expr) {
+        debug_print("Warning: Third and fourth FQUAD elements not fully implemented yet");
+    }
+    
+    expression_result_reg_ = result_reg;
+    debug_print("Non-literal FQuadExpression result in register: " + result_reg);
+}
+// -- end of file
+
 // -- start of file: generators/gen_FVecAllocationExpression.cpp
 #include "../NewCodeGenerator.h"
 
@@ -47799,6 +48253,22 @@ void NewCodeGenerator::visit(QuadAccessExpression& node) {
             emit(Encoder::opt_create_sbfx(result_reg, packed_reg, 32, 32));
             debug_print("Extracted second (bits 32-63) from " + vartype_to_string(expr_type) + " using SBFX for sign extension");
         }
+    } else if (expr_type == VarType::FQUAD) {
+        // FQUAD: 32-bit float components (all four components are valid)
+        // For FQUAD, we extract 32-bit float values from the 64-bit packed representation
+        // Note: This is a simplified implementation that only handles first two components
+        if (node.access_type == QuadAccessExpression::FIRST) {
+            // Extract lower 32 bits (bits 0-31) - first float
+            emit(Encoder::opt_create_ubfx(result_reg, packed_reg, 0, 32));
+            debug_print("Extracted first float (bits 0-31) from FQUAD using UBFX");
+        } else if (node.access_type == QuadAccessExpression::SECOND) {
+            // Extract upper 32 bits (bits 32-63) - second float
+            emit(Encoder::opt_create_ubfx(result_reg, packed_reg, 32, 32));
+            debug_print("Extracted second float (bits 32-63) from FQUAD using UBFX");
+        } else {
+            // Third and fourth components not yet implemented for FQUAD
+            throw std::runtime_error("FQUAD ." + access_name + " access not yet implemented (requires 128-bit support)");
+        }
     } else if (expr_type == VarType::QUAD) {
         // QUAD: 16-bit components (all four components are valid)
         if (node.access_type == QuadAccessExpression::FIRST) {
@@ -47819,7 +48289,7 @@ void NewCodeGenerator::visit(QuadAccessExpression& node) {
             debug_print("Extracted fourth (bits 48-63) from QUAD using SBFX for sign extension");
         }
     } else {
-        throw std::runtime_error("Invalid component access: ." + access_name + " can only be used on PAIR, FPAIR, or QUAD types, got " + 
+        throw std::runtime_error("Invalid component access: ." + access_name + " can only be used on PAIR, FPAIR, QUAD, or FQUAD types, got " + 
                                vartype_to_string(expr_type));
     }
     
@@ -50887,6 +51357,10 @@ std::string to_string(TokenType type) {
         case TokenType::Static: return "Static"; case TokenType::FStatic: return "FStatic"; case TokenType::Table: return "Table"; case TokenType::FTable: return "FTable"; case TokenType::Len: return "Len"; case TokenType::Global: return "Global"; case TokenType::Globals: return "Globals";
         case TokenType::Function: return "Function"; case TokenType::Routine: return "Routine";
         case TokenType::And: return "And"; case TokenType::Vec: return "Vec";
+        case TokenType::FVec: return "FVec"; case TokenType::Pair: return "Pair";
+        case TokenType::FPair: return "FPair"; case TokenType::Pairs: return "Pairs";
+        case TokenType::Quad: return "Quad"; case TokenType::FQuad: return "FQuad";
+        case TokenType::Oct: return "Oct"; case TokenType::FOct: return "FOct";
         case TokenType::If: return "If"; case TokenType::Unless: return "Unless";
         case TokenType::Test: return "Test"; case TokenType::While: return "While";
         case TokenType::Until: return "Until"; case TokenType::Repeat: return "Repeat";
@@ -56222,7 +56696,22 @@ ExprPtr Parser::parse_primary_expression() {
         ExprPtr fourth_expr = parse_expression();
         consume(TokenType::RParen, "Expect ')' after quad elements");
         return std::make_unique<QuadExpression>(std::move(first_expr), std::move(second_expr), 
-                                               std::move(third_expr), std::move(fourth_expr));
+                                                std::move(third_expr), std::move(fourth_expr));
+    }
+
+    // --- FQUAD expression parsing ---
+    if (match(TokenType::FQuad)) {
+        consume(TokenType::LParen, "Expect '(' after 'fquad'");
+        ExprPtr first_expr = parse_expression();
+        consume(TokenType::Comma, "Expect ',' between fquad elements");
+        ExprPtr second_expr = parse_expression();
+        consume(TokenType::Comma, "Expect ',' between fquad elements");
+        ExprPtr third_expr = parse_expression();
+        consume(TokenType::Comma, "Expect ',' between fquad elements");
+        ExprPtr fourth_expr = parse_expression();
+        consume(TokenType::RParen, "Expect ')' after fquad elements");
+        return std::make_unique<FQuadExpression>(std::move(first_expr), std::move(second_expr), 
+                                                 std::move(third_expr), std::move(fourth_expr));
     }
 
     // --- OCT expression parsing ---

@@ -774,6 +774,9 @@ VarType ASTAnalyzer::infer_expression_type(const Expression* expr) const {
             case ASTNode::NodeType::QuadExpr:
                 return VarType::QUAD;
                 
+            case ASTNode::NodeType::FQuadExpr:
+                return VarType::FQUAD;
+                
             case ASTNode::NodeType::OctExpr:
                 return VarType::OCT;
                 
@@ -801,6 +804,9 @@ VarType ASTAnalyzer::infer_expression_type(const Expression* expr) const {
                 
             case ASTNode::NodeType::QuadAccessExpr:
                 return VarType::INTEGER;  // .first/.second/.third/.fourth return integers for QUAD
+                
+            case ASTNode::NodeType::FQuadAccessExpr:
+                return VarType::FLOAT;  // .first/.second/.third/.fourth return floats for FQUAD
                 
             default:
                 if (trace_enabled_) {
@@ -1093,6 +1099,11 @@ VarType ASTAnalyzer::infer_binary_op_type(const BinaryOp* bin_op) const {
             return VarType::INTEGER;
         }
         
+        // For FQUAD types, both operands must be FQUAD
+        if (left_type == VarType::FQUAD && right_type == VarType::FQUAD) {
+            return VarType::INTEGER;
+        }
+        
         // For scalar types, allow standard comparisons
         if ((left_type == VarType::INTEGER || left_type == VarType::FLOAT) &&
             (right_type == VarType::INTEGER || right_type == VarType::FLOAT)) {
@@ -1115,10 +1126,11 @@ VarType ASTAnalyzer::infer_binary_op_type(const BinaryOp* bin_op) const {
         bin_op->op == BinaryOp::Operator::Greater ||
         bin_op->op == BinaryOp::Operator::GreaterEqual) {
         
-        // PAIR and QUAD types don't support ordering comparisons
+        // PAIR, QUAD, and FQUAD types don't support ordering comparisons
         if (left_type == VarType::PAIR || right_type == VarType::PAIR || 
-            left_type == VarType::QUAD || right_type == VarType::QUAD) {
-            throw std::runtime_error("PAIR and QUAD types do not support ordering comparisons (<, <=, >, >=)");
+            left_type == VarType::QUAD || right_type == VarType::QUAD ||
+            left_type == VarType::FQUAD || right_type == VarType::FQUAD) {
+            throw std::runtime_error("PAIR, QUAD, and FQUAD types do not support ordering comparisons (<, <=, >, >=)");
         }
         
         return VarType::INTEGER;
@@ -1163,6 +1175,17 @@ VarType ASTAnalyzer::infer_binary_op_type(const BinaryOp* bin_op) const {
         }
     }
     
+    // For arithmetic operations with FQUAD types: FQUAD OP FQUAD = FQUAD
+    if (left_type == VarType::FQUAD && right_type == VarType::FQUAD) {
+        // Only allow arithmetic operations on FQUADs
+        if (bin_op->op == BinaryOp::Operator::Add ||
+            bin_op->op == BinaryOp::Operator::Subtract ||
+            bin_op->op == BinaryOp::Operator::Multiply ||
+            bin_op->op == BinaryOp::Operator::Divide) {
+            return VarType::FQUAD;
+        }
+    }
+    
     // For scalar-PAIR operations: PAIR OP INTEGER = PAIR, INTEGER OP PAIR = PAIR
     if ((left_type == VarType::PAIR && right_type == VarType::INTEGER) ||
         (left_type == VarType::INTEGER && right_type == VarType::PAIR)) {
@@ -1196,6 +1219,28 @@ VarType ASTAnalyzer::infer_binary_op_type(const BinaryOp* bin_op) const {
         }
     }
     
+    // For scalar-FQUAD operations: FQUAD OP FLOAT = FQUAD, FLOAT OP FQUAD = FQUAD
+    if ((left_type == VarType::FQUAD && right_type == VarType::FLOAT) ||
+        (left_type == VarType::FLOAT && right_type == VarType::FQUAD)) {
+        if (bin_op->op == BinaryOp::Operator::Add ||
+            bin_op->op == BinaryOp::Operator::Subtract ||
+            bin_op->op == BinaryOp::Operator::Multiply ||
+            bin_op->op == BinaryOp::Operator::Divide) {
+            return VarType::FQUAD;
+        }
+    }
+    
+    // For scalar-FQUAD operations: FQUAD OP INTEGER = FQUAD, INTEGER OP FQUAD = FQUAD
+    if ((left_type == VarType::FQUAD && right_type == VarType::INTEGER) ||
+        (left_type == VarType::INTEGER && right_type == VarType::FQUAD)) {
+        if (bin_op->op == BinaryOp::Operator::Add ||
+            bin_op->op == BinaryOp::Operator::Subtract ||
+            bin_op->op == BinaryOp::Operator::Multiply ||
+            bin_op->op == BinaryOp::Operator::Divide) {
+            return VarType::FQUAD;
+        }
+    }
+
     // For mixed scalar-PAIR operations: PAIR OP FLOAT = FPAIR, FLOAT OP PAIR = FPAIR  
     if ((left_type == VarType::PAIR && right_type == VarType::FLOAT) ||
         (left_type == VarType::FLOAT && right_type == VarType::PAIR)) {

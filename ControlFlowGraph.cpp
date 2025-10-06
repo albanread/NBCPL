@@ -20,6 +20,8 @@ std::string to_string(ASTNode::NodeType type) {
         case ASTNode::NodeType::FPairAccessExpr: return "FPairAccessExpression";
         case ASTNode::NodeType::QuadExpr: return "QuadExpression";
         case ASTNode::NodeType::QuadAccessExpr: return "QuadAccessExpression";
+        case ASTNode::NodeType::FQuadExpr: return "FQuadExpression";
+        case ASTNode::NodeType::FQuadAccessExpr: return "FQuadAccessExpression";
         case ASTNode::NodeType::OctExpr: return "OctExpression";
         case ASTNode::NodeType::FOctExpr: return "FOctExpression";
         case ASTNode::NodeType::LaneAccessExpr: return "LaneAccessExpression";

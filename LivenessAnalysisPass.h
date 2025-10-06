@@ -98,6 +98,8 @@ public:
     void visit(FPairAccessExpression& node) override;
     void visit(QuadExpression& node) override;
     void visit(QuadAccessExpression& node) override;
+    void visit(FQuadExpression& node) override;
+    void visit(FQuadAccessExpression& node) override;
     void visit(MemberAccessExpression& node) override;
     void visit(SuperMethodCallExpression& node) override;
     void visit(NewExpression& node) override;

@@ -141,12 +141,14 @@ bool VectorCodeGen::isSimdOperation(VarType left_type, VarType right_type) {
     int pointer_to_int = static_cast<int>(VarType::POINTER_TO);
 
     bool left_is_simd = (left_type == VarType::PAIR || left_type == VarType::FPAIR ||
-                        left_type == VarType::QUAD || left_type == VarType::OCT ||
-                        left_type == VarType::FOCT || left_type == VarType::PAIRS ||
+                        left_type == VarType::QUAD || left_type == VarType::FQUAD ||
+                        left_type == VarType::OCT || left_type == VarType::FOCT || 
+                        left_type == VarType::PAIRS ||
                         ((left_int & pairs_int) && (left_int & pointer_to_int)));
     bool right_is_simd = (right_type == VarType::PAIR || right_type == VarType::FPAIR ||
-                         right_type == VarType::QUAD || right_type == VarType::OCT ||
-                         right_type == VarType::FOCT || right_type == VarType::PAIRS ||
+                         right_type == VarType::QUAD || right_type == VarType::FQUAD ||
+                         right_type == VarType::OCT || right_type == VarType::FOCT || 
+                         right_type == VarType::PAIRS ||
                          ((right_int & pairs_int) && (right_int & pointer_to_int)));
 
     return left_is_simd || right_is_simd;
@@ -172,6 +174,7 @@ int VectorCodeGen::getLaneCount(VarType type) {
         case VarType::FPAIR:
             return 2;
         case VarType::QUAD:
+        case VarType::FQUAD:
             return 4;
         case VarType::OCT:
         case VarType::FOCT:
@@ -188,6 +191,7 @@ VarType VectorCodeGen::getElementType(VarType type) {
         case VarType::OCT:
             return VarType::INTEGER;
         case VarType::FPAIR:
+        case VarType::FQUAD:
         case VarType::FOCT:
             return VarType::FLOAT;
         default:
@@ -204,6 +208,8 @@ std::string VectorCodeGen::getNeonArrangement(VarType type) {
             return "2S";  // 2 x 32-bit floats
         case VarType::QUAD:
             return "4H";  // 4 x 16-bit signed integers
+        case VarType::FQUAD:
+            return "4S";  // 4 x 32-bit floats
         case VarType::OCT:
             return "8B";  // 8 x 8-bit signed integers
         case VarType::FOCT:
@@ -231,7 +237,7 @@ void VectorCodeGen::generateNeonBinaryOp(BinaryOp& node, VarType result_type) {
     bool is_vector_scalar = false;
     bool left_is_vector = (left_type == VarType::OCT || left_type == VarType::FOCT ||
                           left_type == VarType::PAIR || left_type == VarType::FPAIR ||
-                          left_type == VarType::QUAD);
+                          left_type == VarType::QUAD || left_type == VarType::FQUAD);
     bool right_is_scalar = (right_type == VarType::INTEGER || right_type == VarType::FLOAT);
 
     if (left_is_vector && right_is_scalar) {
@@ -244,6 +250,9 @@ void VectorCodeGen::generateNeonBinaryOp(BinaryOp& node, VarType result_type) {
     if (result_type == VarType::PAIR || result_type == VarType::FPAIR || result_type == VarType::QUAD) {
         left_neon_reg = register_manager_.acquire_fp_scratch_reg(); // D register
         right_neon_reg = register_manager_.acquire_fp_scratch_reg(); // D register
+    } else if (result_type == VarType::FQUAD) {
+        left_neon_reg = register_manager_.acquire_vec_scratch_reg(); // Q register
+        right_neon_reg = register_manager_.acquire_vec_scratch_reg(); // Q register
     } else {
         left_neon_reg = register_manager_.acquire_q_scratch_reg(code_gen_); // Q register
         right_neon_reg = register_manager_.acquire_q_scratch_reg(code_gen_); // Q register
@@ -262,6 +271,15 @@ void VectorCodeGen::generateNeonBinaryOp(BinaryOp& node, VarType result_type) {
         }
     } else if (result_type == VarType::FPAIR) {
         // For FPAIR, use 64-bit D registers but handle as floats
+        loadVectorToNeon(left_reg, left_neon_reg, left_type);
+
+        if (is_vector_scalar) {
+            broadcastScalarToNeon(right_reg, right_neon_reg, result_type);
+        } else {
+            loadVectorToNeon(right_reg, right_neon_reg, right_type);
+        }
+    } else if (result_type == VarType::FQUAD) {
+        // For FQUAD, use 128-bit Q registers and handle as floats
         loadVectorToNeon(left_reg, left_neon_reg, left_type);
 
         if (is_vector_scalar) {
@@ -289,7 +307,8 @@ void VectorCodeGen::generateNeonBinaryOp(BinaryOp& node, VarType result_type) {
             emit_(vecgen_fadd_vector(qreg_to_vreg(left_neon_reg), qreg_to_vreg(left_neon_reg), qreg_to_vreg(right_neon_reg), arrangement));
         } else if (result_type == VarType::FPAIR) {
             emit_(fadd_vector_2s(qreg_to_vreg(left_neon_reg), qreg_to_vreg(left_neon_reg), qreg_to_vreg(right_neon_reg)));
-
+        } else if (result_type == VarType::FQUAD) {
+            emit_(vecgen_fadd_vector(qreg_to_vreg(left_neon_reg), qreg_to_vreg(left_neon_reg), qreg_to_vreg(right_neon_reg), arrangement));
         } else if (result_type == VarType::PAIR) {
             emit_(add_vector_2s(qreg_to_vreg(left_neon_reg), qreg_to_vreg(left_neon_reg), qreg_to_vreg(right_neon_reg)));
 
@@ -304,7 +323,8 @@ void VectorCodeGen::generateNeonBinaryOp(BinaryOp& node, VarType result_type) {
             emit_(vecgen_fsub_vector(qreg_to_vreg(left_neon_reg), qreg_to_vreg(left_neon_reg), qreg_to_vreg(right_neon_reg), arrangement));
         } else if (result_type == VarType::FPAIR) {
             emit_(fsub_vector_2s(qreg_to_vreg(left_neon_reg), qreg_to_vreg(left_neon_reg), qreg_to_vreg(right_neon_reg)));
-
+        } else if (result_type == VarType::FQUAD) {
+            emit_(vecgen_fsub_vector(qreg_to_vreg(left_neon_reg), qreg_to_vreg(left_neon_reg), qreg_to_vreg(right_neon_reg), arrangement));
         } else if (result_type == VarType::PAIR) {
             emit_(sub_vector_2s(qreg_to_vreg(left_neon_reg), qreg_to_vreg(left_neon_reg), qreg_to_vreg(right_neon_reg)));
 
@@ -319,7 +339,8 @@ void VectorCodeGen::generateNeonBinaryOp(BinaryOp& node, VarType result_type) {
             emit_(vecgen_fmul_vector(qreg_to_vreg(left_neon_reg), qreg_to_vreg(left_neon_reg), qreg_to_vreg(right_neon_reg), arrangement));
         } else if (result_type == VarType::FPAIR) {
             emit_(fmul_vector_2s(qreg_to_vreg(left_neon_reg), qreg_to_vreg(left_neon_reg), qreg_to_vreg(right_neon_reg)));
-
+        } else if (result_type == VarType::FQUAD) {
+            emit_(vecgen_fmul_vector(qreg_to_vreg(left_neon_reg), qreg_to_vreg(left_neon_reg), qreg_to_vreg(right_neon_reg), arrangement));
         } else if (result_type == VarType::PAIR) {
             emit_(mul_vector_2s(qreg_to_vreg(left_neon_reg), qreg_to_vreg(left_neon_reg), qreg_to_vreg(right_neon_reg)));
 
@@ -332,10 +353,10 @@ void VectorCodeGen::generateNeonBinaryOp(BinaryOp& node, VarType result_type) {
     case BinaryOp::Operator::Divide:
         if (result_type == VarType::FOCT) {
             emit_(vecgen_fdiv_vector(qreg_to_vreg(left_neon_reg), qreg_to_vreg(left_neon_reg), qreg_to_vreg(right_neon_reg), arrangement));
-
         } else if (result_type == VarType::FPAIR) {
             emit_(fdiv_vector_2s(qreg_to_vreg(left_neon_reg), qreg_to_vreg(left_neon_reg), qreg_to_vreg(right_neon_reg)));
-
+        } else if (result_type == VarType::FQUAD) {
+            emit_(vecgen_fdiv_vector(qreg_to_vreg(left_neon_reg), qreg_to_vreg(left_neon_reg), qreg_to_vreg(right_neon_reg), arrangement));
         } else {
             throw std::runtime_error("Integer division not supported in NEON vector operations");
         }
@@ -371,6 +392,9 @@ void VectorCodeGen::generateNeonBinaryOp(BinaryOp& node, VarType result_type) {
     if (result_type == VarType::PAIR || result_type == VarType::FPAIR || result_type == VarType::QUAD) {
         register_manager_.release_fp_register(left_neon_reg);
         register_manager_.release_fp_register(right_neon_reg);
+    } else if (result_type == VarType::FQUAD) {
+        register_manager_.release_register(left_neon_reg);
+        register_manager_.release_register(right_neon_reg);
     } else {
         register_manager_.release_q_register(left_neon_reg);
         register_manager_.release_q_register(right_neon_reg);
@@ -517,6 +541,8 @@ void VectorCodeGen::generateNeonLaneRead(LaneAccessExpression& node, VarType vec
     std::string neon_reg;
     if (vector_type == VarType::PAIR || vector_type == VarType::FPAIR || vector_type == VarType::QUAD) {
         neon_reg = register_manager_.acquire_fp_scratch_reg(); // D register
+    } else if (vector_type == VarType::FQUAD) {
+        neon_reg = register_manager_.acquire_vec_scratch_reg(); // Q register
     } else {
         neon_reg = register_manager_.acquire_q_scratch_reg(code_gen_); // Q register
     }
@@ -562,6 +588,9 @@ void VectorCodeGen::generateNeonLaneRead(LaneAccessExpression& node, VarType vec
                 // Convert D register to V register for lane extraction
                 std::string v_reg = "V" + neon_reg.substr(1); // Convert D0 -> V0
                 emit_(vecgen_fmov_s_lane(s_reg, v_reg, node.index));
+            } else if (vector_type == VarType::FQUAD) {
+                // For FQUAD, use Q register operations for 128-bit vectors with 4 float lanes
+                emit_(vecgen_fmov_s_lane(s_reg, qreg_to_vreg(neon_reg), node.index));
             } else {
                 // Use Q register operations for 128-bit vectors
                 emit_(vecgen_fmov_s_lane(s_reg, qreg_to_vreg(neon_reg), node.index));
@@ -629,6 +658,8 @@ void VectorCodeGen::generateNeonLaneRead(LaneAccessExpression& node, VarType vec
     if (vector_type != VarType::FPAIR) {
         if (vector_type == VarType::PAIR || vector_type == VarType::QUAD) {
             register_manager_.release_fp_register(neon_reg);
+        } else if (vector_type == VarType::FQUAD) {
+            register_manager_.release_register(neon_reg);
         } else {
             register_manager_.release_q_register(neon_reg);
         }

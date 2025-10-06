@@ -958,6 +958,19 @@ public:
                                             const std::string &arrangement);
 
   /**
+   * @brief Creates a FMIN (Floating-point Minimum) vector instruction.
+   * @param vd The destination vector register.
+   * @param vn The first source vector register.
+   * @param vm The second source vector register.
+   * @param arrangement The data arrangement (e.g., "2S", "4S", "2D").
+   * @return A complete Instruction object.
+   */
+  static Instruction create_fmin_vector_reg(const std::string &vd,
+                                            const std::string &vn,
+                                            const std::string &vm,
+                                            const std::string &arrangement);
+
+  /**
    * @brief Creates a FMINP (Floating-point Minimum Pairwise) vector instruction.
    * @param vd The destination vector register.
    * @param vn The first source vector register.
