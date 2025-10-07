@@ -642,8 +642,7 @@ NewCodeGenerator::NewCodeGenerator(InstructionStream& instruction_stream,
     vector_codegen_ = std::make_unique<VectorCodeGen>(*this, register_manager_, 
         [this](const Instruction& instruction) { emit(instruction); });
     
-    // Initialize ReductionCodeGen helper
-    reduction_codegen_ = std::make_unique<ReductionCodeGen>(register_manager_, *this, analyzer_);
+
     
     // Set NEON enable/disable in RegisterManager based on constructor flag
     register_manager_.set_neon_enabled(use_neon_);

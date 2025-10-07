@@ -5,7 +5,6 @@
 #include "ASTVisitor.h"
 #include "ControlFlowGraph.h"
 #include "HeapManager/HeapManager.h"
-#include "reductions.h"
 #include "Reducer.h"
 #include "Reducers.h"
 #include <optional>

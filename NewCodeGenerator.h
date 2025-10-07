@@ -27,9 +27,6 @@
 
 // Forward declaration for liveness analysis
 class LivenessAnalysisPass;
-class ReductionCodeGen;
-
-#include "reductions.h"
 
 class LabelManager;
 class ASTAnalyzer;
@@ -304,7 +301,6 @@ private:
     LabelManager& label_manager_;
     DataGenerator& data_generator_;
     std::unique_ptr<CallFrameManager> current_frame_manager_;
-    std::unique_ptr<ReductionCodeGen> reduction_codegen_;
 
     bool debug_enabled_;
     int debug_level;

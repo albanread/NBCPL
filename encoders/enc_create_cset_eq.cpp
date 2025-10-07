@@ -1,4 +1,4 @@
-// This encoder is present in the test schedule and has passed automated validation.
+// Status: PASS - Tested by NewBCPL --test-encoders
 #include "Encoder.h"
 
 Instruction Encoder::create_cset_eq(const std::string& xd) {

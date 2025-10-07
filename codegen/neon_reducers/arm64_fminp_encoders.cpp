@@ -22,7 +22,6 @@ void gen_neon_fminp_4s(NewCodeGenerator& cg, const PairwiseReductionLoopStatemen
     // For now, placeholder implementation - FMINP 4S not yet implemented
     // This will be replaced with direct NEON code once register access is resolved
     // PLACEHOLDER: Generated FMINP.4S for FVEC8 pairwise minimum via registry
-}
 
 /**
  * @brief  Generates ARM64 NEON FMINP instruction for a 2S vector layout.
@@ -41,7 +40,6 @@ void gen_neon_fminp_2s(NewCodeGenerator& cg, const PairwiseReductionLoopStatemen
     // For now, placeholder implementation - FMINP 2S not yet implemented
     // This will be replaced with direct NEON code once register access is resolved
     // PLACEHOLDER: Generated FMINP.2S for FPAIR pairwise minimum via registry
-}
 
 /**
  * @brief  Generates ARM64 NEON FMINP instruction for a 4H vector layout.

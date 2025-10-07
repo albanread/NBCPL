@@ -22,7 +22,6 @@ void gen_neon_fmaxp_4s(NewCodeGenerator& cg, const PairwiseReductionLoopStatemen
     // For now, placeholder implementation - FMAXP not yet implemented
     // This will be replaced with direct NEON code once register access is resolved
     // PLACEHOLDER: FMAXP.4S for FVEC8 pairwise maximum via registry
-}
 
 /**
  * @brief  Generates ARM64 NEON FMAXP instruction for a 2S vector layout.
@@ -41,7 +40,6 @@ void gen_neon_fmaxp_2s(NewCodeGenerator& cg, const PairwiseReductionLoopStatemen
     // For now, placeholder implementation - FMAXP not yet implemented
     // This will be replaced with direct NEON code once register access is resolved
     // PLACEHOLDER: FMAXP.2S for FPAIR pairwise maximum via registry
-}
 
 /**
  * @brief  Generates ARM64 NEON FMAXP instruction for a 4H vector layout.
@@ -61,4 +59,3 @@ void gen_neon_fmaxp_4h(NewCodeGenerator& cg, const PairwiseReductionLoopStatemen
     // For now, placeholder implementation - FMAXP 4H not yet implemented
     // This will be replaced with direct NEON code once register access is resolved
     // PLACEHOLDER: FMAXP.4H for FQUAD pairwise maximum via registry
-}

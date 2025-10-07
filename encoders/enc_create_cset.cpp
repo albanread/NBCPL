@@ -1,4 +1,4 @@
-// This encoder is present in the test schedule and has passed automated validation.
+// Status: PASS - Tested by NewBCPL --test-encoders
 #include "../BitPatcher.h"
 #include "../Encoder.h"
 #include "../InstructionDecoder.h"

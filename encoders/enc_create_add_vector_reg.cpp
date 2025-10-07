@@ -1,4 +1,4 @@
-// This encoder is present in the test schedule and has passed automated validation.
+// Status: PASS - All ADD vector variations tested by NewBCPL --test-encoders
 #include "Encoder.h"
 #include <sstream>
 #include <stdexcept>

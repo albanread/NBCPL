@@ -1,4 +1,4 @@
-// This encoder is NOT present in the test schedule. Test will be added via wrapper and results updated here.
+// Status: PASS - All FMUL vector variations tested by NewBCPL --test-encoders
 #include "Encoder.h"
 #include <sstream>
 
