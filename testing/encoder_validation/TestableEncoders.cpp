@@ -21,6 +21,150 @@ Instruction test_create_and_reg() {
 }
 
 /**
+ * @brief Wrapper for Encoder::create_cmp_imm for direct testing.
+ */
+Instruction test_create_cmp_imm() {
+    // Example: CMP X0, #5
+    return Encoder::create_cmp_imm("x0", 5);
+}
+
+/**
+ * @brief Wrapper for Encoder::create_cmp_reg for direct testing.
+ */
+Instruction test_create_cmp_reg() {
+    // Example: CMP X0, X1
+    return Encoder::create_cmp_reg("x0", "x1");
+}
+
+/**
+ * @brief Wrapper for Encoder::create_eor_reg for direct testing.
+ */
+Instruction test_create_eor_reg() {
+    // Example: EOR X0, X1, X2
+    return Encoder::create_eor_reg("x0", "x1", "x2");
+}
+
+/**
+ * @brief Wrapper for Encoder::create_lsl_imm for direct testing.
+ */
+Instruction test_create_lsl_imm() {
+    // Example: LSL X0, X1, #16
+    return Encoder::create_lsl_imm("x0", "x1", 16);
+}
+
+/**
+ * @brief Wrapper for Encoder::create_lsl_reg for direct testing.
+ */
+Instruction test_create_lsl_reg() {
+    // Example: LSL X0, X1, X2
+    return Encoder::create_lsl_reg("x0", "x1", "x2");
+}
+
+/**
+ * @brief Wrapper for Encoder::create_lsr_reg for direct testing.
+ */
+Instruction test_create_lsr_reg() {
+    // Example: LSR X0, X1, X2
+    return Encoder::create_lsr_reg("x0", "x1", "x2");
+}
+
+/**
+ * @brief Wrapper for Encoder::create_mov_reg for direct testing.
+ */
+Instruction test_create_mov_reg() {
+    // Example: MOV X0, X1
+    return Encoder::create_mov_reg("x0", "x1");
+}
+
+/**
+ * @brief Wrapper for Encoder::create_movk_imm for direct testing.
+ */
+Instruction test_create_movk_imm() {
+    // Example: MOVK X0, #0x1234, LSL #16
+    return Encoder::create_movk_imm("x0", 0x1234, 16);
+}
+
+/**
+ * @brief Wrapper for Encoder::create_movz_imm for direct testing.
+ */
+Instruction test_create_movz_imm() {
+    // Example: MOVZ X0, #0x1234, LSL #16
+    return Encoder::create_movz_imm("x0", 0x1234, 16);
+}
+
+/**
+ * @brief Wrapper for Encoder::create_mul_reg for direct testing.
+ */
+Instruction test_create_mul_reg() {
+    // Example: MUL X0, X1, X2
+    return Encoder::create_mul_reg("x0", "x1", "x2");
+}
+
+/**
+ * @brief Wrapper for Encoder::create_orr_reg for direct testing.
+ */
+Instruction test_create_orr_reg() {
+    // Example: ORR X0, X1, X2
+    return Encoder::create_orr_reg("x0", "x1", "x2");
+}
+
+/**
+ * @brief Wrapper for Encoder::create_sdiv_reg for direct testing.
+ */
+Instruction test_create_sdiv_reg() {
+    // Example: SDIV X0, X1, X2
+    return Encoder::create_sdiv_reg("x0", "x1", "x2");
+}
+
+/**
+ * @brief Wrapper for Encoder::create_sub_imm for direct testing.
+ */
+Instruction test_create_sub_imm() {
+    // Example: SUB X0, X1, #16
+    return Encoder::create_sub_imm("x0", "x1", 16);
+}
+
+/**
+ * @brief Wrapper for Encoder::create_sub_reg for direct testing.
+ */
+Instruction test_create_sub_reg() {
+    // Example: SUB X0, X1, X2
+    return Encoder::create_sub_reg("x0", "x1", "x2");
+}
+
+/**
+ * @brief Wrapper for Encoder::create_brk for direct testing.
+ */
+Instruction test_create_brk() {
+    // Example: BRK #0
+    return Encoder::create_brk(0);
+}
+
+/**
+ * @brief Wrapper for Encoder::create_cset_eq for direct testing.
+ */
+Instruction test_create_cset_eq() {
+    // Example: CSET X0, EQ
+    return Encoder::create_cset_eq("x0");
+}
+
+/**
+ * @brief Wrapper for Encoder::create_cset for direct testing.
+ */
+Instruction test_create_cset() {
+    // Example: CSET X0, NE
+    return Encoder::create_cset("x0", "NE");
+}
+
+/**
+ * @brief Wrapper for Encoder::create_csetm_eq for direct testing.
+ */
+Instruction test_create_csetm_eq() {
+    // Example: CSETM X0, EQ
+    return Encoder::create_csetm_eq("x0");
+}
+
+/**
  * @brief Refactored NEON encoder functions that return Instruction objects directly.
  * These are pure functions suitable for automated testing against Clang output.
  * 

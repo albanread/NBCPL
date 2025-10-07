@@ -11,6 +11,7 @@
 #include <algorithm>
 #include <functional>
 #include <map>
+#include "TestableEncoders.h"
 
 bool EncoderTester::run_all_tests() {
     std::cout << "\n=== NewBCPL Encoder Validation Framework ===" << std::endl;
@@ -90,6 +91,25 @@ bool EncoderTester::run_all_tests() {
     // Test Encoders Folder Functions
     std::cout << "\nTesting Encoders Folder Functions..." << std::endl;
     test_create_add_reg();
+    test_create_and_reg();
+    test_create_cmp_imm();
+    test_create_cmp_reg();
+    test_create_eor_reg();
+    test_create_lsl_imm();
+    test_create_lsl_reg();
+    test_create_lsr_reg();
+    test_create_mov_reg();
+    test_create_movk_imm();
+    test_create_movz_imm();
+    test_create_mul_reg();
+    test_create_orr_reg();
+    test_create_sdiv_reg();
+    test_create_sub_imm();
+    test_create_sub_reg();
+    test_create_brk();
+    test_create_cset_eq();
+    test_create_cset();
+    test_create_csetm_eq();
 
     // Test Legacy Floating Point encoders
     std::cout << "\nTesting Legacy Floating Point encoders..." << std::endl;
@@ -857,6 +877,42 @@ void EncoderTester::initialize_test_map() {
     encoder_test_map["create_add_reg"] = [this]() { return this->test_create_add_reg(); };
     // Wrapper test for Encoder::create_and_reg
     encoder_test_map["create_and_reg"] = [this]() { return this->test_create_and_reg(); };
+    // Wrapper test for Encoder::create_cmp_imm
+    encoder_test_map["create_cmp_imm"] = [this]() { return this->test_create_cmp_imm(); };
+    // Wrapper test for Encoder::create_cmp_reg
+    encoder_test_map["create_cmp_reg"] = [this]() { return this->test_create_cmp_reg(); };
+    // Wrapper test for Encoder::create_eor_reg
+    encoder_test_map["create_eor_reg"] = [this]() { return this->test_create_eor_reg(); };
+    // Wrapper test for Encoder::create_lsl_imm
+    encoder_test_map["create_lsl_imm"] = [this]() { return this->test_create_lsl_imm(); };
+    // Wrapper test for Encoder::create_lsl_reg
+    encoder_test_map["create_lsl_reg"] = [this]() { return this->test_create_lsl_reg(); };
+    // Wrapper test for Encoder::create_lsr_reg
+    encoder_test_map["create_lsr_reg"] = [this]() { return this->test_create_lsr_reg(); };
+    // Wrapper test for Encoder::create_mov_reg
+    encoder_test_map["create_mov_reg"] = [this]() { return this->test_create_mov_reg(); };
+    // Wrapper test for Encoder::create_movk_imm
+    encoder_test_map["create_movk_imm"] = [this]() { return this->test_create_movk_imm(); };
+    // Wrapper test for Encoder::create_movz_imm
+    encoder_test_map["create_movz_imm"] = [this]() { return this->test_create_movz_imm(); };
+    // Wrapper test for Encoder::create_mul_reg
+    encoder_test_map["create_mul_reg"] = [this]() { return this->test_create_mul_reg(); };
+    // Wrapper test for Encoder::create_orr_reg
+    encoder_test_map["create_orr_reg"] = [this]() { return this->test_create_orr_reg(); };
+    // Wrapper test for Encoder::create_sdiv_reg
+    encoder_test_map["create_sdiv_reg"] = [this]() { return this->test_create_sdiv_reg(); };
+    // Wrapper test for Encoder::create_sub_imm
+    encoder_test_map["create_sub_imm"] = [this]() { return this->test_create_sub_imm(); };
+    // Wrapper test for Encoder::create_sub_reg
+    encoder_test_map["create_sub_reg"] = [this]() { return this->test_create_sub_reg(); };
+    // Wrapper test for Encoder::create_brk
+    encoder_test_map["create_brk"] = [this]() { return this->test_create_brk(); };
+    // Wrapper test for Encoder::create_cset_eq
+    encoder_test_map["create_cset_eq"] = [this]() { return this->test_create_cset_eq(); };
+    // Wrapper test for Encoder::create_cset
+    encoder_test_map["create_cset"] = [this]() { return this->test_create_cset(); };
+    // Wrapper test for Encoder::create_csetm_eq
+    encoder_test_map["create_csetm_eq"] = [this]() { return this->test_create_csetm_eq(); };
 }
 
 bool EncoderTester::test_create_add_reg() {
@@ -865,8 +921,98 @@ bool EncoderTester::test_create_add_reg() {
 }
 
 bool EncoderTester::test_create_and_reg() {
-    Instruction instr = test_create_and_reg(); // Calls wrapper in TestableEncoders.cpp
+    Instruction instr = ::test_create_and_reg(); // Calls wrapper in TestableEncoders.cpp
     return runValidation("create_and_reg", instr);
+}
+
+bool EncoderTester::test_create_cmp_imm() {
+    Instruction instr = ::test_create_cmp_imm(); // Calls wrapper in TestableEncoders.cpp
+    return runValidation("create_cmp_imm", instr);
+}
+
+bool EncoderTester::test_create_cmp_reg() {
+    Instruction instr = ::test_create_cmp_reg(); // Calls wrapper in TestableEncoders.cpp
+    return runValidation("create_cmp_reg", instr);
+}
+
+bool EncoderTester::test_create_eor_reg() {
+    Instruction instr = ::test_create_eor_reg(); // Calls wrapper in TestableEncoders.cpp
+    return runValidation("create_eor_reg", instr);
+}
+
+bool EncoderTester::test_create_lsl_imm() {
+    Instruction instr = ::test_create_lsl_imm(); // Calls wrapper in TestableEncoders.cpp
+    return runValidation("create_lsl_imm", instr);
+}
+
+bool EncoderTester::test_create_lsl_reg() {
+    Instruction instr = ::test_create_lsl_reg(); // Calls wrapper in TestableEncoders.cpp
+    return runValidation("create_lsl_reg", instr);
+}
+
+bool EncoderTester::test_create_lsr_reg() {
+    Instruction instr = ::test_create_lsr_reg(); // Calls wrapper in TestableEncoders.cpp
+    return runValidation("create_lsr_reg", instr);
+}
+
+bool EncoderTester::test_create_mov_reg() {
+    Instruction instr = ::test_create_mov_reg(); // Calls wrapper in TestableEncoders.cpp
+    return runValidation("create_mov_reg", instr);
+}
+
+bool EncoderTester::test_create_movk_imm() {
+    Instruction instr = ::test_create_movk_imm(); // Calls wrapper in TestableEncoders.cpp
+    return runValidation("create_movk_imm", instr);
+}
+
+bool EncoderTester::test_create_movz_imm() {
+    Instruction instr = ::test_create_movz_imm(); // Calls wrapper in TestableEncoders.cpp
+    return runValidation("create_movz_imm", instr);
+}
+
+bool EncoderTester::test_create_mul_reg() {
+    Instruction instr = ::test_create_mul_reg(); // Calls wrapper in TestableEncoders.cpp
+    return runValidation("create_mul_reg", instr);
+}
+
+bool EncoderTester::test_create_orr_reg() {
+    Instruction instr = ::test_create_orr_reg(); // Calls wrapper in TestableEncoders.cpp
+    return runValidation("create_orr_reg", instr);
+}
+
+bool EncoderTester::test_create_sdiv_reg() {
+    Instruction instr = ::test_create_sdiv_reg(); // Calls wrapper in TestableEncoders.cpp
+    return runValidation("create_sdiv_reg", instr);
+}
+
+bool EncoderTester::test_create_sub_imm() {
+    Instruction instr = ::test_create_sub_imm(); // Calls wrapper in TestableEncoders.cpp
+    return runValidation("create_sub_imm", instr);
+}
+
+bool EncoderTester::test_create_sub_reg() {
+    Instruction instr = ::test_create_sub_reg(); // Calls wrapper in TestableEncoders.cpp
+    return runValidation("create_sub_reg", instr);
+}
+
+bool EncoderTester::test_create_brk() {
+    Instruction instr = ::test_create_brk(); // Calls wrapper in TestableEncoders.cpp
+    return runValidation("create_brk", instr);
+}
+
+bool EncoderTester::test_create_cset_eq() {
+    Instruction instr = ::test_create_cset_eq(); // Calls wrapper in TestableEncoders.cpp
+    return runValidation("create_cset_eq", instr);
+}
+
+bool EncoderTester::test_create_cset() {
+    Instruction instr = ::test_create_cset(); // Calls wrapper in TestableEncoders.cpp
+    return runValidation("create_cset", instr);
+}
+
+bool EncoderTester::test_create_csetm_eq() {
+    Instruction instr = ::test_create_csetm_eq(); // Calls wrapper in TestableEncoders.cpp
+    return runValidation("create_csetm_eq", instr);
 }
 
 bool EncoderTester::matches_pattern(const std::string& name, const std::string& pattern) {

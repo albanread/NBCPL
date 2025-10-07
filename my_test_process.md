@@ -1,6 +1,8 @@
 NewBCPL/my_test_process.md
 # Repeatable Test Process for Encoder Coverage
 
+refer to: 
+
 ## Purpose
 
 This document describes a repeatable, step-by-step process for ensuring every encoder function in the codebase is covered by automated validation tests. It is designed for expert engineers to systematically achieve full coverage, especially when dealing with large numbers of encoder implementations.
@@ -40,7 +42,7 @@ This document describes a repeatable, step-by-step process for ensuring every en
         return Encoder::create_add_reg("x0", "x1", "x2");
     }
     ```
-  - Add declaration to `EncoderTester.h`:
+  - Add declaration to `EncoderTester.h` at the bottom of the file where other wrapper declarations are located:
     ```cpp
     Instruction test_create_add_reg();
     ```
@@ -58,6 +60,7 @@ This document describes a repeatable, step-by-step process for ensuring every en
       return runValidation("create_add_reg", instr);
   }
   ```
+- **CRITICAL**: Use the global scope operator `::` when calling the wrapper function to avoid recursive calls. Without `::`, the method will call itself instead of the global wrapper function, causing compilation errors.
 
 ### 6. Register in Test Table
 

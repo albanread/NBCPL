@@ -28,6 +28,96 @@ public:
      * @brief Test wrapper for Encoder::create_and_reg
      */
     bool test_create_and_reg();
+
+    /**
+     * @brief Test wrapper for Encoder::create_cmp_imm
+     */
+    bool test_create_cmp_imm();
+
+    /**
+     * @brief Test wrapper for Encoder::create_cmp_reg
+     */
+    bool test_create_cmp_reg();
+
+    /**
+     * @brief Test wrapper for Encoder::create_eor_reg
+     */
+    bool test_create_eor_reg();
+
+    /**
+     * @brief Test wrapper for Encoder::create_lsl_imm
+     */
+    bool test_create_lsl_imm();
+
+    /**
+     * @brief Test wrapper for Encoder::create_lsl_reg
+     */
+    bool test_create_lsl_reg();
+
+    /**
+     * @brief Test wrapper for Encoder::create_lsr_reg
+     */
+    bool test_create_lsr_reg();
+
+    /**
+     * @brief Test wrapper for Encoder::create_mov_reg
+     */
+    bool test_create_mov_reg();
+
+    /**
+     * @brief Test wrapper for Encoder::create_movk_imm
+     */
+    bool test_create_movk_imm();
+
+    /**
+     * @brief Test wrapper for Encoder::create_movz_imm
+     */
+    bool test_create_movz_imm();
+
+    /**
+     * @brief Test wrapper for Encoder::create_mul_reg
+     */
+    bool test_create_mul_reg();
+
+    /**
+     * @brief Test wrapper for Encoder::create_orr_reg
+     */
+    bool test_create_orr_reg();
+
+    /**
+     * @brief Test wrapper for Encoder::create_sdiv_reg
+     */
+    bool test_create_sdiv_reg();
+
+    /**
+     * @brief Test wrapper for Encoder::create_sub_imm
+     */
+    bool test_create_sub_imm();
+
+    /**
+     * @brief Test wrapper for Encoder::create_sub_reg
+     */
+    bool test_create_sub_reg();
+
+    /**
+     * @brief Test wrapper for Encoder::create_brk
+     */
+    bool test_create_brk();
+
+    /**
+     * @brief Test wrapper for Encoder::create_cset_eq
+     */
+    bool test_create_cset_eq();
+
+    /**
+     * @brief Test wrapper for Encoder::create_cset
+     */
+    bool test_create_cset();
+
+    /**
+     * @brief Test wrapper for Encoder::create_csetm_eq
+     */
+    bool test_create_csetm_eq();
     /**
      * @brief Main entry point for encoder validation
      * @return true if all tests pass, false if any fail
@@ -313,3 +403,57 @@ Instruction gen_neon_fmin_2d(const PairwiseReductionLoopStatement& node);
 
 // Wrapper function for Encoder::create_add_reg
 Instruction test_create_add_reg();
+
+// Wrapper function for Encoder::create_and_reg
+Instruction test_create_and_reg();
+
+// Wrapper function for Encoder::create_cmp_imm
+Instruction test_create_cmp_imm();
+
+// Wrapper function for Encoder::create_cmp_reg
+Instruction test_create_cmp_reg();
+
+// Wrapper function for Encoder::create_eor_reg
+Instruction test_create_eor_reg();
+
+// Wrapper function for Encoder::create_lsl_imm
+Instruction test_create_lsl_imm();
+
+// Wrapper function for Encoder::create_lsl_reg
+Instruction test_create_lsl_reg();
+
+// Wrapper function for Encoder::create_lsr_reg
+Instruction test_create_lsr_reg();
+
+// Wrapper function for Encoder::create_mov_reg
+Instruction test_create_mov_reg();
+
+// Wrapper function for Encoder::create_movk_imm
+Instruction test_create_movk_imm();
+
+// Wrapper function for Encoder::create_movz_imm
+Instruction test_create_movz_imm();
+
+// Wrapper function for Encoder::create_mul_reg
+Instruction test_create_mul_reg();
+
+// Wrapper function for Encoder::create_orr_reg
+Instruction test_create_orr_reg();
+
+// Wrapper function for Encoder::create_sdiv_reg
+Instruction test_create_sdiv_reg();
+
+// Wrapper function for Encoder::create_sub_imm
+Instruction test_create_sub_imm();
+
+// Wrapper function for Encoder::create_sub_reg
+Instruction test_create_sub_reg();
+
+// Wrapper function for Encoder::create_brk
+Instruction test_create_brk();
+
+// Wrapper function for Encoder::create_cset_eq
+Instruction test_create_cset_eq();
+
+// Wrapper function for Encoder::create_cset
+Instruction test_create_cset();

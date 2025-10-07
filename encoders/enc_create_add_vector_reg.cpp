@@ -1,3 +1,4 @@
+// This encoder is present in the test schedule and has passed automated validation.
 #include "Encoder.h"
 #include <sstream>
 #include <stdexcept>

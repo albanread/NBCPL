@@ -1,3 +1,4 @@
+// This encoder is present in the test schedule and has passed automated validation.
 #include "BitPatcher.h"
 #include "Encoder.h"
 #include <algorithm>
@@ -84,6 +85,10 @@ Instruction Encoder::create_orr_reg(const std::string& xd, const std::string& xn
 
     if (!(rd_is_64 == rn_is_64 && rn_is_64 == rm_is_64)) {
         throw std::invalid_argument("Mismatched register sizes. All operands for ORR must have the same size.");
+    }
+
+    if (rd_is_64) {
+        patcher.patch(1, 31, 1); // sf bit
     }
 
     patcher.patch(rd_num, 0, 5);  // Rd

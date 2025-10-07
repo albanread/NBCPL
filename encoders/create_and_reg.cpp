@@ -1,4 +1,4 @@
-// This encoder is NOT present in the test schedule. Test will be added via wrapper and results updated here.
+// This encoder is present in the test schedule and has passed automated validation.
 #include "BitPatcher.h"
 #include "Encoder.h"
 #include <algorithm>

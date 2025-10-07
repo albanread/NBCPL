@@ -1,9 +1,1 @@
-testing/encoder_validation/EncoderTester.cpp:868:17: error: no viable conversion from 'bool' to 'Instruction'
-  868 |     Instruction instr = test_create_and_reg(); // Calls wrapper in TestableEncoders.cpp
-      |                 ^       ~~~~~~~~~~~~~~~~~~~~~
-testing/encoder_validation/../../Encoder.h:61:8: note: candidate constructor (the implicit copy constructor) not viable: no known conversion from 'bool' to 'const Instruction &' for 1st argument
-   61 | struct Instruction {
-      |        ^~~~~~~~~~~
-testing/encoder_validation/../../Encoder.h:61:8: note: candidate constructor (the implicit move constructor) not viable: no known conversion from 'bool' to 'Instruction &&' for 1st argument
-   61 | struct Instruction {
-      |        ^~~~~~~~~~~
+ld: warning: ignoring duplicate libraries: '-lc++'
