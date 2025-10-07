@@ -5,8 +5,13 @@ LET START() BE {
 
     LET p1 = PAIR(10, 20)
     LET p2 = PAIR(30, 15)
-
+  
 	
-    WRITEF("p1 is a %s value %P *N ", TYPENAME(p1), p1)
+    WRITEF("*Np1 is a %s value %P *N ", TYPE(p1), p1)
+
+    WRITEF("*Np2 is a %s value %P *N ", TYPE(p2), p2)
+
+    LET p3 = p1 + p2 
+    WRITEF("*Np3 is a %s value %P *N ", TYPE(p3), p3)
 
 }
