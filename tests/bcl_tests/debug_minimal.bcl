@@ -1,4 +1,21 @@
-LET START() BE
+GET "libhdr.h"
+
+LET START() = VALOF
 $(
-   WRITES("Hello World*N")
+    WRITES("Starting minimal test*N")
+
+    // Just try to allocate a vector
+    LET V = VEC 1
+
+    WRITES("After allocation*N")
+
+    // Check if allocation succeeded
+    IF V = 0 THEN
+    $(
+        WRITES("Allocation failed*N")
+        RESULTIS 1
+    $)
+
+    WRITES("Allocation succeeded*N")
+    RESULTIS 0
 $)

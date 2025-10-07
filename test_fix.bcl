@@ -1,5 +1,0 @@
-LET start() = {
-    LET pairs = PAIRS(1,2,3,4,5,6,7,8)
-    LET mins = PAIRS_MIN(pairs, pairs)
-    writef("Test passed\\n")
-}

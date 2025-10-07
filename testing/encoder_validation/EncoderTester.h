@@ -20,6 +20,15 @@
 class EncoderTester {
 public:
     /**
+     * @brief Test wrapper for Encoder::create_add_reg
+     */
+    bool test_create_add_reg();
+
+    /**
+     * @brief Test wrapper for Encoder::create_and_reg
+     */
+    bool test_create_and_reg();
+    /**
      * @brief Main entry point for encoder validation
      * @return true if all tests pass, false if any fail
      */
@@ -301,3 +310,6 @@ Instruction gen_neon_sub_16b(const PairwiseReductionLoopStatement& node);
 Instruction gen_neon_fmin_4s(const PairwiseReductionLoopStatement& node);
 Instruction gen_neon_fmin_2s(const PairwiseReductionLoopStatement& node);
 Instruction gen_neon_fmin_2d(const PairwiseReductionLoopStatement& node);
+
+// Wrapper function for Encoder::create_add_reg
+Instruction test_create_add_reg();

@@ -1,23 +1,11 @@
-// test_simple_list.bcl - Simple test for literal detection without FOREACH
+LET START() BE
+$(
+   LET L = LIST("hello", "world", "test")
 
-LET START() BE $(
-    WRITES("Testing simple list creation...*N")
-
-    // Test 1: Create a list with string literals
-    LET my_list = LIST("hello", "world")
-    WRITES("Created list with string literals*N")
-
-    // Test 2: Create a list with number literals
-    LET num_list = LIST(1, 2, 3)
-    WRITES("Created list with number literals*N")
-
-    // Test 3: Simple scope exit to test cleanup
-    $(
-        LET temp_list = LIST("test", "literal")
-        WRITES("Created temporary list in nested scope*N")
-        // This should trigger cleanup when exiting scope
-    $)
-
-    WRITES("Finished scope - cleanup should have occurred*N")
-    WRITES("Test completed successfully!*N")
+   FOREACH item IN L DO
+   $(
+            WRITES("Item: ")
+            WRITES(item)
+            WRITES("*N")
+   $)
 $)

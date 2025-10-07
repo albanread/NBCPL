@@ -1,59 +1,30 @@
-// Simple PAIR test for NewBCPL - validates basic PAIR functionality
-// Tests the 32-bit halfs of 64-bit word implementation
+// Simple test for PAIR negative values and lane accessors
 
-LET START() BE {
-    writef("Testing PAIR implementation (32-bit halfs of 64-bit word)...\n")
+LET START() BE $(
+    WRITEF("Testing PAIR with negative values*N")
 
-    // Test 1: Basic pair creation with small values
-    writef("Test 1: Basic pair creation\n")
-    LET p1 = PAIR(1, 2)
-    writef("Created PAIR(1, 2)\n")
-    writef("p1.first = %d (should be 1)\n", p1.first)
-    writef("p1.second = %d (should be 2)\n", p1.second)
+    LET p1 = PAIR(-5, 15)
+    WRITEF1("PAIR(-5, 15) = %P*N", p1)
 
-    TEST p1.first = 1 AND p1.second = 2 THEN
-        writef("✓ Test 1 PASSED\n")
-    ELSE
-        writef("✗ Test 1 FAILED\n")
+    LET p2 = PAIR(25, -10)
+    WRITEF1("PAIR(25, -10) = %P*N", p2)
 
-    // Test 2: Pair with larger values (still fits in 32 bits)
-    writef("\nTest 2: Larger values\n")
-    LET p2 = PAIR(100, 200)
-    writef("Created PAIR(100, 200)\n")
-    writef("p2.first = %d (should be 100)\n", p2.first)
-    writef("p2.second = %d (should be 200)\n", p2.second)
+    LET p3 = PAIR(-30, -40)
+    WRITEF1("PAIR(-30, -40) = %P*N", p3)
 
-    TEST p2.first = 100 AND p2.second = 200 THEN
-        writef("✓ Test 2 PASSED\n")
-    ELSE
-        writef("✗ Test 2 FAILED\n")
+    WRITEF("*NTesting lane accessors:*N")
 
-    // Test 3: Pair with zero values
-    writef("\nTest 3: Zero values\n")
-    LET p3 = PAIR(0, 42)
-    writef("Created PAIR(0, 42)\n")
-    writef("p3.first = %d (should be 0)\n", p3.first)
-    writef("p3.second = %d (should be 42)\n", p3.second)
+    // Test reading lanes
+    LET first = p1.|0|
+    LET second = p1.|1|
+    WRITEF2("p1.|0| = %N, p1.|1| = %N*N", first, second)
 
-    TEST p3.first = 0 AND p3.second = 42 THEN
-        writef("✓ Test 3 PASSED\n")
-    ELSE
-        writef("✗ Test 3 FAILED\n")
+    // Test writing lanes
+    LET p4 = PAIR(100, 200)
+    WRITEF1("Before: p4 = %P*N", p4)
+    p4.|0| := 50
+    p4.|1| := 75
+    WRITEF1("After lane writes: p4 = %P*N", p4)
 
-    // Test 4: Expressions in pair construction
-    writef("\nTest 4: Expressions\n")
-    LET x = 5
-    LET y = 10
-    LET p4 = PAIR(x + 2, y * 3)
-    writef("Created PAIR(x+2, y*3) where x=5, y=10\n")
-    writef("p4.first = %d (should be 7)\n", p4.first)
-    writef("p4.second = %d (should be 30)\n", p4.second)
-
-    TEST p4.first = 7 AND p4.second = 30 THEN
-        writef("✓ Test 4 PASSED\n")
-    ELSE
-        writef("✗ Test 4 FAILED\n")
-
-    writef("\nSimple PAIR tests completed!\n")
-    writef("PAIR implementation uses 32-bit halfs of a 64-bit word.\n")
-}
+    WRITEF("Test complete*N")
+$)

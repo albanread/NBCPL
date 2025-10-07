@@ -1,1 +1,3 @@
-LET START() BE { writef("Hello World\n") }
+LET start() BE {
+    writef("Test passed%n")
+}

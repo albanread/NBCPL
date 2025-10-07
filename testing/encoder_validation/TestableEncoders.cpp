@@ -2,6 +2,24 @@
 #include "../../Encoder.h"
 #include "../../AST.h"
 
+// ===== WRAPPERS FOR ENCODERS FOLDER =====
+
+/**
+ * @brief Wrapper for Encoder::create_add_reg for direct testing.
+ */
+Instruction test_create_add_reg() {
+    // Example: ADD X0, X1, X2
+    return Encoder::create_add_reg("x0", "x1", "x2");
+}
+
+/**
+ * @brief Wrapper for Encoder::create_and_reg for direct testing.
+ */
+Instruction test_create_and_reg() {
+    // Example: AND X0, X1, X2
+    return Encoder::create_and_reg("x0", "x1", "x2");
+}
+
 /**
  * @brief Refactored NEON encoder functions that return Instruction objects directly.
  * These are pure functions suitable for automated testing against Clang output.

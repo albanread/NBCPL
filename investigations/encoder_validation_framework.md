@@ -8,15 +8,20 @@ The Encoder Validation Framework is an automated testing system that verifies NE
 
 ### Running All Encoder Tests
 
+The NewBCPL compiler includes an integrated test framework for encoder validation. Tests are run directly via the compiler executable, not a standalone script.
+
 ```bash
 ./NewBCPL --test-encoders
 ```
 
-This will:
-1. Test all NEON encoder functions
-2. Compare outputs against Clang
-3. Report detailed results with hex encodings
-4. Exit with code 0 (success) or 1 (failure)
+This command:
+1. Runs all encoder validation tests using the built-in `EncoderTester` class.
+2. For each encoder, generates assembly and binary code.
+3. Compares the output against Clang's encoding using `objdump`.
+4. Reports detailed results with hex encodings and pass/fail status.
+5. Exits with code 0 (success) or 1 (failure).
+
+All validation logic (assembly generation, compilation, objdump extraction, comparison) is handled inside the compiler. Intermediate files are stored in a validation directory for debugging.
 
 ### Example Output
 
@@ -151,12 +156,46 @@ Instruction gen_neon_fminp_4s(const PairwiseReductionLoopStatement& node) {
 }
 ```
 
-### Adding New Encoders
+### Adding a New Test to the BCPL Compiler Test Framework
 
-1. **Add function declaration** to `EncoderTester.h`
-2. **Implement testable function** in `TestableEncoders.cpp`  
-3. **Add test method** in `EncoderTester.cpp`
-4. **Call from `run_all_tests()`**
+**Note:** Branch encoders (such as conditional and unconditional branch instructions) are *not* tested by this framework, as they require linker integration for correct validation. The framework focuses on instructions that can be validated in isolation.
+
+To add a new encoder test to the BCPL compiler's integrated test framework:
+
+1. **Declare the encoder function**  
+   - In `EncoderTester.h`, add a declaration for your new encoder function, e.g.:
+     ```cpp
+     Instruction gen_neon_umaxp_4s(const PairwiseReductionLoopStatement& node);
+     ```
+
+2. **Implement the encoder function**  
+   - In `TestableEncoders.cpp`, implement the function to return an `Instruction` object with the correct encoding and assembly text.
+
+3. **Add a test method**  
+   - In `EncoderTester.cpp`, add a test method that calls your encoder and validates it, e.g.:
+     ```cpp
+     bool EncoderTester::test_gen_neon_umaxp_4s() {
+         Instruction instr = gen_neon_umaxp_4s(createMockReductionStatement());
+         return runValidation("gen_neon_umaxp_4s", instr);
+     }
+     ```
+
+4. **Register the test in the test map**  
+   - In `EncoderTester.cpp`, inside `initialize_test_map()`, add your test to the `encoder_test_map`:
+     ```cpp
+     encoder_test_map["umaxp_4s"] = [this]() { return test_gen_neon_umaxp_4s(); };
+     ```
+
+5. **Invoke the test from the main runner**  
+   - In `EncoderTester::run_all_tests()`, call your test method in the appropriate section.
+
+6. **Rebuild the compiler**  
+   - Run your build script to include the new test.
+
+7. **Run the tests**  
+   - Use `./NewBCPL --test-encoders` to verify your new test is executed and validated.
+
+This process ensures your new encoder is automatically validated against Clang and included in CI/CD pipelines.
 
 ### Continuous Integration
 
@@ -171,6 +210,13 @@ else
     exit 1
 fi
 ```
+
+### Summary of Test Running
+
+- All encoder tests are run via the main compiler executable.
+- The `EncoderTester` class handles orchestration, assembly generation, compilation, objdump extraction, and result comparison.
+- Relocatable instructions are compared with masked immediate fields for fairness.
+- Results are printed to the console and can be used for automated validation in development and CI.
 
 ## Technical Details
 
@@ -231,6 +277,24 @@ Enable tracing for detailed output:
 ```bash
 ./NewBCPL --test-encoders --trace
 ```
+
+### Useful assembly generation
+Enable tracing for detailed output:
+
+```bash
+./NewBCPL --list
+```
+
+Uses clang, generates a .lst file.
+
+```bash
+./NewBCPL --trace-codegen
+```
+
+displays the code the JIT is generating
+
+
+
 
 ---
 

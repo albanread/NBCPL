@@ -1,15 +1,11 @@
-// Minimal FOREACH test to isolate allocation issues
-LET start() BE {
-    WRITEF("Testing minimal FOREACH...\n")
+LET START() BE {
+    LET single_pair = LIST(PAIR(10, 20))
 
-    // Simple vector test
-    LET v = VEC 2
-    v!0 := 42
-    v!1 := 84
+    WRITEF("Testing minimal forEach with single PAIR:*N")
 
-    FOREACH x IN v DO {
-        WRITEF("Value: %d\n", x)
+    FOREACH (a, b) IN single_pair DO {
+        WRITEF("a=%N, b=%N*N", a, b)
     }
 
-    WRITEF("Done.\n")
+    WRITEF("Done.*N")
 }

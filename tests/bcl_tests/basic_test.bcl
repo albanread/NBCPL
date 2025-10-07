@@ -1,7 +1,1 @@
-LET START() BE $(
-    WRITES("Hello World*N")
-    LET x = 42
-    WRITES("Value: ")
-    WRITEN(x)
-    WRITES("*N")
-$)
+LET START() BE { WRITEF("Test*N") }

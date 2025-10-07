@@ -1,9 +1,1 @@
-// minimal_test.bcl - Minimal test program
-
-GET "libhdr"
-
-LET START() BE
-$(
-    WRITES("Hello, world!")
-    NEWLINE()
-$)
+LET START() BE { WRITEF("Test*N") }

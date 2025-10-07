@@ -5,7 +5,7 @@
 #include <sstream>
 #include <iomanip>
 #include <cstdlib>
-#include <filesystem>
+
 #include <unistd.h>
 #include <sys/wait.h>
 #include <algorithm>
@@ -86,6 +86,10 @@ bool EncoderTester::run_all_tests() {
     test_gen_scalar_sub_imm();
     test_gen_scalar_cmp_reg();
     test_gen_scalar_cmp_imm();
+    
+    // Test Encoders Folder Functions
+    std::cout << "\nTesting Encoders Folder Functions..." << std::endl;
+    test_create_add_reg();
 
     // Test Legacy Floating Point encoders
     std::cout << "\nTesting Legacy Floating Point encoders..." << std::endl;
@@ -127,6 +131,9 @@ bool EncoderTester::run_all_tests() {
         std::cout << "❌ SOME TESTS FAILED" << std::endl;
         return false;
     }
+
+
+
 }
 
 bool EncoderTester::test_gen_neon_fminp_4s() {
@@ -532,9 +539,9 @@ bool EncoderTester::runValidation(const std::string& test_name, const Instructio
 }
 
 void EncoderTester::ensureValidationDirectory() {
-    if (!std::filesystem::exists(validation_dir)) {
-        std::filesystem::create_directories(validation_dir);
-    }
+    // Create validation directory using system call
+    std::string mkdir_cmd = "mkdir -p " + validation_dir;
+    system(mkdir_cmd.c_str());
 }
 
 bool EncoderTester::validateAssembly(const std::string& assembly_text, const std::string& output_file) {
@@ -846,6 +853,20 @@ void EncoderTester::initialize_test_map() {
     encoder_test_map["fmin_4s"] = [this]() { return test_gen_neon_fmin_4s(); };
     encoder_test_map["fmin_2s"] = [this]() { return test_gen_neon_fmin_2s(); };
     encoder_test_map["fmin_2d"] = [this]() { return test_gen_neon_fmin_2d(); };
+    // Wrapper test for Encoder::create_add_reg
+    encoder_test_map["create_add_reg"] = [this]() { return this->test_create_add_reg(); };
+    // Wrapper test for Encoder::create_and_reg
+    encoder_test_map["create_and_reg"] = [this]() { return this->test_create_and_reg(); };
+}
+
+bool EncoderTester::test_create_add_reg() {
+    Instruction instr = ::test_create_add_reg(); // Calls wrapper in TestableEncoders.cpp
+    return runValidation("create_add_reg", instr);
+}
+
+bool EncoderTester::test_create_and_reg() {
+    Instruction instr = test_create_and_reg(); // Calls wrapper in TestableEncoders.cpp
+    return runValidation("create_and_reg", instr);
 }
 
 bool EncoderTester::matches_pattern(const std::string& name, const std::string& pattern) {
