@@ -11,6 +11,7 @@
 #include <algorithm>
 #include <functional>
 #include <map>
+#include <set>
 #include "TestableEncoders.h"
 
 bool EncoderTester::run_all_tests() {
@@ -111,6 +112,7 @@ bool EncoderTester::run_all_tests() {
     test_create_cset();
     test_create_csetm_eq();
 
+
     // Test Legacy Floating Point encoders
     std::cout << "\nTesting Legacy Floating Point encoders..." << std::endl;
     test_gen_fp_fadd_reg();
@@ -138,6 +140,42 @@ bool EncoderTester::run_all_tests() {
     test_gen_mem_ldp_imm();
     test_gen_mem_stp_imm();
     
+    // Run any additional tests from test map that weren't hardcoded above
+    std::cout << "\nTesting Additional Registered Encoders..." << std::endl;
+    std::set<std::string> hardcoded_tests = {
+        "fminp_4s", "fminp_2s", "fminp_4h",
+        "fmaxp_4s", "fmaxp_2s", "fmaxp_4h", 
+        "faddp_4s", "faddp_2s", "faddp_4h",
+        "addp_4s", "addp_2s",
+        "sminp_4s", "sminp_8h", "sminp_16b",
+        "smax_4s", "smax_8h", "smax_16b",
+        "add_4s", "add_8h", "add_16b",
+        "sub_4s", "sub_8h", "sub_16b", 
+        "fmin_4s", "fmin_2s", "fmin_2d",
+        "scalar_nop", "scalar_add_reg", "scalar_sub_reg", "scalar_mul_reg", 
+        "scalar_mov_reg", "scalar_add_imm", "scalar_sub_imm", "scalar_cmp_reg", "scalar_cmp_imm",
+        "create_add_reg", "create_and_reg", "create_cmp_imm", "create_cmp_reg", "create_eor_reg",
+        "create_lsl_imm", "create_lsl_reg", "create_lsr_reg", "create_mov_reg", "create_movk_imm",
+        "create_movz_imm", "create_mul_reg", "create_orr_reg", "create_sdiv_reg", "create_sub_imm",
+        "create_sub_reg", "create_brk", "create_cset_eq", "create_cset", "create_csetm_eq",
+        "fp_fadd_reg", "fp_fsub_reg", "fp_fmul_reg", "fp_fdiv_reg", "fp_fcmp_reg", "fp_fsqrt_reg", "fp_fneg_reg",
+        "vec_fadd_4s", "vec_fadd_2s", "vec_fadd_2d", "vec_fsub_4s", "vec_fsub_2s", "vec_fmul_4s", "vec_fmul_2s",
+        "mem_ldr_imm", "mem_str_imm", "mem_ldp_imm", "mem_stp_imm"
+    };
+    
+    for (const auto& test_pair : encoder_test_map) {
+        const std::string& test_name = test_pair.first;
+        if (hardcoded_tests.find(test_name) == hardcoded_tests.end()) {
+            // This test wasn't run in the hardcoded sequence, run it now
+            bool result = test_pair.second();
+            if (result) {
+                std::cout << "  ✅ " << test_name << " [PASS]" << std::endl;
+            } else {
+                std::cout << "  ❌ " << test_name << " [FAIL]" << std::endl;
+            }
+        }
+    }
+
     // Print final summary
     std::cout << "\n=== Test Results Summary ===" << std::endl;
     std::cout << "Tests run: " << tests_run << std::endl;
@@ -913,6 +951,26 @@ void EncoderTester::initialize_test_map() {
     encoder_test_map["create_cset"] = [this]() { return this->test_create_cset(); };
     // Wrapper test for Encoder::create_csetm_eq
     encoder_test_map["create_csetm_eq"] = [this]() { return this->test_create_csetm_eq(); };
+
+
+
+
+
+
+
+    encoder_test_map["create_directive"] = [this]() { return this->test_create_directive(); };
+    encoder_test_map["create_dmb"] = [this]() { return this->test_create_dmb(); };
+    encoder_test_map["enc_create_dup_scalar"] = [this]() { return this->test_enc_create_dup_scalar(); };
+    encoder_test_map["create_fadd_reg"] = [this]() { return this->test_create_fadd_reg(); };
+    encoder_test_map["create_fadd_vector_reg"] = [this]() { return this->test_create_fadd_vector_reg(); };
+    encoder_test_map["create_faddp_vector_reg"] = [this]() { return this->test_create_faddp_vector_reg(); };
+    encoder_test_map["create_fcmp_reg"] = [this]() { return this->test_create_fcmp_reg(); };
+
+    encoder_test_map["create_fcvtms_reg"] = [this]() { return this->test_create_fcvtms_reg(); };
+    encoder_test_map["create_fcvtzs_reg"] = [this]() { return this->test_create_fcvtzs_reg(); };
+    encoder_test_map["create_fdiv_reg"] = [this]() { return this->test_create_fdiv_reg(); };
+    encoder_test_map["enc_create_fdiv_vector_reg"] = [this]() { return this->test_enc_create_fdiv_vector_reg(); };
+    encoder_test_map["create_fmax_vector_reg"] = [this]() { return this->test_create_fmax_vector_reg(); };
 }
 
 bool EncoderTester::test_create_add_reg() {
@@ -1013,6 +1071,106 @@ bool EncoderTester::test_create_cset() {
 bool EncoderTester::test_create_csetm_eq() {
     Instruction instr = ::test_create_csetm_eq(); // Calls wrapper in TestableEncoders.cpp
     return runValidation("create_csetm_eq", instr);
+}
+
+bool EncoderTester::test_create_add_literal() {
+    Instruction instr = ::test_create_add_literal(); // Calls wrapper
+    return runValidation("create_add_literal", instr);
+}
+
+bool EncoderTester::test_create_adrp() {
+    Instruction instr = ::test_create_adrp(); // Calls wrapper
+    return runValidation("create_adrp", instr);
+}
+
+bool EncoderTester::test_create_br_reg() {
+    Instruction instr = ::test_create_br_reg(); // Calls wrapper
+    return runValidation("create_br_reg", instr);
+}
+
+bool EncoderTester::test_create_branch_conditional() {
+    Instruction instr = ::test_create_branch_conditional(); // Calls wrapper
+    return runValidation("create_branch_conditional", instr);
+}
+
+bool EncoderTester::test_create_branch_unconditional() {
+    Instruction instr = ::test_create_branch_unconditional(); // Calls wrapper
+    return runValidation("create_branch_unconditional", instr);
+}
+
+bool EncoderTester::test_create_branch_with_link_register() {
+    Instruction instr = ::test_create_branch_with_link_register(); // Calls wrapper
+    return runValidation("create_branch_with_link_register", instr);
+}
+
+bool EncoderTester::test_create_branch_with_link() {
+    Instruction instr = ::test_create_branch_with_link(); // Calls wrapper
+    return runValidation("create_branch_with_link", instr);
+}
+
+bool EncoderTester::test_create_directive() {
+    Instruction instr = ::test_create_directive(); // Calls wrapper
+    return runValidation("create_directive", instr);
+}
+
+bool EncoderTester::test_create_dmb() {
+    Instruction instr = ::test_create_dmb(); // Calls wrapper
+    return runValidation("create_dmb", instr);
+}
+
+bool EncoderTester::test_enc_create_dup_scalar() {
+    Instruction instr = ::test_enc_create_dup_scalar(); // Calls wrapper
+    return runValidation("enc_create_dup_scalar", instr);
+}
+
+bool EncoderTester::test_create_fadd_reg() {
+    Instruction instr = ::test_create_fadd_reg(); // Calls wrapper
+    return runValidation("create_fadd_reg", instr);
+}
+
+bool EncoderTester::test_create_fadd_vector_reg() {
+    Instruction instr = ::test_create_fadd_vector_reg(); // Calls wrapper
+    return runValidation("create_fadd_vector_reg", instr);
+}
+
+bool EncoderTester::test_create_faddp_vector_reg() {
+    Instruction instr = ::test_create_faddp_vector_reg(); // Calls wrapper
+    return runValidation("create_faddp_vector_reg", instr);
+}
+
+bool EncoderTester::test_create_fcmp_reg() {
+    Instruction instr = ::test_create_fcmp_reg(); // Calls wrapper
+    return runValidation("create_fcmp_reg", instr);
+}
+
+bool EncoderTester::test_create_fcvt_d_to_s() {
+    Instruction instr = ::test_create_fcvt_d_to_s(); // Calls wrapper
+    return runValidation("create_fcvt_d_to_s", instr);
+}
+
+bool EncoderTester::test_create_fcvtms_reg() {
+    Instruction instr = ::test_create_fcvtms_reg(); // Calls wrapper
+    return runValidation("create_fcvtms_reg", instr);
+}
+
+bool EncoderTester::test_create_fcvtzs_reg() {
+    Instruction instr = ::test_create_fcvtzs_reg(); // Calls wrapper
+    return runValidation("create_fcvtzs_reg", instr);
+}
+
+bool EncoderTester::test_create_fdiv_reg() {
+    Instruction instr = ::test_create_fdiv_reg(); // Calls wrapper
+    return runValidation("create_fdiv_reg", instr);
+}
+
+bool EncoderTester::test_enc_create_fdiv_vector_reg() {
+    Instruction instr = ::test_enc_create_fdiv_vector_reg(); // Calls wrapper
+    return runValidation("enc_create_fdiv_vector_reg", instr);
+}
+
+bool EncoderTester::test_create_fmax_vector_reg() {
+    Instruction instr = ::test_create_fmax_vector_reg(); // Calls wrapper
+    return runValidation("create_fmax_vector_reg", instr);
 }
 
 bool EncoderTester::matches_pattern(const std::string& name, const std::string& pattern) {

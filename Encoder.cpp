@@ -139,60 +139,14 @@ Instruction Encoder::create_ldp_fp_post_imm(const std::string &dt1, const std::s
  * @throw std::invalid_argument if register names are invalid or if sizes are mixed.
  */
 Instruction Encoder::create_bic_reg(const std::string& xd, const std::string& xn, const std::string& xm) {
-    // Helper lambda to parse register strings like "x0", "w1", "sp", "wzr".
-    auto parse_register = [](const std::string& reg_str) -> std::pair<uint32_t, bool> {
-        if (reg_str.empty()) {
-            std::cerr << "ERROR: Empty register string detected in get_reg_encoding!" << std::endl;
-            std::cerr << "Call stack trace would be helpful here." << std::endl;
-            // Print current thread stack to help debug
-            std::cerr << "This error occurred during encoder function call." << std::endl;
-            throw std::invalid_argument("Register string cannot be empty.");
-        }
-
-        std::string lower_reg = reg_str;
-        std::transform(lower_reg.begin(), lower_reg.end(), lower_reg.begin(), ::tolower);
-
-        bool is_64bit;
-        uint32_t reg_num;
-
-        if (lower_reg == "wzr") {
-            is_64bit = false;
-            reg_num = 31;
-        } else if (lower_reg == "xzr") {
-            is_64bit = true;
-            reg_num = 31;
-        } else if (lower_reg == "wsp") {
-            is_64bit = false;
-            reg_num = 31;
-        } else if (lower_reg == "sp") {
-            is_64bit = true;
-            reg_num = 31;
-        } else {
-            char prefix = lower_reg[0];
-            if (prefix == 'w') {
-                is_64bit = false;
-            } else if (prefix == 'x') {
-                is_64bit = true;
-            } else {
-                throw std::invalid_argument("Invalid register prefix in '" + reg_str + "'. Must be 'w' or 'x'. (Thrown by create_bic_reg)");
-            }
-
-            try {
-                reg_num = std::stoul(reg_str.substr(1));
-                if (reg_num > 30) {
-                     throw std::out_of_range("Register number out of range for '" + reg_str + "'. Use 'wsp'/'sp' or 'wzr'/'xzr' for register 31.");
-                }
-            } catch (const std::logic_error&) {
-                throw std::invalid_argument("Invalid register format: '" + reg_str + "'.");
-            }
-        }
-        return {reg_num, is_64bit};
-    };
-
     // (A) Perform self-checking by parsing and validating all register arguments first.
-    auto [rd_num, rd_is_64] = parse_register(xd);
-    auto [rn_num, rn_is_64] = parse_register(xn);
-    auto [rm_num, rm_is_64] = parse_register(xm);
+    uint32_t rd_num = get_reg_encoding(xd);
+    uint32_t rn_num = get_reg_encoding(xn);
+    uint32_t rm_num = get_reg_encoding(xm);
+
+    bool rd_is_64 = (xd[0] == 'x' || xd[0] == 'X');
+    bool rn_is_64 = (xn[0] == 'x' || xn[0] == 'X');
+    bool rm_is_64 = (xm[0] == 'x' || xm[0] == 'X');
 
     if (!(rd_is_64 == rn_is_64 && rn_is_64 == rm_is_64)) {
         throw std::invalid_argument("Mismatched register sizes. All operands for BIC (register) must be simultaneously 32-bit (W) or 64-bit (X).");
@@ -380,6 +334,7 @@ Instruction Encoder::opt_create_bfxil(const std::string& xd, const std::string& 
  * Note: This is a stub implementation for use by the peephole optimizer's ADR fusion pattern.
  * It emits a pseudo-instruction with relocation info; actual encoding/linking is handled later.
  */
+
 Instruction Encoder::create_adr(const std::string &xd, const std::string &label_name) {
     // For now, emit a dummy encoding and mark with relocation.
     // Real encoding should be handled by the linker/relocator.
@@ -390,3 +345,7 @@ Instruction Encoder::create_adr(const std::string &xd, const std::string &label_
     instr.target_label = label_name;
     return instr;
 }
+
+
+
+

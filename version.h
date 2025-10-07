@@ -3,7 +3,7 @@
 
 #define BCPL_VERSION_MAJOR 1
 #define BCPL_VERSION_MINOR 0
-#define BCPL_VERSION_PATCH 2308
+#define BCPL_VERSION_PATCH 2324
 
 void print_version(void);
 

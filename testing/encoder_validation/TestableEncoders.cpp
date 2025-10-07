@@ -133,6 +133,166 @@ Instruction test_create_sub_reg() {
 }
 
 /**
+ * @brief Wrapper for Encoder::create_add_literal for direct testing.
+ */
+Instruction test_create_add_literal() {
+    // Example: ADD X0, X0, #0
+    return Encoder::create_add_literal("x0", "x0", 0); // Using representative arguments
+}
+
+/**
+ * @brief Wrapper for Encoder::create_adrp for direct testing.
+ */
+Instruction test_create_adrp() {
+    // Example: ADRP X0, test_label
+    return Encoder::create_adrp("x0", "test_label"); // Using representative arguments
+}
+
+/**
+ * @brief Wrapper for Encoder::create_br_reg for direct testing.
+ */
+Instruction test_create_br_reg() {
+    // Example: BR X0
+    return Encoder::create_br_reg("x0"); // Using representative arguments
+}
+
+/**
+ * @brief Wrapper for Encoder::create_branch_conditional for direct testing.
+ */
+Instruction test_create_branch_conditional() {
+    // Example: B.EQ test_label
+    return Encoder::create_branch_conditional("EQ", "test_label"); // Using representative arguments
+}
+
+/**
+ * @brief Wrapper for Encoder::create_branch_unconditional for direct testing.
+ */
+Instruction test_create_branch_unconditional() {
+    // Example: B test_label
+    return Encoder::create_branch_unconditional("test_label"); // Using representative arguments
+}
+
+/**
+ * @brief Wrapper for Encoder::create_branch_with_link_register for direct testing.
+ */
+Instruction test_create_branch_with_link_register() {
+    // Example: BLR X0
+    return Encoder::create_branch_with_link_register("x0"); // Using representative arguments
+}
+
+/**
+ * @brief Wrapper for Encoder::create_branch_with_link for direct testing.
+ */
+Instruction test_create_branch_with_link() {
+    // Example: BL test_label
+    return Encoder::create_branch_with_link("test_label"); // Using representative arguments
+}
+
+/**
+ * @brief Wrapper for Encoder::create_directive for direct testing.
+ */
+Instruction test_create_directive() {
+    // Example: .quad 0x123456789abcdef0 ; test_data
+    return Encoder::create_directive(".quad 0x123456789abcdef0", 0x123456789abcdef0, "test_data", true); // Using representative arguments
+}
+
+/**
+ * @brief Wrapper for Encoder::create_dmb for direct testing.
+ */
+Instruction test_create_dmb() {
+    // Example: DMB ISH
+    return Encoder::create_dmb(); // No arguments
+}
+
+/**
+ * @brief Wrapper for Encoder::enc_create_dup_scalar for direct testing.
+ */
+Instruction test_enc_create_dup_scalar() {
+    // Example: DUP V0.4S, X0
+    return Encoder::enc_create_dup_scalar("v0", "x0", "4S"); // Using representative arguments
+}
+
+/**
+ * @brief Wrapper for Encoder::create_fadd_reg for direct testing.
+ */
+Instruction test_create_fadd_reg() {
+    // Example: FADD D0, D1, D2
+    return Encoder::create_fadd_reg("d0", "d1", "d2"); // Using representative arguments
+}
+
+/**
+ * @brief Wrapper for Encoder::create_fadd_vector_reg for direct testing.
+ */
+Instruction test_create_fadd_vector_reg() {
+    // Example: FADD V0.4S, V1.4S, V2.4S
+    return Encoder::create_fadd_vector_reg("v0", "v1", "v2", "4S"); // Using representative arguments
+}
+
+/**
+ * @brief Wrapper for Encoder::create_faddp_vector_reg for direct testing.
+ */
+Instruction test_create_faddp_vector_reg() {
+    // Example: FADDP V0.4S, V1.4S, V2.4S
+    return Encoder::create_faddp_vector_reg("v0", "v1", "v2", "4S"); // Using representative arguments
+}
+
+/**
+ * @brief Wrapper for Encoder::create_fcmp_reg for direct testing.
+ */
+Instruction test_create_fcmp_reg() {
+    // Example: FCMP D0, D1
+    return Encoder::create_fcmp_reg("d0", "d1"); // Using representative arguments
+}
+
+/**
+ * @brief Wrapper for Encoder::create_fcvt_d_to_s for direct testing.
+ */
+Instruction test_create_fcvt_d_to_s() {
+    // Example: FCVT S0, D0
+    return Encoder::create_fcvt_d_to_s("s0", "d0"); // Using representative arguments
+}
+
+/**
+ * @brief Wrapper for Encoder::create_fcvtms_reg for direct testing.
+ */
+Instruction test_create_fcvtms_reg() {
+    // Example: FCVTMS X0, D0
+    return Encoder::create_fcvtms_reg("x0", "d0"); // Using representative arguments
+}
+
+/**
+ * @brief Wrapper for Encoder::create_fcvtzs_reg for direct testing.
+ */
+Instruction test_create_fcvtzs_reg() {
+    // Example: FCVTZS X0, D0
+    return Encoder::create_fcvtzs_reg("x0", "d0"); // Using representative arguments
+}
+
+/**
+ * @brief Wrapper for Encoder::create_fdiv_reg for direct testing.
+ */
+Instruction test_create_fdiv_reg() {
+    // Example: FDIV D0, D1, D2
+    return Encoder::create_fdiv_reg("d0", "d1", "d2"); // Using representative arguments
+}
+
+/**
+ * @brief Wrapper for Encoder::enc_create_fdiv_vector_reg for direct testing.
+ */
+Instruction test_enc_create_fdiv_vector_reg() {
+    // Example: FDIV V0.4S, V1.4S, V2.4S
+    return Encoder::enc_create_fdiv_vector_reg("v0", "v1", "v2", "4S"); // Using representative arguments
+}
+
+/**
+ * @brief Wrapper for Encoder::create_fmax_vector_reg for direct testing.
+ */
+Instruction test_create_fmax_vector_reg() {
+    // Example: FMAX V0.4S, V1.4S, V2.4S
+    return Encoder::create_fmax_vector_reg("v0", "v1", "v2", "4S"); // Using representative arguments
+}
+
+/**
  * @brief Wrapper for Encoder::create_brk for direct testing.
  */
 Instruction test_create_brk() {

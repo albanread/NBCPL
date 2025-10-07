@@ -1,3 +1,4 @@
+// This encoder is NOT present in the test schedule. Test will be added via wrapper and results updated here.
 #include "../Encoder.h"
 #include <stdexcept>
 #include "BitPatcher.h"

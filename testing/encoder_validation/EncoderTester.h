@@ -115,6 +115,106 @@ public:
     bool test_create_cset();
 
     /**
+     * @brief Test wrapper for Encoder::create_add_literal
+     */
+    bool test_create_add_literal();
+
+    /**
+     * @brief Test wrapper for Encoder::create_adrp
+     */
+    bool test_create_adrp();
+
+    /**
+     * @brief Test wrapper for Encoder::create_br_reg
+     */
+    bool test_create_br_reg();
+
+    /**
+     * @brief Test wrapper for Encoder::create_branch_conditional
+     */
+    bool test_create_branch_conditional();
+
+    /**
+     * @brief Test wrapper for Encoder::create_branch_unconditional
+     */
+    bool test_create_branch_unconditional();
+
+    /**
+     * @brief Test wrapper for Encoder::create_branch_with_link_register
+     */
+    bool test_create_branch_with_link_register();
+
+    /**
+     * @brief Test wrapper for Encoder::create_branch_with_link
+     */
+    bool test_create_branch_with_link();
+
+    /**
+     * @brief Test wrapper for Encoder::create_directive
+     */
+    bool test_create_directive();
+
+    /**
+     * @brief Test wrapper for Encoder::create_dmb
+     */
+    bool test_create_dmb();
+
+    /**
+     * @brief Test wrapper for Encoder::enc_create_dup_scalar
+     */
+    bool test_enc_create_dup_scalar();
+
+    /**
+     * @brief Test wrapper for Encoder::create_fadd_reg
+     */
+    bool test_create_fadd_reg();
+
+    /**
+     * @brief Test wrapper for Encoder::create_fadd_vector_reg
+     */
+    bool test_create_fadd_vector_reg();
+
+    /**
+     * @brief Test wrapper for Encoder::create_faddp_vector_reg
+     */
+    bool test_create_faddp_vector_reg();
+
+    /**
+     * @brief Test wrapper for Encoder::create_fcmp_reg
+     */
+    bool test_create_fcmp_reg();
+
+    /**
+     * @brief Test wrapper for Encoder::create_fcvt_d_to_s
+     */
+    bool test_create_fcvt_d_to_s();
+
+    /**
+     * @brief Test wrapper for Encoder::create_fcvtms_reg
+     */
+    bool test_create_fcvtms_reg();
+
+    /**
+     * @brief Test wrapper for Encoder::create_fcvtzs_reg
+     */
+    bool test_create_fcvtzs_reg();
+
+    /**
+     * @brief Test wrapper for Encoder::create_fdiv_reg
+     */
+    bool test_create_fdiv_reg();
+
+    /**
+     * @brief Test wrapper for Encoder::enc_create_fdiv_vector_reg
+     */
+    bool test_enc_create_fdiv_vector_reg();
+
+    /**
+     * @brief Test wrapper for Encoder::create_fmax_vector_reg
+     */
+    bool test_create_fmax_vector_reg();
+
+    /**
      * @brief Test wrapper for Encoder::create_csetm_eq
      */
     bool test_create_csetm_eq();
@@ -457,3 +557,63 @@ Instruction test_create_cset_eq();
 
 // Wrapper function for Encoder::create_cset
 Instruction test_create_cset();
+
+// Wrapper function for Encoder::create_add_literal
+Instruction test_create_add_literal();
+
+// Wrapper function for Encoder::create_adrp
+Instruction test_create_adrp();
+
+// Wrapper function for Encoder::create_br_reg
+Instruction test_create_br_reg();
+
+// Wrapper function for Encoder::create_branch_conditional
+Instruction test_create_branch_conditional();
+
+// Wrapper function for Encoder::create_branch_unconditional
+Instruction test_create_branch_unconditional();
+
+// Wrapper function for Encoder::create_branch_with_link_register
+Instruction test_create_branch_with_link_register();
+
+// Wrapper function for Encoder::create_branch_with_link
+Instruction test_create_branch_with_link();
+
+// Wrapper function for Encoder::create_directive
+Instruction test_create_directive();
+
+// Wrapper function for Encoder::create_dmb
+Instruction test_create_dmb();
+
+// Wrapper function for Encoder::enc_create_dup_scalar
+Instruction test_enc_create_dup_scalar();
+
+// Wrapper function for Encoder::create_fadd_reg
+Instruction test_create_fadd_reg();
+
+// Wrapper function for Encoder::create_fadd_vector_reg
+Instruction test_create_fadd_vector_reg();
+
+// Wrapper function for Encoder::create_faddp_vector_reg
+Instruction test_create_faddp_vector_reg();
+
+// Wrapper function for Encoder::create_fcmp_reg
+Instruction test_create_fcmp_reg();
+
+// Wrapper function for Encoder::create_fcvt_d_to_s
+Instruction test_create_fcvt_d_to_s();
+
+// Wrapper function for Encoder::create_fcvtms_reg
+Instruction test_create_fcvtms_reg();
+
+// Wrapper function for Encoder::create_fcvtzs_reg
+Instruction test_create_fcvtzs_reg();
+
+// Wrapper function for Encoder::create_fdiv_reg
+Instruction test_create_fdiv_reg();
+
+// Wrapper function for Encoder::enc_create_fdiv_vector_reg
+Instruction test_enc_create_fdiv_vector_reg();
+
+// Wrapper function for Encoder::create_fmax_vector_reg
+Instruction test_create_fmax_vector_reg();
