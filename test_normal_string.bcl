@@ -1,0 +1,12 @@
+LET START() BE {
+    LET s = "hello"
+    WRITES("Normal string: ")
+    WRITES(s)
+    WRITES("*N")
+
+    LET x = 42
+    LET t = TYPE(x)
+    WRITES("Type string: ")
+    WRITES(t)
+    WRITES("*N")
+}

@@ -95,6 +95,7 @@ std::string NeonReducerRegistry::getArrangement(const std::string& vector_type) 
 }
 
 void NeonReducerRegistry::registerEncoders() {
+
     // Register float pairwise minimum encoders
     registerEncoder("llvm.arm.neon.vpmin.v4f32", "FVEC8", gen_neon_fminp_4s,
                    "FMINP.4S for 8-element float vectors");
@@ -102,12 +103,6 @@ void NeonReducerRegistry::registerEncoders() {
                    "FMINP.2S for 2-element float pairs");
     registerEncoder("llvm.arm.neon.vpmin.v4f16", "FQUAD", gen_neon_fminp_4h,
                    "FMINP.4H for 4x16-bit float quads (FQUAD)");
-    
-    // Register integer pairwise minimum encoders  
-    registerEncoder("llvm.arm.neon.vpmin.v4i32", "VEC8", gen_neon_sminp_4s,
-                   "SMINP.4S for 8-element integer vectors");
-    registerEncoder("llvm.arm.neon.vpmin.v2i32", "PAIR", gen_neon_sminp_2s,
-                   "SMINP.2S for 2-element integer pairs");
     
     // Register float pairwise maximum encoders
     registerEncoder("llvm.arm.neon.vpmax.v4f32", "FVEC8", gen_neon_fmaxp_4s,
@@ -124,6 +119,39 @@ void NeonReducerRegistry::registerEncoders() {
                    "FADDP.2S for 2-element float pairs");
     registerEncoder("llvm.arm.neon.vpadd.v4f16", "FQUAD", gen_neon_faddp_4h,
                    "FADDP.4H for 4x16-bit float quads (FQUAD)");
+    // Register float pairwise minimum encoders
+    registerEncoder("llvm.arm.neon.vpmin.v4f32", "FVEC8", gen_neon_fminp_4s,
+                   "FMINP.4S for 8-element float vectors");
+    registerEncoder("llvm.arm.neon.vpmin.v2f32", "FPAIR", gen_neon_fminp_2s,
+                   "FMINP.2S for 2-element float pairs");
+    registerEncoder("llvm.arm.neon.vpmin.v4f16", "FQUAD", gen_neon_fminp_4h,
+                   "FMINP.4H for 4x16-bit float quads (FQUAD)");
+    
+    // Register float pairwise maximum encoders
+    registerEncoder("llvm.arm.neon.vpmax.v4f32", "FVEC8", gen_neon_fmaxp_4s,
+                   "FMAXP.4S for 8-element float vectors");
+    registerEncoder("llvm.arm.neon.vpmax.v2f32", "FPAIR", gen_neon_fmaxp_2s,
+                   "FMAXP.2S for 2-element float pairs");
+    registerEncoder("llvm.arm.neon.vpmax.v4f16", "FQUAD", gen_neon_fmaxp_4h,
+                   "FMAXP.4H for 4x16-bit float quads (FQUAD)");
+    
+    // Register float pairwise addition encoders
+    registerEncoder("llvm.arm.neon.vpadd.v4f32", "FVEC8", gen_neon_faddp_4s,
+                   "FADDP.4S for 8-element float vectors");
+    registerEncoder("llvm.arm.neon.vpadd.v2f32", "FPAIR", gen_neon_faddp_2s,
+                   "FADDP.2S for 2-element float pairs");
+    registerEncoder("llvm.arm.neon.vpadd.v4f16", "FQUAD", gen_neon_faddp_4h,
+                   "FADDP.4H for 4x16-bit float quads (FQUAD)");
+    
+    // Register integer pairwise minimum encoders  
+    registerEncoder("llvm.arm.neon.vpmin.v4i32", "VEC8", gen_neon_sminp_4s,
+                   "SMINP.4S for 8-element integer vectors");
+    registerEncoder("llvm.arm.neon.vpmin.v2i32", "PAIR", gen_neon_sminp_2s,
+                   "SMINP.2S for 2-element integer pairs");
+    
+
+    
+
     
     // Register integer pairwise addition encoders
     registerEncoder("llvm.arm.neon.vpadd.v4i32", "VEC8", gen_neon_addp_4s,

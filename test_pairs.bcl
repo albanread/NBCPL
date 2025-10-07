@@ -1,0 +1,12 @@
+// Simple PAIR test for NewBCPL
+LET START() BE {
+
+    WRITEF("Testing PAIR functionality...")
+
+    LET p1 = PAIR(10, 20)
+    LET p2 = PAIR(30, 15)
+
+	
+    WRITEF("p1 is a %s value %P *N ", TYPENAME(p1), p1)
+
+}

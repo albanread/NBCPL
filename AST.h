@@ -513,7 +513,8 @@ public:
     enum class Operator {
         AddressOf, Indirection, LogicalNot, BitwiseNot, Negate, FloatConvert, IntegerConvert, FloatSqrt, FloatFloor, FloatTruncate,
         LengthOf, HeadOf, TailOf, TailOfNonDestructive, HeadOfAsFloat,
-        TypeOf // NEW: for TYPEOF intrinsic
+        TypeOf,         // TYPEOF(expr) - runtime type tag
+        TypeAsString    // TYPE(expr) - compile-time type string macro
     };
     Operator op;
     ExprPtr operand;

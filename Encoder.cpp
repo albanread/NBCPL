@@ -346,6 +346,3 @@ Instruction Encoder::create_adr(const std::string &xd, const std::string &label_
     return instr;
 }
 
-
-
-

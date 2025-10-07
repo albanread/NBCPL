@@ -48,6 +48,8 @@
 #include "CodeBuffer.h"
 #include "LocalOptimizationPass.h"
 #include "ConstantFoldingPass.h"
+
+
 #include "LoopInvariantCodeMotionPass.h"
 // #include "passes/ShortCircuitPass.h"  // Temporarily disabled to test crash
 #include "DataGenerator.h"
@@ -212,6 +214,7 @@ int main(int argc, char* argv[]) {
     bool trace_vtables = false; // Trace vtable generation
     std::string input_filepath;
     std::string call_entry_name = "START";
+    int offset_instructions = 0;
     g_jit_breakpoint_offset = 0;
     std::vector<std::string> include_paths;
     std::string runtime_mode = "jit"; // Default runtime mode
@@ -239,7 +242,7 @@ int main(int argc, char* argv[]) {
                             bounds_checking_enabled, enable_samm,
                             enable_superdisc, use_neon, generate_list, test_encoders,
                             test_encode, test_encode_name, list_encoders,
-                            input_filepath, call_entry_name, g_jit_breakpoint_offset, include_paths, runtime_mode)) {
+                            input_filepath, call_entry_name, offset_instructions, include_paths, runtime_mode)) {
             if (enable_tracing) {
                 std::cout << "Debug: parse_arguments returned false\n";
             }

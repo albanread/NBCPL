@@ -48,6 +48,7 @@ enum class TokenType {
     TypeString,
     TypeList,
     TypeVec,
+    TypeAsString,    // TYPE(expr) macro support
     TypePointer,
     TypeConst,
     TypeAny,

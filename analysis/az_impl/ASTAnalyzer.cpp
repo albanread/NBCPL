@@ -734,7 +734,23 @@ VarType ASTAnalyzer::infer_expression_type(const Expression* expr) const {
                 return infer_binary_op_type(static_cast<const BinaryOp*>(expr));
                 
             case ASTNode::NodeType::UnaryOpExpr:
-                return infer_unary_op_type(static_cast<const UnaryOp*>(expr));
+                // Handle TYPE(expr) macro: statically infer type and replace with StringLiteral node
+                {
+                    const UnaryOp* unary = static_cast<const UnaryOp*>(expr);
+                    if (unary->op == UnaryOp::Operator::TypeAsString) {
+                        VarType inferred_type = infer_expression_type(unary->operand.get());
+                        std::string type_str = vartype_to_string(inferred_type);
+
+                        // Replace the TYPE(expr) node with a StringLiteral node in the AST
+                        // This is a semantic transformation: the caller should replace the node,
+                        // but for type inference, we return STRING.
+                        // If you want to actually replace the node, do it in the AST transformation pass.
+                        // For now, just return STRING type.
+                        // Optionally, you could log or mark for replacement.
+                        return VarType::STRING;
+                    }
+                    return infer_unary_op_type(unary);
+                }
                 
             case ASTNode::NodeType::ListExpr:
             case ASTNode::NodeType::VecInitializerExpr:

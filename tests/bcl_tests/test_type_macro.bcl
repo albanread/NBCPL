@@ -1,0 +1,19 @@
+LET START() BE {
+    LET i = 123
+    LET f = 3.1415
+    LET s = "hello"
+    LET p = PAIR(1, 2)
+    LET l = LIST(1, 2, 3)
+
+    LET ti = TYPE(i)
+    LET tf = TYPE(f)
+    LET ts = TYPE(s)
+    LET tp = TYPE(p)
+    LET tl = TYPE(l)
+
+    WRITEF("TYPE(i) = %s*N", ti)   // Should print "INTEGER"
+    WRITEF("TYPE(f) = %s*N", tf)   // Should print "FLOAT"
+    WRITEF("TYPE(s) = %s*N", ts)   // Should print "STRING"
+    WRITEF("TYPE(p) = %s*N", tp)   // Should print "PAIR"
+    WRITEF("TYPE(l) = %s*N", tl)   // Should print "LIST"
+}

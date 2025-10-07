@@ -508,6 +508,13 @@ ExprPtr Parser::parse_primary_expression() {
         consume(TokenType::RParen, "Expect ')' after TYPEOF expression.");
         return std::make_unique<UnaryOp>(UnaryOp::Operator::TypeOf, std::move(expr));
     }
+    // --- TYPE macro parsing ---
+    if (match(TokenType::TypeAsString)) {
+        consume(TokenType::LParen, "Expect '(' after TYPE.");
+        ExprPtr expr = parse_expression();
+        consume(TokenType::RParen, "Expect ')' after TYPE expression.");
+        return std::make_unique<UnaryOp>(UnaryOp::Operator::TypeAsString, std::move(expr));
+    }
     // (Removed HD, TL, REST prefix operator logic; now handled in parse_expression)
     // --- FSQRT intrinsic parsing: must come BEFORE Identifier/function call rule ---
     if (match(TokenType::FSQRT)) {

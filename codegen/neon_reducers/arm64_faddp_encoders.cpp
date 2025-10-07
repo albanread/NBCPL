@@ -22,6 +22,7 @@ void gen_neon_faddp_4s(NewCodeGenerator& cg, const PairwiseReductionLoopStatemen
     // For now, placeholder implementation - FADDP not yet implemented
     // This will be replaced with direct NEON code once register access is resolved
     // PLACEHOLDER: FADDP.4S for FVEC8 pairwise addition via registry
+}
 
 /**
  * @brief  Generates ARM64 NEON FADDP instruction for a 2S vector layout.
@@ -40,6 +41,7 @@ void gen_neon_faddp_2s(NewCodeGenerator& cg, const PairwiseReductionLoopStatemen
     // For now, placeholder implementation - FADDP not yet implemented
     // This will be replaced with direct NEON code once register access is resolved
     // PLACEHOLDER: FADDP.2S for FPAIR pairwise addition via registry
+}
 
 /**
  * @brief  Generates ARM64 NEON FADDP instruction for a 4H vector layout.
@@ -59,3 +61,4 @@ void gen_neon_faddp_4h(NewCodeGenerator& cg, const PairwiseReductionLoopStatemen
     // For now, placeholder implementation - FADDP 4H not yet implemented
     // This will be replaced with direct NEON code once register access is resolved
     // PLACEHOLDER: FADDP.4H for FQUAD pairwise addition via registry
+}

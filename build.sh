@@ -95,6 +95,7 @@ CORE_SRC_FILES=$(find . -maxdepth 1 -name "*.cpp" ! -name "main.cpp" ! -name "li
                  find passes -name "*.cpp" -print; \
                  find linker_helpers -name "*.cpp" -print; \
                  find codegen -name "*.cpp" -print; \
+                 find modules -name "*.cpp" -print; \
                  find testing/encoder_validation -name "*.cpp" ! -name "test_nop_validation.cpp" -print; \
                  find . -name "cf_*.cpp" -print; \
                  find . -name "rm_*.cpp" -print; \

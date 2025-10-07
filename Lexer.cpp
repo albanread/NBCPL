@@ -54,6 +54,7 @@ const std::unordered_map<std::string, TokenType> Lexer::keywords_ = {
     {"HD", TokenType::HD},
     {"TL", TokenType::TL},
     {"TYPEOF", TokenType::TypeOf},
+    {"TYPE", TokenType::TypeAsString}, // <-- Added for TYPE(expr) macro
     {"FIRST", TokenType::HD},
     {"REST", TokenType::REST},
     {"CONCAT", TokenType::Identifier},

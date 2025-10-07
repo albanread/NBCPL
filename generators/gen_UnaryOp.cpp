@@ -3,6 +3,7 @@
 #include <stdexcept>
 #include <cctype>
 #include "../analysis/ASTAnalyzer.h" // For infer_expression_type
+#include "../DataTypes.h" // For vartype_to_string
 
 void NewCodeGenerator::visit(UnaryOp& node) {
     debug_print("Visiting UnaryOp node.");
@@ -253,6 +254,28 @@ void NewCodeGenerator::visit(UnaryOp& node) {
         emit(Encoder::create_ldr_word_imm("W" + dest_reg.substr(1), ptr_reg, 0));
         register_manager_.release_register(ptr_reg);
         expression_result_reg_ = dest_reg;
+        return;
+    }
+
+    // --- TYPE macro intrinsic ---
+    if (node.op == Op::TypeAsString) {
+        debug_print("Generating code for TYPE macro operator.");
+        // Statically infer the type of the operand
+        VarType inferred_type = infer_expression_type_local(node.operand.get());
+        // Convert to string using backend helper
+        std::string type_str = vartype_to_string(inferred_type);
+        debug_print("TYPE macro raw string: '" + type_str + "'");
+        
+        // Generate a string literal (DataGenerator will handle Unicode conversion)
+        std::string dest_reg = register_manager_.acquire_scratch_reg(*this);
+        std::string string_label = data_generator_.add_string_literal(type_str);
+        debug_print("TYPE macro string label: " + string_label);
+        emit(Encoder::create_adrp(dest_reg, string_label));
+        emit(Encoder::create_add_literal(dest_reg, dest_reg, string_label));
+        // Add 8 to skip the 64-bit length prefix and point to character data
+        emit(Encoder::create_add_imm(dest_reg, dest_reg, 8));
+        expression_result_reg_ = dest_reg;
+        debug_print("TYPE macro generated string literal: " + type_str);
         return;
     }
 
