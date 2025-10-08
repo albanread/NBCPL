@@ -209,7 +209,7 @@ Instruction test_create_dmb() {
  */
 Instruction test_enc_create_dup_scalar() {
     // Example: DUP V0.4S, X0
-    return Encoder::enc_create_dup_scalar("v0", "x0", "4S"); // Using representative arguments
+        return Encoder::enc_create_dup_scalar("v0", "w0", "4S"); // Using representative arguments
 }
 
 /**
@@ -322,6 +322,414 @@ Instruction test_create_cset() {
 Instruction test_create_csetm_eq() {
     // Example: CSETM X0, EQ
     return Encoder::create_csetm_eq("x0");
+}
+
+/**
+ * @brief Wrapper for Encoder::create_add_imm for direct testing.
+ */
+Instruction test_enc_create_add_imm() {
+    // Example: ADD x0, x1, #123
+    return Encoder::create_add_imm("x0", "x1", 123);
+}
+
+/**
+ * @brief Wrapper for Encoder::create_add_literal for direct testing.
+ * @note This test is currently disabled because it requires a linker to resolve the label, which is not supported in the current validation framework.
+ */
+// Instruction test_enc_create_add_literal() {
+//     return Encoder::create_add_literal("x0", "x0", "test_label");
+// }
+
+/**
+ * @brief Wrapper for Encoder::create_add_vector_reg for direct testing.
+ */
+Instruction test_enc_create_add_vector_reg() {
+    return Encoder::create_add_vector_reg("v0", "v1", "v2", "4S");
+}
+
+/**
+ * @brief Wrapper for Encoder::create_addp_vector_reg for direct testing.
+ */
+Instruction test_enc_create_addp_vector_reg() {
+    return Encoder::create_addp_vector_reg("v0", "v1", "v2", "4S");
+}
+
+/**
+ * @brief Wrapper for Encoder::create_csetm_ne for direct testing.
+ */
+Instruction test_enc_create_csetm_ne() {
+    return Encoder::create_csetm_ne("x0");
+}
+
+/**
+ * @brief Wrapper for Encoder::create_csetm for direct testing.
+ */
+Instruction test_enc_create_csetm() {
+    return Encoder::create_csetm("x0", "NE");
+}
+
+/**
+ * @brief Wrapper for Encoder::create_fadd_reg for direct testing.
+ */
+Instruction test_enc_create_fadd_reg() {
+    return Encoder::create_fadd_reg("d0", "d1", "d2");
+}
+
+/**
+ * @brief Wrapper for Encoder::create_fadd_vector_reg for direct testing.
+ */
+Instruction test_enc_create_fadd_vector_reg() {
+    return Encoder::create_fadd_vector_reg("v0", "v1", "v2", "4S");
+}
+
+/**
+ * @brief Wrapper for Encoder::create_faddp_vector_reg for direct testing.
+ */
+Instruction test_enc_create_faddp_vector_reg() {
+    return Encoder::create_faddp_vector_reg("v0", "v1", "v2", "4S");
+}
+
+/**
+ * @brief Wrapper for Encoder::create_fcmp_reg for direct testing.
+ */
+Instruction test_enc_create_fcmp_reg() {
+    return Encoder::create_fcmp_reg("d0", "d1");
+}
+
+/**
+ * @brief Wrapper for Encoder::create_fcvt_d_to_s for direct testing.
+ */
+Instruction test_enc_create_fcvt_d_to_s() {
+    return Encoder::create_fcvt_d_to_s("S0", "D1");
+}
+
+/**
+ * @brief Wrapper for Encoder::create_fcvtms_reg for direct testing.
+ */
+Instruction test_enc_create_fcvtms_reg() {
+    return Encoder::create_fcvtms_reg("x0", "d1");
+}
+
+/**
+ * @brief Wrapper for Encoder::create_fcvtzs_reg for direct testing.
+ */
+Instruction test_enc_create_fcvtzs_reg() {
+    return Encoder::create_fcvtzs_reg("x0", "d1");
+}
+
+/**
+ * @brief Wrapper for Encoder::create_fdiv_reg for direct testing.
+ */
+Instruction test_enc_create_fdiv_reg() {
+    return Encoder::create_fdiv_reg("d0", "d1", "d2");
+}
+
+/**
+ * @brief Wrapper for Encoder::create_fmax_vector_reg for direct testing.
+ */
+Instruction test_enc_create_fmax_vector_reg() {
+    return Encoder::create_fmax_vector_reg("v0", "v1", "v2", "4S");
+}
+
+/**
+ * @brief Wrapper for Encoder::create_fmaxp_vector_reg for direct testing.
+ */
+Instruction test_enc_create_fmaxp_vector_reg() {
+    return Encoder::create_fmaxp_vector_reg("v0", "v1", "v2", "4S");
+}
+
+/**
+ * @brief Wrapper for Encoder::create_fmin_vector_reg for direct testing.
+ */
+Instruction test_enc_create_fmin_vector_reg() {
+    return Encoder::create_fmin_vector_reg("v0", "v1", "v2", "4S");
+}
+
+/**
+ * @brief Wrapper for Encoder::create_fminp_vector_reg for direct testing.
+ */
+Instruction test_enc_create_fminp_vector_reg() {
+    return Encoder::create_fminp_vector_reg("v0", "v1", "v2", "4S");
+}
+
+/**
+ * @brief Wrapper for Encoder::create_fmla_vector_reg for direct testing.
+ */
+Instruction test_enc_create_fmla_vector_reg() {
+    return Encoder::create_fmla_vector_reg("v0", "v1", "v2", "4S");
+}
+
+/**
+ * @brief Wrapper for Encoder::create_fmov_d_to_x for direct testing.
+ */
+Instruction test_enc_create_fmov_d_to_x() {
+    return Encoder::create_fmov_d_to_x("X0", "D1");
+}
+
+/**
+ * @brief Wrapper for Encoder::create_fmov_reg for direct testing.
+ */
+Instruction test_enc_create_fmov_reg() {
+    return Encoder::create_fmov_reg("d0", "d1");
+}
+
+/**
+ * @brief Wrapper for Encoder::create_fmov_s_to_w for direct testing.
+ */
+Instruction test_enc_create_fmov_s_to_w() {
+    return Encoder::create_fmov_s_to_w("w0", "s1");
+}
+
+/**
+ * @brief Wrapper for Encoder::create_fmov_w_to_s for direct testing.
+ */
+Instruction test_enc_create_fmov_w_to_s() {
+    return Encoder::create_fmov_w_to_s("s0", "w1");
+}
+
+/**
+ * @brief Wrapper for Encoder::create_fmov_x_to_d for direct testing.
+ */
+Instruction test_enc_create_fmov_x_to_d() {
+    return Encoder::create_fmov_x_to_d("d0", "x1");
+}
+
+/**
+ * @brief Wrapper for Encoder::create_fmul_reg for direct testing.
+ */
+Instruction test_enc_create_fmul_reg() {
+    return Encoder::create_fmul_reg("d0", "d1", "d2");
+}
+
+/**
+ * @brief Wrapper for Encoder::create_fmul_vector_reg for direct testing.
+ */
+Instruction test_enc_create_fmul_vector_reg() {
+    return Encoder::create_fmul_vector_reg("v0", "v1", "v2", "4S");
+}
+
+/**
+ * @brief Wrapper for Encoder::create_fneg_reg for direct testing.
+ */
+Instruction test_enc_create_fneg_reg() {
+    return Encoder::create_fneg_reg("d0", "d1");
+}
+
+/**
+ * @brief Wrapper for Encoder::create_fsqrt_reg for direct testing.
+ */
+Instruction test_enc_create_fsqrt_reg() {
+    return Encoder::create_fsqrt_reg("d0", "d1");
+}
+
+/**
+ * @brief Wrapper for Encoder::create_fsub_reg for direct testing.
+ */
+Instruction test_enc_create_fsub_reg() {
+    return Encoder::create_fsub_reg("d0", "d1", "d2");
+}
+
+/**
+ * @brief Wrapper for Encoder::enc_create_fsub_vector_reg for direct testing.
+ */
+Instruction test_enc_create_fsub_vector_reg() {
+    return Encoder::enc_create_fsub_vector_reg("v0", "v1", "v2", "4S");
+}
+
+/**
+ * @brief Wrapper for Encoder::create_ld1_vector_reg for direct testing.
+ */
+Instruction test_enc_create_ld1_vector_reg() {
+    return Encoder::create_ld1_vector_reg("v0", "x1", "4S");
+}
+
+/**
+ * @brief Wrapper for Encoder::create_ldp_imm for direct testing.
+ */
+Instruction test_enc_create_ldp_imm() {
+    return Encoder::create_ldp_imm("x0", "x1", "x2", 0);
+}
+
+/**
+ * @brief Wrapper for Encoder::create_ldp_post_imm for direct testing.
+ */
+Instruction test_enc_create_ldp_post_imm() {
+    return Encoder::create_ldp_post_imm("x0", "x1", "x2", 16);
+}
+
+/**
+ * @brief Wrapper for Encoder::create_ldp_pre_imm for direct testing.
+ */
+Instruction test_enc_create_ldp_pre_imm() {
+    return Encoder::create_ldp_pre_imm("x0", "x1", "x2", 16);
+}
+
+/**
+ * @brief Wrapper for Encoder::create_ldr_fp_imm for direct testing.
+ */
+Instruction test_enc_create_ldr_fp_imm() {
+    return Encoder::create_ldr_fp_imm("d0", "x1", 0);
+}
+
+/**
+ * @brief Wrapper for Encoder::create_ldr_imm for direct testing.
+ */
+Instruction test_enc_create_ldr_imm() {
+    return Encoder::create_ldr_imm("x0", "x1", 0);
+}
+
+/**
+ * @brief Wrapper for Encoder::create_ldr_scaled_reg_64bit for direct testing.
+ */
+Instruction test_enc_create_ldr_scaled_reg_64bit() {
+    return Encoder::create_ldr_scaled_reg_64bit("x0", "x1", "x2", 0);
+}
+
+/**
+ * @brief Wrapper for Encoder::create_ldr_vec_imm for direct testing.
+ */
+Instruction test_enc_create_ldr_vec_imm() {
+    return Encoder::create_ldr_vec_imm("q0", "x1", 0);
+}
+
+/**
+ * @brief Wrapper for Encoder::create_ldr_word_imm for direct testing.
+ */
+Instruction test_enc_create_ldr_word_imm() {
+    return Encoder::create_ldr_word_imm("w0", "x1", 0);
+}
+
+/**
+ * @brief Wrapper for Encoder::create_ldrb_imm for direct testing.
+ */
+Instruction test_enc_create_ldrb_imm() {
+    return Encoder::create_ldrb_imm("w0", "x1", 0);
+}
+
+/**
+ * @brief Wrapper for Encoder::create_mov_fp_sp for direct testing.
+ */
+Instruction test_enc_create_mov_fp_sp() {
+    return Encoder::create_mov_fp_sp();
+}
+
+/**
+ * @brief Wrapper for Encoder::create_mul_vector_reg for direct testing.
+ */
+Instruction test_enc_create_mul_vector_reg() {
+    return Encoder::create_mul_vector_reg("v0", "v1", "v2", "4S");
+}
+
+/**
+ * @brief Wrapper for Encoder::create_mvn_reg for direct testing.
+ */
+Instruction test_enc_create_mvn_reg() {
+    return Encoder::create_mvn_reg("x0", "x1");
+}
+
+/**
+ * @brief Wrapper for Encoder::create_nop for direct testing.
+ */
+Instruction test_enc_create_nop() {
+    return Encoder::create_nop();
+}
+
+/**
+ * @brief Wrapper for Encoder::create_scvtf_reg for direct testing.
+ */
+Instruction test_enc_create_scvtf_reg() {
+    return Encoder::create_scvtf_reg("d0", "x1");
+}
+
+/**
+ * @brief Wrapper for Encoder::create_smax_vector_reg for direct testing.
+ */
+Instruction test_enc_create_smax_vector_reg() {
+    return Encoder::create_smax_vector_reg("v0", "v1", "v2", "4S");
+}
+
+/**
+ * @brief Wrapper for Encoder::create_smin_vector_reg for direct testing.
+ */
+Instruction test_enc_create_smin_vector_reg() {
+    return Encoder::create_smin_vector_reg("v0", "v1", "v2", "4S");
+}
+
+/**
+ * @brief Wrapper for Encoder::create_sminp_vector_reg for direct testing.
+ */
+Instruction test_enc_create_sminp_vector_reg() {
+    return Encoder::create_sminp_vector_reg("v0", "v1", "v2", "4S");
+}
+
+/**
+ * @brief Wrapper for Encoder::create_st1_vector_reg for direct testing.
+ */
+Instruction test_enc_create_st1_vector_reg() {
+    return Encoder::create_st1_vector_reg("v0", "x1", "4S");
+}
+
+/**
+ * @brief Wrapper for Encoder::create_stp_imm for direct testing.
+ */
+Instruction test_enc_create_stp_imm() {
+    return Encoder::create_stp_imm("x0", "x1", "x2", 0);
+}
+
+/**
+ * @brief Wrapper for Encoder::create_stp_pre_imm for direct testing.
+ */
+Instruction test_enc_create_stp_pre_imm() {
+    return Encoder::create_stp_pre_imm("x0", "x1", "x2", 16);
+}
+
+/**
+ * @brief Wrapper for Encoder::create_str_fp_imm for direct testing.
+ */
+Instruction test_enc_create_str_fp_imm() {
+    return Encoder::create_str_fp_imm("d0", "x1", 0);
+}
+
+/**
+ * @brief Wrapper for Encoder::create_str_imm for direct testing.
+ */
+Instruction test_enc_create_str_imm() {
+    return Encoder::create_str_imm("x0", "x1", 0);
+}
+
+/**
+ * @brief Wrapper for Encoder::create_str_vec_imm for direct testing.
+ */
+Instruction test_enc_create_str_vec_imm() {
+    return Encoder::create_str_vec_imm("q0", "x1", 0);
+}
+
+/**
+ * @brief Wrapper for Encoder::create_str_word_imm for direct testing.
+ */
+Instruction test_enc_create_str_word_imm() {
+    return Encoder::create_str_word_imm("w0", "x1", 0);
+}
+
+/**
+ * @brief Wrapper for Encoder::create_sub_vector_reg for direct testing.
+ */
+Instruction test_enc_create_sub_vector_reg() {
+    return Encoder::create_sub_vector_reg("v0", "v1", "v2", "4S");
+}
+
+/**
+ * @brief Wrapper for Encoder::create_svc_imm for direct testing.
+ */
+Instruction test_enc_create_svc_imm() {
+    return Encoder::create_svc_imm(0);
+}
+
+/**
+ * @brief Wrapper for Encoder::create_uzp1_vector_reg for direct testing.
+ */
+Instruction test_enc_create_uzp1_vector_reg() {
+    return Encoder::create_uzp1_vector_reg("v0", "v1", "v2", "4S");
 }
 
 /**

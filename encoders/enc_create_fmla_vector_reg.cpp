@@ -9,7 +9,7 @@ Instruction Encoder::create_fmla_vector_reg(const std::string& vd, const std::st
 
     // Encoding for FMLA Vd.4S, Vn.4S, Vm.4S (32-bit single-precision floats)
     // Q(1) | 0 | 0 | 1110 | 1 | M(0) | 1 | Rm | 1000 | Rn | Rd
-    uint32_t encoding = 0x4E208000 | (rm << 16) | (rn << 5) | rd;
+    uint32_t encoding = 0x4E20CC00 | (rm << 16) | (rn << 5) | rd;
 
     std::stringstream ss;
     ss << "FMLA " << vd << "." << arrangement << ", " << vn << "." << arrangement << ", " << vm << "." << arrangement;

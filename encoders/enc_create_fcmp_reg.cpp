@@ -10,7 +10,7 @@ Instruction Encoder::create_fcmp_reg(const std::string& dn, const std::string& d
     uint32_t base_encoding;
     if (dn[0] == 'd' || dn[0] == 'D') {
         // Double-precision (64-bit): FCMP Dn, Dm
-        base_encoding = 0x1E602008;
+        base_encoding = 0x1E602000;
     } else if (dn[0] == 's' || dn[0] == 'S') {
         // Single-precision (32-bit): FCMP Sn, Sm
         base_encoding = 0x1E202000;

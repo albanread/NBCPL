@@ -218,6 +218,68 @@ public:
      * @brief Test wrapper for Encoder::create_csetm_eq
      */
     bool test_create_csetm_eq();
+
+    /**
+     * @brief Test wrapper for Encoder::create_add_imm
+     */
+    bool test_enc_create_add_imm();
+//    bool test_enc_create_add_literal();
+    bool test_enc_create_add_vector_reg();
+    bool test_enc_create_addp_vector_reg();
+    bool test_enc_create_csetm_ne();
+    bool test_enc_create_csetm();
+    bool test_enc_create_fadd_reg();
+    bool test_enc_create_fadd_vector_reg();
+    bool test_enc_create_faddp_vector_reg();
+    bool test_enc_create_fcmp_reg();
+    bool test_enc_create_fcvt_d_to_s();
+    bool test_enc_create_fcvtms_reg();
+    bool test_enc_create_fcvtzs_reg();
+    bool test_enc_create_fdiv_reg();
+    bool test_enc_create_fmax_vector_reg();
+    bool test_enc_create_fmaxp_vector_reg();
+    bool test_enc_create_fmin_vector_reg();
+    bool test_enc_create_fminp_vector_reg();
+    bool test_enc_create_fmla_vector_reg();
+    bool test_enc_create_fmov_d_to_x();
+    bool test_enc_create_fmov_reg();
+    bool test_enc_create_fmov_s_to_w();
+    bool test_enc_create_fmov_w_to_s();
+    bool test_enc_create_fmov_x_to_d();
+    bool test_enc_create_fmul_reg();
+    bool test_enc_create_fmul_vector_reg();
+    bool test_enc_create_fneg_reg();
+    bool test_enc_create_fsqrt_reg();
+    bool test_enc_create_fsub_reg();
+    bool test_enc_create_fsub_vector_reg();
+    bool test_enc_create_ld1_vector_reg();
+    bool test_enc_create_ldp_imm();
+    bool test_enc_create_ldp_post_imm();
+    bool test_enc_create_ldp_pre_imm();
+    bool test_enc_create_ldr_fp_imm();
+    bool test_enc_create_ldr_imm();
+    bool test_enc_create_ldr_scaled_reg_64bit();
+    bool test_enc_create_ldr_vec_imm();
+    bool test_enc_create_ldr_word_imm();
+    bool test_enc_create_ldrb_imm();
+    bool test_enc_create_mov_fp_sp();
+    bool test_enc_create_mul_vector_reg();
+    bool test_enc_create_mvn_reg();
+    bool test_enc_create_nop();
+    bool test_enc_create_scvtf_reg();
+    bool test_enc_create_smax_vector_reg();
+    bool test_enc_create_smin_vector_reg();
+    bool test_enc_create_sminp_vector_reg();
+    bool test_enc_create_st1_vector_reg();
+    bool test_enc_create_stp_imm();
+    bool test_enc_create_stp_pre_imm();
+    bool test_enc_create_str_fp_imm();
+    bool test_enc_create_str_imm();
+    bool test_enc_create_str_vec_imm();
+    bool test_enc_create_str_word_imm();
+    bool test_enc_create_sub_vector_reg();
+    bool test_enc_create_svc_imm();
+    bool test_enc_create_uzp1_vector_reg();
     /**
      * @brief Main entry point for encoder validation
      * @return true if all tests pass, false if any fail

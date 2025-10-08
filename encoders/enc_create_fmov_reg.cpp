@@ -3,6 +3,8 @@
 #include "BitPatcher.h"
 #include <stdexcept>
 #include <string>
+#include <algorithm>
+#include <cctype>
 
 // ARM64 FMOV (register to register, Dn to Dm)
 // Encoding: FMOV Dd, Dn
@@ -12,9 +14,12 @@
 Instruction Encoder::create_fmov_reg(const std::string& dd, const std::string& ds) {
     // Parse register numbers from "D0", "D1", etc.
     auto parse_d_reg = [](const std::string& reg) -> int {
-        if (reg.size() < 2 || reg[0] != 'D') return -1;
+        if (reg.size() < 2) return -1;
+        std::string upper_reg = reg;
+        std::transform(upper_reg.begin(), upper_reg.end(), upper_reg.begin(), ::toupper);
+        if (upper_reg[0] != 'D') return -1;
         try {
-            return std::stoi(reg.substr(1));
+            return std::stoi(upper_reg.substr(1));
         } catch (...) {
             return -1;
         }

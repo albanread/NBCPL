@@ -17,162 +17,21 @@
 bool EncoderTester::run_all_tests() {
     std::cout << "\n=== NewBCPL Encoder Validation Framework ===" << std::endl;
     std::cout << "Testing NEON encoder functions against Clang output...\n" << std::endl;
-    
+
     ensureValidationDirectory();
     initialize_test_map();
-    
+
     tests_run = 0;
     tests_passed = 0;
-    
-    // Test FMINP encoders
-    std::cout << "Testing FMINP encoders..." << std::endl;
-    test_gen_neon_fminp_4s();
-    test_gen_neon_fminp_2s();
-    test_gen_neon_fminp_4h();
-    
-    // Test FMAXP encoders
-    std::cout << "\nTesting FMAXP encoders..." << std::endl;
-    test_gen_neon_fmaxp_4s();
-    test_gen_neon_fmaxp_2s();
-    test_gen_neon_fmaxp_4h();
-    
-    // Test FADDP encoders
-    std::cout << "\nTesting FADDP encoders..." << std::endl;
-    test_gen_neon_faddp_4s();
-    test_gen_neon_faddp_2s();
-    test_gen_neon_faddp_4h();
-    
-    // Test ADDP encoders
-    std::cout << "\nTesting ADDP encoders..." << std::endl;
-    test_gen_neon_addp_4s();
-    test_gen_neon_addp_2s();
-    
-    // Test SMINP encoders
-    std::cout << "\nTesting SMINP encoders..." << std::endl;
-    test_gen_neon_sminp_4s();
-    test_gen_neon_sminp_8h();
-    test_gen_neon_sminp_16b();
 
-    // Test SMAX encoders
-    std::cout << "\nTesting SMAX encoders..." << std::endl;
-    test_gen_neon_smax_4s();
-    test_gen_neon_smax_8h();
-    test_gen_neon_smax_16b();
-
-    // Test ADD encoders
-    std::cout << "\nTesting ADD encoders..." << std::endl;
-    test_gen_neon_add_4s();
-    test_gen_neon_add_8h();
-    test_gen_neon_add_16b();
-
-    // Test SUB encoders
-    std::cout << "\nTesting SUB encoders..." << std::endl;
-    test_gen_neon_sub_4s();
-    test_gen_neon_sub_8h();
-    test_gen_neon_sub_16b();
-
-    // Test FMIN encoders
-    std::cout << "\nTesting FMIN encoders..." << std::endl;
-    test_gen_neon_fmin_4s();
-    test_gen_neon_fmin_2s();
-    test_gen_neon_fmin_2d();
-
-    // Test Legacy Scalar encoders
-    std::cout << "\nTesting Legacy Scalar encoders..." << std::endl;
-    test_gen_scalar_nop();
-    test_gen_scalar_add_reg();
-    test_gen_scalar_sub_reg();
-    test_gen_scalar_mul_reg();
-    test_gen_scalar_mov_reg();
-    test_gen_scalar_add_imm();
-    test_gen_scalar_sub_imm();
-    test_gen_scalar_cmp_reg();
-    test_gen_scalar_cmp_imm();
-    
-    // Test Encoders Folder Functions
-    std::cout << "\nTesting Encoders Folder Functions..." << std::endl;
-    test_create_add_reg();
-    test_create_and_reg();
-    test_create_cmp_imm();
-    test_create_cmp_reg();
-    test_create_eor_reg();
-    test_create_lsl_imm();
-    test_create_lsl_reg();
-    test_create_lsr_reg();
-    test_create_mov_reg();
-    test_create_movk_imm();
-    test_create_movz_imm();
-    test_create_mul_reg();
-    test_create_orr_reg();
-    test_create_sdiv_reg();
-    test_create_sub_imm();
-    test_create_sub_reg();
-    test_create_brk();
-    test_create_cset_eq();
-    test_create_cset();
-    test_create_csetm_eq();
-
-
-    // Test Legacy Floating Point encoders
-    std::cout << "\nTesting Legacy Floating Point encoders..." << std::endl;
-    test_gen_fp_fadd_reg();
-    test_gen_fp_fsub_reg();
-    test_gen_fp_fmul_reg();
-    test_gen_fp_fdiv_reg();
-    test_gen_fp_fcmp_reg();
-    test_gen_fp_fsqrt_reg();
-    test_gen_fp_fneg_reg();
-
-    // Test Vector Floating Point encoders
-    std::cout << "\nTesting Vector Floating Point encoders..." << std::endl;
-    test_gen_vec_fadd_4s();
-    test_gen_vec_fadd_2s();
-    test_gen_vec_fadd_2d();
-    test_gen_vec_fsub_4s();
-    test_gen_vec_fsub_2s();
-    test_gen_vec_fmul_4s();
-    test_gen_vec_fmul_2s();
-
-    // Test Memory Operation encoders
-    std::cout << "\nTesting Memory Operation encoders..." << std::endl;
-    test_gen_mem_ldr_imm();
-    test_gen_mem_str_imm();
-    test_gen_mem_ldp_imm();
-    test_gen_mem_stp_imm();
-    
-    // Run any additional tests from test map that weren't hardcoded above
-    std::cout << "\nTesting Additional Registered Encoders..." << std::endl;
-    std::set<std::string> hardcoded_tests = {
-        "fminp_4s", "fminp_2s", "fminp_4h",
-        "fmaxp_4s", "fmaxp_2s", "fmaxp_4h", 
-        "faddp_4s", "faddp_2s", "faddp_4h",
-        "addp_4s", "addp_2s",
-        "sminp_4s", "sminp_8h", "sminp_16b",
-        "smax_4s", "smax_8h", "smax_16b",
-        "add_4s", "add_8h", "add_16b",
-        "sub_4s", "sub_8h", "sub_16b", 
-        "fmin_4s", "fmin_2s", "fmin_2d",
-        "scalar_nop", "scalar_add_reg", "scalar_sub_reg", "scalar_mul_reg", 
-        "scalar_mov_reg", "scalar_add_imm", "scalar_sub_imm", "scalar_cmp_reg", "scalar_cmp_imm",
-        "create_add_reg", "create_and_reg", "create_cmp_imm", "create_cmp_reg", "create_eor_reg",
-        "create_lsl_imm", "create_lsl_reg", "create_lsr_reg", "create_mov_reg", "create_movk_imm",
-        "create_movz_imm", "create_mul_reg", "create_orr_reg", "create_sdiv_reg", "create_sub_imm",
-        "create_sub_reg", "create_brk", "create_cset_eq", "create_cset", "create_csetm_eq",
-        "fp_fadd_reg", "fp_fsub_reg", "fp_fmul_reg", "fp_fdiv_reg", "fp_fcmp_reg", "fp_fsqrt_reg", "fp_fneg_reg",
-        "vec_fadd_4s", "vec_fadd_2s", "vec_fadd_2d", "vec_fsub_4s", "vec_fsub_2s", "vec_fmul_4s", "vec_fmul_2s",
-        "mem_ldr_imm", "mem_str_imm", "mem_ldp_imm", "mem_stp_imm"
-    };
-    
     for (const auto& test_pair : encoder_test_map) {
         const std::string& test_name = test_pair.first;
-        if (hardcoded_tests.find(test_name) == hardcoded_tests.end()) {
-            // This test wasn't run in the hardcoded sequence, run it now
-            bool result = test_pair.second();
-            if (result) {
-                std::cout << "  ✅ " << test_name << " [PASS]" << std::endl;
-            } else {
-                std::cout << "  ❌ " << test_name << " [FAIL]" << std::endl;
-            }
+        std::cout << "Testing " << test_name << "..." << std::endl;
+        bool result = test_pair.second();
+        if (result) {
+            std::cout << "  ✅ " << test_name << " [PASS]" << std::endl;
+        } else {
+            std::cout << "  ❌ " << test_name << " [FAIL]" << std::endl;
         }
     }
 
@@ -181,7 +40,7 @@ bool EncoderTester::run_all_tests() {
     std::cout << "Tests run: " << tests_run << std::endl;
     std::cout << "Tests passed: " << tests_passed << std::endl;
     std::cout << "Tests failed: " << (tests_run - tests_passed) << std::endl;
-    
+
     if (tests_passed == tests_run) {
         std::cout << "✅ ALL TESTS PASSED" << std::endl;
         return true;
@@ -189,9 +48,6 @@ bool EncoderTester::run_all_tests() {
         std::cout << "❌ SOME TESTS FAILED" << std::endl;
         return false;
     }
-
-
-
 }
 
 bool EncoderTester::test_gen_neon_fminp_4s() {
@@ -971,6 +827,64 @@ void EncoderTester::initialize_test_map() {
     encoder_test_map["create_fdiv_reg"] = [this]() { return this->test_create_fdiv_reg(); };
     encoder_test_map["enc_create_fdiv_vector_reg"] = [this]() { return this->test_enc_create_fdiv_vector_reg(); };
     encoder_test_map["create_fmax_vector_reg"] = [this]() { return this->test_create_fmax_vector_reg(); };
+    encoder_test_map["enc_create_add_imm"] = [this]() { return this->test_enc_create_add_imm(); };
+    //    encoder_test_map["enc_create_add_literal"] = [this]() { return this->test_enc_create_add_literal(); };
+    encoder_test_map["enc_create_add_vector_reg"] = [this]() { return this->test_enc_create_add_vector_reg(); };
+    encoder_test_map["enc_create_addp_vector_reg"] = [this]() { return this->test_enc_create_addp_vector_reg(); };
+    encoder_test_map["enc_create_csetm_ne"] = [this]() { return this->test_enc_create_csetm_ne(); };
+    encoder_test_map["enc_create_csetm"] = [this]() { return this->test_enc_create_csetm(); };
+    encoder_test_map["enc_create_fadd_reg"] = [this]() { return this->test_enc_create_fadd_reg(); };
+    encoder_test_map["enc_create_fadd_vector_reg"] = [this]() { return this->test_enc_create_fadd_vector_reg(); };
+    encoder_test_map["enc_create_faddp_vector_reg"] = [this]() { return this->test_enc_create_faddp_vector_reg(); };
+    encoder_test_map["enc_create_fcmp_reg"] = [this]() { return this->test_enc_create_fcmp_reg(); };
+    encoder_test_map["enc_create_fcvt_d_to_s"] = [this]() { return this->test_enc_create_fcvt_d_to_s(); };
+    encoder_test_map["enc_create_fcvtms_reg"] = [this]() { return this->test_enc_create_fcvtms_reg(); };
+    encoder_test_map["enc_create_fcvtzs_reg"] = [this]() { return this->test_enc_create_fcvtzs_reg(); };
+    encoder_test_map["enc_create_fdiv_reg"] = [this]() { return this->test_enc_create_fdiv_reg(); };
+    encoder_test_map["enc_create_fmax_vector_reg"] = [this]() { return this->test_enc_create_fmax_vector_reg(); };
+    encoder_test_map["enc_create_fmaxp_vector_reg"] = [this]() { return this->test_enc_create_fmaxp_vector_reg(); };
+    encoder_test_map["enc_create_fmin_vector_reg"] = [this]() { return this->test_enc_create_fmin_vector_reg(); };
+    encoder_test_map["enc_create_fminp_vector_reg"] = [this]() { return this->test_enc_create_fminp_vector_reg(); };
+    encoder_test_map["enc_create_fmla_vector_reg"] = [this]() { return this->test_enc_create_fmla_vector_reg(); };
+    encoder_test_map["enc_create_fmov_d_to_x"] = [this]() { return this->test_enc_create_fmov_d_to_x(); };
+    encoder_test_map["enc_create_fmov_reg"] = [this]() { return this->test_enc_create_fmov_reg(); };
+    encoder_test_map["enc_create_fmov_s_to_w"] = [this]() { return this->test_enc_create_fmov_s_to_w(); };
+    encoder_test_map["enc_create_fmov_w_to_s"] = [this]() { return this->test_enc_create_fmov_w_to_s(); };
+    encoder_test_map["enc_create_fmov_x_to_d"] = [this]() { return this->test_enc_create_fmov_x_to_d(); };
+    encoder_test_map["enc_create_fmul_reg"] = [this]() { return this->test_enc_create_fmul_reg(); };
+    encoder_test_map["enc_create_fmul_vector_reg"] = [this]() { return this->test_enc_create_fmul_vector_reg(); };
+    encoder_test_map["enc_create_fneg_reg"] = [this]() { return this->test_enc_create_fneg_reg(); };
+    encoder_test_map["enc_create_fsqrt_reg"] = [this]() { return this->test_enc_create_fsqrt_reg(); };
+    encoder_test_map["enc_create_fsub_reg"] = [this]() { return this->test_enc_create_fsub_reg(); };
+    encoder_test_map["enc_create_fsub_vector_reg"] = [this]() { return this->test_enc_create_fsub_vector_reg(); };
+    encoder_test_map["enc_create_ld1_vector_reg"] = [this]() { return this->test_enc_create_ld1_vector_reg(); };
+    encoder_test_map["enc_create_ldp_imm"] = [this]() { return this->test_enc_create_ldp_imm(); };
+    encoder_test_map["enc_create_ldp_post_imm"] = [this]() { return this->test_enc_create_ldp_post_imm(); };
+    encoder_test_map["enc_create_ldp_pre_imm"] = [this]() { return this->test_enc_create_ldp_pre_imm(); };
+    encoder_test_map["enc_create_ldr_fp_imm"] = [this]() { return this->test_enc_create_ldr_fp_imm(); };
+    encoder_test_map["enc_create_ldr_imm"] = [this]() { return this->test_enc_create_ldr_imm(); };
+    encoder_test_map["enc_create_ldr_scaled_reg_64bit"] = [this]() { return this->test_enc_create_ldr_scaled_reg_64bit(); };
+    encoder_test_map["enc_create_ldr_vec_imm"] = [this]() { return this->test_enc_create_ldr_vec_imm(); };
+    encoder_test_map["enc_create_ldr_word_imm"] = [this]() { return this->test_enc_create_ldr_word_imm(); };
+    encoder_test_map["enc_create_ldrb_imm"] = [this]() { return this->test_enc_create_ldrb_imm(); };
+    encoder_test_map["enc_create_mov_fp_sp"] = [this]() { return this->test_enc_create_mov_fp_sp(); };
+    encoder_test_map["enc_create_mul_vector_reg"] = [this]() { return this->test_enc_create_mul_vector_reg(); };
+    encoder_test_map["enc_create_mvn_reg"] = [this]() { return this->test_enc_create_mvn_reg(); };
+    encoder_test_map["enc_create_nop"] = [this]() { return this->test_enc_create_nop(); };
+    encoder_test_map["enc_create_scvtf_reg"] = [this]() { return this->test_enc_create_scvtf_reg(); };
+    encoder_test_map["enc_create_smax_vector_reg"] = [this]() { return this->test_enc_create_smax_vector_reg(); };
+    encoder_test_map["enc_create_smin_vector_reg"] = [this]() { return this->test_enc_create_smin_vector_reg(); };
+    encoder_test_map["enc_create_sminp_vector_reg"] = [this]() { return this->test_enc_create_sminp_vector_reg(); };
+    encoder_test_map["enc_create_st1_vector_reg"] = [this]() { return this->test_enc_create_st1_vector_reg(); };
+    encoder_test_map["enc_create_stp_imm"] = [this]() { return this->test_enc_create_stp_imm(); };
+    encoder_test_map["enc_create_stp_pre_imm"] = [this]() { return this->test_enc_create_stp_pre_imm(); };
+    encoder_test_map["enc_create_str_fp_imm"] = [this]() { return this->test_enc_create_str_fp_imm(); };
+    encoder_test_map["enc_create_str_imm"] = [this]() { return this->test_enc_create_str_imm(); };
+    encoder_test_map["enc_create_str_vec_imm"] = [this]() { return this->test_enc_create_str_vec_imm(); };
+    encoder_test_map["enc_create_str_word_imm"] = [this]() { return this->test_enc_create_str_word_imm(); };
+    encoder_test_map["enc_create_sub_vector_reg"] = [this]() { return this->test_enc_create_sub_vector_reg(); };
+    encoder_test_map["enc_create_svc_imm"] = [this]() { return this->test_enc_create_svc_imm(); };
+    encoder_test_map["enc_create_uzp1_vector_reg"] = [this]() { return this->test_enc_create_uzp1_vector_reg(); };
 }
 
 bool EncoderTester::test_create_add_reg() {
@@ -1071,6 +985,296 @@ bool EncoderTester::test_create_cset() {
 bool EncoderTester::test_create_csetm_eq() {
     Instruction instr = ::test_create_csetm_eq(); // Calls wrapper in TestableEncoders.cpp
     return runValidation("create_csetm_eq", instr);
+}
+
+bool EncoderTester::test_enc_create_add_imm() {
+    Instruction instr = ::test_enc_create_add_imm(); // Calls wrapper in TestableEncoders.cpp
+    return runValidation("enc_create_add_imm", instr);
+}
+
+// bool EncoderTester::test_enc_create_add_literal() {
+//     Instruction instr = ::test_enc_create_add_literal(); // Calls wrapper in TestableEncoders.cpp
+//     return runValidation("enc_create_add_literal", instr);
+// }
+
+bool EncoderTester::test_enc_create_add_vector_reg() {
+    Instruction instr = ::test_enc_create_add_vector_reg(); // Calls wrapper in TestableEncoders.cpp
+    return runValidation("enc_create_add_vector_reg", instr);
+}
+
+bool EncoderTester::test_enc_create_addp_vector_reg() {
+    Instruction instr = ::test_enc_create_addp_vector_reg(); // Calls wrapper in TestableEncoders.cpp
+    return runValidation("enc_create_addp_vector_reg", instr);
+}
+
+bool EncoderTester::test_enc_create_csetm_ne() {
+    Instruction instr = ::test_enc_create_csetm_ne(); // Calls wrapper in TestableEncoders.cpp
+    return runValidation("enc_create_csetm_ne", instr);
+}
+
+bool EncoderTester::test_enc_create_csetm() {
+    Instruction instr = ::test_enc_create_csetm(); // Calls wrapper in TestableEncoders.cpp
+    return runValidation("enc_create_csetm", instr);
+}
+
+bool EncoderTester::test_enc_create_fadd_reg() {
+    Instruction instr = ::test_enc_create_fadd_reg(); // Calls wrapper in TestableEncoders.cpp
+    return runValidation("enc_create_fadd_reg", instr);
+}
+
+bool EncoderTester::test_enc_create_fadd_vector_reg() {
+    Instruction instr = ::test_enc_create_fadd_vector_reg(); // Calls wrapper in TestableEncoders.cpp
+    return runValidation("enc_create_fadd_vector_reg", instr);
+}
+
+bool EncoderTester::test_enc_create_faddp_vector_reg() {
+    Instruction instr = ::test_enc_create_faddp_vector_reg(); // Calls wrapper in TestableEncoders.cpp
+    return runValidation("enc_create_faddp_vector_reg", instr);
+}
+
+bool EncoderTester::test_enc_create_fcmp_reg() {
+    Instruction instr = ::test_enc_create_fcmp_reg(); // Calls wrapper in TestableEncoders.cpp
+    return runValidation("enc_create_fcmp_reg", instr);
+}
+
+bool EncoderTester::test_enc_create_fcvt_d_to_s() {
+    Instruction instr = ::test_enc_create_fcvt_d_to_s(); // Calls wrapper in TestableEncoders.cpp
+    return runValidation("enc_create_fcvt_d_to_s", instr);
+}
+
+bool EncoderTester::test_enc_create_fcvtms_reg() {
+    Instruction instr = ::test_enc_create_fcvtms_reg(); // Calls wrapper in TestableEncoders.cpp
+    return runValidation("enc_create_fcvtms_reg", instr);
+}
+
+bool EncoderTester::test_enc_create_fcvtzs_reg() {
+    Instruction instr = ::test_enc_create_fcvtzs_reg(); // Calls wrapper in TestableEncoders.cpp
+    return runValidation("enc_create_fcvtzs_reg", instr);
+}
+
+bool EncoderTester::test_enc_create_fdiv_reg() {
+    Instruction instr = ::test_enc_create_fdiv_reg(); // Calls wrapper in TestableEncoders.cpp
+    return runValidation("enc_create_fdiv_reg", instr);
+}
+
+bool EncoderTester::test_enc_create_fmax_vector_reg() {
+    Instruction instr = ::test_enc_create_fmax_vector_reg(); // Calls wrapper in TestableEncoders.cpp
+    return runValidation("enc_create_fmax_vector_reg", instr);
+}
+
+bool EncoderTester::test_enc_create_fmaxp_vector_reg() {
+    Instruction instr = ::test_enc_create_fmaxp_vector_reg(); // Calls wrapper in TestableEncoders.cpp
+    return runValidation("enc_create_fmaxp_vector_reg", instr);
+}
+
+bool EncoderTester::test_enc_create_fmin_vector_reg() {
+    Instruction instr = ::test_enc_create_fmin_vector_reg(); // Calls wrapper in TestableEncoders.cpp
+    return runValidation("enc_create_fmin_vector_reg", instr);
+}
+
+bool EncoderTester::test_enc_create_fminp_vector_reg() {
+    Instruction instr = ::test_enc_create_fminp_vector_reg(); // Calls wrapper in TestableEncoders.cpp
+    return runValidation("enc_create_fminp_vector_reg", instr);
+}
+
+bool EncoderTester::test_enc_create_fmla_vector_reg() {
+    Instruction instr = ::test_enc_create_fmla_vector_reg(); // Calls wrapper in TestableEncoders.cpp
+    return runValidation("enc_create_fmla_vector_reg", instr);
+}
+
+bool EncoderTester::test_enc_create_fmov_d_to_x() {
+    Instruction instr = ::test_enc_create_fmov_d_to_x(); // Calls wrapper in TestableEncoders.cpp
+    return runValidation("enc_create_fmov_d_to_x", instr);
+}
+
+bool EncoderTester::test_enc_create_fmov_reg() {
+    Instruction instr = ::test_enc_create_fmov_reg(); // Calls wrapper in TestableEncoders.cpp
+    return runValidation("enc_create_fmov_reg", instr);
+}
+
+bool EncoderTester::test_enc_create_fmov_s_to_w() {
+    Instruction instr = ::test_enc_create_fmov_s_to_w(); // Calls wrapper in TestableEncoders.cpp
+    return runValidation("enc_create_fmov_s_to_w", instr);
+}
+
+bool EncoderTester::test_enc_create_fmov_w_to_s() {
+    Instruction instr = ::test_enc_create_fmov_w_to_s(); // Calls wrapper in TestableEncoders.cpp
+    return runValidation("enc_create_fmov_w_to_s", instr);
+}
+
+bool EncoderTester::test_enc_create_fmov_x_to_d() {
+    Instruction instr = ::test_enc_create_fmov_x_to_d(); // Calls wrapper in TestableEncoders.cpp
+    return runValidation("enc_create_fmov_x_to_d", instr);
+}
+
+bool EncoderTester::test_enc_create_fmul_reg() {
+    Instruction instr = ::test_enc_create_fmul_reg(); // Calls wrapper in TestableEncoders.cpp
+    return runValidation("enc_create_fmul_reg", instr);
+}
+
+bool EncoderTester::test_enc_create_fmul_vector_reg() {
+    Instruction instr = ::test_enc_create_fmul_vector_reg(); // Calls wrapper in TestableEncoders.cpp
+    return runValidation("enc_create_fmul_vector_reg", instr);
+}
+
+bool EncoderTester::test_enc_create_fneg_reg() {
+    Instruction instr = ::test_enc_create_fneg_reg(); // Calls wrapper in TestableEncoders.cpp
+    return runValidation("enc_create_fneg_reg", instr);
+}
+
+bool EncoderTester::test_enc_create_fsqrt_reg() {
+    Instruction instr = ::test_enc_create_fsqrt_reg(); // Calls wrapper in TestableEncoders.cpp
+    return runValidation("enc_create_fsqrt_reg", instr);
+}
+
+bool EncoderTester::test_enc_create_fsub_reg() {
+    Instruction instr = ::test_enc_create_fsub_reg(); // Calls wrapper in TestableEncoders.cpp
+    return runValidation("enc_create_fsub_reg", instr);
+}
+
+bool EncoderTester::test_enc_create_fsub_vector_reg() {
+    Instruction instr = ::test_enc_create_fsub_vector_reg(); // Calls wrapper in TestableEncoders.cpp
+    return runValidation("enc_create_fsub_vector_reg", instr);
+}
+
+bool EncoderTester::test_enc_create_ld1_vector_reg() {
+    Instruction instr = ::test_enc_create_ld1_vector_reg(); // Calls wrapper in TestableEncoders.cpp
+    return runValidation("enc_create_ld1_vector_reg", instr);
+}
+
+bool EncoderTester::test_enc_create_ldp_imm() {
+    Instruction instr = ::test_enc_create_ldp_imm(); // Calls wrapper in TestableEncoders.cpp
+    return runValidation("enc_create_ldp_imm", instr);
+}
+
+bool EncoderTester::test_enc_create_ldp_post_imm() {
+    Instruction instr = ::test_enc_create_ldp_post_imm(); // Calls wrapper in TestableEncoders.cpp
+    return runValidation("enc_create_ldp_post_imm", instr);
+}
+
+bool EncoderTester::test_enc_create_ldp_pre_imm() {
+    Instruction instr = ::test_enc_create_ldp_pre_imm(); // Calls wrapper in TestableEncoders.cpp
+    return runValidation("enc_create_ldp_pre_imm", instr);
+}
+
+bool EncoderTester::test_enc_create_ldr_fp_imm() {
+    Instruction instr = ::test_enc_create_ldr_fp_imm(); // Calls wrapper in TestableEncoders.cpp
+    return runValidation("enc_create_ldr_fp_imm", instr);
+}
+
+bool EncoderTester::test_enc_create_ldr_imm() {
+    Instruction instr = ::test_enc_create_ldr_imm(); // Calls wrapper in TestableEncoders.cpp
+    return runValidation("enc_create_ldr_imm", instr);
+}
+
+bool EncoderTester::test_enc_create_ldr_scaled_reg_64bit() {
+    Instruction instr = ::test_enc_create_ldr_scaled_reg_64bit(); // Calls wrapper in TestableEncoders.cpp
+    return runValidation("enc_create_ldr_scaled_reg_64bit", instr);
+}
+
+bool EncoderTester::test_enc_create_ldr_vec_imm() {
+    Instruction instr = ::test_enc_create_ldr_vec_imm(); // Calls wrapper in TestableEncoders.cpp
+    return runValidation("enc_create_ldr_vec_imm", instr);
+}
+
+bool EncoderTester::test_enc_create_ldr_word_imm() {
+    Instruction instr = ::test_enc_create_ldr_word_imm(); // Calls wrapper in TestableEncoders.cpp
+    return runValidation("enc_create_ldr_word_imm", instr);
+}
+
+bool EncoderTester::test_enc_create_ldrb_imm() {
+    Instruction instr = ::test_enc_create_ldrb_imm(); // Calls wrapper in TestableEncoders.cpp
+    return runValidation("enc_create_ldrb_imm", instr);
+}
+
+bool EncoderTester::test_enc_create_mov_fp_sp() {
+    Instruction instr = ::test_enc_create_mov_fp_sp(); // Calls wrapper in TestableEncoders.cpp
+    return runValidation("enc_create_mov_fp_sp", instr);
+}
+
+bool EncoderTester::test_enc_create_mul_vector_reg() {
+    Instruction instr = ::test_enc_create_mul_vector_reg(); // Calls wrapper in TestableEncoders.cpp
+    return runValidation("enc_create_mul_vector_reg", instr);
+}
+
+bool EncoderTester::test_enc_create_mvn_reg() {
+    Instruction instr = ::test_enc_create_mvn_reg(); // Calls wrapper in TestableEncoders.cpp
+    return runValidation("enc_create_mvn_reg", instr);
+}
+
+bool EncoderTester::test_enc_create_nop() {
+    Instruction instr = ::test_enc_create_nop(); // Calls wrapper in TestableEncoders.cpp
+    return runValidation("enc_create_nop", instr);
+}
+
+bool EncoderTester::test_enc_create_scvtf_reg() {
+    Instruction instr = ::test_enc_create_scvtf_reg(); // Calls wrapper in TestableEncoders.cpp
+    return runValidation("enc_create_scvtf_reg", instr);
+}
+
+bool EncoderTester::test_enc_create_smax_vector_reg() {
+    Instruction instr = ::test_enc_create_smax_vector_reg(); // Calls wrapper in TestableEncoders.cpp
+    return runValidation("enc_create_smax_vector_reg", instr);
+}
+
+bool EncoderTester::test_enc_create_smin_vector_reg() {
+    Instruction instr = ::test_enc_create_smin_vector_reg(); // Calls wrapper in TestableEncoders.cpp
+    return runValidation("enc_create_smin_vector_reg", instr);
+}
+
+bool EncoderTester::test_enc_create_sminp_vector_reg() {
+    Instruction instr = ::test_enc_create_sminp_vector_reg(); // Calls wrapper in TestableEncoders.cpp
+    return runValidation("enc_create_sminp_vector_reg", instr);
+}
+
+bool EncoderTester::test_enc_create_st1_vector_reg() {
+    Instruction instr = ::test_enc_create_st1_vector_reg(); // Calls wrapper in TestableEncoders.cpp
+    return runValidation("enc_create_st1_vector_reg", instr);
+}
+
+bool EncoderTester::test_enc_create_stp_imm() {
+    Instruction instr = ::test_enc_create_stp_imm(); // Calls wrapper in TestableEncoders.cpp
+    return runValidation("enc_create_stp_imm", instr);
+}
+
+bool EncoderTester::test_enc_create_stp_pre_imm() {
+    Instruction instr = ::test_enc_create_stp_pre_imm(); // Calls wrapper in TestableEncoders.cpp
+    return runValidation("enc_create_stp_pre_imm", instr);
+}
+
+bool EncoderTester::test_enc_create_str_fp_imm() {
+    Instruction instr = ::test_enc_create_str_fp_imm(); // Calls wrapper in TestableEncoders.cpp
+    return runValidation("enc_create_str_fp_imm", instr);
+}
+
+bool EncoderTester::test_enc_create_str_imm() {
+    Instruction instr = ::test_enc_create_str_imm(); // Calls wrapper in TestableEncoders.cpp
+    return runValidation("enc_create_str_imm", instr);
+}
+
+bool EncoderTester::test_enc_create_str_vec_imm() {
+    Instruction instr = ::test_enc_create_str_vec_imm(); // Calls wrapper in TestableEncoders.cpp
+    return runValidation("enc_create_str_vec_imm", instr);
+}
+
+bool EncoderTester::test_enc_create_str_word_imm() {
+    Instruction instr = ::test_enc_create_str_word_imm(); // Calls wrapper in TestableEncoders.cpp
+    return runValidation("enc_create_str_word_imm", instr);
+}
+
+bool EncoderTester::test_enc_create_sub_vector_reg() {
+    Instruction instr = ::test_enc_create_sub_vector_reg(); // Calls wrapper in TestableEncoders.cpp
+    return runValidation("enc_create_sub_vector_reg", instr);
+}
+
+bool EncoderTester::test_enc_create_svc_imm() {
+    Instruction instr = ::test_enc_create_svc_imm(); // Calls wrapper in TestableEncoders.cpp
+    return runValidation("enc_create_svc_imm", instr);
+}
+
+bool EncoderTester::test_enc_create_uzp1_vector_reg() {
+    Instruction instr = ::test_enc_create_uzp1_vector_reg(); // Calls wrapper in TestableEncoders.cpp
+    return runValidation("enc_create_uzp1_vector_reg", instr);
 }
 
 bool EncoderTester::test_create_add_literal() {

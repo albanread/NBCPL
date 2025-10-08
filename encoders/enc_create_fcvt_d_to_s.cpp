@@ -1,8 +1,10 @@
-// This encoder is NOT present in the test schedule. Test will be added via wrapper and results updated here.
-#include "../Encoder.h"
-#include "../BitPatcher.h"
+// This encoder is present in the test schedule and has passed automated validation.
+#include "Encoder.h"
+#include "BitPatcher.h"
 #include <stdexcept>
 #include <string>
+#include <algorithm>
+#include <cctype>
 
 // ARM64 FCVT (Floating-point Convert precision)
 // This instruction converts from double precision (D) to single precision (S)
@@ -11,21 +13,27 @@
 // Where Rn is the D register (bits 5-9) and Rd is the S register (bits 0-4)
 
 Instruction Encoder::create_fcvt_d_to_s(const std::string& sd, const std::string& dn) {
-    // Parse S register number from "S0", "S1", etc.
+    // Parse S register number from "S0", "S1", etc. (case-insensitive)
     auto parse_s_reg = [](const std::string& reg) -> int {
-        if (reg.size() < 2 || reg[0] != 'S') return -1;
+        if (reg.size() < 2) return -1;
+        std::string upper_reg = reg;
+        std::transform(upper_reg.begin(), upper_reg.end(), upper_reg.begin(), ::toupper);
+        if (upper_reg[0] != 'S') return -1;
         try {
-            return std::stoi(reg.substr(1));
+            return std::stoi(upper_reg.substr(1));
         } catch (...) {
             return -1;
         }
     };
 
-    // Parse D register number from "D0", "D1", etc.
+    // Parse D register number from "D0", "D1", etc. (case-insensitive)
     auto parse_d_reg = [](const std::string& reg) -> int {
-        if (reg.size() < 2 || reg[0] != 'D') return -1;
+        if (reg.size() < 2) return -1;
+        std::string upper_reg = reg;
+        std::transform(upper_reg.begin(), upper_reg.end(), upper_reg.begin(), ::toupper);
+        if (upper_reg[0] != 'D') return -1;
         try {
-            return std::stoi(reg.substr(1));
+            return std::stoi(upper_reg.substr(1));
         } catch (...) {
             return -1;
         }
