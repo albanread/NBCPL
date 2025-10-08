@@ -11,6 +11,9 @@
 // Include HeapManager and runtime interfaces
 #include "HeapManager/HeapManager.h"
 #include "HeapManager/heap_c_wrappers.h"
+
+// Global trace flag required by HeapManager
+bool g_enable_heap_trace = false;
 #include "runtime.h"
 #include "runtime/ListDataTypes.h"
 
