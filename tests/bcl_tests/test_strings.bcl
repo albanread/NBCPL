@@ -16,5 +16,5 @@ $(
 
     WRITES("*N")
 
-    FINISH
+   // FINISH
 $)
