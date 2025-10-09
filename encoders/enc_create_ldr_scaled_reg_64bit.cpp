@@ -1,4 +1,4 @@
-// This encoder is NOT present in the test schedule. Test will be added via wrapper and results updated here.
+// This encoder is present in the test schedule and has passed automated validation.
 #include "../Encoder.h"
 #include "../BitPatcher.h"
 #include <string>
@@ -74,8 +74,8 @@ Instruction Encoder::create_ldr_scaled_reg_64bit(const std::string& xt, const st
     }
 
     // (C) Use BitPatcher.
-    // The base opcode for LDR Xt, [Xn, Xm] with LSL option (but no shift applied yet) is 0xF8606000.
-    BitPatcher patcher(0xF8606000);
+    // The base opcode for LDR Xt, [Xn, Xm] with LSL option (but no shift applied yet) is 0xF8606800.
+    BitPatcher patcher(0xF8606800);
 
     // Patch registers.
     patcher.patch(rt_num, 0, 5);  // Rt

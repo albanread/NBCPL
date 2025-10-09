@@ -1,4 +1,4 @@
-// This encoder is NOT present in the test schedule. Test will be added via wrapper and results updated here.
+// This encoder is present in the test schedule and has passed automated validation.
 #include "BitPatcher.h"
 #include "Encoder.h"
 #include <algorithm>
@@ -16,6 +16,7 @@
  * The encoding follows the "Load/Store Pair (post-index)" format:
  * - **size (bits 31-30)**: `10` for 64-bit, `00` for 32-bit.
  * - **Family (bits 29-24)**: `0b101000`.
+ * - **P (bit 23)**: `1` for post-index.
  * - **L (bit 22)**: `1` for Load.
  * - **imm7 (bits 21-15)**: A 7-bit signed immediate, scaled by the register size.
  * - **Rt2 (bits 14-10)**: The second destination register.
@@ -72,19 +73,14 @@ Instruction Encoder::create_ldp_post_imm(const std::string& xt1, const std::stri
 
     if (rt1_is_64) { // 64-bit LDP
         // Correct base_opcode for 64-bit LDP post-indexed:
-        // sf=1, opc=01 (Load), V=0 (GP), fixed(010), P=0, M=0, L=1.
-        // This corresponds to a leading pattern that ensures V=0 and correct instruction type.
-        base_opcode = 0xA8400000; // This should be 10101000_01000000_00000000_00000000
-                                  // sf=1, opc=01, V=0, P=0, M=0, L=1, then rest are part of Imm7 and reg encoding.
-                                  // This combines sf=1, opc=01, V=0, 010 (fixed), P=0, M=0, L=1.
-                                  // Which is: 1010010001XXXXXXX...
-                                  // The 0xA8400000 pattern translates correctly for LDP post-index 64-bit.
+        // sf=1, opc=01 (Load), V=0 (GP), fixed(010), P=1, M=0, L=1.
+        base_opcode = 0xA8C00000;
 
         scale = 8;
         min_offset = -512;
         max_offset = 504;
     } else { // 32-bit LDP (W registers)
-        base_opcode = 0x28400000; // Corresponding base_opcode for 32-bit LDP post-indexed
+        base_opcode = 0x28C00000; // P=1 for post-index
         scale = 4;
         min_offset = -256;
         max_offset = 252;

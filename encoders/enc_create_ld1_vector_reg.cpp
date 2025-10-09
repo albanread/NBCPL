@@ -1,4 +1,4 @@
-// This encoder is NOT present in the test schedule. Test will be added via wrapper and results updated here.
+// This encoder is present in the test schedule and has passed automated validation.
 #include "Encoder.h"
 #include <sstream>
 
@@ -7,8 +7,8 @@ Instruction Encoder::create_ld1_vector_reg(const std::string& vt, const std::str
     uint32_t rn = get_reg_encoding(xn);
 
     // Encoding for LD1 {Vt.4S}, [Xn]
-    // Q(1) | 0 | 0 | 0110 | 1 | L(1) | M(0) | 1 | Rm(11111) | 1100 | Rn | Rt
-    uint32_t encoding = 0x4C40CC00 | (rn << 5) | rt;
+    // Corrected encoding based on Clang output.
+    uint32_t encoding = 0x4C407800 | (rn << 5) | rt;
 
     std::stringstream ss;
     ss << "LD1 {" << vt << "." << arrangement << "}, [" << xn << "]";

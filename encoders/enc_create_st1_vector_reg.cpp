@@ -1,4 +1,4 @@
-// This encoder is NOT present in the test schedule. Test will be added via wrapper and results updated here.
+// This encoder is present in the test schedule and has passed automated validation.
 #include "Encoder.h"
 #include <sstream>
 #include <stdexcept>
@@ -9,9 +9,8 @@ Instruction Encoder::create_st1_vector_reg(const std::string& vt, const std::str
 
     // Encoding for ST1 {Vt.4S}, [Xn]
     // This is the store counterpart to LD1
-    // Q(1) | 0 | 0 | 0110 | 1 | L(0) | M(0) | 1 | Rm(11111) | 1100 | Rn | Rt
-    // L=0 for store (vs L=1 for load in LD1)
-    uint32_t encoding = 0x4C008C00 | (rn << 5) | rt;
+    // Corrected encoding based on Clang output.
+    uint32_t encoding = 0x4C007800 | (rn << 5) | rt;
 
     std::stringstream ss;
     ss << "ST1 {" << vt << "." << arrangement << "}, [" << xn << "]";

@@ -47,10 +47,7 @@ LET START() BE $(
   		SDL2_SET_DRAW_COLOR(renderer, 20, 220, 20, 255)
 		
 		FOR I=100 TO 200 DO {	
-		 SDL2_DRAW_POINT(renderer, I, I)
- 		 SDL2_DRAW_POINT(renderer, I+1, I+1)
- 		 SDL2_DRAW_POINT(renderer, I, I+1)
- 		 SDL2_DRAW_POINT(renderer, I+1, I)
+		 SDL2_DRAW_RECT(renderer, I, I,2,2)
 		}
 
                 // 3. Present the renderer to show the changes on the screen.

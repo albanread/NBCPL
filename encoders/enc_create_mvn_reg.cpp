@@ -1,4 +1,4 @@
-// This encoder is NOT present in the test schedule. Test will be added via wrapper and results updated here.
+// This encoder is present in the test schedule and has passed automated validation.
 #include "BitPatcher.h"
 #include "../Encoder.h"
 #include <algorithm>
@@ -60,8 +60,8 @@ Instruction Encoder::create_mvn_reg(const std::string& xd, const std::string& xm
 
     // ORN <Xd|Wd>, XZR, <Xm|Wm>
     // Encoding for ORN (register): same as ORR (register) but with N=1 (bit 21)
-    // Base opcode for 32-bit ORN (register) is 0x2A200800.
-    BitPatcher patcher(0x2A200800);
+    // Base opcode for 32-bit ORN (register) is 0x2A200000.
+    BitPatcher patcher(0x2A200000);
 
     if (rd_is_64) {
         patcher.patch(1, 31, 1); // Set the sf bit for 64-bit operation.
