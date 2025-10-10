@@ -300,8 +300,16 @@ void AssemblyWriter::write_to_file(const std::string& path,
                 label = instr.target_label;
             }
 
-            ofs << "    ADRP " << reg << ", " << label << "@PAGE\n";
-            ofs << "    ADD " << reg << ", " << reg << ", " << label << "@PAGEOFF\n";
+            // Check if the next instruction has ADD_12_BIT_UNSIGNED_OFFSET_PLUS_8 relocation
+            if (next_instr.relocation == RelocationType::ADD_12_BIT_UNSIGNED_OFFSET_PLUS_8) {
+                // Use offset label for +8 case
+                ofs << "    ADRP " << reg << ", " << label << "_plus_8@PAGE\n";
+                ofs << "    ADD " << reg << ", " << reg << ", " << label << "_plus_8@PAGEOFF\n";
+            } else {
+                // Regular ADRP+ADD conversion
+                ofs << "    ADRP " << reg << ", " << label << "@PAGE\n";
+                ofs << "    ADD " << reg << ", " << reg << ", " << label << "@PAGEOFF\n";
+            }
             i++;
             continue;
         }

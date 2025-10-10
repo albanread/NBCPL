@@ -323,6 +323,8 @@ void DataGenerator::generate_rodata_section(InstructionStream& stream) {
         emitted_labels.insert(info.label);
         stream.add(Instruction::as_label(info.label, SegmentType::RODATA));
         stream.add_data64(info.value.length() - 2, "", SegmentType::RODATA);
+        // Add offset label pointing 8 bytes after the main label (skipping length prefix)
+        stream.add(Instruction::as_label(info.label + "_plus_8", SegmentType::RODATA));
         for (char32_t ch : info.value) {
             stream.add_data32(static_cast<uint32_t>(ch), "", SegmentType::RODATA);
         }

@@ -9,6 +9,44 @@ void NewCodeGenerator::visit(AssignmentStatement& node) {
     debug_print("  [CSE DEBUG] *** PROCESSING ASSIGNMENT STATEMENT ***");
     debug_print("  [CSE DEBUG] LHS count: " + std::to_string(node.lhs.size()) + ", RHS count: " + std::to_string(node.rhs.size()));
     
+    // OPTIMIZATION: Simple increment/decrement (var = var + constant)
+    if (node.lhs.size() == 1 && node.rhs.size() == 1) {
+        if (auto* lhs_var = dynamic_cast<VariableAccess*>(node.lhs[0].get())) {
+            if (auto* rhs_binop = dynamic_cast<BinaryOp*>(node.rhs[0].get())) {
+                if (rhs_binop->op == BinaryOp::Operator::Add || rhs_binop->op == BinaryOp::Operator::Subtract) {
+                    if (auto* rhs_var = dynamic_cast<VariableAccess*>(rhs_binop->left.get())) {
+                        if (auto* constant = dynamic_cast<NumberLiteral*>(rhs_binop->right.get())) {
+                            // Check if it's the same variable: var = var +/- constant
+                            if (lhs_var->name == rhs_var->name && 
+                                constant->int_value >= 1 && constant->int_value <= 4095) {
+                                
+                                debug_print("OPTIMIZATION: Simple increment/decrement detected: " + 
+                                          lhs_var->name + " = " + lhs_var->name + 
+                                          (rhs_binop->op == BinaryOp::Operator::Add ? " + " : " - ") + 
+                                          std::to_string(constant->int_value));
+                                
+                                // Get the variable's register directly
+                                std::string var_reg = get_variable_register(lhs_var->name);
+                                
+                                // Emit direct ADD/SUB instruction
+                                if (rhs_binop->op == BinaryOp::Operator::Add) {
+                                    emit(Encoder::create_add_imm(var_reg, var_reg, constant->int_value));
+                                } else {
+                                    emit(Encoder::create_sub_imm(var_reg, var_reg, constant->int_value));
+                                }
+                                
+                                debug_print("Emitted optimized in-place " + 
+                                          std::string(rhs_binop->op == BinaryOp::Operator::Add ? "ADD" : "SUB") + 
+                                          " for " + lhs_var->name);
+                                return;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+    
     // Check if this looks like a CSE-generated assignment
     if (node.lhs.size() == 1 && node.rhs.size() == 1) {
         if (auto* lhs_var = dynamic_cast<VariableAccess*>(node.lhs[0].get())) {

@@ -842,6 +842,17 @@ public:
   static Instruction create_adr(const std::string &xd,
                                 const std::string &label_name);
 
+  /**
+   * @brief Creates an ADR instruction with label + offset. Loads the address of a label plus offset into a register.
+   * @param xd The destination register.
+   * @param label_name The target label.
+   * @param offset The immediate offset to add to the label address.
+   * @return A complete Instruction object with relocation info.
+   */
+  static Instruction create_adr_with_offset(const std::string &xd,
+                                           const std::string &label_name,
+                                           int64_t offset);
+
   // --- NEON / SIMD Instructions ---
 
   /**

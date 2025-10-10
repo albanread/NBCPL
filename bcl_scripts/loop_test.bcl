@@ -1,0 +1,25 @@
+// Simple for loop test to verify increment optimization
+// This should generate optimized ADD instructions instead of MOV+ADD+MOV
+
+LET START() BE
+$(
+    LET i = 0
+
+    WRITEF("Testing simple for loop increment optimization*N")
+
+    // Simple loop with increment by 1 (should be optimized)
+    FOR i = 1 TO 5 DO
+    $(
+        WRITEF("Loop iteration: %N*N", i)
+    $)
+
+    WRITEF("Testing loop with increment by 2*N")
+
+    // Loop with step of 2 (should also be optimized)
+    FOR i = 0 TO 10 BY 2 DO
+    $(
+        WRITEF("Even number: %N*N", i)
+    $)
+
+    WRITEF("Loop test complete*N")
+$)
