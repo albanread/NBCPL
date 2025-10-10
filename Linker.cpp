@@ -198,6 +198,7 @@ void Linker::performRelocations(
             case RelocationType::PC_RELATIVE_19_BIT_OFFSET:
             case RelocationType::PAGE_21_BIT_PC_RELATIVE:
             case RelocationType::ADD_12_BIT_UNSIGNED_OFFSET:
+            case RelocationType::ADD_12_BIT_UNSIGNED_OFFSET_PLUS_8:
                 instr.encoding = apply_pc_relative_relocation(instr.encoding, instr.address, target_address, instr.relocation, enable_tracing);
                 break;
 

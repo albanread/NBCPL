@@ -81,5 +81,6 @@ Instruction Encoder::create_adrp(const std::string& xd, const std::string& label
     instr.dest_reg = Encoder::get_reg_encoding(xd);
     instr.relocation = RelocationType::PAGE_21_BIT_PC_RELATIVE;
     instr.target_label = label_name;
+    instr.jit_attribute = JITAttribute::AddressLoad;
     return instr;
 }

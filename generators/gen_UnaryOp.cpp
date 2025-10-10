@@ -271,9 +271,8 @@ void NewCodeGenerator::visit(UnaryOp& node) {
         std::string string_label = data_generator_.add_string_literal(type_str);
         debug_print("TYPE macro string label: " + string_label);
         emit(Encoder::create_adrp(dest_reg, string_label));
-        emit(Encoder::create_add_literal(dest_reg, dest_reg, string_label));
-        // Add 8 to skip the 64-bit length prefix and point to character data
-        emit(Encoder::create_add_imm(dest_reg, dest_reg, 8));
+        // Use optimized ADD with +8 offset to skip the 64-bit length prefix
+        emit(Encoder::create_add_literal_with_offset(dest_reg, dest_reg, string_label, 8));
         expression_result_reg_ = dest_reg;
         debug_print("TYPE macro generated string literal: " + type_str);
         return;

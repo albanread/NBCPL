@@ -16,7 +16,8 @@ enum class JITAttribute {
   JitAddress, // Instruction is part of loading a JIT function's address
   JitCall,    // The final instruction that calls the JIT function (e.g., BLR)
   JitStore,   // Spilling a register specifically for a JIT call
-  JitRestore  // Restoring a spilled register after a JIT call
+  JitRestore, // Restoring a spilled register after a JIT call
+  AddressLoad // Instruction is part of address loading sequence (ADRP+ADD)
 };
 
 #include <cstdint>
@@ -42,6 +43,7 @@ enum class RelocationType {
   PAGE_21_BIT_PC_RELATIVE,    // For ADRP (page-relative addressing, 21 bits)
   ADD_12_BIT_UNSIGNED_OFFSET, // For ADD (immediate, 12-bit unsigned offset,
                               // e.g., ADD Xn, Xn, #imm12)
+  ADD_12_BIT_UNSIGNED_OFFSET_PLUS_8, // For ADD with label + 8 offset (string literals)
   MOVZ_MOVK_IMM_0,            // For MOVZ/MOVK with shift 0
   MOVZ_MOVK_IMM_16,           // For MOVZ/MOVK with shift 16
   MOVZ_MOVK_IMM_32,           // For MOVZ/MOVK with shift 32
@@ -817,6 +819,19 @@ public:
   static Instruction create_add_literal(const std::string &xd,
                                         const std::string &xn,
                                         const std::string &label_name);
+
+  /**
+   * @brief Creates an ADD instruction with label + offset (e.g., #:lo12:label + 8).
+   * @param xd The destination register.
+   * @param xn The source register.
+   * @param label_name The target label (for relocation).
+   * @param offset The immediate offset to add to the label.
+   * @return A complete Instruction object with relocation info.
+   */
+  static Instruction create_add_literal_with_offset(const std::string &xd,
+                                                    const std::string &xn,
+                                                    const std::string &label_name,
+                                                    int64_t offset);
 
   /**
    * @brief Creates an ADR instruction. Loads the address of a label into a register.

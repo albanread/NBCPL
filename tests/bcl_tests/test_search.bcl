@@ -1,0 +1,9 @@
+// Test file for tests/bcl_tests directory
+// This tests the enhanced file search functionality
+
+LET START() BE
+$(
+    WRITEF("Hello from tests/bcl_tests directory!*N")
+    WRITEF("Enhanced file search is working!*N")
+    WRITEF("This file was found in the third search location*N")
+$)

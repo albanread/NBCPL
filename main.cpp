@@ -28,6 +28,8 @@
 #include <cstdlib>
 #include <sys/mman.h>
 #include <unistd.h>
+#include <filesystem>
+#include <climits>
 #include "CodeLister.h"
 #include "StrengthReductionPass.h"
 #include <sys/ucontext.h>
@@ -158,6 +160,7 @@ std::string g_source_code;
 
 // --- Forward Declarations ---
 #include "include/SignalHandler.h"
+std::string find_source_file(const std::string& filename);
 std::string read_file_content(const std::string& filepath);
 bool parse_arguments(int argc, char* argv[], bool& run_jit, bool& generate_asm, bool& exec_mode,
                     bool& enable_opt, bool& enable_tracing,
@@ -1190,7 +1193,32 @@ bool parse_arguments(int argc, char* argv[], bool& run_jit, bool& generate_asm, 
                       << "  --trace-vtable         : Enable detailed vtable structure tracing.\n";
             return false;
         } else if (input_filepath.empty() && arg[0] != '-') {
-            input_filepath = arg;
+            // Check if this is just a filename (no path separators)
+            if (std::string(arg).find('/') == std::string::npos) {
+                // Try to find the file in standard directories
+                std::string found_path = find_source_file(arg);
+                if (!found_path.empty()) {
+                    // Change working directory to the directory containing the file
+                    std::filesystem::path file_path(found_path);
+                    std::filesystem::path dir_path = file_path.parent_path();
+                    if (!dir_path.empty()) {
+                        std::filesystem::current_path(dir_path);
+                        if (enable_tracing) {
+                            std::cout << "Debug: Changed working directory to: " << dir_path << std::endl;
+                        }
+                        // Use just the filename since we're now in the correct directory
+                        input_filepath = file_path.filename().string();
+                    } else {
+                        input_filepath = found_path;
+                    }
+                } else {
+                    // File not found in standard directories, use as-is
+                    input_filepath = arg;
+                }
+            } else {
+                // Has path separators, use as-is
+                input_filepath = arg;
+            }
         } else {
             std::cerr << "Error: Multiple input files specified or unknown argument: " << arg << std::endl;
             return false;
@@ -1514,6 +1542,54 @@ void handle_jit_execution(void* code_buffer_base, const std::string& call_entry_
 /**
  * @brief Reads the entire content of a file into a string.
  */
+std::string find_source_file(const std::string& filename) {
+    // Remove any existing extension to search for both .bcl and .bcpl
+    std::string base_name = filename;
+    size_t dot_pos = base_name.rfind('.');
+    if (dot_pos != std::string::npos) {
+        std::string ext = base_name.substr(dot_pos);
+        if (ext == ".bcl" || ext == ".bcpl") {
+            base_name = base_name.substr(0, dot_pos);
+        }
+    }
+    
+    // Search directories in order: bcl_scripts, bcl_code, tests/bcl_tests
+    std::vector<std::string> search_dirs = {
+        "bcl_scripts",
+        "bcl_code", 
+        "tests/bcl_tests"
+    };
+    
+    std::vector<std::string> extensions = {".bcl", ".bcpl"};
+    
+    for (const auto& dir : search_dirs) {
+        for (const auto& ext : extensions) {
+            std::string candidate = dir + "/" + base_name + ext;
+            if (std::filesystem::exists(candidate)) {
+                std::cout << "Found source file: " << candidate << std::endl;
+                return candidate;
+            }
+        }
+    }
+    
+    // If not found in subdirectories, try current directory with extensions
+    for (const auto& ext : extensions) {
+        std::string candidate = base_name + ext;
+        if (std::filesystem::exists(candidate)) {
+            std::cout << "Found source file: " << candidate << std::endl;
+            return candidate;
+        }
+    }
+    
+    // If original filename had an extension, try it as-is
+    if (std::filesystem::exists(filename)) {
+        std::cout << "Found source file: " << filename << std::endl;
+        return filename;
+    }
+    
+    return ""; // Not found
+}
+
 std::string read_file_content(const std::string& filepath) {
     std::ifstream file(filepath);
     if (!file.is_open()) {

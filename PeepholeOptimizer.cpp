@@ -33,6 +33,8 @@ PeepholeOptimizer::PeepholeOptimizer(bool enable_tracing)
         addPattern(PeepholePatterns::createSelfMoveEliminationPattern());
         addPattern(PeepholePatterns::createAdrFusionPattern());
         addPattern(PeepholePatterns::createAdrAddAddFusionPattern());
+        // addPattern(PeepholePatterns::createAddFoldingPattern());
+        // addPattern(PeepholePatterns::createAdvancedAddFoldingPattern());
         addPattern(PeepholePatterns::createIdenticalMovePattern());
 
         // 2. Strength Reduction Pass

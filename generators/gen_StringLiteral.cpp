@@ -15,12 +15,9 @@ void NewCodeGenerator::visit(StringLiteral& node) {
     debug_print("Allocated register " + expression_result_reg_ + " for the string address.");
 
     // 3. Emit instructions to load the base address of the string data block.
+    // Use the optimized version that combines label + offset in a single ADD instruction.
     emit(Encoder::create_adrp(expression_result_reg_, string_label));
-    emit(Encoder::create_add_literal(expression_result_reg_, expression_result_reg_, string_label));
+    emit(Encoder::create_add_literal_with_offset(expression_result_reg_, expression_result_reg_, string_label, 8));
 
-    // 4. *** THE FIX ***
-    //    Add 8 to the pointer to skip the 64-bit length prefix and point to the character payload.
-    emit(Encoder::create_add_imm(expression_result_reg_, expression_result_reg_, 8));
-
-    debug_print("Emitted ADRP/ADD sequence and offset adjustment for string literal '" + node.value + "'.");
+    debug_print("Emitted optimized ADRP/ADD+offset sequence for string literal '" + node.value + "'.");
 }

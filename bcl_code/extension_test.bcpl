@@ -1,0 +1,9 @@
+// Test file with .bcpl extension in bcl_code directory
+// This tests that the enhanced file search finds both .bcl and .bcpl files
+
+LET START() BE
+$(
+    WRITEF("Hello from extension_test.bcpl!*N")
+    WRITEF("Found .bcpl extension successfully*N")
+    WRITEF("Enhanced file search supports multiple extensions*N")
+$)

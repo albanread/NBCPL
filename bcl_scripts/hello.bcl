@@ -1,0 +1,8 @@
+// Simple hello world test for NewBCPL
+// This file tests the enhanced command line file search functionality
+
+LET START() BE
+$(
+    WRITEF("Hello, World!*N")
+    WRITEF("This is a test from bcl_scripts directory*N")
+$)

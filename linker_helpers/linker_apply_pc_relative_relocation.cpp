@@ -41,6 +41,11 @@ uint32_t Linker::apply_pc_relative_relocation(
             patcher.patch(lo12, 10, 12);
             break;
         }
+        case RelocationType::ADD_12_BIT_UNSIGNED_OFFSET_PLUS_8: { // For ADD (literal + 8)
+            uint32_t lo12_plus_8 = (target_address + 8) & 0xFFF;
+            patcher.patch(lo12_plus_8, 10, 12);
+            break;
+        }
         default:
             throw std::runtime_error("Unsupported PC-relative relocation type.");
     }

@@ -1,0 +1,8 @@
+// Priority test file in bcl_scripts directory
+// This should be found FIRST in the search order
+
+LET START() BE
+$(
+    WRITEF("Found in bcl_scripts - HIGHEST PRIORITY!*N")
+    WRITEF("This proves the search order is working correctly*N")
+$)

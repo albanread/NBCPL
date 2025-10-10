@@ -127,11 +127,10 @@ std::string NewCodeGenerator::get_variable_register(const std::string& var_name)
                     // Get the actual label from data generator
                     std::string string_label = data_generator_.add_string_literal(string_value);
                     
-                    // Emit ADRP/ADD/ADD sequence to calculate address
+                    // Emit optimized ADRP/ADD sequence with +8 offset to skip length prefix
                     std::string dest_reg = register_manager_.acquire_scratch_reg(*this);
                     emit(Encoder::create_adrp(dest_reg, string_label));
-                    emit(Encoder::create_add_literal(dest_reg, dest_reg, string_label));
-                    emit(Encoder::create_add_imm(dest_reg, dest_reg, 8)); // Skip length prefix
+                    emit(Encoder::create_add_literal_with_offset(dest_reg, dest_reg, string_label, 8));
                     
                     register_manager_.set_initialized(dest_reg, true);
                     debug_print("Generated ADRP/ADD sequence for known string address: " + string_value);

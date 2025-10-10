@@ -1,4 +1,3 @@
-GET "libhdr.h"
 
 LET FACT(N) = VALOF
 $(

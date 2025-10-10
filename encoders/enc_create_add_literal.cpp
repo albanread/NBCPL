@@ -92,5 +92,6 @@ Instruction Encoder::create_add_literal(const std::string& xd, const std::string
     instr.uses_immediate = true; // Although the immediate is patched later, it's conceptually an immediate operation
     instr.relocation = RelocationType::ADD_12_BIT_UNSIGNED_OFFSET;
     instr.target_label = label_name;
+    instr.jit_attribute = JITAttribute::AddressLoad;
     return instr;
 }

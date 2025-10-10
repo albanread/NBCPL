@@ -13,6 +13,8 @@ namespace PeepholePatterns {
     // Address Calculation and Fusion
     std::unique_ptr<InstructionPattern> createAdrFusionPattern();
     std::unique_ptr<InstructionPattern> createAdrAddAddFusionPattern();
+    std::unique_ptr<InstructionPattern> createAddFoldingPattern();
+    std::unique_ptr<InstructionPattern> createAdvancedAddFoldingPattern();
 
     // Strength Reduction
     std::unique_ptr<InstructionPattern> createStrengthReductionPattern();

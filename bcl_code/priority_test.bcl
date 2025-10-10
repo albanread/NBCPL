@@ -1,0 +1,9 @@
+// Priority test file in bcl_code directory
+// This should NOT be found when searching for priority_test
+// because bcl_scripts has higher priority
+
+LET START() BE
+$(
+    WRITEF("ERROR: Found in bcl_code - this should not happen!*N")
+    WRITEF("The search priority is not working correctly*N")
+$)

@@ -20,14 +20,9 @@ void NewCodeGenerator::visit(TableExpression& node) {
     // 2. Acquire a register to hold the address of the table.
     std::string dest_reg = register_manager_.get_free_register(*this);
 
-    // 3. Emit the standard ADRP + ADD sequence to load the address of the label
-    // into the destination register.
+    // 3. Emit optimized ADRP + ADD sequence with +8 offset to skip the length prefix
     emit(Encoder::create_adrp(dest_reg, table_label));
-    emit(Encoder::create_add_literal(dest_reg, dest_reg, table_label));
-
-    // 4. Add 8 to the pointer to skip the 64-bit length prefix.
-    //    The register now points to the payload, matching the VEC convention.
-    emit(Encoder::create_add_imm(dest_reg, dest_reg, 8));
+    emit(Encoder::create_add_literal_with_offset(dest_reg, dest_reg, table_label, 8));
 
     // 5. The result of this expression is the register holding the address of the table's payload.
     expression_result_reg_ = dest_reg;

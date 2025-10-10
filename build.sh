@@ -119,7 +119,9 @@ LEXER_SRC_FILES=$(echo -e "lex_operator.cpp\nlex_scanner.cpp\nlex_tokens.cpp\nle
 ANALYSIS_SRC_FILES=$(find analysis -name "*.cpp" -print)
 
 # Peephole pattern files (now used in main build)
-PEEPHOLE_PATTERN_FILES=$(echo -e "optimizer/patterns/AddressFusion.cpp\noptimizer/patterns/ConstantFolding.cpp\noptimizer/patterns/ControlFlow.cpp\noptimizer/patterns/MemoryOptimization.cpp\noptimizer/patterns/StrengthReduction.cpp")
+PEEPHOLE_PATTERN_FILES=$(echo -e "optimizer/patterns/AddressFusion.cpp\noptimizer/patterns/AddFolding.cpp\noptimizer/patterns/ConstantFolding.cpp\noptimizer/patterns/ControlFlow.cpp\noptimizer/patterns/MemoryOptimization.cpp\noptimizer/patterns/StrengthReduction.cpp")
+
+
 
 # We don't need to add AZ_VISIT_SRC_FILES separately as they're already found by the analysis directory search
 
