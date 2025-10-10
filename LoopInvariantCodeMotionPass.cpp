@@ -13,11 +13,13 @@
 LoopInvariantCodeMotionPass::LoopInvariantCodeMotionPass(
     std::unordered_map<std::string, int64_t>& manifests,
     SymbolTable& symbol_table,
-    ASTAnalyzer& analyzer
+    ASTAnalyzer& analyzer,
+    bool enable_tracing
 ) : Optimizer(manifests),
     symbol_table_(symbol_table),
     analyzer_(analyzer),
-    temp_var_factory_() {}
+    temp_var_factory_(),
+    enable_tracing_(enable_tracing) {}
 
 /**
  * @brief Main entry point for applying the optimization pass to the AST.
@@ -168,7 +170,9 @@ void LoopInvariantCodeMotionPass::findAndHoistInvariants(StmtPtr& stmt, const st
                     continue; // Skip this optimization to avoid AST corruption
                 }
 
-                std::cout << "[LICM] Hoisting invariant expression in function " << current_function_name_ << std::endl;
+                if (enable_tracing_) {
+                    std::cout << "[LICM] Hoisting invariant expression in function " << current_function_name_ << std::endl;
+                }
 
                 // Create a new LET statement: LET _tempN = <invariant_expr>
                 std::vector<std::string> names = {temp_var};

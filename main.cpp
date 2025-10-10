@@ -636,7 +636,8 @@ if (enable_opt) {
     LoopInvariantCodeMotionPass licm_pass(
         g_global_manifest_constants,
         *symbol_table,
-        analyzer
+        analyzer,
+        enable_tracing // Pass tracing flag to LICM
     );
     ast = licm_pass.apply(std::move(ast));
 }

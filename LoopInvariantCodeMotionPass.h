@@ -24,7 +24,8 @@ public:
     LoopInvariantCodeMotionPass(
         std::unordered_map<std::string, int64_t>& manifests,
         SymbolTable& symbol_table,
-        ASTAnalyzer& analyzer
+        ASTAnalyzer& analyzer,
+        bool enable_tracing = false
     );
 
     // --- Core Pass Methods ---
@@ -32,11 +33,14 @@ public:
     ProgramPtr apply(ProgramPtr program) override;
 
     // --- Visitor Overrides for Relevant AST Nodes ---
-    void visit(FunctionDeclaration& node) override;
-    void visit(RoutineDeclaration& node) override;
-    void visit(ForStatement& node) override;
-    void visit(WhileStatement& node) override;
-    void visit(RepeatStatement& node) override;
+        void visit(FunctionDeclaration& node) override;
+        void visit(RoutineDeclaration& node) override;
+        void visit(ForStatement& node) override;
+        void visit(WhileStatement& node) override;
+        void visit(RepeatStatement& node) override;
+
+    private:
+        bool enable_tracing_ = false;
 
 private:
     // Helper to determine if an expression is loop-invariant.
