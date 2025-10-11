@@ -18,6 +18,9 @@
 // FORWARD DECLARATIONS - All Runtime Function Implementations
 // =============================================================================
 
+// Forward declarations for data structures
+struct ListHeader;
+
 extern "C" {
     // Core I/O functions
     void WRITES(int string_ptr);
@@ -36,8 +39,8 @@ extern "C" {
     void NEWLINE();
     
     // String/List operations
-    int SPLIT(int string_ptr, int delimiter_ptr);
-    int JOIN(int list_ptr, int delimiter_ptr);
+    struct ListHeader* SPLIT(uint32_t* string_payload, uint32_t* delimiter_payload);
+    uint32_t* JOIN(struct ListHeader* list_header, uint32_t* delimiter_payload);
     int STRLEN(int string_ptr);
     int STRCMP(int str1_ptr, int str2_ptr);
     void STRCOPY(int dest_ptr, int src_ptr);

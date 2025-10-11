@@ -1,0 +1,29 @@
+LET START() BE
+$(
+   WRITES("Testing SPLIT type diagnosis...*N")
+
+   LET S1 = "hello world test"
+   WRITES("Original string: ")
+   WRITES(S1)
+   WRITES("*N")
+
+   WRITES("Calling SPLIT...*N")
+   LET L = SPLIT(S1, " ")
+   WRITES("SPLIT completed*N")
+
+   WRITES("Type of SPLIT result: ")
+   WRITES(TYPE(L))
+   WRITES("*N")
+
+   TEST L = 0 THEN
+   $(
+       WRITES("ERROR: SPLIT returned null*N")
+   $)
+   ELSE
+   $(
+       WRITES("SPLIT returned non-null value*N")
+       WRITES("Value of L: ")
+       WRITEN(L)
+       WRITES("*N")
+   $)
+$)

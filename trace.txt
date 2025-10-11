@@ -10,7 +10,7 @@ SAMM: ENABLED and background worker started
 SAMM (Scope Aware Memory Management): ENABLED
 SAMM: Background cleanup worker thread started (DEBUG)
 SAMM: Worker waiting for cleanup queue (queue size: 0)
-NewBCPL Compiler Version 1.0.2421
+NewBCPL Compiler Version 1.0.2429
 Compiling this source Code:
 //LINE 1 "/Users/oberon/projects/NewBCPL/test_split_join_simple.bcl"
 LET START() BE
@@ -49,108 +49,265 @@ $(
    $)
 $)
 
-BCPL Runtime v1.0.0 initialized
-DEBUG: Registering FREEVEC with bcpl_free at address 0x100e33d68
-Registered 92 runtime functions
-=== Registered Runtime Functions ===
-  NEWLINE          | address: 0x100e32a9c | args: 0 | table_offset: 720
-  FINISH           | address: 0x100e3184c | args: 0 | table_offset: 712
-  FABS             | address: 0x100e31bfc | args: 1 | table_offset: 680
-  FSIN             | address: 0x100e31bc0 | args: 1 | table_offset: 656
-  FILE_EOF         | address: 0x100e34fac | args: 1 | table_offset: 624
-  RAND             | address: 0x100e31a4c | args: 1 | table_offset: 632
-  FILE_TELL        | address: 0x100e34f54 | args: 1 | table_offset: 616
-  FILE_SEEK        | address: 0x100e34e90 | args: 3 | table_offset: 608
-  FILE_WRITE       | address: 0x100e34d78 | args: 3 | table_offset: 600
-  FIX              | address: 0x100e31c3c | args: 1 | table_offset: 704
-  FILE_READS       | address: 0x100e347c4 | args: 1 | table_offset: 584
-  FILE_WRITES      | address: 0x100e344e8 | args: 2 | table_offset: 576
-  FEXP             | address: 0x100e31c28 | args: 1 | table_offset: 696
-  FILE_CLOSE       | address: 0x100e3447c | args: 1 | table_offset: 568
-  FILE_OPEN_APPEND | address: 0x100e343ec | args: 1 | table_offset: 560
-  PACKSTRING       | address: 0x100e31c54 | args: 1 | table_offset: 512
-  STRLEN           | address: 0x100e3185c | args: 1 | table_offset: 504
-  FCOS             | address: 0x100e31bd4 | args: 1 | table_offset: 664
-  STRCMP           | address: 0x100e318bc | args: 2 | table_offset: 496
-  STRCOPY          | address: 0x100e319a0 | args: 2 | table_offset: 488
-  FIND             | address: 0x100e386b0 | args: 3 | table_offset: 456
-  DEEPCOPYLITERALLIST | address: 0x100e38328 | args: 1 | table_offset: 440
-  DEEPCOPYLIST     | address: 0x100e38190 | args: 1 | table_offset: 432
-  COPYLIST         | address: 0x100e38090 | args: 1 | table_offset: 424
-  CONCAT           | address: 0x100e384c8 | args: 2 | table_offset: 416
-  BCPL_CONCAT_LISTS | address: 0x100e384c8 | args: 2 | table_offset: 408
-  SPIT             | address: 0x100e32850 | args: 2 | table_offset: 536
-  JOIN             | address: 0x100e33f84 | args: 2 | table_offset: 480
-  LPND             | address: 0x100e37c3c | args: 2 | table_offset: 400
-  SPND             | address: 0x100e37b6c | args: 2 | table_offset: 392
-  FPND             | address: 0x100e37a9c | args: 2 | table_offset: 384
-  APND             | address: 0x100e379cc | args: 2 | table_offset: 376
-  RETURNNODETOFREELIST | address: 0x100e38b80 | args: 1 | table_offset: 728
-  BCPL_LIST_APPEND_INT | address: 0x100e379cc | args: 2 | table_offset: 352
-  GETVEC           | address: 0x100e33e2c | args: 1 | table_offset: 128
-  HEAPMANAGER_WAITFORSAMM | address: 0x100df48b0 | args: 0 | table_offset: 320
-  HEAPMANAGER_ENTER_SCOPE | address: 0x100df47e8 | args: 0 | table_offset: 288
-  HEAPMANAGER_SETSAMMENABLED | address: 0x100df4794 | args: 1 | table_offset: 304
-  HEAPMANAGER_EXIT_SCOPE | address: 0x100df4814 | args: 0 | table_offset: 296
-  PIC_RUNTIME_HELPER | address: 0x100e33f14 | args: 0 | table_offset: 280
-  OBJECT_HEAP_FREE | address: 0x100e33ed8 | args: 1 | table_offset: 264
-  OBJECT_HEAP_ALLOC | address: 0x100e33eb4 | args: 1 | table_offset: 256
-  BCPL_LIST_GET_REST | address: 0x100e37ef8 | args: 1 | table_offset: 224
-  FRND             | address: 0x100e31ad8 | args: 0 | table_offset: 648
-  BCPL_LIST_GET_HEAD_AS_FLOAT | address: 0x100e37e40 | args: 1 | table_offset: 208
-  BCPL_LIST_GET_HEAD_AS_INT | address: 0x100e37ddc | args: 1 | table_offset: 200
-  RUNTIME_METHOD_LOOKUP | address: 0x100e33efc | args: 2 | table_offset: 272
-  FREEVEC          | address: 0x100e33d68 | args: 1 | table_offset: 144
-  BCPL_BOUNDS_ERROR | address: 0x100e2f9a4 | args: 3 | table_offset: 192
-  BCPL_CHECK_AND_DISPLAY_ERRORS | address: 0x100e38bc8 | args: 0 | table_offset: 184
-  WRITEF4          | address: 0x100e31380 | args: 5 | table_offset: 56
-  BCPL_FREE_LIST   | address: 0x100e38854 | args: 1 | table_offset: 152
-  BCPL_ALLOC_CHARS | address: 0x100e33d10 | args: 1 | table_offset: 112
-  BCPL_LIST_APPEND_FLOAT | address: 0x100e37a9c | args: 2 | table_offset: 360
-  GET_FREE_LIST_HEAD_ADDR | address: 0x100e38b74 | args: 0 | table_offset: 336
-  BCPL_GET_ATOM_TYPE | address: 0x100e37f5c | args: 1 | table_offset: 232
-  FWRITE           | address: 0x100e30cc0 | args: 1 | table_offset: 16
-  BCPL_LIST_CREATE_EMPTY | address: 0x100e3796c | args: 0 | table_offset: 344
-  SPLIT            | address: 0x100e33fb0 | args: 2 | table_offset: 472
-  BCPL_FREE_CELLS  | address: 0x100e38b70 | args: 0 | table_offset: 328
-  RND              | address: 0x100e31b2c | args: 1 | table_offset: 640
-  HEAPMANAGER_ISSAMMENABLED | address: 0x100df47c4 | args: 0 | table_offset: 312
-  WRITEC           | address: 0x100e3163c | args: 1 | table_offset: 88
-  MALLOC           | address: 0x100e33cb0 | args: 1 | table_offset: 120
-  BCPL_ALLOC_WORDS | address: 0x100e33cb0 | args: 3 | table_offset: 104
-  FTAN             | address: 0x100e31be8 | args: 1 | table_offset: 672
-  SETTYPE          | address: 0x0 | args: 2 | table_offset: 248
-  BCPL_GET_LAST_ERROR | address: 0x100e2f824 | args: 1 | table_offset: 168
-  RDCH             | address: 0x100e31800 | args: 0 | table_offset: 96
-  FILE_READ        | address: 0x100e34c64 | args: 3 | table_offset: 592
-  UNPACKSTRING     | address: 0x100e31f8c | args: 1 | table_offset: 520
-  WRITEF5          | address: 0x100e3140c | args: 6 | table_offset: 64
-  FILTER           | address: 0x100e387a4 | args: 2 | table_offset: 464
-  BCPL_FREE_LIST_SAFE | address: 0x100e3895c | args: 1 | table_offset: 160
-  FILE_OPEN_WRITE  | address: 0x100e3435c | args: 1 | table_offset: 552
-  FILE_OPEN_READ   | address: 0x100e33fdc | args: 1 | table_offset: 544
-  BCPL_LIST_GET_NTH | address: 0x100e37fc4 | args: 2 | table_offset: 240
-  WRITEF7          | address: 0x100e31548 | args: 8 | table_offset: 80
-  WRITEF3          | address: 0x100e31300 | args: 4 | table_offset: 48
-  WRITEF6          | address: 0x100e314a4 | args: 7 | table_offset: 72
-  REVERSE          | address: 0x100e385c8 | args: 1 | table_offset: 448
-  WRITEF2          | address: 0x100e3128c | args: 3 | table_offset: 40
-  WRITEF1          | address: 0x100e31224 | args: 2 | table_offset: 32
-  BCPL_LIST_GET_TAIL | address: 0x100e37ea8 | args: 1 | table_offset: 216
-  BCPL_CLEAR_ERRORS | address: 0x100e2f8d4 | args: 0 | table_offset: 176
-  WRITEF           | address: 0x100e30d04 | args: 1 | table_offset: 24
-  BCPL_LIST_APPEND_STRING | address: 0x100e37b6c | args: 2 | table_offset: 368
-  WRITES           | address: 0x100e30764 | args: 1 | table_offset: 0
-  SLURP            | address: 0x100e32324 | args: 1 | table_offset: 528
-  FGETVEC          | address: 0x100e33e60 | args: 1 | table_offset: 136
-  FLOG             | address: 0x100e31c14 | args: 1 | table_offset: 688
-  WRITEN           | address: 0x100e315f8 | args: 1 | table_offset: 8
-====================================
-Core runtime registered. SDL2 registration will follow...
-SDL2 runtime functions registered immediately
-SDL2 runtime functions registered in unified runtime
 Using BCPL Runtime v1.0.0
 Parsing complete. AST built.
+=== Importing Runtime Functions from Manifest ===
+API Version: 1.0.0
+Found 125 functions in manifest
+Runtime: WRITES               -> 0x102a55400
+Symbol:  WRITES               (Write a string to standard output)
+Runtime: WRITEN               -> 0x102a56294
+Symbol:  WRITEN               (Write an integer to standard output)
+Runtime: FWRITE               -> 0x102a5595c
+Symbol:  FWRITE               (Write a float to standard output)
+Runtime: WRITEF               -> 0x102a559a0
+Symbol:  WRITEF               (Write formatted output (base case))
+Runtime: WRITEF1              -> 0x102a55ec0
+Symbol:  WRITEF1              (Write formatted output with 1 argument)
+Runtime: WRITEF2              -> 0x102a55f28
+Symbol:  WRITEF2              (Write formatted output with 2 arguments)
+Runtime: WRITEF3              -> 0x102a55f9c
+Symbol:  WRITEF3              (Write formatted output with 3 arguments)
+Runtime: WRITEF4              -> 0x102a5601c
+Symbol:  WRITEF4              (Write formatted output with 4 arguments)
+Runtime: WRITEF5              -> 0x102a560a8
+Symbol:  WRITEF5              (Write formatted output with 5 arguments)
+Runtime: WRITEF6              -> 0x102a56140
+Symbol:  WRITEF6              (Write formatted output with 6 arguments)
+Runtime: WRITEF7              -> 0x102a561e4
+Symbol:  WRITEF7              (Write formatted output with 7 arguments)
+Runtime: WRITEC               -> 0x102a562d8
+Symbol:  WRITEC               (Write a character to standard output)
+Runtime: RDCH                 -> 0x102a5649c
+Symbol:  RDCH                 (Read a character from standard input)
+Runtime: NEWLINE              -> 0x102a57738
+Symbol:  NEWLINE              (Output a newline character)
+Runtime: SPLIT                -> 0x102a58c4c
+Symbol:  SPLIT                (Split a string into a list using delimiter)
+Runtime: JOIN                 -> 0x102a58c20
+Symbol:  JOIN                 (Join a list of strings using delimiter)
+Runtime: STRLEN               -> 0x102a564f8
+Symbol:  STRLEN               (Get length of a string)
+Runtime: STRCMP               -> 0x102a56558
+Symbol:  STRCMP               (Compare two strings)
+Runtime: STRCOPY              -> 0x102a5663c
+Symbol:  STRCOPY              (Copy one string to another)
+Runtime: PACKSTRING           -> 0x102a568f0
+Symbol:  PACKSTRING           (Pack a string into memory)
+Runtime: UNPACKSTRING         -> 0x102a56c28
+Symbol:  UNPACKSTRING         (Unpack a string from memory)
+Runtime: SLURP                -> 0x102a56fc0
+Symbol:  SLURP                (Read entire file into string)
+Runtime: SPIT                 -> 0x102a574ec
+Symbol:  SPIT                 (Write string to file)
+Runtime: GETVEC               -> 0x102a58ac8
+Symbol:  GETVEC               (Allocate integer vector)
+Runtime: FGETVEC              -> 0x102a58afc
+Symbol:  FGETVEC              (Allocate float vector)
+Runtime: FREEVEC              -> 0x102a58a04
+Symbol:  FREEVEC              (Free allocated vector)
+Runtime: BCPL_ALLOC_WORDS     -> 0x102a5894c
+Symbol:  BCPL_ALLOC_WORDS     (Allocate words with type info)
+Runtime: BCPL_ALLOC_CHARS     -> 0x102a589ac
+Symbol:  BCPL_ALLOC_CHARS     (Allocate character buffer)
+Runtime: MALLOC               -> 0x102a5894c
+Symbol:  MALLOC               (Allocate memory (alias for BCPL_ALLOC_WORDS))
+Runtime: BCPL_FREE_LIST       -> 0x102a5d4f0
+Symbol:  BCPL_FREE_LIST       (Free a list structure)
+Runtime: BCPL_FREE_LIST_SAFE  -> 0x102a5d5f8
+Symbol:  BCPL_FREE_LIST_SAFE  (Safely free a list structure)
+Runtime: BCPL_GET_LAST_ERROR  -> 0x102a544c0
+Symbol:  BCPL_GET_LAST_ERROR  (Get last error message)
+Runtime: BCPL_CLEAR_ERRORS    -> 0x102a54570
+Symbol:  BCPL_CLEAR_ERRORS    (Clear error state)
+Runtime: BCPL_CHECK_AND_DISPLAY_ERRORS -> 0x102a5d864
+Symbol:  BCPL_CHECK_AND_DISPLAY_ERRORS (Check and display any errors)
+Runtime: BCPL_BOUNDS_ERROR    -> 0x102a54640
+Symbol:  BCPL_BOUNDS_ERROR    (Report bounds checking error)
+Runtime: BCPL_FREE_CELLS      -> 0x102a5d80c
+Symbol:  BCPL_FREE_CELLS      (Free memory cells)
+Runtime: GET_FREE_LIST_HEAD_ADDR -> 0x102a5d810
+Symbol:  GET_FREE_LIST_HEAD_ADDR (Get address of free list head)
+Runtime: LIST_CREATE          -> 0x102a5c608
+Symbol:  LIST_CREATE          (Create empty list)
+Runtime: LIST_APPEND_INT      -> 0x102a5c668
+Symbol:  LIST_APPEND_INT      (Append integer to list)
+Runtime: LIST_APPEND_FLOAT    -> 0x102a5c738
+Symbol:  LIST_APPEND_FLOAT    (Append float to list)
+Runtime: LIST_APPEND_STRING   -> 0x102a5c808
+Symbol:  LIST_APPEND_STRING   (Append string to list)
+Runtime: LIST_HEAD_INT        -> 0x102a5ca78
+Symbol:  LIST_HEAD_INT        (Get first element of list as integer)
+Runtime: LIST_HEAD_FLOAT      -> 0x102a5cadc
+Symbol:  LIST_HEAD_FLOAT      (Get first element of list as float)
+Runtime: LIST_TAIL            -> 0x102a5cb44
+Symbol:  LIST_TAIL            (Get tail (rest) of list)
+Runtime: LIST_FREE            -> 0x102a5d4f0
+Symbol:  LIST_FREE            (Free a list and all its elements)
+Runtime: BCPL_LIST_APPEND_LIST -> 0x102a5c8d8
+Symbol:  BCPL_LIST_APPEND_LIST (Append list to another list)
+Runtime: BCPL_LIST_GET_REST   -> 0x102a5cb94
+Symbol:  BCPL_LIST_GET_REST   (Get rest of list (alias for tail))
+Runtime: BCPL_GET_ATOM_TYPE   -> 0x102a5cbf8
+Symbol:  BCPL_GET_ATOM_TYPE   (Get type of atomic value)
+Runtime: BCPL_LIST_GET_NTH    -> 0x102a5cc60
+Symbol:  BCPL_LIST_GET_NTH    (Get nth element of list)
+Runtime: BCPL_CONCAT_LISTS    -> 0x102a5d164
+Symbol:  BCPL_CONCAT_LISTS    (Concatenate two lists)
+Runtime: CONCAT               -> 0x102a5d164
+Symbol:  CONCAT               (Concatenate two lists (alias))
+Runtime: COPYLIST             -> 0x102a5cd2c
+Symbol:  COPYLIST             (Create shallow copy of list)
+Runtime: DEEPCOPYLIST         -> 0x102a5ce2c
+Symbol:  DEEPCOPYLIST         (Create deep copy of list)
+Runtime: DEEPCOPYLITERALLIST  -> 0x102a5cfc4
+Symbol:  DEEPCOPYLITERALLIST  (Create deep copy of literal list)
+Runtime: REVERSE              -> 0x102a5d264
+Symbol:  REVERSE              (Reverse a list)
+Runtime: FIND                 -> 0x102a5d34c
+Symbol:  FIND                 (Find element in list)
+Runtime: FILTER               -> 0x102a5d440
+Symbol:  FILTER               (Filter list elements)
+Runtime: APND                 -> 0x102a5c668
+Symbol:  APND                 (Append integer to list (alias))
+Runtime: FPND                 -> 0x102a5c738
+Symbol:  FPND                 (Append float to list (alias))
+Runtime: SPND                 -> 0x102a5c808
+Symbol:  SPND                 (Append string to list (alias))
+Runtime: LPND                 -> 0x102a5c8d8
+Symbol:  LPND                 (Append list to list (alias))
+Runtime: returnNodeToFreelist -> 0x102a5d81c
+Symbol:  returnNodeToFreelist (Return node to freelist)
+Runtime: RAND                 -> 0x102a566e8
+Symbol:  RAND                 (Generate random integer (0 to max_val-1))
+Runtime: RND                  -> 0x102a567c8
+Symbol:  RND                  (Generate random float (0.0 to max_val))
+Runtime: FRND                 -> 0x102a56774
+Symbol:  FRND                 (Generate random float (0.0 to 1.0))
+Runtime: FSIN                 -> 0x102a5685c
+Symbol:  FSIN                 (Sine function (radians))
+Runtime: FCOS                 -> 0x102a56870
+Symbol:  FCOS                 (Cosine function (radians))
+Runtime: FTAN                 -> 0x102a56884
+Symbol:  FTAN                 (Tangent function (radians))
+Runtime: FABS                 -> 0x102a56898
+Symbol:  FABS                 (Absolute value (float))
+Runtime: FLOG                 -> 0x102a568b0
+Symbol:  FLOG                 (Natural logarithm)
+Runtime: FEXP                 -> 0x102a568c4
+Symbol:  FEXP                 (Exponential function)
+Runtime: FIX                  -> 0x102a568d8
+Symbol:  FIX                  (Convert float to integer)
+Runtime: FILE_OPEN_READ       -> 0x102a58c78
+Symbol:  FILE_OPEN_READ       (Open file for reading)
+Runtime: FILE_OPEN_WRITE      -> 0x102a58ff8
+Symbol:  FILE_OPEN_WRITE      (Open file for writing)
+Runtime: FILE_OPEN_APPEND     -> 0x102a59088
+Symbol:  FILE_OPEN_APPEND     (Open file for appending)
+Runtime: FILE_CLOSE           -> 0x102a59118
+Symbol:  FILE_CLOSE           (Close file handle)
+Runtime: FILE_WRITES          -> 0x102a59184
+Symbol:  FILE_WRITES          (Write string to file)
+Runtime: FILE_READS           -> 0x102a59460
+Symbol:  FILE_READS           (Read string from file)
+Runtime: FILE_READ            -> 0x102a59900
+Symbol:  FILE_READ            (Read bytes from file)
+Runtime: FILE_WRITE           -> 0x102a59a14
+Symbol:  FILE_WRITE           (Write bytes to file)
+Runtime: FILE_SEEK            -> 0x102a59b2c
+Symbol:  FILE_SEEK            (Seek to position in file)
+Runtime: FILE_TELL            -> 0x102a59bf0
+Symbol:  FILE_TELL            (Get current position in file)
+Runtime: FILE_EOF             -> 0x102a59c48
+Symbol:  FILE_EOF             (Check if at end of file)
+Runtime: FINISH               -> 0x102a564e8
+Symbol:  FINISH               (Terminate program execution)
+Runtime: SETTYPE              -> 0x0
+Symbol:  SETTYPE              (Set type information (compiler intrinsic))
+Runtime: HeapManager_enter_scope -> 0x102a18f68
+Symbol:  HeapManager_enter_scope (Enter new memory management scope)
+Runtime: HeapManager_exit_scope -> 0x102a18f94
+Symbol:  HeapManager_exit_scope (Exit current memory management scope)
+Runtime: HEAPMANAGER_ISSAMMENABLED -> 0x102a18f44
+Symbol:  HEAPMANAGER_ISSAMMENABLED (Check if SAMM (Scope Aware Memory Management) is enabled)
+Runtime: HEAPMANAGER_SETSAMMENABLED -> 0x102a18f14
+Symbol:  HEAPMANAGER_SETSAMMENABLED (Enable or disable SAMM)
+Runtime: HEAPMANAGER_WAITFORSAMM -> 0x102a19030
+Symbol:  HEAPMANAGER_WAITFORSAMM (Wait for SAMM operations to complete)
+Runtime: OBJECT_HEAP_ALLOC    -> 0x102a58b50
+Symbol:  OBJECT_HEAP_ALLOC    (Allocate object on heap)
+Runtime: OBJECT_HEAP_FREE     -> 0x102a58b74
+Symbol:  OBJECT_HEAP_FREE     (Free object from heap)
+Runtime: RUNTIME_METHOD_LOOKUP -> 0x102a58b98
+Symbol:  RUNTIME_METHOD_LOOKUP (Look up method at runtime)
+Runtime: PIC_RUNTIME_HELPER   -> 0x102a58bb0
+Symbol:  PIC_RUNTIME_HELPER   (Polymorphic inline cache helper)
+Runtime: SDL2_INIT            -> 0x102a5dad8
+Symbol:  SDL2_INIT            (Initialize SDL2 video subsystem)
+Runtime: SDL2_INIT_SUBSYSTEMS -> 0x102a5dc1c
+Symbol:  SDL2_INIT_SUBSYSTEMS (Initialize specific SDL2 subsystems)
+Runtime: SDL2_QUIT            -> 0x102a5dfb8
+Symbol:  SDL2_QUIT            (Quit SDL2 and cleanup all resources)
+Runtime: SDL2_CREATE_WINDOW   -> 0x102a5dfcc
+Symbol:  SDL2_CREATE_WINDOW   (Create a 640x480 window with default settings)
+Runtime: SDL2_CREATE_WINDOW_EX -> 0x102a5e004
+Symbol:  SDL2_CREATE_WINDOW_EX (Create a window with custom properties)
+Runtime: SDL2_DESTROY_WINDOW  -> 0x102a5e2a4
+Symbol:  SDL2_DESTROY_WINDOW  (Destroy a window and free its resources)
+Runtime: SDL2_SET_WINDOW_TITLE -> 0x102a5e3fc
+Symbol:  SDL2_SET_WINDOW_TITLE (Change a window's title)
+Runtime: SDL2_SET_WINDOW_SIZE -> 0x102a5e4d0
+Symbol:  SDL2_SET_WINDOW_SIZE (Resize a window)
+Runtime: SDL2_CREATE_RENDERER -> 0x102a5e564
+Symbol:  SDL2_CREATE_RENDERER (Create a renderer for a window with default settings)
+Runtime: SDL2_CREATE_RENDERER_EX -> 0x102a5e58c
+Symbol:  SDL2_CREATE_RENDERER_EX (Create a renderer with custom flags)
+Runtime: SDL2_DESTROY_RENDERER -> 0x102a5e760
+Symbol:  SDL2_DESTROY_RENDERER (Destroy a renderer and free its resources)
+Runtime: SDL2_SET_DRAW_COLOR  -> 0x102a5e8b8
+Symbol:  SDL2_SET_DRAW_COLOR  (Set the color for drawing operations)
+Runtime: SDL2_CLEAR           -> 0x102a5e964
+Symbol:  SDL2_CLEAR           (Clear the screen with current draw color)
+Runtime: SDL2_PRESENT         -> 0x102a5e9dc
+Symbol:  SDL2_PRESENT         (Display the rendered frame (swap buffers))
+Runtime: SDL2_DRAW_POINT      -> 0x102a5ea54
+Symbol:  SDL2_DRAW_POINT      (Draw a single point)
+Runtime: SDL2_DRAW_LINE       -> 0x102a5eae8
+Symbol:  SDL2_DRAW_LINE       (Draw a line between two points)
+Runtime: SDL2_DRAW_RECT       -> 0x102a5eb94
+Symbol:  SDL2_DRAW_RECT       (Draw a rectangle outline)
+Runtime: SDL2_FILL_RECT       -> 0x102a5ec4c
+Symbol:  SDL2_FILL_RECT       (Draw a filled rectangle)
+Runtime: SDL2_POLL_EVENT      -> 0x102a5ed04
+Symbol:  SDL2_POLL_EVENT      (Check for pending events)
+Runtime: SDL2_GET_EVENT_KEY   -> 0x102a5ed60
+Symbol:  SDL2_GET_EVENT_KEY   (Get the key code from the last keyboard event)
+Runtime: SDL2_GET_EVENT_MOUSE -> 0x102a5edc4
+Symbol:  SDL2_GET_EVENT_MOUSE (Get mouse coordinates from the last mouse event)
+Runtime: SDL2_GET_EVENT_BUTTON -> 0x102a5eeb4
+Symbol:  SDL2_GET_EVENT_BUTTON (Get the mouse button from the last mouse button event)
+Runtime: SDL2_DELAY           -> 0x102a5ef18
+Symbol:  SDL2_DELAY           (Pause execution for specified time)
+Runtime: SDL2_GET_TICKS       -> 0x102a5ef54
+Symbol:  SDL2_GET_TICKS       (Get milliseconds since SDL initialization)
+Runtime: SDL2_GET_ERROR       -> 0x102a5ef70
+Symbol:  SDL2_GET_ERROR       (Get the last SDL error message)
+Runtime: SDL2_CLEAR_ERROR     -> 0x102a5f0cc
+Symbol:  SDL2_CLEAR_ERROR     (Clear the SDL error state)
+Runtime: SDL2_GET_VERSION     -> 0x102a5f0e0
+Symbol:  SDL2_GET_VERSION     (Get SDL2 version information)
+Runtime: SDL2_GET_VIDEO_DRIVERS -> 0x102a5f12c
+Symbol:  SDL2_GET_VIDEO_DRIVERS (Get list of available video drivers)
+Runtime: SDL2_GET_CURRENT_VIDEO_DRIVER -> 0x102a5f148
+Symbol:  SDL2_GET_CURRENT_VIDEO_DRIVER (Get the name of the current video driver)
+Runtime: SDL2_GET_DISPLAY_MODES -> 0x102a5f19c
+Symbol:  SDL2_GET_DISPLAY_MODES (Get information about available display modes)
+Runtime: SDL2_TEST_BASIC      -> 0x102a5f210
+Symbol:  SDL2_TEST_BASIC      (Test basic SDL2 functionality)
+=== Import Results ===
+Runtime registrations: 125/125
+Symbol registrations:  125/125
+=== Runtime Function Import COMPLETED ===
 
 --- Initial Abstract Syntax Tree ---
 Program:
@@ -438,8 +595,131 @@ Building symbol table...
 === SYMBOL TABLE DUMP AFTER SYMBOL DISCOVERY ===
 Symbol Table (Persistent, All Symbols)
 ==================================================
-Symbol 'HeapManager_enter_scope' (FUNCTION, INTEGER, scope=0, block=0, class_name='', function_name='Global')
-Symbol 'HeapManager_exit_scope' (FUNCTION, INTEGER, scope=0, block=0, class_name='', function_name='Global')
+Symbol 'WRITES' (RUNTIME_ROUTINE, INTEGER, scope=0, block=0, class_name='', function_name='Global')
+Symbol 'WRITEN' (RUNTIME_ROUTINE, INTEGER, scope=0, block=0, class_name='', function_name='Global')
+Symbol 'FWRITE' (RUNTIME_FLOAT_ROUTINE, INTEGER, scope=0, block=0, class_name='', function_name='Global')
+Symbol 'WRITEF' (RUNTIME_ROUTINE, INTEGER, scope=0, block=0, class_name='', function_name='Global')
+Symbol 'WRITEF1' (RUNTIME_ROUTINE, INTEGER, scope=0, block=0, class_name='', function_name='Global')
+Symbol 'WRITEF2' (RUNTIME_ROUTINE, INTEGER, scope=0, block=0, class_name='', function_name='Global')
+Symbol 'WRITEF3' (RUNTIME_ROUTINE, INTEGER, scope=0, block=0, class_name='', function_name='Global')
+Symbol 'WRITEF4' (RUNTIME_ROUTINE, INTEGER, scope=0, block=0, class_name='', function_name='Global')
+Symbol 'WRITEF5' (RUNTIME_ROUTINE, INTEGER, scope=0, block=0, class_name='', function_name='Global')
+Symbol 'WRITEF6' (RUNTIME_ROUTINE, INTEGER, scope=0, block=0, class_name='', function_name='Global')
+Symbol 'WRITEF7' (RUNTIME_ROUTINE, INTEGER, scope=0, block=0, class_name='', function_name='Global')
+Symbol 'WRITEC' (RUNTIME_ROUTINE, INTEGER, scope=0, block=0, class_name='', function_name='Global')
+Symbol 'RDCH' (RUNTIME_FUNCTION, INTEGER, scope=0, block=0, class_name='', function_name='Global')
+Symbol 'NEWLINE' (RUNTIME_ROUTINE, INTEGER, scope=0, block=0, class_name='', function_name='Global')
+Symbol 'SPLIT' (RUNTIME_LIST_FUNCTION, POINTER_TO|LIST|STRING, scope=0, block=0, class_name='', function_name='Global')
+Symbol 'JOIN' (RUNTIME_FUNCTION, INTEGER, scope=0, block=0, class_name='', function_name='Global')
+Symbol 'STRLEN' (RUNTIME_FUNCTION, INTEGER, scope=0, block=0, class_name='', function_name='Global')
+Symbol 'STRCMP' (RUNTIME_FUNCTION, INTEGER, scope=0, block=0, class_name='', function_name='Global')
+Symbol 'STRCOPY' (RUNTIME_ROUTINE, INTEGER, scope=0, block=0, class_name='', function_name='Global')
+Symbol 'PACKSTRING' (RUNTIME_FUNCTION, INTEGER, scope=0, block=0, class_name='', function_name='Global')
+Symbol 'UNPACKSTRING' (RUNTIME_FUNCTION, INTEGER, scope=0, block=0, class_name='', function_name='Global')
+Symbol 'SLURP' (RUNTIME_FUNCTION, INTEGER, scope=0, block=0, class_name='', function_name='Global')
+Symbol 'SPIT' (RUNTIME_ROUTINE, INTEGER, scope=0, block=0, class_name='', function_name='Global')
+Symbol 'GETVEC' (RUNTIME_FUNCTION, POINTER_TO|VEC|INTEGER, scope=0, block=0, class_name='', function_name='Global')
+Symbol 'FGETVEC' (RUNTIME_FUNCTION, POINTER_TO|VEC|FLOAT, scope=0, block=0, class_name='', function_name='Global')
+Symbol 'FREEVEC' (RUNTIME_ROUTINE, INTEGER, scope=0, block=0, class_name='', function_name='Global')
+Symbol 'BCPL_ALLOC_WORDS' (RUNTIME_FUNCTION, INTEGER, scope=0, block=0, class_name='', function_name='Global')
+Symbol 'BCPL_ALLOC_CHARS' (RUNTIME_FUNCTION, INTEGER, scope=0, block=0, class_name='', function_name='Global')
+Symbol 'MALLOC' (RUNTIME_FUNCTION, INTEGER, scope=0, block=0, class_name='', function_name='Global')
+Symbol 'BCPL_FREE_LIST' (RUNTIME_ROUTINE, INTEGER, scope=0, block=0, class_name='', function_name='Global')
+Symbol 'BCPL_FREE_LIST_SAFE' (RUNTIME_ROUTINE, INTEGER, scope=0, block=0, class_name='', function_name='Global')
+Symbol 'BCPL_GET_LAST_ERROR' (RUNTIME_FUNCTION, INTEGER, scope=0, block=0, class_name='', function_name='Global')
+Symbol 'BCPL_CLEAR_ERRORS' (RUNTIME_ROUTINE, INTEGER, scope=0, block=0, class_name='', function_name='Global')
+Symbol 'BCPL_CHECK_AND_DISPLAY_ERRORS' (RUNTIME_ROUTINE, INTEGER, scope=0, block=0, class_name='', function_name='Global')
+Symbol 'BCPL_BOUNDS_ERROR' (RUNTIME_ROUTINE, INTEGER, scope=0, block=0, class_name='', function_name='Global')
+Symbol 'BCPL_FREE_CELLS' (RUNTIME_ROUTINE, INTEGER, scope=0, block=0, class_name='', function_name='Global')
+Symbol 'GET_FREE_LIST_HEAD_ADDR' (RUNTIME_FUNCTION, INTEGER, scope=0, block=0, class_name='', function_name='Global')
+Symbol 'LIST_CREATE' (RUNTIME_LIST_FUNCTION, POINTER_TO|LIST|STRING, scope=0, block=0, class_name='', function_name='Global')
+Symbol 'LIST_APPEND_INT' (RUNTIME_LIST_FUNCTION, POINTER_TO|LIST|STRING, scope=0, block=0, class_name='', function_name='Global')
+Symbol 'LIST_APPEND_FLOAT' (RUNTIME_FLOAT_FUNCTION, POINTER_TO|LIST|STRING, scope=0, block=0, class_name='', function_name='Global')
+Symbol 'LIST_APPEND_STRING' (RUNTIME_LIST_FUNCTION, POINTER_TO|LIST|STRING, scope=0, block=0, class_name='', function_name='Global')
+Symbol 'LIST_HEAD_INT' (RUNTIME_FUNCTION, INTEGER, scope=0, block=0, class_name='', function_name='Global')
+Symbol 'LIST_HEAD_FLOAT' (RUNTIME_FLOAT_FUNCTION, FLOAT, scope=0, block=0, class_name='', function_name='Global')
+Symbol 'LIST_TAIL' (RUNTIME_LIST_FUNCTION, POINTER_TO|LIST|STRING, scope=0, block=0, class_name='', function_name='Global')
+Symbol 'LIST_FREE' (RUNTIME_ROUTINE, INTEGER, scope=0, block=0, class_name='', function_name='Global')
+Symbol 'BCPL_LIST_APPEND_LIST' (RUNTIME_LIST_FUNCTION, POINTER_TO|LIST|STRING, scope=0, block=0, class_name='', function_name='Global')
+Symbol 'BCPL_LIST_GET_REST' (RUNTIME_LIST_FUNCTION, POINTER_TO|LIST|STRING, scope=0, block=0, class_name='', function_name='Global')
+Symbol 'BCPL_GET_ATOM_TYPE' (RUNTIME_FUNCTION, INTEGER, scope=0, block=0, class_name='', function_name='Global')
+Symbol 'BCPL_LIST_GET_NTH' (RUNTIME_FUNCTION, INTEGER, scope=0, block=0, class_name='', function_name='Global')
+Symbol 'BCPL_CONCAT_LISTS' (RUNTIME_LIST_FUNCTION, POINTER_TO|LIST|STRING, scope=0, block=0, class_name='', function_name='Global')
+Symbol 'CONCAT' (RUNTIME_LIST_FUNCTION, POINTER_TO|LIST|STRING, scope=0, block=0, class_name='', function_name='Global')
+Symbol 'COPYLIST' (RUNTIME_LIST_FUNCTION, POINTER_TO|LIST|STRING, scope=0, block=0, class_name='', function_name='Global')
+Symbol 'DEEPCOPYLIST' (RUNTIME_LIST_FUNCTION, POINTER_TO|LIST|STRING, scope=0, block=0, class_name='', function_name='Global')
+Symbol 'DEEPCOPYLITERALLIST' (RUNTIME_LIST_FUNCTION, POINTER_TO|LIST|STRING, scope=0, block=0, class_name='', function_name='Global')
+Symbol 'REVERSE' (RUNTIME_LIST_FUNCTION, POINTER_TO|LIST|STRING, scope=0, block=0, class_name='', function_name='Global')
+Symbol 'FIND' (RUNTIME_FUNCTION, INTEGER, scope=0, block=0, class_name='', function_name='Global')
+Symbol 'FILTER' (RUNTIME_LIST_FUNCTION, POINTER_TO|LIST|STRING, scope=0, block=0, class_name='', function_name='Global')
+Symbol 'APND' (RUNTIME_LIST_FUNCTION, POINTER_TO|LIST|STRING, scope=0, block=0, class_name='', function_name='Global')
+Symbol 'FPND' (RUNTIME_FLOAT_FUNCTION, POINTER_TO|LIST|STRING, scope=0, block=0, class_name='', function_name='Global')
+Symbol 'SPND' (RUNTIME_LIST_FUNCTION, POINTER_TO|LIST|STRING, scope=0, block=0, class_name='', function_name='Global')
+Symbol 'LPND' (RUNTIME_LIST_FUNCTION, POINTER_TO|LIST|STRING, scope=0, block=0, class_name='', function_name='Global')
+Symbol 'returnNodeToFreelist' (RUNTIME_ROUTINE, INTEGER, scope=0, block=0, class_name='', function_name='Global')
+Symbol 'RAND' (RUNTIME_FUNCTION, INTEGER, scope=0, block=0, class_name='', function_name='Global')
+Symbol 'RND' (RUNTIME_FLOAT_FUNCTION, FLOAT, scope=0, block=0, class_name='', function_name='Global')
+Symbol 'FRND' (RUNTIME_FLOAT_FUNCTION, FLOAT, scope=0, block=0, class_name='', function_name='Global')
+Symbol 'FSIN' (RUNTIME_FLOAT_FUNCTION, FLOAT, scope=0, block=0, class_name='', function_name='Global')
+Symbol 'FCOS' (RUNTIME_FLOAT_FUNCTION, FLOAT, scope=0, block=0, class_name='', function_name='Global')
+Symbol 'FTAN' (RUNTIME_FLOAT_FUNCTION, FLOAT, scope=0, block=0, class_name='', function_name='Global')
+Symbol 'FABS' (RUNTIME_FLOAT_FUNCTION, FLOAT, scope=0, block=0, class_name='', function_name='Global')
+Symbol 'FLOG' (RUNTIME_FLOAT_FUNCTION, FLOAT, scope=0, block=0, class_name='', function_name='Global')
+Symbol 'FEXP' (RUNTIME_FLOAT_FUNCTION, FLOAT, scope=0, block=0, class_name='', function_name='Global')
+Symbol 'FIX' (RUNTIME_FUNCTION, INTEGER, scope=0, block=0, class_name='', function_name='Global')
+Symbol 'FILE_OPEN_READ' (RUNTIME_FUNCTION, INTEGER, scope=0, block=0, class_name='', function_name='Global')
+Symbol 'FILE_OPEN_WRITE' (RUNTIME_FUNCTION, INTEGER, scope=0, block=0, class_name='', function_name='Global')
+Symbol 'FILE_OPEN_APPEND' (RUNTIME_FUNCTION, INTEGER, scope=0, block=0, class_name='', function_name='Global')
+Symbol 'FILE_CLOSE' (RUNTIME_FUNCTION, INTEGER, scope=0, block=0, class_name='', function_name='Global')
+Symbol 'FILE_WRITES' (RUNTIME_FUNCTION, INTEGER, scope=0, block=0, class_name='', function_name='Global')
+Symbol 'FILE_READS' (RUNTIME_FUNCTION, INTEGER, scope=0, block=0, class_name='', function_name='Global')
+Symbol 'FILE_READ' (RUNTIME_FUNCTION, INTEGER, scope=0, block=0, class_name='', function_name='Global')
+Symbol 'FILE_WRITE' (RUNTIME_FUNCTION, INTEGER, scope=0, block=0, class_name='', function_name='Global')
+Symbol 'FILE_SEEK' (RUNTIME_FUNCTION, INTEGER, scope=0, block=0, class_name='', function_name='Global')
+Symbol 'FILE_TELL' (RUNTIME_FUNCTION, INTEGER, scope=0, block=0, class_name='', function_name='Global')
+Symbol 'FILE_EOF' (RUNTIME_FUNCTION, INTEGER, scope=0, block=0, class_name='', function_name='Global')
+Symbol 'FINISH' (RUNTIME_ROUTINE, INTEGER, scope=0, block=0, class_name='', function_name='Global')
+Symbol 'SETTYPE' (RUNTIME_ROUTINE, INTEGER, scope=0, block=0, class_name='', function_name='Global')
+Symbol 'HeapManager_enter_scope' (RUNTIME_ROUTINE, INTEGER, scope=0, block=0, class_name='', function_name='Global')
+Symbol 'HeapManager_exit_scope' (RUNTIME_ROUTINE, INTEGER, scope=0, block=0, class_name='', function_name='Global')
+Symbol 'HEAPMANAGER_ISSAMMENABLED' (RUNTIME_FUNCTION, INTEGER, scope=0, block=0, class_name='', function_name='Global')
+Symbol 'HEAPMANAGER_SETSAMMENABLED' (RUNTIME_ROUTINE, INTEGER, scope=0, block=0, class_name='', function_name='Global')
+Symbol 'HEAPMANAGER_WAITFORSAMM' (RUNTIME_ROUTINE, INTEGER, scope=0, block=0, class_name='', function_name='Global')
+Symbol 'OBJECT_HEAP_ALLOC' (RUNTIME_FUNCTION, INTEGER, scope=0, block=0, class_name='', function_name='Global')
+Symbol 'OBJECT_HEAP_FREE' (RUNTIME_ROUTINE, INTEGER, scope=0, block=0, class_name='', function_name='Global')
+Symbol 'RUNTIME_METHOD_LOOKUP' (RUNTIME_FUNCTION, INTEGER, scope=0, block=0, class_name='', function_name='Global')
+Symbol 'PIC_RUNTIME_HELPER' (RUNTIME_FUNCTION, INTEGER, scope=0, block=0, class_name='', function_name='Global')
+Symbol 'SDL2_INIT' (RUNTIME_FUNCTION, INTEGER, scope=0, block=0, class_name='', function_name='Global')
+Symbol 'SDL2_INIT_SUBSYSTEMS' (RUNTIME_ROUTINE, INTEGER, scope=0, block=0, class_name='', function_name='Global')
+Symbol 'SDL2_QUIT' (RUNTIME_ROUTINE, INTEGER, scope=0, block=0, class_name='', function_name='Global')
+Symbol 'SDL2_CREATE_WINDOW' (RUNTIME_FUNCTION, INTEGER, scope=0, block=0, class_name='', function_name='Global')
+Symbol 'SDL2_CREATE_WINDOW_EX' (RUNTIME_FUNCTION, INTEGER, scope=0, block=0, class_name='', function_name='Global')
+Symbol 'SDL2_DESTROY_WINDOW' (RUNTIME_ROUTINE, INTEGER, scope=0, block=0, class_name='', function_name='Global')
+Symbol 'SDL2_SET_WINDOW_TITLE' (RUNTIME_ROUTINE, INTEGER, scope=0, block=0, class_name='', function_name='Global')
+Symbol 'SDL2_SET_WINDOW_SIZE' (RUNTIME_ROUTINE, INTEGER, scope=0, block=0, class_name='', function_name='Global')
+Symbol 'SDL2_CREATE_RENDERER' (RUNTIME_FUNCTION, INTEGER, scope=0, block=0, class_name='', function_name='Global')
+Symbol 'SDL2_CREATE_RENDERER_EX' (RUNTIME_FUNCTION, INTEGER, scope=0, block=0, class_name='', function_name='Global')
+Symbol 'SDL2_DESTROY_RENDERER' (RUNTIME_ROUTINE, INTEGER, scope=0, block=0, class_name='', function_name='Global')
+Symbol 'SDL2_SET_DRAW_COLOR' (RUNTIME_ROUTINE, INTEGER, scope=0, block=0, class_name='', function_name='Global')
+Symbol 'SDL2_CLEAR' (RUNTIME_ROUTINE, INTEGER, scope=0, block=0, class_name='', function_name='Global')
+Symbol 'SDL2_PRESENT' (RUNTIME_ROUTINE, INTEGER, scope=0, block=0, class_name='', function_name='Global')
+Symbol 'SDL2_DRAW_POINT' (RUNTIME_ROUTINE, INTEGER, scope=0, block=0, class_name='', function_name='Global')
+Symbol 'SDL2_DRAW_LINE' (RUNTIME_ROUTINE, INTEGER, scope=0, block=0, class_name='', function_name='Global')
+Symbol 'SDL2_DRAW_RECT' (RUNTIME_ROUTINE, INTEGER, scope=0, block=0, class_name='', function_name='Global')
+Symbol 'SDL2_FILL_RECT' (RUNTIME_ROUTINE, INTEGER, scope=0, block=0, class_name='', function_name='Global')
+Symbol 'SDL2_POLL_EVENT' (RUNTIME_FUNCTION, INTEGER, scope=0, block=0, class_name='', function_name='Global')
+Symbol 'SDL2_GET_EVENT_KEY' (RUNTIME_FUNCTION, INTEGER, scope=0, block=0, class_name='', function_name='Global')
+Symbol 'SDL2_GET_EVENT_MOUSE' (RUNTIME_ROUTINE, INTEGER, scope=0, block=0, class_name='', function_name='Global')
+Symbol 'SDL2_GET_EVENT_BUTTON' (RUNTIME_FUNCTION, INTEGER, scope=0, block=0, class_name='', function_name='Global')
+Symbol 'SDL2_DELAY' (RUNTIME_ROUTINE, INTEGER, scope=0, block=0, class_name='', function_name='Global')
+Symbol 'SDL2_GET_TICKS' (RUNTIME_FUNCTION, INTEGER, scope=0, block=0, class_name='', function_name='Global')
+Symbol 'SDL2_GET_ERROR' (RUNTIME_FUNCTION, INTEGER, scope=0, block=0, class_name='', function_name='Global')
+Symbol 'SDL2_CLEAR_ERROR' (RUNTIME_ROUTINE, INTEGER, scope=0, block=0, class_name='', function_name='Global')
+Symbol 'SDL2_GET_VERSION' (RUNTIME_FUNCTION, INTEGER, scope=0, block=0, class_name='', function_name='Global')
+Symbol 'SDL2_GET_VIDEO_DRIVERS' (RUNTIME_FUNCTION, INTEGER, scope=0, block=0, class_name='', function_name='Global')
+Symbol 'SDL2_GET_CURRENT_VIDEO_DRIVER' (RUNTIME_FUNCTION, INTEGER, scope=0, block=0, class_name='', function_name='Global')
+Symbol 'SDL2_GET_DISPLAY_MODES' (RUNTIME_FUNCTION, INTEGER, scope=0, block=0, class_name='', function_name='Global')
+Symbol 'SDL2_TEST_BASIC' (RUNTIME_FUNCTION, INTEGER, scope=0, block=0, class_name='', function_name='Global')
 Symbol 'START' (ROUTINE, INTEGER, scope=0, block=0, class_name='', function_name='START')
 Symbol 'S1' (LOCAL_VAR, INTEGER, scope=2, block=0, class_name='', function_name='START')
 Symbol 'L' (LOCAL_VAR, INTEGER, scope=2, block=0, class_name='', function_name='START')
@@ -447,8 +727,9 @@ Symbol 'S2' (LOCAL_VAR, INTEGER, scope=3, block=0, class_name='', function_name=
 
 ================================================
 
-Registering runtime functions in symbol table...
-SDL2 runtime functions registered immediately
+Verifying runtime function import...
+=== Verifying Runtime Function Import Completeness ===
+✅ Runtime function import verification passed (125 functions)
 Optimization enabled. Applying passes...
 [FIX] Cleared FOR loop state before StrengthReductionPass to prevent corruption
 SKIPPED: Boolean Short-Circuiting Pass (startup crash)...
@@ -472,7 +753,7 @@ Cleared FOR loop state before analysis to prevent corruption
 [ANALYZER TRACE] Entering block scope: START_block_0 (Function scope remains: START)
 [ANALYZER TRACE] BlockStatement: Traversing 9 statements.
 [ANALYZER TRACE] BlockStatement: Calling accept on statement 0 of type 53
-[ANALYZER TRACE] Entered ASTAnalyzer::visit(RoutineCallStatement&) for node at 0x9f6c11140
+[ANALYZER TRACE] Entered ASTAnalyzer::visit(RoutineCallStatement&) for node at 0x103bb2210
 [ANALYZER TRACE]   Detected call to runtime function: WRITES, Type: INTEGER
 [ANALYZER TRACE] BlockStatement: Calling accept on statement 1 of type 52
 [ANALYZER TRACE] Visiting VariableAccess: S1
@@ -483,10 +764,10 @@ Cleared FOR loop state before analysis to prevent corruption
 [DEBUG get_effective_variable_name] In FOR loop context: NO
 [DEBUG get_effective_variable_name] Not in FOR loop context, returning original: 'S1'
 [ANALYZER TRACE] BlockStatement: Calling accept on statement 2 of type 53
-[ANALYZER TRACE] Entered ASTAnalyzer::visit(RoutineCallStatement&) for node at 0x9f6c11170
+[ANALYZER TRACE] Entered ASTAnalyzer::visit(RoutineCallStatement&) for node at 0x103bb2450
 [ANALYZER TRACE]   Detected call to runtime function: WRITES, Type: INTEGER
 [ANALYZER TRACE] BlockStatement: Calling accept on statement 3 of type 53
-[ANALYZER TRACE] Entered ASTAnalyzer::visit(RoutineCallStatement&) for node at 0x9f6c111a0
+[ANALYZER TRACE] Entered ASTAnalyzer::visit(RoutineCallStatement&) for node at 0x103bb2540
 [ANALYZER TRACE]   Detected call to runtime function: WRITES, Type: INTEGER
 [ANALYZER TRACE] Visiting VariableAccess: S1
 [DEBUG get_effective_variable_name] Called with: 'S1'
@@ -496,10 +777,10 @@ Cleared FOR loop state before analysis to prevent corruption
 [DEBUG get_effective_variable_name] In FOR loop context: NO
 [DEBUG get_effective_variable_name] Not in FOR loop context, returning original: 'S1'
 [ANALYZER TRACE] BlockStatement: Calling accept on statement 4 of type 53
-[ANALYZER TRACE] Entered ASTAnalyzer::visit(RoutineCallStatement&) for node at 0x9f6c111d0
+[ANALYZER TRACE] Entered ASTAnalyzer::visit(RoutineCallStatement&) for node at 0x103bb2620
 [ANALYZER TRACE]   Detected call to runtime function: WRITES, Type: INTEGER
 [ANALYZER TRACE] BlockStatement: Calling accept on statement 5 of type 53
-[ANALYZER TRACE] Entered ASTAnalyzer::visit(RoutineCallStatement&) for node at 0x9f6c11200
+[ANALYZER TRACE] Entered ASTAnalyzer::visit(RoutineCallStatement&) for node at 0x103bb2700
 [ANALYZER TRACE]   Detected call to runtime function: WRITES, Type: INTEGER
 [ANALYZER TRACE] BlockStatement: Calling accept on statement 6 of type 52
 [ANALYZER TRACE]   Detected call to runtime function: SPLIT, Type: INTEGER
@@ -518,7 +799,7 @@ Cleared FOR loop state before analysis to prevent corruption
 [DEBUG get_effective_variable_name] In FOR loop context: NO
 [DEBUG get_effective_variable_name] Not in FOR loop context, returning original: 'L'
 [ANALYZER TRACE] BlockStatement: Calling accept on statement 7 of type 53
-[ANALYZER TRACE] Entered ASTAnalyzer::visit(RoutineCallStatement&) for node at 0x9f6c11230
+[ANALYZER TRACE] Entered ASTAnalyzer::visit(RoutineCallStatement&) for node at 0x103bb29c0
 [ANALYZER TRACE]   Detected call to runtime function: WRITES, Type: INTEGER
 [ANALYZER TRACE] BlockStatement: Calling accept on statement 8 of type 56
 [ANALYZER TRACE] Visiting VariableAccess: L
@@ -531,13 +812,13 @@ Cleared FOR loop state before analysis to prevent corruption
 [ANALYZER TRACE] Entering block scope: START_block_0_block_2 (Function scope remains: START)
 [ANALYZER TRACE] BlockStatement: Traversing 1 statements.
 [ANALYZER TRACE] BlockStatement: Calling accept on statement 0 of type 53
-[ANALYZER TRACE] Entered ASTAnalyzer::visit(RoutineCallStatement&) for node at 0x9f6c11260
+[ANALYZER TRACE] Entered ASTAnalyzer::visit(RoutineCallStatement&) for node at 0x103bb2ac0
 [ANALYZER TRACE]   Detected call to runtime function: WRITES, Type: INTEGER
 [ANALYZER TRACE] Exiting block scope, returning to: START_block_0
 [ANALYZER TRACE] Entering block scope: START_block_0_block_2 (Function scope remains: START)
 [ANALYZER TRACE] BlockStatement: Traversing 4 statements.
 [ANALYZER TRACE] BlockStatement: Calling accept on statement 0 of type 53
-[ANALYZER TRACE] Entered ASTAnalyzer::visit(RoutineCallStatement&) for node at 0x9f6c11290
+[ANALYZER TRACE] Entered ASTAnalyzer::visit(RoutineCallStatement&) for node at 0x103bb2b50
 [ANALYZER TRACE]   Detected call to runtime function: WRITES, Type: INTEGER
 [ANALYZER TRACE] BlockStatement: Calling accept on statement 1 of type 52
 [ANALYZER TRACE]   Detected call to runtime function: JOIN, Type: INTEGER
@@ -556,7 +837,7 @@ Cleared FOR loop state before analysis to prevent corruption
 [DEBUG get_effective_variable_name] In FOR loop context: NO
 [DEBUG get_effective_variable_name] Not in FOR loop context, returning original: 'S2'
 [ANALYZER TRACE] BlockStatement: Calling accept on statement 2 of type 53
-[ANALYZER TRACE] Entered ASTAnalyzer::visit(RoutineCallStatement&) for node at 0x9f6c112c0
+[ANALYZER TRACE] Entered ASTAnalyzer::visit(RoutineCallStatement&) for node at 0x103bb31e0
 [ANALYZER TRACE]   Detected call to runtime function: WRITES, Type: INTEGER
 [ANALYZER TRACE] BlockStatement: Calling accept on statement 3 of type 56
 [ANALYZER TRACE] Visiting VariableAccess: S2
@@ -569,16 +850,16 @@ Cleared FOR loop state before analysis to prevent corruption
 [ANALYZER TRACE] Entering block scope: START_block_0_block_2_block_3 (Function scope remains: START)
 [ANALYZER TRACE] BlockStatement: Traversing 1 statements.
 [ANALYZER TRACE] BlockStatement: Calling accept on statement 0 of type 53
-[ANALYZER TRACE] Entered ASTAnalyzer::visit(RoutineCallStatement&) for node at 0x9f6c112f0
+[ANALYZER TRACE] Entered ASTAnalyzer::visit(RoutineCallStatement&) for node at 0x103bb3290
 [ANALYZER TRACE]   Detected call to runtime function: WRITES, Type: INTEGER
 [ANALYZER TRACE] Exiting block scope, returning to: START_block_0_block_2
 [ANALYZER TRACE] Entering block scope: START_block_0_block_2_block_3 (Function scope remains: START)
 [ANALYZER TRACE] BlockStatement: Traversing 3 statements.
 [ANALYZER TRACE] BlockStatement: Calling accept on statement 0 of type 53
-[ANALYZER TRACE] Entered ASTAnalyzer::visit(RoutineCallStatement&) for node at 0x9f6c11320
+[ANALYZER TRACE] Entered ASTAnalyzer::visit(RoutineCallStatement&) for node at 0x103bb3320
 [ANALYZER TRACE]   Detected call to runtime function: WRITES, Type: INTEGER
 [ANALYZER TRACE] BlockStatement: Calling accept on statement 1 of type 53
-[ANALYZER TRACE] Entered ASTAnalyzer::visit(RoutineCallStatement&) for node at 0x9f6c11350
+[ANALYZER TRACE] Entered ASTAnalyzer::visit(RoutineCallStatement&) for node at 0x103bb33f0
 [ANALYZER TRACE]   Detected call to runtime function: WRITES, Type: INTEGER
 [ANALYZER TRACE] Visiting VariableAccess: S2
 [DEBUG get_effective_variable_name] Called with: 'S2'
@@ -588,7 +869,7 @@ Cleared FOR loop state before analysis to prevent corruption
 [DEBUG get_effective_variable_name] In FOR loop context: NO
 [DEBUG get_effective_variable_name] Not in FOR loop context, returning original: 'S2'
 [ANALYZER TRACE] BlockStatement: Calling accept on statement 2 of type 53
-[ANALYZER TRACE] Entered ASTAnalyzer::visit(RoutineCallStatement&) for node at 0x9f6c11380
+[ANALYZER TRACE] Entered ASTAnalyzer::visit(RoutineCallStatement&) for node at 0x103bb3430
 [ANALYZER TRACE]   Detected call to runtime function: WRITES, Type: INTEGER
 [ANALYZER TRACE] Exiting block scope, returning to: START_block_0_block_2
 [ANALYZER TRACE] Exiting block scope, returning to: START_block_0
@@ -1210,7 +1491,7 @@ Function: START
 --------------------------------------------
 --------------------------------------------------
 
-[DEBUG] Initialized veneer manager with base address: 0x4399169536
+[DEBUG] Initialized veneer manager with base address: 0x4428759040
 [DEBUG] Starting code generation for program.
 [DEBUG] Step 1: Performing pre-analysis scan for external functions...
 [DEBUG] Found 3 unique external functions:
@@ -1250,13 +1531,13 @@ Call Frame Layout for function: START
 [DEBUG] DEBUG: metrics.variable_types size for 'START': 3
 [DEBUG] DEBUG: variable_types['L'] = POINTER_TO|LIST|STRING
 [DEBUG] DEBUG: variable_types['S1'] = POINTER_TO|STRING
-[DEBUG] DEBUG: variable_types['S2'] = POINTER_TO|STRING
+[DEBUG] DEBUG: variable_types['S2'] = INTEGER
 [DEBUG] Registering all local variables from ASTAnalyzer metrics for 'START'.
 Added local variable 'L' of type 1081348 at offset 16 (size 8)
 [DEBUG] Registered local 'L' from analyzer metrics.
 Added local variable 'S1' of type 1048580 at offset 24 (size 8)
 [DEBUG] Registered local 'S1' from analyzer metrics.
-Added local variable 'S2' of type 1048580 at offset 32 (size 8)
+Added local variable 'S2' of type 1 at offset 32 (size 8)
 [DEBUG] Registered local 'S2' from analyzer metrics.
 [DEBUG] Entered new scope. Scope stack size: 1
 [DEBUG] Using pre-computed register allocation for 'START'.
@@ -1272,7 +1553,7 @@ Offset   | Content                               | Type
 +8       | Return Address (Caller's PC)
 +16      | Local: L                              | POINTER_TO|LIST|STRING
 +24      | Local: S1                             | POINTER_TO|STRING
-+32      | Local: S2                             | POINTER_TO|STRING
++32      | Local: S2                             | INTEGER
 +40      | Saved Reg: X19                        | UNKNOWN
 +48      | Saved Reg: X20                        | UNKNOWN
 +56      | Saved Reg: X21                        | UNKNOWN
@@ -1321,7 +1602,7 @@ Offset   | Content                               | Type
 +8       | Return Address (Caller's PC)
 +16      | Local: L                              | POINTER_TO|LIST|STRING
 +24      | Local: S1                             | POINTER_TO|STRING
-+32      | Local: S2                             | POINTER_TO|STRING
++32      | Local: S2                             | INTEGER
 +40      | Saved Reg: X19                        | UNKNOWN
 +48      | Saved Reg: X20                        | UNKNOWN
 +56      | Saved Reg: X21                        | UNKNOWN
@@ -1354,7 +1635,7 @@ Offset   | Content                               | Type
 '.
 [DEBUG] === ARM64 ABI Argument Coercion ===
 [DEBUG] Total arguments: 1
-[DEBUG] Arg 0: src=X9 expr_type=POINTER_TO|STRING expected=INTEGER target=INTEGER
+[DEBUG] Arg 0: src=X9 expr_type=POINTER_TO|STRING expected=UNKNOWN target=POINTER_TO|STRING
 [DEBUG] Integer arg 0 -> X0 (NGRN=0)
 [DEBUG] Queued MOV X0, X9
 [DEBUG] Deferring release of source register: X9
@@ -1422,7 +1703,7 @@ Offset   | Content                               | Type
 [DEBUG] Emitted optimized ADRP/ADD+offset sequence for string literal 'Original string: '.
 [DEBUG] === ARM64 ABI Argument Coercion ===
 [DEBUG] Total arguments: 1
-[DEBUG] Arg 0: src=X9 expr_type=POINTER_TO|STRING expected=INTEGER target=INTEGER
+[DEBUG] Arg 0: src=X9 expr_type=POINTER_TO|STRING expected=UNKNOWN target=POINTER_TO|STRING
 [DEBUG] Integer arg 0 -> X0 (NGRN=0)
 [DEBUG] Queued MOV X0, X9
 [DEBUG] Deferring release of source register: X9
@@ -1453,7 +1734,7 @@ Offset   | Content                               | Type
 [DEBUG]   [DEBUG] get_variable_register returned: 'X26'
 [DEBUG] === ARM64 ABI Argument Coercion ===
 [DEBUG] Total arguments: 1
-[DEBUG] Arg 0: src=X26 expr_type=POINTER_TO|STRING expected=INTEGER target=INTEGER
+[DEBUG] Arg 0: src=X26 expr_type=POINTER_TO|STRING expected=UNKNOWN target=POINTER_TO|STRING
 [DEBUG] Integer arg 0 -> X0 (NGRN=0)
 [DEBUG] Queued MOV X0, X26
 [DEBUG] Deferring release of source register: X26
@@ -1491,7 +1772,7 @@ Offset   | Content                               | Type
 '.
 [DEBUG] === ARM64 ABI Argument Coercion ===
 [DEBUG] Total arguments: 1
-[DEBUG] Arg 0: src=X9 expr_type=POINTER_TO|STRING expected=INTEGER target=INTEGER
+[DEBUG] Arg 0: src=X9 expr_type=POINTER_TO|STRING expected=UNKNOWN target=POINTER_TO|STRING
 [DEBUG] Integer arg 0 -> X0 (NGRN=0)
 [DEBUG] Queued MOV X0, X9
 [DEBUG] Deferring release of source register: X9
@@ -1529,7 +1810,7 @@ Offset   | Content                               | Type
 '.
 [DEBUG] === ARM64 ABI Argument Coercion ===
 [DEBUG] Total arguments: 1
-[DEBUG] Arg 0: src=X9 expr_type=POINTER_TO|STRING expected=INTEGER target=INTEGER
+[DEBUG] Arg 0: src=X9 expr_type=POINTER_TO|STRING expected=UNKNOWN target=POINTER_TO|STRING
 [DEBUG] Integer arg 0 -> X0 (NGRN=0)
 [DEBUG] Queued MOV X0, X9
 [DEBUG] Deferring release of source register: X9
@@ -1585,16 +1866,14 @@ Offset   | Content                               | Type
 [LIVE] Register X26 active for variable S1 [0-6]
 [LIVE] Register X25 active for variable S2 [0-16]
 [LIVE] Freed register X20 (no active variables)
-[DEBUG] Found function symbol: SPLIT with 2 parameters
-[DEBUG]   Parameter 0 type: STRING
-[DEBUG]   Parameter 1 type: STRING
+[DEBUG] Found function symbol: SPLIT with 0 parameters
 [DEBUG] === ARM64 ABI Argument Coercion ===
 [DEBUG] Total arguments: 2
-[DEBUG] Arg 0: src=X20 expr_type=POINTER_TO|STRING expected=STRING target=STRING
+[DEBUG] Arg 0: src=X20 expr_type=POINTER_TO|STRING expected=UNKNOWN target=POINTER_TO|STRING
 [DEBUG] Integer arg 0 -> X0 (NGRN=0)
 [DEBUG] Queued MOV X0, X20
 [DEBUG] Deferring release of source register: X20
-[DEBUG] Arg 1: src=X20 expr_type=POINTER_TO|STRING expected=STRING target=STRING
+[DEBUG] Arg 1: src=X20 expr_type=POINTER_TO|STRING expected=UNKNOWN target=POINTER_TO|STRING
 [DEBUG] Integer arg 1 -> X1 (NGRN=1)
 [DEBUG] Queued MOV X1, X20
 [DEBUG] Deferring release of source register: X20
@@ -1652,7 +1931,7 @@ Offset   | Content                               | Type
 '.
 [DEBUG] === ARM64 ABI Argument Coercion ===
 [DEBUG] Total arguments: 1
-[DEBUG] Arg 0: src=X10 expr_type=POINTER_TO|STRING expected=INTEGER target=INTEGER
+[DEBUG] Arg 0: src=X10 expr_type=POINTER_TO|STRING expected=UNKNOWN target=POINTER_TO|STRING
 [DEBUG] Integer arg 0 -> X0 (NGRN=0)
 [DEBUG] Queued MOV X0, X10
 [DEBUG] Deferring release of source register: X10
@@ -1738,7 +2017,7 @@ Offset   | Content                               | Type
 '.
 [DEBUG] === ARM64 ABI Argument Coercion ===
 [DEBUG] Total arguments: 1
-[DEBUG] Arg 0: src=X9 expr_type=POINTER_TO|STRING expected=INTEGER target=INTEGER
+[DEBUG] Arg 0: src=X9 expr_type=POINTER_TO|STRING expected=UNKNOWN target=POINTER_TO|STRING
 [DEBUG] Integer arg 0 -> X0 (NGRN=0)
 [DEBUG] Queued MOV X0, X9
 [DEBUG] Deferring release of source register: X9
@@ -1794,16 +2073,14 @@ Offset   | Content                               | Type
 [LIVE] Variable S1 expired from register X26
 [LIVE] Register X25 active for variable S2 [0-16]
 [LIVE] Freed register X20 (no active variables)
-[DEBUG] Found function symbol: JOIN with 2 parameters
-[DEBUG]   Parameter 0 type: POINTER_TO|LIST|STRING
-[DEBUG]   Parameter 1 type: STRING
+[DEBUG] Found function symbol: JOIN with 0 parameters
 [DEBUG] === ARM64 ABI Argument Coercion ===
 [DEBUG] Total arguments: 2
-[DEBUG] Arg 0: src=X20 expr_type=POINTER_TO|LIST|STRING expected=POINTER_TO|LIST|STRING target=POINTER_TO|LIST|STRING
+[DEBUG] Arg 0: src=X20 expr_type=POINTER_TO|LIST|STRING expected=UNKNOWN target=POINTER_TO|LIST|STRING
 [DEBUG] Integer arg 0 -> X0 (NGRN=0)
 [DEBUG] Queued MOV X0, X20
 [DEBUG] Deferring release of source register: X20
-[DEBUG] Arg 1: src=X20 expr_type=POINTER_TO|STRING expected=STRING target=STRING
+[DEBUG] Arg 1: src=X20 expr_type=POINTER_TO|STRING expected=UNKNOWN target=POINTER_TO|STRING
 [DEBUG] Integer arg 1 -> X1 (NGRN=1)
 [DEBUG] Queued MOV X1, X20
 [DEBUG] Deferring release of source register: X20
@@ -1859,7 +2136,7 @@ Offset   | Content                               | Type
 '.
 [DEBUG] === ARM64 ABI Argument Coercion ===
 [DEBUG] Total arguments: 1
-[DEBUG] Arg 0: src=X10 expr_type=POINTER_TO|STRING expected=INTEGER target=INTEGER
+[DEBUG] Arg 0: src=X10 expr_type=POINTER_TO|STRING expected=UNKNOWN target=POINTER_TO|STRING
 [DEBUG] Integer arg 0 -> X0 (NGRN=0)
 [DEBUG] Queued MOV X0, X10
 [DEBUG] Deferring release of source register: X10
@@ -1881,7 +2158,7 @@ Offset   | Content                               | Type
 [DEBUG] --- Exiting NewCodeGenerator::visit(RoutineCallStatement& node) ---
 [DEBUG] Visiting TestStatement node (NOTE: branching is handled by block epilogue).
 [DEBUG] Visiting BinaryOp node.
-[DEBUG] BinaryOp type inference: left_type=1048580, right_type=1
+[DEBUG] BinaryOp type inference: left_type=1, right_type=1
 [DEBUG] About to evaluate LEFT side of binary operation
 [DEBUG] Visiting VariableAccess node for 'S2'.
 [DEBUG]   [DEBUG] About to call get_variable_register for 'S2' in function 'START'
@@ -1945,7 +2222,7 @@ Offset   | Content                               | Type
 [DEBUG] Emitted optimized ADRP/ADD+offset sequence for string literal 'JOIN result: '.
 [DEBUG] === ARM64 ABI Argument Coercion ===
 [DEBUG] Total arguments: 1
-[DEBUG] Arg 0: src=X9 expr_type=POINTER_TO|STRING expected=INTEGER target=INTEGER
+[DEBUG] Arg 0: src=X9 expr_type=POINTER_TO|STRING expected=UNKNOWN target=POINTER_TO|STRING
 [DEBUG] Integer arg 0 -> X0 (NGRN=0)
 [DEBUG] Queued MOV X0, X9
 [DEBUG] Deferring release of source register: X9
@@ -1976,7 +2253,7 @@ Offset   | Content                               | Type
 [DEBUG]   [DEBUG] get_variable_register returned: 'X25'
 [DEBUG] === ARM64 ABI Argument Coercion ===
 [DEBUG] Total arguments: 1
-[DEBUG] Arg 0: src=X25 expr_type=POINTER_TO|STRING expected=INTEGER target=INTEGER
+[DEBUG] Arg 0: src=X25 expr_type=INTEGER expected=UNKNOWN target=INTEGER
 [DEBUG] Integer arg 0 -> X0 (NGRN=0)
 [DEBUG] Queued MOV X0, X25
 [DEBUG] Deferring release of source register: X25
@@ -2014,7 +2291,7 @@ Offset   | Content                               | Type
 '.
 [DEBUG] === ARM64 ABI Argument Coercion ===
 [DEBUG] Total arguments: 1
-[DEBUG] Arg 0: src=X9 expr_type=POINTER_TO|STRING expected=INTEGER target=INTEGER
+[DEBUG] Arg 0: src=X9 expr_type=POINTER_TO|STRING expected=UNKNOWN target=POINTER_TO|STRING
 [DEBUG] Integer arg 0 -> X0 (NGRN=0)
 [DEBUG] Queued MOV X0, X9
 [DEBUG] Deferring release of source register: X9
@@ -2062,7 +2339,7 @@ Offset   | Content                               | Type
 '.
 [DEBUG] === ARM64 ABI Argument Coercion ===
 [DEBUG] Total arguments: 1
-[DEBUG] Arg 0: src=X9 expr_type=POINTER_TO|STRING expected=INTEGER target=INTEGER
+[DEBUG] Arg 0: src=X9 expr_type=POINTER_TO|STRING expected=UNKNOWN target=POINTER_TO|STRING
 [DEBUG] Integer arg 0 -> X0 (NGRN=0)
 [DEBUG] Queued MOV X0, X9
 [DEBUG] Deferring release of source register: X9
@@ -2106,7 +2383,7 @@ Offset   | Content                               | Type
 '.
 [DEBUG] === ARM64 ABI Argument Coercion ===
 [DEBUG] Total arguments: 1
-[DEBUG] Arg 0: src=X9 expr_type=POINTER_TO|STRING expected=INTEGER target=INTEGER
+[DEBUG] Arg 0: src=X9 expr_type=POINTER_TO|STRING expected=UNKNOWN target=POINTER_TO|STRING
 [DEBUG] Integer arg 0 -> X0 (NGRN=0)
 [DEBUG] Queued MOV X0, X9
 [DEBUG] Deferring release of source register: X9
@@ -2173,72 +2450,123 @@ Code generation complete.
 --- Symbol Table After Code Generation ---
 Symbol Table (Persistent, All Symbols)
 ==================================================
-Symbol 'HeapManager_enter_scope' (FUNCTION, INTEGER, scope=0, block=0, class_name='', function_name='Global')
-Symbol 'HeapManager_exit_scope' (FUNCTION, INTEGER, scope=0, block=0, class_name='', function_name='Global')
-Symbol 'START' (ROUTINE, INTEGER, scope=0, block=0, class_name='', function_name='START')
-Symbol 'S1' (LOCAL_VAR, POINTER_TO|STRING, scope=2, block=0, class_name='', function_name='START')
-Symbol 'L' (LOCAL_VAR, POINTER_TO|LIST|STRING, scope=2, block=0, class_name='', function_name='START')
-Symbol 'S2' (LOCAL_VAR, POINTER_TO|STRING, scope=3, block=0, class_name='', function_name='START')
-Symbol 'READN' (RUNTIME_FUNCTION, INTEGER, scope=0, block=0, class_name='', function_name='Global')
-Symbol 'RND' (RUNTIME_FLOAT_FUNCTION, FLOAT, scope=0, block=0, class_name='', function_name='Global', parameters=[INTEGER])
-Symbol 'RAND' (RUNTIME_FUNCTION, INTEGER, scope=0, block=0, class_name='', function_name='Global', parameters=[INTEGER])
-Symbol 'LENGTH' (RUNTIME_FUNCTION, INTEGER, scope=0, block=0, class_name='', function_name='Global', parameters=[INTEGER])
-Symbol 'GETBYTE' (RUNTIME_FUNCTION, INTEGER, scope=0, block=0, class_name='', function_name='Global', parameters=[INTEGER, INTEGER])
-Symbol 'GETWORD' (RUNTIME_FUNCTION, INTEGER, scope=0, block=0, class_name='', function_name='Global', parameters=[INTEGER, INTEGER])
-Symbol 'READF' (RUNTIME_FLOAT_FUNCTION, FLOAT, scope=0, block=0, class_name='', function_name='Global')
-Symbol 'FLTOFX' (RUNTIME_FLOAT_FUNCTION, FLOAT, scope=0, block=0, class_name='', function_name='Global', parameters=[INTEGER])
-Symbol 'FSIN' (RUNTIME_FLOAT_FUNCTION, FLOAT, scope=0, block=0, class_name='', function_name='Global', parameters=[FLOAT])
-Symbol 'FCOS' (RUNTIME_FLOAT_FUNCTION, FLOAT, scope=0, block=0, class_name='', function_name='Global', parameters=[FLOAT])
-Symbol 'FTAN' (RUNTIME_FLOAT_FUNCTION, FLOAT, scope=0, block=0, class_name='', function_name='Global', parameters=[FLOAT])
-Symbol 'FABS' (RUNTIME_FLOAT_FUNCTION, FLOAT, scope=0, block=0, class_name='', function_name='Global', parameters=[FLOAT])
-Symbol 'FLOG' (RUNTIME_FLOAT_FUNCTION, FLOAT, scope=0, block=0, class_name='', function_name='Global', parameters=[FLOAT])
-Symbol 'FEXP' (RUNTIME_FLOAT_FUNCTION, FLOAT, scope=0, block=0, class_name='', function_name='Global', parameters=[FLOAT])
-Symbol 'FRND' (RUNTIME_FLOAT_FUNCTION, FLOAT, scope=0, block=0, class_name='', function_name='Global')
-Symbol 'WRITES' (RUNTIME_ROUTINE, INTEGER, scope=0, block=0, class_name='', function_name='Global', parameters=[INTEGER])
-Symbol 'WRITEN' (RUNTIME_ROUTINE, INTEGER, scope=0, block=0, class_name='', function_name='Global', parameters=[INTEGER])
-Symbol 'FWRITE' (RUNTIME_FLOAT_ROUTINE, FLOAT, scope=0, block=0, class_name='', function_name='Global', parameters=[FLOAT])
-Symbol 'WRITEF' (RUNTIME_ROUTINE, INTEGER, scope=0, block=0, class_name='', function_name='Global', parameters=[STRING])
-Symbol 'PUTBYTE' (RUNTIME_ROUTINE, INTEGER, scope=0, block=0, class_name='', function_name='Global', parameters=[INTEGER, INTEGER, INTEGER])
-Symbol 'PUTWORD' (RUNTIME_ROUTINE, INTEGER, scope=0, block=0, class_name='', function_name='Global', parameters=[INTEGER, INTEGER, INTEGER])
-Symbol 'EXIT' (RUNTIME_ROUTINE, INTEGER, scope=0, block=0, class_name='', function_name='Global', parameters=[INTEGER])
+Symbol 'WRITES' (RUNTIME_ROUTINE, INTEGER, scope=0, block=0, class_name='', function_name='Global')
+Symbol 'WRITEN' (RUNTIME_ROUTINE, INTEGER, scope=0, block=0, class_name='', function_name='Global')
+Symbol 'FWRITE' (RUNTIME_FLOAT_ROUTINE, INTEGER, scope=0, block=0, class_name='', function_name='Global')
+Symbol 'WRITEF' (RUNTIME_ROUTINE, INTEGER, scope=0, block=0, class_name='', function_name='Global')
+Symbol 'WRITEF1' (RUNTIME_ROUTINE, INTEGER, scope=0, block=0, class_name='', function_name='Global')
+Symbol 'WRITEF2' (RUNTIME_ROUTINE, INTEGER, scope=0, block=0, class_name='', function_name='Global')
+Symbol 'WRITEF3' (RUNTIME_ROUTINE, INTEGER, scope=0, block=0, class_name='', function_name='Global')
+Symbol 'WRITEF4' (RUNTIME_ROUTINE, INTEGER, scope=0, block=0, class_name='', function_name='Global')
+Symbol 'WRITEF5' (RUNTIME_ROUTINE, INTEGER, scope=0, block=0, class_name='', function_name='Global')
+Symbol 'WRITEF6' (RUNTIME_ROUTINE, INTEGER, scope=0, block=0, class_name='', function_name='Global')
+Symbol 'WRITEF7' (RUNTIME_ROUTINE, INTEGER, scope=0, block=0, class_name='', function_name='Global')
+Symbol 'WRITEC' (RUNTIME_ROUTINE, INTEGER, scope=0, block=0, class_name='', function_name='Global')
+Symbol 'RDCH' (RUNTIME_FUNCTION, INTEGER, scope=0, block=0, class_name='', function_name='Global')
 Symbol 'NEWLINE' (RUNTIME_ROUTINE, INTEGER, scope=0, block=0, class_name='', function_name='Global')
-Symbol 'NEWPAGE' (RUNTIME_ROUTINE, INTEGER, scope=0, block=0, class_name='', function_name='Global')
-Symbol 'SPLIT' (RUNTIME_LIST_FUNCTION, POINTER_TO|LIST|STRING, scope=0, block=0, class_name='', function_name='Global', parameters=[STRING, STRING])
-Symbol 'JOIN' (RUNTIME_FUNCTION, INTEGER, scope=0, block=0, class_name='', function_name='Global', parameters=[POINTER_TO|LIST|STRING, STRING])
-Symbol 'FILE_OPEN_READ' (RUNTIME_FUNCTION, INTEGER, scope=0, block=0, class_name='', function_name='Global', parameters=[STRING])
-Symbol 'FILE_OPEN_WRITE' (RUNTIME_FUNCTION, INTEGER, scope=0, block=0, class_name='', function_name='Global', parameters=[STRING])
-Symbol 'FILE_OPEN_APPEND' (RUNTIME_FUNCTION, INTEGER, scope=0, block=0, class_name='', function_name='Global', parameters=[STRING])
-Symbol 'FILE_CLOSE' (RUNTIME_FUNCTION, INTEGER, scope=0, block=0, class_name='', function_name='Global', parameters=[INTEGER])
-Symbol 'FILE_WRITES' (RUNTIME_FUNCTION, INTEGER, scope=0, block=0, class_name='', function_name='Global', parameters=[INTEGER, STRING])
-Symbol 'FILE_READS' (RUNTIME_FUNCTION, INTEGER, scope=0, block=0, class_name='', function_name='Global', parameters=[INTEGER])
-Symbol 'FILE_READ' (RUNTIME_FUNCTION, INTEGER, scope=0, block=0, class_name='', function_name='Global', parameters=[INTEGER, INTEGER, INTEGER])
-Symbol 'FILE_WRITE' (RUNTIME_FUNCTION, INTEGER, scope=0, block=0, class_name='', function_name='Global', parameters=[INTEGER, INTEGER, INTEGER])
-Symbol 'FILE_SEEK' (RUNTIME_FUNCTION, INTEGER, scope=0, block=0, class_name='', function_name='Global', parameters=[INTEGER, INTEGER, INTEGER])
-Symbol 'FILE_TELL' (RUNTIME_FUNCTION, INTEGER, scope=0, block=0, class_name='', function_name='Global', parameters=[INTEGER])
-Symbol 'FILE_EOF' (RUNTIME_FUNCTION, INTEGER, scope=0, block=0, class_name='', function_name='Global', parameters=[INTEGER])
+Symbol 'SPLIT' (RUNTIME_LIST_FUNCTION, POINTER_TO|LIST|STRING, scope=0, block=0, class_name='', function_name='Global')
+Symbol 'JOIN' (RUNTIME_FUNCTION, INTEGER, scope=0, block=0, class_name='', function_name='Global')
+Symbol 'STRLEN' (RUNTIME_FUNCTION, INTEGER, scope=0, block=0, class_name='', function_name='Global')
+Symbol 'STRCMP' (RUNTIME_FUNCTION, INTEGER, scope=0, block=0, class_name='', function_name='Global')
+Symbol 'STRCOPY' (RUNTIME_ROUTINE, INTEGER, scope=0, block=0, class_name='', function_name='Global')
+Symbol 'PACKSTRING' (RUNTIME_FUNCTION, INTEGER, scope=0, block=0, class_name='', function_name='Global')
+Symbol 'UNPACKSTRING' (RUNTIME_FUNCTION, INTEGER, scope=0, block=0, class_name='', function_name='Global')
+Symbol 'SLURP' (RUNTIME_FUNCTION, INTEGER, scope=0, block=0, class_name='', function_name='Global')
+Symbol 'SPIT' (RUNTIME_ROUTINE, INTEGER, scope=0, block=0, class_name='', function_name='Global')
+Symbol 'GETVEC' (RUNTIME_FUNCTION, POINTER_TO|VEC|INTEGER, scope=0, block=0, class_name='', function_name='Global')
+Symbol 'FGETVEC' (RUNTIME_FUNCTION, POINTER_TO|VEC|FLOAT, scope=0, block=0, class_name='', function_name='Global')
+Symbol 'FREEVEC' (RUNTIME_ROUTINE, INTEGER, scope=0, block=0, class_name='', function_name='Global')
+Symbol 'BCPL_ALLOC_WORDS' (RUNTIME_FUNCTION, INTEGER, scope=0, block=0, class_name='', function_name='Global')
+Symbol 'BCPL_ALLOC_CHARS' (RUNTIME_FUNCTION, INTEGER, scope=0, block=0, class_name='', function_name='Global')
+Symbol 'MALLOC' (RUNTIME_FUNCTION, INTEGER, scope=0, block=0, class_name='', function_name='Global')
+Symbol 'BCPL_FREE_LIST' (RUNTIME_ROUTINE, INTEGER, scope=0, block=0, class_name='', function_name='Global')
+Symbol 'BCPL_FREE_LIST_SAFE' (RUNTIME_ROUTINE, INTEGER, scope=0, block=0, class_name='', function_name='Global')
+Symbol 'BCPL_GET_LAST_ERROR' (RUNTIME_FUNCTION, INTEGER, scope=0, block=0, class_name='', function_name='Global')
+Symbol 'BCPL_CLEAR_ERRORS' (RUNTIME_ROUTINE, INTEGER, scope=0, block=0, class_name='', function_name='Global')
+Symbol 'BCPL_CHECK_AND_DISPLAY_ERRORS' (RUNTIME_ROUTINE, INTEGER, scope=0, block=0, class_name='', function_name='Global')
+Symbol 'BCPL_BOUNDS_ERROR' (RUNTIME_ROUTINE, INTEGER, scope=0, block=0, class_name='', function_name='Global')
+Symbol 'BCPL_FREE_CELLS' (RUNTIME_ROUTINE, INTEGER, scope=0, block=0, class_name='', function_name='Global')
+Symbol 'GET_FREE_LIST_HEAD_ADDR' (RUNTIME_FUNCTION, INTEGER, scope=0, block=0, class_name='', function_name='Global')
+Symbol 'LIST_CREATE' (RUNTIME_LIST_FUNCTION, POINTER_TO|LIST|STRING, scope=0, block=0, class_name='', function_name='Global')
+Symbol 'LIST_APPEND_INT' (RUNTIME_LIST_FUNCTION, POINTER_TO|LIST|STRING, scope=0, block=0, class_name='', function_name='Global')
+Symbol 'LIST_APPEND_FLOAT' (RUNTIME_FLOAT_FUNCTION, POINTER_TO|LIST|STRING, scope=0, block=0, class_name='', function_name='Global')
+Symbol 'LIST_APPEND_STRING' (RUNTIME_LIST_FUNCTION, POINTER_TO|LIST|STRING, scope=0, block=0, class_name='', function_name='Global')
+Symbol 'LIST_HEAD_INT' (RUNTIME_FUNCTION, INTEGER, scope=0, block=0, class_name='', function_name='Global')
+Symbol 'LIST_HEAD_FLOAT' (RUNTIME_FLOAT_FUNCTION, FLOAT, scope=0, block=0, class_name='', function_name='Global')
+Symbol 'LIST_TAIL' (RUNTIME_LIST_FUNCTION, POINTER_TO|LIST|STRING, scope=0, block=0, class_name='', function_name='Global')
+Symbol 'LIST_FREE' (RUNTIME_ROUTINE, INTEGER, scope=0, block=0, class_name='', function_name='Global')
+Symbol 'BCPL_LIST_APPEND_LIST' (RUNTIME_LIST_FUNCTION, POINTER_TO|LIST|STRING, scope=0, block=0, class_name='', function_name='Global')
+Symbol 'BCPL_LIST_GET_REST' (RUNTIME_LIST_FUNCTION, POINTER_TO|LIST|STRING, scope=0, block=0, class_name='', function_name='Global')
+Symbol 'BCPL_GET_ATOM_TYPE' (RUNTIME_FUNCTION, INTEGER, scope=0, block=0, class_name='', function_name='Global')
+Symbol 'BCPL_LIST_GET_NTH' (RUNTIME_FUNCTION, INTEGER, scope=0, block=0, class_name='', function_name='Global')
+Symbol 'BCPL_CONCAT_LISTS' (RUNTIME_LIST_FUNCTION, POINTER_TO|LIST|STRING, scope=0, block=0, class_name='', function_name='Global')
+Symbol 'CONCAT' (RUNTIME_LIST_FUNCTION, POINTER_TO|LIST|STRING, scope=0, block=0, class_name='', function_name='Global')
+Symbol 'COPYLIST' (RUNTIME_LIST_FUNCTION, POINTER_TO|LIST|STRING, scope=0, block=0, class_name='', function_name='Global')
+Symbol 'DEEPCOPYLIST' (RUNTIME_LIST_FUNCTION, POINTER_TO|LIST|STRING, scope=0, block=0, class_name='', function_name='Global')
+Symbol 'DEEPCOPYLITERALLIST' (RUNTIME_LIST_FUNCTION, POINTER_TO|LIST|STRING, scope=0, block=0, class_name='', function_name='Global')
+Symbol 'REVERSE' (RUNTIME_LIST_FUNCTION, POINTER_TO|LIST|STRING, scope=0, block=0, class_name='', function_name='Global')
+Symbol 'FIND' (RUNTIME_FUNCTION, INTEGER, scope=0, block=0, class_name='', function_name='Global')
+Symbol 'FILTER' (RUNTIME_LIST_FUNCTION, POINTER_TO|LIST|STRING, scope=0, block=0, class_name='', function_name='Global')
+Symbol 'APND' (RUNTIME_LIST_FUNCTION, POINTER_TO|LIST|STRING, scope=0, block=0, class_name='', function_name='Global')
+Symbol 'FPND' (RUNTIME_FLOAT_FUNCTION, POINTER_TO|LIST|STRING, scope=0, block=0, class_name='', function_name='Global')
+Symbol 'SPND' (RUNTIME_LIST_FUNCTION, POINTER_TO|LIST|STRING, scope=0, block=0, class_name='', function_name='Global')
+Symbol 'LPND' (RUNTIME_LIST_FUNCTION, POINTER_TO|LIST|STRING, scope=0, block=0, class_name='', function_name='Global')
+Symbol 'returnNodeToFreelist' (RUNTIME_ROUTINE, INTEGER, scope=0, block=0, class_name='', function_name='Global')
+Symbol 'RAND' (RUNTIME_FUNCTION, INTEGER, scope=0, block=0, class_name='', function_name='Global')
+Symbol 'RND' (RUNTIME_FLOAT_FUNCTION, FLOAT, scope=0, block=0, class_name='', function_name='Global')
+Symbol 'FRND' (RUNTIME_FLOAT_FUNCTION, FLOAT, scope=0, block=0, class_name='', function_name='Global')
+Symbol 'FSIN' (RUNTIME_FLOAT_FUNCTION, FLOAT, scope=0, block=0, class_name='', function_name='Global')
+Symbol 'FCOS' (RUNTIME_FLOAT_FUNCTION, FLOAT, scope=0, block=0, class_name='', function_name='Global')
+Symbol 'FTAN' (RUNTIME_FLOAT_FUNCTION, FLOAT, scope=0, block=0, class_name='', function_name='Global')
+Symbol 'FABS' (RUNTIME_FLOAT_FUNCTION, FLOAT, scope=0, block=0, class_name='', function_name='Global')
+Symbol 'FLOG' (RUNTIME_FLOAT_FUNCTION, FLOAT, scope=0, block=0, class_name='', function_name='Global')
+Symbol 'FEXP' (RUNTIME_FLOAT_FUNCTION, FLOAT, scope=0, block=0, class_name='', function_name='Global')
+Symbol 'FIX' (RUNTIME_FUNCTION, INTEGER, scope=0, block=0, class_name='', function_name='Global')
+Symbol 'FILE_OPEN_READ' (RUNTIME_FUNCTION, INTEGER, scope=0, block=0, class_name='', function_name='Global')
+Symbol 'FILE_OPEN_WRITE' (RUNTIME_FUNCTION, INTEGER, scope=0, block=0, class_name='', function_name='Global')
+Symbol 'FILE_OPEN_APPEND' (RUNTIME_FUNCTION, INTEGER, scope=0, block=0, class_name='', function_name='Global')
+Symbol 'FILE_CLOSE' (RUNTIME_FUNCTION, INTEGER, scope=0, block=0, class_name='', function_name='Global')
+Symbol 'FILE_WRITES' (RUNTIME_FUNCTION, INTEGER, scope=0, block=0, class_name='', function_name='Global')
+Symbol 'FILE_READS' (RUNTIME_FUNCTION, INTEGER, scope=0, block=0, class_name='', function_name='Global')
+Symbol 'FILE_READ' (RUNTIME_FUNCTION, INTEGER, scope=0, block=0, class_name='', function_name='Global')
+Symbol 'FILE_WRITE' (RUNTIME_FUNCTION, INTEGER, scope=0, block=0, class_name='', function_name='Global')
+Symbol 'FILE_SEEK' (RUNTIME_FUNCTION, INTEGER, scope=0, block=0, class_name='', function_name='Global')
+Symbol 'FILE_TELL' (RUNTIME_FUNCTION, INTEGER, scope=0, block=0, class_name='', function_name='Global')
+Symbol 'FILE_EOF' (RUNTIME_FUNCTION, INTEGER, scope=0, block=0, class_name='', function_name='Global')
+Symbol 'FINISH' (RUNTIME_ROUTINE, INTEGER, scope=0, block=0, class_name='', function_name='Global')
+Symbol 'SETTYPE' (RUNTIME_ROUTINE, INTEGER, scope=0, block=0, class_name='', function_name='Global')
+Symbol 'HeapManager_enter_scope' (RUNTIME_ROUTINE, INTEGER, scope=0, block=0, class_name='', function_name='Global')
+Symbol 'HeapManager_exit_scope' (RUNTIME_ROUTINE, INTEGER, scope=0, block=0, class_name='', function_name='Global')
+Symbol 'HEAPMANAGER_ISSAMMENABLED' (RUNTIME_FUNCTION, INTEGER, scope=0, block=0, class_name='', function_name='Global')
+Symbol 'HEAPMANAGER_SETSAMMENABLED' (RUNTIME_ROUTINE, INTEGER, scope=0, block=0, class_name='', function_name='Global')
+Symbol 'HEAPMANAGER_WAITFORSAMM' (RUNTIME_ROUTINE, INTEGER, scope=0, block=0, class_name='', function_name='Global')
+Symbol 'OBJECT_HEAP_ALLOC' (RUNTIME_FUNCTION, INTEGER, scope=0, block=0, class_name='', function_name='Global')
+Symbol 'OBJECT_HEAP_FREE' (RUNTIME_ROUTINE, INTEGER, scope=0, block=0, class_name='', function_name='Global')
+Symbol 'RUNTIME_METHOD_LOOKUP' (RUNTIME_FUNCTION, INTEGER, scope=0, block=0, class_name='', function_name='Global')
+Symbol 'PIC_RUNTIME_HELPER' (RUNTIME_FUNCTION, INTEGER, scope=0, block=0, class_name='', function_name='Global')
 Symbol 'SDL2_INIT' (RUNTIME_FUNCTION, INTEGER, scope=0, block=0, class_name='', function_name='Global')
-Symbol 'SDL2_INIT_SUBSYSTEMS' (RUNTIME_FUNCTION, INTEGER, scope=0, block=0, class_name='', function_name='Global', parameters=[INTEGER])
+Symbol 'SDL2_INIT_SUBSYSTEMS' (RUNTIME_ROUTINE, INTEGER, scope=0, block=0, class_name='', function_name='Global')
 Symbol 'SDL2_QUIT' (RUNTIME_ROUTINE, INTEGER, scope=0, block=0, class_name='', function_name='Global')
-Symbol 'SDL2_CREATE_WINDOW' (RUNTIME_FUNCTION, INTEGER, scope=0, block=0, class_name='', function_name='Global', parameters=[STRING])
-Symbol 'SDL2_CREATE_WINDOW_EX' (RUNTIME_FUNCTION, INTEGER, scope=0, block=0, class_name='', function_name='Global', parameters=[STRING, INTEGER, INTEGER, INTEGER, INTEGER, INTEGER])
-Symbol 'SDL2_DESTROY_WINDOW' (RUNTIME_ROUTINE, INTEGER, scope=0, block=0, class_name='', function_name='Global', parameters=[INTEGER])
-Symbol 'SDL2_SET_WINDOW_TITLE' (RUNTIME_ROUTINE, INTEGER, scope=0, block=0, class_name='', function_name='Global', parameters=[INTEGER, STRING])
-Symbol 'SDL2_SET_WINDOW_SIZE' (RUNTIME_ROUTINE, INTEGER, scope=0, block=0, class_name='', function_name='Global', parameters=[INTEGER, INTEGER, INTEGER])
-Symbol 'SDL2_CREATE_RENDERER' (RUNTIME_FUNCTION, INTEGER, scope=0, block=0, class_name='', function_name='Global', parameters=[INTEGER])
-Symbol 'SDL2_CREATE_RENDERER_EX' (RUNTIME_FUNCTION, INTEGER, scope=0, block=0, class_name='', function_name='Global', parameters=[INTEGER, INTEGER])
-Symbol 'SDL2_DESTROY_RENDERER' (RUNTIME_ROUTINE, INTEGER, scope=0, block=0, class_name='', function_name='Global', parameters=[INTEGER])
-Symbol 'SDL2_SET_DRAW_COLOR' (RUNTIME_ROUTINE, INTEGER, scope=0, block=0, class_name='', function_name='Global', parameters=[INTEGER, INTEGER, INTEGER, INTEGER, INTEGER])
-Symbol 'SDL2_CLEAR' (RUNTIME_ROUTINE, INTEGER, scope=0, block=0, class_name='', function_name='Global', parameters=[INTEGER])
-Symbol 'SDL2_PRESENT' (RUNTIME_ROUTINE, INTEGER, scope=0, block=0, class_name='', function_name='Global', parameters=[INTEGER])
-Symbol 'SDL2_DRAW_POINT' (RUNTIME_ROUTINE, INTEGER, scope=0, block=0, class_name='', function_name='Global', parameters=[INTEGER, INTEGER, INTEGER])
-Symbol 'SDL2_DRAW_LINE' (RUNTIME_ROUTINE, INTEGER, scope=0, block=0, class_name='', function_name='Global', parameters=[INTEGER, INTEGER, INTEGER, INTEGER, INTEGER])
-Symbol 'SDL2_DRAW_RECT' (RUNTIME_ROUTINE, INTEGER, scope=0, block=0, class_name='', function_name='Global', parameters=[INTEGER, INTEGER, INTEGER, INTEGER, INTEGER])
-Symbol 'SDL2_FILL_RECT' (RUNTIME_ROUTINE, INTEGER, scope=0, block=0, class_name='', function_name='Global', parameters=[INTEGER, INTEGER, INTEGER, INTEGER, INTEGER])
+Symbol 'SDL2_CREATE_WINDOW' (RUNTIME_FUNCTION, INTEGER, scope=0, block=0, class_name='', function_name='Global')
+Symbol 'SDL2_CREATE_WINDOW_EX' (RUNTIME_FUNCTION, INTEGER, scope=0, block=0, class_name='', function_name='Global')
+Symbol 'SDL2_DESTROY_WINDOW' (RUNTIME_ROUTINE, INTEGER, scope=0, block=0, class_name='', function_name='Global')
+Symbol 'SDL2_SET_WINDOW_TITLE' (RUNTIME_ROUTINE, INTEGER, scope=0, block=0, class_name='', function_name='Global')
+Symbol 'SDL2_SET_WINDOW_SIZE' (RUNTIME_ROUTINE, INTEGER, scope=0, block=0, class_name='', function_name='Global')
+Symbol 'SDL2_CREATE_RENDERER' (RUNTIME_FUNCTION, INTEGER, scope=0, block=0, class_name='', function_name='Global')
+Symbol 'SDL2_CREATE_RENDERER_EX' (RUNTIME_FUNCTION, INTEGER, scope=0, block=0, class_name='', function_name='Global')
+Symbol 'SDL2_DESTROY_RENDERER' (RUNTIME_ROUTINE, INTEGER, scope=0, block=0, class_name='', function_name='Global')
+Symbol 'SDL2_SET_DRAW_COLOR' (RUNTIME_ROUTINE, INTEGER, scope=0, block=0, class_name='', function_name='Global')
+Symbol 'SDL2_CLEAR' (RUNTIME_ROUTINE, INTEGER, scope=0, block=0, class_name='', function_name='Global')
+Symbol 'SDL2_PRESENT' (RUNTIME_ROUTINE, INTEGER, scope=0, block=0, class_name='', function_name='Global')
+Symbol 'SDL2_DRAW_POINT' (RUNTIME_ROUTINE, INTEGER, scope=0, block=0, class_name='', function_name='Global')
+Symbol 'SDL2_DRAW_LINE' (RUNTIME_ROUTINE, INTEGER, scope=0, block=0, class_name='', function_name='Global')
+Symbol 'SDL2_DRAW_RECT' (RUNTIME_ROUTINE, INTEGER, scope=0, block=0, class_name='', function_name='Global')
+Symbol 'SDL2_FILL_RECT' (RUNTIME_ROUTINE, INTEGER, scope=0, block=0, class_name='', function_name='Global')
 Symbol 'SDL2_POLL_EVENT' (RUNTIME_FUNCTION, INTEGER, scope=0, block=0, class_name='', function_name='Global')
 Symbol 'SDL2_GET_EVENT_KEY' (RUNTIME_FUNCTION, INTEGER, scope=0, block=0, class_name='', function_name='Global')
-Symbol 'SDL2_GET_EVENT_MOUSE' (RUNTIME_FUNCTION, INTEGER, scope=0, block=0, class_name='', function_name='Global', parameters=[INTEGER, INTEGER])
+Symbol 'SDL2_GET_EVENT_MOUSE' (RUNTIME_ROUTINE, INTEGER, scope=0, block=0, class_name='', function_name='Global')
 Symbol 'SDL2_GET_EVENT_BUTTON' (RUNTIME_FUNCTION, INTEGER, scope=0, block=0, class_name='', function_name='Global')
-Symbol 'SDL2_DELAY' (RUNTIME_ROUTINE, INTEGER, scope=0, block=0, class_name='', function_name='Global', parameters=[INTEGER])
+Symbol 'SDL2_DELAY' (RUNTIME_ROUTINE, INTEGER, scope=0, block=0, class_name='', function_name='Global')
 Symbol 'SDL2_GET_TICKS' (RUNTIME_FUNCTION, INTEGER, scope=0, block=0, class_name='', function_name='Global')
 Symbol 'SDL2_GET_ERROR' (RUNTIME_FUNCTION, INTEGER, scope=0, block=0, class_name='', function_name='Global')
 Symbol 'SDL2_CLEAR_ERROR' (RUNTIME_ROUTINE, INTEGER, scope=0, block=0, class_name='', function_name='Global')
@@ -2247,6 +2575,10 @@ Symbol 'SDL2_GET_VIDEO_DRIVERS' (RUNTIME_FUNCTION, INTEGER, scope=0, block=0, cl
 Symbol 'SDL2_GET_CURRENT_VIDEO_DRIVER' (RUNTIME_FUNCTION, INTEGER, scope=0, block=0, class_name='', function_name='Global')
 Symbol 'SDL2_GET_DISPLAY_MODES' (RUNTIME_FUNCTION, INTEGER, scope=0, block=0, class_name='', function_name='Global')
 Symbol 'SDL2_TEST_BASIC' (RUNTIME_FUNCTION, INTEGER, scope=0, block=0, class_name='', function_name='Global')
+Symbol 'START' (ROUTINE, INTEGER, scope=0, block=0, class_name='', function_name='START')
+Symbol 'S1' (LOCAL_VAR, POINTER_TO|STRING, scope=2, block=0, class_name='', function_name='START')
+Symbol 'L' (LOCAL_VAR, POINTER_TO|LIST|STRING, scope=2, block=0, class_name='', function_name='START')
+Symbol 'S2' (LOCAL_VAR, INTEGER, scope=3, block=0, class_name='', function_name='START')
 
 Data sections generated.
 
@@ -2358,466 +2690,466 @@ Peephole optimization completed 2 passes:
 [Peephole Optimizer] Detailed peephole optimization trace complete
 Populating JIT memory according to linker layout...
 
---- CodeBuffer JIT Listing ------ Code Section Listing (Base Address: 0x106360000) ---
+--- CodeBuffer JIT Listing ------ Code Section Listing (Base Address: 0x107f98000) ---
 Address Hex Code    Assembly
 --------------------------------------------------
- 106360000 0x00000000  
+ 107f98000 0x00000000  
 ; --- Veneer Section ---
 HeapManager_enter_scope_veneer:
- 106360004 0xd288fd10  MOVZ X16, #18408
- 106360008 0xf2a01bf0  MOVK X16, #223, LSL #16
- 10636000c 0xf2c00030  MOVK X16, #1, LSL #32
- 106360010 0xd61f0200  BR X16
+ 107f98004 0xd291ed10  MOVZ X16, #36712
+ 107f98008 0xf2a05430  MOVK X16, #673, LSL #16
+ 107f9800c 0xf2c00030  MOVK X16, #1, LSL #32
+ 107f98010 0xd61f0200  BR X16
 HeapManager_exit_scope_veneer:
- 106360014 0xd2890290  MOVZ X16, #18452
- 106360018 0xf2a01bf0  MOVK X16, #223, LSL #16
- 10636001c 0xf2c00030  MOVK X16, #1, LSL #32
- 106360020 0xd61f0200  BR X16
+ 107f98014 0xd291f290  MOVZ X16, #36756
+ 107f98018 0xf2a05430  MOVK X16, #673, LSL #16
+ 107f9801c 0xf2c00030  MOVK X16, #1, LSL #32
+ 107f98020 0xd61f0200  BR X16
 JOIN_veneer:
- 106360024 0xd287f090  MOVZ X16, #16260
- 106360028 0xf2a01c70  MOVK X16, #227, LSL #16
- 10636002c 0xf2c00030  MOVK X16, #1, LSL #32
- 106360030 0xd61f0200  BR X16
+ 107f98024 0xd2918410  MOVZ X16, #35872
+ 107f98028 0xf2a054b0  MOVK X16, #677, LSL #16
+ 107f9802c 0xf2c00030  MOVK X16, #1, LSL #32
+ 107f98030 0xd61f0200  BR X16
 SPLIT_veneer:
- 106360034 0xd287f610  MOVZ X16, #16304
- 106360038 0xf2a01c70  MOVK X16, #227, LSL #16
- 10636003c 0xf2c00030  MOVK X16, #1, LSL #32
- 106360040 0xd61f0200  BR X16
+ 107f98034 0xd2918990  MOVZ X16, #35916
+ 107f98038 0xf2a054b0  MOVK X16, #677, LSL #16
+ 107f9803c 0xf2c00030  MOVK X16, #1, LSL #32
+ 107f98040 0xd61f0200  BR X16
 WRITES_veneer:
- 106360044 0xd280ec90  MOVZ X16, #1892
- 106360048 0xf2a01c70  MOVK X16, #227, LSL #16
- 10636004c 0xf2c00030  MOVK X16, #1, LSL #32
- 106360050 0xd61f0200  BR X16
- 106360054 0x00000000  ; --- End Veneer Section ---
+ 107f98044 0xd28a8010  MOVZ X16, #21504
+ 107f98048 0xf2a054b0  MOVK X16, #677, LSL #16
+ 107f9804c 0xf2c00030  MOVK X16, #1, LSL #32
+ 107f98050 0xd61f0200  BR X16
+ 107f98054 0x00000000  ; --- End Veneer Section ---
 
 START:
- 106360058 0xa9ba7bfd  STP X29, X30, [SP, #-96]!
- 10636005c 0x910003fd  MOV X29, SP
- 106360060 0xa902d3b3  STP x19, x20, [x29, #40]
- 106360064 0xa903e7b5  STP x21, x25, [x29, #56]
- 106360068 0xa904efba  STP x26, x27, [x29, #72]
- 10636006c 0xf9002fbc  STR X28, [X29, #88] ; Saved Reg: X28 @ FP+88
- 106360070 0xd290001c  MOVZ X28, #32768
- 106360074 0xf2a0329c  MOVK X28, #404, LSL #16
- 106360078 0xf2c0003c  MOVK X28, #1, LSL #32
- 10636007c 0xf2e0001c  MOVK X28, #0, LSL #48
+ 107f98058 0xa9ba7bfd  STP X29, X30, [SP, #-96]!
+ 107f9805c 0x910003fd  MOV X29, SP
+ 107f98060 0xa902d3b3  STP x19, x20, [x29, #40]
+ 107f98064 0xa903e7b5  STP x21, x25, [x29, #56]
+ 107f98068 0xa904efba  STP x26, x27, [x29, #72]
+ 107f9806c 0xf9002fbc  STR X28, [X29, #88] ; Saved Reg: X28 @ FP+88
+ 107f98070 0xd298001c  MOVZ X28, #49152
+ 107f98074 0xf2a06afc  MOVK X28, #855, LSL #16
+ 107f98078 0xf2c0003c  MOVK X28, #1, LSL #32
+ 107f9807c 0xf2e0001c  MOVK X28, #0, LSL #48
 START_Entry_0:
- 106360080 0xb0000029  ADRP X9, L_str0    ; Reloc -> 'L_str0' @ 0x106365000
- 106360084 0x91002129  ADD X9, X9, #:lo12:L_str0_plus_8    ; Reloc -> 'L_str0' @ 0x106365000
- 106360088 0xaa0903e0  MOV X0, X9
- 10636008c 0x97ffffee  BL WRITES_veneer    ; Reloc -> 'WRITES_veneer' @ 0x106360044
- 106360090 0xb0000029  ADRP X9, L_str1    ; Reloc -> 'L_str1' @ 0x106365098
- 106360094 0x91028129  ADD X9, X9, #:lo12:L_str1_plus_8    ; Reloc -> 'L_str1' @ 0x106365098
- 106360098 0xaa0903fa  MOV X26, X9
- 10636009c 0xb0000029  ADRP X9, L_str2    ; Reloc -> 'L_str2' @ 0x1063650e8
- 1063600a0 0x9103c129  ADD X9, X9, #:lo12:L_str2_plus_8    ; Reloc -> 'L_str2' @ 0x1063650e8
- 1063600a4 0xaa0903e0  MOV X0, X9
- 1063600a8 0x97ffffe7  BL WRITES_veneer    ; Reloc -> 'WRITES_veneer' @ 0x106360044
- 1063600ac 0xaa1a03e0  MOV X0, X26
- 1063600b0 0x97ffffe5  BL WRITES_veneer    ; Reloc -> 'WRITES_veneer' @ 0x106360044
- 1063600b4 0xb0000029  ADRP X9, L_str3    ; Reloc -> 'L_str3' @ 0x10636513c
- 1063600b8 0x91051129  ADD X9, X9, #:lo12:L_str3_plus_8    ; Reloc -> 'L_str3' @ 0x10636513c
- 1063600bc 0xaa0903e0  MOV X0, X9
- 1063600c0 0x97ffffe1  BL WRITES_veneer    ; Reloc -> 'WRITES_veneer' @ 0x106360044
- 1063600c4 0xb0000029  ADRP X9, L_str4    ; Reloc -> 'L_str4' @ 0x106365150
- 1063600c8 0x91056129  ADD X9, X9, #:lo12:L_str4_plus_8    ; Reloc -> 'L_str4' @ 0x106365150
- 1063600cc 0xaa0903e0  MOV X0, X9
- 1063600d0 0x97ffffdd  BL WRITES_veneer    ; Reloc -> 'WRITES_veneer' @ 0x106360044
- 1063600d4 0xaa1a03f4  MOV X20, X26
- 1063600d8 0xb0000029  ADRP X9, L_str5    ; Reloc -> 'L_str5' @ 0x1063651a4
- 1063600dc 0x9106b129  ADD X9, X9, #:lo12:L_str5_plus_8    ; Reloc -> 'L_str5' @ 0x1063651a4
- 1063600e0 0xaa0903f4  MOV X20, X9
- 1063600e4 0xaa1403e0  MOV X0, X20
- 1063600e8 0xaa1403e1  MOV X1, X20
- 1063600ec 0x97ffffd2  BL SPLIT_veneer    ; Reloc -> 'SPLIT_veneer' @ 0x106360034
- 1063600f0 0xaa0003fb  MOV X27, X0
- 1063600f4 0xb000002a  ADRP X10, L_str6    ; Reloc -> 'L_str6' @ 0x1063651b8
- 1063600f8 0x9107014a  ADD X10, X10, #:lo12:L_str6_plus_8    ; Reloc -> 'L_str6' @ 0x1063651b8
- 1063600fc 0xaa0a03e0  MOV X0, X10
- 106360100 0x97ffffd1  BL WRITES_veneer    ; Reloc -> 'WRITES_veneer' @ 0x106360044
- 106360104 0xf100037f  CMP x27, #0
- 106360108 0x9a9f17ea  CSET X10, EQ
- 10636010c 0xeb1f015f  CMP X10, XZR
- 106360110 0x54000040  B.EQ START_Else_2    ; Reloc -> 'START_Else_2' @ 0x106360118
- 106360114 0x14000022  B START_Then_1    ; Reloc -> 'START_Then_1' @ 0x10636019c
+ 107f98080 0xb0000029  ADRP X9, L_str0    ; Reloc -> 'L_str0' @ 0x107f9d000
+ 107f98084 0x91002129  ADD X9, X9, #:lo12:L_str0_plus_8    ; Reloc -> 'L_str0' @ 0x107f9d000
+ 107f98088 0xaa0903e0  MOV X0, X9
+ 107f9808c 0x97ffffee  BL WRITES_veneer    ; Reloc -> 'WRITES_veneer' @ 0x107f98044
+ 107f98090 0xb0000029  ADRP X9, L_str1    ; Reloc -> 'L_str1' @ 0x107f9d098
+ 107f98094 0x91028129  ADD X9, X9, #:lo12:L_str1_plus_8    ; Reloc -> 'L_str1' @ 0x107f9d098
+ 107f98098 0xaa0903fa  MOV X26, X9
+ 107f9809c 0xb0000029  ADRP X9, L_str2    ; Reloc -> 'L_str2' @ 0x107f9d0e8
+ 107f980a0 0x9103c129  ADD X9, X9, #:lo12:L_str2_plus_8    ; Reloc -> 'L_str2' @ 0x107f9d0e8
+ 107f980a4 0xaa0903e0  MOV X0, X9
+ 107f980a8 0x97ffffe7  BL WRITES_veneer    ; Reloc -> 'WRITES_veneer' @ 0x107f98044
+ 107f980ac 0xaa1a03e0  MOV X0, X26
+ 107f980b0 0x97ffffe5  BL WRITES_veneer    ; Reloc -> 'WRITES_veneer' @ 0x107f98044
+ 107f980b4 0xb0000029  ADRP X9, L_str3    ; Reloc -> 'L_str3' @ 0x107f9d13c
+ 107f980b8 0x91051129  ADD X9, X9, #:lo12:L_str3_plus_8    ; Reloc -> 'L_str3' @ 0x107f9d13c
+ 107f980bc 0xaa0903e0  MOV X0, X9
+ 107f980c0 0x97ffffe1  BL WRITES_veneer    ; Reloc -> 'WRITES_veneer' @ 0x107f98044
+ 107f980c4 0xb0000029  ADRP X9, L_str4    ; Reloc -> 'L_str4' @ 0x107f9d150
+ 107f980c8 0x91056129  ADD X9, X9, #:lo12:L_str4_plus_8    ; Reloc -> 'L_str4' @ 0x107f9d150
+ 107f980cc 0xaa0903e0  MOV X0, X9
+ 107f980d0 0x97ffffdd  BL WRITES_veneer    ; Reloc -> 'WRITES_veneer' @ 0x107f98044
+ 107f980d4 0xaa1a03f4  MOV X20, X26
+ 107f980d8 0xb0000029  ADRP X9, L_str5    ; Reloc -> 'L_str5' @ 0x107f9d1a4
+ 107f980dc 0x9106b129  ADD X9, X9, #:lo12:L_str5_plus_8    ; Reloc -> 'L_str5' @ 0x107f9d1a4
+ 107f980e0 0xaa0903f4  MOV X20, X9
+ 107f980e4 0xaa1403e0  MOV X0, X20
+ 107f980e8 0xaa1403e1  MOV X1, X20
+ 107f980ec 0x97ffffd2  BL SPLIT_veneer    ; Reloc -> 'SPLIT_veneer' @ 0x107f98034
+ 107f980f0 0xaa0003fb  MOV X27, X0
+ 107f980f4 0xb000002a  ADRP X10, L_str6    ; Reloc -> 'L_str6' @ 0x107f9d1b8
+ 107f980f8 0x9107014a  ADD X10, X10, #:lo12:L_str6_plus_8    ; Reloc -> 'L_str6' @ 0x107f9d1b8
+ 107f980fc 0xaa0a03e0  MOV X0, X10
+ 107f98100 0x97ffffd1  BL WRITES_veneer    ; Reloc -> 'WRITES_veneer' @ 0x107f98044
+ 107f98104 0xf100037f  CMP x27, #0
+ 107f98108 0x9a9f17ea  CSET X10, EQ
+ 107f9810c 0xeb1f015f  CMP X10, XZR
+ 107f98110 0x54000040  B.EQ START_Else_2    ; Reloc -> 'START_Else_2' @ 0x107f98118
+ 107f98114 0x14000022  B START_Then_1    ; Reloc -> 'START_Then_1' @ 0x107f9819c
 START_Else_2:
- 106360118 0xb0000029  ADRP X9, L_str7    ; Reloc -> 'L_str7' @ 0x106365208
- 10636011c 0x91084129  ADD X9, X9, #:lo12:L_str7_plus_8    ; Reloc -> 'L_str7' @ 0x106365208
- 106360120 0xaa0903e0  MOV X0, X9
- 106360124 0x97ffffc8  BL WRITES_veneer    ; Reloc -> 'WRITES_veneer' @ 0x106360044
- 106360128 0xaa1b03f4  MOV X20, X27
- 10636012c 0xb0000029  ADRP X9, L_str8    ; Reloc -> 'L_str8' @ 0x1063652c4
- 106360130 0x910b3129  ADD X9, X9, #:lo12:L_str8_plus_8    ; Reloc -> 'L_str8' @ 0x1063652c4
- 106360134 0xaa0903f4  MOV X20, X9
- 106360138 0xaa1403e0  MOV X0, X20
- 10636013c 0xaa1403e1  MOV X1, X20
- 106360140 0x97ffffb9  BL JOIN_veneer    ; Reloc -> 'JOIN_veneer' @ 0x106360024
- 106360144 0xaa0003f9  MOV X25, X0
- 106360148 0xb000002a  ADRP X10, L_str9    ; Reloc -> 'L_str9' @ 0x1063652d8
- 10636014c 0x910b814a  ADD X10, X10, #:lo12:L_str9_plus_8    ; Reloc -> 'L_str9' @ 0x1063652d8
- 106360150 0xaa0a03e0  MOV X0, X10
- 106360154 0x97ffffbc  BL WRITES_veneer    ; Reloc -> 'WRITES_veneer' @ 0x106360044
- 106360158 0xf100033f  CMP x25, #0
- 10636015c 0x9a9f17ea  CSET X10, EQ
- 106360160 0xeb1f015f  CMP X10, XZR
- 106360164 0x54000040  B.EQ START_Else_5    ; Reloc -> 'START_Else_5' @ 0x10636016c
- 106360168 0x14000012  B START_Then_4    ; Reloc -> 'START_Then_4' @ 0x1063601b0
+ 107f98118 0xb0000029  ADRP X9, L_str7    ; Reloc -> 'L_str7' @ 0x107f9d208
+ 107f9811c 0x91084129  ADD X9, X9, #:lo12:L_str7_plus_8    ; Reloc -> 'L_str7' @ 0x107f9d208
+ 107f98120 0xaa0903e0  MOV X0, X9
+ 107f98124 0x97ffffc8  BL WRITES_veneer    ; Reloc -> 'WRITES_veneer' @ 0x107f98044
+ 107f98128 0xaa1b03f4  MOV X20, X27
+ 107f9812c 0xb0000029  ADRP X9, L_str8    ; Reloc -> 'L_str8' @ 0x107f9d2c4
+ 107f98130 0x910b3129  ADD X9, X9, #:lo12:L_str8_plus_8    ; Reloc -> 'L_str8' @ 0x107f9d2c4
+ 107f98134 0xaa0903f4  MOV X20, X9
+ 107f98138 0xaa1403e0  MOV X0, X20
+ 107f9813c 0xaa1403e1  MOV X1, X20
+ 107f98140 0x97ffffb9  BL JOIN_veneer    ; Reloc -> 'JOIN_veneer' @ 0x107f98024
+ 107f98144 0xaa0003f9  MOV X25, X0
+ 107f98148 0xb000002a  ADRP X10, L_str9    ; Reloc -> 'L_str9' @ 0x107f9d2d8
+ 107f9814c 0x910b814a  ADD X10, X10, #:lo12:L_str9_plus_8    ; Reloc -> 'L_str9' @ 0x107f9d2d8
+ 107f98150 0xaa0a03e0  MOV X0, X10
+ 107f98154 0x97ffffbc  BL WRITES_veneer    ; Reloc -> 'WRITES_veneer' @ 0x107f98044
+ 107f98158 0xf100033f  CMP x25, #0
+ 107f9815c 0x9a9f17ea  CSET X10, EQ
+ 107f98160 0xeb1f015f  CMP X10, XZR
+ 107f98164 0x54000040  B.EQ START_Else_5    ; Reloc -> 'START_Else_5' @ 0x107f9816c
+ 107f98168 0x14000012  B START_Then_4    ; Reloc -> 'START_Then_4' @ 0x107f981b0
 START_Else_5:
- 10636016c 0xb0000029  ADRP X9, L_str10    ; Reloc -> 'L_str10' @ 0x106365324
- 106360170 0x910cb129  ADD X9, X9, #:lo12:L_str10_plus_8    ; Reloc -> 'L_str10' @ 0x106365324
- 106360174 0xaa0903e0  MOV X0, X9
- 106360178 0x97ffffb3  BL WRITES_veneer    ; Reloc -> 'WRITES_veneer' @ 0x106360044
- 10636017c 0xaa1903e0  MOV X0, X25
- 106360180 0x97ffffb1  BL WRITES_veneer    ; Reloc -> 'WRITES_veneer' @ 0x106360044
- 106360184 0xb0000029  ADRP X9, L_str3    ; Reloc -> 'L_str3' @ 0x10636513c
- 106360188 0x91051129  ADD X9, X9, #:lo12:L_str3_plus_8    ; Reloc -> 'L_str3' @ 0x10636513c
- 10636018c 0xaa0903e0  MOV X0, X9
- 106360190 0x97ffffad  BL WRITES_veneer    ; Reloc -> 'WRITES_veneer' @ 0x106360044
- 106360194 0x14000001  B START_Exit_7    ; Reloc -> 'START_Exit_7' @ 0x106360198
+ 107f9816c 0xb0000029  ADRP X9, L_str10    ; Reloc -> 'L_str10' @ 0x107f9d324
+ 107f98170 0x910cb129  ADD X9, X9, #:lo12:L_str10_plus_8    ; Reloc -> 'L_str10' @ 0x107f9d324
+ 107f98174 0xaa0903e0  MOV X0, X9
+ 107f98178 0x97ffffb3  BL WRITES_veneer    ; Reloc -> 'WRITES_veneer' @ 0x107f98044
+ 107f9817c 0xaa1903e0  MOV X0, X25
+ 107f98180 0x97ffffb1  BL WRITES_veneer    ; Reloc -> 'WRITES_veneer' @ 0x107f98044
+ 107f98184 0xb0000029  ADRP X9, L_str3    ; Reloc -> 'L_str3' @ 0x107f9d13c
+ 107f98188 0x91051129  ADD X9, X9, #:lo12:L_str3_plus_8    ; Reloc -> 'L_str3' @ 0x107f9d13c
+ 107f9818c 0xaa0903e0  MOV X0, X9
+ 107f98190 0x97ffffad  BL WRITES_veneer    ; Reloc -> 'WRITES_veneer' @ 0x107f98044
+ 107f98194 0x14000001  B START_Exit_7    ; Reloc -> 'START_Exit_7' @ 0x107f98198
 START_Exit_7:
- 106360198 0x1400000b  B .L0    ; Reloc -> '.L0' @ 0x1063601c4
+ 107f98198 0x1400000b  B .L0    ; Reloc -> '.L0' @ 0x107f981c4
 START_Then_1:
- 10636019c 0xb0000029  ADRP X9, L_str11    ; Reloc -> 'L_str11' @ 0x106365368
- 1063601a0 0x910dc129  ADD X9, X9, #:lo12:L_str11_plus_8    ; Reloc -> 'L_str11' @ 0x106365368
- 1063601a4 0xaa0903e0  MOV X0, X9
- 1063601a8 0x97ffffa7  BL WRITES_veneer    ; Reloc -> 'WRITES_veneer' @ 0x106360044
- 1063601ac 0x17fffffb  B START_Exit_7    ; Reloc -> 'START_Exit_7' @ 0x106360198
+ 107f9819c 0xb0000029  ADRP X9, L_str11    ; Reloc -> 'L_str11' @ 0x107f9d368
+ 107f981a0 0x910dc129  ADD X9, X9, #:lo12:L_str11_plus_8    ; Reloc -> 'L_str11' @ 0x107f9d368
+ 107f981a4 0xaa0903e0  MOV X0, X9
+ 107f981a8 0x97ffffa7  BL WRITES_veneer    ; Reloc -> 'WRITES_veneer' @ 0x107f98044
+ 107f981ac 0x17fffffb  B START_Exit_7    ; Reloc -> 'START_Exit_7' @ 0x107f98198
 START_Then_4:
- 1063601b0 0xb0000029  ADRP X9, L_str12    ; Reloc -> 'L_str12' @ 0x1063653e4
- 1063601b4 0x910fb129  ADD X9, X9, #:lo12:L_str12_plus_8    ; Reloc -> 'L_str12' @ 0x1063653e4
- 1063601b8 0xaa0903e0  MOV X0, X9
- 1063601bc 0x97ffffa2  BL WRITES_veneer    ; Reloc -> 'WRITES_veneer' @ 0x106360044
- 1063601c0 0x17fffff6  B START_Exit_7    ; Reloc -> 'START_Exit_7' @ 0x106360198
+ 107f981b0 0xb0000029  ADRP X9, L_str12    ; Reloc -> 'L_str12' @ 0x107f9d3e4
+ 107f981b4 0x910fb129  ADD X9, X9, #:lo12:L_str12_plus_8    ; Reloc -> 'L_str12' @ 0x107f9d3e4
+ 107f981b8 0xaa0903e0  MOV X0, X9
+ 107f981bc 0x97ffffa2  BL WRITES_veneer    ; Reloc -> 'WRITES_veneer' @ 0x107f98044
+ 107f981c0 0x17fffff6  B START_Exit_7    ; Reloc -> 'START_Exit_7' @ 0x107f98198
 .L0:
- 1063601c4 0xa942d3b3  LDP x19, x20, [x29, #40]
- 1063601c8 0xa943e7b5  LDP x21, x25, [x29, #56]
- 1063601cc 0xa944efba  LDP x26, x27, [x29, #72]
- 1063601d0 0xf9402fbc  LDR X28, [X29, #88] ; Restored Reg: X28 @ FP+88
- 1063601d4 0x910003bf  MOV SP, X29 ; Deallocate frame by moving FP to SP
- 1063601d8 0xa9407bfd  LDP x29, x30, [SP, #0]
- 1063601dc 0x910043ff  ADD SP, SP, #16 ; Deallocate space for saved FP/LR
- 1063601e0 0xd65f03c0  RET
+ 107f981c4 0xa942d3b3  LDP x19, x20, [x29, #40]
+ 107f981c8 0xa943e7b5  LDP x21, x25, [x29, #56]
+ 107f981cc 0xa944efba  LDP x26, x27, [x29, #72]
+ 107f981d0 0xf9402fbc  LDR X28, [X29, #88] ; Restored Reg: X28 @ FP+88
+ 107f981d4 0x910003bf  MOV SP, X29 ; Deallocate frame by moving FP to SP
+ 107f981d8 0xa9407bfd  LDP x29, x30, [SP, #0]
+ 107f981dc 0x910043ff  ADD SP, SP, #16 ; Deallocate space for saved FP/LR
+ 107f981e0 0xd65f03c0  RET
 L_str0:
- 106365000 0x22000000  .quad 0x22
- 106365004 0x00000000  ; (upper half)
+ 107f9d000 0x22000000  .quad 0x22
+ 107f9d004 0x00000000  ; (upper half)
 L_str0_plus_8:
- 106365008 0x54000000  DCD 0x54
- 10636500c 0x65000000  DCD 0x65
- 106365010 0x73000000  DCD 0x73
- 106365014 0x74000000  DCD 0x74
- 106365018 0x69000000  DCD 0x69
- 10636501c 0x6e000000  DCD 0x6e
- 106365020 0x67000000  DCD 0x67
- 106365024 0x20000000  DCD 0x20
- 106365028 0x53000000  DCD 0x53
- 10636502c 0x50000000  DCD 0x50
- 106365030 0x4c000000  DCD 0x4c
- 106365034 0x49000000  DCD 0x49
- 106365038 0x54000000  DCD 0x54
- 10636503c 0x2d000000  DCD 0x2d
- 106365040 0x3e000000  DCD 0x3e
- 106365044 0x4a000000  DCD 0x4a
- 106365048 0x4f000000  DCD 0x4f
- 10636504c 0x49000000  DCD 0x49
- 106365050 0x4e000000  DCD 0x4e
- 106365054 0x20000000  DCD 0x20
- 106365058 0x72000000  DCD 0x72
- 10636505c 0x6f000000  DCD 0x6f
- 106365060 0x75000000  DCD 0x75
- 106365064 0x6e000000  DCD 0x6e
- 106365068 0x64000000  DCD 0x64
- 10636506c 0x2d000000  DCD 0x2d
- 106365070 0x74000000  DCD 0x74
- 106365074 0x72000000  DCD 0x72
- 106365078 0x69000000  DCD 0x69
- 10636507c 0x70000000  DCD 0x70
- 106365080 0x2e000000  DCD 0x2e
- 106365084 0x2e000000  DCD 0x2e
- 106365088 0x2e000000  DCD 0x2e
- 10636508c 0xa0000000  DCD 0xa
- 106365090 0x00000000  DCD 0x0
- 106365094 0x00000000  DCD 0x0
+ 107f9d008 0x54000000  DCD 0x54
+ 107f9d00c 0x65000000  DCD 0x65
+ 107f9d010 0x73000000  DCD 0x73
+ 107f9d014 0x74000000  DCD 0x74
+ 107f9d018 0x69000000  DCD 0x69
+ 107f9d01c 0x6e000000  DCD 0x6e
+ 107f9d020 0x67000000  DCD 0x67
+ 107f9d024 0x20000000  DCD 0x20
+ 107f9d028 0x53000000  DCD 0x53
+ 107f9d02c 0x50000000  DCD 0x50
+ 107f9d030 0x4c000000  DCD 0x4c
+ 107f9d034 0x49000000  DCD 0x49
+ 107f9d038 0x54000000  DCD 0x54
+ 107f9d03c 0x2d000000  DCD 0x2d
+ 107f9d040 0x3e000000  DCD 0x3e
+ 107f9d044 0x4a000000  DCD 0x4a
+ 107f9d048 0x4f000000  DCD 0x4f
+ 107f9d04c 0x49000000  DCD 0x49
+ 107f9d050 0x4e000000  DCD 0x4e
+ 107f9d054 0x20000000  DCD 0x20
+ 107f9d058 0x72000000  DCD 0x72
+ 107f9d05c 0x6f000000  DCD 0x6f
+ 107f9d060 0x75000000  DCD 0x75
+ 107f9d064 0x6e000000  DCD 0x6e
+ 107f9d068 0x64000000  DCD 0x64
+ 107f9d06c 0x2d000000  DCD 0x2d
+ 107f9d070 0x74000000  DCD 0x74
+ 107f9d074 0x72000000  DCD 0x72
+ 107f9d078 0x69000000  DCD 0x69
+ 107f9d07c 0x70000000  DCD 0x70
+ 107f9d080 0x2e000000  DCD 0x2e
+ 107f9d084 0x2e000000  DCD 0x2e
+ 107f9d088 0x2e000000  DCD 0x2e
+ 107f9d08c 0xa0000000  DCD 0xa
+ 107f9d090 0x00000000  DCD 0x0
+ 107f9d094 0x00000000  DCD 0x0
 L_str1:
- 106365098 0x10000000  .quad 0x10
- 10636509c 0x00000000  ; (upper half)
+ 107f9d098 0x10000000  .quad 0x10
+ 107f9d09c 0x00000000  ; (upper half)
 L_str1_plus_8:
- 1063650a0 0x68000000  DCD 0x68
- 1063650a4 0x65000000  DCD 0x65
- 1063650a8 0x6c000000  DCD 0x6c
- 1063650ac 0x6c000000  DCD 0x6c
- 1063650b0 0x6f000000  DCD 0x6f
- 1063650b4 0x20000000  DCD 0x20
- 1063650b8 0x77000000  DCD 0x77
- 1063650bc 0x6f000000  DCD 0x6f
- 1063650c0 0x72000000  DCD 0x72
- 1063650c4 0x6c000000  DCD 0x6c
- 1063650c8 0x64000000  DCD 0x64
- 1063650cc 0x20000000  DCD 0x20
- 1063650d0 0x74000000  DCD 0x74
- 1063650d4 0x65000000  DCD 0x65
- 1063650d8 0x73000000  DCD 0x73
- 1063650dc 0x74000000  DCD 0x74
- 1063650e0 0x00000000  DCD 0x0
- 1063650e4 0x00000000  DCD 0x0
+ 107f9d0a0 0x68000000  DCD 0x68
+ 107f9d0a4 0x65000000  DCD 0x65
+ 107f9d0a8 0x6c000000  DCD 0x6c
+ 107f9d0ac 0x6c000000  DCD 0x6c
+ 107f9d0b0 0x6f000000  DCD 0x6f
+ 107f9d0b4 0x20000000  DCD 0x20
+ 107f9d0b8 0x77000000  DCD 0x77
+ 107f9d0bc 0x6f000000  DCD 0x6f
+ 107f9d0c0 0x72000000  DCD 0x72
+ 107f9d0c4 0x6c000000  DCD 0x6c
+ 107f9d0c8 0x64000000  DCD 0x64
+ 107f9d0cc 0x20000000  DCD 0x20
+ 107f9d0d0 0x74000000  DCD 0x74
+ 107f9d0d4 0x65000000  DCD 0x65
+ 107f9d0d8 0x73000000  DCD 0x73
+ 107f9d0dc 0x74000000  DCD 0x74
+ 107f9d0e0 0x00000000  DCD 0x0
+ 107f9d0e4 0x00000000  DCD 0x0
 L_str2:
- 1063650e8 0x11000000  .quad 0x11
- 1063650ec 0x00000000  ; (upper half)
+ 107f9d0e8 0x11000000  .quad 0x11
+ 107f9d0ec 0x00000000  ; (upper half)
 L_str2_plus_8:
- 1063650f0 0x4f000000  DCD 0x4f
- 1063650f4 0x72000000  DCD 0x72
- 1063650f8 0x69000000  DCD 0x69
- 1063650fc 0x67000000  DCD 0x67
- 106365100 0x69000000  DCD 0x69
- 106365104 0x6e000000  DCD 0x6e
- 106365108 0x61000000  DCD 0x61
- 10636510c 0x6c000000  DCD 0x6c
- 106365110 0x20000000  DCD 0x20
- 106365114 0x73000000  DCD 0x73
- 106365118 0x74000000  DCD 0x74
- 10636511c 0x72000000  DCD 0x72
- 106365120 0x69000000  DCD 0x69
- 106365124 0x6e000000  DCD 0x6e
- 106365128 0x67000000  DCD 0x67
- 10636512c 0x3a000000  DCD 0x3a
- 106365130 0x20000000  DCD 0x20
- 106365134 0x00000000  DCD 0x0
- 106365138 0x00000000  DCD 0x0
+ 107f9d0f0 0x4f000000  DCD 0x4f
+ 107f9d0f4 0x72000000  DCD 0x72
+ 107f9d0f8 0x69000000  DCD 0x69
+ 107f9d0fc 0x67000000  DCD 0x67
+ 107f9d100 0x69000000  DCD 0x69
+ 107f9d104 0x6e000000  DCD 0x6e
+ 107f9d108 0x61000000  DCD 0x61
+ 107f9d10c 0x6c000000  DCD 0x6c
+ 107f9d110 0x20000000  DCD 0x20
+ 107f9d114 0x73000000  DCD 0x73
+ 107f9d118 0x74000000  DCD 0x74
+ 107f9d11c 0x72000000  DCD 0x72
+ 107f9d120 0x69000000  DCD 0x69
+ 107f9d124 0x6e000000  DCD 0x6e
+ 107f9d128 0x67000000  DCD 0x67
+ 107f9d12c 0x3a000000  DCD 0x3a
+ 107f9d130 0x20000000  DCD 0x20
+ 107f9d134 0x00000000  DCD 0x0
+ 107f9d138 0x00000000  DCD 0x0
 L_str3:
- 10636513c 0x10000000  .quad 0x1
- 106365140 0x00000000  ; (upper half)
+ 107f9d13c 0x10000000  .quad 0x1
+ 107f9d140 0x00000000  ; (upper half)
 L_str3_plus_8:
- 106365144 0xa0000000  DCD 0xa
- 106365148 0x00000000  DCD 0x0
- 10636514c 0x00000000  DCD 0x0
+ 107f9d144 0xa0000000  DCD 0xa
+ 107f9d148 0x00000000  DCD 0x0
+ 107f9d14c 0x00000000  DCD 0x0
 L_str4:
- 106365150 0x11000000  .quad 0x11
- 106365154 0x00000000  ; (upper half)
+ 107f9d150 0x11000000  .quad 0x11
+ 107f9d154 0x00000000  ; (upper half)
 L_str4_plus_8:
- 106365158 0x43000000  DCD 0x43
- 10636515c 0x61000000  DCD 0x61
- 106365160 0x6c000000  DCD 0x6c
- 106365164 0x6c000000  DCD 0x6c
- 106365168 0x69000000  DCD 0x69
- 10636516c 0x6e000000  DCD 0x6e
- 106365170 0x67000000  DCD 0x67
- 106365174 0x20000000  DCD 0x20
- 106365178 0x53000000  DCD 0x53
- 10636517c 0x50000000  DCD 0x50
- 106365180 0x4c000000  DCD 0x4c
- 106365184 0x49000000  DCD 0x49
- 106365188 0x54000000  DCD 0x54
- 10636518c 0x2e000000  DCD 0x2e
- 106365190 0x2e000000  DCD 0x2e
- 106365194 0x2e000000  DCD 0x2e
- 106365198 0xa0000000  DCD 0xa
- 10636519c 0x00000000  DCD 0x0
- 1063651a0 0x00000000  DCD 0x0
+ 107f9d158 0x43000000  DCD 0x43
+ 107f9d15c 0x61000000  DCD 0x61
+ 107f9d160 0x6c000000  DCD 0x6c
+ 107f9d164 0x6c000000  DCD 0x6c
+ 107f9d168 0x69000000  DCD 0x69
+ 107f9d16c 0x6e000000  DCD 0x6e
+ 107f9d170 0x67000000  DCD 0x67
+ 107f9d174 0x20000000  DCD 0x20
+ 107f9d178 0x53000000  DCD 0x53
+ 107f9d17c 0x50000000  DCD 0x50
+ 107f9d180 0x4c000000  DCD 0x4c
+ 107f9d184 0x49000000  DCD 0x49
+ 107f9d188 0x54000000  DCD 0x54
+ 107f9d18c 0x2e000000  DCD 0x2e
+ 107f9d190 0x2e000000  DCD 0x2e
+ 107f9d194 0x2e000000  DCD 0x2e
+ 107f9d198 0xa0000000  DCD 0xa
+ 107f9d19c 0x00000000  DCD 0x0
+ 107f9d1a0 0x00000000  DCD 0x0
 L_str5:
- 1063651a4 0x10000000  .quad 0x1
- 1063651a8 0x00000000  ; (upper half)
+ 107f9d1a4 0x10000000  .quad 0x1
+ 107f9d1a8 0x00000000  ; (upper half)
 L_str5_plus_8:
- 1063651ac 0x20000000  DCD 0x20
- 1063651b0 0x00000000  DCD 0x0
- 1063651b4 0x00000000  DCD 0x0
+ 107f9d1ac 0x20000000  DCD 0x20
+ 107f9d1b0 0x00000000  DCD 0x0
+ 107f9d1b4 0x00000000  DCD 0x0
 L_str6:
- 1063651b8 0x10000000  .quad 0x10
- 1063651bc 0x00000000  ; (upper half)
+ 107f9d1b8 0x10000000  .quad 0x10
+ 107f9d1bc 0x00000000  ; (upper half)
 L_str6_plus_8:
- 1063651c0 0x53000000  DCD 0x53
- 1063651c4 0x50000000  DCD 0x50
- 1063651c8 0x4c000000  DCD 0x4c
- 1063651cc 0x49000000  DCD 0x49
- 1063651d0 0x54000000  DCD 0x54
- 1063651d4 0x20000000  DCD 0x20
- 1063651d8 0x63000000  DCD 0x63
- 1063651dc 0x6f000000  DCD 0x6f
- 1063651e0 0x6d000000  DCD 0x6d
- 1063651e4 0x70000000  DCD 0x70
- 1063651e8 0x6c000000  DCD 0x6c
- 1063651ec 0x65000000  DCD 0x65
- 1063651f0 0x74000000  DCD 0x74
- 1063651f4 0x65000000  DCD 0x65
- 1063651f8 0x64000000  DCD 0x64
- 1063651fc 0xa0000000  DCD 0xa
- 106365200 0x00000000  DCD 0x0
- 106365204 0x00000000  DCD 0x0
+ 107f9d1c0 0x53000000  DCD 0x53
+ 107f9d1c4 0x50000000  DCD 0x50
+ 107f9d1c8 0x4c000000  DCD 0x4c
+ 107f9d1cc 0x49000000  DCD 0x49
+ 107f9d1d0 0x54000000  DCD 0x54
+ 107f9d1d4 0x20000000  DCD 0x20
+ 107f9d1d8 0x63000000  DCD 0x63
+ 107f9d1dc 0x6f000000  DCD 0x6f
+ 107f9d1e0 0x6d000000  DCD 0x6d
+ 107f9d1e4 0x70000000  DCD 0x70
+ 107f9d1e8 0x6c000000  DCD 0x6c
+ 107f9d1ec 0x65000000  DCD 0x65
+ 107f9d1f0 0x74000000  DCD 0x74
+ 107f9d1f4 0x65000000  DCD 0x65
+ 107f9d1f8 0x64000000  DCD 0x64
+ 107f9d1fc 0xa0000000  DCD 0xa
+ 107f9d200 0x00000000  DCD 0x0
+ 107f9d204 0x00000000  DCD 0x0
 L_str7:
- 106365208 0x2b000000  .quad 0x2b
- 10636520c 0x00000000  ; (upper half)
+ 107f9d208 0x2b000000  .quad 0x2b
+ 107f9d20c 0x00000000  ; (upper half)
 L_str7_plus_8:
- 106365210 0x53000000  DCD 0x53
- 106365214 0x50000000  DCD 0x50
- 106365218 0x4c000000  DCD 0x4c
- 10636521c 0x49000000  DCD 0x49
- 106365220 0x54000000  DCD 0x54
- 106365224 0x20000000  DCD 0x20
- 106365228 0x72000000  DCD 0x72
- 10636522c 0x65000000  DCD 0x65
- 106365230 0x74000000  DCD 0x74
- 106365234 0x75000000  DCD 0x75
- 106365238 0x72000000  DCD 0x72
- 10636523c 0x6e000000  DCD 0x6e
- 106365240 0x65000000  DCD 0x65
- 106365244 0x64000000  DCD 0x64
- 106365248 0x20000000  DCD 0x20
- 10636524c 0x61000000  DCD 0x61
- 106365250 0x20000000  DCD 0x20
- 106365254 0x6c000000  DCD 0x6c
- 106365258 0x69000000  DCD 0x69
- 10636525c 0x73000000  DCD 0x73
- 106365260 0x74000000  DCD 0x74
- 106365264 0x2c000000  DCD 0x2c
- 106365268 0x20000000  DCD 0x20
- 10636526c 0x6e000000  DCD 0x6e
- 106365270 0x6f000000  DCD 0x6f
- 106365274 0x77000000  DCD 0x77
- 106365278 0x20000000  DCD 0x20
- 10636527c 0x63000000  DCD 0x63
- 106365280 0x61000000  DCD 0x61
- 106365284 0x6c000000  DCD 0x6c
- 106365288 0x6c000000  DCD 0x6c
- 10636528c 0x69000000  DCD 0x69
- 106365290 0x6e000000  DCD 0x6e
- 106365294 0x67000000  DCD 0x67
- 106365298 0x20000000  DCD 0x20
- 10636529c 0x4a000000  DCD 0x4a
- 1063652a0 0x4f000000  DCD 0x4f
- 1063652a4 0x49000000  DCD 0x49
- 1063652a8 0x4e000000  DCD 0x4e
- 1063652ac 0x2e000000  DCD 0x2e
- 1063652b0 0x2e000000  DCD 0x2e
- 1063652b4 0x2e000000  DCD 0x2e
- 1063652b8 0xa0000000  DCD 0xa
- 1063652bc 0x00000000  DCD 0x0
- 1063652c0 0x00000000  DCD 0x0
+ 107f9d210 0x53000000  DCD 0x53
+ 107f9d214 0x50000000  DCD 0x50
+ 107f9d218 0x4c000000  DCD 0x4c
+ 107f9d21c 0x49000000  DCD 0x49
+ 107f9d220 0x54000000  DCD 0x54
+ 107f9d224 0x20000000  DCD 0x20
+ 107f9d228 0x72000000  DCD 0x72
+ 107f9d22c 0x65000000  DCD 0x65
+ 107f9d230 0x74000000  DCD 0x74
+ 107f9d234 0x75000000  DCD 0x75
+ 107f9d238 0x72000000  DCD 0x72
+ 107f9d23c 0x6e000000  DCD 0x6e
+ 107f9d240 0x65000000  DCD 0x65
+ 107f9d244 0x64000000  DCD 0x64
+ 107f9d248 0x20000000  DCD 0x20
+ 107f9d24c 0x61000000  DCD 0x61
+ 107f9d250 0x20000000  DCD 0x20
+ 107f9d254 0x6c000000  DCD 0x6c
+ 107f9d258 0x69000000  DCD 0x69
+ 107f9d25c 0x73000000  DCD 0x73
+ 107f9d260 0x74000000  DCD 0x74
+ 107f9d264 0x2c000000  DCD 0x2c
+ 107f9d268 0x20000000  DCD 0x20
+ 107f9d26c 0x6e000000  DCD 0x6e
+ 107f9d270 0x6f000000  DCD 0x6f
+ 107f9d274 0x77000000  DCD 0x77
+ 107f9d278 0x20000000  DCD 0x20
+ 107f9d27c 0x63000000  DCD 0x63
+ 107f9d280 0x61000000  DCD 0x61
+ 107f9d284 0x6c000000  DCD 0x6c
+ 107f9d288 0x6c000000  DCD 0x6c
+ 107f9d28c 0x69000000  DCD 0x69
+ 107f9d290 0x6e000000  DCD 0x6e
+ 107f9d294 0x67000000  DCD 0x67
+ 107f9d298 0x20000000  DCD 0x20
+ 107f9d29c 0x4a000000  DCD 0x4a
+ 107f9d2a0 0x4f000000  DCD 0x4f
+ 107f9d2a4 0x49000000  DCD 0x49
+ 107f9d2a8 0x4e000000  DCD 0x4e
+ 107f9d2ac 0x2e000000  DCD 0x2e
+ 107f9d2b0 0x2e000000  DCD 0x2e
+ 107f9d2b4 0x2e000000  DCD 0x2e
+ 107f9d2b8 0xa0000000  DCD 0xa
+ 107f9d2bc 0x00000000  DCD 0x0
+ 107f9d2c0 0x00000000  DCD 0x0
 L_str8:
- 1063652c4 0x10000000  .quad 0x1
- 1063652c8 0x00000000  ; (upper half)
+ 107f9d2c4 0x10000000  .quad 0x1
+ 107f9d2c8 0x00000000  ; (upper half)
 L_str8_plus_8:
- 1063652cc 0x2d000000  DCD 0x2d
- 1063652d0 0x00000000  DCD 0x0
- 1063652d4 0x00000000  DCD 0x0
+ 107f9d2cc 0x2d000000  DCD 0x2d
+ 107f9d2d0 0x00000000  DCD 0x0
+ 107f9d2d4 0x00000000  DCD 0x0
 L_str9:
- 1063652d8 0xf0000000  .quad 0xf
- 1063652dc 0x00000000  ; (upper half)
+ 107f9d2d8 0xf0000000  .quad 0xf
+ 107f9d2dc 0x00000000  ; (upper half)
 L_str9_plus_8:
- 1063652e0 0x4a000000  DCD 0x4a
- 1063652e4 0x4f000000  DCD 0x4f
- 1063652e8 0x49000000  DCD 0x49
- 1063652ec 0x4e000000  DCD 0x4e
- 1063652f0 0x20000000  DCD 0x20
- 1063652f4 0x63000000  DCD 0x63
- 1063652f8 0x6f000000  DCD 0x6f
- 1063652fc 0x6d000000  DCD 0x6d
- 106365300 0x70000000  DCD 0x70
- 106365304 0x6c000000  DCD 0x6c
- 106365308 0x65000000  DCD 0x65
- 10636530c 0x74000000  DCD 0x74
- 106365310 0x65000000  DCD 0x65
- 106365314 0x64000000  DCD 0x64
- 106365318 0xa0000000  DCD 0xa
- 10636531c 0x00000000  DCD 0x0
- 106365320 0x00000000  DCD 0x0
+ 107f9d2e0 0x4a000000  DCD 0x4a
+ 107f9d2e4 0x4f000000  DCD 0x4f
+ 107f9d2e8 0x49000000  DCD 0x49
+ 107f9d2ec 0x4e000000  DCD 0x4e
+ 107f9d2f0 0x20000000  DCD 0x20
+ 107f9d2f4 0x63000000  DCD 0x63
+ 107f9d2f8 0x6f000000  DCD 0x6f
+ 107f9d2fc 0x6d000000  DCD 0x6d
+ 107f9d300 0x70000000  DCD 0x70
+ 107f9d304 0x6c000000  DCD 0x6c
+ 107f9d308 0x65000000  DCD 0x65
+ 107f9d30c 0x74000000  DCD 0x74
+ 107f9d310 0x65000000  DCD 0x65
+ 107f9d314 0x64000000  DCD 0x64
+ 107f9d318 0xa0000000  DCD 0xa
+ 107f9d31c 0x00000000  DCD 0x0
+ 107f9d320 0x00000000  DCD 0x0
 L_str10:
- 106365324 0xd0000000  .quad 0xd
- 106365328 0x00000000  ; (upper half)
+ 107f9d324 0xd0000000  .quad 0xd
+ 107f9d328 0x00000000  ; (upper half)
 L_str10_plus_8:
- 10636532c 0x4a000000  DCD 0x4a
- 106365330 0x4f000000  DCD 0x4f
- 106365334 0x49000000  DCD 0x49
- 106365338 0x4e000000  DCD 0x4e
- 10636533c 0x20000000  DCD 0x20
- 106365340 0x72000000  DCD 0x72
- 106365344 0x65000000  DCD 0x65
- 106365348 0x73000000  DCD 0x73
- 10636534c 0x75000000  DCD 0x75
- 106365350 0x6c000000  DCD 0x6c
- 106365354 0x74000000  DCD 0x74
- 106365358 0x3a000000  DCD 0x3a
- 10636535c 0x20000000  DCD 0x20
- 106365360 0x00000000  DCD 0x0
- 106365364 0x00000000  DCD 0x0
+ 107f9d32c 0x4a000000  DCD 0x4a
+ 107f9d330 0x4f000000  DCD 0x4f
+ 107f9d334 0x49000000  DCD 0x49
+ 107f9d338 0x4e000000  DCD 0x4e
+ 107f9d33c 0x20000000  DCD 0x20
+ 107f9d340 0x72000000  DCD 0x72
+ 107f9d344 0x65000000  DCD 0x65
+ 107f9d348 0x73000000  DCD 0x73
+ 107f9d34c 0x75000000  DCD 0x75
+ 107f9d350 0x6c000000  DCD 0x6c
+ 107f9d354 0x74000000  DCD 0x74
+ 107f9d358 0x3a000000  DCD 0x3a
+ 107f9d35c 0x20000000  DCD 0x20
+ 107f9d360 0x00000000  DCD 0x0
+ 107f9d364 0x00000000  DCD 0x0
 L_str11:
- 106365368 0x1b000000  .quad 0x1b
- 10636536c 0x00000000  ; (upper half)
+ 107f9d368 0x1b000000  .quad 0x1b
+ 107f9d36c 0x00000000  ; (upper half)
 L_str11_plus_8:
- 106365370 0x45000000  DCD 0x45
- 106365374 0x52000000  DCD 0x52
- 106365378 0x52000000  DCD 0x52
- 10636537c 0x4f000000  DCD 0x4f
- 106365380 0x52000000  DCD 0x52
- 106365384 0x3a000000  DCD 0x3a
- 106365388 0x20000000  DCD 0x20
- 10636538c 0x53000000  DCD 0x53
- 106365390 0x50000000  DCD 0x50
- 106365394 0x4c000000  DCD 0x4c
- 106365398 0x49000000  DCD 0x49
- 10636539c 0x54000000  DCD 0x54
- 1063653a0 0x20000000  DCD 0x20
- 1063653a4 0x72000000  DCD 0x72
- 1063653a8 0x65000000  DCD 0x65
- 1063653ac 0x74000000  DCD 0x74
- 1063653b0 0x75000000  DCD 0x75
- 1063653b4 0x72000000  DCD 0x72
- 1063653b8 0x6e000000  DCD 0x6e
- 1063653bc 0x65000000  DCD 0x65
- 1063653c0 0x64000000  DCD 0x64
- 1063653c4 0x20000000  DCD 0x20
- 1063653c8 0x6e000000  DCD 0x6e
- 1063653cc 0x75000000  DCD 0x75
- 1063653d0 0x6c000000  DCD 0x6c
- 1063653d4 0x6c000000  DCD 0x6c
- 1063653d8 0xa0000000  DCD 0xa
- 1063653dc 0x00000000  DCD 0x0
- 1063653e0 0x00000000  DCD 0x0
+ 107f9d370 0x45000000  DCD 0x45
+ 107f9d374 0x52000000  DCD 0x52
+ 107f9d378 0x52000000  DCD 0x52
+ 107f9d37c 0x4f000000  DCD 0x4f
+ 107f9d380 0x52000000  DCD 0x52
+ 107f9d384 0x3a000000  DCD 0x3a
+ 107f9d388 0x20000000  DCD 0x20
+ 107f9d38c 0x53000000  DCD 0x53
+ 107f9d390 0x50000000  DCD 0x50
+ 107f9d394 0x4c000000  DCD 0x4c
+ 107f9d398 0x49000000  DCD 0x49
+ 107f9d39c 0x54000000  DCD 0x54
+ 107f9d3a0 0x20000000  DCD 0x20
+ 107f9d3a4 0x72000000  DCD 0x72
+ 107f9d3a8 0x65000000  DCD 0x65
+ 107f9d3ac 0x74000000  DCD 0x74
+ 107f9d3b0 0x75000000  DCD 0x75
+ 107f9d3b4 0x72000000  DCD 0x72
+ 107f9d3b8 0x6e000000  DCD 0x6e
+ 107f9d3bc 0x65000000  DCD 0x65
+ 107f9d3c0 0x64000000  DCD 0x64
+ 107f9d3c4 0x20000000  DCD 0x20
+ 107f9d3c8 0x6e000000  DCD 0x6e
+ 107f9d3cc 0x75000000  DCD 0x75
+ 107f9d3d0 0x6c000000  DCD 0x6c
+ 107f9d3d4 0x6c000000  DCD 0x6c
+ 107f9d3d8 0xa0000000  DCD 0xa
+ 107f9d3dc 0x00000000  DCD 0x0
+ 107f9d3e0 0x00000000  DCD 0x0
 L_str12:
- 1063653e4 0x1a000000  .quad 0x1a
- 1063653e8 0x00000000  ; (upper half)
+ 107f9d3e4 0x1a000000  .quad 0x1a
+ 107f9d3e8 0x00000000  ; (upper half)
 L_str12_plus_8:
- 1063653ec 0x45000000  DCD 0x45
- 1063653f0 0x52000000  DCD 0x52
- 1063653f4 0x52000000  DCD 0x52
- 1063653f8 0x4f000000  DCD 0x4f
- 1063653fc 0x52000000  DCD 0x52
- 106365400 0x3a000000  DCD 0x3a
- 106365404 0x20000000  DCD 0x20
- 106365408 0x4a000000  DCD 0x4a
- 10636540c 0x4f000000  DCD 0x4f
- 106365410 0x49000000  DCD 0x49
- 106365414 0x4e000000  DCD 0x4e
- 106365418 0x20000000  DCD 0x20
- 10636541c 0x72000000  DCD 0x72
- 106365420 0x65000000  DCD 0x65
- 106365424 0x74000000  DCD 0x74
- 106365428 0x75000000  DCD 0x75
- 10636542c 0x72000000  DCD 0x72
- 106365430 0x6e000000  DCD 0x6e
- 106365434 0x65000000  DCD 0x65
- 106365438 0x64000000  DCD 0x64
- 10636543c 0x20000000  DCD 0x20
- 106365440 0x6e000000  DCD 0x6e
- 106365444 0x75000000  DCD 0x75
- 106365448 0x6c000000  DCD 0x6c
- 10636544c 0x6c000000  DCD 0x6c
- 106365450 0xa0000000  DCD 0xa
- 106365454 0x00000000  DCD 0x0
- 106365458 0x00000000  DCD 0x0
+ 107f9d3ec 0x45000000  DCD 0x45
+ 107f9d3f0 0x52000000  DCD 0x52
+ 107f9d3f4 0x52000000  DCD 0x52
+ 107f9d3f8 0x4f000000  DCD 0x4f
+ 107f9d3fc 0x52000000  DCD 0x52
+ 107f9d400 0x3a000000  DCD 0x3a
+ 107f9d404 0x20000000  DCD 0x20
+ 107f9d408 0x4a000000  DCD 0x4a
+ 107f9d40c 0x4f000000  DCD 0x4f
+ 107f9d410 0x49000000  DCD 0x49
+ 107f9d414 0x4e000000  DCD 0x4e
+ 107f9d418 0x20000000  DCD 0x20
+ 107f9d41c 0x72000000  DCD 0x72
+ 107f9d420 0x65000000  DCD 0x65
+ 107f9d424 0x74000000  DCD 0x74
+ 107f9d428 0x75000000  DCD 0x75
+ 107f9d42c 0x72000000  DCD 0x72
+ 107f9d430 0x6e000000  DCD 0x6e
+ 107f9d434 0x65000000  DCD 0x65
+ 107f9d438 0x64000000  DCD 0x64
+ 107f9d43c 0x20000000  DCD 0x20
+ 107f9d440 0x6e000000  DCD 0x6e
+ 107f9d444 0x75000000  DCD 0x75
+ 107f9d448 0x6c000000  DCD 0x6c
+ 107f9d44c 0x6c000000  DCD 0x6c
+ 107f9d450 0xa0000000  DCD 0xa
+ 107f9d454 0x00000000  DCD 0x0
+ 107f9d458 0x00000000  DCD 0x0
 
 --------------------------
 
-JIT runtime table populated with 124 function pointers.
+JIT runtime table populated with 125 function pointers.
 Set runtime function table memory to read-only.
 
 --- JIT Execution ---
-JIT execution enabled. Entry point 'START' at 0x106360058
-[JITExecutor] Starting execution of JIT-compiled function at address: 0x106360058
+JIT execution enabled. Entry point 'START' at 0x107f98058
+[JITExecutor] Starting execution of JIT-compiled function at address: 0x107f98058
 Testing SPLIT->JOIN round-trip...
 Original string: hello world test
 Calling SPLIT...
-SAMM: Tracked freelist allocation 0x9f700d000 in scope (depth: 1, scope size: 1)
-SAMM: Tracked list allocation 0x9f700d000 in scope (depth: 1, scope size: 2)
+SAMM: Tracked freelist allocation 0x74d019000 in scope (depth: 1, scope size: 1)
+SAMM: Tracked list allocation 0x74d019000 in scope (depth: 1, scope size: 2)
 BCPL String Optimizations: Initialized (pool + SIMD)
-SAMM: Tracked string pool allocation 0x9f70c37dc in scope (depth: 1, scope size: 3)
-SAMM: Tracked string pool allocation 0x9f70c37a0 in scope (depth: 1, scope size: 4)
+SAMM: Tracked string pool allocation 0x74d0b37dc in scope (depth: 1, scope size: 3)
+SAMM: Tracked string pool allocation 0x74d0b37a0 in scope (depth: 1, scope size: 4)
 SPLIT completed
 SPLIT returned a list, now calling JOIN...
