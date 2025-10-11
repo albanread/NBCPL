@@ -175,7 +175,7 @@ bool parse_arguments(int argc, char* argv[], bool& run_jit, bool& generate_asm, 
                     bool& test_encode, std::string& test_encode_name, bool& list_encoders,
                     std::string& input_filepath, std::string& call_entry_name, int& offset_instructions,
                     std::vector<std::string>& include_paths, std::string& runtime_mode);
-void handle_static_compilation(bool exec_mode, const std::string& base_name, const InstructionStream& instruction_stream, const DataGenerator& data_generator, bool enable_debug_output, const std::string& runtime_mode, const VeneerManager& veneer_manager, bool generate_list);
+void handle_static_compilation(bool exec_mode, const std::string& base_name, const InstructionStream& instruction_stream, const DataGenerator& data_generator, bool enable_debug_output, const std::string& runtime_mode, const VeneerManager& veneer_manager, bool generate_list, const std::string& initial_working_dir);
 void* handle_jit_compilation(void* jit_data_memory_base, InstructionStream& instruction_stream, int offset_instructions, bool enable_debug_output, std::vector<Instruction>* finalized_instructions = nullptr);
 void handle_jit_execution(void* code_buffer_base, const std::string& call_entry_name, bool dump_jit_stack, bool enable_debug_output);
 
@@ -185,6 +185,11 @@ void handle_jit_execution(void* code_buffer_base, const std::string& call_entry_
 #include "analysis/RetainAnalysisPass.h"
 
 int main(int argc, char* argv[]) {
+    // Capture the initial working directory for output paths
+    char* cwd = getcwd(nullptr, 0);
+    std::string initial_working_dir = cwd ? std::string(cwd) : ".";
+    if (cwd) free(cwd);
+    
     ASTAnalyzer& analyzer = ASTAnalyzer::getInstance();
     bool enable_tracing = false;
     if (enable_tracing) {
@@ -974,7 +979,7 @@ if (enable_tracing || trace_ast) std::cout << "AST transformation complete.\n";
         // Auto-enable assembly generation if listing file is requested
         if (generate_asm || exec_mode || generate_list) {
             std::string base_name = input_filepath.substr(0, input_filepath.find_last_of('.'));
-            handle_static_compilation(exec_mode, base_name, instruction_stream, data_generator, enable_tracing || trace_codegen, runtime_mode, code_generator.get_veneer_manager(), generate_list);
+            handle_static_compilation(exec_mode, base_name, instruction_stream, data_generator, enable_tracing || trace_codegen, runtime_mode, code_generator.get_veneer_manager(), generate_list, initial_working_dir);
         }
 
         // --- RESET THE LABEL MANAGER ---
@@ -985,7 +990,7 @@ if (enable_tracing || trace_ast) std::cout << "AST transformation complete.\n";
 
         // For --trace-codegen, we need to run the linking process to get proper addresses
         void* final_code_buffer_base = nullptr;
-        if (trace_codegen || run_jit) {
+        if ((trace_codegen || run_jit) && !exec_mode) {
             // Code buffer was already allocated before code generation for veneer manager
             std::vector<Instruction> finalized_instructions;
             final_code_buffer_base = handle_jit_compilation(jit_data_memory_base, instruction_stream, g_jit_breakpoint_offset, enable_tracing || trace_codegen, &finalized_instructions);
@@ -1242,7 +1247,7 @@ bool parse_arguments(int argc, char* argv[], bool& run_jit, bool& generate_asm, 
 /**
  * @brief Handles static compilation to an assembly file and optionally builds and runs it.
  */
-void handle_static_compilation(bool exec_mode, const std::string& base_name, const InstructionStream& instruction_stream, const DataGenerator& data_generator, bool enable_debug_output, const std::string& runtime_mode, const VeneerManager& veneer_manager, bool generate_list) {
+void handle_static_compilation(bool exec_mode, const std::string& base_name, const InstructionStream& instruction_stream, const DataGenerator& data_generator, bool enable_debug_output, const std::string& runtime_mode, const VeneerManager& veneer_manager, bool generate_list, const std::string& initial_working_dir) {
     if (enable_debug_output) std::cout << "Performing static linking for assembly file generation...\n";
     Linker static_linker;
     std::vector<Instruction> static_instructions = static_linker.process(
@@ -1352,6 +1357,18 @@ void handle_static_compilation(bool exec_mode, const std::string& base_name, con
         int build_result = system(clang_command.c_str());
         if (build_result == 0) {
             if (enable_debug_output) std::cout << "Build successful." << std::endl;
+            
+            // Copy the executable to out/testrun for easy access
+            std::string out_path = initial_working_dir + "/out/testrun";
+            std::string copy_command = "cp " + executable_output_path + " " + out_path;
+            if (enable_debug_output) std::cout << "Copying executable: " << copy_command << std::endl;
+            int copy_result = system(copy_command.c_str());
+            if (copy_result == 0) {
+                if (enable_debug_output) std::cout << "Executable copied to " << out_path << std::endl;
+            } else {
+                if (enable_debug_output) std::cout << "Warning: Failed to copy executable to " << out_path << " (exit code: " << copy_result << ")" << std::endl;
+            }
+            
             std::string run_command = "./" + executable_output_path;
             if (enable_debug_output) std::cout << "\n--- Running '" << run_command << "' ---\n";
             int run_result = system(run_command.c_str());

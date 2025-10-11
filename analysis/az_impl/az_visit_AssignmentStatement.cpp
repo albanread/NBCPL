@@ -245,6 +245,10 @@ void ASTAnalyzer::visit(AssignmentStatement& node) {
 
             VarType rhs_type = infer_expression_type(node.rhs[i].get());
             
+            if (trace_enabled_) {
+                std::cerr << "DEBUG: Assignment - inferred RHS type: " << static_cast<int>(rhs_type) << std::endl;
+            }
+            
             // Check if variable already exists in symbol table with a declared type
             VarType variable_type = VarType::UNKNOWN;
             bool variable_exists = false;
@@ -252,15 +256,27 @@ void ASTAnalyzer::visit(AssignmentStatement& node) {
                 Symbol existing_symbol;
                 if (symbol_table_->lookup(var->name, existing_symbol)) {
                     variable_exists = true;
+                    if (trace_enabled_) {
+                        std::cerr << "DEBUG: Found existing symbol '" << var->name << "' with type: " << static_cast<int>(existing_symbol.type) << std::endl;
+                    }
                     // Use type priority: if inferred type is more specific, use it
                     if (should_update_type(existing_symbol.type, rhs_type)) {
                         variable_type = rhs_type;
+                        if (trace_enabled_) {
+                            std::cerr << "DEBUG: Updated to RHS type: " << static_cast<int>(rhs_type) << std::endl;
+                        }
                     } else {
                         variable_type = existing_symbol.type;
+                        if (trace_enabled_) {
+                            std::cerr << "DEBUG: Kept existing type: " << static_cast<int>(existing_symbol.type) << std::endl;
+                        }
                     }
                 } else {
                     // New variable - infer type from expression
                     variable_type = rhs_type;
+                    if (trace_enabled_) {
+                        std::cerr << "DEBUG: New variable '" << var->name << "' - using RHS type: " << static_cast<int>(rhs_type) << std::endl;
+                    }
                 }
             } else {
                 // No symbol table - infer from expression  

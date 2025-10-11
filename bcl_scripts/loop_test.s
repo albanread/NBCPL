@@ -143,8 +143,8 @@ L_START:
 L_START_Entry_0:
     MOVZ X9, #0
     MOV X27, X9
-    ADRP X9, L_str0@PAGE
-    ADD X9, X9, L_str0@PAGEOFF
+    ADRP X9, L_str0_plus_8@PAGE
+    ADD X9, X9, L_str0_plus_8@PAGEOFF
     MOV X0, X9
     BL _WRITEF
     MOVZ X9, #1
@@ -153,30 +153,30 @@ L_START_Entry_0:
 L_START_Exit_9:
     B L_0
 L_START_ForBody_2:
-    ADRP X9, L_str1@PAGE
-    ADD X9, X9, L_str1@PAGEOFF
+    ADRP X9, L_str1_plus_8@PAGE
+    ADD X9, X9, L_str1_plus_8@PAGEOFF
     MOV X0, X9
     MOV X1, X26
     BL _WRITEF1
     B L_START_ForIncrement_3
 L_START_ForBody_6:
-    ADRP X9, L_str2@PAGE
-    ADD X9, X9, L_str2@PAGEOFF
+    ADRP X9, L_str2_plus_8@PAGE
+    ADD X9, X9, L_str2_plus_8@PAGEOFF
     MOV X0, X9
     MOV X1, X26
     BL _WRITEF1
     B L_START_ForIncrement_7
 L_START_ForExit_4:
-    ADRP X9, L_str3@PAGE
-    ADD X9, X9, L_str3@PAGEOFF
+    ADRP X9, L_str3_plus_8@PAGE
+    ADD X9, X9, L_str3_plus_8@PAGEOFF
     MOV X0, X9
     BL _WRITEF
     MOVZ X9, #0
     MOV X26, X9
     B L_START_ForHeader_5
 L_START_ForExit_8:
-    ADRP X9, L_str4@PAGE
-    ADD X9, X9, L_str4@PAGEOFF
+    ADRP X9, L_str4_plus_8@PAGE
+    ADD X9, X9, L_str4_plus_8@PAGEOFF
     MOV X0, X9
     BL _WRITEF
     B L_START_Exit_9
@@ -211,6 +211,7 @@ L_0:
 L_str0:
     .quad 0x2f
     ; (upper half)
+L_str0_plus_8:
     .long 0x54
     .long 0x65
     .long 0x73
@@ -263,6 +264,7 @@ L_str0:
 L_str1:
     .quad 0x13
     ; (upper half)
+L_str1_plus_8:
     .long 0x4c
     .long 0x6f
     .long 0x6f
@@ -287,6 +289,7 @@ L_str1:
 L_str2:
     .quad 0x10
     ; (upper half)
+L_str2_plus_8:
     .long 0x45
     .long 0x76
     .long 0x65
@@ -308,6 +311,7 @@ L_str2:
 L_str3:
     .quad 0x21
     ; (upper half)
+L_str3_plus_8:
     .long 0x54
     .long 0x65
     .long 0x73
@@ -346,6 +350,7 @@ L_str3:
 L_str4:
     .quad 0x13
     ; (upper half)
+L_str4_plus_8:
     .long 0x4c
     .long 0x6f
     .long 0x6f
@@ -370,6 +375,7 @@ L_str4:
 
 .section __DATA,__data
 .p2align 3
+    .long 0x0
     .long 0x0
     .long 0x0
 L__data_segment_base:

@@ -1065,9 +1065,21 @@ VarType ASTAnalyzer::infer_function_call_type(const FunctionCall* func_call) con
     if (RuntimeManager::instance().is_function_registered(func_name)) {
         const RuntimeFunction& runtime_func = RuntimeManager::instance().get_function(func_name);
         
+        if (trace_enabled_) {
+            std::cerr << "DEBUG: Runtime function '" << func_name << "' found" << std::endl;
+            std::cerr << "DEBUG: runtime_func.return_type = " << static_cast<int>(runtime_func.return_type) << std::endl;
+        }
+        
         // Use the registered return type if it's not UNKNOWN, otherwise fall back to legacy logic
         if (runtime_func.return_type != VarType::UNKNOWN) {
+            if (trace_enabled_) {
+                std::cerr << "DEBUG: Returning registered return type: " << static_cast<int>(runtime_func.return_type) << std::endl;
+            }
             return runtime_func.return_type;
+        }
+        
+        if (trace_enabled_) {
+            std::cerr << "DEBUG: runtime_func.return_type == UNKNOWN, falling back to legacy logic" << std::endl;
         }
         
         // Legacy fallback for functions not yet updated with return types

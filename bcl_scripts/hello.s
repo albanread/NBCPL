@@ -140,12 +140,12 @@ L_START:
     ADRP X28, L__data_segment_base@PAGE
     ADD X28, X28, L__data_segment_base@PAGEOFF
 L_START_Entry_0:
-    ADRP X9, L_str0@PAGE
-    ADD X9, X9, L_str0@PAGEOFF
+    ADRP X9, L_str0_plus_8@PAGE
+    ADD X9, X9, L_str0_plus_8@PAGEOFF
     MOV X0, X9
     BL _WRITEF
-    ADRP X9, L_str1@PAGE
-    ADD X9, X9, L_str1@PAGEOFF
+    ADRP X9, L_str1_plus_8@PAGE
+    ADD X9, X9, L_str1_plus_8@PAGEOFF
     MOV X0, X9
     BL _WRITEF
     B L_START_Exit_1
@@ -163,6 +163,8 @@ L_0:
 L_str0:
     .quad 0xe
     ; (upper half)
+.p2align 2
+L_str0_plus_8:
     .long 0x48
     .long 0x65
     .long 0x6c
@@ -179,9 +181,12 @@ L_str0:
     .long 0xa
     .long 0x0
     .long 0x0
+.p2align 3
 L_str1:
     .quad 0x2a
     ; (upper half)
+.p2align 2
+L_str1_plus_8:
     .long 0x54
     .long 0x68
     .long 0x69
@@ -230,4 +235,5 @@ L_str1:
 .section __DATA,__data
 .p2align 3
     .long 0x0
+.p2align 2
 L__data_segment_base:

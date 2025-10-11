@@ -145,12 +145,12 @@ L_START:
     ADRP X28, L__data_segment_base@PAGE
     ADD X28, X28, L__data_segment_base@PAGEOFF
 L_START_Entry_0:
-    ADRP X9, L_str0@PAGE
-    ADD X9, X9, L_str0@PAGEOFF
+    ADRP X9, L_str0_plus_8@PAGE
+    ADD X9, X9, L_str0_plus_8@PAGEOFF
     MOV X0, X9
     BL _WRITEF
-    ADRP X9, L_str1@PAGE
-    ADD X9, X9, L_str1@PAGEOFF
+    ADRP X9, L_str1_plus_8@PAGE
+    ADD X9, X9, L_str1_plus_8@PAGEOFF
     MOV X0, X9
     BL _WRITEF
     MOVZ x21, #32
@@ -163,21 +163,21 @@ L_START_Entry_0:
     B.EQ L_START_Else_2
     B L_START_Then_1
 L_START_Else_2:
-    ADRP X10, L_str2@PAGE
-    ADD X10, X10, L_str2@PAGEOFF
+    ADRP X10, L_str2_plus_8@PAGE
+    ADD X10, X10, L_str2_plus_8@PAGEOFF
     MOV X0, X10
     BL _WRITEF
     BL _HeapManager_exit_scope
     B L_START_FinishCleanup_4
 L_START_Else_6:
-    ADRP X9, L_str3@PAGE
-    ADD X9, X9, L_str3@PAGEOFF
+    ADRP X9, L_str3_plus_8@PAGE
+    ADD X9, X9, L_str3_plus_8@PAGEOFF
     MOV X0, X9
     BL _WRITEF
     B L_START_Join_7
 L_START_Else_9:
-    ADRP X9, L_str4@PAGE
-    ADD X9, X9, L_str4@PAGEOFF
+    ADRP X9, L_str4_plus_8@PAGE
+    ADD X9, X9, L_str4_plus_8@PAGEOFF
     MOV X0, X9
     BL _WRITEF
     B L_START_Join_7
@@ -243,8 +243,8 @@ L_START_Join_15:
     MOV X23, X9
     B L_START_ForHeader_16
 L_START_Join_3:
-    ADRP X9, L_str5@PAGE
-    ADD X9, X9, L_str5@PAGEOFF
+    ADRP X9, L_str5_plus_8@PAGE
+    ADD X9, X9, L_str5_plus_8@PAGEOFF
     MOV X20, X9
     MOV X0, X20
     BL _SDL2_CREATE_WINDOW
@@ -256,22 +256,22 @@ L_START_Join_3:
     B L_START_Then_5
 L_START_Join_7:
     BL _SDL2_QUIT
-    ADRP X9, L_str6@PAGE
-    ADD X9, X9, L_str6@PAGEOFF
+    ADRP X9, L_str6_plus_8@PAGE
+    ADD X9, X9, L_str6_plus_8@PAGEOFF
     MOV X0, X9
     BL _WRITEF
     B L_START_Exit_20
 L_START_Then_1:
-    ADRP X9, L_str7@PAGE
-    ADD X9, X9, L_str7@PAGEOFF
+    ADRP X9, L_str7_plus_8@PAGE
+    ADD X9, X9, L_str7_plus_8@PAGEOFF
     MOV X0, X9
     BL _WRITEF
     B L_START_Join_3
 L_START_Then_14:
     MOVZ X9, #0
     MOV X26, X9
-    ADRP X9, L_str8@PAGE
-    ADD X9, X9, L_str8@PAGEOFF
+    ADRP X9, L_str8_plus_8@PAGE
+    ADD X9, X9, L_str8_plus_8@PAGEOFF
     MOV X0, X9
     BL _WRITES
     B L_START_Join_15
@@ -288,8 +288,8 @@ L_START_Then_5:
 L_START_Then_8:
     MOVZ X9, #1
     MOV X26, X9
-    ADRP X9, L_str9@PAGE
-    ADD X9, X9, L_str9@PAGEOFF
+    ADRP X9, L_str9_plus_8@PAGE
+    ADD X9, X9, L_str9_plus_8@PAGEOFF
     MOV X0, X9
     BL _WRITES
     B L_START_WhileHeader_11
@@ -303,8 +303,8 @@ L_START_WhileBody_12:
     B.EQ L_START_Join_15
     B L_START_Then_14
 L_START_WhileExit_13:
-    ADRP X9, L_str10@PAGE
-    ADD X9, X9, L_str10@PAGEOFF
+    ADRP X9, L_str10_plus_8@PAGE
+    ADD X9, X9, L_str10_plus_8@PAGEOFF
     MOV X0, X9
     BL _WRITEF
     MOV X0, X27
@@ -332,6 +332,7 @@ L_0:
 L_str0:
     .quad 0x14
     ; (upper half)
+L_str0_plus_8:
     .long 0x53
     .long 0x44
     .long 0x4c
@@ -357,6 +358,7 @@ L_str0:
 L_str1:
     .quad 0x14
     ; (upper half)
+L_str1_plus_8:
     .long 0x3d
     .long 0x3d
     .long 0x3d
@@ -382,6 +384,7 @@ L_str1:
 L_str2:
     .quad 0x20
     ; (upper half)
+L_str2_plus_8:
     .long 0x274c
     .long 0x20
     .long 0x53
@@ -419,6 +422,7 @@ L_str2:
 L_str3:
     .quad 0x1b
     ; (upper half)
+L_str3_plus_8:
     .long 0x274c
     .long 0x20
     .long 0x46
@@ -451,6 +455,7 @@ L_str3:
 L_str4:
     .quad 0x1d
     ; (upper half)
+L_str4_plus_8:
     .long 0x274c
     .long 0x20
     .long 0x46
@@ -485,6 +490,7 @@ L_str4:
 L_str5:
     .quad 0x10
     ; (upper half)
+L_str5_plus_8:
     .long 0x20
     .long 0x54
     .long 0x68
@@ -506,6 +512,7 @@ L_str5:
 L_str6:
     .quad 0x1a
     ; (upper half)
+L_str6_plus_8:
     .long 0x2705
     .long 0x20
     .long 0x53
@@ -537,6 +544,7 @@ L_str6:
 L_str7:
     .quad 0x21
     ; (upper half)
+L_str7_plus_8:
     .long 0x2705
     .long 0x20
     .long 0x53
@@ -575,6 +583,7 @@ L_str7:
 L_str8:
     .quad 0xc
     ; (upper half)
+L_str8_plus_8:
     .long 0x51
     .long 0x55
     .long 0x49
@@ -592,6 +601,7 @@ L_str8:
 L_str9:
     .quad 0x9
     ; (upper half)
+L_str9_plus_8:
     .long 0x52
     .long 0x75
     .long 0x6e
@@ -606,6 +616,7 @@ L_str9:
 L_str10:
     .quad 0x23
     ; (upper half)
+L_str10_plus_8:
     .long 0x43
     .long 0x6c
     .long 0x65
@@ -646,6 +657,7 @@ L_str10:
 
 .section __DATA,__data
 .p2align 3
+    .long 0x0
     .long 0x0
     .long 0x0
     .long 0x0

@@ -153,22 +153,22 @@ L_Point_CREATE_Entry_0:
     MOV X24, X26
     STR X25, [X27, #16] ; Store to member y
     MOV X23, X25
-    ADRP X9, L_str0@PAGE
-    ADD X9, X9, L_str0@PAGEOFF
+    ADRP X9, L_str0_plus_8@PAGE
+    ADD X9, X9, L_str0_plus_8@PAGEOFF
     MOV X0, X9
     BL _WRITES
     LDR X9, [X27, #8] ; x
     MOV X0, X9
     BL _WRITEN
-    ADRP X9, L_str1@PAGE
-    ADD X9, X9, L_str1@PAGEOFF
+    ADRP X9, L_str1_plus_8@PAGE
+    ADD X9, X9, L_str1_plus_8@PAGEOFF
     MOV X0, X9
     BL _WRITES
     LDR X9, [X27, #16] ; y
     MOV X0, X9
     BL _WRITEN
-    ADRP X9, L_str2@PAGE
-    ADD X9, X9, L_str2@PAGEOFF
+    ADRP X9, L_str2_plus_8@PAGE
+    ADD X9, X9, L_str2_plus_8@PAGEOFF
     MOV X0, X9
     BL _WRITES
     B L_Point_CREATE_Exit_1
@@ -242,22 +242,22 @@ L_Point_set_Entry_0:
     MOV X24, X26
     STR X25, [X27, #16] ; Store to member y
     MOV X23, X25
-    ADRP X9, L_str3@PAGE
-    ADD X9, X9, L_str3@PAGEOFF
+    ADRP X9, L_str3_plus_8@PAGE
+    ADD X9, X9, L_str3_plus_8@PAGEOFF
     MOV X0, X9
     BL _WRITES
     LDR X9, [X27, #8] ; x
     MOV X0, X9
     BL _WRITEN
-    ADRP X9, L_str1@PAGE
-    ADD X9, X9, L_str1@PAGEOFF
+    ADRP X9, L_str1_plus_8@PAGE
+    ADD X9, X9, L_str1_plus_8@PAGEOFF
     MOV X0, X9
     BL _WRITES
     LDR X9, [X27, #16] ; y
     MOV X0, X9
     BL _WRITEN
-    ADRP X9, L_str2@PAGE
-    ADD X9, X9, L_str2@PAGEOFF
+    ADRP X9, L_str2_plus_8@PAGE
+    ADD X9, X9, L_str2_plus_8@PAGEOFF
     MOV X0, X9
     BL _WRITES
     B L_Point_set_Exit_1
@@ -299,8 +299,8 @@ L_START:
     ADD X28, X28, L__data_segment_base@PAGEOFF
 L_START_Entry_0:
     BL _HeapManager_enter_scope
-    ADRP X9, L_str4@PAGE
-    ADD X9, X9, L_str4@PAGEOFF
+    ADRP X9, L_str4_plus_8@PAGE
+    ADD X9, X9, L_str4_plus_8@PAGEOFF
     MOV X0, X9
     BL _WRITES
     MOVZ X0, #24
@@ -318,8 +318,8 @@ L_START_Entry_0:
     LDR X10, [X9, #0] ; Load CREATE method address
     BLR X10
     MOV X27, X20
-    ADRP X9, L_str5@PAGE
-    ADD X9, X9, L_str5@PAGEOFF
+    ADRP X9, L_str5_plus_8@PAGE
+    ADD X9, X9, L_str5_plus_8@PAGEOFF
     MOV X0, X9
     BL _WRITES
     LDR X9, [X27, #0] ; Load vtable pointer
@@ -327,8 +327,8 @@ L_START_Entry_0:
     MOV X0, X27
     BLR X10
     BL _WRITEN
-    ADRP X9, L_str6@PAGE
-    ADD X9, X9, L_str6@PAGEOFF
+    ADRP X9, L_str6_plus_8@PAGE
+    ADD X9, X9, L_str6_plus_8@PAGEOFF
     MOV X0, X9
     BL _WRITES
     LDR X9, [X27, #0] ; Load vtable pointer
@@ -336,12 +336,12 @@ L_START_Entry_0:
     MOV X0, X27
     BLR X10
     BL _WRITEN
-    ADRP X9, L_str7@PAGE
-    ADD X9, X9, L_str7@PAGEOFF
+    ADRP X9, L_str7_plus_8@PAGE
+    ADD X9, X9, L_str7_plus_8@PAGEOFF
     MOV X0, X9
     BL _WRITES
-    ADRP X9, L_str8@PAGE
-    ADD X9, X9, L_str8@PAGEOFF
+    ADRP X9, L_str8_plus_8@PAGE
+    ADD X9, X9, L_str8_plus_8@PAGEOFF
     MOV X0, X9
     BL _WRITES
     MOVZ x20, #100
@@ -350,8 +350,8 @@ L_START_Entry_0:
     MOV X1, X20
     MOV X2, X20
     BL L_Point_set
-    ADRP X9, L_str9@PAGE
-    ADD X9, X9, L_str9@PAGEOFF
+    ADRP X9, L_str9_plus_8@PAGE
+    ADD X9, X9, L_str9_plus_8@PAGEOFF
     MOV X0, X9
     BL _WRITES
     LDR X9, [X27, #0] ; Load vtable pointer
@@ -359,8 +359,8 @@ L_START_Entry_0:
     MOV X0, X27
     BLR X10
     BL _WRITEN
-    ADRP X9, L_str6@PAGE
-    ADD X9, X9, L_str6@PAGEOFF
+    ADRP X9, L_str6_plus_8@PAGE
+    ADD X9, X9, L_str6_plus_8@PAGEOFF
     MOV X0, X9
     BL _WRITES
     LDR X9, [X27, #0] ; Load vtable pointer
@@ -368,8 +368,8 @@ L_START_Entry_0:
     MOV X0, X27
     BLR X10
     BL _WRITEN
-    ADRP X9, L_str10@PAGE
-    ADD X9, X9, L_str10@PAGEOFF
+    ADRP X9, L_str10_plus_8@PAGE
+    ADD X9, X9, L_str10_plus_8@PAGEOFF
     MOV X0, X9
     BL _WRITES
     BL _HeapManager_exit_scope
@@ -384,8 +384,8 @@ L_5:
     ADD SP, SP, #16 ; Deallocate space for saved FP/LR
     RET
 L___veneer_:
-    movz x16, #4436
-    movk x16, #809, lsl #16
+    movz x16, #60612
+    movk x16, #304, lsl #16
     movk x16, #1, lsl #32
     movk x16, #0, lsl #48
     blr x16
@@ -395,6 +395,8 @@ L___veneer_:
 L_str0:
     .quad 0x12
     ; (upper half)
+.p2align 2
+L_str0_plus_8:
     .long 0x50
     .long 0x6f
     .long 0x69
@@ -415,23 +417,32 @@ L_str0:
     .long 0x28
     .long 0x0
     .long 0x0
+.p2align 3
 L_str1:
     .quad 0x2
     ; (upper half)
+.p2align 2
+L_str1_plus_8:
     .long 0x2c
     .long 0x20
     .long 0x0
     .long 0x0
+.p2align 3
 L_str2:
     .quad 0x2
     ; (upper half)
+.p2align 2
+L_str2_plus_8:
     .long 0x29
     .long 0xa
     .long 0x0
     .long 0x0
+.p2align 3
 L_str3:
     .quad 0x10
     ; (upper half)
+.p2align 2
+L_str3_plus_8:
     .long 0x50
     .long 0x6f
     .long 0x69
@@ -450,9 +461,12 @@ L_str3:
     .long 0x28
     .long 0x0
     .long 0x0
+.p2align 3
 L_str4:
     .quad 0x12
     ; (upper half)
+.p2align 2
+L_str4_plus_8:
     .long 0x43
     .long 0x72
     .long 0x65
@@ -473,9 +487,12 @@ L_str4:
     .long 0xa
     .long 0x0
     .long 0x0
+.p2align 3
 L_str5:
     .quad 0x12
     ; (upper half)
+.p2align 2
+L_str5_plus_8:
     .long 0x52
     .long 0x65
     .long 0x61
@@ -496,25 +513,34 @@ L_str5:
     .long 0x3d
     .long 0x0
     .long 0x0
+.p2align 3
 L_str6:
     .quad 0x4
     ; (upper half)
+.p2align 2
+L_str6_plus_8:
     .long 0x2c
     .long 0x20
     .long 0x79
     .long 0x3d
     .long 0x0
     .long 0x0
+.p2align 3
 L_str7:
     .quad 0x2
     ; (upper half)
+.p2align 2
+L_str7_plus_8:
     .long 0xa
     .long 0xa
     .long 0x0
     .long 0x0
+.p2align 3
 L_str8:
     .quad 0x16
     ; (upper half)
+.p2align 2
+L_str8_plus_8:
     .long 0x53
     .long 0x65
     .long 0x74
@@ -539,9 +565,12 @@ L_str8:
     .long 0xa
     .long 0x0
     .long 0x0
+.p2align 3
 L_str9:
     .quad 0x16
     ; (upper half)
+.p2align 2
+L_str9_plus_8:
     .long 0x52
     .long 0x65
     .long 0x61
@@ -566,12 +595,16 @@ L_str9:
     .long 0x3d
     .long 0x0
     .long 0x0
+.p2align 3
 L_str10:
     .quad 0x1
     ; (upper half)
+.p2align 2
+L_str10_plus_8:
     .long 0xa
     .long 0x0
     .long 0x0
+.p2align 3
 L_Point_vtable:
     .quad L_Point_CREATE
     .quad L_Point_RELEASE
@@ -582,13 +615,5 @@ L_Point_vtable:
 .section __DATA,__data
 .p2align 3
     .long 0x0
-    .long 0x0
-    .long 0x0
-    .long 0x0
-    .long 0x0
-    .long 0x0
-    .long 0x0
-    .long 0x0
-    .long 0x0
-    .long 0x0
+.p2align 2
 L__data_segment_base:

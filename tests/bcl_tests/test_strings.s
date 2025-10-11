@@ -197,6 +197,7 @@ L_0:
 L_str0:
     .quad 0x10
     ; (upper half)
+.p2align 2
 L_str0_plus_8:
     .long 0x41
     .long 0x6e
@@ -216,9 +217,11 @@ L_str0_plus_8:
     .long 0xa
     .long 0x0
     .long 0x0
+.p2align 3
 L_str1:
     .quad 0x11
     ; (upper half)
+.p2align 2
 L_str1_plus_8:
     .long 0x49
     .long 0x6e
@@ -239,9 +242,11 @@ L_str1_plus_8:
     .long 0xa
     .long 0x0
     .long 0x0
+.p2align 3
 L_str2:
     .quad 0xb
     ; (upper half)
+.p2align 2
 L_str2_plus_8:
     .long 0x65
     .long 0x6e
@@ -256,9 +261,11 @@ L_str2_plus_8:
     .long 0x70
     .long 0x0
     .long 0x0
+.p2align 3
 L_str3:
     .quad 0x1
     ; (upper half)
+.p2align 2
 L_str3_plus_8:
     .long 0xa
     .long 0x0
@@ -270,4 +277,5 @@ L_str3_plus_8:
     .long 0x0
     .long 0x0
     .long 0x0
+.p2align 2
 L__data_segment_base:

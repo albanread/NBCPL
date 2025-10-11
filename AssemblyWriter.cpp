@@ -80,6 +80,10 @@ void AssemblyWriter::write_to_file(const std::string& path,
                                    const LabelManager& label_manager,
                                    const DataGenerator& data_generator,
                                    const VeneerManager& veneer_manager) {
+    // ARM64 Alignment Strategy:
+    // - Section level: .p2align 3 (8-byte alignment) for optimal performance
+    // - Label level: .p2align 3 for 64-bit data (.quad), .p2align 2 for 32-bit data (.long)
+    // - This ensures proper alignment for pointers, doubles, and other critical data types
     std::ofstream ofs(path);
     if (!ofs.is_open()) {
         throw std::runtime_error("Failed to open file for writing: " + path);
@@ -324,6 +328,7 @@ void AssemblyWriter::write_to_file(const std::string& path,
     if (!rodata_instructions.empty()) {
         ofs << "\n.section __DATA,__const\n";
         ofs << ".p2align 3\n";
+        bool section_alignment_written = true;
         for (size_t i = 0; i < rodata_instructions.size(); ++i) {
             const auto& instr = rodata_instructions[i];
 
@@ -333,6 +338,26 @@ void AssemblyWriter::write_to_file(const std::string& path,
             }
 
             if (instr.is_label_definition && !instr.target_label.empty()) {
+                // Add alignment directive before each label for optimal performance
+                // Check if this label will contain 8-byte data by looking ahead
+                bool needs_8byte_align = false;
+                if (i + 1 < rodata_instructions.size()) {
+                    const auto& next_instr = rodata_instructions[i + 1];
+                    if (next_instr.assembly_text.find(".quad") != std::string::npos ||
+                        next_instr.assembly_text.find("DCQ") != std::string::npos ||
+                        next_instr.relocation == RelocationType::ABSOLUTE_ADDRESS_LO32) {
+                        needs_8byte_align = true;
+                    }
+                }
+                
+                // Only add alignment if it's different from section alignment or not already written
+                if (needs_8byte_align && !section_alignment_written) {
+                    ofs << ".p2align 3\n";  // 8-byte alignment for 64-bit data
+                } else if (!needs_8byte_align) {
+                    ofs << ".p2align 2\n";  // 4-byte alignment for 32-bit data
+                }
+                section_alignment_written = needs_8byte_align;
+                
                 auto rename_it = label_rename_map.find(instr.target_label);
                 if (rename_it != label_rename_map.end()) {
                     ofs << make_clang_compatible_label(rename_it->second) << ":\n";
@@ -368,6 +393,7 @@ void AssemblyWriter::write_to_file(const std::string& path,
         ofs << ".p2align 3\n";
 
         bool skipping_runtime_table = false;
+        bool section_alignment_written = true;
         for (size_t i = 0; i < data_instructions.size(); ++i) {
             const auto& instr = data_instructions[i];
 
@@ -383,6 +409,28 @@ void AssemblyWriter::write_to_file(const std::string& path,
                 if (skipping_runtime_table) {
                     skipping_runtime_table = false;
                 }
+                
+                // Add alignment directive before each data label
+                // Check if this label will contain 8-byte data by looking ahead
+                bool needs_8byte_align = false;
+                if (i + 1 < data_instructions.size()) {
+                    const auto& next_instr = data_instructions[i + 1];
+                    if (!next_instr.assembly_text.empty() &&
+                        (next_instr.assembly_text.find(".quad") != std::string::npos ||
+                         next_instr.assembly_text.find("DCQ") != std::string::npos ||
+                         next_instr.relocation == RelocationType::ABSOLUTE_ADDRESS_LO32)) {
+                        needs_8byte_align = true;
+                    }
+                }
+                
+                // Only add alignment if it's different from section alignment or not already written
+                if (needs_8byte_align && !section_alignment_written) {
+                    ofs << ".p2align 3\n";  // 8-byte alignment for 64-bit data
+                } else if (!needs_8byte_align) {
+                    ofs << ".p2align 2\n";  // 4-byte alignment for 32-bit data
+                }
+                section_alignment_written = needs_8byte_align;
+                
                 ofs << make_clang_compatible_label(instr.target_label) << ":\n"; // Write the label here.
             }
 
