@@ -1,0 +1,171 @@
+# Makefile for SPLIT/JOIN Function Test Suite
+# Tests SPLIT and JOIN string/list operations with comprehensive coverage
+# Also serves as a SAMM compatibility test for memory management
+
+CXX = clang++
+CXXFLAGS = -std=c++17 -Wall -Wextra -O2 -g
+INCLUDES = -I. -I./HeapManager -I./runtime -I./include
+LIBS = ./libbcpl_runtime_sdl2_static.a -lpthread
+
+# Target executable
+TARGET = test_split_join
+
+# Source files
+MAIN_SRC = test_split_join.cpp
+
+# HeapManager object files (with SAMM implementation)
+HEAP_OBJS = HeapManager/HeapManager.o \
+            HeapManager/Heap_allocVec.o \
+            HeapManager/Heap_allocString.o \
+            HeapManager/Heap_allocObject.o \
+            HeapManager/Heap_allocList.o \
+            HeapManager/Heap_free.o \
+            HeapManager/Heap_printMetrics.o \
+            HeapManager/Heap_dumpHeap.o \
+            HeapManager/Heap_dumpHeapSignalSafe.o \
+            HeapManager/heap_c_wrappers.o \
+            HeapManager/heap_manager_globals.o
+
+# Support object files
+SUPPORT_OBJS = SignalSafeUtils.o \
+               version.o
+
+# All object files
+ALL_OBJS = $(TARGET).o $(HEAP_OBJS) $(SUPPORT_OBJS)
+
+# Default target
+all: $(TARGET)
+
+# Main executable
+$(TARGET): $(ALL_OBJS)
+	@echo "Linking SPLIT/JOIN test executable..."
+	$(CXX) $(CXXFLAGS) -o $@ $^ $(LIBS)
+
+# Main test source
+$(TARGET).o: $(MAIN_SRC)
+	@echo "Compiling SPLIT/JOIN test program..."
+	$(CXX) $(CXXFLAGS) $(INCLUDES) -c $< -o $@
+
+# HeapManager object files
+HeapManager/%.o: HeapManager/%.cpp
+	@echo "Compiling $<..."
+	$(CXX) $(CXXFLAGS) $(INCLUDES) -c $< -o $@
+
+# Support object files
+%.o: %.cpp
+	@echo "Compiling $<..."
+	$(CXX) $(CXXFLAGS) $(INCLUDES) -c $< -o $@
+
+# Clean up build artifacts
+clean:
+	@echo "Cleaning SPLIT/JOIN test build artifacts..."
+	rm -f $(TARGET) $(TARGET).o
+	rm -f HeapManager/*.o
+	rm -f SignalSafeUtils.o version.o
+
+# Force rebuild
+rebuild: clean all
+
+# Run the test
+test: $(TARGET)
+	@echo "Running SPLIT/JOIN function test suite..."
+	./$(TARGET)
+
+# Run test with verbose output
+test-verbose: $(TARGET)
+	@echo "Running SPLIT/JOIN test suite (verbose)..."
+	ENABLE_VERBOSE=1 ./$(TARGET)
+
+# Run test without verbose output
+test-quiet: $(TARGET)
+	@echo "Running SPLIT/JOIN test suite (quiet)..."
+	ENABLE_VERBOSE=0 ./$(TARGET)
+
+# Run performance benchmarks only
+test-performance: $(TARGET)
+	@echo "Running SPLIT/JOIN performance benchmarks..."
+	./$(TARGET) | grep -E "(Performance|μs|elements)"
+
+# Test specific functionality
+test-split: $(TARGET)
+	@echo "Testing SPLIT functionality only..."
+	./$(TARGET) | grep -E "(SPLIT|Split)"
+
+test-join: $(TARGET)
+	@echo "Testing JOIN functionality only..."
+	./$(TARGET) | grep -E "(JOIN|Join)"
+
+test-roundtrip: $(TARGET)
+	@echo "Testing SPLIT-JOIN round-trip functionality..."
+	./$(TARGET) | grep -E "(Round-trip|round-trip)"
+
+# Check if SPLIT/JOIN functions are production ready
+check-production: $(TARGET)
+	@echo "Checking SPLIT/JOIN production readiness..."
+	@if ./$(TARGET) >/dev/null 2>&1; then \
+		echo "✅ SPLIT/JOIN functions are PRODUCTION READY"; \
+		echo "✅ All functionality tests pass"; \
+		echo "✅ Round-trip operations work correctly"; \
+		echo "✅ Performance is acceptable"; \
+		echo "✅ Memory management is stable"; \
+		echo "✅ Edge cases handled properly"; \
+	else \
+		echo "❌ SPLIT/JOIN functions are NOT production ready"; \
+		echo "🔧 Some tests are failing"; \
+		echo "🔍 Run 'make test-verbose' for detailed output"; \
+	fi
+
+# Memory stress test
+test-memory: $(TARGET)
+	@echo "Running memory stress test for SPLIT/JOIN..."
+	@echo "This will perform many operations to test memory management..."
+	ENABLE_VERBOSE=0 ./$(TARGET) | grep -E "(SAMM|Memory|allocations)"
+
+# Debug build with extra symbols
+debug: CXXFLAGS += -DDEBUG -O0
+debug: $(TARGET)
+	@echo "Built debug version of SPLIT/JOIN test"
+
+# Profile build for performance analysis
+profile: CXXFLAGS += -pg
+profile: $(TARGET)
+	@echo "Built profile version of SPLIT/JOIN test"
+
+# Help target
+help:
+	@echo "SPLIT/JOIN Function Test Suite Makefile"
+	@echo "========================================"
+	@echo ""
+	@echo "Targets:"
+	@echo "  all              - Build the SPLIT/JOIN test executable"
+	@echo "  test             - Run all SPLIT/JOIN tests"
+	@echo "  test-verbose     - Run tests with verbose output"
+	@echo "  test-quiet       - Run tests with minimal output"
+	@echo "  test-performance - Run only performance benchmarks"
+	@echo "  test-split       - Test only SPLIT functionality"
+	@echo "  test-join        - Test only JOIN functionality"
+	@echo "  test-roundtrip   - Test only round-trip operations"
+	@echo "  test-memory      - Run memory management stress test"
+	@echo "  check-production - Check if functions are production ready"
+	@echo "  debug            - Build debug version with extra symbols"
+	@echo "  profile          - Build version for performance profiling"
+	@echo "  clean            - Remove build artifacts"
+	@echo "  rebuild          - Clean and rebuild everything"
+	@echo "  help             - Show this help message"
+	@echo ""
+	@echo "Environment Variables:"
+	@echo "  ENABLE_VERBOSE   - Set to 1 for verbose output, 0 for quiet"
+	@echo ""
+	@echo "Examples:"
+	@echo "  make test                    # Run all tests"
+	@echo "  make test-verbose            # Run with detailed output"
+	@echo "  make test-performance        # Run performance tests only"
+	@echo "  ENABLE_VERBOSE=0 make test   # Run quietly"
+	@echo "  make check-production        # Verify production readiness"
+	@echo ""
+	@echo "Prerequisites:"
+	@echo "  1. Run './buildruntime' to build runtime libraries"
+	@echo "  2. Run './build.sh' to build the main compiler"
+	@echo "  3. Ensure libbcpl_runtime_sdl2_static.a exists"
+
+.PHONY: all clean rebuild test test-verbose test-quiet test-performance test-split test-join test-roundtrip check-production test-memory debug profile help

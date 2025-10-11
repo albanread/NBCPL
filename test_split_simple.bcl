@@ -1,0 +1,21 @@
+LET START() BE
+$(
+   WRITES("Testing SPLIT function...*N")
+   LET S = "hello world"
+   WRITES("Created string: ")
+   WRITES(S)
+   WRITES("*N")
+
+   WRITES("About to call SPLIT...*N")
+   LET L = SPLIT(S, " ")
+   WRITES("SPLIT returned successfully*N")
+
+   TEST L = 0 THEN
+   $(
+       WRITES("ERROR: SPLIT returned null*N")
+   $)
+   ELSE
+   $(
+       WRITES("SPLIT returned a list*N")
+   $)
+$)

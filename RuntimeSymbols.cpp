@@ -99,6 +99,11 @@ void RuntimeSymbols::registerAll(SymbolTable& symbol_table) {
         {VarType::STRING, false}   // delimiter string
     });
     
+    registerRuntimeFunction(symbol_table, "JOIN", {
+        {VarType::POINTER_TO_STRING_LIST, false},  // list of strings
+        {VarType::STRING, false}                   // delimiter string
+    });
+    
     // FILE_ API functions
     registerRuntimeFunction(symbol_table, "FILE_OPEN_READ", {
         {VarType::STRING, false}   // filename
@@ -162,7 +167,7 @@ void RuntimeSymbols::registerRuntimeFunction(
     const std::vector<Symbol::ParameterInfo>& params
 ) {
     // Create a new symbol for this runtime function
-    Symbol symbol(name, SymbolKind::RUNTIME_FUNCTION, VarType::INTEGER, 0, "");
+    Symbol symbol(name, SymbolKind::RUNTIME_FUNCTION, VarType::INTEGER, 0, "Global");
     
     // Add parameter information
     symbol.parameters = params;
@@ -180,7 +185,7 @@ void RuntimeSymbols::registerRuntimeFloatFunction(
     const std::vector<Symbol::ParameterInfo>& params
 ) {
     // Create a new symbol for this float runtime function
-    Symbol symbol(name, SymbolKind::RUNTIME_FLOAT_FUNCTION, VarType::FLOAT, 0, "");
+    Symbol symbol(name, SymbolKind::RUNTIME_FLOAT_FUNCTION, VarType::FLOAT, 0, "Global");
     
     // Add parameter information
     symbol.parameters = params;
@@ -198,7 +203,7 @@ void RuntimeSymbols::registerRuntimeRoutine(
     const std::vector<Symbol::ParameterInfo>& params
 ) {
     // Create a new symbol for this runtime routine
-    Symbol symbol(name, SymbolKind::RUNTIME_ROUTINE, VarType::INTEGER, 0, "");
+    Symbol symbol(name, SymbolKind::RUNTIME_ROUTINE, VarType::INTEGER, 0, "Global");
     
     // Add parameter information
     symbol.parameters = params;
@@ -216,7 +221,7 @@ void RuntimeSymbols::registerRuntimeFloatRoutine(
     const std::vector<Symbol::ParameterInfo>& params
 ) {
     // Create a new symbol for this float-handling runtime routine
-    Symbol symbol(name, SymbolKind::RUNTIME_FLOAT_ROUTINE, VarType::FLOAT, 0, "");
+    Symbol symbol(name, SymbolKind::RUNTIME_FLOAT_ROUTINE, VarType::FLOAT, 0, "Global");
     
     // Add parameter information
     symbol.parameters = params;
@@ -234,7 +239,7 @@ void RuntimeSymbols::registerRuntimeListFunction(
     const std::vector<Symbol::ParameterInfo>& params
 ) {
     // Create a new symbol for this list-returning runtime function
-    Symbol symbol(name, SymbolKind::RUNTIME_LIST_FUNCTION, VarType::POINTER_TO_STRING_LIST, 0, "");
+    Symbol symbol(name, SymbolKind::RUNTIME_LIST_FUNCTION, VarType::POINTER_TO_STRING_LIST, 0, "Global");
     
     // Add parameter information
     symbol.parameters = params;

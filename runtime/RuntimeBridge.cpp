@@ -135,6 +135,7 @@ extern "C" {
     void* FGETVEC(int64_t num_floats) { return bcpl_fgetvec(num_floats); }
     void FREEVEC(void* ptr) { return bcpl_free(ptr); }
     uint32_t* JOIN(struct ListHeader* list_header, uint32_t* delimiter_payload) { return BCPL_JOIN_LIST(list_header, delimiter_payload); }
+    struct ListHeader* SPLIT(uint32_t* source_payload, uint32_t* delimiter_payload) { return BCPL_SPLIT_STRING(source_payload, delimiter_payload); }
 }
 
 // Include the file API implementation
@@ -235,8 +236,8 @@ void register_runtime_functions() {
 
     // --- Register SPLIT and JOIN string/list functions ---
     register_runtime_function("APND", 2, reinterpret_cast<void*>(BCPL_LIST_APPEND_INT));
-    register_runtime_function("SPLIT", 2, reinterpret_cast<void*>(BCPL_SPLIT_STRING), FunctionType::STANDARD, VarType::POINTER_TO_STRING_LIST);
-    register_runtime_function("JOIN", 2, reinterpret_cast<void*>(BCPL_JOIN_LIST), FunctionType::STANDARD, VarType::POINTER_TO_STRING);
+    register_runtime_function("SPLIT", 2, reinterpret_cast<void*>(::SPLIT), FunctionType::STANDARD, VarType::POINTER_TO_STRING_LIST);
+    register_runtime_function("JOIN", 2, reinterpret_cast<void*>(::JOIN), FunctionType::STANDARD, VarType::POINTER_TO_STRING);
     
     // String functions
     register_runtime_function("STRCOPY", 2, reinterpret_cast<void*>(STRCOPY));

@@ -15,6 +15,7 @@
 #include "runtime/RuntimeBridge.h"
 
 #include "RuntimeSymbols.h"
+#include "RuntimeRegistry.h"
 #include <iostream>
 #include "HeapManager/HeapManager.h"
 #include <fstream>
@@ -172,7 +173,7 @@ bool parse_arguments(int argc, char* argv[], bool& run_jit, bool& generate_asm, 
                     bool& format_code, bool& trace_class_table, bool& trace_vtables,
                     bool& bounds_checking_enabled, bool& enable_samm, bool& enable_superdisc,
                     bool& use_neon, bool& generate_list, bool& test_encoders,
-                    bool& test_encode, std::string& test_encode_name, bool& list_encoders,
+                    bool& test_encode, std::string& test_encode_name, bool& list_encoders, bool& list_runtime,
                     std::string& input_filepath, std::string& call_entry_name, int& offset_instructions,
                     std::vector<std::string>& include_paths, std::string& runtime_mode);
 void handle_static_compilation(bool exec_mode, const std::string& base_name, const InstructionStream& instruction_stream, const DataGenerator& data_generator, bool enable_debug_output, const std::string& runtime_mode, const VeneerManager& veneer_manager, bool generate_list, const std::string& initial_working_dir);
@@ -234,6 +235,7 @@ int main(int argc, char* argv[]) {
     bool test_encode = false; // Individual encoder testing mode
     std::string test_encode_name; // Name of specific encoder to test
     bool list_encoders = false; // List available encoders mode
+    bool list_runtime = false; // List available runtime functions mode
 
     if (enable_tracing) {
         std::cout << "Debug: About to parse arguments\n";
@@ -249,7 +251,7 @@ int main(int argc, char* argv[]) {
                             trace_vtables,
                             bounds_checking_enabled, enable_samm,
                             enable_superdisc, use_neon, generate_list, test_encoders,
-                            test_encode, test_encode_name, list_encoders,
+                            test_encode, test_encode_name, list_encoders, list_runtime,
                             input_filepath, call_entry_name, offset_instructions, include_paths, runtime_mode)) {
             if (enable_tracing) {
                 std::cout << "Debug: parse_arguments returned false\n";
@@ -286,6 +288,12 @@ int main(int argc, char* argv[]) {
             success = tester.run_single_test(test_encode_name);
         }
         return success ? 0 : 1;
+    }
+    
+    // Check if we should list available runtime functions
+    if (list_runtime) {
+        ListRuntimeFunctions();
+        return 0;
     }
     
     // Check if we should list available encoders
@@ -1062,7 +1070,7 @@ bool parse_arguments(int argc, char* argv[], bool& run_jit, bool& generate_asm, 
                     bool& format_code, bool& trace_class_table, bool& trace_vtables,
                     bool& bounds_checking_enabled, bool& enable_samm,
                     bool& enable_superdisc, bool& use_neon, bool& generate_list, bool& test_encoders,
-                    bool& test_encode, std::string& test_encode_name, bool& list_encoders,
+                    bool& test_encode, std::string& test_encode_name, bool& list_encoders, bool& list_runtime,
                     std::string& input_filepath, std::string& call_entry_name, int& offset_instructions,
                     std::vector<std::string>& include_paths, std::string& runtime_mode) {
     if (enable_tracing) {
@@ -1117,6 +1125,7 @@ bool parse_arguments(int argc, char* argv[], bool& run_jit, bool& generate_asm, 
             }
         }
         else if (arg == "--list-encoders") list_encoders = true;
+        else if (arg == "--list-runtime") list_runtime = true;
         else if (arg.substr(0, 10) == "--runtime=") {
             runtime_mode = arg.substr(10);
             if (runtime_mode != "jit" && runtime_mode != "standalone" && runtime_mode != "unified") {
@@ -1173,6 +1182,7 @@ bool parse_arguments(int argc, char* argv[], bool& run_jit, bool& generate_asm, 
                       << "  --test-encoders        : Run all encoder validation tests (53 total).\n"
                       << "  --test-encode <name>   : Run validation for specific encoder or pattern.\n"
                       << "  --list-encoders        : Show all available encoder names.\n"
+                      << "  --list-runtime         : Show all available runtime functions.\n"
                       << "  -I path, --include-path path : Add directory to include search path for GET directives.\n"
                       << "                          Multiple -I flags can be specified for additional paths.\n"
                       << "                          Search order: 1) Current file's directory 2) Specified include paths\n"
@@ -1231,7 +1241,7 @@ bool parse_arguments(int argc, char* argv[], bool& run_jit, bool& generate_asm, 
         }
     }
 
-    if (input_filepath.empty() && !test_encoders && !test_encode && !list_encoders) {
+    if (input_filepath.empty() && !test_encoders && !test_encode && !list_encoders && !list_runtime) {
         if (enable_tracing) {
             std::cerr << "Debug: No input file specified.\n";
         }

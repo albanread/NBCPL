@@ -1,0 +1,77 @@
+
+test_split_join_clean.o:	file format mach-o arm64
+
+Disassembly of section __TEXT,__text:
+
+0000000000000000 <ltmp0>:
+       0: 14000001     	b	0x4 <ltmp0+0x4>
+       4: a9b77bfd     	stp	x29, x30, [sp, #-0x90]!
+       8: 910003fd     	mov	x29, sp
+       c: a90453b3     	stp	x19, x20, [x29, #0x40]
+      10: a9055bb5     	stp	x21, x22, [x29, #0x50]
+      14: a90663b7     	stp	x23, x24, [x29, #0x60]
+      18: a9076bb9     	stp	x25, x26, [x29, #0x70]
+      1c: a90873bb     	stp	x27, x28, [x29, #0x80]
+      20: 9000001c     	adrp	x28, 0x0 <ltmp0>
+      24: 9100039c     	add	x28, x28, #0x0
+      28: 90000009     	adrp	x9, 0x0 <ltmp0>
+      2c: 91000129     	add	x9, x9, #0x0
+      30: aa0903f9     	mov	x25, x9
+      34: aa1903f4     	mov	x20, x25
+      38: 90000009     	adrp	x9, 0x0 <ltmp0>
+      3c: 91000129     	add	x9, x9, #0x0
+      40: aa0903f4     	mov	x20, x9
+      44: aa1403e0     	mov	x0, x20
+      48: aa1403e1     	mov	x1, x20
+      4c: 94000000     	bl	0x4c <ltmp0+0x4c>
+      50: aa0003fb     	mov	x27, x0
+      54: aa1b03f4     	mov	x20, x27
+      58: 9000000a     	adrp	x10, 0x0 <ltmp0>
+      5c: 9100014a     	add	x10, x10, #0x0
+      60: aa0a03f4     	mov	x20, x10
+      64: aa1403e0     	mov	x0, x20
+      68: aa1403e1     	mov	x1, x20
+      6c: 94000000     	bl	0x6c <ltmp0+0x6c>
+      70: aa0003f8     	mov	x24, x0
+      74: aa1803e0     	mov	x0, x24
+      78: 94000000     	bl	0x78 <ltmp0+0x78>
+      7c: 90000009     	adrp	x9, 0x0 <ltmp0>
+      80: 91000129     	add	x9, x9, #0x0
+      84: aa0903e0     	mov	x0, x9
+      88: 94000000     	bl	0x88 <ltmp0+0x88>
+      8c: 90000009     	adrp	x9, 0x0 <ltmp0>
+      90: 91000129     	add	x9, x9, #0x0
+      94: aa0903f7     	mov	x23, x9
+      98: aa1703f4     	mov	x20, x23
+      9c: 90000009     	adrp	x9, 0x0 <ltmp0>
+      a0: 91000129     	add	x9, x9, #0x0
+      a4: aa0903f4     	mov	x20, x9
+      a8: aa1403e0     	mov	x0, x20
+      ac: aa1403e1     	mov	x1, x20
+      b0: 94000000     	bl	0xb0 <ltmp0+0xb0>
+      b4: aa0003fa     	mov	x26, x0
+      b8: aa1a03f4     	mov	x20, x26
+      bc: 9000000a     	adrp	x10, 0x0 <ltmp0>
+      c0: 9100014a     	add	x10, x10, #0x0
+      c4: aa0a03f4     	mov	x20, x10
+      c8: aa1403e0     	mov	x0, x20
+      cc: aa1403e1     	mov	x1, x20
+      d0: 94000000     	bl	0xd0 <ltmp0+0xd0>
+      d4: aa0003f6     	mov	x22, x0
+      d8: aa1603e0     	mov	x0, x22
+      dc: 94000000     	bl	0xdc <ltmp0+0xdc>
+      e0: 90000009     	adrp	x9, 0x0 <ltmp0>
+      e4: 91000129     	add	x9, x9, #0x0
+      e8: aa0903e0     	mov	x0, x9
+      ec: 94000000     	bl	0xec <ltmp0+0xec>
+      f0: 14000001     	b	0xf4 <ltmp0+0xf4>
+      f4: 14000001     	b	0xf8 <ltmp0+0xf8>
+      f8: a94453b3     	ldp	x19, x20, [x29, #0x40]
+      fc: a9455bb5     	ldp	x21, x22, [x29, #0x50]
+     100: a94663b7     	ldp	x23, x24, [x29, #0x60]
+     104: a9476bb9     	ldp	x25, x26, [x29, #0x70]
+     108: a94873bb     	ldp	x27, x28, [x29, #0x80]
+     10c: 910003bf     	mov	sp, x29
+     110: a9407bfd     	ldp	x29, x30, [sp]
+     114: 910043ff     	add	sp, sp, #0x10
+     118: d65f03c0     	ret

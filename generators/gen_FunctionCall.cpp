@@ -320,6 +320,42 @@ void NewCodeGenerator::handle_regular_call(FunctionCall& node, const std::vector
     if (auto* var_access = dynamic_cast<VariableAccess*>(node.function_expr.get())) {
         function_name = var_access->name;
     }
+    
+    // FAIL-FAST: Check if function exists before doing any work
+    if (!function_name.empty()) {
+        bool function_exists = false;
+        
+        // Check internal functions
+        if (ASTAnalyzer::getInstance().get_function_metrics().count(function_name) > 0) {
+            function_exists = true;
+        }
+        // Check external functions with veneers
+        else if (veneer_manager_.has_veneer(function_name)) {
+            function_exists = true;
+        }
+        // Check runtime functions
+        else if (RuntimeManager::instance().is_function_registered(function_name)) {
+            function_exists = true;
+        }
+        // Check if it's a variable/function pointer
+        else {
+            Symbol symbol;
+            if (symbol_table_->lookup(function_name, symbol)) {
+                function_exists = true;
+            }
+        }
+        
+        if (!function_exists) {
+            throw std::runtime_error("Compilation Error: Function '" + function_name + "' is not defined.\n" +
+                "This function was not found in:\n" +
+                "  - User-defined functions\n" +
+                "  - Built-in/runtime functions\n" +
+                "  - External function veneers\n" +
+                "  - Variable/function pointer symbols\n" +
+                "Please check your spelling or ensure the function is declared/imported.");
+        }
+    }
+    
     bool is_float_call = is_float_function_call(node);
     
     // Debug output for float function detection
@@ -383,9 +419,9 @@ void NewCodeGenerator::handle_regular_call(FunctionCall& node, const std::vector
                 emit(Encoder::create_branch_with_link_register(expression_result_reg_));
                 register_manager_.release_register(expression_result_reg_);
             } else {
-                std::cerr << "DEBUG: Function not found anywhere - throwing error" << std::endl;
-                throw std::runtime_error("ERROR: Function '" + var_access->name + "' is not defined. " +
-                    "Check if it's declared, defined, or registered as a runtime function.");
+                // This should never happen now due to fail-fast check above
+                std::cerr << "INTERNAL ERROR: Function validation failed - this should have been caught earlier" << std::endl;
+                throw std::runtime_error("Internal compiler error: Function '" + var_access->name + "' validation failed.");
             }
         }
     } else {

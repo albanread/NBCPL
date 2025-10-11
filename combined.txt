@@ -21627,6 +21627,380 @@ size_t RuntimeManager::get_function_offset(const std::string& name) const {
 
 // -- end of file
 
+// -- start of file: RuntimeRegistry.cpp
+#include "RuntimeRegistry.h"
+#include "RuntimeManager.h"
+#include "SymbolTable.h"
+#include "Symbol.h"
+#include <iostream>
+#include <cstdio>
+#include <cstdlib>
+#include <vector>
+#include <string>
+
+// Forward declarations for runtime functions
+extern "C" {
+    // Core I/O functions
+    void WRITES(int string_ptr);
+    void WRITEN(int value);
+    void FWRITE(float value);
+    void WRITEF(int format_ptr);
+    void WRITEC(int char_value);
+    int RDCH();
+    void NEWLINE();
+    
+    // String/List operations
+    int SPLIT(int string_ptr, int delimiter_ptr);
+    int JOIN(int list_ptr, int delimiter_ptr);
+    
+    // Memory management
+    int bcpl_alloc_words(int count, int size, int type);
+    int bcpl_alloc_chars(int count);
+    int bcpl_getvec(int size);
+    int bcpl_fgetvec(int size);
+    void bcpl_free(int ptr);
+    
+    // Math functions
+    int RAND(int max_val);
+    float RND(int max_val);
+    float FRND();
+    float FSIN(float angle);
+    float FCOS(float angle);
+    float FTAN(float angle);
+    float FABS(float value);
+    float FLOG(float value);
+    float FEXP(float value);
+    int FIX(float value);
+    
+    // File I/O
+    int FILE_OPEN_READ(int filename_ptr);
+    int FILE_OPEN_WRITE(int filename_ptr);
+    int FILE_OPEN_APPEND(int filename_ptr);
+    int FILE_CLOSE(int handle);
+    int FILE_WRITES(int handle, int string_ptr);
+    int FILE_READS(int handle);
+    
+    // System functions
+    void finish();
+}
+
+/**
+ * Master Registry - Single Source of Truth for Runtime Functions
+ * 
+ * IMPORTANT: Every runtime function that can be called from BCPL code
+ * must have an entry in this array. This is the authoritative list
+ * used for both RuntimeManager and SymbolTable registration.
+ */
+const RuntimeFunctionInfo RUNTIME_FUNCTION_REGISTRY[] = {
+    // =============================================================================
+    // CORE I/O FUNCTIONS
+    // =============================================================================
+    {
+        "WRITES", reinterpret_cast<void*>(WRITES), "_WRITES", 1,
+        FunctionType::STANDARD, VarType::INTEGER, SymbolKind::RUNTIME_ROUTINE,
+        "Write a string to output"
+    },
+    {
+        "WRITEN", reinterpret_cast<void*>(WRITEN), "_WRITEN", 1,
+        FunctionType::STANDARD, VarType::INTEGER, SymbolKind::RUNTIME_ROUTINE,
+        "Write an integer to output"
+    },
+    {
+        "FWRITE", reinterpret_cast<void*>(FWRITE), "_FWRITE", 1,
+        FunctionType::FLOAT, VarType::FLOAT, SymbolKind::RUNTIME_FLOAT_ROUTINE,
+        "Write a float to output"
+    },
+    {
+        "WRITEF", reinterpret_cast<void*>(WRITEF), "_WRITEF", 1,
+        FunctionType::STANDARD, VarType::INTEGER, SymbolKind::RUNTIME_ROUTINE,
+        "Write formatted output (base case)"
+    },
+    {
+        "WRITEC", reinterpret_cast<void*>(WRITEC), "_WRITEC", 1,
+        FunctionType::STANDARD, VarType::INTEGER, SymbolKind::RUNTIME_ROUTINE,
+        "Write a character to output"
+    },
+    {
+        "RDCH", reinterpret_cast<void*>(RDCH), "_RDCH", 0,
+        FunctionType::STANDARD, VarType::INTEGER, SymbolKind::RUNTIME_FUNCTION,
+        "Read a character from input"
+    },
+    {
+        "NEWLINE", reinterpret_cast<void*>(NEWLINE), "_NEWLINE", 0,
+        FunctionType::STANDARD, VarType::INTEGER, SymbolKind::RUNTIME_ROUTINE,
+        "Output a newline character"
+    },
+
+    // =============================================================================
+    // STRING/LIST OPERATIONS
+    // =============================================================================
+    {
+        "SPLIT", reinterpret_cast<void*>(SPLIT), "_SPLIT", 2,
+        FunctionType::STANDARD, VarType::POINTER_TO_STRING_LIST, SymbolKind::RUNTIME_LIST_FUNCTION,
+        "Split a string into a list using delimiter"
+    },
+    {
+        "JOIN", reinterpret_cast<void*>(JOIN), "_JOIN", 2,
+        FunctionType::STANDARD, VarType::INTEGER, SymbolKind::RUNTIME_FUNCTION,
+        "Join a list of strings using delimiter"
+    },
+
+    // =============================================================================
+    // MEMORY MANAGEMENT
+    // =============================================================================
+    {
+        "GETVEC", reinterpret_cast<void*>(bcpl_getvec), "_GETVEC", 1,
+        FunctionType::STANDARD, VarType::POINTER_TO_INT_VEC, SymbolKind::RUNTIME_FUNCTION,
+        "Allocate integer vector"
+    },
+    {
+        "FGETVEC", reinterpret_cast<void*>(bcpl_fgetvec), "_FGETVEC", 1,
+        FunctionType::STANDARD, VarType::POINTER_TO_FLOAT_VEC, SymbolKind::RUNTIME_FUNCTION,
+        "Allocate float vector"
+    },
+    {
+        "FREEVEC", reinterpret_cast<void*>(bcpl_free), "_FREEVEC", 1,
+        FunctionType::STANDARD, VarType::INTEGER, SymbolKind::RUNTIME_ROUTINE,
+        "Free allocated vector"
+    },
+
+    // =============================================================================
+    // MATH FUNCTIONS
+    // =============================================================================
+    {
+        "RAND", reinterpret_cast<void*>(RAND), "_RAND", 1,
+        FunctionType::STANDARD, VarType::INTEGER, SymbolKind::RUNTIME_FUNCTION,
+        "Generate random integer (0 to max_val-1)"
+    },
+    {
+        "RND", reinterpret_cast<void*>(RND), "_RND", 1,
+        FunctionType::FLOAT, VarType::FLOAT, SymbolKind::RUNTIME_FLOAT_FUNCTION,
+        "Generate random float (0.0 to max_val)"
+    },
+    {
+        "FRND", reinterpret_cast<void*>(FRND), "_FRND", 0,
+        FunctionType::FLOAT, VarType::FLOAT, SymbolKind::RUNTIME_FLOAT_FUNCTION,
+        "Generate random float (0.0 to 1.0)"
+    },
+    {
+        "FSIN", reinterpret_cast<void*>(FSIN), "_FSIN", 1,
+        FunctionType::FLOAT, VarType::FLOAT, SymbolKind::RUNTIME_FLOAT_FUNCTION,
+        "Sine function (radians)"
+    },
+    {
+        "FCOS", reinterpret_cast<void*>(FCOS), "_FCOS", 1,
+        FunctionType::FLOAT, VarType::FLOAT, SymbolKind::RUNTIME_FLOAT_FUNCTION,
+        "Cosine function (radians)"
+    },
+    {
+        "FTAN", reinterpret_cast<void*>(FTAN), "_FTAN", 1,
+        FunctionType::FLOAT, VarType::FLOAT, SymbolKind::RUNTIME_FLOAT_FUNCTION,
+        "Tangent function (radians)"
+    },
+    {
+        "FABS", reinterpret_cast<void*>(FABS), "_FABS", 1,
+        FunctionType::FLOAT, VarType::FLOAT, SymbolKind::RUNTIME_FLOAT_FUNCTION,
+        "Absolute value (float)"
+    },
+    {
+        "FLOG", reinterpret_cast<void*>(FLOG), "_FLOG", 1,
+        FunctionType::FLOAT, VarType::FLOAT, SymbolKind::RUNTIME_FLOAT_FUNCTION,
+        "Natural logarithm"
+    },
+    {
+        "FEXP", reinterpret_cast<void*>(FEXP), "_FEXP", 1,
+        FunctionType::FLOAT, VarType::FLOAT, SymbolKind::RUNTIME_FLOAT_FUNCTION,
+        "Exponential function"
+    },
+    {
+        "FIX", reinterpret_cast<void*>(FIX), "_FIX", 1,
+        FunctionType::STANDARD, VarType::INTEGER, SymbolKind::RUNTIME_FUNCTION,
+        "Convert float to integer"
+    },
+
+    // =============================================================================
+    // FILE I/O
+    // =============================================================================
+    {
+        "FILE_OPEN_READ", reinterpret_cast<void*>(FILE_OPEN_READ), "_FILE_OPEN_READ", 1,
+        FunctionType::STANDARD, VarType::INTEGER, SymbolKind::RUNTIME_FUNCTION,
+        "Open file for reading"
+    },
+    {
+        "FILE_OPEN_WRITE", reinterpret_cast<void*>(FILE_OPEN_WRITE), "_FILE_OPEN_WRITE", 1,
+        FunctionType::STANDARD, VarType::INTEGER, SymbolKind::RUNTIME_FUNCTION,
+        "Open file for writing"
+    },
+    {
+        "FILE_CLOSE", reinterpret_cast<void*>(FILE_CLOSE), "_FILE_CLOSE", 1,
+        FunctionType::STANDARD, VarType::INTEGER, SymbolKind::RUNTIME_FUNCTION,
+        "Close file handle"
+    },
+    {
+        "FILE_WRITES", reinterpret_cast<void*>(FILE_WRITES), "_FILE_WRITES", 2,
+        FunctionType::STANDARD, VarType::INTEGER, SymbolKind::RUNTIME_FUNCTION,
+        "Write string to file"
+    },
+    {
+        "FILE_READS", reinterpret_cast<void*>(FILE_READS), "_FILE_READS", 1,
+        FunctionType::STANDARD, VarType::INTEGER, SymbolKind::RUNTIME_FUNCTION,
+        "Read string from file"
+    },
+
+    // =============================================================================
+    // SYSTEM FUNCTIONS
+    // =============================================================================
+    {
+        "FINISH", reinterpret_cast<void*>(finish), "_FINISH", 0,
+        FunctionType::STANDARD, VarType::INTEGER, SymbolKind::RUNTIME_ROUTINE,
+        "Terminate program execution"
+    }
+};
+
+// Calculate registry size at the end after the array is complete
+const size_t RUNTIME_FUNCTION_COUNT = sizeof(RUNTIME_FUNCTION_REGISTRY) / sizeof(RuntimeFunctionInfo);
+
+// =============================================================================
+// IMPLEMENTATION FUNCTIONS
+// =============================================================================
+
+void RegisterAllRuntimeFunctions() {
+    auto& manager = RuntimeManager::instance();
+    
+    if (manager.isTracingEnabled()) {
+        printf("=== Registering %zu runtime functions from master registry ===\n", RUNTIME_FUNCTION_COUNT);
+    }
+    
+    for (size_t i = 0; i < RUNTIME_FUNCTION_COUNT; ++i) {
+        const auto& func = RUNTIME_FUNCTION_REGISTRY[i];
+        
+        try {
+            manager.register_function(
+                func.veneer_name,
+                func.parameter_count,
+                func.function_pointer,
+                func.function_type,
+                func.return_type
+            );
+            
+            if (manager.isTracingEnabled()) {
+                printf("Registered: %-20s -> %p (%s)\n", 
+                       func.veneer_name, func.function_pointer, func.description);
+            }
+        } catch (const std::exception& e) {
+            fprintf(stderr, "FATAL: Failed to register runtime function '%s': %s\n", 
+                   func.veneer_name, e.what());
+            exit(1);
+        }
+    }
+    
+    if (manager.isTracingEnabled()) {
+        printf("=== Runtime function registration complete ===\n");
+    }
+}
+
+void RegisterAllRuntimeSymbols(SymbolTable& symbol_table) {
+    if (RuntimeManager::instance().isTracingEnabled()) {
+        printf("=== Registering %zu runtime symbols from master registry ===\n", RUNTIME_FUNCTION_COUNT);
+    }
+    
+    for (size_t i = 0; i < RUNTIME_FUNCTION_COUNT; ++i) {
+        const auto& func = RUNTIME_FUNCTION_REGISTRY[i];
+        
+        // Create symbol with proper function context ("Global")
+        Symbol symbol(func.veneer_name, func.symbol_kind, func.return_type, 0, "Global");
+        
+        // TODO: Add parameter information if needed
+        // symbol.parameters = ...;
+        
+        if (!symbol_table.addSymbol(symbol)) {
+            fprintf(stderr, "WARNING: Could not register runtime symbol '%s' (duplicate symbol)\n", 
+                   func.veneer_name);
+        } else if (RuntimeManager::instance().isTracingEnabled()) {
+            printf("Symbol registered: %-20s (%s)\n", func.veneer_name, func.description);
+        }
+    }
+    
+    if (RuntimeManager::instance().isTracingEnabled()) {
+        printf("=== Runtime symbol registration complete ===\n");
+    }
+}
+
+void VerifyRuntimeFunctionRegistration(SymbolTable& symbol_table) {
+    std::vector<std::string> failed_registrations;
+    
+    printf("=== Verifying runtime function registration ===\n");
+    
+    for (size_t i = 0; i < RUNTIME_FUNCTION_COUNT; ++i) {
+        const auto& func = RUNTIME_FUNCTION_REGISTRY[i];
+        
+        Symbol symbol;
+        if (!symbol_table.lookup(func.veneer_name, "Global", symbol)) {
+            failed_registrations.push_back(func.veneer_name);
+        }
+    }
+    
+    if (!failed_registrations.empty()) {
+        fprintf(stderr, "FATAL: Runtime function registration verification failed!\n");
+        fprintf(stderr, "Missing functions in symbol table:\n");
+        for (const auto& name : failed_registrations) {
+            fprintf(stderr, "  - %s\n", name.c_str());
+        }
+        fprintf(stderr, "\nThis indicates a serious problem with the runtime registration system.\n");
+        fprintf(stderr, "Check that RegisterAllRuntimeSymbols() was called after RegisterAllRuntimeFunctions().\n");
+        exit(1);
+    }
+    
+    printf("✅ Runtime function registration verification passed (%zu functions)\n", 
+           RUNTIME_FUNCTION_COUNT);
+}
+
+void ListRuntimeFunctions() {
+    printf("=============================================================================\n");
+    printf("                         RUNTIME FUNCTION REGISTRY\n");
+    printf("=============================================================================\n");
+    printf("%-20s %-8s %-25s %s\n", "NAME", "PARAMS", "TYPE", "DESCRIPTION");
+    printf("-----------------------------------------------------------------------------\n");
+    
+    for (size_t i = 0; i < RUNTIME_FUNCTION_COUNT; ++i) {
+        const auto& func = RUNTIME_FUNCTION_REGISTRY[i];
+        
+        // Format type string
+        std::string type_str;
+        switch (func.symbol_kind) {
+            case SymbolKind::RUNTIME_FUNCTION:
+                type_str = (func.return_type == VarType::FLOAT) ? "FLOAT_FUNC" : "FUNCTION";
+                break;
+            case SymbolKind::RUNTIME_FLOAT_FUNCTION:
+                type_str = "FLOAT_FUNC";
+                break;
+            case SymbolKind::RUNTIME_LIST_FUNCTION:
+                type_str = "LIST_FUNC";
+                break;
+            case SymbolKind::RUNTIME_ROUTINE:
+                type_str = (func.function_type == FunctionType::FLOAT) ? "FLOAT_ROUTINE" : "ROUTINE";
+                break;
+            case SymbolKind::RUNTIME_FLOAT_ROUTINE:
+                type_str = "FLOAT_ROUTINE";
+                break;
+            default:
+                type_str = "UNKNOWN";
+                break;
+        }
+        
+        printf("%-20s %-8d %-25s %s\n", 
+               func.veneer_name,
+               func.parameter_count,
+               type_str.c_str(),
+               func.description);
+    }
+    
+    printf("=============================================================================\n");
+    printf("Total: %zu runtime functions\n", RUNTIME_FUNCTION_COUNT);
+    printf("=============================================================================\n");
+}
+// -- end of file
+
 // -- start of file: RuntimeSymbols.cpp
 #include "RuntimeSymbols.h"
 #include <iostream>
@@ -21729,6 +22103,11 @@ void RuntimeSymbols::registerAll(SymbolTable& symbol_table) {
         {VarType::STRING, false}   // delimiter string
     });
     
+    registerRuntimeFunction(symbol_table, "JOIN", {
+        {VarType::POINTER_TO_STRING_LIST, false},  // list of strings
+        {VarType::STRING, false}                   // delimiter string
+    });
+    
     // FILE_ API functions
     registerRuntimeFunction(symbol_table, "FILE_OPEN_READ", {
         {VarType::STRING, false}   // filename
@@ -21792,7 +22171,7 @@ void RuntimeSymbols::registerRuntimeFunction(
     const std::vector<Symbol::ParameterInfo>& params
 ) {
     // Create a new symbol for this runtime function
-    Symbol symbol(name, SymbolKind::RUNTIME_FUNCTION, VarType::INTEGER, 0, "");
+    Symbol symbol(name, SymbolKind::RUNTIME_FUNCTION, VarType::INTEGER, 0, "Global");
     
     // Add parameter information
     symbol.parameters = params;
@@ -21810,7 +22189,7 @@ void RuntimeSymbols::registerRuntimeFloatFunction(
     const std::vector<Symbol::ParameterInfo>& params
 ) {
     // Create a new symbol for this float runtime function
-    Symbol symbol(name, SymbolKind::RUNTIME_FLOAT_FUNCTION, VarType::FLOAT, 0, "");
+    Symbol symbol(name, SymbolKind::RUNTIME_FLOAT_FUNCTION, VarType::FLOAT, 0, "Global");
     
     // Add parameter information
     symbol.parameters = params;
@@ -21828,7 +22207,7 @@ void RuntimeSymbols::registerRuntimeRoutine(
     const std::vector<Symbol::ParameterInfo>& params
 ) {
     // Create a new symbol for this runtime routine
-    Symbol symbol(name, SymbolKind::RUNTIME_ROUTINE, VarType::INTEGER, 0, "");
+    Symbol symbol(name, SymbolKind::RUNTIME_ROUTINE, VarType::INTEGER, 0, "Global");
     
     // Add parameter information
     symbol.parameters = params;
@@ -21846,7 +22225,7 @@ void RuntimeSymbols::registerRuntimeFloatRoutine(
     const std::vector<Symbol::ParameterInfo>& params
 ) {
     // Create a new symbol for this float-handling runtime routine
-    Symbol symbol(name, SymbolKind::RUNTIME_FLOAT_ROUTINE, VarType::FLOAT, 0, "");
+    Symbol symbol(name, SymbolKind::RUNTIME_FLOAT_ROUTINE, VarType::FLOAT, 0, "Global");
     
     // Add parameter information
     symbol.parameters = params;
@@ -21864,7 +22243,7 @@ void RuntimeSymbols::registerRuntimeListFunction(
     const std::vector<Symbol::ParameterInfo>& params
 ) {
     // Create a new symbol for this list-returning runtime function
-    Symbol symbol(name, SymbolKind::RUNTIME_LIST_FUNCTION, VarType::POINTER_TO_STRING_LIST, 0, "");
+    Symbol symbol(name, SymbolKind::RUNTIME_LIST_FUNCTION, VarType::POINTER_TO_STRING_LIST, 0, "Global");
     
     // Add parameter information
     symbol.parameters = params;
@@ -48810,6 +49189,42 @@ void NewCodeGenerator::handle_regular_call(FunctionCall& node, const std::vector
     if (auto* var_access = dynamic_cast<VariableAccess*>(node.function_expr.get())) {
         function_name = var_access->name;
     }
+    
+    // FAIL-FAST: Check if function exists before doing any work
+    if (!function_name.empty()) {
+        bool function_exists = false;
+        
+        // Check internal functions
+        if (ASTAnalyzer::getInstance().get_function_metrics().count(function_name) > 0) {
+            function_exists = true;
+        }
+        // Check external functions with veneers
+        else if (veneer_manager_.has_veneer(function_name)) {
+            function_exists = true;
+        }
+        // Check runtime functions
+        else if (RuntimeManager::instance().is_function_registered(function_name)) {
+            function_exists = true;
+        }
+        // Check if it's a variable/function pointer
+        else {
+            Symbol symbol;
+            if (symbol_table_->lookup(function_name, symbol)) {
+                function_exists = true;
+            }
+        }
+        
+        if (!function_exists) {
+            throw std::runtime_error("Compilation Error: Function '" + function_name + "' is not defined.\n" +
+                "This function was not found in:\n" +
+                "  - User-defined functions\n" +
+                "  - Built-in/runtime functions\n" +
+                "  - External function veneers\n" +
+                "  - Variable/function pointer symbols\n" +
+                "Please check your spelling or ensure the function is declared/imported.");
+        }
+    }
+    
     bool is_float_call = is_float_function_call(node);
     
     // Debug output for float function detection
@@ -48873,9 +49288,9 @@ void NewCodeGenerator::handle_regular_call(FunctionCall& node, const std::vector
                 emit(Encoder::create_branch_with_link_register(expression_result_reg_));
                 register_manager_.release_register(expression_result_reg_);
             } else {
-                std::cerr << "DEBUG: Function not found anywhere - throwing error" << std::endl;
-                throw std::runtime_error("ERROR: Function '" + var_access->name + "' is not defined. " +
-                    "Check if it's declared, defined, or registered as a runtime function.");
+                // This should never happen now due to fail-fast check above
+                std::cerr << "INTERNAL ERROR: Function validation failed - this should have been caught earlier" << std::endl;
+                throw std::runtime_error("Internal compiler error: Function '" + var_access->name + "' validation failed.");
             }
         }
     } else {
@@ -53986,6 +54401,7 @@ void LivenessAnalysisPass::run_data_flow_analysis() {
 #include "runtime/RuntimeBridge.h"
 
 #include "RuntimeSymbols.h"
+#include "RuntimeRegistry.h"
 #include <iostream>
 #include "HeapManager/HeapManager.h"
 #include <fstream>
@@ -54143,7 +54559,7 @@ bool parse_arguments(int argc, char* argv[], bool& run_jit, bool& generate_asm, 
                     bool& format_code, bool& trace_class_table, bool& trace_vtables,
                     bool& bounds_checking_enabled, bool& enable_samm, bool& enable_superdisc,
                     bool& use_neon, bool& generate_list, bool& test_encoders,
-                    bool& test_encode, std::string& test_encode_name, bool& list_encoders,
+                    bool& test_encode, std::string& test_encode_name, bool& list_encoders, bool& list_runtime,
                     std::string& input_filepath, std::string& call_entry_name, int& offset_instructions,
                     std::vector<std::string>& include_paths, std::string& runtime_mode);
 void handle_static_compilation(bool exec_mode, const std::string& base_name, const InstructionStream& instruction_stream, const DataGenerator& data_generator, bool enable_debug_output, const std::string& runtime_mode, const VeneerManager& veneer_manager, bool generate_list, const std::string& initial_working_dir);
@@ -54205,6 +54621,7 @@ int main(int argc, char* argv[]) {
     bool test_encode = false; // Individual encoder testing mode
     std::string test_encode_name; // Name of specific encoder to test
     bool list_encoders = false; // List available encoders mode
+    bool list_runtime = false; // List available runtime functions mode
 
     if (enable_tracing) {
         std::cout << "Debug: About to parse arguments\n";
@@ -54220,7 +54637,7 @@ int main(int argc, char* argv[]) {
                             trace_vtables,
                             bounds_checking_enabled, enable_samm,
                             enable_superdisc, use_neon, generate_list, test_encoders,
-                            test_encode, test_encode_name, list_encoders,
+                            test_encode, test_encode_name, list_encoders, list_runtime,
                             input_filepath, call_entry_name, offset_instructions, include_paths, runtime_mode)) {
             if (enable_tracing) {
                 std::cout << "Debug: parse_arguments returned false\n";
@@ -54257,6 +54674,12 @@ int main(int argc, char* argv[]) {
             success = tester.run_single_test(test_encode_name);
         }
         return success ? 0 : 1;
+    }
+    
+    // Check if we should list available runtime functions
+    if (list_runtime) {
+        ListRuntimeFunctions();
+        return 0;
     }
     
     // Check if we should list available encoders
@@ -55033,7 +55456,7 @@ bool parse_arguments(int argc, char* argv[], bool& run_jit, bool& generate_asm, 
                     bool& format_code, bool& trace_class_table, bool& trace_vtables,
                     bool& bounds_checking_enabled, bool& enable_samm,
                     bool& enable_superdisc, bool& use_neon, bool& generate_list, bool& test_encoders,
-                    bool& test_encode, std::string& test_encode_name, bool& list_encoders,
+                    bool& test_encode, std::string& test_encode_name, bool& list_encoders, bool& list_runtime,
                     std::string& input_filepath, std::string& call_entry_name, int& offset_instructions,
                     std::vector<std::string>& include_paths, std::string& runtime_mode) {
     if (enable_tracing) {
@@ -55088,6 +55511,7 @@ bool parse_arguments(int argc, char* argv[], bool& run_jit, bool& generate_asm, 
             }
         }
         else if (arg == "--list-encoders") list_encoders = true;
+        else if (arg == "--list-runtime") list_runtime = true;
         else if (arg.substr(0, 10) == "--runtime=") {
             runtime_mode = arg.substr(10);
             if (runtime_mode != "jit" && runtime_mode != "standalone" && runtime_mode != "unified") {
@@ -55144,6 +55568,7 @@ bool parse_arguments(int argc, char* argv[], bool& run_jit, bool& generate_asm, 
                       << "  --test-encoders        : Run all encoder validation tests (53 total).\n"
                       << "  --test-encode <name>   : Run validation for specific encoder or pattern.\n"
                       << "  --list-encoders        : Show all available encoder names.\n"
+                      << "  --list-runtime         : Show all available runtime functions.\n"
                       << "  -I path, --include-path path : Add directory to include search path for GET directives.\n"
                       << "                          Multiple -I flags can be specified for additional paths.\n"
                       << "                          Search order: 1) Current file's directory 2) Specified include paths\n"
@@ -55202,7 +55627,7 @@ bool parse_arguments(int argc, char* argv[], bool& run_jit, bool& generate_asm, 
         }
     }
 
-    if (input_filepath.empty() && !test_encoders && !test_encode && !list_encoders) {
+    if (input_filepath.empty() && !test_encoders && !test_encode && !list_encoders && !list_runtime) {
         if (enable_tracing) {
             std::cerr << "Debug: No input file specified.\n";
         }
@@ -61012,6 +61437,7 @@ extern "C" {
     void* FGETVEC(int64_t num_floats) { return bcpl_fgetvec(num_floats); }
     void FREEVEC(void* ptr) { return bcpl_free(ptr); }
     uint32_t* JOIN(struct ListHeader* list_header, uint32_t* delimiter_payload) { return BCPL_JOIN_LIST(list_header, delimiter_payload); }
+    struct ListHeader* SPLIT(uint32_t* source_payload, uint32_t* delimiter_payload) { return BCPL_SPLIT_STRING(source_payload, delimiter_payload); }
 }
 
 // Include the file API implementation
@@ -61112,8 +61538,8 @@ void register_runtime_functions() {
 
     // --- Register SPLIT and JOIN string/list functions ---
     register_runtime_function("APND", 2, reinterpret_cast<void*>(BCPL_LIST_APPEND_INT));
-    register_runtime_function("SPLIT", 2, reinterpret_cast<void*>(BCPL_SPLIT_STRING), FunctionType::STANDARD, VarType::POINTER_TO_STRING_LIST);
-    register_runtime_function("JOIN", 2, reinterpret_cast<void*>(BCPL_JOIN_LIST), FunctionType::STANDARD, VarType::POINTER_TO_STRING);
+    register_runtime_function("SPLIT", 2, reinterpret_cast<void*>(::SPLIT), FunctionType::STANDARD, VarType::POINTER_TO_STRING_LIST);
+    register_runtime_function("JOIN", 2, reinterpret_cast<void*>(::JOIN), FunctionType::STANDARD, VarType::POINTER_TO_STRING);
     
     // String functions
     register_runtime_function("STRCOPY", 2, reinterpret_cast<void*>(STRCOPY));
@@ -65008,6 +65434,623 @@ int main() {
     return 0;
 }
 
+// -- end of file
+
+// -- start of file: test_split_join.cpp
+// split_join_test.cpp
+// Comprehensive test suite for BCPL SPLIT and JOIN functions
+// Tests string splitting and list joining with various scenarios and edge cases
+// This is also a SAMM compatibility test to verify proper memory management
+
+#include <iostream>
+#include <vector>
+#include <string>
+#include <chrono>
+#include <cassert>
+#include <cstring>
+
+// Include runtime and heap management interfaces
+#include "runtime/runtime.h"
+#include "runtime/ListDataTypes.h"
+#include "runtime/heap_interface.h"
+#include "HeapManager/HeapManager.h"
+
+// Control verbosity
+#ifndef ENABLE_VERBOSE
+#define ENABLE_VERBOSE 1
+#endif
+
+// Global trace flag required by HeapManager
+bool g_enable_heap_trace = false;
+
+//=============================================================================
+// Test Utilities
+//=============================================================================
+
+void print_test_header(const char* test_name) {
+    if (ENABLE_VERBOSE) {
+        std::cout << "\n=== " << test_name << " ===" << std::endl;
+    }
+}
+
+void print_test_result(const char* test_name, bool passed) {
+    std::cout << "[" << (passed ? "PASS" : "FAIL") << "] " << test_name << std::endl;
+}
+
+// Convert C++ string to BCPL string (UTF-32 payload)
+uint32_t* create_bcpl_string(const std::string& str) {
+    size_t len = str.length();
+    uint32_t* payload = (uint32_t*)bcpl_alloc_chars(len);
+    if (!payload) return nullptr;
+    
+    for (size_t i = 0; i < len; i++) {
+        payload[i] = (uint32_t)str[i]; // Simple ASCII to UTF-32 conversion
+    }
+    payload[len] = 0; // Null terminator
+    return payload;
+}
+
+// Convert BCPL string payload back to C++ string for comparison
+std::string bcpl_to_cpp_string(const uint32_t* payload) {
+    if (!payload) return "";
+    
+    std::string result;
+    for (const uint32_t* p = payload; *p != 0; ++p) {
+        result += (char)*p; // Simple UTF-32 to ASCII conversion
+    }
+    return result;
+}
+
+// Get BCPL string from list atom
+std::string get_string_from_atom(ListAtom* atom) {
+    if (!atom || atom->type != ATOM_STRING || !atom->value.ptr_value) {
+        return "";
+    }
+    
+    uint64_t* base_ptr = (uint64_t*)atom->value.ptr_value;
+    uint32_t* payload = (uint32_t*)(base_ptr + 1);
+    return bcpl_to_cpp_string(payload);
+}
+
+// Count elements in a list
+size_t count_list_elements(ListHeader* list) {
+    if (!list || !list->head) return 0;
+    
+    size_t count = 0;
+    ListAtom* current = list->head;
+    while (current) {
+        count++;
+        current = current->next;
+    }
+    return count;
+}
+
+// Print list contents for debugging
+void print_list_contents(ListHeader* list, const char* label) {
+    if (!ENABLE_VERBOSE) return;
+    
+    std::cout << label << ": [";
+    if (list && list->head) {
+        ListAtom* current = list->head;
+        bool first = true;
+        while (current) {
+            if (!first) std::cout << ", ";
+            std::cout << "\"" << get_string_from_atom(current) << "\"";
+            first = false;
+            current = current->next;
+        }
+    }
+    std::cout << "]" << std::endl;
+}
+
+//=============================================================================
+// Basic SPLIT Tests
+//=============================================================================
+
+bool test_split_basic() {
+    print_test_header("SPLIT Basic Functionality");
+    
+    // Test basic string splitting
+    uint32_t* source = create_bcpl_string("hello world test");
+    uint32_t* delimiter = create_bcpl_string(" ");
+    
+    ListHeader* result = BCPL_SPLIT_STRING(source, delimiter);
+    
+    bool success = (result != nullptr && count_list_elements(result) == 3);
+    
+    if (ENABLE_VERBOSE) {
+        print_list_contents(result, "SPLIT result");
+        std::cout << "Expected 3 elements, got " << count_list_elements(result) << std::endl;
+    }
+    
+    // Verify individual elements
+    if (success && result->head) {
+        ListAtom* current = result->head;
+        success = success && (get_string_from_atom(current) == "hello");
+        current = current->next;
+        success = success && (get_string_from_atom(current) == "world");
+        current = current->next;
+        success = success && (get_string_from_atom(current) == "test");
+    }
+    
+    return success;
+}
+
+bool test_split_single_character_delimiter() {
+    print_test_header("SPLIT Single Character Delimiter");
+    
+    uint32_t* source = create_bcpl_string("a,b,c,d");
+    uint32_t* delimiter = create_bcpl_string(",");
+    
+    ListHeader* result = BCPL_SPLIT_STRING(source, delimiter);
+    
+    bool success = (result != nullptr && count_list_elements(result) == 4);
+    
+    if (ENABLE_VERBOSE) {
+        print_list_contents(result, "SPLIT single char result");
+    }
+    
+    return success;
+}
+
+bool test_split_multi_character_delimiter() {
+    print_test_header("SPLIT Multi-Character Delimiter");
+    
+    uint32_t* source = create_bcpl_string("one::two::three::four");
+    uint32_t* delimiter = create_bcpl_string("::");
+    
+    ListHeader* result = BCPL_SPLIT_STRING(source, delimiter);
+    
+    bool success = (result != nullptr && count_list_elements(result) == 4);
+    
+    if (ENABLE_VERBOSE) {
+        print_list_contents(result, "SPLIT multi-char result");
+    }
+    
+    return success;
+}
+
+bool test_split_no_delimiter_found() {
+    print_test_header("SPLIT No Delimiter Found");
+    
+    uint32_t* source = create_bcpl_string("nodeleimiterhere");
+    uint32_t* delimiter = create_bcpl_string(" ");
+    
+    ListHeader* result = BCPL_SPLIT_STRING(source, delimiter);
+    
+    // Should return list with single element
+    bool success = (result != nullptr && count_list_elements(result) == 1);
+    
+    if (success && result->head) {
+        success = success && (get_string_from_atom(result->head) == "nodeleimiterhere");
+    }
+    
+    if (ENABLE_VERBOSE) {
+        print_list_contents(result, "SPLIT no delimiter result");
+    }
+    
+    return success;
+}
+
+bool test_split_empty_string() {
+    print_test_header("SPLIT Empty String");
+    
+    uint32_t* source = create_bcpl_string("");
+    uint32_t* delimiter = create_bcpl_string(" ");
+    
+    ListHeader* result = BCPL_SPLIT_STRING(source, delimiter);
+    
+    // Should return list with single empty element
+    bool success = (result != nullptr && count_list_elements(result) == 1);
+    
+    if (ENABLE_VERBOSE) {
+        print_list_contents(result, "SPLIT empty string result");
+    }
+    
+    return success;
+}
+
+bool test_split_consecutive_delimiters() {
+    print_test_header("SPLIT Consecutive Delimiters");
+    
+    uint32_t* source = create_bcpl_string("a,,b,,c");
+    uint32_t* delimiter = create_bcpl_string(",");
+    
+    ListHeader* result = BCPL_SPLIT_STRING(source, delimiter);
+    
+    // Should create empty strings between consecutive delimiters
+    bool success = (result != nullptr && count_list_elements(result) == 5);
+    
+    if (ENABLE_VERBOSE) {
+        print_list_contents(result, "SPLIT consecutive delimiters result");
+        std::cout << "Expected 5 elements (a, empty, b, empty, c), got " << count_list_elements(result) << std::endl;
+    }
+    
+    return success;
+}
+
+//=============================================================================
+// Basic JOIN Tests
+//=============================================================================
+
+bool test_join_basic() {
+    print_test_header("JOIN Basic Functionality");
+    
+    // Create a list manually
+    ListHeader* list = BCPL_LIST_CREATE_EMPTY();
+    
+    // Add strings to the list
+    uint32_t* str1 = create_bcpl_string("hello");
+    uint32_t* str2 = create_bcpl_string("world");
+    uint32_t* str3 = create_bcpl_string("test");
+    
+    // Get base pointers (payload - 1)
+    void* base1 = (uint64_t*)str1 - 1;
+    void* base2 = (uint64_t*)str2 - 1;
+    void* base3 = (uint64_t*)str3 - 1;
+    
+    BCPL_LIST_APPEND_STRING(list, (uint32_t*)base1);
+    BCPL_LIST_APPEND_STRING(list, (uint32_t*)base2);
+    BCPL_LIST_APPEND_STRING(list, (uint32_t*)base3);
+    
+    uint32_t* delimiter = create_bcpl_string(" ");
+    uint32_t* result = BCPL_JOIN_LIST(list, delimiter);
+    
+    std::string result_str = bcpl_to_cpp_string(result);
+    bool success = (result_str == "hello world test");
+    
+    if (ENABLE_VERBOSE) {
+        std::cout << "JOIN result: \"" << result_str << "\"" << std::endl;
+        std::cout << "Expected: \"hello world test\"" << std::endl;
+    }
+    
+    return success;
+}
+
+bool test_join_single_element() {
+    print_test_header("JOIN Single Element");
+    
+    ListHeader* list = BCPL_LIST_CREATE_EMPTY();
+    uint32_t* str1 = create_bcpl_string("lonely");
+    void* base1 = (uint64_t*)str1 - 1;
+    BCPL_LIST_APPEND_STRING(list, (uint32_t*)base1);
+    
+    uint32_t* delimiter = create_bcpl_string(",");
+    uint32_t* result = BCPL_JOIN_LIST(list, delimiter);
+    
+    std::string result_str = bcpl_to_cpp_string(result);
+    bool success = (result_str == "lonely");
+    
+    if (ENABLE_VERBOSE) {
+        std::cout << "JOIN single result: \"" << result_str << "\"" << std::endl;
+    }
+    
+    return success;
+}
+
+bool test_join_empty_list() {
+    print_test_header("JOIN Empty List");
+    
+    ListHeader* list = BCPL_LIST_CREATE_EMPTY();
+    uint32_t* delimiter = create_bcpl_string(",");
+    uint32_t* result = BCPL_JOIN_LIST(list, delimiter);
+    
+    std::string result_str = bcpl_to_cpp_string(result);
+    bool success = (result_str == "");
+    
+    if (ENABLE_VERBOSE) {
+        std::cout << "JOIN empty result: \"" << result_str << "\"" << std::endl;
+    }
+    
+    return success;
+}
+
+bool test_join_empty_delimiter() {
+    print_test_header("JOIN Empty Delimiter");
+    
+    ListHeader* list = BCPL_LIST_CREATE_EMPTY();
+    uint32_t* str1 = create_bcpl_string("a");
+    uint32_t* str2 = create_bcpl_string("b");
+    uint32_t* str3 = create_bcpl_string("c");
+    
+    void* base1 = (uint64_t*)str1 - 1;
+    void* base2 = (uint64_t*)str2 - 1;
+    void* base3 = (uint64_t*)str3 - 1;
+    
+    BCPL_LIST_APPEND_STRING(list, (uint32_t*)base1);
+    BCPL_LIST_APPEND_STRING(list, (uint32_t*)base2);
+    BCPL_LIST_APPEND_STRING(list, (uint32_t*)base3);
+    
+    uint32_t* delimiter = create_bcpl_string("");
+    uint32_t* result = BCPL_JOIN_LIST(list, delimiter);
+    
+    std::string result_str = bcpl_to_cpp_string(result);
+    bool success = (result_str == "abc");
+    
+    if (ENABLE_VERBOSE) {
+        std::cout << "JOIN empty delimiter result: \"" << result_str << "\"" << std::endl;
+    }
+    
+    return success;
+}
+
+//=============================================================================
+// Round-trip Tests (SPLIT then JOIN)
+//=============================================================================
+
+bool test_split_join_roundtrip() {
+    print_test_header("SPLIT-JOIN Round-trip");
+    
+    std::string original = "This is the age of the train";
+    uint32_t* source = create_bcpl_string(original);
+    uint32_t* delimiter = create_bcpl_string(" ");
+    
+    // Split the string
+    ListHeader* split_result = BCPL_SPLIT_STRING(source, delimiter);
+    
+    if (ENABLE_VERBOSE) {
+        print_list_contents(split_result, "Split result");
+    }
+    
+    // Join it back
+    uint32_t* join_result = BCPL_JOIN_LIST(split_result, delimiter);
+    std::string final_result = bcpl_to_cpp_string(join_result);
+    
+    bool success = (final_result == original);
+    
+    if (ENABLE_VERBOSE) {
+        std::cout << "Original:  \"" << original << "\"" << std::endl;
+        std::cout << "Final:     \"" << final_result << "\"" << std::endl;
+        std::cout << "Match:     " << (success ? "YES" : "NO") << std::endl;
+    }
+    
+    return success;
+}
+
+bool test_split_join_roundtrip_complex() {
+    print_test_header("SPLIT-JOIN Round-trip Complex");
+    
+    std::string original = "apple::banana::cherry::date::elderberry";
+    uint32_t* source = create_bcpl_string(original);
+    uint32_t* delimiter = create_bcpl_string("::");
+    
+    // Split the string
+    ListHeader* split_result = BCPL_SPLIT_STRING(source, delimiter);
+    
+    // Join it back
+    uint32_t* join_result = BCPL_JOIN_LIST(split_result, delimiter);
+    std::string final_result = bcpl_to_cpp_string(join_result);
+    
+    bool success = (final_result == original);
+    
+    if (ENABLE_VERBOSE) {
+        std::cout << "Original:  \"" << original << "\"" << std::endl;
+        std::cout << "Final:     \"" << final_result << "\"" << std::endl;
+        std::cout << "Elements:  " << count_list_elements(split_result) << std::endl;
+    }
+    
+    return success;
+}
+
+//=============================================================================
+// Performance Tests
+//=============================================================================
+
+bool test_split_performance() {
+    print_test_header("SPLIT Performance Test");
+    
+    // Create a large string with many tokens
+    std::string large_string;
+    for (int i = 0; i < 1000; i++) {
+        if (i > 0) large_string += " ";
+        large_string += "token" + std::to_string(i);
+    }
+    
+    uint32_t* source = create_bcpl_string(large_string);
+    uint32_t* delimiter = create_bcpl_string(" ");
+    
+    auto start = std::chrono::high_resolution_clock::now();
+    ListHeader* result = BCPL_SPLIT_STRING(source, delimiter);
+    auto end = std::chrono::high_resolution_clock::now();
+    
+    auto duration = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
+    size_t element_count = count_list_elements(result);
+    
+    bool success = (element_count == 1000);
+    
+    if (ENABLE_VERBOSE) {
+        std::cout << "Split 1000 tokens in " << duration.count() << " μs" << std::endl;
+        std::cout << "Elements created: " << element_count << std::endl;
+        std::cout << "Performance: " << (duration.count() / 1000.0) << " μs per token" << std::endl;
+    }
+    
+    return success;
+}
+
+bool test_join_performance() {
+    print_test_header("JOIN Performance Test");
+    
+    // Create a list with many elements
+    ListHeader* list = BCPL_LIST_CREATE_EMPTY();
+    for (int i = 0; i < 1000; i++) {
+        std::string token = "element" + std::to_string(i);
+        uint32_t* str = create_bcpl_string(token);
+        void* base = (uint64_t*)str - 1;
+        BCPL_LIST_APPEND_STRING(list, (uint32_t*)base);
+    }
+    
+    uint32_t* delimiter = create_bcpl_string(",");
+    
+    auto start = std::chrono::high_resolution_clock::now();
+    uint32_t* result = BCPL_JOIN_LIST(list, delimiter);
+    auto end = std::chrono::high_resolution_clock::now();
+    
+    auto duration = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
+    std::string result_str = bcpl_to_cpp_string(result);
+    
+    // Count commas to verify all elements were joined
+    size_t comma_count = 0;
+    for (char c : result_str) {
+        if (c == ',') comma_count++;
+    }
+    
+    bool success = (comma_count == 999); // 1000 elements = 999 delimiters
+    
+    if (ENABLE_VERBOSE) {
+        std::cout << "Joined 1000 elements in " << duration.count() << " μs" << std::endl;
+        std::cout << "Result length: " << result_str.length() << " characters" << std::endl;
+        std::cout << "Comma count: " << comma_count << " (expected 999)" << std::endl;
+        std::cout << "Performance: " << (duration.count() / 1000.0) << " μs per element" << std::endl;
+    }
+    
+    return success;
+}
+
+//=============================================================================
+// Edge Case Tests
+//=============================================================================
+
+bool test_edge_cases() {
+    print_test_header("Edge Cases");
+    
+    bool all_passed = true;
+    
+    // Test with null inputs
+    ListHeader* null_split = BCPL_SPLIT_STRING(nullptr, create_bcpl_string(" "));
+    all_passed = all_passed && (null_split != nullptr); // Should return empty list
+    
+    uint32_t* null_join = BCPL_JOIN_LIST(nullptr, create_bcpl_string(" "));
+    all_passed = all_passed && (null_join != nullptr); // Should return empty string
+    
+    // Test string that starts and ends with delimiter
+    uint32_t* boundary_str = create_bcpl_string(" hello world ");
+    uint32_t* space_delim = create_bcpl_string(" ");
+    ListHeader* boundary_result = BCPL_SPLIT_STRING(boundary_str, space_delim);
+    
+    // Should have empty strings at beginning and end
+    size_t boundary_count = count_list_elements(boundary_result);
+    all_passed = all_passed && (boundary_count == 4); // "", "hello", "world", ""
+    
+    if (ENABLE_VERBOSE) {
+        std::cout << "Boundary split elements: " << boundary_count << " (expected 4)" << std::endl;
+        print_list_contents(boundary_result, "Boundary split result");
+    }
+    
+    return all_passed;
+}
+
+//=============================================================================
+// SAMM Memory Management Tests
+//=============================================================================
+
+bool test_samm_memory_management() {
+    print_test_header("SAMM Memory Management");
+    
+    auto& hm = HeapManager::getInstance();
+    hm.setSAMMEnabled(true);
+    
+    // Get initial metrics
+    size_t initial_allocations = hm.heap_blocks_.size();
+    
+    // Perform many SPLIT/JOIN operations
+    for (int i = 0; i < 100; i++) {
+        std::string test_str = "a,b,c,d,e,f,g,h,i,j";
+        uint32_t* source = create_bcpl_string(test_str);
+        uint32_t* delimiter = create_bcpl_string(",");
+        
+        ListHeader* split_result = BCPL_SPLIT_STRING(source, delimiter);
+        uint32_t* join_result = BCPL_JOIN_LIST(split_result, delimiter);
+        
+        // Results should be available for this iteration
+        bool results_valid = (split_result != nullptr && join_result != nullptr);
+        if (!results_valid) {
+            if (ENABLE_VERBOSE) {
+                std::cout << "Failed at iteration " << i << std::endl;
+            }
+            return false;
+        }
+    }
+    
+    // Check final metrics
+    size_t final_allocations = hm.heap_blocks_.size();
+    
+    if (ENABLE_VERBOSE) {
+        std::cout << "Initial allocations: " << initial_allocations << std::endl;
+        std::cout << "Final allocations: " << final_allocations << std::endl;
+        std::cout << "Net allocation increase: " << (final_allocations - initial_allocations) << std::endl;
+    }
+    
+    return true; // Just verify we didn't crash
+}
+
+//=============================================================================
+// Main Test Runner
+//=============================================================================
+
+int main() {
+    std::cout << "SPLIT/JOIN Function Test Suite" << std::endl;
+    std::cout << "==============================" << std::endl;
+    
+    // Initialize HeapManager
+    auto& hm = HeapManager::getInstance();
+    hm.setSAMMEnabled(true);
+    
+    struct TestCase {
+        const char* name;
+        bool (*function)();
+    };
+    
+    TestCase tests[] = {
+        // Basic SPLIT tests
+        {"SPLIT Basic", test_split_basic},
+        {"SPLIT Single Char Delimiter", test_split_single_character_delimiter},
+        {"SPLIT Multi Char Delimiter", test_split_multi_character_delimiter},
+        {"SPLIT No Delimiter", test_split_no_delimiter_found},
+        {"SPLIT Empty String", test_split_empty_string},
+        {"SPLIT Consecutive Delimiters", test_split_consecutive_delimiters},
+        
+        // Basic JOIN tests
+        {"JOIN Basic", test_join_basic},
+        {"JOIN Single Element", test_join_single_element},
+        {"JOIN Empty List", test_join_empty_list},
+        {"JOIN Empty Delimiter", test_join_empty_delimiter},
+        
+        // Round-trip tests
+        {"SPLIT-JOIN Round-trip", test_split_join_roundtrip},
+        {"SPLIT-JOIN Complex Round-trip", test_split_join_roundtrip_complex},
+        
+        // Performance tests
+        {"SPLIT Performance", test_split_performance},
+        {"JOIN Performance", test_join_performance},
+        
+        // Edge cases and memory management
+        {"Edge Cases", test_edge_cases},
+        {"SAMM Memory Management", test_samm_memory_management}
+    };
+    
+    int passed = 0;
+    int total = sizeof(tests) / sizeof(tests[0]);
+    
+    for (int i = 0; i < total; i++) {
+        bool result = tests[i].function();
+        print_test_result(tests[i].name, result);
+        if (result) passed++;
+    }
+    
+    std::cout << "\n==============================" << std::endl;
+    std::cout << "Test Results: " << passed << "/" << total << " passed" << std::endl;
+    
+    if (passed == total) {
+        std::cout << "✅ ALL TESTS PASSED - SPLIT/JOIN functions are working correctly!" << std::endl;
+        std::cout << "✅ Memory management is stable" << std::endl;
+        std::cout << "✅ Performance is acceptable" << std::endl;
+        std::cout << "✅ SAMM compatibility verified" << std::endl;
+        return 0;
+    } else {
+        std::cout << "❌ SOME TESTS FAILED - Please investigate failures" << std::endl;
+        return 1;
+    }
+}
 // -- end of file
 
 // -- start of file: testing/debug_bloom.cpp

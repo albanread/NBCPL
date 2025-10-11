@@ -1,0 +1,35 @@
+LET START() BE
+$(
+   WRITES("Testing SPLIT->JOIN round-trip...*N")
+
+   LET S1 = "hello world test"
+   WRITES("Original string: ")
+   WRITES(S1)
+   WRITES("*N")
+
+   WRITES("Calling SPLIT...*N")
+   LET L = SPLIT(S1, " ")
+   WRITES("SPLIT completed*N")
+
+   TEST L = 0 THEN
+   $(
+       WRITES("ERROR: SPLIT returned null*N")
+   $)
+   ELSE
+   $(
+       WRITES("SPLIT returned a list, now calling JOIN...*N")
+       LET S2 = JOIN(L, "-")
+       WRITES("JOIN completed*N")
+
+       TEST S2 = 0 THEN
+       $(
+           WRITES("ERROR: JOIN returned null*N")
+       $)
+       ELSE
+       $(
+           WRITES("JOIN result: ")
+           WRITES(S2)
+           WRITES("*N")
+       $)
+   $)
+$)
