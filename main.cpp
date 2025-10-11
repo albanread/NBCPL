@@ -14,8 +14,7 @@
 #include "RuntimeManager.h"
 #include "runtime/RuntimeBridge.h"
 
-#include "RuntimeSymbols.h"
-#include "RuntimeRegistry.h"
+#include "RuntimeImporter.h"
 #include <iostream>
 #include "HeapManager/HeapManager.h"
 #include <fstream>
@@ -174,7 +173,7 @@ bool parse_arguments(int argc, char* argv[], bool& run_jit, bool& generate_asm, 
                     bool& bounds_checking_enabled, bool& enable_samm, bool& enable_superdisc,
                     bool& use_neon, bool& generate_list, bool& test_encoders,
                     bool& test_encode, std::string& test_encode_name, bool& list_encoders, bool& list_runtime,
-                    std::string& input_filepath, std::string& call_entry_name, int& offset_instructions,
+                    std::string& runtime_category_filter, std::string& input_filepath, std::string& call_entry_name, int& offset_instructions,
                     std::vector<std::string>& include_paths, std::string& runtime_mode);
 void handle_static_compilation(bool exec_mode, const std::string& base_name, const InstructionStream& instruction_stream, const DataGenerator& data_generator, bool enable_debug_output, const std::string& runtime_mode, const VeneerManager& veneer_manager, bool generate_list, const std::string& initial_working_dir);
 void* handle_jit_compilation(void* jit_data_memory_base, InstructionStream& instruction_stream, int offset_instructions, bool enable_debug_output, std::vector<Instruction>* finalized_instructions = nullptr);
@@ -236,6 +235,7 @@ int main(int argc, char* argv[]) {
     std::string test_encode_name; // Name of specific encoder to test
     bool list_encoders = false; // List available encoders mode
     bool list_runtime = false; // List available runtime functions mode
+    std::string runtime_category_filter; // Filter runtime functions by category
 
     if (enable_tracing) {
         std::cout << "Debug: About to parse arguments\n";
@@ -252,7 +252,7 @@ int main(int argc, char* argv[]) {
                             bounds_checking_enabled, enable_samm,
                             enable_superdisc, use_neon, generate_list, test_encoders,
                             test_encode, test_encode_name, list_encoders, list_runtime,
-                            input_filepath, call_entry_name, offset_instructions, include_paths, runtime_mode)) {
+                            runtime_category_filter, input_filepath, call_entry_name, offset_instructions, include_paths, runtime_mode)) {
             if (enable_tracing) {
                 std::cout << "Debug: parse_arguments returned false\n";
             }
@@ -292,7 +292,8 @@ int main(int argc, char* argv[]) {
     
     // Check if we should list available runtime functions
     if (list_runtime) {
-        ListRuntimeFunctions();
+        const char* filter = runtime_category_filter.empty() ? nullptr : runtime_category_filter.c_str();
+        RuntimeImporter::list_runtime_functions(true, filter);
         return 0;
     }
     
@@ -476,9 +477,6 @@ int main(int argc, char* argv[]) {
         if (enable_tracing) {
             std::cout << "Compiling this source Code:\n" << g_source_code << std::endl;
         }
-        // Initialize and register runtime functions using the runtime bridge
-        runtime::initialize_runtime();
-        runtime::register_runtime_functions();
 
         if (enable_tracing) {
             std::cout << "Using " << runtime::get_runtime_version() << std::endl;
@@ -526,6 +524,13 @@ int main(int argc, char* argv[]) {
         // --- Create tables once in main ---
         auto symbol_table = std::make_unique<SymbolTable>();
         auto class_table = std::make_unique<ClassTable>();
+
+        // Initialize runtime system and import all functions from manifest
+        initialize_runtime_system();
+        if (!RuntimeImporter::import_all_runtime_functions(*symbol_table, enable_tracing || trace_symbols || trace_runtime)) {
+            std::cerr << "FATAL: Failed to import runtime functions from manifest!" << std::endl;
+            return 1;
+        }
 
         // Run the ClassPass to discover and lay out all classes.
         // It takes references to the tables and populates them.
@@ -585,9 +590,9 @@ int main(int argc, char* argv[]) {
             std::cout << "================================================\n\n";
         }
 
-        // Register runtime functions in symbol table
-        if (enable_tracing || trace_symbols || trace_runtime) std::cout << "Registering runtime functions in symbol table...\n";
-        RuntimeSymbols::registerAll(*symbol_table);
+        // Verify that runtime function import was successful
+        if (enable_tracing || trace_symbols || trace_runtime) std::cout << "Verifying runtime function import...\n";
+        RuntimeImporter::verify_import_completeness(*symbol_table);
 
         // (CSE pass removed; now handled after CFG construction)
         // --- String Table Pass: Construct early and wire to pipeline ---
@@ -1071,7 +1076,7 @@ bool parse_arguments(int argc, char* argv[], bool& run_jit, bool& generate_asm, 
                     bool& bounds_checking_enabled, bool& enable_samm,
                     bool& enable_superdisc, bool& use_neon, bool& generate_list, bool& test_encoders,
                     bool& test_encode, std::string& test_encode_name, bool& list_encoders, bool& list_runtime,
-                    std::string& input_filepath, std::string& call_entry_name, int& offset_instructions,
+                    std::string& runtime_category_filter, std::string& input_filepath, std::string& call_entry_name, int& offset_instructions,
                     std::vector<std::string>& include_paths, std::string& runtime_mode) {
     if (enable_tracing) {
         std::cout << "Debug: Entering parse_arguments with argc=" << argc << std::endl;
@@ -1126,6 +1131,10 @@ bool parse_arguments(int argc, char* argv[], bool& run_jit, bool& generate_asm, 
         }
         else if (arg == "--list-encoders") list_encoders = true;
         else if (arg == "--list-runtime") list_runtime = true;
+        else if (arg.substr(0, 19) == "--list-runtime-cat=") {
+            list_runtime = true;
+            runtime_category_filter = arg.substr(19);
+        }
         else if (arg.substr(0, 10) == "--runtime=") {
             runtime_mode = arg.substr(10);
             if (runtime_mode != "jit" && runtime_mode != "standalone" && runtime_mode != "unified") {
@@ -1183,6 +1192,7 @@ bool parse_arguments(int argc, char* argv[], bool& run_jit, bool& generate_asm, 
                       << "  --test-encode <name>   : Run validation for specific encoder or pattern.\n"
                       << "  --list-encoders        : Show all available encoder names.\n"
                       << "  --list-runtime         : Show all available runtime functions.\n"
+                      << "  --list-runtime-cat=CAT : Show runtime functions in specific category (I/O, Math, String, etc.).\n"
                       << "  -I path, --include-path path : Add directory to include search path for GET directives.\n"
                       << "                          Multiple -I flags can be specified for additional paths.\n"
                       << "                          Search order: 1) Current file's directory 2) Specified include paths\n"

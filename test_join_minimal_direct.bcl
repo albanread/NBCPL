@@ -1,0 +1,32 @@
+LET START() BE
+$(
+   WRITES("Testing JOIN function directly...*N")
+
+   // Create a simple list manually (avoid LIST() constructor that might trigger HeapManager)
+   LET item1_data = TABLE "hello", 0, 0
+   LET item2_data = TABLE "world", 0, 0
+   LET item3_data = TABLE "test", 0, 0
+
+   // Link them manually
+   item1_data!1 := item2_data
+   item2_data!1 := item3_data
+   item3_data!1 := 0  // End of list
+
+   WRITES("Created manual list*N")
+
+   // Try to call JOIN directly
+   WRITES("About to call JOIN...*N")
+   LET result = JOIN(item1_data, " ")
+
+   TEST result = 0 THEN
+   $(
+       WRITES("ERROR: JOIN returned null*N")
+   $)
+   ELSE
+   $(
+       WRITES("SUCCESS: JOIN returned a result*N")
+       WRITES("Result: ")
+       WRITES(result)
+       WRITES("*N")
+   $)
+$)

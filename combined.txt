@@ -21466,6 +21466,380 @@ void RegisterManager::release_q_register(const std::string& qreg) {
 
 // -- end of file
 
+// -- start of file: RuntimeImporter.cpp
+#include "RuntimeImporter.h"
+#include <iostream>
+#include <cstdio>
+#include <cstdlib>
+#include <iomanip>
+#include <map>
+#include <vector>
+#include <cstring>
+
+/**
+ * @file RuntimeImporter.cpp
+ * @brief Compiler-Side Runtime Importer Implementation
+ * 
+ * This file implements the "importer" side of the publish/import model.
+ * It consumes the runtime manifest and registers all functions with
+ * the compiler's internal systems, replacing all scattered registration.
+ */
+
+bool RuntimeImporter::import_all_runtime_functions(SymbolTable& symbol_table, bool enable_tracing) {
+    if (enable_tracing) {
+        std::cout << "=== Importing Runtime Functions from Manifest ===" << std::endl;
+        std::cout << "API Version: " << get_runtime_api_version() << std::endl;
+    }
+    
+    // Get the manifest from the runtime
+    int function_count = 0;
+    const RuntimeFunctionDescriptor* manifest = get_runtime_manifest(function_count);
+    
+    if (!manifest || function_count <= 0) {
+        std::cerr << "FATAL: Failed to get runtime manifest!" << std::endl;
+        return false;
+    }
+    
+    if (enable_tracing) {
+        std::cout << "Found " << function_count << " functions in manifest" << std::endl;
+    }
+    
+    // Verify manifest integrity first
+    if (!verify_runtime_manifest()) {
+        std::cerr << "FATAL: Runtime manifest failed integrity check!" << std::endl;
+        return false;
+    }
+    
+    int successful_runtime_registrations = 0;
+    int successful_symbol_registrations = 0;
+    
+    // Import each function from the manifest
+    for (int i = 0; i < function_count; ++i) {
+        const auto& desc = manifest[i];
+        
+        // Register with RuntimeManager for JIT execution
+        if (register_with_runtime_manager(desc, enable_tracing)) {
+            successful_runtime_registrations++;
+        } else {
+            std::cerr << "ERROR: Failed to register runtime function: " << desc.veneer_name << std::endl;
+        }
+        
+        // Register with SymbolTable for compile-time resolution
+        if (register_with_symbol_table(desc, symbol_table, enable_tracing)) {
+            successful_symbol_registrations++;
+        } else {
+            std::cerr << "ERROR: Failed to register symbol: " << desc.veneer_name << std::endl;
+        }
+    }
+    
+    if (enable_tracing) {
+        std::cout << "=== Import Results ===" << std::endl;
+        std::cout << "Runtime registrations: " << successful_runtime_registrations << "/" << function_count << std::endl;
+        std::cout << "Symbol registrations:  " << successful_symbol_registrations << "/" << function_count << std::endl;
+    }
+    
+    // Success if all functions were registered
+    bool success = (successful_runtime_registrations == function_count) && 
+                   (successful_symbol_registrations == function_count);
+    
+    if (enable_tracing) {
+        std::cout << "=== Runtime Function Import " << (success ? "COMPLETED" : "FAILED") << " ===" << std::endl;
+    }
+    
+    return success;
+}
+
+void RuntimeImporter::verify_import_completeness(SymbolTable& symbol_table) {
+    std::cout << "=== Verifying Runtime Function Import Completeness ===" << std::endl;
+    
+    int function_count = 0;
+    const RuntimeFunctionDescriptor* manifest = get_runtime_manifest(function_count);
+    
+    std::vector<std::string> missing_functions;
+    
+    for (int i = 0; i < function_count; ++i) {
+        const auto& desc = manifest[i];
+        
+        Symbol symbol;
+        if (!symbol_table.lookup(desc.veneer_name, "Global", symbol)) {
+            missing_functions.push_back(desc.veneer_name);
+        }
+    }
+    
+    if (!missing_functions.empty()) {
+        std::cerr << "FATAL: Runtime function import verification failed!" << std::endl;
+        std::cerr << "Missing functions in symbol table:" << std::endl;
+        for (const auto& name : missing_functions) {
+            std::cerr << "  - " << name << std::endl;
+        }
+        std::cerr << std::endl;
+        std::cerr << "This indicates a serious problem with the runtime import system." << std::endl;
+        std::cerr << "Check that import_all_runtime_functions() completed successfully." << std::endl;
+        exit(1);
+    }
+    
+    std::cout << "✅ Runtime function import verification passed (" << function_count << " functions)" << std::endl;
+}
+
+void RuntimeImporter::list_runtime_functions(bool show_categories, const char* category_filter) {
+    int function_count = 0;
+    const RuntimeFunctionDescriptor* manifest = get_runtime_manifest(function_count);
+    
+    std::cout << "=============================================================================" << std::endl;
+    std::cout << "                         RUNTIME FUNCTION MANIFEST" << std::endl;
+    std::cout << "                            (Publisher/Import Model)" << std::endl;
+    std::cout << "=============================================================================" << std::endl;
+    std::cout << "API Version: " << get_runtime_api_version() << std::endl;
+    std::cout << "Total Functions: " << function_count << std::endl;
+    
+    if (category_filter) {
+        std::cout << "Filter: " << category_filter << " functions only" << std::endl;
+    }
+    
+    std::cout << "=============================================================================" << std::endl;
+    
+    if (show_categories) {
+        // Group by category
+        std::map<std::string, std::vector<const RuntimeFunctionDescriptor*>> by_category;
+        
+        for (int i = 0; i < function_count; ++i) {
+            const auto& desc = manifest[i];
+            if (!category_filter || strcmp(desc.category, category_filter) == 0) {
+                by_category[desc.category].push_back(&desc);
+            }
+        }
+        
+        for (const auto& category_pair : by_category) {
+            print_category_header(category_pair.first.c_str());
+            
+            std::cout << std::left << std::setw(20) << "NAME" 
+                      << std::setw(8) << "PARAMS" 
+                      << std::setw(15) << "TYPE"
+                      << std::setw(15) << "RETURNS"
+                      << "DESCRIPTION" << std::endl;
+            std::cout << std::string(79, '-') << std::endl;
+            
+            for (const auto* desc : category_pair.second) {
+                print_function_info(*desc, false);
+            }
+            std::cout << std::endl;
+        }
+    } else {
+        // Simple list
+        std::cout << std::left << std::setw(20) << "NAME" 
+                  << std::setw(8) << "PARAMS" 
+                  << std::setw(15) << "TYPE"
+                  << std::setw(15) << "RETURNS"
+                  << std::setw(12) << "CATEGORY"
+                  << "DESCRIPTION" << std::endl;
+        std::cout << std::string(90, '-') << std::endl;
+        
+        for (int i = 0; i < function_count; ++i) {
+            const auto& desc = manifest[i];
+            if (!category_filter || strcmp(desc.category, category_filter) == 0) {
+                print_function_info(desc, true);
+            }
+        }
+    }
+    
+    std::cout << "=============================================================================" << std::endl;
+    
+    // Print statistics
+    int total, by_type[4] = {0}, by_return[7] = {0};
+    get_runtime_statistics(total, by_type, by_return);
+    
+    std::cout << "Function Type Distribution:" << std::endl;
+    std::cout << "  Standard: " << by_type[0] << ", Float: " << by_type[1] 
+              << ", Routine: " << by_type[2] << ", Float Routine: " << by_type[3] << std::endl;
+    std::cout << "=============================================================================" << std::endl;
+}
+
+void RuntimeImporter::get_runtime_statistics(int& total_functions, int by_type[4], int by_return_type[7]) {
+    int function_count = 0;
+    const RuntimeFunctionDescriptor* manifest = get_runtime_manifest(function_count);
+    
+    total_functions = function_count;
+    
+    // Initialize arrays
+    for (int i = 0; i < 4; i++) by_type[i] = 0;
+    for (int i = 0; i < 7; i++) by_return_type[i] = 0;
+    
+    for (int i = 0; i < function_count; ++i) {
+        const auto& desc = manifest[i];
+        
+        // Count by function type
+        by_type[static_cast<int>(desc.function_type)]++;
+        
+        // Count by return type
+        by_return_type[static_cast<int>(desc.return_type)]++;
+    }
+}
+
+const char* RuntimeImporter::get_linker_symbol(const char* veneer_name) {
+    const RuntimeFunctionDescriptor* desc = lookup_runtime_function(veneer_name);
+    return desc ? desc->linker_symbol : nullptr;
+}
+
+bool RuntimeImporter::function_exists(const char* veneer_name) {
+    return lookup_runtime_function(veneer_name) != nullptr;
+}
+
+const RuntimeFunctionDescriptor* RuntimeImporter::get_function_descriptor(const char* veneer_name) {
+    return lookup_runtime_function(veneer_name);
+}
+
+// Private implementation methods
+
+VarType RuntimeImporter::convert_return_type(RuntimeReturnType runtime_type) {
+    switch (runtime_type) {
+        case RuntimeReturnType::INTEGER:      return VarType::INTEGER;
+        case RuntimeReturnType::FLOAT:        return VarType::FLOAT;
+        case RuntimeReturnType::STRING_LIST:  return VarType::POINTER_TO_STRING_LIST;
+        case RuntimeReturnType::INT_VECTOR:   return VarType::POINTER_TO_INT_VEC;
+        case RuntimeReturnType::FLOAT_VECTOR: return VarType::POINTER_TO_FLOAT_VEC;
+        case RuntimeReturnType::STRING:       return VarType::INTEGER; // String pointers are integers
+        case RuntimeReturnType::VOID:         return VarType::INTEGER; // Routines still return integer for ABI
+        default:                              return VarType::UNKNOWN;
+    }
+}
+
+FunctionType RuntimeImporter::convert_function_type(RuntimeFunctionType runtime_type) {
+    switch (runtime_type) {
+        case RuntimeFunctionType::STANDARD:      return FunctionType::STANDARD;
+        case RuntimeFunctionType::FLOAT:         return FunctionType::FLOAT;
+        case RuntimeFunctionType::ROUTINE:       return FunctionType::STANDARD;
+        case RuntimeFunctionType::FLOAT_ROUTINE: return FunctionType::FLOAT;
+        default:                                 return FunctionType::STANDARD;
+    }
+}
+
+SymbolKind RuntimeImporter::convert_to_symbol_kind(RuntimeFunctionType func_type, RuntimeReturnType return_type) {
+    switch (func_type) {
+        case RuntimeFunctionType::STANDARD:
+            if (return_type == RuntimeReturnType::STRING_LIST) {
+                return SymbolKind::RUNTIME_LIST_FUNCTION;
+            } else if (return_type == RuntimeReturnType::VOID) {
+                return SymbolKind::RUNTIME_ROUTINE;
+            } else {
+                return SymbolKind::RUNTIME_FUNCTION;
+            }
+            
+        case RuntimeFunctionType::FLOAT:
+            if (return_type == RuntimeReturnType::VOID) {
+                return SymbolKind::RUNTIME_FLOAT_ROUTINE;
+            } else {
+                return SymbolKind::RUNTIME_FLOAT_FUNCTION;
+            }
+            
+        case RuntimeFunctionType::ROUTINE:
+            return SymbolKind::RUNTIME_ROUTINE;
+            
+        case RuntimeFunctionType::FLOAT_ROUTINE:
+            return SymbolKind::RUNTIME_FLOAT_ROUTINE;
+            
+        default:
+            return SymbolKind::RUNTIME_FUNCTION;
+    }
+}
+
+bool RuntimeImporter::register_with_runtime_manager(const RuntimeFunctionDescriptor& desc, bool enable_tracing) {
+    try {
+        auto& manager = RuntimeManager::instance();
+        
+        manager.register_function(
+            desc.veneer_name,
+            desc.arg_count,
+            desc.function_pointer,
+            convert_function_type(desc.function_type),
+            convert_return_type(desc.return_type)
+        );
+        
+        if (enable_tracing) {
+            std::cout << "Runtime: " << std::left << std::setw(20) << desc.veneer_name 
+                      << " -> " << desc.function_pointer << std::endl;
+        }
+        
+        return true;
+    } catch (const std::exception& e) {
+        std::cerr << "Runtime registration failed for " << desc.veneer_name << ": " << e.what() << std::endl;
+        return false;
+    }
+}
+
+bool RuntimeImporter::register_with_symbol_table(const RuntimeFunctionDescriptor& desc, SymbolTable& symbol_table, bool enable_tracing) {
+    try {
+        // Create symbol with proper "Global" context
+        Symbol symbol(
+            desc.veneer_name,
+            convert_to_symbol_kind(desc.function_type, desc.return_type),
+            convert_return_type(desc.return_type),
+            0,  // scope_level
+            "Global"  // function_name - this is key for proper lookup!
+        );
+        
+        // TODO: Add parameter information if needed in the future
+        // symbol.parameters = ...;
+        
+        if (!symbol_table.addSymbol(symbol)) {
+            std::cerr << "Symbol table rejected: " << desc.veneer_name << " (duplicate?)" << std::endl;
+            return false;
+        }
+        
+        if (enable_tracing) {
+            std::cout << "Symbol:  " << std::left << std::setw(20) << desc.veneer_name 
+                      << " (" << desc.description << ")" << std::endl;
+        }
+        
+        return true;
+    } catch (const std::exception& e) {
+        std::cerr << "Symbol registration failed for " << desc.veneer_name << ": " << e.what() << std::endl;
+        return false;
+    }
+}
+
+void RuntimeImporter::print_function_info(const RuntimeFunctionDescriptor& desc, bool show_category) {
+    // Convert types to readable strings
+    std::string type_str;
+    switch (desc.function_type) {
+        case RuntimeFunctionType::STANDARD:      
+            type_str = (desc.return_type == RuntimeReturnType::VOID) ? "ROUTINE" : "FUNCTION"; 
+            break;
+        case RuntimeFunctionType::FLOAT:         
+            type_str = (desc.return_type == RuntimeReturnType::VOID) ? "FLOAT_ROUTINE" : "FLOAT_FUNC"; 
+            break;
+        case RuntimeFunctionType::ROUTINE:       type_str = "ROUTINE"; break;
+        case RuntimeFunctionType::FLOAT_ROUTINE: type_str = "FLOAT_ROUTINE"; break;
+    }
+    
+    std::string return_str;
+    switch (desc.return_type) {
+        case RuntimeReturnType::INTEGER:      return_str = "INTEGER"; break;
+        case RuntimeReturnType::FLOAT:        return_str = "FLOAT"; break;
+        case RuntimeReturnType::STRING_LIST:  return_str = "STRING_LIST"; break;
+        case RuntimeReturnType::INT_VECTOR:   return_str = "INT_VECTOR"; break;
+        case RuntimeReturnType::FLOAT_VECTOR: return_str = "FLOAT_VECTOR"; break;
+        case RuntimeReturnType::STRING:       return_str = "STRING"; break;
+        case RuntimeReturnType::VOID:         return_str = "VOID"; break;
+    }
+    
+    std::cout << std::left << std::setw(20) << desc.veneer_name
+              << std::setw(8) << desc.arg_count
+              << std::setw(15) << type_str
+              << std::setw(15) << return_str;
+    
+    if (show_category) {
+        std::cout << std::setw(12) << desc.category;
+    }
+    
+    std::cout << desc.description << std::endl;
+}
+
+void RuntimeImporter::print_category_header(const char* category) {
+    std::cout << std::endl;
+    std::cout << ">>> " << category << " Functions <<<" << std::endl;
+}
+// -- end of file
+
 // -- start of file: RuntimeManager.cpp
 #include "RuntimeManager.h"
 #include "LabelManager.h"
@@ -54400,8 +54774,7 @@ void LivenessAnalysisPass::run_data_flow_analysis() {
 #include "RuntimeManager.h"
 #include "runtime/RuntimeBridge.h"
 
-#include "RuntimeSymbols.h"
-#include "RuntimeRegistry.h"
+#include "RuntimeImporter.h"
 #include <iostream>
 #include "HeapManager/HeapManager.h"
 #include <fstream>
@@ -54560,7 +54933,7 @@ bool parse_arguments(int argc, char* argv[], bool& run_jit, bool& generate_asm, 
                     bool& bounds_checking_enabled, bool& enable_samm, bool& enable_superdisc,
                     bool& use_neon, bool& generate_list, bool& test_encoders,
                     bool& test_encode, std::string& test_encode_name, bool& list_encoders, bool& list_runtime,
-                    std::string& input_filepath, std::string& call_entry_name, int& offset_instructions,
+                    std::string& runtime_category_filter, std::string& input_filepath, std::string& call_entry_name, int& offset_instructions,
                     std::vector<std::string>& include_paths, std::string& runtime_mode);
 void handle_static_compilation(bool exec_mode, const std::string& base_name, const InstructionStream& instruction_stream, const DataGenerator& data_generator, bool enable_debug_output, const std::string& runtime_mode, const VeneerManager& veneer_manager, bool generate_list, const std::string& initial_working_dir);
 void* handle_jit_compilation(void* jit_data_memory_base, InstructionStream& instruction_stream, int offset_instructions, bool enable_debug_output, std::vector<Instruction>* finalized_instructions = nullptr);
@@ -54622,6 +54995,7 @@ int main(int argc, char* argv[]) {
     std::string test_encode_name; // Name of specific encoder to test
     bool list_encoders = false; // List available encoders mode
     bool list_runtime = false; // List available runtime functions mode
+    std::string runtime_category_filter; // Filter runtime functions by category
 
     if (enable_tracing) {
         std::cout << "Debug: About to parse arguments\n";
@@ -54638,7 +55012,7 @@ int main(int argc, char* argv[]) {
                             bounds_checking_enabled, enable_samm,
                             enable_superdisc, use_neon, generate_list, test_encoders,
                             test_encode, test_encode_name, list_encoders, list_runtime,
-                            input_filepath, call_entry_name, offset_instructions, include_paths, runtime_mode)) {
+                            runtime_category_filter, input_filepath, call_entry_name, offset_instructions, include_paths, runtime_mode)) {
             if (enable_tracing) {
                 std::cout << "Debug: parse_arguments returned false\n";
             }
@@ -54678,7 +55052,8 @@ int main(int argc, char* argv[]) {
     
     // Check if we should list available runtime functions
     if (list_runtime) {
-        ListRuntimeFunctions();
+        const char* filter = runtime_category_filter.empty() ? nullptr : runtime_category_filter.c_str();
+        RuntimeImporter::list_runtime_functions(true, filter);
         return 0;
     }
     
@@ -54862,9 +55237,6 @@ int main(int argc, char* argv[]) {
         if (enable_tracing) {
             std::cout << "Compiling this source Code:\n" << g_source_code << std::endl;
         }
-        // Initialize and register runtime functions using the runtime bridge
-        runtime::initialize_runtime();
-        runtime::register_runtime_functions();
 
         if (enable_tracing) {
             std::cout << "Using " << runtime::get_runtime_version() << std::endl;
@@ -54912,6 +55284,13 @@ int main(int argc, char* argv[]) {
         // --- Create tables once in main ---
         auto symbol_table = std::make_unique<SymbolTable>();
         auto class_table = std::make_unique<ClassTable>();
+
+        // Initialize runtime system and import all functions from manifest
+        initialize_runtime_system();
+        if (!RuntimeImporter::import_all_runtime_functions(*symbol_table, enable_tracing || trace_symbols || trace_runtime)) {
+            std::cerr << "FATAL: Failed to import runtime functions from manifest!" << std::endl;
+            return 1;
+        }
 
         // Run the ClassPass to discover and lay out all classes.
         // It takes references to the tables and populates them.
@@ -54971,9 +55350,9 @@ int main(int argc, char* argv[]) {
             std::cout << "================================================\n\n";
         }
 
-        // Register runtime functions in symbol table
-        if (enable_tracing || trace_symbols || trace_runtime) std::cout << "Registering runtime functions in symbol table...\n";
-        RuntimeSymbols::registerAll(*symbol_table);
+        // Verify that runtime function import was successful
+        if (enable_tracing || trace_symbols || trace_runtime) std::cout << "Verifying runtime function import...\n";
+        RuntimeImporter::verify_import_completeness(*symbol_table);
 
         // (CSE pass removed; now handled after CFG construction)
         // --- String Table Pass: Construct early and wire to pipeline ---
@@ -55457,7 +55836,7 @@ bool parse_arguments(int argc, char* argv[], bool& run_jit, bool& generate_asm, 
                     bool& bounds_checking_enabled, bool& enable_samm,
                     bool& enable_superdisc, bool& use_neon, bool& generate_list, bool& test_encoders,
                     bool& test_encode, std::string& test_encode_name, bool& list_encoders, bool& list_runtime,
-                    std::string& input_filepath, std::string& call_entry_name, int& offset_instructions,
+                    std::string& runtime_category_filter, std::string& input_filepath, std::string& call_entry_name, int& offset_instructions,
                     std::vector<std::string>& include_paths, std::string& runtime_mode) {
     if (enable_tracing) {
         std::cout << "Debug: Entering parse_arguments with argc=" << argc << std::endl;
@@ -55512,6 +55891,10 @@ bool parse_arguments(int argc, char* argv[], bool& run_jit, bool& generate_asm, 
         }
         else if (arg == "--list-encoders") list_encoders = true;
         else if (arg == "--list-runtime") list_runtime = true;
+        else if (arg.substr(0, 19) == "--list-runtime-cat=") {
+            list_runtime = true;
+            runtime_category_filter = arg.substr(19);
+        }
         else if (arg.substr(0, 10) == "--runtime=") {
             runtime_mode = arg.substr(10);
             if (runtime_mode != "jit" && runtime_mode != "standalone" && runtime_mode != "unified") {
@@ -55569,6 +55952,7 @@ bool parse_arguments(int argc, char* argv[], bool& run_jit, bool& generate_asm, 
                       << "  --test-encode <name>   : Run validation for specific encoder or pattern.\n"
                       << "  --list-encoders        : Show all available encoder names.\n"
                       << "  --list-runtime         : Show all available runtime functions.\n"
+                      << "  --list-runtime-cat=CAT : Show runtime functions in specific category (I/O, Math, String, etc.).\n"
                       << "  -I path, --include-path path : Add directory to include search path for GET directives.\n"
                       << "                          Multiple -I flags can be specified for additional paths.\n"
                       << "                          Search order: 1) Current file's directory 2) Specified include paths\n"
@@ -64709,6 +65093,719 @@ extern "C" void embedded_fast_bcpl_free_chars(void* string_payload) {
     g_string_allocator.total_strings_freed++;
     
     pthread_mutex_unlock(&g_string_allocator.mutex);
+}
+// -- end of file
+
+// -- start of file: runtime_api.cpp
+#include "runtime_api.h"
+#include <cstring>
+
+/**
+ * @file runtime_api.cpp
+ * @brief Runtime API Implementation - The Publisher
+ * 
+ * This file contains the master manifest of all runtime functions.
+ * It serves as the single source of truth that the compiler imports.
+ * 
+ * To add a new runtime function:
+ * 1. Add forward declaration below
+ * 2. Add entry to g_runtime_manifest array
+ * 3. Implement the function in appropriate runtime/ file
+ */
+
+// =============================================================================
+// FORWARD DECLARATIONS - All Runtime Function Implementations
+// =============================================================================
+
+extern "C" {
+    // Core I/O functions
+    void WRITES(int string_ptr);
+    void WRITEN(int value);
+    void FWRITE(float value);
+    void WRITEF(int format_ptr);
+    void WRITEF1(int format_ptr, int arg1);
+    void WRITEF2(int format_ptr, int arg1, int arg2);
+    void WRITEF3(int format_ptr, int arg1, int arg2, int arg3);
+    void WRITEF4(int format_ptr, int arg1, int arg2, int arg3, int arg4);
+    void WRITEF5(int format_ptr, int arg1, int arg2, int arg3, int arg4, int arg5);
+    void WRITEF6(int format_ptr, int arg1, int arg2, int arg3, int arg4, int arg5, int arg6);
+    void WRITEF7(int format_ptr, int arg1, int arg2, int arg3, int arg4, int arg5, int arg6, int arg7);
+    void WRITEC(int char_value);
+    int RDCH();
+    void NEWLINE();
+    
+    // String/List operations
+    int SPLIT(int string_ptr, int delimiter_ptr);
+    int JOIN(int list_ptr, int delimiter_ptr);
+    int STRLEN(int string_ptr);
+    int STRCMP(int str1_ptr, int str2_ptr);
+    void STRCOPY(int dest_ptr, int src_ptr);
+    int PACKSTRING(int string_ptr);
+    int UNPACKSTRING(int packed_ptr);
+    int SLURP(int filename_ptr);
+    int SPIT(int filename_ptr, int content_ptr);
+    
+    // Memory management
+    int bcpl_alloc_words(int count, int size, int type);
+    int bcpl_alloc_chars(int count);
+    int bcpl_getvec(int size);
+    int bcpl_fgetvec(int size);
+    void bcpl_free(int ptr);
+    void bcpl_free_list(int list_ptr);
+    void bcpl_free_list_safe(int list_ptr);
+    int BCPL_GET_LAST_ERROR(int buffer_ptr);
+    void BCPL_CLEAR_ERRORS();
+    void BCPL_CHECK_AND_DISPLAY_ERRORS();
+    void BCPL_BOUNDS_ERROR(int index, int size, int context);
+    void BCPL_FREE_CELLS();
+    int get_g_free_list_head_address();
+    
+    // List operations
+    int BCPL_LIST_CREATE_EMPTY();
+    int BCPL_LIST_APPEND_INT(int list_ptr, int value);
+    int BCPL_LIST_APPEND_FLOAT(int list_ptr, float value);
+    int BCPL_LIST_APPEND_STRING(int list_ptr, int string_ptr);
+    int BCPL_LIST_APPEND_LIST(int list_ptr, int other_list);
+    int BCPL_LIST_GET_HEAD_AS_INT(int list_ptr);
+    float BCPL_LIST_GET_HEAD_AS_FLOAT(int list_ptr);
+    int BCPL_LIST_GET_TAIL(int list_ptr);
+    int BCPL_LIST_GET_REST(int list_ptr);
+    int BCPL_GET_ATOM_TYPE(int atom_ptr);
+    int BCPL_LIST_GET_NTH(int list_ptr, int index);
+    int BCPL_CONCAT_LISTS(int list1_ptr, int list2_ptr);
+    int BCPL_SHALLOW_COPY_LIST(int list_ptr);
+    int BCPL_DEEP_COPY_LIST(int list_ptr);
+    int BCPL_DEEP_COPY_LITERAL_LIST(int list_ptr);
+    int BCPL_REVERSE_LIST(int list_ptr);
+    int BCPL_FIND_IN_LIST(int list_ptr, int value, int compare_func);
+    int BCPL_LIST_FILTER(int list_ptr, int filter_func);
+    void returnNodeToFreelist_runtime(int node_ptr);
+    
+    // Math functions
+    int RAND(int max_val);
+    float RND(int max_val);
+    float FRND();
+    float FSIN(float angle);
+    float FCOS(float angle);
+    float FTAN(float angle);
+    float FABS(float value);
+    float FLOG(float value);
+    float FEXP(float value);
+    int FIX(float value);
+    
+    // File I/O
+    int FILE_OPEN_READ(int filename_ptr);
+    int FILE_OPEN_WRITE(int filename_ptr);
+    int FILE_OPEN_APPEND(int filename_ptr);
+    int FILE_CLOSE(int handle);
+    int FILE_WRITES(int handle, int string_ptr);
+    int FILE_READS(int handle);
+    int FILE_READ(int handle, int buffer_ptr, int size);
+    int FILE_WRITE(int handle, int buffer_ptr, int size);
+    int FILE_SEEK(int handle, int offset, int origin);
+    int FILE_TELL(int handle);
+    int FILE_EOF(int handle);
+    
+    // System functions
+    void finish();
+    
+    // Heap Manager functions
+    void HeapManager_enterScope();
+    void HeapManager_exitScope();
+    int HeapManager_isSAMMEnabled();
+    void HeapManager_setSAMMEnabled(int enabled);
+    void HeapManager_waitForSAMM();
+    int HeapManager_OBJECT_HEAP_ALLOC(int size);
+    void HeapManager_OBJECT_HEAP_FREE(int ptr);
+    int HeapManager_RUNTIME_METHOD_LOOKUP(int class_id, int method_id);
+    int HeapManager_PIC_RUNTIME_HELPER();
+}
+
+// =============================================================================
+// RUNTIME FUNCTION MANIFEST - SINGLE SOURCE OF TRUTH
+// =============================================================================
+
+/**
+ * Master manifest of all runtime functions published by the runtime library.
+ * This is the authoritative list that the compiler imports.
+ * 
+ * IMPORTANT: Every runtime function callable from BCPL must have an entry here.
+ * The compiler will ONLY know about functions listed in this manifest.
+ */
+static const RuntimeFunctionDescriptor g_runtime_manifest[] = {
+    
+    // -------------------------------------------------------------------------
+    // CORE I/O FUNCTIONS
+    // -------------------------------------------------------------------------
+    {
+        "WRITES", "_WRITES", reinterpret_cast<RuntimeFunctionPtr>(WRITES), 1,
+        RuntimeFunctionType::ROUTINE, RuntimeReturnType::VOID,
+        "Write a string to standard output", "I/O"
+    },
+    {
+        "WRITEN", "_WRITEN", reinterpret_cast<RuntimeFunctionPtr>(WRITEN), 1,
+        RuntimeFunctionType::ROUTINE, RuntimeReturnType::VOID,
+        "Write an integer to standard output", "I/O"
+    },
+    {
+        "FWRITE", "_FWRITE", reinterpret_cast<RuntimeFunctionPtr>(FWRITE), 1,
+        RuntimeFunctionType::FLOAT_ROUTINE, RuntimeReturnType::VOID,
+        "Write a float to standard output", "I/O"
+    },
+    {
+        "WRITEF", "_WRITEF", reinterpret_cast<RuntimeFunctionPtr>(WRITEF), 1,
+        RuntimeFunctionType::ROUTINE, RuntimeReturnType::VOID,
+        "Write formatted output (base case)", "I/O"
+    },
+    {
+        "WRITEF1", "_WRITEF1", reinterpret_cast<RuntimeFunctionPtr>(WRITEF1), 2,
+        RuntimeFunctionType::ROUTINE, RuntimeReturnType::VOID,
+        "Write formatted output with 1 argument", "I/O"
+    },
+    {
+        "WRITEF2", "_WRITEF2", reinterpret_cast<RuntimeFunctionPtr>(WRITEF2), 3,
+        RuntimeFunctionType::ROUTINE, RuntimeReturnType::VOID,
+        "Write formatted output with 2 arguments", "I/O"
+    },
+    {
+        "WRITEF3", "_WRITEF3", reinterpret_cast<RuntimeFunctionPtr>(WRITEF3), 4,
+        RuntimeFunctionType::ROUTINE, RuntimeReturnType::VOID,
+        "Write formatted output with 3 arguments", "I/O"
+    },
+    {
+        "WRITEF4", "_WRITEF4", reinterpret_cast<RuntimeFunctionPtr>(WRITEF4), 5,
+        RuntimeFunctionType::ROUTINE, RuntimeReturnType::VOID,
+        "Write formatted output with 4 arguments", "I/O"
+    },
+    {
+        "WRITEF5", "_WRITEF5", reinterpret_cast<RuntimeFunctionPtr>(WRITEF5), 6,
+        RuntimeFunctionType::ROUTINE, RuntimeReturnType::VOID,
+        "Write formatted output with 5 arguments", "I/O"
+    },
+    {
+        "WRITEF6", "_WRITEF6", reinterpret_cast<RuntimeFunctionPtr>(WRITEF6), 7,
+        RuntimeFunctionType::ROUTINE, RuntimeReturnType::VOID,
+        "Write formatted output with 6 arguments", "I/O"
+    },
+    {
+        "WRITEF7", "_WRITEF7", reinterpret_cast<RuntimeFunctionPtr>(WRITEF7), 8,
+        RuntimeFunctionType::ROUTINE, RuntimeReturnType::VOID,
+        "Write formatted output with 7 arguments", "I/O"
+    },
+    {
+        "WRITEC", "_WRITEC", reinterpret_cast<RuntimeFunctionPtr>(WRITEC), 1,
+        RuntimeFunctionType::ROUTINE, RuntimeReturnType::VOID,
+        "Write a character to standard output", "I/O"
+    },
+    {
+        "RDCH", "_RDCH", reinterpret_cast<RuntimeFunctionPtr>(RDCH), 0,
+        RuntimeFunctionType::STANDARD, RuntimeReturnType::INTEGER,
+        "Read a character from standard input", "I/O"
+    },
+    {
+        "NEWLINE", "_NEWLINE", reinterpret_cast<RuntimeFunctionPtr>(NEWLINE), 0,
+        RuntimeFunctionType::ROUTINE, RuntimeReturnType::VOID,
+        "Output a newline character", "I/O"
+    },
+
+    // -------------------------------------------------------------------------
+    // STRING AND LIST OPERATIONS
+    // -------------------------------------------------------------------------
+    {
+        "SPLIT", "_SPLIT", reinterpret_cast<RuntimeFunctionPtr>(SPLIT), 2,
+        RuntimeFunctionType::STANDARD, RuntimeReturnType::STRING_LIST,
+        "Split a string into a list using delimiter", "String"
+    },
+    {
+        "JOIN", "_JOIN", reinterpret_cast<RuntimeFunctionPtr>(JOIN), 2,
+        RuntimeFunctionType::STANDARD, RuntimeReturnType::STRING,
+        "Join a list of strings using delimiter", "String"
+    },
+    {
+        "STRLEN", "_STRLEN", reinterpret_cast<RuntimeFunctionPtr>(STRLEN), 1,
+        RuntimeFunctionType::STANDARD, RuntimeReturnType::INTEGER,
+        "Get length of a string", "String"
+    },
+    {
+        "STRCMP", "_STRCMP", reinterpret_cast<RuntimeFunctionPtr>(STRCMP), 2,
+        RuntimeFunctionType::STANDARD, RuntimeReturnType::INTEGER,
+        "Compare two strings", "String"
+    },
+    {
+        "STRCOPY", "_STRCOPY", reinterpret_cast<RuntimeFunctionPtr>(STRCOPY), 2,
+        RuntimeFunctionType::ROUTINE, RuntimeReturnType::VOID,
+        "Copy one string to another", "String"
+    },
+    {
+        "PACKSTRING", "_PACKSTRING", reinterpret_cast<RuntimeFunctionPtr>(PACKSTRING), 1,
+        RuntimeFunctionType::STANDARD, RuntimeReturnType::STRING,
+        "Pack a string into memory", "String"
+    },
+    {
+        "UNPACKSTRING", "_UNPACKSTRING", reinterpret_cast<RuntimeFunctionPtr>(UNPACKSTRING), 1,
+        RuntimeFunctionType::STANDARD, RuntimeReturnType::STRING,
+        "Unpack a string from memory", "String"
+    },
+    {
+        "SLURP", "_SLURP", reinterpret_cast<RuntimeFunctionPtr>(SLURP), 1,
+        RuntimeFunctionType::STANDARD, RuntimeReturnType::STRING,
+        "Read entire file into string", "String"
+    },
+    {
+        "SPIT", "_SPIT", reinterpret_cast<RuntimeFunctionPtr>(SPIT), 2,
+        RuntimeFunctionType::ROUTINE, RuntimeReturnType::VOID,
+        "Write string to file", "String"
+    },
+
+    // -------------------------------------------------------------------------
+    // MEMORY MANAGEMENT
+    // -------------------------------------------------------------------------
+    {
+        "GETVEC", "_GETVEC", reinterpret_cast<RuntimeFunctionPtr>(bcpl_getvec), 1,
+        RuntimeFunctionType::STANDARD, RuntimeReturnType::INT_VECTOR,
+        "Allocate integer vector", "Memory"
+    },
+    {
+        "FGETVEC", "_FGETVEC", reinterpret_cast<RuntimeFunctionPtr>(bcpl_fgetvec), 1,
+        RuntimeFunctionType::STANDARD, RuntimeReturnType::FLOAT_VECTOR,
+        "Allocate float vector", "Memory"
+    },
+    {
+        "FREEVEC", "_FREEVEC", reinterpret_cast<RuntimeFunctionPtr>(bcpl_free), 1,
+        RuntimeFunctionType::ROUTINE, RuntimeReturnType::VOID,
+        "Free allocated vector", "Memory"
+    },
+    {
+        "BCPL_ALLOC_WORDS", "_BCPL_ALLOC_WORDS", reinterpret_cast<RuntimeFunctionPtr>(bcpl_alloc_words), 3,
+        RuntimeFunctionType::STANDARD, RuntimeReturnType::INTEGER,
+        "Allocate words with type info", "Memory"
+    },
+    {
+        "BCPL_ALLOC_CHARS", "_BCPL_ALLOC_CHARS", reinterpret_cast<RuntimeFunctionPtr>(bcpl_alloc_chars), 1,
+        RuntimeFunctionType::STANDARD, RuntimeReturnType::INTEGER,
+        "Allocate character buffer", "Memory"
+    },
+    {
+        "MALLOC", "_MALLOC", reinterpret_cast<RuntimeFunctionPtr>(bcpl_alloc_words), 1,
+        RuntimeFunctionType::STANDARD, RuntimeReturnType::INTEGER,
+        "Allocate memory (alias for BCPL_ALLOC_WORDS)", "Memory"
+    },
+    {
+        "BCPL_FREE_LIST", "_BCPL_FREE_LIST", reinterpret_cast<RuntimeFunctionPtr>(bcpl_free_list), 1,
+        RuntimeFunctionType::ROUTINE, RuntimeReturnType::VOID,
+        "Free a list structure", "Memory"
+    },
+    {
+        "BCPL_FREE_LIST_SAFE", "_BCPL_FREE_LIST_SAFE", reinterpret_cast<RuntimeFunctionPtr>(bcpl_free_list_safe), 1,
+        RuntimeFunctionType::ROUTINE, RuntimeReturnType::VOID,
+        "Safely free a list structure", "Memory"
+    },
+    {
+        "BCPL_GET_LAST_ERROR", "_BCPL_GET_LAST_ERROR", reinterpret_cast<RuntimeFunctionPtr>(BCPL_GET_LAST_ERROR), 1,
+        RuntimeFunctionType::STANDARD, RuntimeReturnType::INTEGER,
+        "Get last error message", "Memory"
+    },
+    {
+        "BCPL_CLEAR_ERRORS", "_BCPL_CLEAR_ERRORS", reinterpret_cast<RuntimeFunctionPtr>(BCPL_CLEAR_ERRORS), 0,
+        RuntimeFunctionType::ROUTINE, RuntimeReturnType::VOID,
+        "Clear error state", "Memory"
+    },
+    {
+        "BCPL_CHECK_AND_DISPLAY_ERRORS", "_BCPL_CHECK_AND_DISPLAY_ERRORS", reinterpret_cast<RuntimeFunctionPtr>(BCPL_CHECK_AND_DISPLAY_ERRORS), 0,
+        RuntimeFunctionType::ROUTINE, RuntimeReturnType::VOID,
+        "Check and display any errors", "Memory"
+    },
+    {
+        "BCPL_BOUNDS_ERROR", "_BCPL_BOUNDS_ERROR", reinterpret_cast<RuntimeFunctionPtr>(BCPL_BOUNDS_ERROR), 3,
+        RuntimeFunctionType::ROUTINE, RuntimeReturnType::VOID,
+        "Report bounds checking error", "Memory"
+    },
+    {
+        "BCPL_FREE_CELLS", "_BCPL_FREE_CELLS", reinterpret_cast<RuntimeFunctionPtr>(BCPL_FREE_CELLS), 0,
+        RuntimeFunctionType::ROUTINE, RuntimeReturnType::VOID,
+        "Free memory cells", "Memory"
+    },
+    {
+        "GET_FREE_LIST_HEAD_ADDR", "_GET_FREE_LIST_HEAD_ADDR", reinterpret_cast<RuntimeFunctionPtr>(get_g_free_list_head_address), 0,
+        RuntimeFunctionType::STANDARD, RuntimeReturnType::INTEGER,
+        "Get address of free list head", "Memory"
+    },
+
+    // -------------------------------------------------------------------------
+    // LIST OPERATIONS
+    // -------------------------------------------------------------------------
+    {
+        "LIST_CREATE", "_LIST_CREATE", reinterpret_cast<RuntimeFunctionPtr>(BCPL_LIST_CREATE_EMPTY), 0,
+        RuntimeFunctionType::STANDARD, RuntimeReturnType::STRING_LIST,
+        "Create empty list", "List"
+    },
+    {
+        "LIST_APPEND_INT", "_LIST_APPEND_INT", reinterpret_cast<RuntimeFunctionPtr>(BCPL_LIST_APPEND_INT), 2,
+        RuntimeFunctionType::STANDARD, RuntimeReturnType::STRING_LIST,
+        "Append integer to list", "List"
+    },
+    {
+        "LIST_APPEND_FLOAT", "_LIST_APPEND_FLOAT", reinterpret_cast<RuntimeFunctionPtr>(BCPL_LIST_APPEND_FLOAT), 2,
+        RuntimeFunctionType::FLOAT, RuntimeReturnType::STRING_LIST,
+        "Append float to list", "List"
+    },
+    {
+        "LIST_APPEND_STRING", "_LIST_APPEND_STRING", reinterpret_cast<RuntimeFunctionPtr>(BCPL_LIST_APPEND_STRING), 2,
+        RuntimeFunctionType::STANDARD, RuntimeReturnType::STRING_LIST,
+        "Append string to list", "List"
+    },
+    {
+        "LIST_HEAD_INT", "_LIST_HEAD_INT", reinterpret_cast<RuntimeFunctionPtr>(BCPL_LIST_GET_HEAD_AS_INT), 1,
+        RuntimeFunctionType::STANDARD, RuntimeReturnType::INTEGER,
+        "Get first element of list as integer", "List"
+    },
+    {
+        "LIST_HEAD_FLOAT", "_LIST_HEAD_FLOAT", reinterpret_cast<RuntimeFunctionPtr>(BCPL_LIST_GET_HEAD_AS_FLOAT), 1,
+        RuntimeFunctionType::FLOAT, RuntimeReturnType::FLOAT,
+        "Get first element of list as float", "List"
+    },
+    {
+        "LIST_TAIL", "_LIST_TAIL", reinterpret_cast<RuntimeFunctionPtr>(BCPL_LIST_GET_TAIL), 1,
+        RuntimeFunctionType::STANDARD, RuntimeReturnType::STRING_LIST,
+        "Get tail (rest) of list", "List"
+    },
+    {
+        "LIST_FREE", "_LIST_FREE", reinterpret_cast<RuntimeFunctionPtr>(bcpl_free_list), 1,
+        RuntimeFunctionType::ROUTINE, RuntimeReturnType::VOID,
+        "Free a list and all its elements", "List"
+    },
+    {
+        "BCPL_LIST_APPEND_LIST", "_BCPL_LIST_APPEND_LIST", reinterpret_cast<RuntimeFunctionPtr>(BCPL_LIST_APPEND_LIST), 2,
+        RuntimeFunctionType::STANDARD, RuntimeReturnType::STRING_LIST,
+        "Append list to another list", "List"
+    },
+    {
+        "BCPL_LIST_GET_REST", "_BCPL_LIST_GET_REST", reinterpret_cast<RuntimeFunctionPtr>(BCPL_LIST_GET_REST), 1,
+        RuntimeFunctionType::STANDARD, RuntimeReturnType::STRING_LIST,
+        "Get rest of list (alias for tail)", "List"
+    },
+    {
+        "BCPL_GET_ATOM_TYPE", "_BCPL_GET_ATOM_TYPE", reinterpret_cast<RuntimeFunctionPtr>(BCPL_GET_ATOM_TYPE), 1,
+        RuntimeFunctionType::STANDARD, RuntimeReturnType::INTEGER,
+        "Get type of atomic value", "List"
+    },
+    {
+        "BCPL_LIST_GET_NTH", "_BCPL_LIST_GET_NTH", reinterpret_cast<RuntimeFunctionPtr>(BCPL_LIST_GET_NTH), 2,
+        RuntimeFunctionType::STANDARD, RuntimeReturnType::INTEGER,
+        "Get nth element of list", "List"
+    },
+    {
+        "BCPL_CONCAT_LISTS", "_BCPL_CONCAT_LISTS", reinterpret_cast<RuntimeFunctionPtr>(BCPL_CONCAT_LISTS), 2,
+        RuntimeFunctionType::STANDARD, RuntimeReturnType::STRING_LIST,
+        "Concatenate two lists", "List"
+    },
+    {
+        "CONCAT", "_CONCAT", reinterpret_cast<RuntimeFunctionPtr>(BCPL_CONCAT_LISTS), 2,
+        RuntimeFunctionType::STANDARD, RuntimeReturnType::STRING_LIST,
+        "Concatenate two lists (alias)", "List"
+    },
+    {
+        "COPYLIST", "_COPYLIST", reinterpret_cast<RuntimeFunctionPtr>(BCPL_SHALLOW_COPY_LIST), 1,
+        RuntimeFunctionType::STANDARD, RuntimeReturnType::STRING_LIST,
+        "Create shallow copy of list", "List"
+    },
+    {
+        "DEEPCOPYLIST", "_DEEPCOPYLIST", reinterpret_cast<RuntimeFunctionPtr>(BCPL_DEEP_COPY_LIST), 1,
+        RuntimeFunctionType::STANDARD, RuntimeReturnType::STRING_LIST,
+        "Create deep copy of list", "List"
+    },
+    {
+        "DEEPCOPYLITERALLIST", "_DEEPCOPYLITERALLIST", reinterpret_cast<RuntimeFunctionPtr>(BCPL_DEEP_COPY_LITERAL_LIST), 1,
+        RuntimeFunctionType::STANDARD, RuntimeReturnType::STRING_LIST,
+        "Create deep copy of literal list", "List"
+    },
+    {
+        "REVERSE", "_REVERSE", reinterpret_cast<RuntimeFunctionPtr>(BCPL_REVERSE_LIST), 1,
+        RuntimeFunctionType::STANDARD, RuntimeReturnType::STRING_LIST,
+        "Reverse a list", "List"
+    },
+    {
+        "FIND", "_FIND", reinterpret_cast<RuntimeFunctionPtr>(BCPL_FIND_IN_LIST), 3,
+        RuntimeFunctionType::STANDARD, RuntimeReturnType::INTEGER,
+        "Find element in list", "List"
+    },
+    {
+        "FILTER", "_FILTER", reinterpret_cast<RuntimeFunctionPtr>(BCPL_LIST_FILTER), 2,
+        RuntimeFunctionType::STANDARD, RuntimeReturnType::STRING_LIST,
+        "Filter list elements", "List"
+    },
+    {
+        "APND", "_APND", reinterpret_cast<RuntimeFunctionPtr>(BCPL_LIST_APPEND_INT), 2,
+        RuntimeFunctionType::STANDARD, RuntimeReturnType::STRING_LIST,
+        "Append integer to list (alias)", "List"
+    },
+    {
+        "FPND", "_FPND", reinterpret_cast<RuntimeFunctionPtr>(BCPL_LIST_APPEND_FLOAT), 2,
+        RuntimeFunctionType::FLOAT, RuntimeReturnType::STRING_LIST,
+        "Append float to list (alias)", "List"
+    },
+    {
+        "SPND", "_SPND", reinterpret_cast<RuntimeFunctionPtr>(BCPL_LIST_APPEND_STRING), 2,
+        RuntimeFunctionType::STANDARD, RuntimeReturnType::STRING_LIST,
+        "Append string to list (alias)", "List"
+    },
+    {
+        "LPND", "_LPND", reinterpret_cast<RuntimeFunctionPtr>(BCPL_LIST_APPEND_LIST), 2,
+        RuntimeFunctionType::STANDARD, RuntimeReturnType::STRING_LIST,
+        "Append list to list (alias)", "List"
+    },
+    {
+        "returnNodeToFreelist", "_returnNodeToFreelist", reinterpret_cast<RuntimeFunctionPtr>(returnNodeToFreelist_runtime), 1,
+        RuntimeFunctionType::ROUTINE, RuntimeReturnType::VOID,
+        "Return node to freelist", "List"
+    },
+
+    // -------------------------------------------------------------------------
+    // MATHEMATICAL FUNCTIONS
+    // -------------------------------------------------------------------------
+    {
+        "RAND", "_RAND", reinterpret_cast<RuntimeFunctionPtr>(RAND), 1,
+        RuntimeFunctionType::STANDARD, RuntimeReturnType::INTEGER,
+        "Generate random integer (0 to max_val-1)", "Math"
+    },
+    {
+        "RND", "_RND", reinterpret_cast<RuntimeFunctionPtr>(RND), 1,
+        RuntimeFunctionType::FLOAT, RuntimeReturnType::FLOAT,
+        "Generate random float (0.0 to max_val)", "Math"
+    },
+    {
+        "FRND", "_FRND", reinterpret_cast<RuntimeFunctionPtr>(FRND), 0,
+        RuntimeFunctionType::FLOAT, RuntimeReturnType::FLOAT,
+        "Generate random float (0.0 to 1.0)", "Math"
+    },
+    {
+        "FSIN", "_FSIN", reinterpret_cast<RuntimeFunctionPtr>(FSIN), 1,
+        RuntimeFunctionType::FLOAT, RuntimeReturnType::FLOAT,
+        "Sine function (radians)", "Math"
+    },
+    {
+        "FCOS", "_FCOS", reinterpret_cast<RuntimeFunctionPtr>(FCOS), 1,
+        RuntimeFunctionType::FLOAT, RuntimeReturnType::FLOAT,
+        "Cosine function (radians)", "Math"
+    },
+    {
+        "FTAN", "_FTAN", reinterpret_cast<RuntimeFunctionPtr>(FTAN), 1,
+        RuntimeFunctionType::FLOAT, RuntimeReturnType::FLOAT,
+        "Tangent function (radians)", "Math"
+    },
+    {
+        "FABS", "_FABS", reinterpret_cast<RuntimeFunctionPtr>(FABS), 1,
+        RuntimeFunctionType::FLOAT, RuntimeReturnType::FLOAT,
+        "Absolute value (float)", "Math"
+    },
+    {
+        "FLOG", "_FLOG", reinterpret_cast<RuntimeFunctionPtr>(FLOG), 1,
+        RuntimeFunctionType::FLOAT, RuntimeReturnType::FLOAT,
+        "Natural logarithm", "Math"
+    },
+    {
+        "FEXP", "_FEXP", reinterpret_cast<RuntimeFunctionPtr>(FEXP), 1,
+        RuntimeFunctionType::FLOAT, RuntimeReturnType::FLOAT,
+        "Exponential function", "Math"
+    },
+    {
+        "FIX", "_FIX", reinterpret_cast<RuntimeFunctionPtr>(FIX), 1,
+        RuntimeFunctionType::STANDARD, RuntimeReturnType::INTEGER,
+        "Convert float to integer", "Math"
+    },
+
+    // -------------------------------------------------------------------------
+    // FILE I/O OPERATIONS
+    // -------------------------------------------------------------------------
+    {
+        "FILE_OPEN_READ", "_FILE_OPEN_READ", reinterpret_cast<RuntimeFunctionPtr>(FILE_OPEN_READ), 1,
+        RuntimeFunctionType::STANDARD, RuntimeReturnType::INTEGER,
+        "Open file for reading", "File"
+    },
+    {
+        "FILE_OPEN_WRITE", "_FILE_OPEN_WRITE", reinterpret_cast<RuntimeFunctionPtr>(FILE_OPEN_WRITE), 1,
+        RuntimeFunctionType::STANDARD, RuntimeReturnType::INTEGER,
+        "Open file for writing", "File"
+    },
+    {
+        "FILE_OPEN_APPEND", "_FILE_OPEN_APPEND", reinterpret_cast<RuntimeFunctionPtr>(FILE_OPEN_APPEND), 1,
+        RuntimeFunctionType::STANDARD, RuntimeReturnType::INTEGER,
+        "Open file for appending", "File"
+    },
+    {
+        "FILE_CLOSE", "_FILE_CLOSE", reinterpret_cast<RuntimeFunctionPtr>(FILE_CLOSE), 1,
+        RuntimeFunctionType::STANDARD, RuntimeReturnType::INTEGER,
+        "Close file handle", "File"
+    },
+    {
+        "FILE_WRITES", "_FILE_WRITES", reinterpret_cast<RuntimeFunctionPtr>(FILE_WRITES), 2,
+        RuntimeFunctionType::STANDARD, RuntimeReturnType::INTEGER,
+        "Write string to file", "File"
+    },
+    {
+        "FILE_READS", "_FILE_READS", reinterpret_cast<RuntimeFunctionPtr>(FILE_READS), 1,
+        RuntimeFunctionType::STANDARD, RuntimeReturnType::STRING,
+        "Read string from file", "File"
+    },
+    {
+        "FILE_READ", "_FILE_READ", reinterpret_cast<RuntimeFunctionPtr>(FILE_READ), 3,
+        RuntimeFunctionType::STANDARD, RuntimeReturnType::INTEGER,
+        "Read bytes from file", "File"
+    },
+    {
+        "FILE_WRITE", "_FILE_WRITE", reinterpret_cast<RuntimeFunctionPtr>(FILE_WRITE), 3,
+        RuntimeFunctionType::STANDARD, RuntimeReturnType::INTEGER,
+        "Write bytes to file", "File"
+    },
+    {
+        "FILE_SEEK", "_FILE_SEEK", reinterpret_cast<RuntimeFunctionPtr>(FILE_SEEK), 3,
+        RuntimeFunctionType::STANDARD, RuntimeReturnType::INTEGER,
+        "Seek to position in file", "File"
+    },
+    {
+        "FILE_TELL", "_FILE_TELL", reinterpret_cast<RuntimeFunctionPtr>(FILE_TELL), 1,
+        RuntimeFunctionType::STANDARD, RuntimeReturnType::INTEGER,
+        "Get current position in file", "File"
+    },
+    {
+        "FILE_EOF", "_FILE_EOF", reinterpret_cast<RuntimeFunctionPtr>(FILE_EOF), 1,
+        RuntimeFunctionType::STANDARD, RuntimeReturnType::INTEGER,
+        "Check if at end of file", "File"
+    },
+
+    // -------------------------------------------------------------------------
+    // SYSTEM FUNCTIONS
+    // -------------------------------------------------------------------------
+    {
+        "FINISH", "_FINISH", reinterpret_cast<RuntimeFunctionPtr>(finish), 0,
+        RuntimeFunctionType::ROUTINE, RuntimeReturnType::VOID,
+        "Terminate program execution", "System"
+    },
+    {
+        "SETTYPE", "_SETTYPE", nullptr, 2,
+        RuntimeFunctionType::ROUTINE, RuntimeReturnType::VOID,
+        "Set type information (compiler intrinsic)", "System"
+    },
+
+
+
+    // -------------------------------------------------------------------------
+    // HEAP MANAGER / MEMORY MANAGEMENT
+    // -------------------------------------------------------------------------
+    {
+        "HeapManager_enter_scope", "_HeapManager_enter_scope", reinterpret_cast<RuntimeFunctionPtr>(HeapManager_enterScope), 0,
+        RuntimeFunctionType::ROUTINE, RuntimeReturnType::VOID,
+        "Enter new memory management scope", "Memory"
+    },
+    {
+        "HeapManager_exit_scope", "_HeapManager_exit_scope", reinterpret_cast<RuntimeFunctionPtr>(HeapManager_exitScope), 0,
+        RuntimeFunctionType::ROUTINE, RuntimeReturnType::VOID,
+        "Exit current memory management scope", "Memory"
+    },
+    {
+        "HEAPMANAGER_ISSAMMENABLED", "_HEAPMANAGER_ISSAMMENABLED", reinterpret_cast<RuntimeFunctionPtr>(HeapManager_isSAMMEnabled), 0,
+        RuntimeFunctionType::STANDARD, RuntimeReturnType::INTEGER,
+        "Check if SAMM (Scope Aware Memory Management) is enabled", "Memory"
+    },
+    {
+        "HEAPMANAGER_SETSAMMENABLED", "_HEAPMANAGER_SETSAMMENABLED", reinterpret_cast<RuntimeFunctionPtr>(HeapManager_setSAMMEnabled), 1,
+        RuntimeFunctionType::ROUTINE, RuntimeReturnType::VOID,
+        "Enable or disable SAMM", "Memory"
+    },
+    {
+        "HEAPMANAGER_WAITFORSAMM", "_HEAPMANAGER_WAITFORSAMM", reinterpret_cast<RuntimeFunctionPtr>(HeapManager_waitForSAMM), 0,
+        RuntimeFunctionType::ROUTINE, RuntimeReturnType::VOID,
+        "Wait for SAMM operations to complete", "Memory"
+    },
+    {
+        "OBJECT_HEAP_ALLOC", "_OBJECT_HEAP_ALLOC", reinterpret_cast<RuntimeFunctionPtr>(HeapManager_OBJECT_HEAP_ALLOC), 1,
+        RuntimeFunctionType::STANDARD, RuntimeReturnType::INTEGER,
+        "Allocate object on heap", "Memory"
+    },
+    {
+        "OBJECT_HEAP_FREE", "_OBJECT_HEAP_FREE", reinterpret_cast<RuntimeFunctionPtr>(HeapManager_OBJECT_HEAP_FREE), 1,
+        RuntimeFunctionType::ROUTINE, RuntimeReturnType::VOID,
+        "Free object from heap", "Memory"
+    },
+    {
+        "RUNTIME_METHOD_LOOKUP", "_RUNTIME_METHOD_LOOKUP", reinterpret_cast<RuntimeFunctionPtr>(HeapManager_RUNTIME_METHOD_LOOKUP), 2,
+        RuntimeFunctionType::STANDARD, RuntimeReturnType::INTEGER,
+        "Look up method at runtime", "Memory"
+    },
+    {
+        "PIC_RUNTIME_HELPER", "_PIC_RUNTIME_HELPER", reinterpret_cast<RuntimeFunctionPtr>(HeapManager_PIC_RUNTIME_HELPER), 0,
+        RuntimeFunctionType::STANDARD, RuntimeReturnType::INTEGER,
+        "Polymorphic inline cache helper", "Memory"
+    }
+};
+
+// Calculate manifest size
+static const int g_manifest_count = sizeof(g_runtime_manifest) / sizeof(g_runtime_manifest[0]);
+
+// =============================================================================
+// API IMPLEMENTATION FUNCTIONS
+// =============================================================================
+
+const RuntimeFunctionDescriptor* get_runtime_manifest(int& count) {
+    count = g_manifest_count;
+    return g_runtime_manifest;
+}
+
+const char* get_runtime_api_version() {
+    return "1.0.0";
+}
+
+void initialize_runtime_system() {
+    // Initialize any global runtime state here
+    // This replaces scattered initialization calls
+}
+
+void shutdown_runtime_system() {
+    // Clean shutdown of runtime resources
+}
+
+bool verify_runtime_manifest() {
+    // Verify all function pointers are non-null (except SETTYPE which is a compiler intrinsic)
+    for (int i = 0; i < g_manifest_count; ++i) {
+        const auto& desc = g_runtime_manifest[i];
+        // SETTYPE is special - it's a compiler intrinsic with null function pointer
+        if (!desc.function_pointer && strcmp(desc.veneer_name, "SETTYPE") != 0) {
+            return false;
+        }
+        if (!desc.veneer_name || !desc.linker_symbol || !desc.description) {
+            return false;
+        }
+        if (desc.arg_count < 0) {
+            return false;
+        }
+    }
+    return true;
+}
+
+const RuntimeFunctionDescriptor* lookup_runtime_function(const char* veneer_name) {
+    if (!veneer_name) return nullptr;
+    
+    for (int i = 0; i < g_manifest_count; ++i) {
+        if (strcmp(g_runtime_manifest[i].veneer_name, veneer_name) == 0) {
+            return &g_runtime_manifest[i];
+        }
+    }
+    return nullptr;
+}
+
+const RuntimeFunctionDescriptor** get_functions_by_category(const char* category, int& count) {
+    static const RuntimeFunctionDescriptor* category_functions[256]; // Static buffer
+    count = 0;
+    
+    if (!category) return nullptr;
+    
+    for (int i = 0; i < g_manifest_count && count < 255; ++i) {
+        if (strcmp(g_runtime_manifest[i].category, category) == 0) {
+            category_functions[count++] = &g_runtime_manifest[i];
+        }
+    }
+    
+    return category_functions;
 }
 // -- end of file
 
