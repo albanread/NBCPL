@@ -120,6 +120,41 @@ extern "C" {
     void HeapManager_OBJECT_HEAP_FREE(int ptr);
     int HeapManager_RUNTIME_METHOD_LOOKUP(int class_id, int method_id);
     int HeapManager_PIC_RUNTIME_HELPER();
+
+#ifdef SDL2_RUNTIME_ENABLED
+    // SDL2 functions
+    int64_t SDL2_INIT(void);
+    void SDL2_INIT_SUBSYSTEMS(int64_t flags);
+    void SDL2_QUIT(void);
+    int64_t SDL2_CREATE_WINDOW(uint32_t* title);
+    int64_t SDL2_CREATE_WINDOW_EX(uint32_t* title, int64_t x, int64_t y, int64_t width, int64_t height, int64_t flags);
+    void SDL2_DESTROY_WINDOW(int64_t window_id);
+    void SDL2_SET_WINDOW_TITLE(int64_t window_id, uint32_t* title);
+    void SDL2_SET_WINDOW_SIZE(int64_t window_id, int64_t width, int64_t height);
+    int64_t SDL2_CREATE_RENDERER(int64_t window_id);
+    int64_t SDL2_CREATE_RENDERER_EX(int64_t window_id, int64_t flags);
+    void SDL2_DESTROY_RENDERER(int64_t renderer_id);
+    void SDL2_SET_DRAW_COLOR(int64_t renderer_id, int64_t r, int64_t g, int64_t b, int64_t a);
+    void SDL2_CLEAR(int64_t renderer_id);
+    void SDL2_PRESENT(int64_t renderer_id);
+    void SDL2_DRAW_POINT(int64_t renderer_id, int64_t x, int64_t y);
+    void SDL2_DRAW_LINE(int64_t renderer_id, int64_t x1, int64_t y1, int64_t x2, int64_t y2);
+    void SDL2_DRAW_RECT(int64_t renderer_id, int64_t x, int64_t y, int64_t w, int64_t h);
+    void SDL2_FILL_RECT(int64_t renderer_id, int64_t x, int64_t y, int64_t w, int64_t h);
+    int64_t SDL2_POLL_EVENT(void);
+    int64_t SDL2_GET_EVENT_KEY(void);
+    void SDL2_GET_EVENT_MOUSE(int64_t* x, int64_t* y);
+    int64_t SDL2_GET_EVENT_BUTTON(void);
+    void SDL2_DELAY(int64_t milliseconds);
+    int64_t SDL2_GET_TICKS(void);
+    uint32_t* SDL2_GET_ERROR(void);
+    void SDL2_CLEAR_ERROR(void);
+    int64_t SDL2_GET_VERSION(void);
+    int64_t SDL2_GET_VIDEO_DRIVERS(void);
+    uint32_t* SDL2_GET_CURRENT_VIDEO_DRIVER(void);
+    int64_t SDL2_GET_DISPLAY_MODES(void);
+    int64_t SDL2_TEST_BASIC(void);
+#endif
 }
 
 // =============================================================================
@@ -638,6 +673,166 @@ static const RuntimeFunctionDescriptor g_runtime_manifest[] = {
         RuntimeFunctionType::STANDARD, RuntimeReturnType::INTEGER,
         "Polymorphic inline cache helper", "Memory"
     }
+
+#ifdef SDL2_RUNTIME_ENABLED
+,
+    // -------------------------------------------------------------------------\n    // SDL2 FUNCTIONS\n    // -------------------------------------------------------------------------
+    {
+        "SDL2_INIT", "_SDL2_INIT", reinterpret_cast<RuntimeFunctionPtr>(SDL2_INIT), 0,
+        RuntimeFunctionType::STANDARD, RuntimeReturnType::INTEGER,
+        "Initialize SDL2 video subsystem", "SDL"
+    },
+    {
+        "SDL2_INIT_SUBSYSTEMS", "_SDL2_INIT_SUBSYSTEMS", reinterpret_cast<RuntimeFunctionPtr>(SDL2_INIT_SUBSYSTEMS), 1,
+        RuntimeFunctionType::ROUTINE, RuntimeReturnType::VOID,
+        "Initialize specific SDL2 subsystems", "SDL"
+    },
+    {
+        "SDL2_QUIT", "_SDL2_QUIT", reinterpret_cast<RuntimeFunctionPtr>(SDL2_QUIT), 0,
+        RuntimeFunctionType::ROUTINE, RuntimeReturnType::VOID,
+        "Quit SDL2 and cleanup all resources", "SDL"
+    },
+    {
+        "SDL2_CREATE_WINDOW", "_SDL2_CREATE_WINDOW", reinterpret_cast<RuntimeFunctionPtr>(SDL2_CREATE_WINDOW), 1,
+        RuntimeFunctionType::STANDARD, RuntimeReturnType::INTEGER,
+        "Create a 640x480 window with default settings", "SDL"
+    },
+    {
+        "SDL2_CREATE_WINDOW_EX", "_SDL2_CREATE_WINDOW_EX", reinterpret_cast<RuntimeFunctionPtr>(SDL2_CREATE_WINDOW_EX), 6,
+        RuntimeFunctionType::STANDARD, RuntimeReturnType::INTEGER,
+        "Create a window with custom properties", "SDL"
+    },
+    {
+        "SDL2_DESTROY_WINDOW", "_SDL2_DESTROY_WINDOW", reinterpret_cast<RuntimeFunctionPtr>(SDL2_DESTROY_WINDOW), 1,
+        RuntimeFunctionType::ROUTINE, RuntimeReturnType::VOID,
+        "Destroy a window and free its resources", "SDL"
+    },
+    {
+        "SDL2_SET_WINDOW_TITLE", "_SDL2_SET_WINDOW_TITLE", reinterpret_cast<RuntimeFunctionPtr>(SDL2_SET_WINDOW_TITLE), 2,
+        RuntimeFunctionType::ROUTINE, RuntimeReturnType::VOID,
+        "Change a window's title", "SDL"
+    },
+    {
+        "SDL2_SET_WINDOW_SIZE", "_SDL2_SET_WINDOW_SIZE", reinterpret_cast<RuntimeFunctionPtr>(SDL2_SET_WINDOW_SIZE), 3,
+        RuntimeFunctionType::ROUTINE, RuntimeReturnType::VOID,
+        "Resize a window", "SDL"
+    },
+    {
+        "SDL2_CREATE_RENDERER", "_SDL2_CREATE_RENDERER", reinterpret_cast<RuntimeFunctionPtr>(SDL2_CREATE_RENDERER), 1,
+        RuntimeFunctionType::STANDARD, RuntimeReturnType::INTEGER,
+        "Create a renderer for a window with default settings", "SDL"
+    },
+    {
+        "SDL2_CREATE_RENDERER_EX", "_SDL2_CREATE_RENDERER_EX", reinterpret_cast<RuntimeFunctionPtr>(SDL2_CREATE_RENDERER_EX), 2,
+        RuntimeFunctionType::STANDARD, RuntimeReturnType::INTEGER,
+        "Create a renderer with custom flags", "SDL"
+    },
+    {
+        "SDL2_DESTROY_RENDERER", "_SDL2_DESTROY_RENDERER", reinterpret_cast<RuntimeFunctionPtr>(SDL2_DESTROY_RENDERER), 1,
+        RuntimeFunctionType::ROUTINE, RuntimeReturnType::VOID,
+        "Destroy a renderer and free its resources", "SDL"
+    },
+    {
+        "SDL2_SET_DRAW_COLOR", "_SDL2_SET_DRAW_COLOR", reinterpret_cast<RuntimeFunctionPtr>(SDL2_SET_DRAW_COLOR), 5,
+        RuntimeFunctionType::ROUTINE, RuntimeReturnType::VOID,
+        "Set the color for drawing operations", "SDL"
+    },
+    {
+        "SDL2_CLEAR", "_SDL2_CLEAR", reinterpret_cast<RuntimeFunctionPtr>(SDL2_CLEAR), 1,
+        RuntimeFunctionType::ROUTINE, RuntimeReturnType::VOID,
+        "Clear the screen with current draw color", "SDL"
+    },
+    {
+        "SDL2_PRESENT", "_SDL2_PRESENT", reinterpret_cast<RuntimeFunctionPtr>(SDL2_PRESENT), 1,
+        RuntimeFunctionType::ROUTINE, RuntimeReturnType::VOID,
+        "Display the rendered frame (swap buffers)", "SDL"
+    },
+    {
+        "SDL2_DRAW_POINT", "_SDL2_DRAW_POINT", reinterpret_cast<RuntimeFunctionPtr>(SDL2_DRAW_POINT), 3,
+        RuntimeFunctionType::ROUTINE, RuntimeReturnType::VOID,
+        "Draw a single point", "SDL"
+    },
+    {
+        "SDL2_DRAW_LINE", "_SDL2_DRAW_LINE", reinterpret_cast<RuntimeFunctionPtr>(SDL2_DRAW_LINE), 5,
+        RuntimeFunctionType::ROUTINE, RuntimeReturnType::VOID,
+        "Draw a line between two points", "SDL"
+    },
+    {
+        "SDL2_DRAW_RECT", "_SDL2_DRAW_RECT", reinterpret_cast<RuntimeFunctionPtr>(SDL2_DRAW_RECT), 5,
+        RuntimeFunctionType::ROUTINE, RuntimeReturnType::VOID,
+        "Draw a rectangle outline", "SDL"
+    },
+    {
+        "SDL2_FILL_RECT", "_SDL2_FILL_RECT", reinterpret_cast<RuntimeFunctionPtr>(SDL2_FILL_RECT), 5,
+        RuntimeFunctionType::ROUTINE, RuntimeReturnType::VOID,
+        "Draw a filled rectangle", "SDL"
+    },
+    {
+        "SDL2_POLL_EVENT", "_SDL2_POLL_EVENT", reinterpret_cast<RuntimeFunctionPtr>(SDL2_POLL_EVENT), 0,
+        RuntimeFunctionType::STANDARD, RuntimeReturnType::INTEGER,
+        "Check for pending events", "SDL"
+    },
+    {
+        "SDL2_GET_EVENT_KEY", "_SDL2_GET_EVENT_KEY", reinterpret_cast<RuntimeFunctionPtr>(SDL2_GET_EVENT_KEY), 0,
+        RuntimeFunctionType::STANDARD, RuntimeReturnType::INTEGER,
+        "Get the key code from the last keyboard event", "SDL"
+    },
+    {
+        "SDL2_GET_EVENT_MOUSE", "_SDL2_GET_EVENT_MOUSE", reinterpret_cast<RuntimeFunctionPtr>(SDL2_GET_EVENT_MOUSE), 2,
+        RuntimeFunctionType::ROUTINE, RuntimeReturnType::VOID,
+        "Get mouse coordinates from the last mouse event", "SDL"
+    },
+    {
+        "SDL2_GET_EVENT_BUTTON", "_SDL2_GET_EVENT_BUTTON", reinterpret_cast<RuntimeFunctionPtr>(SDL2_GET_EVENT_BUTTON), 0,
+        RuntimeFunctionType::STANDARD, RuntimeReturnType::INTEGER,
+        "Get the mouse button from the last mouse button event", "SDL"
+    },
+    {
+        "SDL2_DELAY", "_SDL2_DELAY", reinterpret_cast<RuntimeFunctionPtr>(SDL2_DELAY), 1,
+        RuntimeFunctionType::ROUTINE, RuntimeReturnType::VOID,
+        "Pause execution for specified time", "SDL"
+    },
+    {
+        "SDL2_GET_TICKS", "_SDL2_GET_TICKS", reinterpret_cast<RuntimeFunctionPtr>(SDL2_GET_TICKS), 0,
+        RuntimeFunctionType::STANDARD, RuntimeReturnType::INTEGER,
+        "Get milliseconds since SDL initialization", "SDL"
+    },
+    {
+        "SDL2_GET_ERROR", "_SDL2_GET_ERROR", reinterpret_cast<RuntimeFunctionPtr>(SDL2_GET_ERROR), 0,
+        RuntimeFunctionType::STANDARD, RuntimeReturnType::STRING,
+        "Get the last SDL error message", "SDL"
+    },
+    {
+        "SDL2_CLEAR_ERROR", "_SDL2_CLEAR_ERROR", reinterpret_cast<RuntimeFunctionPtr>(SDL2_CLEAR_ERROR), 0,
+        RuntimeFunctionType::ROUTINE, RuntimeReturnType::VOID,
+        "Clear the SDL error state", "SDL"
+    },
+    {
+        "SDL2_GET_VERSION", "_SDL2_GET_VERSION", reinterpret_cast<RuntimeFunctionPtr>(SDL2_GET_VERSION), 0,
+        RuntimeFunctionType::STANDARD, RuntimeReturnType::INTEGER,
+        "Get SDL2 version information", "SDL"
+    },
+    {
+        "SDL2_GET_VIDEO_DRIVERS", "_SDL2_GET_VIDEO_DRIVERS", reinterpret_cast<RuntimeFunctionPtr>(SDL2_GET_VIDEO_DRIVERS), 0,
+        RuntimeFunctionType::STANDARD, RuntimeReturnType::INTEGER,
+        "Get list of available video drivers", "SDL"
+    },
+    {
+        "SDL2_GET_CURRENT_VIDEO_DRIVER", "_SDL2_GET_CURRENT_VIDEO_DRIVER", reinterpret_cast<RuntimeFunctionPtr>(SDL2_GET_CURRENT_VIDEO_DRIVER), 0,
+        RuntimeFunctionType::STANDARD, RuntimeReturnType::STRING,
+        "Get the name of the current video driver", "SDL"
+    },
+    {
+        "SDL2_GET_DISPLAY_MODES", "_SDL2_GET_DISPLAY_MODES", reinterpret_cast<RuntimeFunctionPtr>(SDL2_GET_DISPLAY_MODES), 0,
+        RuntimeFunctionType::STANDARD, RuntimeReturnType::INTEGER,
+        "Get information about available display modes", "SDL"
+    },
+    {
+        "SDL2_TEST_BASIC", "_SDL2_TEST_BASIC", reinterpret_cast<RuntimeFunctionPtr>(SDL2_TEST_BASIC), 0,
+        RuntimeFunctionType::STANDARD, RuntimeReturnType::INTEGER,
+        "Test basic SDL2 functionality", "SDL"
+    }
+#endif
 };
 
 // Calculate manifest size
