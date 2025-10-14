@@ -16,18 +16,36 @@ void NewCodeGenerator::visit(FunctionCall& node) {
     // variables are allocated to callee-saved registers (preserved automatically)
 
     // --- STEP 1: Evaluate All Arguments FIRST ---
-    std::vector<std::string> arg_result_regs;
+    std::vector<ArgInfo> arg_result_regs;
     for (const auto& arg_expr : node.arguments) {
         generate_expression_code(*arg_expr);
-        std::string temp_reg;
-        if (register_manager_.is_fp_register(expression_result_reg_)) {
-            temp_reg = register_manager_.acquire_spillable_fp_temp_reg(*this);
-            emit(Encoder::create_fmov_reg(temp_reg, expression_result_reg_));
+        
+        // Check if the result is already in a temporary register or a variable's home register
+        std::string result_reg = expression_result_reg_;
+        bool is_temp = false;
+        
+        // If the expression result is in a variable's home register, we need to copy it to a temp
+        // This prevents the home register from being released during argument coercion
+        if (auto* var_access = dynamic_cast<VariableAccess*>(arg_expr.get())) {
+            // This is a variable access - the result might be in the variable's home register
+            // We should copy it to a temporary to be safe
+            std::string temp_reg;
+            if (register_manager_.is_fp_register(expression_result_reg_)) {
+                temp_reg = register_manager_.acquire_fp_scratch_reg();
+                emit(Encoder::create_fmov_reg(temp_reg, expression_result_reg_));
+            } else {
+                temp_reg = register_manager_.acquire_scratch_reg(*this);
+                emit(Encoder::create_mov_reg(temp_reg, expression_result_reg_));
+            }
+            result_reg = temp_reg;
+            is_temp = true;
         } else {
-            temp_reg = register_manager_.acquire_spillable_temp_reg(*this);
-            emit(Encoder::create_mov_reg(temp_reg, expression_result_reg_));
+            // For non-variable expressions (literals, complex expressions), the result is typically
+            // already in a temporary register from the expression evaluation
+            is_temp = true;
         }
-        arg_result_regs.push_back(temp_reg);
+        
+        arg_result_regs.push_back({result_reg, is_temp});
     }
 
     // --- STEP 2: Dispatch to the Correct Handler ---
@@ -95,7 +113,7 @@ void NewCodeGenerator::visit(FunctionCall& node) {
     // Phase 4: Manual restore removed - callee-saved registers preserved automatically
 }
 
-void NewCodeGenerator::handle_method_call_arguments_for_super(FunctionCall& node, const std::vector<std::string>& arg_result_regs, const std::string& func_name) {
+void NewCodeGenerator::handle_method_call_arguments_for_super(FunctionCall& node, const std::vector<ArgInfo>& arg_result_regs, const std::string& func_name) {
     debug_print("Handling method call arguments for transformed SUPER call: " + func_name);
 
     if (arg_result_regs.empty()) {
@@ -106,17 +124,21 @@ void NewCodeGenerator::handle_method_call_arguments_for_super(FunctionCall& node
     // X0 = _this (first argument), X1 = second argument, X2 = third argument, etc.
     
     // Set up _this pointer in X0
-    std::string this_ptr_reg = arg_result_regs[0];
+    std::string this_ptr_reg = arg_result_regs[0].reg_name;
     emit(Encoder::create_mov_reg_comment("X0", this_ptr_reg, "_this pointer"));
-    register_manager_.release_register(this_ptr_reg);
+    if (arg_result_regs[0].is_temp) {
+        register_manager_.release_register(this_ptr_reg);
+    }
 
     // Set up remaining arguments starting from X1 (method call convention)
     for (size_t i = 1; i < arg_result_regs.size(); ++i) {
         std::string target_reg = "X" + std::to_string(i);
         std::string param_comment = "Parameter " + std::to_string(i - 1) + " (method call)";
         
-        emit(Encoder::create_mov_reg_comment(target_reg, arg_result_regs[i], param_comment));
-        register_manager_.release_register(arg_result_regs[i]);
+        emit(Encoder::create_mov_reg_comment(target_reg, arg_result_regs[i].reg_name, param_comment));
+        if (arg_result_regs[i].is_temp) {
+            register_manager_.release_register(arg_result_regs[i].reg_name);
+        }
     }
 
     // Use direct BL for transformed SUPER calls (no vtable lookup needed)
@@ -141,7 +163,7 @@ bool NewCodeGenerator::is_special_built_in(const std::string& func_name) {
     return built_ins.count(func_name);
 }
 
-void NewCodeGenerator::handle_special_built_in_call(FunctionCall& node, const std::vector<std::string>& arg_result_regs) {
+void NewCodeGenerator::handle_special_built_in_call(FunctionCall& node, const std::vector<ArgInfo>& arg_result_regs) {
     auto* var_access = static_cast<VariableAccess*>(node.function_expr.get());
     const std::string& function_name = var_access->name;
     
@@ -199,7 +221,9 @@ void NewCodeGenerator::handle_special_built_in_call(FunctionCall& node, const st
         } else {
             emit(Encoder::create_mov_reg("X1", value_reg));
         }
-        register_manager_.release_register(value_reg);
+        if (arg_result_regs[0].is_temp) {
+            register_manager_.release_register(value_reg);
+        }
         emit(Encoder::create_movz_movk_abs64("X2", type_tag, ""));
         emit(Encoder::create_branch_with_link("FIND"));
         expression_result_reg_ = "X0";
@@ -243,7 +267,7 @@ void NewCodeGenerator::handle_special_built_in_call(FunctionCall& node, const st
     throw std::runtime_error("Unknown special built-in: " + function_name);
 }
 
-void NewCodeGenerator::handle_method_call(FunctionCall& node, const std::vector<std::string>& arg_result_regs) {
+void NewCodeGenerator::handle_method_call(FunctionCall& node, const std::vector<ArgInfo>& arg_result_regs) {
     auto* member_access = static_cast<MemberAccessExpression*>(node.function_expr.get());
     std::string this_ptr_reg;
     std::string class_name;
@@ -265,8 +289,10 @@ void NewCodeGenerator::handle_method_call(FunctionCall& node, const std::vector<
     emit(Encoder::create_mov_reg("X0", this_ptr_reg));
     for (size_t i = 0; i < arg_result_regs.size(); ++i) {
         std::string target_reg = "X" + std::to_string(i + 1);
-        emit(Encoder::create_mov_reg(target_reg, arg_result_regs[i]));
-        register_manager_.release_register(arg_result_regs[i]);
+        emit(Encoder::create_mov_reg(target_reg, arg_result_regs[i].reg_name));
+        if (arg_result_regs[i].is_temp) {
+            register_manager_.release_register(arg_result_regs[i].reg_name);
+        }
     }
     register_manager_.release_register(this_ptr_reg);
     emit(Encoder::create_branch_with_link_register(method_addr_reg));
@@ -288,7 +314,7 @@ void NewCodeGenerator::handle_method_call(FunctionCall& node, const std::vector<
     }
 }
 
-void NewCodeGenerator::handle_super_call(FunctionCall& node, const std::vector<std::string>& arg_result_regs) {
+void NewCodeGenerator::handle_super_call(FunctionCall& node, const std::vector<ArgInfo>& arg_result_regs) {
     auto* super_access = static_cast<SuperMethodAccessExpression*>(node.function_expr.get());
     std::string this_ptr_reg = get_variable_register("_this");
     const ClassTableEntry* class_entry = class_table_->get_class(current_class_name_);
@@ -306,8 +332,10 @@ void NewCodeGenerator::handle_super_call(FunctionCall& node, const std::vector<s
     emit(Encoder::create_mov_reg("X0", this_ptr_reg));
     for (size_t i = 0; i < arg_result_regs.size(); ++i) {
         std::string target_reg = "X" + std::to_string(i + 1);
-        emit(Encoder::create_mov_reg(target_reg, arg_result_regs[i]));
-        register_manager_.release_register(arg_result_regs[i]);
+        emit(Encoder::create_mov_reg(target_reg, arg_result_regs[i].reg_name));
+        if (arg_result_regs[i].is_temp) {
+            register_manager_.release_register(arg_result_regs[i].reg_name);
+        }
     }
     register_manager_.release_register(this_ptr_reg);
     emit(Encoder::create_branch_with_link(method_info->qualified_name));
@@ -315,7 +343,7 @@ void NewCodeGenerator::handle_super_call(FunctionCall& node, const std::vector<s
     expression_result_reg_ = "X0";
 }
 
-void NewCodeGenerator::handle_regular_call(FunctionCall& node, const std::vector<std::string>& arg_result_regs) {
+void NewCodeGenerator::handle_regular_call(FunctionCall& node, const std::vector<ArgInfo>& arg_result_regs) {
     std::string function_name;
     if (auto* var_access = dynamic_cast<VariableAccess*>(node.function_expr.get())) {
         function_name = var_access->name;

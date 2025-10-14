@@ -20878,6 +20878,22 @@ RegisterManager* RegisterManager::instance_ = nullptr;
 
 // Returns the next available pre-reserved callee-saved temp register (X19-X28)
 std::string RegisterManager::get_next_available_temp_reg() {
+    if (debug_enabled_) {
+        std::cout << "[REGISTER_MGR] get_next_available_temp_reg() called" << std::endl;
+        std::cout << "[REGISTER_MGR] Current register states:" << std::endl;
+        for (int i = 19; i <= 28; ++i) {
+            std::string reg = "X" + std::to_string(i);
+            if (reg == "X28") continue;
+            if (registers.count(reg)) {
+                auto& info = registers[reg];
+                std::cout << "[REGISTER_MGR]   " << reg << " status=" << info.status 
+                         << " bound_to='" << info.bound_to << "'" << std::endl;
+            } else {
+                std::cout << "[REGISTER_MGR]   " << reg << " not in registry (will be treated as FREE)" << std::endl;
+            }
+        }
+    }
+
     // Callee-saved registers: X19-X28
     static const int kFirstCalleeSaved = 19;
     static const int kLastCalleeSaved = 28;
@@ -20888,15 +20904,36 @@ std::string RegisterManager::get_next_available_temp_reg() {
         // Skip reserved registers if needed (e.g., X28 for global base)
         if (reg == "X28") continue;
 
+        if (debug_enabled_) {
+            std::cout << "[REGISTER_MGR] Checking " << reg << "..." << std::endl;
+        }
+
         // Only allocate if the register is free
         if (!registers.count(reg) || registers[reg].status == FREE) {
+            if (debug_enabled_) {
+                std::cout << "[REGISTER_MGR] Allocating " << reg << " as temp register" << std::endl;
+            }
             registers[reg] = {IN_USE_SCRATCH, "temp", false};
+            if (debug_enabled_) {
+                std::cout << "[REGISTER_MGR] Successfully allocated " << reg << " with status IN_USE_SCRATCH" << std::endl;
+            }
             return reg;
+        } else if (debug_enabled_) {
+            std::cout << "[REGISTER_MGR] " << reg << " is not available (status=" 
+                     << registers[reg].status << ", bound_to='" << registers[reg].bound_to << "')" << std::endl;
         }
     }
 
+    if (debug_enabled_) {
+        std::cout << "[REGISTER_MGR] No free temp registers found, trying cleanup strategies" << std::endl;
+    }
+    
     // Try cleanup strategies before giving up
     force_cleanup_stale_variable_mappings();
+    
+    if (debug_enabled_) {
+        std::cout << "[REGISTER_MGR] After stale cleanup, trying again..." << std::endl;
+    }
     
     // Try again after stale cleanup
     for (int i = kFirstCalleeSaved; i <= kLastCalleeSaved; ++i) {
@@ -20904,13 +20941,24 @@ std::string RegisterManager::get_next_available_temp_reg() {
         if (reg == "X28") continue;
         
         if (!registers.count(reg) || registers[reg].status == FREE) {
+            if (debug_enabled_) {
+                std::cout << "[REGISTER_MGR] Found " << reg << " free after stale cleanup" << std::endl;
+            }
             registers[reg] = {IN_USE_SCRATCH, "temp", false};
             return reg;
         }
     }
     
+    if (debug_enabled_) {
+        std::cout << "[REGISTER_MGR] Still no free registers, trying expression boundary cleanup" << std::endl;
+    }
+    
     // Try expression boundary cleanup
     cleanup_expression_boundary();
+    
+    if (debug_enabled_) {
+        std::cout << "[REGISTER_MGR] After expression boundary cleanup, final attempt..." << std::endl;
+    }
     
     // Final attempt after all cleanup
     for (int i = kFirstCalleeSaved; i <= kLastCalleeSaved; ++i) {
@@ -20918,11 +20966,19 @@ std::string RegisterManager::get_next_available_temp_reg() {
         if (reg == "X28") continue;
         
         if (!registers.count(reg) || registers[reg].status == FREE) {
+            if (debug_enabled_) {
+                std::cout << "[REGISTER_MGR] Found " << reg << " free after expression cleanup" << std::endl;
+            }
             registers[reg] = {IN_USE_SCRATCH, "temp", false};
             return reg;
         }
     }
 
+    if (debug_enabled_) {
+        std::cout << "[REGISTER_MGR] FATAL: No temp registers available after all cleanup attempts!" << std::endl;
+        dump_state("FATAL: get_next_available_temp_reg failed");
+    }
+    
     throw std::runtime_error("No more pre-reserved callee-saved temp registers available!");
 }
 
@@ -21016,10 +21072,23 @@ bool RegisterManager::is_scratch_register(const std::string& register_name) cons
 // --- Helper Functions ---
 
 std::string RegisterManager::find_free_register(const std::vector<std::string>& pool) {
+    if (debug_enabled_) {
+        std::cout << "[REGISTER_MGR] Searching for free register in pool of " << pool.size() << " registers" << std::endl;
+    }
     for (const auto& reg : pool) {
-        if (registers.at(reg).status == FREE) {
+        auto status = registers.at(reg).status;
+        if (debug_enabled_) {
+            std::cout << "[REGISTER_MGR] " << reg << " status=" << status << " (FREE=" << FREE << ", IN_USE_VARIABLE=" << IN_USE_VARIABLE << ", IN_USE_SCRATCH=" << IN_USE_SCRATCH << ")" << std::endl;
+        }
+        if (status == FREE) {
+            if (debug_enabled_) {
+                std::cout << "[REGISTER_MGR] Returning free register: " << reg << std::endl;
+            }
             return reg;
         }
+    }
+    if (debug_enabled_) {
+        std::cout << "[REGISTER_MGR] No free registers found" << std::endl;
     }
     return "";
 }
@@ -21057,12 +21126,29 @@ Instruction RegisterManager::generate_spill_code(const std::string& reg_name, co
 // --- ABI & State Management ---
 
 std::string RegisterManager::acquire_scratch_reg(NewCodeGenerator& code_gen) {
+    if (debug_enabled_) {
+        std::cout << "[REGISTER_MGR] acquire_scratch_reg called" << std::endl;
+        std::cout << "[REGISTER_MGR] SCRATCH_REGS pool status:" << std::endl;
+        for (const auto& reg : SCRATCH_REGS) {
+            if (registers.count(reg)) {
+                auto& info = registers[reg];
+                std::cout << "[REGISTER_MGR]   " << reg << " status=" << info.status 
+                         << " bound_to='" << info.bound_to << "'" << std::endl;
+            } else {
+                std::cout << "[REGISTER_MGR]   " << reg << " not in registry" << std::endl;
+            }
+        }
+    }
+
     // Phase 3: LinearScanAllocator is now the single source of truth for allocation decisions.
     // This method only manages the pre-allocated scratch register pool.
     
     // 1. Try the dedicated scratch pool first.
     std::string reg = find_free_register(SCRATCH_REGS);
     if (!reg.empty()) {
+        if (debug_enabled_) {
+            std::cout << "[REGISTER_MGR] Allocated scratch register: " << reg << std::endl;
+        }
         registers[reg] = {IN_USE_SCRATCH, "scratch", false};
         return reg;
     }
@@ -21075,6 +21161,9 @@ std::string RegisterManager::acquire_scratch_reg(NewCodeGenerator& code_gen) {
         }
         reg = find_free_register(SCRATCH_REGS);
         if (!reg.empty()) {
+            if (debug_enabled_) {
+                std::cout << "[REGISTER_MGR] Found scratch register after cleanup: " << reg << std::endl;
+            }
             registers[reg] = {IN_USE_SCRATCH, "scratch", false};
             return reg;
         }
@@ -49259,18 +49348,36 @@ void NewCodeGenerator::visit(FunctionCall& node) {
     // variables are allocated to callee-saved registers (preserved automatically)
 
     // --- STEP 1: Evaluate All Arguments FIRST ---
-    std::vector<std::string> arg_result_regs;
+    std::vector<ArgInfo> arg_result_regs;
     for (const auto& arg_expr : node.arguments) {
         generate_expression_code(*arg_expr);
-        std::string temp_reg;
-        if (register_manager_.is_fp_register(expression_result_reg_)) {
-            temp_reg = register_manager_.acquire_spillable_fp_temp_reg(*this);
-            emit(Encoder::create_fmov_reg(temp_reg, expression_result_reg_));
+        
+        // Check if the result is already in a temporary register or a variable's home register
+        std::string result_reg = expression_result_reg_;
+        bool is_temp = false;
+        
+        // If the expression result is in a variable's home register, we need to copy it to a temp
+        // This prevents the home register from being released during argument coercion
+        if (auto* var_access = dynamic_cast<VariableAccess*>(arg_expr.get())) {
+            // This is a variable access - the result might be in the variable's home register
+            // We should copy it to a temporary to be safe
+            std::string temp_reg;
+            if (register_manager_.is_fp_register(expression_result_reg_)) {
+                temp_reg = register_manager_.acquire_fp_scratch_reg();
+                emit(Encoder::create_fmov_reg(temp_reg, expression_result_reg_));
+            } else {
+                temp_reg = register_manager_.acquire_scratch_reg(*this);
+                emit(Encoder::create_mov_reg(temp_reg, expression_result_reg_));
+            }
+            result_reg = temp_reg;
+            is_temp = true;
         } else {
-            temp_reg = register_manager_.acquire_spillable_temp_reg(*this);
-            emit(Encoder::create_mov_reg(temp_reg, expression_result_reg_));
+            // For non-variable expressions (literals, complex expressions), the result is typically
+            // already in a temporary register from the expression evaluation
+            is_temp = true;
         }
-        arg_result_regs.push_back(temp_reg);
+        
+        arg_result_regs.push_back({result_reg, is_temp});
     }
 
     // --- STEP 2: Dispatch to the Correct Handler ---
@@ -49338,7 +49445,7 @@ void NewCodeGenerator::visit(FunctionCall& node) {
     // Phase 4: Manual restore removed - callee-saved registers preserved automatically
 }
 
-void NewCodeGenerator::handle_method_call_arguments_for_super(FunctionCall& node, const std::vector<std::string>& arg_result_regs, const std::string& func_name) {
+void NewCodeGenerator::handle_method_call_arguments_for_super(FunctionCall& node, const std::vector<ArgInfo>& arg_result_regs, const std::string& func_name) {
     debug_print("Handling method call arguments for transformed SUPER call: " + func_name);
 
     if (arg_result_regs.empty()) {
@@ -49349,17 +49456,21 @@ void NewCodeGenerator::handle_method_call_arguments_for_super(FunctionCall& node
     // X0 = _this (first argument), X1 = second argument, X2 = third argument, etc.
     
     // Set up _this pointer in X0
-    std::string this_ptr_reg = arg_result_regs[0];
+    std::string this_ptr_reg = arg_result_regs[0].reg_name;
     emit(Encoder::create_mov_reg_comment("X0", this_ptr_reg, "_this pointer"));
-    register_manager_.release_register(this_ptr_reg);
+    if (arg_result_regs[0].is_temp) {
+        register_manager_.release_register(this_ptr_reg);
+    }
 
     // Set up remaining arguments starting from X1 (method call convention)
     for (size_t i = 1; i < arg_result_regs.size(); ++i) {
         std::string target_reg = "X" + std::to_string(i);
         std::string param_comment = "Parameter " + std::to_string(i - 1) + " (method call)";
         
-        emit(Encoder::create_mov_reg_comment(target_reg, arg_result_regs[i], param_comment));
-        register_manager_.release_register(arg_result_regs[i]);
+        emit(Encoder::create_mov_reg_comment(target_reg, arg_result_regs[i].reg_name, param_comment));
+        if (arg_result_regs[i].is_temp) {
+            register_manager_.release_register(arg_result_regs[i].reg_name);
+        }
     }
 
     // Use direct BL for transformed SUPER calls (no vtable lookup needed)
@@ -49384,7 +49495,7 @@ bool NewCodeGenerator::is_special_built_in(const std::string& func_name) {
     return built_ins.count(func_name);
 }
 
-void NewCodeGenerator::handle_special_built_in_call(FunctionCall& node, const std::vector<std::string>& arg_result_regs) {
+void NewCodeGenerator::handle_special_built_in_call(FunctionCall& node, const std::vector<ArgInfo>& arg_result_regs) {
     auto* var_access = static_cast<VariableAccess*>(node.function_expr.get());
     const std::string& function_name = var_access->name;
     
@@ -49442,7 +49553,9 @@ void NewCodeGenerator::handle_special_built_in_call(FunctionCall& node, const st
         } else {
             emit(Encoder::create_mov_reg("X1", value_reg));
         }
-        register_manager_.release_register(value_reg);
+        if (arg_result_regs[0].is_temp) {
+            register_manager_.release_register(value_reg);
+        }
         emit(Encoder::create_movz_movk_abs64("X2", type_tag, ""));
         emit(Encoder::create_branch_with_link("FIND"));
         expression_result_reg_ = "X0";
@@ -49486,7 +49599,7 @@ void NewCodeGenerator::handle_special_built_in_call(FunctionCall& node, const st
     throw std::runtime_error("Unknown special built-in: " + function_name);
 }
 
-void NewCodeGenerator::handle_method_call(FunctionCall& node, const std::vector<std::string>& arg_result_regs) {
+void NewCodeGenerator::handle_method_call(FunctionCall& node, const std::vector<ArgInfo>& arg_result_regs) {
     auto* member_access = static_cast<MemberAccessExpression*>(node.function_expr.get());
     std::string this_ptr_reg;
     std::string class_name;
@@ -49508,8 +49621,10 @@ void NewCodeGenerator::handle_method_call(FunctionCall& node, const std::vector<
     emit(Encoder::create_mov_reg("X0", this_ptr_reg));
     for (size_t i = 0; i < arg_result_regs.size(); ++i) {
         std::string target_reg = "X" + std::to_string(i + 1);
-        emit(Encoder::create_mov_reg(target_reg, arg_result_regs[i]));
-        register_manager_.release_register(arg_result_regs[i]);
+        emit(Encoder::create_mov_reg(target_reg, arg_result_regs[i].reg_name));
+        if (arg_result_regs[i].is_temp) {
+            register_manager_.release_register(arg_result_regs[i].reg_name);
+        }
     }
     register_manager_.release_register(this_ptr_reg);
     emit(Encoder::create_branch_with_link_register(method_addr_reg));
@@ -49531,7 +49646,7 @@ void NewCodeGenerator::handle_method_call(FunctionCall& node, const std::vector<
     }
 }
 
-void NewCodeGenerator::handle_super_call(FunctionCall& node, const std::vector<std::string>& arg_result_regs) {
+void NewCodeGenerator::handle_super_call(FunctionCall& node, const std::vector<ArgInfo>& arg_result_regs) {
     auto* super_access = static_cast<SuperMethodAccessExpression*>(node.function_expr.get());
     std::string this_ptr_reg = get_variable_register("_this");
     const ClassTableEntry* class_entry = class_table_->get_class(current_class_name_);
@@ -49549,8 +49664,10 @@ void NewCodeGenerator::handle_super_call(FunctionCall& node, const std::vector<s
     emit(Encoder::create_mov_reg("X0", this_ptr_reg));
     for (size_t i = 0; i < arg_result_regs.size(); ++i) {
         std::string target_reg = "X" + std::to_string(i + 1);
-        emit(Encoder::create_mov_reg(target_reg, arg_result_regs[i]));
-        register_manager_.release_register(arg_result_regs[i]);
+        emit(Encoder::create_mov_reg(target_reg, arg_result_regs[i].reg_name));
+        if (arg_result_regs[i].is_temp) {
+            register_manager_.release_register(arg_result_regs[i].reg_name);
+        }
     }
     register_manager_.release_register(this_ptr_reg);
     emit(Encoder::create_branch_with_link(method_info->qualified_name));
@@ -49558,7 +49675,7 @@ void NewCodeGenerator::handle_super_call(FunctionCall& node, const std::vector<s
     expression_result_reg_ = "X0";
 }
 
-void NewCodeGenerator::handle_regular_call(FunctionCall& node, const std::vector<std::string>& arg_result_regs) {
+void NewCodeGenerator::handle_regular_call(FunctionCall& node, const std::vector<ArgInfo>& arg_result_regs) {
     std::string function_name;
     if (auto* var_access = dynamic_cast<VariableAccess*>(node.function_expr.get())) {
         function_name = var_access->name;
@@ -51258,10 +51375,10 @@ void NewCodeGenerator::visit(RoutineCallStatement& node) {
             generate_expression_code(*arg_expr);
             std::string temp_reg;
             if (register_manager_.is_fp_register(expression_result_reg_)) {
-                temp_reg = register_manager_.acquire_spillable_fp_temp_reg(*this);
+                temp_reg = register_manager_.acquire_fp_scratch_reg();
                 emit(Encoder::create_fmov_reg(temp_reg, expression_result_reg_));
             } else {
-                temp_reg = register_manager_.acquire_spillable_temp_reg(*this);
+                temp_reg = register_manager_.acquire_scratch_reg(*this);
                 emit(Encoder::create_mov_reg(temp_reg, expression_result_reg_));
             }
             register_manager_.release_register(expression_result_reg_);
@@ -51404,10 +51521,10 @@ void NewCodeGenerator::visit(RoutineCallStatement& node) {
             generate_expression_code(*arg_expr);
             std::string temp_reg;
             if (register_manager_.is_fp_register(expression_result_reg_)) {
-                temp_reg = register_manager_.acquire_spillable_fp_temp_reg(*this);
+                temp_reg = register_manager_.acquire_fp_scratch_reg();
                 emit(Encoder::create_fmov_reg(temp_reg, expression_result_reg_));
             } else {
-                temp_reg = register_manager_.acquire_spillable_temp_reg(*this);
+                temp_reg = register_manager_.acquire_scratch_reg(*this);
                 emit(Encoder::create_mov_reg(temp_reg, expression_result_reg_));
             }
             register_manager_.release_register(expression_result_reg_);
@@ -51600,13 +51717,39 @@ void NewCodeGenerator::visit(RoutineCallStatement& node) {
                 // Regular function/routine call handling with ARM64 ABI compliant argument coercion
                 
                 // --- Stage 1: Evaluate all arguments and preserve their result registers ---
-                // FIXED: Two-pass strategy to prevent register clobbering
-                std::vector<std::string> arg_result_regs;
-                for (const auto& arg_expr : node.arguments) {
+                // FIXED: Collect arguments with proper home register tracking
+                std::vector<ArgInfo> arg_result_regs;
+                for (size_t i = 0; i < node.arguments.size(); ++i) {
+                    const auto& arg_expr = node.arguments[i];
                     generate_expression_code(*arg_expr);
-                    // DO NOT release expression_result_reg_ yet! Save it for later.
-                    // This prevents the register manager from reusing it for subsequent arguments.
-                    arg_result_regs.push_back(expression_result_reg_);
+                    
+                    // Check if the result is in a variable's home register
+                    std::string result_reg = expression_result_reg_;
+                    bool is_temp = false;
+                    
+
+                    
+                    // If this is a variable access, copy to temp to preserve home register
+                    if (auto* var_access = dynamic_cast<VariableAccess*>(arg_expr.get())) {
+                        std::string temp_reg;
+                        if (register_manager_.is_fp_register(expression_result_reg_)) {
+                            temp_reg = register_manager_.acquire_fp_scratch_reg();
+                            emit(Encoder::create_fmov_reg(temp_reg, expression_result_reg_));
+                        } else {
+                            temp_reg = register_manager_.acquire_scratch_reg(*this);
+                            emit(Encoder::create_mov_reg(temp_reg, expression_result_reg_));
+                        }
+
+                        result_reg = temp_reg;
+                        is_temp = true;
+                    } else {
+                        // For non-variable expressions, result is typically already in temp
+
+                        is_temp = true;
+                    }
+                    
+                    arg_result_regs.push_back({result_reg, is_temp});
+
                 }
                 
                 // --- Stage 2: Collect type information for ARM64 ABI coercion ---
@@ -51689,12 +51832,38 @@ void NewCodeGenerator::visit(RoutineCallStatement& node) {
             
             // --- Stage 1: Evaluate all arguments and preserve their result registers ---
             // FIXED: Two-pass strategy to prevent register clobbering
-            std::vector<std::string> arg_result_regs;
-            for (const auto& arg_expr : node.arguments) {
+            std::vector<ArgInfo> arg_result_regs;
+            for (size_t i = 0; i < node.arguments.size(); ++i) {
+                const auto& arg_expr = node.arguments[i];
                 generate_expression_code(*arg_expr);
-                // DO NOT release expression_result_reg_ yet! Save it for later.
-                // This prevents the register manager from reusing it for subsequent arguments.
-                arg_result_regs.push_back(expression_result_reg_);
+                    
+                // Check if the result is in a variable's home register
+                std::string result_reg = expression_result_reg_;
+                bool is_temp = false;
+                    
+
+                    
+                // If this is a variable access, copy to temp to preserve home register
+                if (auto* var_access = dynamic_cast<VariableAccess*>(arg_expr.get())) {
+                    std::string temp_reg;
+                    if (register_manager_.is_fp_register(expression_result_reg_)) {
+                        temp_reg = register_manager_.acquire_fp_scratch_reg();
+                        emit(Encoder::create_fmov_reg(temp_reg, expression_result_reg_));
+                    } else {
+                        temp_reg = register_manager_.acquire_scratch_reg(*this);
+                        emit(Encoder::create_mov_reg(temp_reg, expression_result_reg_));
+                    }
+
+                    result_reg = temp_reg;
+                    is_temp = true;
+                } else {
+                    // For non-variable expressions, result is typically already in temp
+
+                    is_temp = true;
+                }
+                    
+                arg_result_regs.push_back({result_reg, is_temp});
+
             }
             
             // --- Stage 2: Collect argument types (no expected types for function pointers) ---
@@ -53381,12 +53550,12 @@ void NewCodeGenerator::coerce_to_arg(int arg_num, const std::string& src_reg, Va
 
 // New helper function to properly implement ARM64 ABI with separate register counters
 void NewCodeGenerator::coerce_arguments_to_abi(
-    const std::vector<std::string>& arg_regs,
+    const std::vector<ArgInfo>& arg_info,
     const std::vector<VarType>& arg_types,
     const std::vector<VarType>& expected_types
 ) {
-    if (arg_regs.size() != arg_types.size() || 
-        (!expected_types.empty() && arg_regs.size() != expected_types.size())) {
+    if (arg_info.size() != arg_types.size() || 
+        (!expected_types.empty() && arg_info.size() != expected_types.size())) {
         throw std::runtime_error("Argument vectors must have the same size");
     }
     
@@ -53395,12 +53564,12 @@ void NewCodeGenerator::coerce_arguments_to_abi(
     int nsrn = 0; // Next SIMD and Floating-point Register Number (D0-D7)
     
     debug_print("=== ARM64 ABI Argument Coercion ===");
-    debug_print("Total arguments: " + std::to_string(arg_regs.size()));
+    debug_print("Total arguments: " + std::to_string(arg_info.size()));
     
     // DEBUG: Print input argument registers before any processing
     // std::cerr << "[COERCE_DEBUG] Input argument registers: ";
-    // for (size_t i = 0; i < arg_regs.size(); ++i) {
-    //     std::cerr << "arg" << i << "=" << arg_regs[i] << " ";
+    // for (size_t i = 0; i < arg_info.size(); ++i) {
+    //     std::cerr << "arg" << i << "=" << arg_info[i].reg_name << (arg_info[i].is_temp ? "(temp)" : "(home)") << " ";
     // }
     // std::cerr << std::endl;
     
@@ -53408,8 +53577,8 @@ void NewCodeGenerator::coerce_arguments_to_abi(
     // This prevents register manager from reusing destination registers as temporaries
     std::vector<std::pair<std::string, std::string>> mov_operations;
     
-    for (size_t i = 0; i < arg_regs.size(); ++i) {
-        const std::string& src_reg = arg_regs[i];
+    for (size_t i = 0; i < arg_info.size(); ++i) {
+        const std::string& src_reg = arg_info[i].reg_name;
         VarType expr_type = arg_types[i];
         VarType expected_type = expected_types.empty() ? VarType::UNKNOWN : expected_types[i];
         
@@ -53497,15 +53666,44 @@ void NewCodeGenerator::coerce_arguments_to_abi(
         }
     }
     
-    // Now release all the source registers
-    for (const std::string& src_reg : arg_regs) {
-        debug_print("Releasing source register: " + src_reg);
-        register_manager_.release_register(src_reg);
+    // Now release ONLY the temporary source registers
+    for (const ArgInfo& arg : arg_info) {
+        if (arg.is_temp) {
+            debug_print("Releasing temporary source register: " + arg.reg_name);
+            register_manager_.release_register(arg.reg_name);
+        } else {
+            debug_print("Preserving variable home register: " + arg.reg_name);
+        }
     }
     
     // std::cerr << "[COERCE_DEBUG] Executed " << mov_operations.size() << " queued operations" << std::endl;
     debug_print("Final register usage: NGRN=" + std::to_string(ngrn) + ", NSRN=" + std::to_string(nsrn));
     debug_print("=== END ARM64 ABI Argument Coercion ===");
+}
+
+// Backward compatibility wrapper for existing code that still uses std::vector<std::string>
+void NewCodeGenerator::coerce_arguments_to_abi(
+    const std::vector<std::string>& arg_regs,
+    const std::vector<VarType>& arg_types,
+    const std::vector<VarType>& expected_types
+) {
+    // Convert string vector to ArgInfo vector, assuming all are temporaries
+    std::vector<ArgInfo> arg_info;
+    for (const std::string& reg : arg_regs) {
+        arg_info.push_back({reg, true}); // Assume all are temporaries for backward compatibility
+    }
+    
+    // Call the main implementation
+    coerce_arguments_to_abi(arg_info, arg_types, expected_types);
+}
+
+// Overload for two-parameter version used in some places
+void NewCodeGenerator::coerce_arguments_to_abi(
+    const std::vector<std::string>& arg_regs,
+    const std::vector<VarType>& arg_types
+) {
+    std::vector<VarType> empty_expected;
+    coerce_arguments_to_abi(arg_regs, arg_types, empty_expected);
 }
 // -- end of file
 
@@ -54930,7 +55128,7 @@ bool parse_arguments(int argc, char* argv[], bool& run_jit, bool& generate_asm, 
                     bool& trace_preprocessor, bool& enable_preprocessor,
                     bool& dump_jit_stack, bool& enable_peephole, bool& enable_stack_canaries,
                     bool& format_code, bool& trace_class_table, bool& trace_vtables,
-                    bool& bounds_checking_enabled, bool& enable_samm, bool& enable_superdisc,
+                    bool& trace_registers, bool& bounds_checking_enabled, bool& enable_samm, bool& enable_superdisc,
                     bool& use_neon, bool& generate_list, bool& test_encoders,
                     bool& test_encode, std::string& test_encode_name, bool& list_encoders, bool& list_runtime,
                     std::string& runtime_category_filter, std::string& input_filepath, std::string& call_entry_name, int& offset_instructions,
@@ -54980,6 +55178,7 @@ int main(int argc, char* argv[]) {
     bool enable_peephole = true; // Peephole optimizer enabled by default
     bool trace_class_table = false; // Trace class table flag
     bool trace_vtables = false; // Trace vtable generation
+    bool trace_registers = false; // Trace register allocation
     std::string input_filepath;
     std::string call_entry_name = "START";
     int offset_instructions = 0;
@@ -55009,7 +55208,7 @@ int main(int argc, char* argv[]) {
                             format_code,
                             trace_class_table,
                             trace_vtables,
-                            bounds_checking_enabled, enable_samm,
+                            trace_registers, bounds_checking_enabled, enable_samm,
                             enable_superdisc, use_neon, generate_list, test_encoders,
                             test_encode, test_encode_name, list_encoders, list_runtime,
                             runtime_category_filter, input_filepath, call_entry_name, offset_instructions, include_paths, runtime_mode)) {
@@ -55672,7 +55871,7 @@ if (enable_tracing || trace_ast) std::cout << "AST transformation complete.\n";
         data_generator.set_class_table(class_table.get());
         data_generator.set_string_table(&string_table);
         RegisterManager& register_manager = RegisterManager::getInstance();
-        register_manager.set_debug_enabled(enable_tracing || trace_codegen);
+        register_manager.set_debug_enabled(enable_tracing || trace_codegen || trace_registers);
         LabelManager& label_manager = LabelManager::instance();
         int debug_level = (enable_tracing || trace_codegen) ? 5 : 0;
 
@@ -55833,7 +56032,7 @@ bool parse_arguments(int argc, char* argv[], bool& run_jit, bool& generate_asm, 
                     bool& trace_preprocessor, bool& enable_preprocessor,
                     bool& dump_jit_stack, bool& enable_peephole, bool& enable_stack_canaries,
                     bool& format_code, bool& trace_class_table, bool& trace_vtables,
-                    bool& bounds_checking_enabled, bool& enable_samm,
+                    bool& trace_registers, bool& bounds_checking_enabled, bool& enable_samm,
                     bool& enable_superdisc, bool& use_neon, bool& generate_list, bool& test_encoders,
                     bool& test_encode, std::string& test_encode_name, bool& list_encoders, bool& list_runtime,
                     std::string& runtime_category_filter, std::string& input_filepath, std::string& call_entry_name, int& offset_instructions,
@@ -55869,6 +56068,7 @@ bool parse_arguments(int argc, char* argv[], bool& run_jit, bool& generate_asm, 
         else if (arg == "--trace-heap") trace_heap = true;
         else if (arg == "--trace-class-table") trace_class_table = true;
         else if (arg == "--trace-vtable") trace_vtables = true;
+        else if (arg == "--trace-registers") trace_registers = true;
         else if (arg == "--trace-preprocessor") trace_preprocessor = true;
         else if (arg == "--dump-jit-stack") dump_jit_stack = true;
         else if (arg == "--stack-canaries") enable_stack_canaries = true;
@@ -55976,7 +56176,8 @@ bool parse_arguments(int argc, char* argv[], bool& run_jit, bool& generate_asm, 
                       << "  --trace-heap           : Enable heap manager tracing.\n"
                       << "  --trace-preprocessor   : Enable preprocessor tracing.\n"
                       << "  --trace-class-table    : Print the class table after symbol discovery.\n"
-                      << "  --trace-vtable         : Enable detailed vtable structure tracing.\n";
+                      << "  --trace-vtable         : Enable detailed vtable structure tracing.\n"
+                      << "  --trace-registers      : Enable register allocation/release tracing.\n";
             return false;
         } else if (input_filepath.empty() && arg[0] != '-') {
             // Check if this is just a filename (no path separators)
@@ -61394,19 +61595,56 @@ std::string RegisterManager::acquire_spillable_fp_temp_reg(NewCodeGenerator& cod
 #include "NewCodeGenerator.h"
 #include "Encoder.h"
 #include <stdexcept>
+#include <iostream>
 
 std::string RegisterManager::acquire_spillable_temp_reg(NewCodeGenerator& code_gen) {
     // Generate a new, UNIQUE name for this temporary.
     std::string temp_name = "_temp_" + std::to_string(temp_variable_counter_++);
 
+    if (debug_enabled_) {
+        std::cout << "[REGISTER_MGR] acquire_spillable_temp_reg called, temp_name=" << temp_name << std::endl;
+        std::cout << "[REGISTER_MGR] temp_variable_counter_ incremented to: " << temp_variable_counter_ << std::endl;
+        std::cout << "[REGISTER_MGR] Current variable_to_reg_map size: " << variable_to_reg_map.size() << std::endl;
+        for (const auto& pair : variable_to_reg_map) {
+            std::cout << "[REGISTER_MGR]   " << pair.first << " -> " << pair.second << std::endl;
+        }
+        std::cout << "[REGISTER_MGR] VARIABLE_REGS pool status:" << std::endl;
+        for (const auto& reg : VARIABLE_REGS) {
+            if (registers.count(reg)) {
+                auto& info = registers[reg];
+                std::cout << "[REGISTER_MGR]   " << reg << " status=" << info.status 
+                         << " bound_to='" << info.bound_to << "'" << std::endl;
+            } else {
+                std::cout << "[REGISTER_MGR]   " << reg << " not in registry" << std::endl;
+            }
+        }
+    }
+
     // 1. Try to find a free register in the variable pool.
     std::string reg = find_free_register(VARIABLE_REGS);
+    if (debug_enabled_) {
+        std::cout << "[REGISTER_MGR] find_free_register returned: " << (reg.empty() ? "NONE" : reg) << std::endl;
+    }
     if (!reg.empty()) {
         // Proactively clean any stale mappings for this register.
         cleanup_stale_mappings_for_reg(reg);
         registers[reg] = {IN_USE_VARIABLE, temp_name, false};
         variable_to_reg_map[temp_name] = reg;
         variable_reg_lru_order_.push_front(temp_name);
+        if (debug_enabled_) {
+            std::cout << "[REGISTER_MGR] Allocated " << reg << " for " << temp_name << std::endl;
+            std::cout << "[REGISTER_MGR] Updated variable_to_reg_map[" << temp_name << "] = " << reg << std::endl;
+            std::cout << "[REGISTER_MGR] Added " << temp_name << " to LRU front" << std::endl;
+            
+            // Debug: Verify the register state was actually updated
+            if (registers.count(reg)) {
+                auto& info = registers[reg];
+                std::cout << "[REGISTER_MGR] POST-ALLOC: " << reg << " status=" << info.status 
+                         << " bound_to='" << info.bound_to << "' (expected: status=1, bound_to='" << temp_name << "')" << std::endl;
+            } else {
+                std::cout << "[REGISTER_MGR] ERROR: " << reg << " not found in registers map after allocation!" << std::endl;
+            }
+        }
         return reg;
     }
 
@@ -61459,6 +61697,19 @@ std::string RegisterManager::acquire_spillable_temp_reg(NewCodeGenerator& code_g
     variable_to_reg_map[temp_name] = victim_reg;
     variable_reg_lru_order_.push_front(temp_name);
 
+    if (debug_enabled_) {
+        std::cout << "[REGISTER_MGR] Spilled " << victim_var << " from " << victim_reg << ", allocated to " << temp_name << std::endl;
+        std::cout << "[REGISTER_MGR] Updated variable_to_reg_map[" << temp_name << "] = " << victim_reg << std::endl;
+        
+        // Debug: Verify the register state was actually updated
+        if (registers.count(victim_reg)) {
+            auto& info = registers[victim_reg];
+            std::cout << "[REGISTER_MGR] POST-SPILL-ALLOC: " << victim_reg << " status=" << info.status 
+                     << " bound_to='" << info.bound_to << "' (expected: status=1, bound_to='" << temp_name << "')" << std::endl;
+        } else {
+            std::cout << "[REGISTER_MGR] ERROR: " << victim_reg << " not found in registers map after spill allocation!" << std::endl;
+        }
+    }
     return victim_reg;
 }
 // -- end of file
@@ -61610,8 +61861,12 @@ void RegisterManager::release_reg_for_variable(const std::string& variable_name)
 
 // -- start of file: rm_release_register.cpp
 #include "RegisterManager.h"
+#include <iostream>
 
 void RegisterManager::release_register(const std::string& reg_name) {
+    if (debug_enabled_) {
+        std::cout << "[REGISTER_MGR] release_register called for: " << reg_name << std::endl;
+    }
     if (!registers.count(reg_name)) {
         return;
     }
@@ -61622,13 +61877,22 @@ void RegisterManager::release_register(const std::string& reg_name) {
     }
 
     RegisterInfo& info = registers.at(reg_name);
+    if (debug_enabled_) {
+        std::cout << "[REGISTER_MGR] " << reg_name << " status=" << info.status << " bound_to=" << info.bound_to << std::endl;
+    }
 
     if (info.status == IN_USE_VARIABLE) {
         // This was a named variable or a spillable temp (_temp_N)
+        if (debug_enabled_) {
+            std::cout << "[REGISTER_MGR] Releasing variable register: " << reg_name << " (" << info.bound_to << ")" << std::endl;
+        }
         release_reg_for_variable(info.bound_to);
     } else if (info.status == IN_USE_SCRATCH) {
         // This was a temp from the scratch pool OR borrowed from the variable pool.
         // A simple release is correct for both cases.
+        if (debug_enabled_) {
+            std::cout << "[REGISTER_MGR] Releasing scratch register: " << reg_name << std::endl;
+        }
         release_scratch_reg(reg_name);
     }
 }

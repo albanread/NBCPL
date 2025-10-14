@@ -170,7 +170,7 @@ bool parse_arguments(int argc, char* argv[], bool& run_jit, bool& generate_asm, 
                     bool& trace_preprocessor, bool& enable_preprocessor,
                     bool& dump_jit_stack, bool& enable_peephole, bool& enable_stack_canaries,
                     bool& format_code, bool& trace_class_table, bool& trace_vtables,
-                    bool& bounds_checking_enabled, bool& enable_samm, bool& enable_superdisc,
+                    bool& trace_registers, bool& bounds_checking_enabled, bool& enable_samm, bool& enable_superdisc,
                     bool& use_neon, bool& generate_list, bool& test_encoders,
                     bool& test_encode, std::string& test_encode_name, bool& list_encoders, bool& list_runtime,
                     std::string& runtime_category_filter, std::string& input_filepath, std::string& call_entry_name, int& offset_instructions,
@@ -220,6 +220,7 @@ int main(int argc, char* argv[]) {
     bool enable_peephole = true; // Peephole optimizer enabled by default
     bool trace_class_table = false; // Trace class table flag
     bool trace_vtables = false; // Trace vtable generation
+    bool trace_registers = false; // Trace register allocation
     std::string input_filepath;
     std::string call_entry_name = "START";
     int offset_instructions = 0;
@@ -249,7 +250,7 @@ int main(int argc, char* argv[]) {
                             format_code,
                             trace_class_table,
                             trace_vtables,
-                            bounds_checking_enabled, enable_samm,
+                            trace_registers, bounds_checking_enabled, enable_samm,
                             enable_superdisc, use_neon, generate_list, test_encoders,
                             test_encode, test_encode_name, list_encoders, list_runtime,
                             runtime_category_filter, input_filepath, call_entry_name, offset_instructions, include_paths, runtime_mode)) {
@@ -912,7 +913,7 @@ if (enable_tracing || trace_ast) std::cout << "AST transformation complete.\n";
         data_generator.set_class_table(class_table.get());
         data_generator.set_string_table(&string_table);
         RegisterManager& register_manager = RegisterManager::getInstance();
-        register_manager.set_debug_enabled(enable_tracing || trace_codegen);
+        register_manager.set_debug_enabled(enable_tracing || trace_codegen || trace_registers);
         LabelManager& label_manager = LabelManager::instance();
         int debug_level = (enable_tracing || trace_codegen) ? 5 : 0;
 
@@ -1073,7 +1074,7 @@ bool parse_arguments(int argc, char* argv[], bool& run_jit, bool& generate_asm, 
                     bool& trace_preprocessor, bool& enable_preprocessor,
                     bool& dump_jit_stack, bool& enable_peephole, bool& enable_stack_canaries,
                     bool& format_code, bool& trace_class_table, bool& trace_vtables,
-                    bool& bounds_checking_enabled, bool& enable_samm,
+                    bool& trace_registers, bool& bounds_checking_enabled, bool& enable_samm,
                     bool& enable_superdisc, bool& use_neon, bool& generate_list, bool& test_encoders,
                     bool& test_encode, std::string& test_encode_name, bool& list_encoders, bool& list_runtime,
                     std::string& runtime_category_filter, std::string& input_filepath, std::string& call_entry_name, int& offset_instructions,
@@ -1109,6 +1110,7 @@ bool parse_arguments(int argc, char* argv[], bool& run_jit, bool& generate_asm, 
         else if (arg == "--trace-heap") trace_heap = true;
         else if (arg == "--trace-class-table") trace_class_table = true;
         else if (arg == "--trace-vtable") trace_vtables = true;
+        else if (arg == "--trace-registers") trace_registers = true;
         else if (arg == "--trace-preprocessor") trace_preprocessor = true;
         else if (arg == "--dump-jit-stack") dump_jit_stack = true;
         else if (arg == "--stack-canaries") enable_stack_canaries = true;
@@ -1216,7 +1218,8 @@ bool parse_arguments(int argc, char* argv[], bool& run_jit, bool& generate_asm, 
                       << "  --trace-heap           : Enable heap manager tracing.\n"
                       << "  --trace-preprocessor   : Enable preprocessor tracing.\n"
                       << "  --trace-class-table    : Print the class table after symbol discovery.\n"
-                      << "  --trace-vtable         : Enable detailed vtable structure tracing.\n";
+                      << "  --trace-vtable         : Enable detailed vtable structure tracing.\n"
+                      << "  --trace-registers      : Enable register allocation/release tracing.\n";
             return false;
         } else if (input_filepath.empty() && arg[0] != '-') {
             // Check if this is just a filename (no path separators)

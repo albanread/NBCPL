@@ -1,0 +1,1 @@
+LET START() BE $( STRING_ROUTINE("hello", "world") $) LET STRING_ROUTINE(A, B) BE $( WRITES("test") $)

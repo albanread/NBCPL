@@ -33,6 +33,12 @@ class ASTAnalyzer;
 class Identifier;
 class LivenessAnalysisPass; // <-- Forward declaration for liveness analysis
 
+// Struct to track argument register information for function calls
+struct ArgInfo {
+    std::string reg_name;
+    bool is_temp; // True if it's a temporary register, false if it's a variable's home register
+};
+
 // Make NewCodeGenerator inherit from ASTVisitor
 class NewCodeGenerator : public ASTVisitor {
 public:
@@ -96,18 +102,30 @@ public:
     
     // New ARM64 ABI compliant argument coercion with separate integer/float register tracking
     void coerce_arguments_to_abi(
-        const std::vector<std::string>& arg_regs,
+        const std::vector<ArgInfo>& arg_info,
         const std::vector<VarType>& arg_types,
         const std::vector<VarType>& expected_types = {}
+    );
+    
+    // Backward compatibility overloads for existing code
+    void coerce_arguments_to_abi(
+        const std::vector<std::string>& arg_regs,
+        const std::vector<VarType>& arg_types,
+        const std::vector<VarType>& expected_types
+    );
+    
+    void coerce_arguments_to_abi(
+        const std::vector<std::string>& arg_regs,
+        const std::vector<VarType>& arg_types
     );
 
     // --- Dispatcher and Helper Declarations for FunctionCall ---
     bool is_special_built_in(const std::string& func_name);
-    void handle_special_built_in_call(FunctionCall& node, const std::vector<std::string>& arg_result_regs);
-    void handle_method_call(FunctionCall& node, const std::vector<std::string>& arg_result_regs);
-    void handle_super_call(FunctionCall& node, const std::vector<std::string>& arg_result_regs);
-    void handle_regular_call(FunctionCall& node, const std::vector<std::string>& arg_result_regs);
-    void handle_method_call_arguments_for_super(FunctionCall& node, const std::vector<std::string>& arg_result_regs, const std::string& func_name);
+    void handle_special_built_in_call(FunctionCall& node, const std::vector<ArgInfo>& arg_result_regs);
+    void handle_method_call(FunctionCall& node, const std::vector<ArgInfo>& arg_result_regs);
+    void handle_super_call(FunctionCall& node, const std::vector<ArgInfo>& arg_result_regs);
+    void handle_regular_call(FunctionCall& node, const std::vector<ArgInfo>& arg_result_regs);
+    void handle_method_call_arguments_for_super(FunctionCall& node, const std::vector<ArgInfo>& arg_result_regs, const std::string& func_name);
 
     bool is_float_function_call(FunctionCall& node);
 

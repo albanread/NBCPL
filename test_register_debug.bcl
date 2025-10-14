@@ -1,0 +1,73 @@
+LET START() BE
+$(
+   WRITES("Testing register allocation with debugging...*N")
+
+   // Test 1: Simple variable assignments
+   LET A = 10
+   LET B = 20
+   LET C = A + B
+
+   WRITES("A = ")
+   WRITEN(A)
+   WRITES(", B = ")
+   WRITEN(B)
+   WRITES(", C = ")
+   WRITEN(C)
+   WRITES("*N")
+
+   // Test 2: Function call with multiple arguments
+   WRITES("Calling MATH_TEST with A, B, C...*N")
+   MATH_TEST(A, B, C)
+
+   // Test 3: String operations
+   LET S1 = "Hello"
+   LET S2 = "World"
+   WRITES("Calling STRING_TEST with S1, S2...*N")
+   STRING_TEST(S1, S2)
+
+   // Test 4: Mixed argument types
+   WRITES("Calling MIXED_TEST with integer and string...*N")
+   MIXED_TEST(42, "test")
+
+   WRITES("Register debugging test completed.*N")
+$)
+
+LET MATH_TEST(X, Y, Z) BE
+$(
+   WRITES("MATH_TEST: X=")
+   WRITEN(X)
+   WRITES(", Y=")
+   WRITEN(Y)
+   WRITES(", Z=")
+   WRITEN(Z)
+   WRITES("*N")
+
+   LET RESULT = X * Y + Z
+   WRITES("Result: ")
+   WRITEN(RESULT)
+   WRITES("*N")
+$)
+
+LET STRING_TEST(STR1, STR2) BE
+$(
+   WRITES("STRING_TEST: STR1=")
+   WRITES(STR1)
+   WRITES(", STR2=")
+   WRITES(STR2)
+   WRITES("*N")
+
+   WRITES("Combined: ")
+   WRITES(STR1)
+   WRITES(" ")
+   WRITES(STR2)
+   WRITES("*N")
+$)
+
+LET MIXED_TEST(NUM, STR) BE
+$(
+   WRITES("MIXED_TEST: NUM=")
+   WRITEN(NUM)
+   WRITES(", STR=")
+   WRITES(STR)
+   WRITES("*N")
+$)

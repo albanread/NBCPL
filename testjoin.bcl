@@ -1,0 +1,8 @@
+LET START() BE
+{
+
+  LET S AS ^STRING = JOIN("this", "is", "the", "_")
+
+  WRITEF(" test string %s *N", S)
+
+}

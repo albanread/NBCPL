@@ -175,10 +175,10 @@ void NewCodeGenerator::visit(RoutineCallStatement& node) {
             generate_expression_code(*arg_expr);
             std::string temp_reg;
             if (register_manager_.is_fp_register(expression_result_reg_)) {
-                temp_reg = register_manager_.acquire_spillable_fp_temp_reg(*this);
+                temp_reg = register_manager_.acquire_fp_scratch_reg();
                 emit(Encoder::create_fmov_reg(temp_reg, expression_result_reg_));
             } else {
-                temp_reg = register_manager_.acquire_spillable_temp_reg(*this);
+                temp_reg = register_manager_.acquire_scratch_reg(*this);
                 emit(Encoder::create_mov_reg(temp_reg, expression_result_reg_));
             }
             register_manager_.release_register(expression_result_reg_);
@@ -321,10 +321,10 @@ void NewCodeGenerator::visit(RoutineCallStatement& node) {
             generate_expression_code(*arg_expr);
             std::string temp_reg;
             if (register_manager_.is_fp_register(expression_result_reg_)) {
-                temp_reg = register_manager_.acquire_spillable_fp_temp_reg(*this);
+                temp_reg = register_manager_.acquire_fp_scratch_reg();
                 emit(Encoder::create_fmov_reg(temp_reg, expression_result_reg_));
             } else {
-                temp_reg = register_manager_.acquire_spillable_temp_reg(*this);
+                temp_reg = register_manager_.acquire_scratch_reg(*this);
                 emit(Encoder::create_mov_reg(temp_reg, expression_result_reg_));
             }
             register_manager_.release_register(expression_result_reg_);
@@ -517,13 +517,39 @@ void NewCodeGenerator::visit(RoutineCallStatement& node) {
                 // Regular function/routine call handling with ARM64 ABI compliant argument coercion
                 
                 // --- Stage 1: Evaluate all arguments and preserve their result registers ---
-                // FIXED: Two-pass strategy to prevent register clobbering
-                std::vector<std::string> arg_result_regs;
-                for (const auto& arg_expr : node.arguments) {
+                // FIXED: Collect arguments with proper home register tracking
+                std::vector<ArgInfo> arg_result_regs;
+                for (size_t i = 0; i < node.arguments.size(); ++i) {
+                    const auto& arg_expr = node.arguments[i];
                     generate_expression_code(*arg_expr);
-                    // DO NOT release expression_result_reg_ yet! Save it for later.
-                    // This prevents the register manager from reusing it for subsequent arguments.
-                    arg_result_regs.push_back(expression_result_reg_);
+                    
+                    // Check if the result is in a variable's home register
+                    std::string result_reg = expression_result_reg_;
+                    bool is_temp = false;
+                    
+
+                    
+                    // If this is a variable access, copy to temp to preserve home register
+                    if (auto* var_access = dynamic_cast<VariableAccess*>(arg_expr.get())) {
+                        std::string temp_reg;
+                        if (register_manager_.is_fp_register(expression_result_reg_)) {
+                            temp_reg = register_manager_.acquire_fp_scratch_reg();
+                            emit(Encoder::create_fmov_reg(temp_reg, expression_result_reg_));
+                        } else {
+                            temp_reg = register_manager_.acquire_scratch_reg(*this);
+                            emit(Encoder::create_mov_reg(temp_reg, expression_result_reg_));
+                        }
+
+                        result_reg = temp_reg;
+                        is_temp = true;
+                    } else {
+                        // For non-variable expressions, result is typically already in temp
+
+                        is_temp = true;
+                    }
+                    
+                    arg_result_regs.push_back({result_reg, is_temp});
+
                 }
                 
                 // --- Stage 2: Collect type information for ARM64 ABI coercion ---
@@ -606,12 +632,38 @@ void NewCodeGenerator::visit(RoutineCallStatement& node) {
             
             // --- Stage 1: Evaluate all arguments and preserve their result registers ---
             // FIXED: Two-pass strategy to prevent register clobbering
-            std::vector<std::string> arg_result_regs;
-            for (const auto& arg_expr : node.arguments) {
+            std::vector<ArgInfo> arg_result_regs;
+            for (size_t i = 0; i < node.arguments.size(); ++i) {
+                const auto& arg_expr = node.arguments[i];
                 generate_expression_code(*arg_expr);
-                // DO NOT release expression_result_reg_ yet! Save it for later.
-                // This prevents the register manager from reusing it for subsequent arguments.
-                arg_result_regs.push_back(expression_result_reg_);
+                    
+                // Check if the result is in a variable's home register
+                std::string result_reg = expression_result_reg_;
+                bool is_temp = false;
+                    
+
+                    
+                // If this is a variable access, copy to temp to preserve home register
+                if (auto* var_access = dynamic_cast<VariableAccess*>(arg_expr.get())) {
+                    std::string temp_reg;
+                    if (register_manager_.is_fp_register(expression_result_reg_)) {
+                        temp_reg = register_manager_.acquire_fp_scratch_reg();
+                        emit(Encoder::create_fmov_reg(temp_reg, expression_result_reg_));
+                    } else {
+                        temp_reg = register_manager_.acquire_scratch_reg(*this);
+                        emit(Encoder::create_mov_reg(temp_reg, expression_result_reg_));
+                    }
+
+                    result_reg = temp_reg;
+                    is_temp = true;
+                } else {
+                    // For non-variable expressions, result is typically already in temp
+
+                    is_temp = true;
+                }
+                    
+                arg_result_regs.push_back({result_reg, is_temp});
+
             }
             
             // --- Stage 2: Collect argument types (no expected types for function pointers) ---

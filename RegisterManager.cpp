@@ -193,6 +193,22 @@ RegisterManager* RegisterManager::instance_ = nullptr;
 
 // Returns the next available pre-reserved callee-saved temp register (X19-X28)
 std::string RegisterManager::get_next_available_temp_reg() {
+    if (debug_enabled_) {
+        std::cout << "[REGISTER_MGR] get_next_available_temp_reg() called" << std::endl;
+        std::cout << "[REGISTER_MGR] Current register states:" << std::endl;
+        for (int i = 19; i <= 28; ++i) {
+            std::string reg = "X" + std::to_string(i);
+            if (reg == "X28") continue;
+            if (registers.count(reg)) {
+                auto& info = registers[reg];
+                std::cout << "[REGISTER_MGR]   " << reg << " status=" << info.status 
+                         << " bound_to='" << info.bound_to << "'" << std::endl;
+            } else {
+                std::cout << "[REGISTER_MGR]   " << reg << " not in registry (will be treated as FREE)" << std::endl;
+            }
+        }
+    }
+
     // Callee-saved registers: X19-X28
     static const int kFirstCalleeSaved = 19;
     static const int kLastCalleeSaved = 28;
@@ -203,15 +219,36 @@ std::string RegisterManager::get_next_available_temp_reg() {
         // Skip reserved registers if needed (e.g., X28 for global base)
         if (reg == "X28") continue;
 
+        if (debug_enabled_) {
+            std::cout << "[REGISTER_MGR] Checking " << reg << "..." << std::endl;
+        }
+
         // Only allocate if the register is free
         if (!registers.count(reg) || registers[reg].status == FREE) {
+            if (debug_enabled_) {
+                std::cout << "[REGISTER_MGR] Allocating " << reg << " as temp register" << std::endl;
+            }
             registers[reg] = {IN_USE_SCRATCH, "temp", false};
+            if (debug_enabled_) {
+                std::cout << "[REGISTER_MGR] Successfully allocated " << reg << " with status IN_USE_SCRATCH" << std::endl;
+            }
             return reg;
+        } else if (debug_enabled_) {
+            std::cout << "[REGISTER_MGR] " << reg << " is not available (status=" 
+                     << registers[reg].status << ", bound_to='" << registers[reg].bound_to << "')" << std::endl;
         }
     }
 
+    if (debug_enabled_) {
+        std::cout << "[REGISTER_MGR] No free temp registers found, trying cleanup strategies" << std::endl;
+    }
+    
     // Try cleanup strategies before giving up
     force_cleanup_stale_variable_mappings();
+    
+    if (debug_enabled_) {
+        std::cout << "[REGISTER_MGR] After stale cleanup, trying again..." << std::endl;
+    }
     
     // Try again after stale cleanup
     for (int i = kFirstCalleeSaved; i <= kLastCalleeSaved; ++i) {
@@ -219,13 +256,24 @@ std::string RegisterManager::get_next_available_temp_reg() {
         if (reg == "X28") continue;
         
         if (!registers.count(reg) || registers[reg].status == FREE) {
+            if (debug_enabled_) {
+                std::cout << "[REGISTER_MGR] Found " << reg << " free after stale cleanup" << std::endl;
+            }
             registers[reg] = {IN_USE_SCRATCH, "temp", false};
             return reg;
         }
     }
     
+    if (debug_enabled_) {
+        std::cout << "[REGISTER_MGR] Still no free registers, trying expression boundary cleanup" << std::endl;
+    }
+    
     // Try expression boundary cleanup
     cleanup_expression_boundary();
+    
+    if (debug_enabled_) {
+        std::cout << "[REGISTER_MGR] After expression boundary cleanup, final attempt..." << std::endl;
+    }
     
     // Final attempt after all cleanup
     for (int i = kFirstCalleeSaved; i <= kLastCalleeSaved; ++i) {
@@ -233,11 +281,19 @@ std::string RegisterManager::get_next_available_temp_reg() {
         if (reg == "X28") continue;
         
         if (!registers.count(reg) || registers[reg].status == FREE) {
+            if (debug_enabled_) {
+                std::cout << "[REGISTER_MGR] Found " << reg << " free after expression cleanup" << std::endl;
+            }
             registers[reg] = {IN_USE_SCRATCH, "temp", false};
             return reg;
         }
     }
 
+    if (debug_enabled_) {
+        std::cout << "[REGISTER_MGR] FATAL: No temp registers available after all cleanup attempts!" << std::endl;
+        dump_state("FATAL: get_next_available_temp_reg failed");
+    }
+    
     throw std::runtime_error("No more pre-reserved callee-saved temp registers available!");
 }
 
@@ -331,10 +387,23 @@ bool RegisterManager::is_scratch_register(const std::string& register_name) cons
 // --- Helper Functions ---
 
 std::string RegisterManager::find_free_register(const std::vector<std::string>& pool) {
+    if (debug_enabled_) {
+        std::cout << "[REGISTER_MGR] Searching for free register in pool of " << pool.size() << " registers" << std::endl;
+    }
     for (const auto& reg : pool) {
-        if (registers.at(reg).status == FREE) {
+        auto status = registers.at(reg).status;
+        if (debug_enabled_) {
+            std::cout << "[REGISTER_MGR] " << reg << " status=" << status << " (FREE=" << FREE << ", IN_USE_VARIABLE=" << IN_USE_VARIABLE << ", IN_USE_SCRATCH=" << IN_USE_SCRATCH << ")" << std::endl;
+        }
+        if (status == FREE) {
+            if (debug_enabled_) {
+                std::cout << "[REGISTER_MGR] Returning free register: " << reg << std::endl;
+            }
             return reg;
         }
+    }
+    if (debug_enabled_) {
+        std::cout << "[REGISTER_MGR] No free registers found" << std::endl;
     }
     return "";
 }
@@ -372,12 +441,29 @@ Instruction RegisterManager::generate_spill_code(const std::string& reg_name, co
 // --- ABI & State Management ---
 
 std::string RegisterManager::acquire_scratch_reg(NewCodeGenerator& code_gen) {
+    if (debug_enabled_) {
+        std::cout << "[REGISTER_MGR] acquire_scratch_reg called" << std::endl;
+        std::cout << "[REGISTER_MGR] SCRATCH_REGS pool status:" << std::endl;
+        for (const auto& reg : SCRATCH_REGS) {
+            if (registers.count(reg)) {
+                auto& info = registers[reg];
+                std::cout << "[REGISTER_MGR]   " << reg << " status=" << info.status 
+                         << " bound_to='" << info.bound_to << "'" << std::endl;
+            } else {
+                std::cout << "[REGISTER_MGR]   " << reg << " not in registry" << std::endl;
+            }
+        }
+    }
+
     // Phase 3: LinearScanAllocator is now the single source of truth for allocation decisions.
     // This method only manages the pre-allocated scratch register pool.
     
     // 1. Try the dedicated scratch pool first.
     std::string reg = find_free_register(SCRATCH_REGS);
     if (!reg.empty()) {
+        if (debug_enabled_) {
+            std::cout << "[REGISTER_MGR] Allocated scratch register: " << reg << std::endl;
+        }
         registers[reg] = {IN_USE_SCRATCH, "scratch", false};
         return reg;
     }
@@ -390,6 +476,9 @@ std::string RegisterManager::acquire_scratch_reg(NewCodeGenerator& code_gen) {
         }
         reg = find_free_register(SCRATCH_REGS);
         if (!reg.empty()) {
+            if (debug_enabled_) {
+                std::cout << "[REGISTER_MGR] Found scratch register after cleanup: " << reg << std::endl;
+            }
             registers[reg] = {IN_USE_SCRATCH, "scratch", false};
             return reg;
         }

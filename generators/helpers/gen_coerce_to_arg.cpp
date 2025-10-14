@@ -83,12 +83,12 @@ void NewCodeGenerator::coerce_to_arg(int arg_num, const std::string& src_reg, Va
 
 // New helper function to properly implement ARM64 ABI with separate register counters
 void NewCodeGenerator::coerce_arguments_to_abi(
-    const std::vector<std::string>& arg_regs,
+    const std::vector<ArgInfo>& arg_info,
     const std::vector<VarType>& arg_types,
     const std::vector<VarType>& expected_types
 ) {
-    if (arg_regs.size() != arg_types.size() || 
-        (!expected_types.empty() && arg_regs.size() != expected_types.size())) {
+    if (arg_info.size() != arg_types.size() || 
+        (!expected_types.empty() && arg_info.size() != expected_types.size())) {
         throw std::runtime_error("Argument vectors must have the same size");
     }
     
@@ -97,12 +97,12 @@ void NewCodeGenerator::coerce_arguments_to_abi(
     int nsrn = 0; // Next SIMD and Floating-point Register Number (D0-D7)
     
     debug_print("=== ARM64 ABI Argument Coercion ===");
-    debug_print("Total arguments: " + std::to_string(arg_regs.size()));
+    debug_print("Total arguments: " + std::to_string(arg_info.size()));
     
     // DEBUG: Print input argument registers before any processing
     // std::cerr << "[COERCE_DEBUG] Input argument registers: ";
-    // for (size_t i = 0; i < arg_regs.size(); ++i) {
-    //     std::cerr << "arg" << i << "=" << arg_regs[i] << " ";
+    // for (size_t i = 0; i < arg_info.size(); ++i) {
+    //     std::cerr << "arg" << i << "=" << arg_info[i].reg_name << (arg_info[i].is_temp ? "(temp)" : "(home)") << " ";
     // }
     // std::cerr << std::endl;
     
@@ -110,8 +110,8 @@ void NewCodeGenerator::coerce_arguments_to_abi(
     // This prevents register manager from reusing destination registers as temporaries
     std::vector<std::pair<std::string, std::string>> mov_operations;
     
-    for (size_t i = 0; i < arg_regs.size(); ++i) {
-        const std::string& src_reg = arg_regs[i];
+    for (size_t i = 0; i < arg_info.size(); ++i) {
+        const std::string& src_reg = arg_info[i].reg_name;
         VarType expr_type = arg_types[i];
         VarType expected_type = expected_types.empty() ? VarType::UNKNOWN : expected_types[i];
         
@@ -199,13 +199,42 @@ void NewCodeGenerator::coerce_arguments_to_abi(
         }
     }
     
-    // Now release all the source registers
-    for (const std::string& src_reg : arg_regs) {
-        debug_print("Releasing source register: " + src_reg);
-        register_manager_.release_register(src_reg);
+    // Now release ONLY the temporary source registers
+    for (const ArgInfo& arg : arg_info) {
+        if (arg.is_temp) {
+            debug_print("Releasing temporary source register: " + arg.reg_name);
+            register_manager_.release_register(arg.reg_name);
+        } else {
+            debug_print("Preserving variable home register: " + arg.reg_name);
+        }
     }
     
     // std::cerr << "[COERCE_DEBUG] Executed " << mov_operations.size() << " queued operations" << std::endl;
     debug_print("Final register usage: NGRN=" + std::to_string(ngrn) + ", NSRN=" + std::to_string(nsrn));
     debug_print("=== END ARM64 ABI Argument Coercion ===");
+}
+
+// Backward compatibility wrapper for existing code that still uses std::vector<std::string>
+void NewCodeGenerator::coerce_arguments_to_abi(
+    const std::vector<std::string>& arg_regs,
+    const std::vector<VarType>& arg_types,
+    const std::vector<VarType>& expected_types
+) {
+    // Convert string vector to ArgInfo vector, assuming all are temporaries
+    std::vector<ArgInfo> arg_info;
+    for (const std::string& reg : arg_regs) {
+        arg_info.push_back({reg, true}); // Assume all are temporaries for backward compatibility
+    }
+    
+    // Call the main implementation
+    coerce_arguments_to_abi(arg_info, arg_types, expected_types);
+}
+
+// Overload for two-parameter version used in some places
+void NewCodeGenerator::coerce_arguments_to_abi(
+    const std::vector<std::string>& arg_regs,
+    const std::vector<VarType>& arg_types
+) {
+    std::vector<VarType> empty_expected;
+    coerce_arguments_to_abi(arg_regs, arg_types, empty_expected);
 }
