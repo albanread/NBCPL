@@ -1,0 +1,130 @@
+# Makefile for testing BCPL Runtime Timing API
+# This builds and runs tests for the timing functionality
+
+CC = gcc
+CFLAGS = -std=c99 -Wall -Wextra -O2 -g
+LDFLAGS = -pthread -lm
+
+# Source files
+TIMING_TEST_SRC = test_timing.c
+TIMING_HEADERS = runtime.h runtime_timing.h timer_macros.h
+
+# Output executable
+TIMING_TEST_EXE = test_timing
+
+# Default target
+all: $(TIMING_TEST_EXE)
+
+# Build the timing test executable
+$(TIMING_TEST_EXE): $(TIMING_TEST_SRC) $(TIMING_HEADERS)
+	@echo "Building timing test executable..."
+	$(CC) $(CFLAGS) -o $(TIMING_TEST_EXE) $(TIMING_TEST_SRC) $(LDFLAGS)
+	@echo "Build complete: $(TIMING_TEST_EXE)"
+
+# Run the timing test
+test: $(TIMING_TEST_EXE)
+	@echo "Running timing API tests..."
+	@echo "=================================="
+	./$(TIMING_TEST_EXE)
+	@echo "=================================="
+	@echo "Test completed successfully!"
+
+# Run test with verbose timing output
+test-verbose: $(TIMING_TEST_EXE)
+	@echo "Running timing API tests with verbose output..."
+	@echo "=============================================="
+	./$(TIMING_TEST_EXE) 2>&1 | tee timing_test_output.log
+	@echo "=============================================="
+	@echo "Test output saved to timing_test_output.log"
+
+# Clean build artifacts
+clean:
+	@echo "Cleaning timing test artifacts..."
+	rm -f $(TIMING_TEST_EXE)
+	rm -f timing_test_output.log
+	rm -f *.o
+	rm -f core.*
+	@echo "Clean complete."
+
+# Debug build with extra debugging symbols
+debug: CFLAGS += -DDEBUG -O0 -ggdb3
+debug: $(TIMING_TEST_EXE)
+	@echo "Debug build complete: $(TIMING_TEST_EXE)"
+
+# Build with timing debug enabled
+debug-timing: CFLAGS += -DENABLE_DEBUG_TIMING
+debug-timing: $(TIMING_TEST_EXE)
+	@echo "Debug timing build complete: $(TIMING_TEST_EXE)"
+
+# Performance test build (optimized)
+perf: CFLAGS = -std=c99 -Wall -O3 -DNDEBUG
+perf: $(TIMING_TEST_EXE)
+	@echo "Performance build complete: $(TIMING_TEST_EXE)"
+
+# Run performance benchmark
+benchmark: perf
+	@echo "Running performance benchmark..."
+	@echo "This may take a few seconds..."
+	time ./$(TIMING_TEST_EXE)
+
+# Check for memory leaks (requires valgrind)
+memcheck: debug
+	@echo "Running memory leak check with valgrind..."
+	valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes ./$(TIMING_TEST_EXE)
+
+# Static analysis (requires clang-static-analyzer)
+analyze:
+	@echo "Running static analysis..."
+	scan-build $(CC) $(CFLAGS) -o $(TIMING_TEST_EXE) $(TIMING_TEST_SRC) $(LDFLAGS)
+
+# Install timing headers to system (optional)
+install-headers:
+	@echo "Installing timing headers..."
+	sudo cp runtime.h /usr/local/include/bcpl_runtime.h
+	sudo cp timer_macros.h /usr/local/include/bcpl_timer_macros.h
+	@echo "Headers installed to /usr/local/include/"
+
+# Cross-compile for different architectures
+cross-arm64:
+	@echo "Cross-compiling for ARM64..."
+	aarch64-linux-gnu-gcc $(CFLAGS) -o $(TIMING_TEST_EXE)_arm64 $(TIMING_TEST_SRC) $(LDFLAGS)
+
+cross-x86:
+	@echo "Cross-compiling for x86..."
+	i686-linux-gnu-gcc $(CFLAGS) -o $(TIMING_TEST_EXE)_x86 $(TIMING_TEST_SRC) $(LDFLAGS)
+
+# Help target
+help:
+	@echo "Available targets:"
+	@echo "  all          - Build the timing test executable (default)"
+	@echo "  test         - Build and run timing tests"
+	@echo "  test-verbose - Run tests with verbose output and logging"
+	@echo "  clean        - Remove build artifacts"
+	@echo "  debug        - Build with debug symbols"
+	@echo "  debug-timing - Build with timing debug enabled"
+	@echo "  perf         - Build optimized performance version"
+	@echo "  benchmark    - Run performance benchmark"
+	@echo "  memcheck     - Run memory leak check (requires valgrind)"
+	@echo "  analyze      - Run static analysis (requires scan-build)"
+	@echo "  help         - Show this help message"
+
+# Platform-specific builds
+linux: CFLAGS += -D_GNU_SOURCE
+linux: $(TIMING_TEST_EXE)
+	@echo "Linux build complete"
+
+macos: CFLAGS += -D_DARWIN_C_SOURCE
+macos: $(TIMING_TEST_EXE)
+	@echo "macOS build complete"
+
+# Continuous integration target
+ci: clean test memcheck
+	@echo "CI build and test pipeline completed successfully"
+
+# Development target with file watching (requires entr)
+dev:
+	@echo "Starting development mode with auto-rebuild..."
+	@echo "Edit source files and they will be automatically rebuilt and tested"
+	find . -name "*.c" -o -name "*.h" | entr -r make test
+
+.PHONY: all test test-verbose clean debug debug-timing perf benchmark memcheck analyze help linux macos ci dev install-headers cross-arm64 cross-x86

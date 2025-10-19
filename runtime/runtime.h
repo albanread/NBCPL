@@ -302,6 +302,56 @@ double FRND(void);
  */
 double RND(int64_t max_val);
 
+//=============================================================================
+// Timing and Performance Metrics
+//=============================================================================
+
+/**
+ * Starts a timer with the given name.
+ * Multiple timers with the same name are supported (for recursion).
+ *
+ * @param name_str Pointer to a BCPL string containing the timer name
+ */
+void TIMER_START(uint32_t* name_str);
+
+/**
+ * Ends the most recently started timer with the given name.
+ * Accumulates the elapsed time in the metrics.
+ *
+ * @param name_str Pointer to a BCPL string containing the timer name
+ */
+void TIMER_END(uint32_t* name_str);
+
+/**
+ * Displays all collected timing metrics to standard output.
+ * Called automatically at program exit if any metrics were collected.
+ */
+void TIMER_DISPLAY(void);
+
+/**
+ * Clears all timing metrics.
+ * Useful for resetting measurements between test runs.
+ */
+void TIMER_CLEAR(void);
+
+/**
+ * Returns the total accumulated time (in nanoseconds) for a named timer.
+ * Returns 0 if the timer name doesn't exist.
+ *
+ * @param name_str Pointer to a BCPL string containing the timer name
+ * @return Total accumulated time in nanoseconds
+ */
+int64_t TIMER_GET_TOTAL_NS(uint32_t* name_str);
+
+/**
+ * Returns the number of times a named timer has been called.
+ * Returns 0 if the timer name doesn't exist.
+ *
+ * @param name_str Pointer to a BCPL string containing the timer name
+ * @return Number of timer calls
+ */
+int64_t TIMER_GET_CALL_COUNT(uint32_t* name_str);
+
 /**
  * Computes the sine of x (x in radians).
  *

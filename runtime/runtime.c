@@ -7,6 +7,7 @@
 #include "runtime_string_utils.inc"
 #include "runtime_io.inc"
 #include "runtime_file_api.inc"
+#include "runtime_timing.inc"
 #include "BCPLError.h"
 #include <stdlib.h>
 #include <string.h>

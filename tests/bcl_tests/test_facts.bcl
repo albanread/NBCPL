@@ -20,10 +20,16 @@ $(
   WRITES("Hello*N")
   LET N = 18
 
+  FOR reps = 1 TO 10 DO $(
+
+  TIMER_START("recursive_factorial")
   LET R = FACTORIAL_RECURSIVE(N)
+  TIMER_END("recursive_factorial")
 
+  
+  TIMER_START("iter_factorial")
   LET I = FACTORIAL_ITERATIVE(N)
-
+  TIMER_END("iter_factorial")
 
   WRITES("Calculating recursive Factorial of ")
 
@@ -31,10 +37,12 @@ $(
 
   WRITES(" = ") WRITEN(R)   WRITES(" AND = ") WRITEN(I)
 
+  NEWLINE()
 
+  $) // end FOR reps 
 
   WRITES("BYE")
-
+  TIMER_DISPLAY()
   FINISH
 
 $)

@@ -23,6 +23,7 @@ extern "C" {
 #include "runtime_string_utils.inc"
 #include "runtime_io.inc"
 #include "runtime_file_api.inc"
+#include "runtime_timing.inc"
 
 // Additional JIT-specific utilities that can use C++ features
 

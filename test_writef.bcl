@@ -1,0 +1,5 @@
+LET START() BE
+$(
+    WRITEF("Testing runtime functions*N")
+    WRITEF("If you see this, runtime is working*N")
+$)

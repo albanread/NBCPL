@@ -1,0 +1,152 @@
+// timing_advanced_test.bcl
+// Advanced test of timing functionality demonstrating manual control and metrics queries
+// This test shows more sophisticated usage patterns including manual display and metric queries
+
+LET fibonacci(n) = VALOF
+$(
+    TIMER_START("fibonacci")
+
+    LET result = ?
+    IF n <= 1 THEN
+        result := n
+    ELSE
+        result := fibonacci(n-1) + fibonacci(n-2)
+
+    TIMER_END("fibonacci")
+    RESULTIS result
+$)
+
+LET bubble_sort(arr, size) BE
+$(
+    TIMER_START("bubble_sort")
+
+    FOR i = 0 TO size-2 DO
+        FOR j = 0 TO size-2-i DO
+            IF arr!j > arr!(j+1) THEN
+            $(
+                LET temp = arr!j
+                arr!j := arr!(j+1)
+                arr!(j+1) := temp
+            $)
+
+    TIMER_END("bubble_sort")
+$)
+
+LET matrix_multiply(size) BE
+$(
+    TIMER_START("matrix_operations")
+
+    // Simulate matrix multiplication work
+    LET total = 0
+    FOR i = 1 TO size DO
+        FOR j = 1 TO size DO
+            FOR k = 1 TO size DO
+                total := total + (i * j * k)
+
+    TIMER_END("matrix_operations")
+    WRITEF("Matrix operation total: %N*N", total)
+$)
+
+LET START() BE
+$(
+    WRITEF("=== Advanced Timer Test ==*N*N")
+
+    // Test 1: Recursive function timing
+    WRITEF("1. Testing recursive function timing (Fibonacci)*N")
+    TIMER_START("main_fibonacci_test")
+
+    LET fib_result = fibonacci(10)
+    WRITEF("Fibonacci(10) = %N*N", fib_result)
+
+    TIMER_END("main_fibonacci_test")
+
+    // Test 2: Array operations timing
+    WRITEF("*N2. Testing array operations timing*N")
+    LET test_array = TABLE 64, 23, 91, 45, 12, 78, 34, 56
+    LET array_size = 8
+
+    WRITEF("Original array: ")
+    FOR i = 0 TO array_size-1 DO
+        WRITEF("%N ", test_array!i)
+    WRITEF("*N")
+
+    bubble_sort(test_array, array_size)
+
+    WRITEF("Sorted array: ")
+    FOR i = 0 TO array_size-1 DO
+        WRITEF("%N ", test_array!i)
+    WRITEF("*N")
+
+    // Test 3: Mathematical operations
+    WRITEF("*N3. Testing mathematical operations*N")
+    matrix_multiply(50)
+
+    // Test 4: String operations timing
+    WRITEF("*N4. Testing string operations*N")
+    TIMER_START("string_operations")
+
+    FOR i = 1 TO 1000 DO
+    $(
+        LET str1 = "Hello"
+        LET str2 = "World"
+        LET len1 = STRLEN(str1)
+        LET len2 = STRLEN(str2)
+    $)
+
+    TIMER_END("string_operations")
+
+    // Test 5: I/O operations timing
+    WRITEF("*N5. Testing I/O operations*N")
+    TIMER_START("io_operations")
+
+    FOR i = 1 TO 100 DO
+        WRITEF(".")
+    WRITEF("*N")
+
+    TIMER_END("io_operations")
+
+    // Test 6: Manual metrics display
+    WRITEF("*N6. Manual metrics display*N")
+    WRITEF("--- Manual Timing Display ---*N")
+    TIMER_DISPLAY()
+
+    // Test 7: Query specific metrics (if these functions are available)
+    WRITEF("*N7. Querying specific timer metrics*N")
+
+    // Note: These queries would show accumulated totals
+    WRITEF("Checking fibonacci timer calls...*N")
+    LET fib_calls = TIMER_GET_CALL_COUNT("fibonacci")
+    LET fib_total_ns = TIMER_GET_TOTAL_NS("fibonacci")
+    WRITEF("Fibonacci was called %N times*N", fib_calls)
+    WRITEF("Total fibonacci time: %N nanoseconds*N", fib_total_ns)
+
+    // Test 8: Clear metrics and restart
+    WRITEF("*N8. Testing metrics clearing*N")
+    WRITEF("Clearing all metrics...*N")
+    TIMER_CLEAR()
+
+    WRITEF("Running new test after clear...*N")
+    TIMER_START("post_clear_test")
+    FOR i = 1 TO 50000 DO
+        LET dummy = i * 2
+    TIMER_END("post_clear_test")
+
+    WRITEF("Displaying metrics after clear (should only show post_clear_test):*N")
+    TIMER_DISPLAY()
+
+    // Test 9: Stress test with many different timer names
+    WRITEF("*N9. Stress test with multiple timer names*N")
+    FOR timer_id = 1 TO 10 DO
+    $(
+        // Create different timer names
+        TIMER_START("stress_timer")
+        FOR work = 1 TO timer_id * 10000 DO
+            LET temp = work + timer_id
+        TIMER_END("stress_timer")
+    $)
+
+    WRITEF("*NAdvanced timer test completed.*N")
+    WRITEF("Final metrics will be displayed automatically at program exit.*N")
+
+    // The automatic display will show the final state of all timers
+$)

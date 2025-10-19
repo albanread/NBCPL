@@ -1,0 +1,59 @@
+// timing_basic_test.bcl
+// Basic test of the TIMER_START and TIMER_END functionality in BCPL
+// This test demonstrates simple timing measurements
+
+LET START() BE
+$(
+    WRITEF("=== Basic Timer Test ==*N")
+
+    // Test 1: Simple timer
+    TIMER_START("simple_test")
+    WRITEF("Doing some simple work...*N")
+    FOR i = 1 TO 1000000 DO
+        // Simple loop to consume some time
+        LET x = i * i
+    TIMER_END("simple_test")
+
+    // Test 2: Nested timers
+    TIMER_START("outer_function")
+    WRITEF("Starting outer function*N")
+
+    TIMER_START("inner_function")
+    WRITEF("Starting inner function*N")
+    FOR i = 1 TO 500000 DO
+        LET y = i + i
+    TIMER_END("inner_function")
+
+    WRITEF("Continuing outer function*N")
+    FOR i = 1 TO 300000 DO
+        LET z = i - 1
+    TIMER_END("outer_function")
+
+    // Test 3: Multiple calls to same timer (accumulation)
+    FOR call = 1 TO 3 DO
+    $(
+        TIMER_START("repeated_function")
+        WRITEF("Repeated call %N*N", call)
+        FOR i = 1 TO 200000 DO
+            LET w = i / 2
+        TIMER_END("repeated_function")
+    $)
+
+    // Test 4: Recursive-style timing (same timer name nested)
+    TIMER_START("recursive_test")
+    WRITEF("Outer recursive call*N")
+
+    TIMER_START("recursive_test")
+    WRITEF("Inner recursive call*N")
+    FOR i = 1 TO 100000 DO
+        LET r = i + 1
+    TIMER_END("recursive_test")
+
+    WRITEF("Back in outer recursive call*N")
+    TIMER_END("recursive_test")
+
+    WRITEF("*NTimer test completed. Metrics will be displayed automatically.*N")
+
+    // Note: Timing metrics are automatically displayed when the program ends
+    // via the finish() function or program completion
+$)

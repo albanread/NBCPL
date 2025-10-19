@@ -113,6 +113,14 @@ extern "C" {
     // System functions
     void finish();
     
+    // Timing and Performance Metrics functions
+    void TIMER_START(int name_str);
+    void TIMER_END(int name_str);
+    void TIMER_DISPLAY();
+    void TIMER_CLEAR();
+    int TIMER_GET_TOTAL_NS(int name_str);
+    int TIMER_GET_CALL_COUNT(int name_str);
+    
     // Heap Manager functions
     void HeapManager_enterScope();
     void HeapManager_exitScope();
@@ -834,8 +842,42 @@ static const RuntimeFunctionDescriptor g_runtime_manifest[] = {
         "SDL2_TEST_BASIC", "_SDL2_TEST_BASIC", reinterpret_cast<RuntimeFunctionPtr>(SDL2_TEST_BASIC), 0,
         RuntimeFunctionType::STANDARD, RuntimeReturnType::INTEGER,
         "Test basic SDL2 functionality", "SDL"
-    }
+    },
 #endif
+
+    // -------------------------------------------------------------------------
+    // TIMING AND PERFORMANCE METRICS
+    // -------------------------------------------------------------------------
+    {
+        "TIMER_START", "_TIMER_START", reinterpret_cast<RuntimeFunctionPtr>(TIMER_START), 1,
+        RuntimeFunctionType::ROUTINE, RuntimeReturnType::VOID,
+        "Start a timer with the given name", "TIMING"
+    },
+    {
+        "TIMER_END", "_TIMER_END", reinterpret_cast<RuntimeFunctionPtr>(TIMER_END), 1,
+        RuntimeFunctionType::ROUTINE, RuntimeReturnType::VOID,
+        "End the most recently started timer with the given name", "TIMING"
+    },
+    {
+        "TIMER_DISPLAY", "_TIMER_DISPLAY", reinterpret_cast<RuntimeFunctionPtr>(TIMER_DISPLAY), 0,
+        RuntimeFunctionType::ROUTINE, RuntimeReturnType::VOID,
+        "Display all collected timing metrics to standard output", "TIMING"
+    },
+    {
+        "TIMER_CLEAR", "_TIMER_CLEAR", reinterpret_cast<RuntimeFunctionPtr>(TIMER_CLEAR), 0,
+        RuntimeFunctionType::ROUTINE, RuntimeReturnType::VOID,
+        "Clear all timing metrics", "TIMING"
+    },
+    {
+        "TIMER_GET_TOTAL_NS", "_TIMER_GET_TOTAL_NS", reinterpret_cast<RuntimeFunctionPtr>(TIMER_GET_TOTAL_NS), 1,
+        RuntimeFunctionType::STANDARD, RuntimeReturnType::INTEGER,
+        "Get total accumulated time in nanoseconds for a named timer", "TIMING"
+    },
+    {
+        "TIMER_GET_CALL_COUNT", "_TIMER_GET_CALL_COUNT", reinterpret_cast<RuntimeFunctionPtr>(TIMER_GET_CALL_COUNT), 1,
+        RuntimeFunctionType::STANDARD, RuntimeReturnType::INTEGER,
+        "Get the number of times a named timer has been called", "TIMING"
+    }
 };
 
 // Calculate manifest size

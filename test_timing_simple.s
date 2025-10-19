@@ -1,7 +1,6 @@
 .section __TEXT,__text,regular,pure_instructions
 .globl _start
 .globl _START
-.globl _HeapManager_exit_scope
 .globl _WRITEN
 .globl _GETVEC
 .globl _WRITEF
@@ -141,159 +140,79 @@ _START:
 ; --- Veneer Section ---
     ; --- End Veneer Section ---
 
-L_FACTORIAL_RECURSIVE:
-    STP X29, X30, [SP, #-64]!
-    MOV X29, SP
-    STP x19, x20, [x29, #24]
-    STP x27, x28, [x29, #40]
-    MOV X27, X0    // Move parameter 'N' from X0 to X27
-L_FACTORIAL_RECURSIVE_Entry_0:
-    CMP x27, #0
-    CSET X10, EQ
-    CMP X10, XZR
-    B.EQ L_FACTORIAL_RECURSIVE_Join_2
-    B L_FACTORIAL_RECURSIVE_Then_1
-L_FACTORIAL_RECURSIVE_Exit_3:
-    B L_0
-L_FACTORIAL_RECURSIVE_Join_2:
-    MOV X20, X27
-    SUB x0, x27, #1
-    BL L_FACTORIAL_RECURSIVE
-    MUL X20, X20, X0
-    MOV X0, X20
-    B L_0
-    B L_FACTORIAL_RECURSIVE_Exit_3
-L_FACTORIAL_RECURSIVE_Then_1:
-    MOVZ X9, #1
-    MOV X0, X9
-    B L_0
-    B L_FACTORIAL_RECURSIVE_Exit_3
-L_0:
-    LDP x19, x20, [x29, #24]
-    LDP x27, x28, [x29, #40]
-    MOV SP, X29 ; Deallocate frame by moving FP to SP
-    LDP x29, x30, [SP, #0]
-    ADD SP, SP, #16 ; Deallocate space for saved FP/LR
-    RET
-L_FACTORIAL_ITERATIVE:
+L_START:
     STP X29, X30, [SP, #-112]!
     MOV X29, SP
     STP x19, x20, [x29, #40]
-    STP x21, x24, [x29, #56]
+    STP x23, x24, [x29, #56]
     STP x25, x26, [x29, #72]
     STP x27, x28, [x29, #88]
-    MOV X26, X0    // Move parameter 'N' from X0 to X26
-L_FACTORIAL_ITERATIVE_Entry_0:
-    MOVZ X9, #1
-    MOV X27, X9
-    MOVZ X9, #1
-    MOV X25, X9
-    B L_FACTORIAL_ITERATIVE_ForHeader_1
-L_FACTORIAL_ITERATIVE_Exit_6:
-    B L_1
-L_FACTORIAL_ITERATIVE_ForBody_2:
-    MOV X9, X27
-    MUL X9, X9, X25
-    MOV X27, X9
-    B L_FACTORIAL_ITERATIVE_ForIncrement_3
-L_FACTORIAL_ITERATIVE_ForHeader_1:
-    CMP x25, x26
-    B.GT L_FACTORIAL_ITERATIVE_ResultisCleanup_5
-    B L_FACTORIAL_ITERATIVE_ForBody_2
-L_FACTORIAL_ITERATIVE_ForIncrement_3:
-    ADD X25, X25, #1
-    B L_FACTORIAL_ITERATIVE_ForHeader_1
-L_FACTORIAL_ITERATIVE_ResultisCleanup_5:
-    MOV X0, X27
-    B L_1
-    B L_FACTORIAL_ITERATIVE_Exit_6
-L_1:
-    LDP x19, x20, [x29, #40]
-    LDP x21, x24, [x29, #56]
-    LDP x25, x26, [x29, #72]
-    LDP x27, x28, [x29, #88]
-    MOV SP, X29 ; Deallocate frame by moving FP to SP
-    LDP x29, x30, [SP, #0]
-    ADD SP, SP, #16 ; Deallocate space for saved FP/LR
-    RET
-L_START:
-    STP X29, X30, [SP, #-96]!
-    MOV X29, SP
-    STP x19, x20, [x29, #40]
-    STP x25, x26, [x29, #56]
-    STP x27, x28, [x29, #72]
     ADRP X28, L__data_segment_base@PAGE
     ADD X28, X28, L__data_segment_base@PAGEOFF
 L_START_Entry_0:
     ADRP X9, L_str0_plus_8@PAGE
     ADD X9, X9, L_str0_plus_8@PAGEOFF
     MOV X0, X9
-    BL _WRITES
-    MOVZ X9, #18
+    BL _WRITEF
+    MOVZ X9, #1
+    MOV X27, X9
+    B L_START_ForHeader_1
+L_START_Exit_9:
+    B L_0
+L_START_ForBody_2:
+    ADRP X9, L_str1_plus_8@PAGE
+    ADD X9, X9, L_str1_plus_8@PAGEOFF
+    MOV X0, X9
+    BL _TIMER_START
+    ADRP X9, L_str2_plus_8@PAGE
+    ADD X9, X9, L_str2_plus_8@PAGEOFF
+    MOV X0, X9
+    BL _WRITEF
+    MOVZ X9, #1
     MOV X25, X9
-    ADRP X9, L_str1_plus_8@PAGE
-    ADD X9, X9, L_str1_plus_8@PAGEOFF
-    MOV X0, X9
-    BL _TIMER_START
-    MOVZ X9, #18
-    MOV X0, X9
-    BL L_FACTORIAL_RECURSIVE
-    MOV X26, X0
-    ADRP X9, L_str1_plus_8@PAGE
-    ADD X9, X9, L_str1_plus_8@PAGEOFF
-    MOV X0, X9
-    BL _TIMER_END
-    ADRP X9, L_str2_plus_8@PAGE
-    ADD X9, X9, L_str2_plus_8@PAGEOFF
-    MOV X0, X9
-    BL _TIMER_START
-    MOVZ X9, #18
-    MOV X0, X9
-    BL L_FACTORIAL_ITERATIVE
-    MOV X27, X0
-    ADRP X9, L_str2_plus_8@PAGE
-    ADD X9, X9, L_str2_plus_8@PAGEOFF
-    MOV X0, X9
-    BL _TIMER_END
+    B L_START_ForHeader_5
+L_START_ForBody_6:
+    MOV X9, X25
+    MUL X9, X9, X25
+    MOV X24, X9
+    B L_START_ForIncrement_7
+L_START_ForExit_4:
+    BL _TIMER_DISPLAY
     ADRP X9, L_str3_plus_8@PAGE
     ADD X9, X9, L_str3_plus_8@PAGEOFF
     MOV X0, X9
-    BL _WRITES
-    MOVZ X9, #18
+    BL _WRITEF
+    B L_START_Exit_9
+L_START_ForExit_8:
+    ADRP X9, L_str1_plus_8@PAGE
+    ADD X9, X9, L_str1_plus_8@PAGEOFF
     MOV X0, X9
-    BL _WRITEN
-    ADRP X9, L_str4_plus_8@PAGE
-    ADD X9, X9, L_str4_plus_8@PAGEOFF
-    MOV X0, X9
-    BL _WRITES
-    MOV X9, X26
-    MOV X0, X9
-    BL _WRITEN
-    ADRP X9, L_str5_plus_8@PAGE
-    ADD X9, X9, L_str5_plus_8@PAGEOFF
-    MOV X0, X9
-    BL _WRITES
+    BL _TIMER_END
+    B L_START_ForIncrement_3
+L_START_ForHeader_1:
     MOV X9, X27
-    MOV X0, X9
-    BL _WRITEN
-    ADRP X9, L_str6_plus_8@PAGE
-    ADD X9, X9, L_str6_plus_8@PAGEOFF
-    MOV X0, X9
-    BL _WRITES
-    BL _TIMER_DISPLAY
-    BL _HeapManager_exit_scope
-    B L_START_FinishCleanup_1
-L_START_FinishCleanup_1:
-    MOVZ X9, #0
-    MOV X0, X9
-    MOVZ X9, #1
-    MOVK X9, #512, LSL #16
-    MOV X16, X9
-    SVC #128
-L_2:
+    MOVZ X10, #10
+    CMP X9, X10
+    B.GT L_START_ForExit_4
+    B L_START_ForBody_2
+L_START_ForHeader_5:
+    MOV X9, X25
+    MOVZ X11, #34464
+    MOVK X11, #1, LSL #16
+    CMP X9, X11
+    B.GT L_START_ForExit_8
+    B L_START_ForBody_6
+L_START_ForIncrement_3:
+    ADD X27, X27, #1
+    B L_START_ForHeader_1
+L_START_ForIncrement_7:
+    ADD X25, X25, #1
+    B L_START_ForHeader_5
+L_0:
     LDP x19, x20, [x29, #40]
-    LDP x25, x26, [x29, #56]
-    LDP x27, x28, [x29, #72]
+    LDP x23, x24, [x29, #56]
+    LDP x25, x26, [x29, #72]
+    LDP x27, x28, [x29, #88]
     MOV SP, X29 ; Deallocate frame by moving FP to SP
     LDP x29, x30, [SP, #0]
     ADD SP, SP, #16 ; Deallocate space for saved FP/LR
@@ -302,153 +221,137 @@ L_2:
 .section __DATA,__const
 .p2align 3
 L_str0:
-    .quad 0x6
+    .quad 0x1a
     ; (upper half)
 .p2align 2
 L_str0_plus_8:
-    .long 0x48
+    .long 0x3d
+    .long 0x3d
+    .long 0x3d
+    .long 0x20
+    .long 0x53
+    .long 0x69
+    .long 0x6d
+    .long 0x70
+    .long 0x6c
     .long 0x65
-    .long 0x6c
-    .long 0x6c
-    .long 0x6f
+    .long 0x20
+    .long 0x54
+    .long 0x69
+    .long 0x6d
+    .long 0x69
+    .long 0x6e
+    .long 0x67
+    .long 0x20
+    .long 0x54
+    .long 0x65
+    .long 0x73
+    .long 0x74
+    .long 0x20
+    .long 0x3d
+    .long 0x3d
     .long 0xa
     .long 0x0
     .long 0x0
 .p2align 3
 L_str1:
-    .quad 0x13
+    .quad 0xd
     ; (upper half)
 .p2align 2
 L_str1_plus_8:
-    .long 0x72
+    .long 0x74
     .long 0x65
-    .long 0x63
-    .long 0x75
-    .long 0x72
     .long 0x73
-    .long 0x69
-    .long 0x76
-    .long 0x65
+    .long 0x74
     .long 0x5f
     .long 0x66
-    .long 0x61
+    .long 0x75
+    .long 0x6e
     .long 0x63
     .long 0x74
-    .long 0x6f
-    .long 0x72
     .long 0x69
-    .long 0x61
-    .long 0x6c
+    .long 0x6f
+    .long 0x6e
     .long 0x0
     .long 0x0
 .p2align 3
 L_str2:
-    .quad 0xe
+    .quad 0x13
     ; (upper half)
 .p2align 2
 L_str2_plus_8:
-    .long 0x69
-    .long 0x74
-    .long 0x65
-    .long 0x72
-    .long 0x5f
-    .long 0x66
-    .long 0x61
-    .long 0x63
-    .long 0x74
+    .long 0x44
     .long 0x6f
-    .long 0x72
-    .long 0x69
-    .long 0x61
-    .long 0x6c
-    .long 0x0
-    .long 0x0
-.p2align 3
-L_str3:
-    .quad 0x23
-    ; (upper half)
-.p2align 2
-L_str3_plus_8:
-    .long 0x43
-    .long 0x61
-    .long 0x6c
-    .long 0x63
-    .long 0x75
-    .long 0x6c
-    .long 0x61
-    .long 0x74
     .long 0x69
     .long 0x6e
     .long 0x67
     .long 0x20
-    .long 0x72
-    .long 0x65
-    .long 0x63
-    .long 0x75
-    .long 0x72
     .long 0x73
+    .long 0x6f
+    .long 0x6d
+    .long 0x65
+    .long 0x20
+    .long 0x77
+    .long 0x6f
+    .long 0x72
+    .long 0x6b
+    .long 0x2e
+    .long 0x2e
+    .long 0x2e
+    .long 0xa
+    .long 0x0
+    .long 0x0
+.p2align 3
+L_str3:
+    .quad 0x28
+    ; (upper half)
+.p2align 2
+L_str3_plus_8:
+    .long 0x54
+    .long 0x65
+    .long 0x73
+    .long 0x74
+    .long 0x20
+    .long 0x63
+    .long 0x6f
+    .long 0x6d
+    .long 0x70
+    .long 0x6c
+    .long 0x65
+    .long 0x74
+    .long 0x65
+    .long 0x20
+    .long 0x2d
+    .long 0x20
+    .long 0x6d
+    .long 0x65
+    .long 0x74
+    .long 0x72
     .long 0x69
+    .long 0x63
+    .long 0x73
+    .long 0x20
+    .long 0x64
+    .long 0x69
+    .long 0x73
+    .long 0x70
+    .long 0x6c
+    .long 0x61
+    .long 0x79
+    .long 0x65
+    .long 0x64
+    .long 0x20
+    .long 0x61
+    .long 0x62
+    .long 0x6f
     .long 0x76
     .long 0x65
-    .long 0x20
-    .long 0x46
-    .long 0x61
-    .long 0x63
-    .long 0x74
-    .long 0x6f
-    .long 0x72
-    .long 0x69
-    .long 0x61
-    .long 0x6c
-    .long 0x20
-    .long 0x6f
-    .long 0x66
-    .long 0x20
-    .long 0x0
-    .long 0x0
-.p2align 3
-L_str4:
-    .quad 0x3
-    ; (upper half)
-.p2align 2
-L_str4_plus_8:
-    .long 0x20
-    .long 0x3d
-    .long 0x20
-    .long 0x0
-    .long 0x0
-.p2align 3
-L_str5:
-    .quad 0x7
-    ; (upper half)
-.p2align 2
-L_str5_plus_8:
-    .long 0x20
-    .long 0x41
-    .long 0x4e
-    .long 0x44
-    .long 0x20
-    .long 0x3d
-    .long 0x20
-    .long 0x0
-    .long 0x0
-.p2align 3
-L_str6:
-    .quad 0x3
-    ; (upper half)
-.p2align 2
-L_str6_plus_8:
-    .long 0x42
-    .long 0x59
-    .long 0x45
+    .long 0xa
     .long 0x0
     .long 0x0
 
 .section __DATA,__data
 .p2align 3
-    .long 0x0
-    .long 0x0
-    .long 0x0
     .long 0x0
     .long 0x0
     .long 0x0
