@@ -1,0 +1,132 @@
+// Stress test for scratch register usage
+// This test is designed to definitely exhaust scratch registers with the old implementation
+// but should work fine with the fixed implementation
+
+LET START() BE {
+    WRITEF("Stress testing scratch register usage*N")
+
+    // Create many variables to use as arguments
+    LET v1 = 11
+    LET v2 = 22
+    LET v3 = 33
+    LET v4 = 44
+    LET v5 = 55
+    LET v6 = 66
+    LET v7 = 77
+    LET v8 = 88
+    LET v9 = 99
+    LET v10 = 110
+
+    // Test 1: Maximum variables (7 args) - old code would copy each to scratch reg
+    WRITEF("Test 1: 7 variable arguments*N")
+    LET result1 = stress_test_7_vars(v1, v2, v3, v4, v5, v6, v7)
+    WRITEF("Test 1 result: %d*N", result1)
+
+    // Test 2: Variables mixed with expressions that use scratch registers
+    WRITEF("Test 2: Mixed variables and expressions*N")
+    LET result2 = stress_test_mixed(
+        v1,                    // Variable - old code: acquire scratch reg
+        v2 + v3,              // Expression - uses scratch regs internally
+        v4,                    // Variable - old code: acquire scratch reg
+        expensive_calc(v5),    // Function call - uses many scratch regs
+        v6,                    // Variable - old code: acquire scratch reg
+        v7 * 2,               // Expression - uses scratch regs
+        v8                     // Variable - old code: would fail here (7th scratch reg)
+    )
+    WRITEF("Test 2 result: %d*N", result2)
+
+    // Test 3: Nested function calls as arguments
+    WRITEF("Test 3: Nested function calls*N")
+    LET result3 = stress_test_nested(
+        nested_func_a(v1, v2),
+        nested_func_b(v3, v4),
+        nested_func_c(v5, v6),
+        nested_func_d(v7, v8),
+        nested_func_e(v9, v10)
+    )
+    WRITEF("Test 3 result: %d*N", result3)
+
+    // Test 4: Maximum stress - complex expressions everywhere
+    WRITEF("Test 4: Maximum complexity*N")
+    LET result4 = maximum_stress(
+        expensive_calc(v1) + expensive_calc(v2),
+        (v3 * v4) + (v5 * v6),
+        nested_func_a(v7, v8) - nested_func_b(v9, v10),
+        complex_expression(v1, v2, v3),
+        another_complex_expr(v4, v5, v6),
+        final_complex_expr(v7, v8, v9)
+    )
+    WRITEF("Test 4 result: %d*N", result4)
+
+    WRITEF("All stress tests passed! Scratch register fix is working.*N")
+}
+
+LET stress_test_7_vars(a, b, c, d, e, f, g) BE {
+    RESULTIS a + b + c + d + e + f + g
+}
+
+LET stress_test_mixed(a, b, c, d, e, f, g) BE {
+    RESULTIS a + b + c + d + e + f + g
+}
+
+LET stress_test_nested(a, b, c, d, e) BE {
+    RESULTIS a + b + c + d + e
+}
+
+LET maximum_stress(a, b, c, d, e, f) BE {
+    RESULTIS a + b + c + d + e + f
+}
+
+// Functions that consume scratch registers internally
+LET expensive_calc(x) BE {
+    LET temp1 = x * 3
+    LET temp2 = temp1 + 17
+    LET temp3 = temp2 * 2
+    LET temp4 = temp3 - 5
+    RESULTIS temp4 / 2
+}
+
+LET nested_func_a(x, y) BE {
+    LET result = (x * y) + (x - y) + (x / 2)
+    RESULTIS result
+}
+
+LET nested_func_b(x, y) BE {
+    LET temp = expensive_calc(x) + expensive_calc(y)
+    RESULTIS temp / 2
+}
+
+LET nested_func_c(x, y) BE {
+    RESULTIS (x + y) * (x - y) + 42
+}
+
+LET nested_func_d(x, y) BE {
+    LET a = x * 2
+    LET b = y * 3
+    LET c = a + b
+    LET d = c - 10
+    RESULTIS d
+}
+
+LET nested_func_e(x, y) BE {
+    RESULTIS expensive_calc(x + y) - expensive_calc(x - y)
+}
+
+LET complex_expression(a, b, c) BE {
+    LET step1 = a * b
+    LET step2 = step1 + c
+    LET step3 = step2 * 2
+    LET step4 = step3 - a
+    RESULTIS step4 + expensive_calc(b)
+}
+
+LET another_complex_expr(a, b, c) BE {
+    RESULTIS nested_func_a(a, b) + nested_func_b(b, c) + nested_func_c(a, c)
+}
+
+LET final_complex_expr(a, b, c) BE {
+    LET x = expensive_calc(a)
+    LET y = expensive_calc(b)
+    LET z = expensive_calc(c)
+    RESULTIS (x + y + z) / 3
+}

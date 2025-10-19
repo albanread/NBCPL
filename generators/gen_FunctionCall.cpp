@@ -24,25 +24,15 @@ void NewCodeGenerator::visit(FunctionCall& node) {
         std::string result_reg = expression_result_reg_;
         bool is_temp = false;
         
-        // If the expression result is in a variable's home register, we need to copy it to a temp
-        // This prevents the home register from being released during argument coercion
+        // FIXED: Don't unnecessarily acquire scratch registers for variable accesses
+        // The expression evaluation already puts the result in an appropriate register
+        // Only mark as temporary if it's truly a temporary (not a variable's home register)
         if (auto* var_access = dynamic_cast<VariableAccess*>(arg_expr.get())) {
-            // This is a variable access - the result might be in the variable's home register
-            // We should copy it to a temporary to be safe
-            std::string temp_reg;
-            if (register_manager_.is_fp_register(expression_result_reg_)) {
-                temp_reg = register_manager_.acquire_fp_scratch_reg();
-                emit(Encoder::create_fmov_reg(temp_reg, expression_result_reg_));
-            } else {
-                temp_reg = register_manager_.acquire_scratch_reg(*this);
-                emit(Encoder::create_mov_reg(temp_reg, expression_result_reg_));
-            }
-            result_reg = temp_reg;
-            is_temp = true;
+            // Variable access - result is in variable's home register, don't copy
+            is_temp = false;  // This is NOT a temporary - it's the variable's home register
         } else {
-            // For non-variable expressions (literals, complex expressions), the result is typically
-            // already in a temporary register from the expression evaluation
-            is_temp = true;
+            // Complex expressions - result is already in a temporary from expression evaluation
+            is_temp = true;   // This IS a temporary register that can be released later
         }
         
         arg_result_regs.push_back({result_reg, is_temp});

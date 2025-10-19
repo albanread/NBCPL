@@ -20,8 +20,6 @@ std::vector<FormatSpecifier> parse_format_string(const std::string& format_str) 
     std::vector<FormatSpecifier> specifiers;
     size_t pos = 0;
     
-
-    
     for (size_t i = 0; i < format_str.length(); ++i) {
         if (format_str[i] == '*') {
             // BCPL-style format specifiers: *F, *N, *I, etc.
@@ -169,20 +167,12 @@ void NewCodeGenerator::visit(RoutineCallStatement& node) {
     if (auto* member_access = dynamic_cast<MemberAccessExpression*>(node.routine_expr.get())) {
         debug_print("Detected a method call to: " + member_access->member_name);
 
-        // --- Stage 1: Evaluate all arguments into temporary registers ---
+        // --- Stage 1: Evaluate all arguments (FIXED: no unnecessary copying) ---
         std::vector<std::string> arg_value_regs;
         for (const auto& arg_expr : node.arguments) {
             generate_expression_code(*arg_expr);
-            std::string temp_reg;
-            if (register_manager_.is_fp_register(expression_result_reg_)) {
-                temp_reg = register_manager_.acquire_fp_scratch_reg();
-                emit(Encoder::create_fmov_reg(temp_reg, expression_result_reg_));
-            } else {
-                temp_reg = register_manager_.acquire_scratch_reg(*this);
-                emit(Encoder::create_mov_reg(temp_reg, expression_result_reg_));
-            }
-            register_manager_.release_register(expression_result_reg_);
-            arg_value_regs.push_back(temp_reg);
+            // FIXED: Use the result register directly, don't acquire extra scratch registers
+            arg_value_regs.push_back(expression_result_reg_);
         }
 
         // --- Stage 2: Evaluate the object pointer ('this') ---
@@ -319,16 +309,8 @@ void NewCodeGenerator::visit(RoutineCallStatement& node) {
         std::vector<std::string> arg_value_regs;
         for (const auto& arg_expr : node.arguments) {
             generate_expression_code(*arg_expr);
-            std::string temp_reg;
-            if (register_manager_.is_fp_register(expression_result_reg_)) {
-                temp_reg = register_manager_.acquire_fp_scratch_reg();
-                emit(Encoder::create_fmov_reg(temp_reg, expression_result_reg_));
-            } else {
-                temp_reg = register_manager_.acquire_scratch_reg(*this);
-                emit(Encoder::create_mov_reg(temp_reg, expression_result_reg_));
-            }
-            register_manager_.release_register(expression_result_reg_);
-            arg_value_regs.push_back(temp_reg);
+            // FIXED: Use the result register directly, don't acquire extra scratch registers
+            arg_value_regs.push_back(expression_result_reg_);
         }
 
         // --- Stage 2: Get the '_this' pointer from its home register ---
@@ -531,20 +513,13 @@ void NewCodeGenerator::visit(RoutineCallStatement& node) {
                     
                     // If this is a variable access, copy to temp to preserve home register
                     if (auto* var_access = dynamic_cast<VariableAccess*>(arg_expr.get())) {
-                        std::string temp_reg;
-                        if (register_manager_.is_fp_register(expression_result_reg_)) {
-                            temp_reg = register_manager_.acquire_fp_scratch_reg();
-                            emit(Encoder::create_fmov_reg(temp_reg, expression_result_reg_));
-                        } else {
-                            temp_reg = register_manager_.acquire_scratch_reg(*this);
-                            emit(Encoder::create_mov_reg(temp_reg, expression_result_reg_));
-                        }
-
-                        result_reg = temp_reg;
-                        is_temp = true;
+                        // FIXED: Don't acquire extra scratch register for variable access
+                        // Use the result register directly - it's the variable's home register
+                        result_reg = expression_result_reg_;
+                        is_temp = false;  // This is NOT a temporary - preserve the home register
                     } else {
                         // For non-variable expressions, result is typically already in temp
-
+                        result_reg = expression_result_reg_;
                         is_temp = true;
                     }
                     
@@ -645,20 +620,13 @@ void NewCodeGenerator::visit(RoutineCallStatement& node) {
                     
                 // If this is a variable access, copy to temp to preserve home register
                 if (auto* var_access = dynamic_cast<VariableAccess*>(arg_expr.get())) {
-                    std::string temp_reg;
-                    if (register_manager_.is_fp_register(expression_result_reg_)) {
-                        temp_reg = register_manager_.acquire_fp_scratch_reg();
-                        emit(Encoder::create_fmov_reg(temp_reg, expression_result_reg_));
-                    } else {
-                        temp_reg = register_manager_.acquire_scratch_reg(*this);
-                        emit(Encoder::create_mov_reg(temp_reg, expression_result_reg_));
-                    }
-
-                    result_reg = temp_reg;
-                    is_temp = true;
+                    // FIXED: Don't acquire extra scratch register for variable access
+                    // Use the result register directly - it's the variable's home register
+                    result_reg = expression_result_reg_;
+                    is_temp = false;  // This is NOT a temporary - preserve the home register
                 } else {
-                    // For non-variable expressions, result is typically already in temp
-
+                    // For non-variable expressions, result is already in temp
+                    result_reg = expression_result_reg_;
                     is_temp = true;
                 }
                     
