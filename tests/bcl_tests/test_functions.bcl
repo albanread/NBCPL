@@ -16,7 +16,12 @@ $(
 
 	LET X= 12
 
-  	LET U=FACT(5)
-
+	FOR i=1 TO 10000 DO $(
+	TIMER_START("Fact")
+  	LET U=FACT(X)
+	TIMER_END("Fact")
+	$)
 	WRITES("END*N")
+
+	TIMER_DISPLAY()
 $)

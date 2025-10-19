@@ -44,6 +44,7 @@
 #include "Preprocessor.h"
 #include "AST.h"
 #include "SymbolLogger.h"
+#include "VectorPairwiseLowerer.h"
 
 
 #include "AssemblyWriter.h"
@@ -709,6 +710,17 @@ if (!semantic_errors.empty()) {
 if (enable_tracing || trace_ast) {
    std::cout << "Initial AST analysis complete.\n";
    analyzer.print_report();
+}
+
+// --- Stage 3: Vector Pairwise Lowering Pass ---
+// Transform vector operations (PAIRS + PAIRS) into explicit loops
+{
+    if (enable_tracing || trace_optimizer) std::cout << "Running VectorPairwiseLowerer (Stage 3)...\n";
+    VectorPairwiseLowerer vector_lowerer(symbol_table.get(), &analyzer, enable_tracing || trace_optimizer);
+    bool transformations_made = vector_lowerer.lower(*ast);
+    if (enable_tracing || trace_optimizer) {
+        std::cout << "Vector lowering " << (transformations_made ? "completed with transformations" : "completed - no transformations needed") << "\n";
+    }
 }
 
 // --- String Literal Lifting Pass: run after symbol discovery/type analysis, before CFG/liveness ---

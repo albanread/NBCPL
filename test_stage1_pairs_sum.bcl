@@ -1,0 +1,24 @@
+LET START() BE {
+
+    WRITEF("Testing Stage 1: PAIRS SUM Reduction*N")
+
+    // Create a simple PAIRS vector with 2 elements
+    LET pairs_vec = PAIRS 2
+
+    // Initialize with test values: (1,2), (3,4)
+    pairs_vec!0 := PAIR(1, 2)
+    pairs_vec!1 := PAIR(3, 4)
+
+    WRITEF("pairs_vec: PAIR(1,2), PAIR(3,4)*N")
+
+    // Test SUM operation - should give: PAIR(4,6) = (1+3, 2+4)
+    WRITEF("Testing SUM operation...*N")
+    LET sum_result = SUM(pairs_vec, pairs_vec)
+
+    // Display the result
+    WRITEF("SUM result as hex: 0x%X*N", sum_result)
+
+    // If we get here without crashing, Stage 1 is working
+    WRITEF("SUCCESS: PAIR SUM reduction completed!*N")
+    WRITEF("Stage 1 test complete.*N")
+}

@@ -1,0 +1,16 @@
+LET START() BE {
+    WRITEF("Stage 3 Debug Test*N")
+
+    // Create two simple PAIRS vectors
+    LET a = PAIRS 1
+    LET b = PAIRS 1
+
+    // Initialize with simple values
+    a!0 := PAIR(1, 2)
+    b!0 := PAIR(3, 4)
+
+    // Simple vector addition that should be lowered
+    LET c = a + b
+
+    WRITEF("Vector operation complete*N")
+}

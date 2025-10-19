@@ -20,7 +20,7 @@ $(
   WRITES("Hello*N")
   LET N = 18
 
-  FOR reps = 1 TO 10 DO $(
+  FOR reps = 1 TO 10000 DO $(
 
   TIMER_START("recursive_factorial")
   LET R = FACTORIAL_RECURSIVE(N)

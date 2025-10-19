@@ -1,6 +1,7 @@
 #pragma once
 
 #include "AST.h"
+#include "DataTypes.h"
 #include <string>
 #include <memory>
 
@@ -113,6 +114,43 @@ public:
      */
     virtual std::unique_ptr<Expression> getInitialValue() const {
         return nullptr;
+    }
+
+    /**
+     * Get element type-aware initial value for vector reductions
+     * 
+     * This method allows reducers to provide appropriate initialization
+     * based on the element type of the vector being reduced:
+     * - For PAIR elements: Returns PAIR(scalar_init, scalar_init)
+     * - For FPAIR elements: Returns FPAIR(scalar_init, scalar_init)
+     * - For scalar elements: Returns the scalar initial value
+     * 
+     * @param element_type The type of elements in the vector being reduced
+     * @return Appropriate initial value expression for the element type
+     */
+    virtual std::unique_ptr<Expression> getInitialValueForElementType(VarType element_type) const {
+        // Default implementation: delegate to the original method for scalar types
+        auto scalar_init = getInitialValue();
+        if (!scalar_init) return nullptr;
+
+        // For PAIR types, create PAIR(scalar_init, scalar_init)
+        if (element_type == VarType::PAIR) {
+            return std::make_unique<PairExpression>(
+                std::unique_ptr<Expression>(static_cast<Expression*>(scalar_init->clone().release())),
+                std::unique_ptr<Expression>(static_cast<Expression*>(scalar_init->clone().release()))
+            );
+        }
+
+        // For FPAIR types, create FPAIR(scalar_init, scalar_init)
+        if (element_type == VarType::FPAIR) {
+            return std::make_unique<FPairExpression>(
+                std::unique_ptr<Expression>(static_cast<Expression*>(scalar_init->clone().release())),
+                std::unique_ptr<Expression>(static_cast<Expression*>(scalar_init->clone().release()))
+            );
+        }
+
+        // For other types, return the scalar value
+        return scalar_init;
     }
 
     /**

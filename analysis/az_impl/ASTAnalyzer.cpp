@@ -1257,6 +1257,59 @@ VarType ASTAnalyzer::infer_binary_op_type(const BinaryOp* bin_op) const {
         }
     }
     
+    // === Stage 2: Vector Binary Operations Support ===
+    // Handle PAIRS + PAIRS operations (vector element-wise operations)
+    if (left_type == VarType::PAIRS && right_type == VarType::PAIRS) {
+        if (bin_op->op == BinaryOp::Operator::Add ||
+            bin_op->op == BinaryOp::Operator::Subtract ||
+            bin_op->op == BinaryOp::Operator::Multiply ||
+            bin_op->op == BinaryOp::Operator::Divide) {
+            if (trace_enabled_) {
+                std::cerr << "DEBUG: Detected PAIRS + PAIRS vector operation, result type: PAIRS" << std::endl;
+            }
+            return VarType::PAIRS;
+        }
+    }
+    
+    // Handle FPAIRS + FPAIRS operations (vector element-wise operations)
+    if (left_type == VarType::FPAIRS && right_type == VarType::FPAIRS) {
+        if (bin_op->op == BinaryOp::Operator::Add ||
+            bin_op->op == BinaryOp::Operator::Subtract ||
+            bin_op->op == BinaryOp::Operator::Multiply ||
+            bin_op->op == BinaryOp::Operator::Divide) {
+            if (trace_enabled_) {
+                std::cerr << "DEBUG: Detected FPAIRS + FPAIRS vector operation, result type: FPAIRS" << std::endl;
+            }
+            return VarType::FPAIRS;
+        }
+    }
+    
+    // Handle QUADS + QUADS operations (vector element-wise operations)
+    if (left_type == VarType::QUADS && right_type == VarType::QUADS) {
+        if (bin_op->op == BinaryOp::Operator::Add ||
+            bin_op->op == BinaryOp::Operator::Subtract ||
+            bin_op->op == BinaryOp::Operator::Multiply ||
+            bin_op->op == BinaryOp::Operator::Divide) {
+            if (trace_enabled_) {
+                std::cerr << "DEBUG: Detected QUADS + QUADS vector operation, result type: QUADS" << std::endl;
+            }
+            return VarType::QUADS;
+        }
+    }
+    
+    // Handle FQUADS + FQUADS operations (vector element-wise operations)
+    if (left_type == VarType::FQUADS && right_type == VarType::FQUADS) {
+        if (bin_op->op == BinaryOp::Operator::Add ||
+            bin_op->op == BinaryOp::Operator::Subtract ||
+            bin_op->op == BinaryOp::Operator::Multiply ||
+            bin_op->op == BinaryOp::Operator::Divide) {
+            if (trace_enabled_) {
+                std::cerr << "DEBUG: Detected FQUADS + FQUADS vector operation, result type: FQUADS" << std::endl;
+            }
+            return VarType::FQUADS;
+        }
+    }
+    
     // For scalar-FQUAD operations: FQUAD OP FLOAT = FQUAD, FLOAT OP FQUAD = FQUAD
     if ((left_type == VarType::FQUAD && right_type == VarType::FLOAT) ||
         (left_type == VarType::FLOAT && right_type == VarType::FQUAD)) {

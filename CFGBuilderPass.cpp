@@ -3069,13 +3069,16 @@ void CFGBuilderPass::build_destructuring_list_foreach_cfg(ForEachStatement& node
             ));
         }
 
-        // Initialize NEON accumulators with reducer's initial value
-        // x_acc = [initial, initial, initial, initial] (QUAD vector)
+        // Initialize NEON accumulators with PAIR-aware reducer initial values
+        // For PAIRS vectors, we need PAIR(0,0) elements instead of scalar 0
+        // x_acc = [PAIR(init,init), PAIR(init,init), PAIR(init,init), PAIR(init,init)] (QUAD vector)
         {
             std::vector<ExprPtr> x_acc_rhs;
             std::vector<ExprPtr> quad_elements;
             for (int i = 0; i < 4; i++) {
-                quad_elements.push_back(std::unique_ptr<Expression>(static_cast<Expression*>(reducer.getInitialValue()->clone().release())));
+                // Use PAIR-aware initialization for PAIRS vectors
+                auto pair_init = reducer.getInitialValueForElementType(VarType::PAIR);
+                quad_elements.push_back(std::unique_ptr<Expression>(static_cast<Expression*>(pair_init->clone().release())));
             }
             x_acc_rhs.push_back(std::make_unique<QuadExpression>(
                 std::move(quad_elements[0]), std::move(quad_elements[1]),
@@ -3088,12 +3091,14 @@ void CFGBuilderPass::build_destructuring_list_foreach_cfg(ForEachStatement& node
             ));
         }
 
-        // y_acc = [initial, initial, initial, initial] (QUAD vector)
+        // y_acc = [PAIR(init,init), PAIR(init,init), PAIR(init,init), PAIR(init,init)] (QUAD vector)
         {
             std::vector<ExprPtr> y_acc_rhs;
             std::vector<ExprPtr> quad_elements;
             for (int i = 0; i < 4; i++) {
-                quad_elements.push_back(std::unique_ptr<Expression>(static_cast<Expression*>(reducer.getInitialValue()->clone().release())));
+                // Use PAIR-aware initialization for PAIRS vectors
+                auto pair_init = reducer.getInitialValueForElementType(VarType::PAIR);
+                quad_elements.push_back(std::unique_ptr<Expression>(static_cast<Expression*>(pair_init->clone().release())));
             }
             y_acc_rhs.push_back(std::make_unique<QuadExpression>(
                 std::move(quad_elements[0]), std::move(quad_elements[1]),
