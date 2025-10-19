@@ -21791,7 +21791,7 @@ VarType RuntimeImporter::convert_return_type(RuntimeReturnType runtime_type) {
         case RuntimeReturnType::STRING_LIST:  return VarType::POINTER_TO_STRING_LIST;
         case RuntimeReturnType::INT_VECTOR:   return VarType::POINTER_TO_INT_VEC;
         case RuntimeReturnType::FLOAT_VECTOR: return VarType::POINTER_TO_FLOAT_VEC;
-        case RuntimeReturnType::STRING:       return VarType::INTEGER; // String pointers are integers
+        case RuntimeReturnType::STRING:       return VarType::POINTER_TO_STRING; // String pointers
         case RuntimeReturnType::VOID:         return VarType::INTEGER; // Routines still return integer for ABI
         default:                              return VarType::UNKNOWN;
     }
@@ -67132,8 +67132,8 @@ long long iter_factorial(int n) {
 int main() {
     std::cout << "Hello" << std::endl;
 
-    // Test both factorial implementations 10 times each
-    for (int iteration = 0; iteration < 10; ++iteration) {
+    // Test both factorial implementations 10000 times each
+    for (int iteration = 0; iteration < 10000; ++iteration) {
         // Time the entire recursive operation
         timer.start("recursive_factorial");
         long long recursive_result = recursive_factorial(18);
@@ -67162,6 +67162,7 @@ int main() {
 
     return 0;
 }
+
 // -- end of file
 
 // -- start of file: test_split_join.cpp

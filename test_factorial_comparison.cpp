@@ -120,8 +120,8 @@ long long iter_factorial(int n) {
 int main() {
     std::cout << "Hello" << std::endl;
 
-    // Test both factorial implementations 10 times each
-    for (int iteration = 0; iteration < 10; ++iteration) {
+    // Test both factorial implementations 10000 times each
+    for (int iteration = 0; iteration < 10000; ++iteration) {
         // Time the entire recursive operation
         timer.start("recursive_factorial");
         long long recursive_result = recursive_factorial(18);

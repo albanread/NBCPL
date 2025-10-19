@@ -228,7 +228,7 @@ VarType RuntimeImporter::convert_return_type(RuntimeReturnType runtime_type) {
         case RuntimeReturnType::STRING_LIST:  return VarType::POINTER_TO_STRING_LIST;
         case RuntimeReturnType::INT_VECTOR:   return VarType::POINTER_TO_INT_VEC;
         case RuntimeReturnType::FLOAT_VECTOR: return VarType::POINTER_TO_FLOAT_VEC;
-        case RuntimeReturnType::STRING:       return VarType::INTEGER; // String pointers are integers
+        case RuntimeReturnType::STRING:       return VarType::POINTER_TO_STRING; // String pointers
         case RuntimeReturnType::VOID:         return VarType::INTEGER; // Routines still return integer for ABI
         default:                              return VarType::UNKNOWN;
     }
