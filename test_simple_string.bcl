@@ -1,0 +1,31 @@
+LET START() BE
+$(
+   LET S = "Hello World"
+
+   WRITES("Original string: ")
+   WRITES(S)
+   WRITES("*N")
+
+   // Test basic string operations
+   WRITEF("String via WRITEF: %N*N", S)
+
+   // Test simple split
+   LET L = SPLIT(S, " ")
+
+   WRITEF("Split result count: %N*N", LENGTH(L))
+
+   // Test basic list iteration without FOREACH
+   LET item = HEAD(L)
+   WRITES("First item: ")
+   WRITES(item)
+   WRITES("*N")
+
+   LET rest = TAIL(L)
+   IF rest THEN
+   $(
+      LET second = HEAD(rest)
+      WRITES("Second item: ")
+      WRITES(second)
+      WRITES("*N")
+   $)
+$)

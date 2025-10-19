@@ -15,27 +15,55 @@ void NewCodeGenerator::visit(FunctionCall& node) {
     // Phase 4: Manual spilling removed - LinearScanAllocator ensures call-crossing
     // variables are allocated to callee-saved registers (preserved automatically)
 
-    // --- STEP 1: Evaluate All Arguments FIRST ---
+    // --- STEP 1: Stack-based argument evaluation (right-to-left) ---
     std::vector<ArgInfo> arg_result_regs;
-    for (const auto& arg_expr : node.arguments) {
-        generate_expression_code(*arg_expr);
-        
-        // Check if the result is already in a temporary register or a variable's home register
-        std::string result_reg = expression_result_reg_;
-        bool is_temp = false;
-        
-        // FIXED: Don't unnecessarily acquire scratch registers for variable accesses
-        // The expression evaluation already puts the result in an appropriate register
-        // Only mark as temporary if it's truly a temporary (not a variable's home register)
-        if (auto* var_access = dynamic_cast<VariableAccess*>(arg_expr.get())) {
-            // Variable access - result is in variable's home register, don't copy
-            is_temp = false;  // This is NOT a temporary - it's the variable's home register
-        } else {
-            // Complex expressions - result is already in a temporary from expression evaluation
-            is_temp = true;   // This IS a temporary register that can be released later
+    size_t total_stack_bytes = 0;
+    
+    if (!node.arguments.empty()) {
+        // Check for too many arguments
+        if (node.arguments.size() > 8) {
+            throw std::runtime_error("Function call with " + std::to_string(node.arguments.size()) + 
+                                     " arguments exceeds maximum of 8 arguments (X0-X7)");
         }
         
-        arg_result_regs.push_back({result_reg, is_temp});
+        // Pre-allocate stack space (8 bytes per argument, 16-byte aligned)
+        total_stack_bytes = node.arguments.size() * 8;
+        if (total_stack_bytes % 16 != 0) {
+            total_stack_bytes = ((total_stack_bytes + 15) / 16) * 16;
+        }
+        emit(Encoder::create_sub_imm("SP", "SP", total_stack_bytes));
+        
+        // Evaluate arguments RIGHT-TO-LEFT and store immediately to stack
+        for (int i = static_cast<int>(node.arguments.size()) - 1; i >= 0; --i) {
+            generate_expression_code(*node.arguments[i]);
+            
+            // Store result immediately to stack (frees all scratch registers)
+            size_t stack_offset = i * 8;
+            if (register_manager_.is_fp_register(expression_result_reg_)) {
+                emit(Encoder::create_str_fp_imm(expression_result_reg_, "SP", stack_offset));
+            } else {
+                emit(Encoder::create_str_imm(expression_result_reg_, "SP", stack_offset));
+            }
+            
+            // Release the register - it's now safely on stack
+            register_manager_.release_register(expression_result_reg_);
+        }
+        
+        // Load arguments from stack into ABI registers (X0-X7)
+        for (size_t i = 0; i < node.arguments.size(); ++i) {
+            size_t stack_offset = i * 8;
+            std::string abi_reg = "X" + std::to_string(i);
+            emit(Encoder::create_ldr_imm(abi_reg, "SP", stack_offset));
+        }
+        
+        // Clean up stack space
+        emit(Encoder::create_add_imm("SP", "SP", total_stack_bytes));
+        
+        // Create ArgInfo entries for compatibility with existing handlers
+        for (size_t i = 0; i < node.arguments.size(); ++i) {
+            std::string abi_reg = "X" + std::to_string(i);
+            arg_result_regs.push_back({abi_reg, false}); // ABI registers are not temps
+        }
     }
 
     // --- STEP 2: Dispatch to the Correct Handler ---

@@ -167,12 +167,50 @@ void NewCodeGenerator::visit(RoutineCallStatement& node) {
     if (auto* member_access = dynamic_cast<MemberAccessExpression*>(node.routine_expr.get())) {
         debug_print("Detected a method call to: " + member_access->member_name);
 
-        // --- Stage 1: Evaluate all arguments (FIXED: no unnecessary copying) ---
+        // --- Stage 1: Stack-based argument evaluation (right-to-left) ---
         std::vector<std::string> arg_value_regs;
-        for (const auto& arg_expr : node.arguments) {
-            generate_expression_code(*arg_expr);
-            // FIXED: Use the result register directly, don't acquire extra scratch registers
-            arg_value_regs.push_back(expression_result_reg_);
+        size_t total_stack_bytes = 0;
+        
+        if (!node.arguments.empty()) {
+            // Check for too many arguments
+            if (node.arguments.size() > 7) {
+                throw std::runtime_error("Method call with " + std::to_string(node.arguments.size()) + 
+                                         " arguments exceeds maximum of 7 arguments");
+            }
+            
+            // Pre-allocate stack space (8 bytes per argument, 16-byte aligned)
+            total_stack_bytes = node.arguments.size() * 8;
+            if (total_stack_bytes % 16 != 0) {
+                total_stack_bytes = ((total_stack_bytes + 15) / 16) * 16;
+            }
+            emit(Encoder::create_sub_imm("SP", "SP", total_stack_bytes));
+            
+            // Evaluate arguments RIGHT-TO-LEFT and store immediately to stack
+            for (int i = static_cast<int>(node.arguments.size()) - 1; i >= 0; --i) {
+                generate_expression_code(*node.arguments[i]);
+                
+                // Store result immediately to stack (frees all scratch registers)
+                size_t stack_offset = i * 8;
+                if (register_manager_.is_fp_register(expression_result_reg_)) {
+                    emit(Encoder::create_str_fp_imm(expression_result_reg_, "SP", stack_offset));
+                } else {
+                    emit(Encoder::create_str_imm(expression_result_reg_, "SP", stack_offset));
+                }
+                
+                // Release the register - it's now safely on stack
+                register_manager_.release_register(expression_result_reg_);
+            }
+            
+            // Load arguments from stack into ABI registers (X1-X7, X0 reserved for 'this')
+            for (size_t i = 0; i < node.arguments.size(); ++i) {
+                size_t stack_offset = i * 8;
+                std::string abi_reg = "X" + std::to_string(i + 1);
+                emit(Encoder::create_ldr_imm(abi_reg, "SP", stack_offset));
+                arg_value_regs.push_back(abi_reg);
+            }
+            
+            // Clean up stack space
+            emit(Encoder::create_add_imm("SP", "SP", total_stack_bytes));
         }
 
         // --- Stage 2: Evaluate the object pointer ('this') ---
@@ -305,12 +343,50 @@ void NewCodeGenerator::visit(RoutineCallStatement& node) {
         // --- THIS IS A SUPER CALL (e.g., SUPER.CREATE(...)) ---
         debug_print("Detected a SUPER method call.");
 
-        // --- Stage 1: Evaluate all arguments into temporary registers ---
+        // --- Stage 1: Stack-based argument evaluation (right-to-left) ---
         std::vector<std::string> arg_value_regs;
-        for (const auto& arg_expr : node.arguments) {
-            generate_expression_code(*arg_expr);
-            // FIXED: Use the result register directly, don't acquire extra scratch registers
-            arg_value_regs.push_back(expression_result_reg_);
+        size_t total_stack_bytes = 0;
+        
+        if (!node.arguments.empty()) {
+            // Check for too many arguments
+            if (node.arguments.size() > 7) {
+                throw std::runtime_error("SUPER call with " + std::to_string(node.arguments.size()) + 
+                                         " arguments exceeds maximum of 7 arguments");
+            }
+            
+            // Pre-allocate stack space (8 bytes per argument, 16-byte aligned)
+            total_stack_bytes = node.arguments.size() * 8;
+            if (total_stack_bytes % 16 != 0) {
+                total_stack_bytes = ((total_stack_bytes + 15) / 16) * 16;
+            }
+            emit(Encoder::create_sub_imm("SP", "SP", total_stack_bytes));
+            
+            // Evaluate arguments RIGHT-TO-LEFT and store immediately to stack
+            for (int i = static_cast<int>(node.arguments.size()) - 1; i >= 0; --i) {
+                generate_expression_code(*node.arguments[i]);
+                
+                // Store result immediately to stack (frees all scratch registers)
+                size_t stack_offset = i * 8;
+                if (register_manager_.is_fp_register(expression_result_reg_)) {
+                    emit(Encoder::create_str_fp_imm(expression_result_reg_, "SP", stack_offset));
+                } else {
+                    emit(Encoder::create_str_imm(expression_result_reg_, "SP", stack_offset));
+                }
+                
+                // Release the register - it's now safely on stack
+                register_manager_.release_register(expression_result_reg_);
+            }
+            
+            // Load arguments from stack into ABI registers (X1-X7, X0 reserved for 'this')
+            for (size_t i = 0; i < node.arguments.size(); ++i) {
+                size_t stack_offset = i * 8;
+                std::string abi_reg = "X" + std::to_string(i + 1);
+                emit(Encoder::create_ldr_imm(abi_reg, "SP", stack_offset));
+                arg_value_regs.push_back(abi_reg);
+            }
+            
+            // Clean up stack space
+            emit(Encoder::create_add_imm("SP", "SP", total_stack_bytes));
         }
 
         // --- Stage 2: Get the '_this' pointer from its home register ---
@@ -498,33 +574,50 @@ void NewCodeGenerator::visit(RoutineCallStatement& node) {
             } else {
                 // Regular function/routine call handling with ARM64 ABI compliant argument coercion
                 
-                // --- Stage 1: Evaluate all arguments and preserve their result registers ---
-                // FIXED: Collect arguments with proper home register tracking
+                // --- Stage 1: Stack-based argument evaluation (right-to-left) ---
                 std::vector<ArgInfo> arg_result_regs;
-                for (size_t i = 0; i < node.arguments.size(); ++i) {
-                    const auto& arg_expr = node.arguments[i];
-                    generate_expression_code(*arg_expr);
-                    
-                    // Check if the result is in a variable's home register
-                    std::string result_reg = expression_result_reg_;
-                    bool is_temp = false;
-                    
-
-                    
-                    // If this is a variable access, copy to temp to preserve home register
-                    if (auto* var_access = dynamic_cast<VariableAccess*>(arg_expr.get())) {
-                        // FIXED: Don't acquire extra scratch register for variable access
-                        // Use the result register directly - it's the variable's home register
-                        result_reg = expression_result_reg_;
-                        is_temp = false;  // This is NOT a temporary - preserve the home register
-                    } else {
-                        // For non-variable expressions, result is typically already in temp
-                        result_reg = expression_result_reg_;
-                        is_temp = true;
+                size_t total_stack_bytes = 0;
+                
+                if (!node.arguments.empty()) {
+                    // Check for too many arguments
+                    if (node.arguments.size() > 8) {
+                        throw std::runtime_error("Routine call with " + std::to_string(node.arguments.size()) + 
+                                                 " arguments exceeds maximum of 8 arguments");
                     }
                     
-                    arg_result_regs.push_back({result_reg, is_temp});
-
+                    // Pre-allocate stack space (8 bytes per argument, 16-byte aligned)
+                    total_stack_bytes = node.arguments.size() * 8;
+                    if (total_stack_bytes % 16 != 0) {
+                        total_stack_bytes = ((total_stack_bytes + 15) / 16) * 16;
+                    }
+                    emit(Encoder::create_sub_imm("SP", "SP", total_stack_bytes));
+                    
+                    // Evaluate arguments RIGHT-TO-LEFT and store immediately to stack
+                    for (int i = static_cast<int>(node.arguments.size()) - 1; i >= 0; --i) {
+                        generate_expression_code(*node.arguments[i]);
+                        
+                        // Store result immediately to stack (frees all scratch registers)
+                        size_t stack_offset = i * 8;
+                        if (register_manager_.is_fp_register(expression_result_reg_)) {
+                            emit(Encoder::create_str_fp_imm(expression_result_reg_, "SP", stack_offset));
+                        } else {
+                            emit(Encoder::create_str_imm(expression_result_reg_, "SP", stack_offset));
+                        }
+                        
+                        // Release the register - it's now safely on stack
+                        register_manager_.release_register(expression_result_reg_);
+                    }
+                    
+                    // Load arguments from stack into ABI registers (X0-X7)
+                    for (size_t i = 0; i < node.arguments.size(); ++i) {
+                        size_t stack_offset = i * 8;
+                        std::string abi_reg = "X" + std::to_string(i);
+                        emit(Encoder::create_ldr_imm(abi_reg, "SP", stack_offset));
+                        arg_result_regs.push_back({abi_reg, false}); // ABI registers are not temps
+                    }
+                    
+                    // Clean up stack space
+                    emit(Encoder::create_add_imm("SP", "SP", total_stack_bytes));
                 }
                 
                 // --- Stage 2: Collect type information for ARM64 ABI coercion ---

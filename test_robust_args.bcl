@@ -1,0 +1,71 @@
+LET START() BE
+$(
+    // Test robust argument evaluation with complex expressions
+    // This should stress test the scratch register system and prevent clobbering
+
+    LET a = 10
+    LET b = 20
+    LET c = 30
+    LET d = 40
+
+    WRITEF("=== Testing Complex Argument Evaluation ===*N")
+
+    // Test 1: Multiple complex expressions as arguments
+    // This should trigger right-to-left evaluation and stack storage
+    test_complex_args(a + b + c, a * b, c - d, (a + b) * (c - d))
+
+    // Test 2: Nested function calls as arguments
+    // This should test that inner calls don't clobber outer arguments
+    test_nested_calls(simple_func(a), simple_func(b), simple_func(c))
+
+    // Test 3: Mixed variable and expression arguments
+    // This should test the robustness of the evaluation system
+    test_mixed_args(a, a + b, b, b * c, c, c - d, d)
+
+    // Test 4: Function calls with string concatenation (complex expressions)
+    test_string_args("Result: ", "Value = ", "Final")
+
+    // Test 5: Maximum arguments (8 args to test X0-X7)
+    test_max_args(1, 2, 3, 4, 5, 6, 7, 8)
+
+    WRITEF("=== All tests completed successfully ===*N")
+$)
+
+LET test_complex_args(arg1, arg2, arg3, arg4) BE
+$(
+    WRITEF("Complex args: %N, %N, %N, %N*N", arg1, arg2, arg3, arg4)
+$)
+
+LET test_nested_calls(arg1, arg2, arg3) BE
+$(
+    WRITEF("Nested calls: %N, %N, %N*N", arg1, arg2, arg3)
+$)
+
+LET test_mixed_args(a1, a2, a3, a4, a5, a6, a7) BE
+$(
+    WRITEF("Mixed args: %N, %N, %N, %N, %N, %N*N", a1, a2, a3, a4, a5, a6)
+    WRITEF("Last arg: %N*N", a7)
+$)
+
+LET test_string_args(s1, s2, s3) BE
+$(
+    WRITES("String args: ")
+    WRITES(s1)
+    WRITES(s2)
+    WRITES(s3)
+    WRITES("*N")
+$)
+
+LET test_max_args(a1, a2, a3, a4, a5, a6, a7, a8) BE
+$(
+    WRITEF("Max args: %N, %N, %N, %N, %N, %N*N", a1, a2, a3, a4, a5, a6)
+    WRITEF("Last two: %N, %N*N", a7, a8)
+$)
+
+LET simple_func(x) = x * 2 + 1
+
+// Test routine calls as well
+LET test_routine_complex_args(arg1, arg2, arg3) BE
+$(
+    WRITEF("Routine complex: %N, %N, %N*N", arg1, arg2, arg3)
+$)

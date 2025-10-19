@@ -1,0 +1,80 @@
+
+tests/bcl_tests/lists7.o:	file format mach-o arm64
+
+Disassembly of section __TEXT,__text:
+
+0000000000000000 <ltmp0>:
+       0: 14000001     	b	0x4 <ltmp0+0x4>
+       4: a9b97bfd     	stp	x29, x30, [sp, #-0x70]!
+       8: 910003fd     	mov	x29, sp
+       c: a90353b3     	stp	x19, x20, [x29, #0x30]
+      10: a90467b8     	stp	x24, x25, [x29, #0x40]
+      14: a9056fba     	stp	x26, x27, [x29, #0x50]
+      18: f90033bc     	str	x28, [x29, #0x60]
+      1c: 9000001c     	adrp	x28, 0x0 <ltmp0>
+      20: 9100039c     	add	x28, x28, #0x0
+      24: 90000009     	adrp	x9, 0x0 <ltmp0>
+      28: 91000129     	add	x9, x9, #0x0
+      2c: aa0903fb     	mov	x27, x9
+      30: d10043ff     	sub	sp, sp, #0x10
+      34: 90000009     	adrp	x9, 0x0 <ltmp0>
+      38: 91000129     	add	x9, x9, #0x0
+      3c: f90007e9     	str	x9, [sp, #0x8]
+      40: f90003fb     	str	x27, [sp]
+      44: a9402be9     	ldp	x9, x10, [sp]
+      48: aa0903e0     	mov	x0, x9
+      4c: aa0a03e1     	mov	x1, x10
+      50: 94000000     	bl	0x50 <ltmp0+0x50>
+      54: 910043ff     	add	sp, sp, #0x10
+      58: aa0003f8     	mov	x24, x0
+      5c: aa1803e9     	mov	x9, x24
+      60: 91004129     	add	x9, x9, #0x10
+      64: f940012a     	ldr	x10, [x9]
+      68: aa0a03f9     	mov	x25, x10
+      6c: 14000024     	b	0xfc <ltmp0+0xfc>
+      70: 14000026     	b	0x108 <ltmp0+0x108>
+      74: f100033f     	cmp	x25, #0x0
+      78: 54000060     	b.eq	0x84 <ltmp0+0x84>
+      7c: f9400b29     	ldr	x9, [x25, #0x10]
+      80: 14000002     	b	0x88 <ltmp0+0x88>
+      84: aa1f03e9     	mov	x9, xzr
+      88: aa0903f9     	mov	x25, x9
+      8c: 1400001c     	b	0xfc <ltmp0+0xfc>
+      90: f100033f     	cmp	x25, #0x0
+      94: 54000080     	b.eq	0xa4 <ltmp0+0xa4>
+      98: f9400729     	ldr	x9, [x25, #0x8]
+      9c: 91002129     	add	x9, x9, #0x8
+      a0: 14000002     	b	0xa8 <ltmp0+0xa8>
+      a4: aa1f03e9     	mov	x9, xzr
+      a8: aa0903fa     	mov	x26, x9
+      ac: d10043ff     	sub	sp, sp, #0x10
+      b0: 90000009     	adrp	x9, 0x0 <ltmp0>
+      b4: 91000129     	add	x9, x9, #0x0
+      b8: f90003e9     	str	x9, [sp]
+      bc: aa0903e0     	mov	x0, x9
+      c0: 910043ff     	add	sp, sp, #0x10
+      c4: 94000000     	bl	0xc4 <ltmp0+0xc4>
+      c8: d10043ff     	sub	sp, sp, #0x10
+      cc: f90003fa     	str	x26, [sp]
+      d0: f94003e9     	ldr	x9, [sp]
+      d4: 910043ff     	add	sp, sp, #0x10
+      d8: 94000000     	bl	0xd8 <ltmp0+0xd8>
+      dc: d10043ff     	sub	sp, sp, #0x10
+      e0: 90000009     	adrp	x9, 0x0 <ltmp0>
+      e4: 91000129     	add	x9, x9, #0x0
+      e8: f90003e9     	str	x9, [sp]
+      ec: aa0903e0     	mov	x0, x9
+      f0: 910043ff     	add	sp, sp, #0x10
+      f4: 94000000     	bl	0xf4 <ltmp0+0xf4>
+      f8: 17ffffdf     	b	0x74 <ltmp0+0x74>
+      fc: eb1f033f     	cmp	x25, xzr
+     100: 54fffb80     	b.eq	0x70 <ltmp0+0x70>
+     104: 17ffffe3     	b	0x90 <ltmp0+0x90>
+     108: a94353b3     	ldp	x19, x20, [x29, #0x30]
+     10c: a94467b8     	ldp	x24, x25, [x29, #0x40]
+     110: a9456fba     	ldp	x26, x27, [x29, #0x50]
+     114: f94033bc     	ldr	x28, [x29, #0x60]
+     118: 910003bf     	mov	sp, x29
+     11c: a9407bfd     	ldp	x29, x30, [sp]
+     120: 910043ff     	add	sp, sp, #0x10
+     124: d65f03c0     	ret
