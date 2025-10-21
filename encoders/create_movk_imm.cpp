@@ -113,5 +113,7 @@ Instruction Encoder::create_movk_imm(const std::string& xd, uint16_t immediate, 
     instr.dest_reg = Encoder::get_reg_encoding(xd);
     instr.immediate = immediate;
     instr.uses_immediate = true;
+    instr.relocation = rel;
+    instr.target_label = target;
     return instr;
 }

@@ -1,0 +1,32 @@
+// Test program to debug MOVZ/MOVK JIT address encoding
+GLOBALS {
+    LET test_global = 42
+    LET another_global = 999
+    LET third_global = 1234
+}
+
+LET test_function1() BE $(
+    WRITEF("Function1 - Initial test_global: %d*N", test_global)
+    test_global := 100
+    WRITEF("Function1 - Updated test_global: %d*N", test_global)
+$)
+
+LET test_function2() BE $(
+    WRITEF("Function2 - Initial another_global: %d*N", another_global)
+    another_global := 777
+    WRITEF("Function2 - Updated another_global: %d*N", another_global)
+$)
+
+LET START() BE $(
+    WRITEF("=== MOVZ/MOVK Debug Test ===*N")
+    WRITEF("Initial test_global: %d*N", test_global)
+    WRITEF("Initial another_global: %d*N", another_global)
+    WRITEF("Initial third_global: %d*N", third_global)
+
+    test_function1()
+    test_function2()
+
+    third_global := test_global + another_global
+    WRITEF("Final third_global (sum): %d*N", third_global)
+    WRITEF("=== Test Complete ===*N")
+$)

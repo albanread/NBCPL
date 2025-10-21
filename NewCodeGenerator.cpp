@@ -3392,9 +3392,8 @@ void NewCodeGenerator::generate_function_like_code(
             if (data_segment_base_addr_ == 0) {
                 throw std::runtime_error("JIT mode requires a valid data_segment_base_addr.");
             }
-            debug_print("JIT mode: Emitting MOVZ/MOVK sequence for X28 with address: 0x" + 
-                       std::to_string(data_segment_base_addr_));
-            emit(Encoder::create_movz_movk_jit_addr("X28", data_segment_base_addr_, "L__data_segment_base"));
+            debug_print("JIT mode: Emitting relocatable MOVZ/MOVK sequence for X28 referencing L__data_segment_base");
+            emit(Encoder::create_movz_movk_relocatable_symbol("X28", "L__data_segment_base"));
             x28_is_loaded_in_current_function_ = true;
             debug_print("Emitted JIT address load sequence for global base pointer (X28).");
             register_manager_.set_initialized("X28", true);

@@ -12222,6 +12222,11 @@ std::vector<Instruction> Linker::process(
 
          // Step 1: Always define a label if the instruction has one.
          if (instr.is_label_definition) {
+             // Debug output for global base label specifically
+             // if (instr.target_label == "L__data_segment_base") {
+             //     std::cout << "[LINKER_DEBUG] Defining L__data_segment_base at address: 0x" 
+             //               << std::hex << *current_cursor << std::dec << std::endl;
+             // }
              manager.define_label(instr.target_label, *current_cursor);
          }
 
@@ -12257,8 +12262,18 @@ void Linker::performRelocations(
     bool enable_tracing
 ) {
     if (enable_tracing) std::cerr << "[LINKER-PASS2] Starting instruction relocation...\n";
+    // std::cout << "[LINKER_DEBUG] performRelocations called with " << instructions.size() << " instructions" << std::endl;
 
     for (Instruction& instr : instructions) {
+        // Debug: check for MOVZ/MOVK instructions with JitAddress attribute
+        if (instr.jit_attribute == JITAttribute::JitAddress && 
+            (instr.assembly_text.find("MOVZ") != std::string::npos || 
+             instr.assembly_text.find("MOVK") != std::string::npos)) {
+            // std::cout << "[LINKER_DEBUG] Found MOVZ/MOVK JitAddress instruction: " << instr.assembly_text 
+            //           << " relocation=" << static_cast<int>(instr.relocation) 
+            //           << " target=" << instr.target_label << std::endl;
+        }
+        
         // Debug: check if our UMOV instructions are being processed
         if (instr.assembly_text.find("mov.s") != std::string::npos) {
             printf("DEBUG LINKER: Processing instruction '%s' with encoding=0x%08x relocation=%d\n", 
@@ -12314,6 +12329,7 @@ void Linker::performRelocations(
             case RelocationType::MOVZ_MOVK_IMM_16:
             case RelocationType::MOVZ_MOVK_IMM_32:
             case RelocationType::MOVZ_MOVK_IMM_48:
+                // std::cout << "[LINKER_DEBUG] Processing MOVZ/MOVK relocation for target: " << instr.target_label << std::endl;
                 instr.encoding = apply_movz_movk_relocation(instr.encoding, target_address, instr.relocation);
                 break;
 
@@ -17012,9 +17028,8 @@ void NewCodeGenerator::generate_function_like_code(
             if (data_segment_base_addr_ == 0) {
                 throw std::runtime_error("JIT mode requires a valid data_segment_base_addr.");
             }
-            debug_print("JIT mode: Emitting MOVZ/MOVK sequence for X28 with address: 0x" + 
-                       std::to_string(data_segment_base_addr_));
-            emit(Encoder::create_movz_movk_jit_addr("X28", data_segment_base_addr_, "L__data_segment_base"));
+            debug_print("JIT mode: Emitting relocatable MOVZ/MOVK sequence for X28 referencing L__data_segment_base");
+            emit(Encoder::create_movz_movk_relocatable_symbol("X28", "L__data_segment_base"));
             x28_is_loaded_in_current_function_ = true;
             debug_print("Emitted JIT address load sequence for global base pointer (X28).");
             register_manager_.set_initialized("X28", true);
@@ -27159,6 +27174,20 @@ void LiveIntervalPass::run(const ControlFlowGraph& cfg, const LivenessAnalysisPa
             }
 
             if (start != -1) { // If the variable was seen at all
+                // Check if this is a global variable and skip it entirely
+                bool is_global_var = false;
+                if (symbol_table_) {
+                    Symbol symbol;
+                    if (symbol_table_->lookup(var_name, functionName, symbol)) {
+                        is_global_var = symbol.is_global();
+                    }
+                }
+                
+                // Skip creating intervals for global variables - they use memory access
+                if (is_global_var) {
+                    continue;
+                }
+                
                 if (interval_map.find(var_name) == interval_map.end()) {
                     // Get variable type to prevent register pool corruption
                     VarType var_type = VarType::INTEGER; // Default to INTEGER
@@ -38454,6 +38483,8 @@ Instruction Encoder::create_movk_imm(const std::string& xd, uint16_t immediate, 
     instr.dest_reg = Encoder::get_reg_encoding(xd);
     instr.immediate = immediate;
     instr.uses_immediate = true;
+    instr.relocation = rel;
+    instr.target_label = target;
     return instr;
 }
 
@@ -38577,6 +38608,8 @@ Instruction Encoder::create_movz_imm(const std::string& xd, uint16_t immediate, 
     instr.dest_reg = Encoder::get_reg_encoding(xd);
     instr.immediate = immediate;
     instr.uses_immediate = true;
+    instr.relocation = rel;
+    instr.target_label = target;
     return instr;
 }
 
@@ -42665,31 +42698,104 @@ std::vector<Instruction> Encoder::create_movz_movk_abs64(const std::string& xd, 
 std::vector<Instruction> Encoder::create_movz_movk_jit_addr(const std::string& xd, uint64_t address, const std::string& symbol) {
     std::vector<Instruction> instructions;
 
+    // Debug output for address encoding
+    std::cout << "[MOVZ_MOVK_DEBUG] Encoding address 0x" << std::hex << address 
+              << " for register " << xd << " symbol " << symbol << std::endl;
+
     // 1. Split the 64-bit address into four 16-bit chunks.
     uint16_t chunk0 = (address >> 0)  & 0xFFFF;
     uint16_t chunk1 = (address >> 16) & 0xFFFF;
     uint16_t chunk2 = (address >> 32) & 0xFFFF;
     uint16_t chunk3 = (address >> 48) & 0xFFFF;
 
+    std::cout << "[MOVZ_MOVK_DEBUG] Chunks: [0x" << std::hex 
+              << chunk0 << ", 0x" << chunk1 << ", 0x" << chunk2 << ", 0x" << chunk3 
+              << "]" << std::dec << std::endl;
+
 
 
     // 2. Generate MOVZ for the lowest chunk.
-    instructions.push_back(Encoder::create_movz_imm(xd, chunk0, 0, RelocationType::NONE, symbol));
+    auto movz_instr = Encoder::create_movz_imm(xd, chunk0, 0, RelocationType::NONE, symbol);
+    std::cout << "[MOVZ_MOVK_DEBUG] MOVZ immediate: 0x" << std::hex << movz_instr.immediate 
+              << " (expected 0x" << chunk0 << ")" << std::dec << std::endl;
+    instructions.push_back(movz_instr);
     instructions.back().jit_attribute = JITAttribute::JitAddress;
 
     // 3. Generate MOVK for the three remaining chunks, unconditionally.
-    instructions.push_back(Encoder::create_movk_imm(xd, chunk1, 16, RelocationType::NONE, symbol));
+    auto movk1_instr = Encoder::create_movk_imm(xd, chunk1, 16, RelocationType::NONE, symbol);
+    std::cout << "[MOVZ_MOVK_DEBUG] MOVK1 immediate: 0x" << std::hex << movk1_instr.immediate 
+              << " (expected 0x" << chunk1 << ")" << std::dec << std::endl;
+    instructions.push_back(movk1_instr);
     instructions.back().jit_attribute = JITAttribute::JitAddress;
 
-    instructions.push_back(Encoder::create_movk_imm(xd, chunk2, 32, RelocationType::NONE, symbol));
+    auto movk2_instr = Encoder::create_movk_imm(xd, chunk2, 32, RelocationType::NONE, symbol);
+    std::cout << "[MOVZ_MOVK_DEBUG] MOVK2 immediate: 0x" << std::hex << movk2_instr.immediate 
+              << " (expected 0x" << chunk2 << ")" << std::dec << std::endl;
+    instructions.push_back(movk2_instr);
     instructions.back().jit_attribute = JITAttribute::JitAddress;
 
-    instructions.push_back(Encoder::create_movk_imm(xd, chunk3, 48, RelocationType::NONE, symbol));
+    auto movk3_instr = Encoder::create_movk_imm(xd, chunk3, 48, RelocationType::NONE, symbol);
+    std::cout << "[MOVZ_MOVK_DEBUG] MOVK3 immediate: 0x" << std::hex << movk3_instr.immediate 
+              << " (expected 0x" << chunk3 << ")" << std::dec << std::endl;
+    instructions.push_back(movk3_instr);
     instructions.back().jit_attribute = JITAttribute::JitAddress;
+
+    std::cout << "[MOVZ_MOVK_DEBUG] Generated " << instructions.size() 
+              << " instructions for address encoding" << std::endl;
 
     return instructions;
 }
 
+// -- end of file
+
+// -- start of file: encoders/enc_create_movz_movk_relocatable_symbol.cpp
+// Encoder for creating relocatable MOVZ/MOVK sequences that reference a symbol
+// This is specifically designed for global base pointer loading where the linker
+// should resolve the symbol address and apply relocations.
+#include "Encoder.h"
+#include <string>
+#include <iostream>
+
+std::vector<Instruction> Encoder::create_movz_movk_relocatable_symbol(const std::string& xd, const std::string& symbol) {
+    std::vector<Instruction> instructions;
+
+    // Debug output for relocatable symbol encoding
+    // std::cout << "[RELOCATABLE_SYMBOL_DEBUG] Creating relocatable MOVZ/MOVK sequence for register " 
+    //           << xd << " symbol " << symbol << std::endl;
+
+    // Create MOVZ for bits [15:0] with relocation
+    auto movz_instr = Encoder::create_movz_imm(xd, 0, 0, RelocationType::MOVZ_MOVK_IMM_0, symbol);
+    movz_instr.jit_attribute = JITAttribute::JitAddress;
+    instructions.push_back(movz_instr);
+    // std::cout << "[RELOCATABLE_SYMBOL_DEBUG] MOVZ instruction created with relocation type " 
+    //           << static_cast<int>(RelocationType::MOVZ_MOVK_IMM_0) << std::endl;
+
+    // Create MOVK for bits [31:16] with relocation
+    auto movk1_instr = Encoder::create_movk_imm(xd, 0, 16, RelocationType::MOVZ_MOVK_IMM_16, symbol);
+    movk1_instr.jit_attribute = JITAttribute::JitAddress;
+    instructions.push_back(movk1_instr);
+    // std::cout << "[RELOCATABLE_SYMBOL_DEBUG] MOVK1 instruction created with relocation type " 
+    //           << static_cast<int>(RelocationType::MOVZ_MOVK_IMM_16) << std::endl;
+
+    // Create MOVK for bits [47:32] with relocation
+    auto movk2_instr = Encoder::create_movk_imm(xd, 0, 32, RelocationType::MOVZ_MOVK_IMM_32, symbol);
+    movk2_instr.jit_attribute = JITAttribute::JitAddress;
+    instructions.push_back(movk2_instr);
+    // std::cout << "[RELOCATABLE_SYMBOL_DEBUG] MOVK2 instruction created with relocation type " 
+    //           << static_cast<int>(RelocationType::MOVZ_MOVK_IMM_32) << std::endl;
+
+    // Create MOVK for bits [63:48] with relocation
+    auto movk3_instr = Encoder::create_movk_imm(xd, 0, 48, RelocationType::MOVZ_MOVK_IMM_48, symbol);
+    movk3_instr.jit_attribute = JITAttribute::JitAddress;
+    instructions.push_back(movk3_instr);
+    // std::cout << "[RELOCATABLE_SYMBOL_DEBUG] MOVK3 instruction created with relocation type " 
+    //           << static_cast<int>(RelocationType::MOVZ_MOVK_IMM_48) << std::endl;
+
+    // std::cout << "[RELOCATABLE_SYMBOL_DEBUG] Generated " << instructions.size() 
+    //           << " relocatable instructions for symbol " << symbol << std::endl;
+
+    return instructions;
+}
 // -- end of file
 
 // -- start of file: encoders/enc_create_mul_vector_reg.cpp
@@ -54127,6 +54233,8 @@ std::string Token::to_string() const {
 #include "BitPatcher.h"
 #include <stdexcept>
 #include <cstdint>
+#include <iostream>
+#include <iomanip>
 
 /**
  * @brief Patches MOVZ/MOVK instructions used for loading absolute 64-bit addresses.
@@ -54141,27 +54249,41 @@ uint32_t Linker::apply_movz_movk_relocation(
     size_t target_address,
     RelocationType type
 ) {
+    std::cout << "[LINKER_DEBUG] apply_movz_movk_relocation: target_address=0x" 
+              << std::hex << target_address << std::dec << " type=";
+    
     BitPatcher patcher(instruction_encoding);
     uint16_t imm16 = 0;
 
     switch (type) {
         case RelocationType::MOVZ_MOVK_IMM_0:
+            std::cout << "MOVZ_MOVK_IMM_0";
             imm16 = (target_address >> 0) & 0xFFFF;
             break;
         case RelocationType::MOVZ_MOVK_IMM_16:
+            std::cout << "MOVZ_MOVK_IMM_16";
             imm16 = (target_address >> 16) & 0xFFFF;
             break;
         case RelocationType::MOVZ_MOVK_IMM_32:
+            std::cout << "MOVZ_MOVK_IMM_32";
             imm16 = (target_address >> 32) & 0xFFFF;
             break;
         case RelocationType::MOVZ_MOVK_IMM_48:
+            std::cout << "MOVZ_MOVK_IMM_48";
             imm16 = (target_address >> 48) & 0xFFFF;
             break;
         default:
             throw std::runtime_error("Unsupported MOVZ/MOVK relocation type.");
     }
+    
+    std::cout << " immediate=0x" << std::hex << imm16 << std::dec << std::endl;
     patcher.patch(imm16, 5, 16);
-    return patcher.get_value();
+    uint32_t result = patcher.get_value();
+    
+    // std::cout << "[LINKER_DEBUG] Original encoding: 0x" << std::hex << original_encoding 
+    //           << " -> Patched encoding: 0x" << patched_encoding << std::dec << std::endl;
+    
+    return result;
 }
 
 // -- end of file
@@ -67173,6 +67295,138 @@ int main() {
     return 0;
 }
 
+// -- end of file
+
+// -- start of file: test_movz_movk.cpp
+#include <iostream>
+#include <iomanip>
+#include <vector>
+#include "encoders/Encoder.h"
+
+void test_movz_movk_encoding() {
+    std::cout << "Testing MOVZ/MOVK JIT address encoding..." << std::endl;
+    
+    // Test address from the debug session: 0x0000004358012928
+    uint64_t test_address = 0x0000004358012928ULL;
+    
+    std::cout << "Input address: 0x" << std::hex << std::setfill('0') << std::setw(16) 
+              << test_address << std::dec << std::endl;
+    
+    // Expected chunks based on manual calculation
+    uint16_t expected_chunk0 = (test_address >> 0)  & 0xFFFF;  // 0x2928
+    uint16_t expected_chunk1 = (test_address >> 16) & 0xFFFF;  // 0x5801
+    uint16_t expected_chunk2 = (test_address >> 32) & 0xFFFF;  // 0x0043
+    uint16_t expected_chunk3 = (test_address >> 48) & 0xFFFF;  // 0x0000
+    
+    std::cout << "Expected chunks:" << std::endl;
+    std::cout << "  chunk0 (bits 0-15):   0x" << std::hex << std::setfill('0') << std::setw(4) << expected_chunk0 << std::dec << std::endl;
+    std::cout << "  chunk1 (bits 16-31):  0x" << std::hex << std::setfill('0') << std::setw(4) << expected_chunk1 << std::dec << std::endl;
+    std::cout << "  chunk2 (bits 32-47):  0x" << std::hex << std::setfill('0') << std::setw(4) << expected_chunk2 << std::dec << std::endl;
+    std::cout << "  chunk3 (bits 48-63):  0x" << std::hex << std::setfill('0') << std::setw(4) << expected_chunk3 << std::dec << std::endl;
+    
+    // Call the encoder function
+    std::vector<Instruction> instructions = Encoder::create_movz_movk_jit_addr("x28", test_address, "test_symbol");
+    
+    std::cout << "\nGenerated instructions:" << std::endl;
+    for (size_t i = 0; i < instructions.size(); i++) {
+        const auto& instr = instructions[i];
+        std::cout << "  [" << i << "] " << instr.assembly_text << std::endl;
+        std::cout << "      immediate: 0x" << std::hex << std::setfill('0') << std::setw(4) 
+                  << instr.immediate << std::dec << " (" << instr.immediate << ")" << std::endl;
+        std::cout << "      encoding:  0x" << std::hex << std::setfill('0') << std::setw(8) 
+                  << instr.encoding << std::dec << std::endl;
+    }
+    
+    // Verify the immediates match expected chunks
+    std::cout << "\nVerification:" << std::endl;
+    bool all_correct = true;
+    
+    if (instructions.size() != 4) {
+        std::cout << "ERROR: Expected 4 instructions, got " << instructions.size() << std::endl;
+        all_correct = false;
+    } else {
+        // MOVZ should have chunk0
+        if (instructions[0].immediate != expected_chunk0) {
+            std::cout << "ERROR: MOVZ immediate mismatch. Expected 0x" << std::hex << expected_chunk0 
+                      << ", got 0x" << instructions[0].immediate << std::dec << std::endl;
+            all_correct = false;
+        } else {
+            std::cout << "OK: MOVZ immediate matches chunk0" << std::endl;
+        }
+        
+        // MOVK instructions should have chunk1, chunk2, chunk3
+        uint16_t expected_chunks[] = {expected_chunk1, expected_chunk2, expected_chunk3};
+        for (int i = 0; i < 3; i++) {
+            if (instructions[i+1].immediate != expected_chunks[i]) {
+                std::cout << "ERROR: MOVK[" << i << "] immediate mismatch. Expected 0x" << std::hex << expected_chunks[i] 
+                          << ", got 0x" << instructions[i+1].immediate << std::dec << std::endl;
+                all_correct = false;
+            } else {
+                std::cout << "OK: MOVK[" << i << "] immediate matches chunk" << (i+1) << std::endl;
+            }
+        }
+    }
+    
+    if (all_correct) {
+        std::cout << "\nSUCCESS: All immediates match expected chunks!" << std::endl;
+    } else {
+        std::cout << "\nFAILURE: One or more immediates don't match!" << std::endl;
+    }
+}
+
+void test_simple_addresses() {
+    std::cout << "\n\nTesting simple addresses..." << std::endl;
+    
+    // Test some simple cases
+    uint64_t addresses[] = {
+        0x0000000000001234ULL,  // Simple low address
+        0x1234567890ABCDEFULL,  // All chunks non-zero
+        0x0000000000000000ULL,  // Zero address
+        0xFFFFFFFFFFFFFFFFULL   // All bits set
+    };
+    
+    for (auto addr : addresses) {
+        std::cout << "\nTesting address: 0x" << std::hex << std::setfill('0') << std::setw(16) 
+                  << addr << std::dec << std::endl;
+        
+        auto instructions = Encoder::create_movz_movk_jit_addr("x28", addr, "test");
+        
+        // Manual chunk calculation
+        uint16_t chunks[4] = {
+            static_cast<uint16_t>((addr >> 0)  & 0xFFFF),
+            static_cast<uint16_t>((addr >> 16) & 0xFFFF),
+            static_cast<uint16_t>((addr >> 32) & 0xFFFF),
+            static_cast<uint16_t>((addr >> 48) & 0xFFFF)
+        };
+        
+        std::cout << "Expected chunks: [0x" << std::hex << std::setfill('0') << std::setw(4) << chunks[0];
+        for (int i = 1; i < 4; i++) {
+            std::cout << ", 0x" << std::setw(4) << chunks[i];
+        }
+        std::cout << "]" << std::dec << std::endl;
+        
+        std::cout << "Actual immediates: [0x" << std::hex << std::setfill('0') << std::setw(4) << instructions[0].immediate;
+        for (size_t i = 1; i < instructions.size(); i++) {
+            std::cout << ", 0x" << std::setw(4) << instructions[i].immediate;
+        }
+        std::cout << "]" << std::dec << std::endl;
+        
+        bool match = true;
+        for (size_t i = 0; i < 4 && i < instructions.size(); i++) {
+            if (instructions[i].immediate != chunks[i]) {
+                match = false;
+                break;
+            }
+        }
+        std::cout << (match ? "PASS" : "FAIL") << std::endl;
+    }
+}
+
+int main() {
+    test_movz_movk_encoding();
+    test_simple_addresses();
+    return 0;
+}
 // -- end of file
 
 // -- start of file: test_split_join.cpp

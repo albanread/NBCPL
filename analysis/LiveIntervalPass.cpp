@@ -73,6 +73,20 @@ void LiveIntervalPass::run(const ControlFlowGraph& cfg, const LivenessAnalysisPa
             }
 
             if (start != -1) { // If the variable was seen at all
+                // Check if this is a global variable and skip it entirely
+                bool is_global_var = false;
+                if (symbol_table_) {
+                    Symbol symbol;
+                    if (symbol_table_->lookup(var_name, functionName, symbol)) {
+                        is_global_var = symbol.is_global();
+                    }
+                }
+                
+                // Skip creating intervals for global variables - they use memory access
+                if (is_global_var) {
+                    continue;
+                }
+                
                 if (interval_map.find(var_name) == interval_map.end()) {
                     // Get variable type to prevent register pool corruption
                     VarType var_type = VarType::INTEGER; // Default to INTEGER

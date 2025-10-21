@@ -515,6 +515,9 @@ public:
     
     
     static std::vector<Instruction> create_movz_movk_jit_addr(const std::string& xd, uint64_t address, const std::string& symbol); // New function
+    
+    // Creates a relocatable MOVZ/MOVK sequence that references a symbol (for global base pointer loading)
+    static std::vector<Instruction> create_movz_movk_relocatable_symbol(const std::string& xd, const std::string& symbol);
 
   /**
    * @brief Creates a SDIV instruction. (Xd = Xn / Xm) (signed division)

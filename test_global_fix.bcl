@@ -1,0 +1,38 @@
+// Simple test for global variable read/write in JIT mode
+// This test verifies that the X28 global base pointer fix works correctly
+
+Global my_global = 42
+Global other_global = 100
+
+let start() be {
+    writef("Initial global values:*n")
+    writef("my_global = %d*n", my_global)
+    writef("other_global = %d*n", other_global)
+
+    // Write to globals
+    my_global := 999
+    other_global := 777
+
+    writef("*nAfter modification:*n")
+    writef("my_global = %d*n", my_global)
+    writef("other_global = %d*n", other_global)
+
+    // Test in a separate function to ensure X28 consistency
+    test_global_access()
+
+    writef("*nTest completed successfully!*n")
+}
+
+let test_global_access() be {
+    writef("*nIn test_global_access function:*n")
+    writef("my_global = %d*n", my_global)
+    writef("other_global = %d*n", other_global)
+
+    // Modify again
+    my_global := my_global + 1
+    other_global := other_global + 1
+
+    writef("After increment:*n")
+    writef("my_global = %d*n", my_global)
+    writef("other_global = %d*n", other_global)
+}

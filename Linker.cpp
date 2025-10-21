@@ -116,6 +116,11 @@ std::vector<Instruction> Linker::process(
 
          // Step 1: Always define a label if the instruction has one.
          if (instr.is_label_definition) {
+             // Debug output for global base label specifically
+             // if (instr.target_label == "L__data_segment_base") {
+             //     std::cout << "[LINKER_DEBUG] Defining L__data_segment_base at address: 0x" 
+             //               << std::hex << *current_cursor << std::dec << std::endl;
+             // }
              manager.define_label(instr.target_label, *current_cursor);
          }
 
@@ -151,8 +156,18 @@ void Linker::performRelocations(
     bool enable_tracing
 ) {
     if (enable_tracing) std::cerr << "[LINKER-PASS2] Starting instruction relocation...\n";
+    // std::cout << "[LINKER_DEBUG] performRelocations called with " << instructions.size() << " instructions" << std::endl;
 
     for (Instruction& instr : instructions) {
+        // Debug: check for MOVZ/MOVK instructions with JitAddress attribute
+        if (instr.jit_attribute == JITAttribute::JitAddress && 
+            (instr.assembly_text.find("MOVZ") != std::string::npos || 
+             instr.assembly_text.find("MOVK") != std::string::npos)) {
+            // std::cout << "[LINKER_DEBUG] Found MOVZ/MOVK JitAddress instruction: " << instr.assembly_text 
+            //           << " relocation=" << static_cast<int>(instr.relocation) 
+            //           << " target=" << instr.target_label << std::endl;
+        }
+        
         // Debug: check if our UMOV instructions are being processed
         if (instr.assembly_text.find("mov.s") != std::string::npos) {
             printf("DEBUG LINKER: Processing instruction '%s' with encoding=0x%08x relocation=%d\n", 
@@ -208,6 +223,7 @@ void Linker::performRelocations(
             case RelocationType::MOVZ_MOVK_IMM_16:
             case RelocationType::MOVZ_MOVK_IMM_32:
             case RelocationType::MOVZ_MOVK_IMM_48:
+                // std::cout << "[LINKER_DEBUG] Processing MOVZ/MOVK relocation for target: " << instr.target_label << std::endl;
                 instr.encoding = apply_movz_movk_relocation(instr.encoding, target_address, instr.relocation);
                 break;
 

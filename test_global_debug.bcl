@@ -1,0 +1,10 @@
+// Minimal test to debug global variable initialization and access
+GLOBALS {
+    LET test_global = 42
+}
+
+LET START() BE $(
+    WRITEF("Initial global value: %d*N", test_global)
+    test_global := 999
+    WRITEF("After setting to 999: %d*N", test_global)
+$)

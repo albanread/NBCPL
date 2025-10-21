@@ -1,0 +1,11 @@
+// Minimal test without any globals to verify basic JIT functionality
+LET START() BE $(
+    WRITEF("Hello from JIT - no globals test*N")
+    WRITEF("Basic arithmetic: 5 + 3 = %d*N", 5 + 3)
+    test_function()
+$)
+
+LET test_function() BE $(
+    LET local_var = 42
+    WRITEF("Local variable test: %d*N", local_var)
+$)

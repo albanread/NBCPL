@@ -1,0 +1,10 @@
+// Simple test with just one global variable to isolate the MOVZ/MOVK issue
+GLOBALS {
+    LET single_global = 123
+}
+
+LET START() BE $(
+    WRITEF("Initial single_global: %d*N", single_global)
+    single_global := 456
+    WRITEF("Updated single_global: %d*N", single_global)
+$)
