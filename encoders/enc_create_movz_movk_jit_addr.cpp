@@ -1,6 +1,7 @@
 // This encoder is NOT present in the test schedule. Test will be added via wrapper and results updated here.
 #include "Encoder.h"
 #include <string>
+#include <iostream>
 
 std::vector<Instruction> Encoder::create_movz_movk_jit_addr(const std::string& xd, uint64_t address, const std::string& symbol) {
     std::vector<Instruction> instructions;
@@ -10,6 +11,8 @@ std::vector<Instruction> Encoder::create_movz_movk_jit_addr(const std::string& x
     uint16_t chunk1 = (address >> 16) & 0xFFFF;
     uint16_t chunk2 = (address >> 32) & 0xFFFF;
     uint16_t chunk3 = (address >> 48) & 0xFFFF;
+
+
 
     // 2. Generate MOVZ for the lowest chunk.
     instructions.push_back(Encoder::create_movz_imm(xd, chunk0, 0, RelocationType::NONE, symbol));

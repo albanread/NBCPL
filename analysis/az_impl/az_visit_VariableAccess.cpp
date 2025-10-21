@@ -58,11 +58,9 @@ void ASTAnalyzer::visit(VariableAccess& node) {
     if (symbol_table_ && symbol_table_->lookup(node.name, symbol)) {
         // If the symbol is a GLOBAL_VAR, it's a global access.
         if (symbol.kind == SymbolKind::GLOBAL_VAR) {
-            if (current_function_scope_ != "Global") {
-                function_metrics_[current_function_scope_].accesses_globals = true;
-                if (trace_enabled_) {
-                    std::cout << "[ANALYZER TRACE]   Marked function '" << current_function_scope_ << "' as accessing global '" << node.name << "'." << std::endl;
-                }
+            function_metrics_[current_function_scope_].accesses_globals = true;
+            if (trace_enabled_) {
+                std::cout << "[ANALYZER TRACE]   Marked function '" << current_function_scope_ << "' as accessing global '" << node.name << "'." << std::endl;
             }
         }
     } else if (!is_class_member) {

@@ -1,0 +1,20 @@
+// Simple test program with one global variable to test X28 setup
+GLOBALS {
+    LET test_global = 42
+}
+
+LET function1() BE $(
+    test_global := 100
+    WRITEF("Function1 set global to: %d*N", test_global)
+$)
+
+LET function2() BE $(
+    test_global := test_global + 50
+    WRITEF("Function2 updated global to: %d*N", test_global)
+$)
+
+LET START() BE $(
+    function1()
+    function2()
+    WRITEF("Final global value: %d*N", test_global)
+$)

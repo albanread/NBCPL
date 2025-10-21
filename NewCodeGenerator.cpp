@@ -3383,23 +3383,32 @@ void NewCodeGenerator::generate_function_like_code(
 
 
     // If this function accesses global variables, set up X28 as the global data base pointer.
-    if (analyzer_.function_accesses_globals(name)) {
+    bool function_accesses_globals = analyzer_.function_accesses_globals(name);
+    debug_print("Checking if function '" + name + "' accesses globals: " + (function_accesses_globals ? "YES" : "NO"));
+    
+    if (function_accesses_globals) {
+        debug_print("Setting up X28 for function: " + name);
         if (is_jit_mode_) {
             if (data_segment_base_addr_ == 0) {
                 throw std::runtime_error("JIT mode requires a valid data_segment_base_addr.");
             }
+            debug_print("JIT mode: Emitting MOVZ/MOVK sequence for X28 with address: 0x" + 
+                       std::to_string(data_segment_base_addr_));
             emit(Encoder::create_movz_movk_jit_addr("X28", data_segment_base_addr_, "L__data_segment_base"));
             x28_is_loaded_in_current_function_ = true;
             debug_print("Emitted JIT address load sequence for global base pointer (X28).");
             register_manager_.set_initialized("X28", true);
         } else {
             // Static mode: emit ADRP + ADD for X28
+            debug_print("Static mode: Emitting ADRP/ADD sequence for X28");
             emit(Encoder::create_adrp("X28", "L__data_segment_base"));
             emit(Encoder::create_add_literal("X28", "X28", "L__data_segment_base"));
             x28_is_loaded_in_current_function_ = true;
             debug_print("Emitted ADRP+ADD sequence for global base pointer (X28) in static mode.");
             register_manager_.set_initialized("X28", true);
         }
+    } else {
+        debug_print("Function '" + name + "' does not access globals - skipping X28 setup");
     }
 
     // IMPORTANT: We've already stored parameters earlier, this is a duplicate.

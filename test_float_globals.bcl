@@ -1,0 +1,27 @@
+// Test program with float globals similar to fern_1
+GLOBALS {
+    FLET current_x = 0.5
+    FLET current_y = 1.0
+    LET point_count = 0
+}
+
+LET init_test() BE {
+    current_x := 2.0
+    current_y := 3.0
+    point_count := 1
+}
+
+LET iterate_test() BE $(
+    FLET new_x = current_x + 1.0
+    FLET new_y = current_y * 2.0
+
+    current_x := new_x
+    current_y := new_y
+    point_count := point_count + 1
+$)
+
+LET START() BE $(
+    init_test()
+    iterate_test()
+    WRITEF("x = %f y = %f count = %d*N", current_x, current_y, point_count)
+$)

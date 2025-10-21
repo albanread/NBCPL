@@ -13,20 +13,19 @@
 .globl _BCPL_ALLOC_WORDS
 .globl _SPLIT
 .globl _BCPL_CHECK_AND_DISPLAY_ERRORS
-.globl _SLURP
-.globl _UNPACKSTRING
-.globl _FREEVEC
-.globl _SDL2_DELAY
-.globl _SDL2_CREATE_WINDOW
-.globl _DEEPCOPYLIST
-.globl _BCPL_FREE_LIST_SAFE
-.globl _STRCOPY
-.globl _LIST_APPEND_STRING
-.globl _LIST_HEAD_INT
-.globl _WRITEC
-.globl _FILE_READ
+.globl _FIND
+.globl _SDL2_GET_EVENT_BUTTON
 .globl _LPND
 .globl _FGETVEC
+.globl _SLURP
+.globl _DEEPCOPYLIST
+.globl _BCPL_FREE_LIST_SAFE
+.globl _WRITEC
+.globl _TIMER_DISPLAY
+.globl _FILE_READ
+.globl _UNPACKSTRING
+.globl _SDL2_DELAY
+.globl _FREEVEC
 .globl _BCPL_CONCAT_LISTS
 .globl _SDL2_GET_EVENT_KEY
 .globl _LIST_CREATE
@@ -43,6 +42,9 @@
 .globl _DEEPCOPYLITERALLIST
 .globl _FCOS
 .globl _APND
+.globl _LIST_HEAD_INT
+.globl _STRCOPY
+.globl _LIST_APPEND_STRING
 .globl _FILE_OPEN_READ
 .globl _LIST_APPEND_FLOAT
 .globl _JOIN
@@ -81,53 +83,57 @@
 .globl _FINISH
 .globl _LIST_HEAD_FLOAT
 .globl _HEAPMANAGER_ENTER_SCOPE
-.globl _SDL2_GET_EVENT_BUTTON
 .globl _SDL2_DRAW_POINT
 .globl _HEAPMANAGER_EXIT_SCOPE
 .globl _FILE_OPEN_WRITE
 .globl _SDL2_GET_TICKS
 .globl _WRITEF6
 .globl _HEAPMANAGER_SETSAMMENABLED
-.globl _BCPL_LIST_GET_REST
-.globl _SDL2_DESTROY_RENDERER
-.globl _SDL2_CLEAR
-.globl _SDL2_CLEAR_ERROR
-.globl _SDL2_CREATE_RENDERER
-.globl _SDL2_SET_WINDOW_SIZE
 .globl _SETTYPE
 .globl _FILE_SEEK
+.globl _SDL2_GET_VERSION
 .globl _SDL2_TEST_BASIC
 .globl _OBJECT_HEAP_ALLOC
-.globl _SDL2_GET_VERSION
-.globl _WRITEF7
-.globl _SDL2_DESTROY_WINDOW
-.globl _SDL2_SET_WINDOW_TITLE
 .globl _FILE_WRITES
 .globl _PIC_RUNTIME_HELPER
+.globl _SDL2_DRAW_RECT
+.globl _TIMER_CLEAR
+.globl _SDL2_CLEAR_ERROR
+.globl _SDL2_SET_WINDOW_SIZE
+.globl _SDL2_CREATE_RENDERER
 .globl _WRITEF4
 .globl _FEXP
 .globl _FPND
 .globl _FIX
 .globl _WRITEF1
 .globl _FILE_WRITE
-.globl _SDL2_DRAW_RECT
+.globl _TIMER_GET_CALL_COUNT
 .globl _COPYLIST
 .globl _SDL2_GET_DISPLAY_MODES
 .globl _BCPL_GET_LAST_ERROR
 .globl _SDL2_PRESENT
 .globl _SPND
 .globl _SDL2_CREATE_RENDERER_EX
-.globl _SDL2_SET_DRAW_COLOR
-.globl _OBJECT_HEAP_FREE
-.globl _CONCAT
-.globl _SDL2_DRAW_LINE
-.globl _LIST_TAIL
-.globl _SDL2_GET_ERROR
-.globl _FIND
-.globl _FILE_EOF
-.globl _RUNTIME_METHOD_LOOKUP
+.globl _BCPL_LIST_GET_REST
+.globl _SDL2_DESTROY_RENDERER
+.globl _SDL2_CLEAR
+.globl _WRITEF7
+.globl _SDL2_DESTROY_WINDOW
+.globl _SDL2_SET_WINDOW_TITLE
 .globl _HEAPMANAGER_WAITFORSAMM
 .globl _SDL2_POLL_EVENT
+.globl _LIST_TAIL
+.globl _SDL2_GET_ERROR
+.globl _FILE_EOF
+.globl _SDL2_CREATE_WINDOW
+.globl _TIMER_GET_TOTAL_NS
+.globl _RUNTIME_METHOD_LOOKUP
+.globl _TIMER_START
+.globl _SDL2_SET_DRAW_COLOR
+.globl _CONCAT
+.globl _SDL2_DRAW_LINE
+.globl _OBJECT_HEAP_FREE
+.globl _TIMER_END
 .p2align 2
 _start:
 _START:
@@ -154,23 +160,38 @@ L_Point_CREATE_Entry_0:
     MOV X24, X26
     STR X25, [X27, #16] ; Store to member y
     MOV X23, X25
+    SUB SP, SP, #16
     ADRP X9, L_str0_plus_8@PAGE
     ADD X9, X9, L_str0_plus_8@PAGEOFF
-    MOV X0, X9
+    STR X9, [SP, #0]
+    LDR X0, [SP, #0]
+    ADD SP, SP, #16
     BL _WRITES
+    SUB SP, SP, #16
     LDR X9, [X27, #8] ; x
-    MOV X0, X9
+    STR X9, [SP, #0]
+    LDR X0, [SP, #0]
+    ADD SP, SP, #16
     BL _WRITEN
+    SUB SP, SP, #16
     ADRP X9, L_str1_plus_8@PAGE
     ADD X9, X9, L_str1_plus_8@PAGEOFF
-    MOV X0, X9
+    STR X9, [SP, #0]
+    LDR X0, [SP, #0]
+    ADD SP, SP, #16
     BL _WRITES
+    SUB SP, SP, #16
     LDR X9, [X27, #16] ; y
-    MOV X0, X9
+    STR X9, [SP, #0]
+    LDR X0, [SP, #0]
+    ADD SP, SP, #16
     BL _WRITEN
+    SUB SP, SP, #16
     ADRP X9, L_str2_plus_8@PAGE
     ADD X9, X9, L_str2_plus_8@PAGEOFF
-    MOV X0, X9
+    STR X9, [SP, #0]
+    LDR X0, [SP, #0]
+    ADD SP, SP, #16
     BL _WRITES
     B L_Point_CREATE_Exit_1
 L_Point_CREATE_Exit_1:
@@ -243,23 +264,38 @@ L_Point_set_Entry_0:
     MOV X24, X26
     STR X25, [X27, #16] ; Store to member y
     MOV X23, X25
+    SUB SP, SP, #16
     ADRP X9, L_str3_plus_8@PAGE
     ADD X9, X9, L_str3_plus_8@PAGEOFF
-    MOV X0, X9
+    STR X9, [SP, #0]
+    LDR X0, [SP, #0]
+    ADD SP, SP, #16
     BL _WRITES
+    SUB SP, SP, #16
     LDR X9, [X27, #8] ; x
-    MOV X0, X9
+    STR X9, [SP, #0]
+    LDR X0, [SP, #0]
+    ADD SP, SP, #16
     BL _WRITEN
+    SUB SP, SP, #16
     ADRP X9, L_str1_plus_8@PAGE
     ADD X9, X9, L_str1_plus_8@PAGEOFF
-    MOV X0, X9
+    STR X9, [SP, #0]
+    LDR X0, [SP, #0]
+    ADD SP, SP, #16
     BL _WRITES
+    SUB SP, SP, #16
     LDR X9, [X27, #16] ; y
-    MOV X0, X9
+    STR X9, [SP, #0]
+    LDR X0, [SP, #0]
+    ADD SP, SP, #16
     BL _WRITEN
+    SUB SP, SP, #16
     ADRP X9, L_str2_plus_8@PAGE
     ADD X9, X9, L_str2_plus_8@PAGEOFF
-    MOV X0, X9
+    STR X9, [SP, #0]
+    LDR X0, [SP, #0]
+    ADD SP, SP, #16
     BL _WRITES
     B L_Point_set_Exit_1
 L_Point_set_Exit_1:
@@ -300,9 +336,12 @@ L_START:
     ADD X28, X28, L__data_segment_base@PAGEOFF
 L_START_Entry_0:
     BL _HeapManager_enter_scope
+    SUB SP, SP, #16
     ADRP X9, L_str4_plus_8@PAGE
     ADD X9, X9, L_str4_plus_8@PAGEOFF
-    MOV X0, X9
+    STR X9, [SP, #0]
+    LDR X0, [SP, #0]
+    ADD SP, SP, #16
     BL _WRITES
     MOVZ X0, #24
     BL _OBJECT_HEAP_ALLOC
@@ -319,59 +358,95 @@ L_START_Entry_0:
     LDR X10, [X9, #0] ; Load CREATE method address
     BLR X10
     MOV X27, X20
+    SUB SP, SP, #16
     ADRP X9, L_str5_plus_8@PAGE
     ADD X9, X9, L_str5_plus_8@PAGEOFF
-    MOV X0, X9
+    STR X9, [SP, #0]
+    LDR X0, [SP, #0]
+    ADD SP, SP, #16
     BL _WRITES
+    SUB SP, SP, #16
     LDR X9, [X27, #0] ; Load vtable pointer
     LDR X10, [X9, #16] ; Load method address
     MOV X0, X27
     BLR X10
+    STR X0, [SP, #0]
+    ADD SP, SP, #16
     BL _WRITEN
+    SUB SP, SP, #16
     ADRP X9, L_str6_plus_8@PAGE
     ADD X9, X9, L_str6_plus_8@PAGEOFF
-    MOV X0, X9
+    STR X9, [SP, #0]
+    LDR X0, [SP, #0]
+    ADD SP, SP, #16
     BL _WRITES
+    SUB SP, SP, #16
     LDR X9, [X27, #0] ; Load vtable pointer
     LDR X10, [X9, #24] ; Load method address
     MOV X0, X27
     BLR X10
+    STR X0, [SP, #0]
+    ADD SP, SP, #16
     BL _WRITEN
+    SUB SP, SP, #16
     ADRP X9, L_str7_plus_8@PAGE
     ADD X9, X9, L_str7_plus_8@PAGEOFF
-    MOV X0, X9
+    STR X9, [SP, #0]
+    LDR X0, [SP, #0]
+    ADD SP, SP, #16
     BL _WRITES
+    SUB SP, SP, #16
     ADRP X9, L_str8_plus_8@PAGE
     ADD X9, X9, L_str8_plus_8@PAGEOFF
-    MOV X0, X9
+    STR X9, [SP, #0]
+    LDR X0, [SP, #0]
+    ADD SP, SP, #16
     BL _WRITES
-    MOVZ x20, #100
-    MOVZ x20, #200
+    SUB SP, SP, #16
+    MOVZ X9, #200
+    STR X9, [SP, #8]
+    MOVZ X9, #100
+    STR X9, [SP, #0]
+    LDP x1, x2, [SP, #0]
+    ADD SP, SP, #16
     MOV X0, X27
-    MOV X1, X20
-    MOV X2, X20
     BL L_Point_set
+    SUB SP, SP, #16
     ADRP X9, L_str9_plus_8@PAGE
     ADD X9, X9, L_str9_plus_8@PAGEOFF
-    MOV X0, X9
+    STR X9, [SP, #0]
+    LDR X0, [SP, #0]
+    ADD SP, SP, #16
     BL _WRITES
+    SUB SP, SP, #16
     LDR X9, [X27, #0] ; Load vtable pointer
     LDR X10, [X9, #16] ; Load method address
     MOV X0, X27
     BLR X10
+    STR X0, [SP, #0]
+    ADD SP, SP, #16
     BL _WRITEN
+    SUB SP, SP, #16
     ADRP X9, L_str6_plus_8@PAGE
     ADD X9, X9, L_str6_plus_8@PAGEOFF
-    MOV X0, X9
+    STR X9, [SP, #0]
+    LDR X0, [SP, #0]
+    ADD SP, SP, #16
     BL _WRITES
+    SUB SP, SP, #16
     LDR X9, [X27, #0] ; Load vtable pointer
     LDR X10, [X9, #24] ; Load method address
     MOV X0, X27
     BLR X10
+    STR X0, [SP, #0]
+    ADD SP, SP, #16
     BL _WRITEN
+    SUB SP, SP, #16
     ADRP X9, L_str10_plus_8@PAGE
     ADD X9, X9, L_str10_plus_8@PAGEOFF
-    MOV X0, X9
+    STR X9, [SP, #0]
+    LDR X0, [SP, #0]
+    ADD SP, SP, #16
     BL _WRITES
     BL _HeapManager_exit_scope
     B L_START_Exit_1
@@ -385,8 +460,8 @@ L_5:
     ADD SP, SP, #16 ; Deallocate space for saved FP/LR
     RET
 L___veneer_:
-    movz x16, #2908
-    movk x16, #239, lsl #16
+    movz x16, #44152
+    movk x16, #285, lsl #16
     movk x16, #1, lsl #32
     movk x16, #0, lsl #48
     blr x16

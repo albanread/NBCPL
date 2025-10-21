@@ -13,20 +13,19 @@
 .globl _BCPL_ALLOC_WORDS
 .globl _SPLIT
 .globl _BCPL_CHECK_AND_DISPLAY_ERRORS
-.globl _SLURP
-.globl _UNPACKSTRING
-.globl _FREEVEC
-.globl _SDL2_DELAY
-.globl _SDL2_CREATE_WINDOW
-.globl _DEEPCOPYLIST
-.globl _BCPL_FREE_LIST_SAFE
-.globl _STRCOPY
-.globl _LIST_APPEND_STRING
-.globl _LIST_HEAD_INT
-.globl _WRITEC
-.globl _FILE_READ
+.globl _FIND
+.globl _SDL2_GET_EVENT_BUTTON
 .globl _LPND
 .globl _FGETVEC
+.globl _SLURP
+.globl _DEEPCOPYLIST
+.globl _BCPL_FREE_LIST_SAFE
+.globl _WRITEC
+.globl _TIMER_DISPLAY
+.globl _FILE_READ
+.globl _UNPACKSTRING
+.globl _SDL2_DELAY
+.globl _FREEVEC
 .globl _BCPL_CONCAT_LISTS
 .globl _SDL2_GET_EVENT_KEY
 .globl _LIST_CREATE
@@ -43,6 +42,9 @@
 .globl _DEEPCOPYLITERALLIST
 .globl _FCOS
 .globl _APND
+.globl _LIST_HEAD_INT
+.globl _STRCOPY
+.globl _LIST_APPEND_STRING
 .globl _FILE_OPEN_READ
 .globl _LIST_APPEND_FLOAT
 .globl _JOIN
@@ -80,53 +82,57 @@
 .globl _FINISH
 .globl _LIST_HEAD_FLOAT
 .globl _HEAPMANAGER_ENTER_SCOPE
-.globl _SDL2_GET_EVENT_BUTTON
 .globl _SDL2_DRAW_POINT
 .globl _HEAPMANAGER_EXIT_SCOPE
 .globl _FILE_OPEN_WRITE
 .globl _SDL2_GET_TICKS
 .globl _WRITEF6
 .globl _HEAPMANAGER_SETSAMMENABLED
-.globl _BCPL_LIST_GET_REST
-.globl _SDL2_DESTROY_RENDERER
-.globl _SDL2_CLEAR
-.globl _SDL2_CLEAR_ERROR
-.globl _SDL2_CREATE_RENDERER
-.globl _SDL2_SET_WINDOW_SIZE
 .globl _SETTYPE
 .globl _FILE_SEEK
+.globl _SDL2_GET_VERSION
 .globl _SDL2_TEST_BASIC
 .globl _OBJECT_HEAP_ALLOC
-.globl _SDL2_GET_VERSION
-.globl _WRITEF7
-.globl _SDL2_DESTROY_WINDOW
-.globl _SDL2_SET_WINDOW_TITLE
 .globl _FILE_WRITES
 .globl _PIC_RUNTIME_HELPER
+.globl _SDL2_DRAW_RECT
+.globl _TIMER_CLEAR
+.globl _SDL2_CLEAR_ERROR
+.globl _SDL2_SET_WINDOW_SIZE
+.globl _SDL2_CREATE_RENDERER
 .globl _WRITEF4
 .globl _FEXP
 .globl _FPND
 .globl _FIX
 .globl _WRITEF1
 .globl _FILE_WRITE
-.globl _SDL2_DRAW_RECT
+.globl _TIMER_GET_CALL_COUNT
 .globl _COPYLIST
 .globl _SDL2_GET_DISPLAY_MODES
 .globl _BCPL_GET_LAST_ERROR
 .globl _SDL2_PRESENT
 .globl _SPND
 .globl _SDL2_CREATE_RENDERER_EX
-.globl _SDL2_SET_DRAW_COLOR
-.globl _OBJECT_HEAP_FREE
-.globl _CONCAT
-.globl _SDL2_DRAW_LINE
-.globl _LIST_TAIL
-.globl _SDL2_GET_ERROR
-.globl _FIND
-.globl _FILE_EOF
-.globl _RUNTIME_METHOD_LOOKUP
+.globl _BCPL_LIST_GET_REST
+.globl _SDL2_DESTROY_RENDERER
+.globl _SDL2_CLEAR
+.globl _WRITEF7
+.globl _SDL2_DESTROY_WINDOW
+.globl _SDL2_SET_WINDOW_TITLE
 .globl _HEAPMANAGER_WAITFORSAMM
 .globl _SDL2_POLL_EVENT
+.globl _LIST_TAIL
+.globl _SDL2_GET_ERROR
+.globl _FILE_EOF
+.globl _SDL2_CREATE_WINDOW
+.globl _TIMER_GET_TOTAL_NS
+.globl _RUNTIME_METHOD_LOOKUP
+.globl _TIMER_START
+.globl _SDL2_SET_DRAW_COLOR
+.globl _CONCAT
+.globl _SDL2_DRAW_LINE
+.globl _OBJECT_HEAP_FREE
+.globl _TIMER_END
 .p2align 2
 _start:
 _START:
@@ -154,19 +160,22 @@ L_START_Entry_0:
     ADD X9, X9, L_str1_plus_8@PAGEOFF
     MOV X0, X9
     BL _WRITEF
-    MOVZ x21, #32
-    MOV X0, X21
+    SUB SP, SP, #16
+    MOVZ X9, #32
+    STR X9, [SP, #0]
+    LDR X0, [SP, #0]
+    ADD SP, SP, #16
     BL _SDL2_INIT_SUBSYSTEMS
     MOV X20, X0
     CMP x20, #0
-    CSET X11, EQ
-    CMP X11, XZR
+    CSET X10, EQ
+    CMP X10, XZR
     B.EQ L_START_Else_2
     B L_START_Then_1
 L_START_Else_2:
-    ADRP X10, L_str2_plus_8@PAGE
-    ADD X10, X10, L_str2_plus_8@PAGEOFF
-    MOV X0, X10
+    ADRP X9, L_str2_plus_8@PAGE
+    ADD X9, X9, L_str2_plus_8@PAGEOFF
+    MOV X0, X9
     BL _WRITEF
     BL _HeapManager_exit_scope
     B L_START_FinishCleanup_4
@@ -192,20 +201,31 @@ L_START_FinishCleanup_4:
     MOV X16, X9
     SVC #128
 L_START_ForBody_17:
+    SUB SP, SP, #48
     MOVZ X9, #2
-    MOVZ X10, #2
-    MOV X0, X27
-    MOV X1, X23
-    MOV X2, X23
-    MOV X3, X9
-    MOV X4, X10
+    STR X9, [SP, #32]
+    MOVZ X9, #2
+    STR X9, [SP, #24]
+    STR X23, [SP, #16]
+    STR X23, [SP, #8]
+    STR X27, [SP, #0]
+    LDP x0, x1, [SP, #0]
+    LDP x2, x3, [SP, #16]
+    LDR X4, [SP, #32]
+    ADD SP, SP, #48
     BL _SDL2_DRAW_RECT
     B L_START_ForIncrement_18
 L_START_ForExit_19:
-    MOV X0, X27
+    SUB SP, SP, #16
+    STR X27, [SP, #0]
+    LDR X0, [SP, #0]
+    ADD SP, SP, #16
     BL _SDL2_PRESENT
+    SUB SP, SP, #16
     MOVZ X9, #16
-    MOV X0, X9
+    STR X9, [SP, #0]
+    LDR X0, [SP, #0]
+    ADD SP, SP, #16
     BL _SDL2_DELAY
     B L_START_WhileHeader_11
 L_START_ForHeader_16:
@@ -218,41 +238,56 @@ L_START_ForIncrement_18:
     ADD X23, X23, #1
     B L_START_ForHeader_16
 L_START_Join_15:
+    SUB SP, SP, #48
+    MOVZ X9, #255
+    STR X9, [SP, #32]
+    MOVZ X9, #50
+    STR X9, [SP, #24]
     MOVZ X9, #30
-    MOVZ X11, #30
-    MOVZ X12, #50
-    MOVZ X13, #255
-    MOV X0, X27
-    MOV X1, X9
-    MOV X2, X11
-    MOV X3, X12
-    MOV X4, X13
+    STR X9, [SP, #16]
+    MOVZ X9, #30
+    STR X9, [SP, #8]
+    STR X27, [SP, #0]
+    LDP x0, x1, [SP, #0]
+    LDP x2, x3, [SP, #16]
+    LDR X4, [SP, #32]
+    ADD SP, SP, #48
     BL _SDL2_SET_DRAW_COLOR
-    MOV X0, X27
+    SUB SP, SP, #16
+    STR X27, [SP, #0]
+    LDR X0, [SP, #0]
+    ADD SP, SP, #16
     BL _SDL2_CLEAR
+    SUB SP, SP, #48
+    MOVZ X9, #255
+    STR X9, [SP, #32]
     MOVZ X9, #20
-    MOVZ X10, #220
-    MOVZ X11, #20
-    MOVZ X12, #255
-    MOV X0, X27
-    MOV X1, X9
-    MOV X2, X10
-    MOV X3, X11
-    MOV X4, X12
+    STR X9, [SP, #24]
+    MOVZ X9, #220
+    STR X9, [SP, #16]
+    MOVZ X9, #20
+    STR X9, [SP, #8]
+    STR X27, [SP, #0]
+    LDP x0, x1, [SP, #0]
+    LDP x2, x3, [SP, #16]
+    LDR X4, [SP, #32]
+    ADD SP, SP, #48
     BL _SDL2_SET_DRAW_COLOR
     MOVZ X9, #100
     MOV X23, X9
     B L_START_ForHeader_16
 L_START_Join_3:
+    SUB SP, SP, #16
     ADRP X9, L_str5_plus_8@PAGE
     ADD X9, X9, L_str5_plus_8@PAGEOFF
-    MOV X20, X9
-    MOV X0, X20
+    STR X9, [SP, #0]
+    LDR X0, [SP, #0]
+    ADD SP, SP, #16
     BL _SDL2_CREATE_WINDOW
     MOV X25, X0
     CMP x25, #0
-    CSET X11, GT
-    CMP X11, XZR
+    CSET X10, GT
+    CMP X10, XZR
     B.EQ L_START_Else_6
     B L_START_Then_5
 L_START_Join_7:
@@ -271,14 +306,19 @@ L_START_Then_1:
 L_START_Then_14:
     MOVZ X9, #0
     MOV X26, X9
+    SUB SP, SP, #16
     ADRP X9, L_str8_plus_8@PAGE
     ADD X9, X9, L_str8_plus_8@PAGEOFF
-    MOV X0, X9
+    STR X9, [SP, #0]
+    LDR X0, [SP, #0]
+    ADD SP, SP, #16
     BL _WRITES
     B L_START_Join_15
 L_START_Then_5:
-    MOV X20, X25
-    MOV X0, X20
+    SUB SP, SP, #16
+    STR X25, [SP, #0]
+    LDR X0, [SP, #0]
+    ADD SP, SP, #16
     BL _SDL2_CREATE_RENDERER
     MOV X27, X0
     CMP x27, #0
@@ -289,9 +329,12 @@ L_START_Then_5:
 L_START_Then_8:
     MOVZ X9, #1
     MOV X26, X9
+    SUB SP, SP, #16
     ADRP X9, L_str9_plus_8@PAGE
     ADD X9, X9, L_str9_plus_8@PAGEOFF
-    MOV X0, X9
+    STR X9, [SP, #0]
+    LDR X0, [SP, #0]
+    ADD SP, SP, #16
     BL _WRITES
     B L_START_WhileHeader_11
 L_START_WhileBody_12:
@@ -308,9 +351,15 @@ L_START_WhileExit_13:
     ADD X9, X9, L_str10_plus_8@PAGEOFF
     MOV X0, X9
     BL _WRITEF
-    MOV X0, X27
+    SUB SP, SP, #16
+    STR X27, [SP, #0]
+    LDR X0, [SP, #0]
+    ADD SP, SP, #16
     BL _SDL2_DESTROY_RENDERER
-    MOV X0, X25
+    SUB SP, SP, #16
+    STR X25, [SP, #0]
+    LDR X0, [SP, #0]
+    ADD SP, SP, #16
     BL _SDL2_DESTROY_WINDOW
     B L_START_Join_7
 L_START_WhileHeader_11:
