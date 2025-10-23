@@ -1,0 +1,78 @@
+// Test to verify the scratch register exhaustion fix
+// This test uses multiple variable arguments to ensure we don't run out of scratch registers
+
+LET START() BE {
+    WRITEF("Testing scratch register fix with variable arguments*N")
+
+    // Test 1: Multiple simple variables as arguments
+    // Previously this would exhaust scratch registers due to unnecessary copying
+    LET a = 10
+    LET b = 20
+    LET c = 30
+    LET d = 40
+    LET e = 50
+    LET f = 60
+    LET g = 70
+
+    WRITEF("Testing 7 variable arguments...*N")
+    LET result1 = test_variables(a, b, c, d, e, f, g)
+    WRITEF("Result with 7 variables: %d*N", result1)
+
+    // Test 2: Mix of variables and simple expressions
+    WRITEF("Testing mixed arguments...*N")
+    LET result2 = test_mixed(a, b + 5, c, d * 2, e, f - 10)
+    WRITEF("Result with mixed args: %d*N", result2)
+
+    // Test 3: Complex expressions that use scratch registers internally
+    WRITEF("Testing complex expressions...*N")
+    LET result3 = test_complex(
+        simple_calc(a),
+        simple_calc(b),
+        simple_calc(c),
+        simple_calc(d),
+        simple_calc(e)
+    )
+    WRITEF("Result with complex expressions: %d*N", result3)
+
+    WRITEF("All tests completed successfully!*N")
+}
+
+LET test_variables(a, b, c, d, e, f, g) BE {
+    WRITEF("Called with variables: %d %d %d %d %d %d %d*N", a, b, c, d, e, f, g)
+    RESULTIS a + b + c + d + e + f + g
+}
+
+LET test_mixed(a, b, c, d, e, f) BE {
+    RESULTIS a + b + c + d + e + f
+}
+
+LET test_complex(a, b, c, d, e) BE {
+    RESULTIS a + b + c + d + e
+}
+
+LET simple_calc(x) BE {
+    // This function uses some scratch registers internally
+    LET temp1 = x * 2
+    LET temp2 = temp1 + 10
+    RESULTIS temp2 / 2
+}
+
+// Test routine calls as well (they had the same problem)
+LET test_routine_calls() BE {
+    WRITEF("Testing routine calls with multiple variables*N")
+
+    LET var1 = 100
+    LET var2 = 200
+    LET var3 = 300
+    LET var4 = 400
+    LET var5 = 500
+
+    // This should not exhaust scratch registers anymore
+    routine_with_vars(var1, var2, var3, var4, var5)
+
+    WRITEF("Routine call test completed*N")
+}
+
+LET routine_with_vars(a, b, c, d, e) BE {
+    WRITEF("Routine called with: %d %d %d %d %d*N", a, b, c, d, e)
+}

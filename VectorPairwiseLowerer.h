@@ -77,7 +77,6 @@ private:
     bool debug_enabled_;
     bool transformations_made_;
     int temp_var_counter_;
-    std::string last_result_var_name_;
     
     /**
      * Check if a BinaryOp represents a vector operation that needs lowering
@@ -103,9 +102,10 @@ private:
     /**
      * Transform a vector BinaryOp into a loop structure
      * @param binary_op The vector binary operation to transform
+     * @param dest_var_name The name of the destination variable to write results to
      * @return A BlockStatement containing the lowered loop code
      */
-    std::unique_ptr<BlockStatement> lowerVectorOperation(const BinaryOp* binary_op);
+    std::unique_ptr<BlockStatement> lowerVectorOperation(const BinaryOp* binary_op, const std::string& dest_var_name);
     
     /**
      * Create a unique temporary variable name

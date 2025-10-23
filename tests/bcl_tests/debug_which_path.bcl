@@ -1,0 +1,20 @@
+LET START() BE
+$(
+   WRITES("Testing which path STRING_ROUTINE takes...*N")
+
+   LET S1 = "hello"
+   LET S2 = "world"
+
+   WRITES("About to call STRING_ROUTINE...*N")
+   STRING_ROUTINE(S1, S2)
+   WRITES("STRING_ROUTINE call completed*N")
+$)
+
+LET STRING_ROUTINE(A, B) BE
+$(
+   WRITES("In STRING_ROUTINE: A=")
+   WRITES(A)
+   WRITES(", B=")
+   WRITES(B)
+   WRITES("*N")
+$)

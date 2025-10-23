@@ -1,0 +1,27 @@
+// Simple test of LEN function only - no vector operations
+LET START() BE $(
+    WRITEF("=== Testing LEN Function Only ===*N")
+
+    // Test 1: Create a small PAIRS vector
+    LET V1 = PAIRS(3)
+    WRITEF("Created PAIRS(3)*N")
+
+    // Test 2: Test LEN function
+    LET len1 = LEN(V1)
+    WRITEF("LEN(PAIRS(3)) = %N*N", len1)
+
+    // Test 3: Different sizes
+    LET V2 = PAIRS(1)
+    LET len2 = LEN(V2)
+    WRITEF("LEN(PAIRS(1)) = %N*N", len2)
+
+    LET V3 = PAIRS(5)
+    LET len3 = LEN(V3)
+    WRITEF("LEN(PAIRS(5)) = %N*N", len3)
+
+    LET V4 = PAIRS(10)
+    LET len4 = LEN(V4)
+    WRITEF("LEN(PAIRS(10)) = %N*N", len4)
+
+    WRITEF("=== Test Complete ===*N")
+$)

@@ -1,0 +1,28 @@
+// Simple LEN debug test to isolate the issue
+LET START() BE $(
+    WRITEF("=== Simple LEN Debug ===*N")
+
+    LET V1 = PAIRS(3)
+    WRITEF("Created PAIRS(3)*N")
+    WRITEF("V1 pointer = %X*N", V1)
+
+    // Manual memory inspection
+    LET ptr_minus_1 = V1 - 1
+    LET ptr_minus_8 = V1 - 8
+
+    WRITEF("V1-1 = %X*N", ptr_minus_1)
+    WRITEF("V1-8 = %X*N", ptr_minus_8)
+
+    // Read what's actually stored there
+    LET val_at_minus_1 = !ptr_minus_1
+    LET val_at_ptr = !V1
+
+    WRITEF("Value at V1[-1] = %N (%X)*N", val_at_minus_1, val_at_minus_1)
+    WRITEF("Value at V1[0] = %N (%X)*N", val_at_ptr, val_at_ptr)
+
+    // Test LEN function
+    LET len_result = LEN(V1)
+    WRITEF("LEN(V1) = %N (%X)*N", len_result, len_result)
+
+    WRITEF("Expected: 3*N")
+$)

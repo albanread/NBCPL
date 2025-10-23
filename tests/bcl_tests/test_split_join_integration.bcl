@@ -1,0 +1,1 @@
+LET START() BE $( LET S = "a,b,c" LET L = SPLIT(S, ",") LET RESULT = JOIN(L, "-") WRITES(RESULT) WRITES("*N") $)

@@ -1,0 +1,41 @@
+LET START() BE {
+    WRITEF("Stage 4 Validation Test*N")
+    WRITEF("Testing that vector lowering transformations work conceptually*N")
+
+    // Create simple PAIRS vectors
+    LET vec1 = PAIRS 2
+    LET vec2 = PAIRS 2
+
+    // Initialize with test data
+    vec1!0 := PAIR(10, 20)
+    vec1!1 := PAIR(30, 40)
+
+    vec2!0 := PAIR(1, 2)
+    vec2!1 := PAIR(3, 4)
+
+    WRITEF("vec1[0] = PAIR(10, 20), vec1[1] = PAIR(30, 40)*N")
+    WRITEF("vec2[0] = PAIR(1, 2), vec2[1] = PAIR(3, 4)*N")
+
+    // Manual implementation of what the lowering should do:
+    // This simulates: LET result = vec1 + vec2
+    WRITEF("*NSimulating vector addition manually:*N")
+
+    LET len = LEN(vec1)
+    LET result = PAIRS len
+
+    FOR i = 0 TO len - 1 DO {
+        result!i := vec1!i + vec2!i
+        WRITEF("result[%d] = vec1[%d] + vec2[%d]*N", i, i, i)
+    }
+
+    WRITEF("*NExpected results:*N")
+    WRITEF("result[0] should be PAIR(11, 22)*N")
+    WRITEF("result[1] should be PAIR(33, 44)*N")
+
+    WRITEF("*NActual results:*N")
+    WRITEF("result[0] = 0x%X*N", result!0)
+    WRITEF("result[1] = 0x%X*N", result!1)
+
+    WRITEF("*NThis demonstrates the expected behavior of vector lowering.*N")
+    WRITEF("The lowering pass should transform 'LET z = vec1 + vec2' into the manual loop above.*N")
+}

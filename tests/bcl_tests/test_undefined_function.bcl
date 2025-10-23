@@ -1,0 +1,12 @@
+LET START() BE
+$(
+   WRITES("Testing undefined function error handling...*N")
+
+   WRITES("About to call undefined function FRAGGLE...*N")
+   LET RESULT = FRAGGLE("hello", "world")
+
+   WRITES("This should never be reached if fail-fast works!*N")
+   WRITES("FRAGGLE returned: ")
+   WRITES(RESULT)
+   WRITES("*N")
+$)

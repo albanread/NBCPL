@@ -1,0 +1,8 @@
+// Test file for bcl_code directory
+// This tests the enhanced file search functionality
+
+LET START() BE
+$(
+    WRITEF("Hello from bcl_code directory!*N")
+    WRITEF("File search working correctly*N")
+$)

@@ -3542,21 +3542,15 @@ void NewCodeGenerator::generate_function_like_code(
         // For simplicity, we'll reconstruct the values here since the exact registers
         // may vary. The vector pointer should still be available.
         
-        // For now, set up basic error call with NULL variable name
-        // X0 = variable name (NULL)
-        for (const auto& instr : Encoder::create_movz_movk_abs64("X0", 0, "NULL variable name for bounds error")) {
-            emit(instr);
-        }
+        // Set up bounds error call with proper immediate values
+        // X0 = variable name (NULL pointer = 0)
+        emit(Encoder::create_movz_imm("X0", 0));
         
-        // X1 = index (we'll use a placeholder value since exact preservation is complex)
-        for (const auto& instr : Encoder::create_movz_movk_abs64("X1", 0, "Index placeholder")) {
-            emit(instr);
-        }
+        // X1 = index (placeholder value = -1 to indicate unknown)
+        emit(Encoder::create_movz_imm("X1", 65535));
         
-        // X2 = length (we'll use a placeholder value since exact preservation is complex)  
-        for (const auto& instr : Encoder::create_movz_movk_abs64("X2", 0, "Length placeholder")) {
-            emit(instr);
-        }
+        // X2 = length (placeholder value = 0 to indicate unknown)
+        emit(Encoder::create_movz_imm("X2", 0));
         
         // Call the runtime error handler
         emit(Encoder::create_branch_with_link("BCPL_BOUNDS_ERROR"));

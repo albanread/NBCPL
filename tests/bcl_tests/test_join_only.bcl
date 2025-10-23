@@ -1,0 +1,48 @@
+LET START() BE
+$(
+   WRITES("Testing JOIN function by itself...*N")
+
+   // Test with a null list first to see what happens
+   WRITES("Step 1: Testing JOIN with null list...*N")
+   LET NULL_LIST = 0
+   WRITES("Type of null list: ")
+   WRITES(TYPE(NULL_LIST))
+   WRITES("*N")
+
+   WRITES("Calling JOIN with null list...*N")
+   LET RESULT1 = JOIN(NULL_LIST, "-")
+   WRITES("JOIN with null completed*N")
+
+   TEST RESULT1 = 0 THEN
+   $(
+       WRITES("JOIN with null returned null*N")
+   $)
+   ELSE
+   $(
+       WRITES("JOIN with null returned: ")
+       WRITES(RESULT1)
+       WRITES("*N")
+   $)
+
+   // Test with a non-null but invalid pointer
+   WRITES("Step 2: Testing JOIN with invalid pointer...*N")
+   LET INVALID_PTR = 12345
+   WRITES("Type of invalid pointer: ")
+   WRITES(TYPE(INVALID_PTR))
+   WRITES("*N")
+
+   WRITES("Calling JOIN with invalid pointer...*N")
+   LET RESULT2 = JOIN(INVALID_PTR, "-")
+   WRITES("JOIN with invalid pointer completed*N")
+
+   TEST RESULT2 = 0 THEN
+   $(
+       WRITES("JOIN with invalid pointer returned null*N")
+   $)
+   ELSE
+   $(
+       WRITES("JOIN with invalid pointer returned: ")
+       WRITES(RESULT2)
+       WRITES("*N")
+   $)
+$)

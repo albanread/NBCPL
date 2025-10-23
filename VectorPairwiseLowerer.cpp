@@ -4,7 +4,7 @@
 #include <sstream>
 
 VectorPairwiseLowerer::VectorPairwiseLowerer(SymbolTable* symbol_table, ASTAnalyzer* analyzer, bool enable_debug)
-    : symbol_table_(symbol_table), analyzer_(analyzer), current_function_name_(""), debug_enabled_(enable_debug), transformations_made_(false), temp_var_counter_(0), last_result_var_name_("") {
+    : symbol_table_(symbol_table), analyzer_(analyzer), current_function_name_(""), debug_enabled_(enable_debug), transformations_made_(false), temp_var_counter_(0) {
 }
 
 bool VectorPairwiseLowerer::lower(Program& program) {
@@ -216,7 +216,7 @@ std::string VectorPairwiseLowerer::getAllocationExpressionType(VarType vector_ty
     }
 }
 
-std::unique_ptr<BlockStatement> VectorPairwiseLowerer::lowerVectorOperation(const BinaryOp* binary_op) {
+std::unique_ptr<BlockStatement> VectorPairwiseLowerer::lowerVectorOperation(const BinaryOp* binary_op, const std::string& dest_var_name) {
     // Get operand information - use the analyzer instance passed to constructor
     VarType left_type = analyzer_->infer_expression_type(binary_op->left.get());
     VarType result_type = left_type; // Vector operations preserve type
@@ -234,7 +234,6 @@ std::unique_ptr<BlockStatement> VectorPairwiseLowerer::lowerVectorOperation(cons
     }
     
     // Generate unique temporary variable names
-    std::string result_vec_name = createTempVarName("__vec_result");
     std::string loop_var_name = createTempVarName("__vec_i");
     std::string length_var_name = createTempVarName("__vec_len");
     
@@ -248,9 +247,14 @@ std::unique_ptr<BlockStatement> VectorPairwiseLowerer::lowerVectorOperation(cons
     length_lhs.push_back(std::make_unique<VariableAccess>(length_var_name));
     
     std::vector<ExprPtr> length_rhs;
-    length_rhs.push_back(std::make_unique<UnaryOp>(
-        UnaryOp::Operator::LengthOf,
-        std::unique_ptr<Expression>(static_cast<Expression*>(binary_op->left->clone().release()))
+    
+    // Create LEN function call instead of UnaryOp::LengthOf
+    std::vector<ExprPtr> len_args;
+    len_args.push_back(std::unique_ptr<Expression>(static_cast<Expression*>(binary_op->left->clone().release())));
+    
+    length_rhs.push_back(std::make_unique<FunctionCall>(
+        std::make_unique<VariableAccess>("LEN"),
+        std::move(len_args)
     ));
     
     // Create the length assignment statement
@@ -266,51 +270,48 @@ std::unique_ptr<BlockStatement> VectorPairwiseLowerer::lowerVectorOperation(cons
     
     lowered_block->statements.push_back(std::move(length_assignment));
     
-    // Step 2: Allocate result vector - LET __vec_result = PAIRS(__vec_len)
-    std::vector<ExprPtr> result_lhs;
-    result_lhs.push_back(std::make_unique<VariableAccess>(result_vec_name));
+    // Step 2: Allocate destination vector with correct length - LET dest_var = PAIRS(__vec_len)
+    std::vector<ExprPtr> dest_lhs;
+    dest_lhs.push_back(std::make_unique<VariableAccess>(dest_var_name));
     
-    std::vector<ExprPtr> result_rhs;
+    std::vector<ExprPtr> dest_rhs;
     std::string alloc_type = getAllocationExpressionType(base_vector_type);
     
     // Create the appropriate allocation expression
     if (alloc_type == "PAIRS") {
-        result_rhs.push_back(std::make_unique<PairsAllocationExpression>(
+        dest_rhs.push_back(std::make_unique<PairsAllocationExpression>(
             std::make_unique<VariableAccess>(length_var_name)
         ));
     } else if (alloc_type == "FPAIRS") {
-        result_rhs.push_back(std::make_unique<FPairsAllocationExpression>(
+        dest_rhs.push_back(std::make_unique<FPairsAllocationExpression>(
             std::make_unique<VariableAccess>(length_var_name)
         ));
     } else {
         // For QUADS/FQUADS, use VEC allocation for now (can be extended later)
-        result_rhs.push_back(std::make_unique<VecAllocationExpression>(
+        dest_rhs.push_back(std::make_unique<VecAllocationExpression>(
             std::make_unique<VariableAccess>(length_var_name)
         ));
     }
     
-    // Create the result allocation assignment statement
-    auto result_assignment = std::make_unique<AssignmentStatement>(
-        std::move(result_lhs), std::move(result_rhs)
+    // Create the destination allocation assignment statement
+    auto dest_assignment = std::make_unique<AssignmentStatement>(
+        std::move(dest_lhs), std::move(dest_rhs)
     );
     
-    // Register the result vector variable in symbol table  
-    registerTempVariable(result_vec_name, left_type);
+    // Analyze the destination assignment statement immediately after creation
+    dest_assignment->accept(*analyzer_);
     
-    // Analyze the result assignment statement immediately after creation
-    result_assignment->accept(*analyzer_);
-    
-    lowered_block->statements.push_back(std::move(result_assignment));
+    lowered_block->statements.push_back(std::move(dest_assignment));
     
     // Step 3: Create the loop - FOR __vec_i = 0 TO __vec_len - 1 DO
     auto loop_body = std::make_unique<BlockStatement>(
         std::vector<DeclPtr>{}, std::vector<StmtPtr>{}
     );
     
-    // Loop body: __vec_result[__vec_i] = left[__vec_i] op right[__vec_i]
+    // Loop body: dest_var[__vec_i] = left[__vec_i] op right[__vec_i]
     std::vector<ExprPtr> loop_assign_lhs;
     loop_assign_lhs.push_back(std::make_unique<VectorAccess>(
-        std::make_unique<VariableAccess>(result_vec_name),
+        std::make_unique<VariableAccess>(dest_var_name),
         std::make_unique<VariableAccess>(loop_var_name)
     ));
     
@@ -337,7 +338,7 @@ std::unique_ptr<BlockStatement> VectorPairwiseLowerer::lowerVectorOperation(cons
     
     loop_body->statements.push_back(std::move(loop_assignment));
     
-    // Create the FOR loop: FOR __vec_i = 0 TO __vec_len - 1
+    // Create the FOR loop: FOR __vec_i = 0 TO __vec_len - 1 (BCPL vectors are 0-indexed)
     // Note: The loop variable will be registered automatically when ForLoop is analyzed
     auto for_loop = std::make_unique<ForStatement>(
         loop_var_name,
@@ -356,13 +357,10 @@ std::unique_ptr<BlockStatement> VectorPairwiseLowerer::lowerVectorOperation(cons
     
     lowered_block->statements.push_back(std::move(for_loop));
     
-    // Store the result variable name for later use
-    last_result_var_name_ = result_vec_name;
-    
     // Analyze the entire lowered block to ensure all nested nodes are properly analyzed
     lowered_block->accept(*analyzer_);
     
-    debugPrint("Lowered vector " + vartype_to_string(left_type) + " operation to loop with result variable: " + result_vec_name);
+    debugPrint("Lowered vector " + vartype_to_string(left_type) + " operation to loop writing directly to destination: " + dest_var_name);
     
     return lowered_block;
 }
@@ -449,51 +447,23 @@ bool VectorPairwiseLowerer::transformStatements(std::vector<StmtPtr>& statements
                     if (isVectorOperation(binary_op)) {
                         debugPrint("Transforming assignment with vector operation");
                         
-                        // Generate the lowered block
-                        auto lowered_block = lowerVectorOperation(binary_op);
-                        
-                        // Debug: Check LHS variable names
-                        debugPrint("Creating final assignment with " + std::to_string(assign_stmt->lhs.size()) + " LHS variables");
-                        for (size_t k = 0; k < assign_stmt->lhs.size(); ++k) {
-                            if (auto* var_access = dynamic_cast<VariableAccess*>(assign_stmt->lhs[k].get())) {
-                                debugPrint("  LHS[" + std::to_string(k) + "]: " + var_access->name);
+                        // Get the destination variable name from LHS
+                        std::string dest_var_name;
+                        if (!assign_stmt->lhs.empty()) {
+                            if (auto* var_access = dynamic_cast<VariableAccess*>(assign_stmt->lhs[0].get())) {
+                                dest_var_name = var_access->name;
+                                debugPrint("Destination variable: " + dest_var_name);
                             } else {
-                                debugPrint("  LHS[" + std::to_string(k) + "]: non-variable expression");
+                                debugPrint("ERROR: LHS is not a simple variable access!");
+                                continue;
                             }
-                        }
-                        
-                        // Create assignment to the original LHS variable
-                        std::vector<ExprPtr> final_lhs;
-                        for (auto& lhs_expr : assign_stmt->lhs) {
-                            if (auto* var_access = dynamic_cast<VariableAccess*>(lhs_expr.get())) {
-                                if (!var_access->name.empty()) {
-                                    final_lhs.push_back(std::unique_ptr<Expression>(static_cast<Expression*>(lhs_expr->clone().release())));
-                                } else {
-                                    debugPrint("ERROR: Empty variable name in LHS!");
-                                }
-                            } else {
-                                final_lhs.push_back(std::unique_ptr<Expression>(static_cast<Expression*>(lhs_expr->clone().release())));
-                            }
-                        }
-                        
-                        // Use the stored result variable name from the lowering operation
-                        std::vector<ExprPtr> final_rhs;
-                        final_rhs.push_back(std::make_unique<VariableAccess>(last_result_var_name_));
-                        
-                        // Create the final assignment: LHS = __vec_result
-                        if (!final_lhs.empty()) {
-                            auto final_assignment = std::make_unique<AssignmentStatement>(
-                                std::move(final_lhs), std::move(final_rhs)
-                            );
-                            
-                            // Analyze the final assignment immediately after creation
-                            final_assignment->accept(*analyzer_);
-                            
-                            lowered_block->statements.push_back(std::move(final_assignment));
-                            debugPrint("Created final assignment: LHS = " + last_result_var_name_);
                         } else {
-                            debugPrint("ERROR: No valid LHS variables for final assignment!");
+                            debugPrint("ERROR: No LHS variables found!");
+                            continue;
                         }
+                        
+                        // Generate the lowered block that writes directly to the destination
+                        auto lowered_block = lowerVectorOperation(binary_op, dest_var_name);
                         
                         // Replace the assignment statement with the lowered block
                         statements[i] = std::move(lowered_block);

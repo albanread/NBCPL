@@ -176,7 +176,7 @@ void NewCodeGenerator::handle_method_call_arguments_for_super(FunctionCall& node
 bool NewCodeGenerator::is_special_built_in(const std::string& func_name) {
     static const std::unordered_set<std::string> built_ins = {
         "AS_INT", "AS_FLOAT", "AS_STRING", "AS_LIST",
-        "FIND", "MAP", "FILTER",
+        "FIND", "MAP", "FILTER", "LEN",
     };
     return built_ins.count(func_name);
 }
@@ -187,7 +187,53 @@ void NewCodeGenerator::handle_special_built_in_call(FunctionCall& node, const st
     
     // MIN/MAX/SUM are now handled as regular function calls that get converted to statements during parsing
 
-    if (function_name == "AS_INT" || function_name == "AS_FLOAT" || function_name == "AS_STRING" || function_name == "AS_LIST") {
+    if (function_name == "LEN") {
+        if (node.arguments.size() != 1) {
+            throw std::runtime_error("LEN expects exactly one argument.");
+        }
+        
+        debug_print("Generating code for LEN intrinsic function.");
+        
+        // Generate code for the argument (should be a vector/string/list)
+        generate_expression_code(*node.arguments[0]);
+        std::string operand_reg = expression_result_reg_;
+        
+        // Get the operand type to determine how to read the length
+        VarType operand_type = infer_expression_type_local(node.arguments[0].get());
+        
+        std::string dest_reg = register_manager_.acquire_scratch_reg(*this);
+        
+        if (operand_type == VarType::PAIRS || operand_type == VarType::FPAIRS || 
+            operand_type == VarType::QUADS || operand_type == VarType::FQUADS ||
+            operand_type == VarType::POINTER_TO_PAIRS || operand_type == VarType::POINTER_TO_FPAIRS ||
+            operand_type == VarType::POINTER_TO_QUADS || operand_type == VarType::POINTER_TO_FQUADS ||
+            operand_type == VarType::VEC ||
+            operand_type == VarType::STRING || operand_type == VarType::POINTER_TO_STRING) {
+            
+            // For vectors, strings, and tables: length is stored 8 bytes before the data pointer
+            std::string base_addr_reg = register_manager_.acquire_scratch_reg(*this);
+            emit(Encoder::create_sub_imm(base_addr_reg, operand_reg, 8));
+            Instruction ldr_instr = Encoder::create_ldr_imm(dest_reg, base_addr_reg, 0, "Load vector/string length");
+            ldr_instr.nopeep = true; // Protect from peephole optimization
+            emit(ldr_instr);
+            register_manager_.release_register(base_addr_reg);
+            
+        } else if (operand_type == VarType::LIST || operand_type == VarType::POINTER_TO_LIST_NODE) {
+            // For lists: length is at offset 24 in the ListHeader struct
+            Instruction ldr_instr = Encoder::create_ldr_imm(dest_reg, operand_reg, 24, "Load list length");
+            ldr_instr.nopeep = true; // Protect from peephole optimization  
+            emit(ldr_instr);
+        } else {
+            throw std::runtime_error("LEN() called on unsupported type: " + vartype_to_string(operand_type));
+        }
+        
+        register_manager_.release_register(operand_reg);
+        expression_result_reg_ = dest_reg;
+        
+        debug_print("LEN intrinsic completed, result in register: " + dest_reg);
+        return;
+        
+    } else if (function_name == "AS_INT" || function_name == "AS_FLOAT" || function_name == "AS_STRING" || function_name == "AS_LIST") {
         if (node.arguments.size() != 1) {
             throw std::runtime_error(function_name + " expects exactly one argument.");
         }

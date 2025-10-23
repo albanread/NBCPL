@@ -1,0 +1,49 @@
+// Test PAIRS allocation and length storage to debug the LEN() issue
+// This will help us understand how PAIRS allocation works and where the length is stored
+
+LET START() BE $(
+
+    WRITEF("=== PAIRS Allocation Debug Test ===*N")
+
+    // Test 1: Create a small PAIRS vector
+    WRITEF("Creating PAIRS(3)...*N")
+    LET V1 = PAIRS(3)
+    WRITEF("V1 pointer = %X*N", V1)
+
+    // Test 2: Manually check what's at ptr-8 (where length should be)
+    LET ptr_minus_8 = V1 - 8
+    WRITEF("V1 - 8 = %X*N", ptr_minus_8)
+
+    // Test 3: Read the raw bytes at that location
+    LET length_ptr = V1 - 1  // Back up by 1 64-bit word
+    LET stored_length = !length_ptr
+    WRITEF("Value at V1[-1] = %N*N", stored_length)
+
+    // Test 4: Try LEN() function
+    LET len_result = LEN(V1)
+    WRITEF("LEN(V1) = %N*N", len_result)
+
+    // Test 5: Check if allocation is working by writing/reading data
+    WRITEF("Testing vector access...*N")
+    V1!0 := PAIR(100, 200)
+    V1!1 := PAIR(300, 400)
+    V1!2 := PAIR(500, 600)
+
+    WRITEF("V1[0] = %P*N", V1!0)
+    WRITEF("V1[1] = %P*N", V1!1)
+    WRITEF("V1[2] = %P*N", V1!2)
+
+    // Test 6: Compare with different sizes
+    WRITEF("*NTesting different sizes...*N")
+
+    LET V2 = PAIRS(1)
+    WRITEF("PAIRS(1): LEN = %N*N", LEN(V2))
+
+    LET V3 = PAIRS(5)
+    WRITEF("PAIRS(5): LEN = %N*N", LEN(V3))
+
+    LET V4 = PAIRS(10)
+    WRITEF("PAIRS(10): LEN = %N*N", LEN(V4))
+
+    WRITEF("*N=== Test Complete ===*N")
+$)

@@ -1,0 +1,46 @@
+LET START() BE $(
+    // Test 1: Basic vector addition with small vectors
+    LET V1 = PAIRS(5)
+    LET V2 = PAIRS(5)
+
+    FOR I=1 TO 5 DO $(
+        V1!I := PAIR(I, I*2)
+        V2!I := PAIR(I+1, I*3)
+    $)
+
+    LET V3 = V1 + V2
+
+    // Test 2: Vector subtraction
+    LET V4 = V1 - V2
+
+    // Test 3: Vector multiplication
+    LET V5 = V1 * V2
+
+    // Test 4: Larger vectors to test memory allocation
+    LET BIG1 = PAIRS(100)
+    LET BIG2 = PAIRS(100)
+
+    FOR I=1 TO 100 DO $(
+        BIG1!I := PAIR(I, I*I)
+        BIG2!I := PAIR(I*2, I*3)
+    $)
+
+    LET BIG3 = BIG1 + BIG2
+
+    // Test 5: Chain of operations
+    LET CHAIN = V1 + V2 - V3 + V4
+
+    // Test 6: Single element vectors
+    LET SINGLE1 = PAIRS(1)
+    LET SINGLE2 = PAIRS(1)
+
+    SINGLE1!1 := PAIR(42, 24)
+    SINGLE2!1 := PAIR(8, 16)
+
+    LET SINGLE_RESULT = SINGLE1 + SINGLE2
+
+    // Test 7: Zero-sized vectors (edge case)
+    // LET EMPTY1 = PAIRS(0)
+    // LET EMPTY2 = PAIRS(0)
+    // LET EMPTY_RESULT = EMPTY1 + EMPTY2
+$)

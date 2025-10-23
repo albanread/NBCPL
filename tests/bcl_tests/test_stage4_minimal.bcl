@@ -1,0 +1,10 @@
+LET START() BE {
+    WRITEF("Minimal Stage 4 Test*N")
+
+    // Test just the temp variable registration
+    LET a = PAIRS 1
+    a!0 := PAIR(1, 2)
+
+    WRITEF("Variable a initialized*N")
+    WRITEF("Test complete*N")
+}

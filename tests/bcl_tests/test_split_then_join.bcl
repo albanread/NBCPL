@@ -1,0 +1,43 @@
+LET START() BE
+$(
+   WRITES("Testing SPLIT then JOIN separately...*N")
+
+   LET S1 = "hello world test"
+   WRITES("Original string: ")
+   WRITES(S1)
+   WRITES("*N")
+
+   WRITES("Step 1: Calling SPLIT...*N")
+   LET L = SPLIT(S1, " ")
+   WRITES("SPLIT completed*N")
+
+   WRITES("Type of SPLIT result: ")
+   WRITES(TYPE(L))
+   WRITES("*N")
+
+   TEST L = 0 THEN
+   $(
+       WRITES("ERROR: SPLIT returned null - cannot proceed*N")
+   $)
+   ELSE
+   $(
+       WRITES("SPLIT returned: ")
+       WRITEN(L)
+       WRITES("*N")
+
+       WRITES("Step 2: Now calling JOIN with SPLIT result...*N")
+       LET RESULT = JOIN(L, "-")
+       WRITES("JOIN completed*N")
+
+       TEST RESULT = 0 THEN
+       $(
+           WRITES("ERROR: JOIN returned null*N")
+       $)
+       ELSE
+       $(
+           WRITES("SUCCESS: JOIN result: ")
+           WRITES(RESULT)
+           WRITES("*N")
+       $)
+   $)
+$)

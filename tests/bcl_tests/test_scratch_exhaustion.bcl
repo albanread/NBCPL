@@ -1,0 +1,69 @@
+LET START() BE
+$(
+    // Test to verify scratch register exhaustion prevention
+    // This test uses complex expressions that would normally exhaust scratch registers
+    // if evaluated left-to-right without stack-based approach
+
+    WRITEF("=== Scratch Register Exhaustion Prevention Test ===*N")
+
+    LET x1 = 10
+    LET x2 = 20
+    LET x3 = 30
+    LET x4 = 40
+    LET x5 = 50
+    LET x6 = 60
+    LET x7 = 70
+
+    // Test 1: Complex expressions that would exhaust X9-X15 (7 scratch registers)
+    // Each sub-expression needs scratch registers for evaluation
+    // Right-to-left + stack approach should prevent exhaustion
+    test_exhaustion(
+        x1 + x2 + x3,           // Needs 2-3 scratch regs
+        x2 * x3 * x4,           // Needs 2-3 scratch regs
+        x3 - x4 + x5,           // Needs 2-3 scratch regs
+        x4 + x5 - x6,           // Needs 2-3 scratch regs
+        x5 * x6 + x7,           // Needs 2-3 scratch regs
+        (x1 + x2) * (x3 - x4),  // Needs 4-5 scratch regs
+        x7 + 100                // Needs 1-2 scratch regs
+    )
+
+    // Test 2: Even more complex nested expressions
+    test_complex_nested(
+        ((x1 + x2) * x3) + x4,
+        ((x2 - x1) + (x4 * x5)) - x6,
+        (x1 * x2 * x3) + (x4 + x5 + x6),
+        x7 * ((x1 + x2 + x3) - (x4 - x5))
+    )
+
+    // Test 3: Arithmetic chains that build up register pressure
+    test_arithmetic_chains(
+        x1 + x2 + x3 + x4 + x5,
+        x1 * x2 * x3 * x4,
+        x7 - x6 - x5 - x4 - x3,
+        (x1 + x2 + x3) * (x4 + x5 + x6 + x7)
+    )
+
+    WRITEF("=== All exhaustion tests passed! ===*N")
+$)
+
+LET test_exhaustion(a1, a2, a3, a4, a5, a6, a7) BE
+$(
+    WRITEF("Exhaustion test: %N, %N, %N*N", a1, a2, a3)
+    WRITEF("                 %N, %N, %N, %N*N", a4, a5, a6, a7)
+$)
+
+LET test_complex_nested(b1, b2, b3, b4) BE
+$(
+    WRITEF("Complex nested: %N, %N, %N, %N*N", b1, b2, b3, b4)
+$)
+
+LET test_arithmetic_chains(c1, c2, c3, c4) BE
+$(
+    WRITEF("Arithmetic chains: %N, %N, %N, %N*N", c1, c2, c3, c4)
+$)
+
+// Test with routine calls to verify both function and routine call paths work
+LET test_routine_exhaustion(r1, r2, r3) BE
+$(
+    WRITEF("Routine exhaustion: %N, %N, %N*N", r1, r2, r3)
+$)

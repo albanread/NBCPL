@@ -1,0 +1,22 @@
+LET START() BE
+$(
+   WRITES("Testing JOIN function...*N")
+
+   LET L = LIST("hello", "world", "test")
+   WRITES("Created list*N")
+
+   WRITES("About to call JOIN...*N")
+   LET S = JOIN(L, " ")
+   WRITES("JOIN returned successfully*N")
+
+   TEST S = 0 THEN
+   $(
+       WRITES("ERROR: JOIN returned null*N")
+   $)
+   ELSE
+   $(
+       WRITES("JOIN result: ")
+       WRITES(S)
+       WRITES("*N")
+   $)
+$)

@@ -1,0 +1,23 @@
+LET START() BE
+$(
+   WRITES("Testing basic runtime functions...*N")
+
+   // Test basic I/O
+   WRITES("Hello from WRITES*N")
+   WRITEN(42)
+   WRITES("*N")
+
+   // Test simple math
+   LET x = RAND(100)
+   WRITES("Random number: ")
+   WRITEN(x)
+   WRITES("*N")
+
+   // Test string length
+   LET len = STRLEN("hello")
+   WRITES("Length of 'hello': ")
+   WRITEN(len)
+   WRITES("*N")
+
+   WRITES("All basic tests completed successfully!*N")
+$)

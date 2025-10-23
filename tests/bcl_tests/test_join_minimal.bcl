@@ -1,0 +1,12 @@
+LET START() BE
+$(
+   WRITES("Testing minimal JOIN...*N")
+
+   // Create a simple list
+   LET L = LIST("a", "b")
+
+   // Try to call JOIN - this should compile now
+   LET result = JOIN(L, "-")
+
+   WRITES("JOIN call completed*N")
+$)

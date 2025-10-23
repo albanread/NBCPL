@@ -1,0 +1,51 @@
+// Simple test to demonstrate scratch register exhaustion
+// Avoids WRITEF argument limits by using a custom function
+
+LET START() BE {
+    // Test with a function that takes many arguments
+    // This should expose the scratch register exhaustion problem
+    LET result = many_arg_function(
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9  // This 9th argument should cause scratch register exhaustion
+    )
+
+    // If we get here without crashing, print the result
+    WRITEF("Result: %d*N", result)
+}
+
+// Function that accepts 9 arguments to test scratch register limits
+LET many_arg_function(a, b, c, d, e, f, g, h, i) BE {
+    // Simple implementation - just sum all arguments
+    RESULTIS a + b + c + d + e + f + g + h + i
+}
+
+// Alternative test with complex expressions as arguments
+LET test_complex_args() BE {
+    LET result = complex_arg_function(
+        10 + 20,              // Complex expression 1
+        30 * 40,              // Complex expression 2
+        50 - 60,              // Complex expression 3
+        70 / 10,              // Complex expression 4
+        simple_func(),        // Function call as argument
+        another_func(),       // Another function call
+        80 + 90,              // More complexity
+        100 * 2               // 8th argument - should exhaust scratch registers
+    )
+
+    WRITEF("Complex args result: %d*N", result)
+}
+
+LET complex_arg_function(a, b, c, d, e, f, g, h) BE {
+    RESULTIS a + b + c + d + e + f + g + h
+}
+
+LET simple_func() BE RESULTIS 42
+
+LET another_func() BE RESULTIS 100

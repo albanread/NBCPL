@@ -1,0 +1,44 @@
+LET START() BE
+$(
+   WRITES("Testing JOIN type diagnosis...*N")
+
+   // First create a simple list manually using BCPL_LIST functions
+   WRITES("Creating a list manually...*N")
+   LET L = BCPL_LIST_CREATE_EMPTY()
+
+   WRITES("Adding strings to list...*N")
+   L := BCPL_LIST_APPEND_STRING(L, "hello")
+   L := BCPL_LIST_APPEND_STRING(L, "world")
+   L := BCPL_LIST_APPEND_STRING(L, "test")
+
+   WRITES("List created successfully*N")
+   WRITES("Type of list: ")
+   WRITES(TYPE(L))
+   WRITES("*N")
+
+   WRITES("Value of L: ")
+   WRITEN(L)
+   WRITES("*N")
+
+   TEST L = 0 THEN
+   $(
+       WRITES("ERROR: List is null*N")
+   $)
+   ELSE
+   $(
+       WRITES("List is non-null, now calling JOIN...*N")
+       LET RESULT = JOIN(L, "-")
+       WRITES("JOIN completed*N")
+
+       TEST RESULT = 0 THEN
+       $(
+           WRITES("ERROR: JOIN returned null*N")
+       $)
+       ELSE
+       $(
+           WRITES("JOIN result: ")
+           WRITES(RESULT)
+           WRITES("*N")
+       $)
+   $)
+$)

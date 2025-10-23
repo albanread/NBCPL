@@ -1,0 +1,14 @@
+LET START() BE $(
+
+	LET V1 = PAIRS(10)
+	LET V2 = PAIRS(10)
+
+	FOR I=1 TO 10 DO $(
+  	 V1!I := PAIR(10,10)
+         V2!I := PAIR(3,4)
+	$)
+
+	LET V3 = V1 + V2
+
+
+$)
