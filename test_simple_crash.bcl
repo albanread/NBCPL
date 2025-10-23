@@ -1,0 +1,4 @@
+// Minimal test to check for crashes
+LET START() BE $(
+	WRITEF("Hello World*N")
+$)

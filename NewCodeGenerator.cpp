@@ -797,6 +797,10 @@ VarType NewCodeGenerator::infer_expression_type_local(const Expression* expr) co
     if (auto* vec_access = dynamic_cast<const VectorAccess*>(expr)) {
         VarType vec_type = infer_expression_type_local(vec_access->vector_expr.get());
         if (vec_type == VarType::POINTER_TO_FLOAT_VEC) return VarType::FLOAT;
+        if (vec_type == VarType::POINTER_TO_PAIRS) return VarType::PAIR;
+        if (vec_type == VarType::POINTER_TO_FPAIRS) return VarType::FPAIR;
+        if (vec_type == VarType::POINTER_TO_QUADS) return VarType::QUAD;
+        if (vec_type == VarType::POINTER_TO_FQUADS) return VarType::FQUAD;
         return VarType::INTEGER; // Default for other vector types
     }
     

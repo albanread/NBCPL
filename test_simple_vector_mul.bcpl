@@ -1,0 +1,28 @@
+// Simple vector multiplication test
+LET START() BE $(
+
+	WRITEF("=== Simple Vector Multiplication Test ===*N")
+
+	// Create two PAIRS vectors
+	LET V1 = PAIRS(2)
+	LET V2 = PAIRS(2)
+
+	// Set values
+	V1!0 := PAIR(6, 8)
+	V1!1 := PAIR(10, 20)
+	V2!0 := PAIR(3, 2)
+	V2!1 := PAIR(5, 4)
+
+	WRITEF("V1!0 = %P*N", V1!0)
+	WRITEF("V1!1 = %P*N", V1!1)
+	WRITEF("V2!0 = %P*N", V2!0)
+	WRITEF("V2!1 = %P*N", V2!1)
+
+	// Vector multiplication
+	LET V3 = V1 * V2
+
+	WRITEF("*NResults:*N")
+	WRITEF("V3!0 = %P (expected (18,16))*N", V3!0)
+	WRITEF("V3!1 = %P (expected (50,80))*N", V3!1)
+
+$)

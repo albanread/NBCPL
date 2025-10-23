@@ -1,0 +1,47 @@
+// Test focusing only on PAIRS vector multiplication
+LET START() BE $(
+
+	WRITEF("=== Vector Multiplication Only Test ===*N")
+
+	// Create two PAIRS vectors with 2 elements each
+	LET V1 = PAIRS(2)
+	LET V2 = PAIRS(2)
+
+	// Set up test values
+	V1!0 := PAIR(6, 8)
+	V1!1 := PAIR(10, 20)
+	V2!0 := PAIR(3, 2)
+	V2!1 := PAIR(5, 4)
+
+	WRITEF("V1!0 = %P*N", V1!0)
+	WRITEF("V1!1 = %P*N", V1!1)
+	WRITEF("V2!0 = %P*N", V2!0)
+	WRITEF("V2!1 = %P*N", V2!1)
+
+	WRITEF("*N--- Performing V3 = V1 * V2 ---*N")
+
+	// This should trigger vector lowering for PAIRS * PAIRS
+	LET V3 = V1 * V2
+
+	WRITEF("*N=== Results ===*N")
+	WRITEF("V3!0 = %P*N", V3!0)
+	WRITEF("Expected: (6*3, 8*2) = (18, 16)*N")
+	WRITEF("V3!1 = %P*N", V3!1)
+	WRITEF("Expected: (10*5, 20*4) = (50, 80)*N")
+
+	// Test with simpler values to see pattern
+	WRITEF("*N=== Simpler Test ===*N")
+	LET VA = PAIRS(1)
+	LET VB = PAIRS(1)
+	VA!0 := PAIR(2, 3)
+	VB!0 := PAIR(4, 5)
+
+	WRITEF("VA!0 = %P*N", VA!0)
+	WRITEF("VB!0 = %P*N", VB!0)
+
+	LET VC = VA * VB
+	WRITEF("VC!0 = %P*N", VC!0)
+	WRITEF("Expected: (2*4, 3*5) = (8, 15)*N")
+
+	WRITEF("*N=== End Test ===*N")
+$)
