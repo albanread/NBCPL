@@ -10,5 +10,15 @@ LET START() BE $(
 
 	LET V3 = V1+V2
 
+	WRITEF("*NVector addition completed!*N")
+	WRITEF("Length of V3: %N*N", LEN(V3))
+
+	WRITEF("*NVerifying results:*N")
+	WRITEF("Expected: Each V3[i] = V1[i] + V2[i] = (10,10) + (3,4) = (13,14)*N")
+
+	FOR I=0 TO 9 DO $(
+		LET result_pair = V3!I
+		WRITEF("V3[%N] = %P*N", I, result_pair)
+	$)
 
 $)

@@ -1271,7 +1271,59 @@ VarType ASTAnalyzer::infer_binary_op_type(const BinaryOp* bin_op) const {
         }
     }
     
-    // Handle FPAIRS + FPAIRS operations (vector element-wise operations)
+    // Handle POINTER_TO|PAIRS + POINTER_TO|PAIRS operations (vector element-wise operations)
+    if (left_type == VarType::POINTER_TO_PAIRS && right_type == VarType::POINTER_TO_PAIRS) {
+        if (bin_op->op == BinaryOp::Operator::Add ||
+            bin_op->op == BinaryOp::Operator::Subtract ||
+            bin_op->op == BinaryOp::Operator::Multiply ||
+            bin_op->op == BinaryOp::Operator::Divide) {
+            if (trace_enabled_) {
+                std::cerr << "DEBUG: Detected POINTER_TO_PAIRS + POINTER_TO_PAIRS vector operation, result type: POINTER_TO_PAIRS" << std::endl;
+            }
+            return VarType::POINTER_TO_PAIRS;
+        }
+    }
+    
+// Handle POINTER_TO|FPAIRS + POINTER_TO|FPAIRS operations (vector element-wise operations)
+if (left_type == VarType::POINTER_TO_FPAIRS && right_type == VarType::POINTER_TO_FPAIRS) {
+    if (bin_op->op == BinaryOp::Operator::Add ||
+        bin_op->op == BinaryOp::Operator::Subtract ||
+        bin_op->op == BinaryOp::Operator::Multiply ||
+        bin_op->op == BinaryOp::Operator::Divide) {
+        if (trace_enabled_) {
+            std::cerr << "DEBUG: Detected POINTER_TO_FPAIRS + POINTER_TO_FPAIRS vector operation, result type: POINTER_TO_FPAIRS" << std::endl;
+        }
+        return VarType::POINTER_TO_FPAIRS;
+    }
+}
+
+// Handle POINTER_TO|QUADS + POINTER_TO|QUADS operations (vector element-wise operations)
+if (left_type == VarType::POINTER_TO_QUADS && right_type == VarType::POINTER_TO_QUADS) {
+    if (bin_op->op == BinaryOp::Operator::Add ||
+        bin_op->op == BinaryOp::Operator::Subtract ||
+        bin_op->op == BinaryOp::Operator::Multiply ||
+        bin_op->op == BinaryOp::Operator::Divide) {
+        if (trace_enabled_) {
+            std::cerr << "DEBUG: Detected POINTER_TO_QUADS + POINTER_TO_QUADS vector operation, result type: POINTER_TO_QUADS" << std::endl;
+        }
+        return VarType::POINTER_TO_QUADS;
+    }
+}
+
+// Handle POINTER_TO|FQUADS + POINTER_TO|FQUADS operations (vector element-wise operations)
+if (left_type == VarType::POINTER_TO_FQUADS && right_type == VarType::POINTER_TO_FQUADS) {
+    if (bin_op->op == BinaryOp::Operator::Add ||
+        bin_op->op == BinaryOp::Operator::Subtract ||
+        bin_op->op == BinaryOp::Operator::Multiply ||
+        bin_op->op == BinaryOp::Operator::Divide) {
+        if (trace_enabled_) {
+            std::cerr << "DEBUG: Detected POINTER_TO_FQUADS + POINTER_TO_FQUADS vector operation, result type: POINTER_TO_FQUADS" << std::endl;
+        }
+        return VarType::POINTER_TO_FQUADS;
+    }
+}
+
+// Handle FPAIRS + FPAIRS operations (vector element-wise operations)
     if (left_type == VarType::FPAIRS && right_type == VarType::FPAIRS) {
         if (bin_op->op == BinaryOp::Operator::Add ||
             bin_op->op == BinaryOp::Operator::Subtract ||
