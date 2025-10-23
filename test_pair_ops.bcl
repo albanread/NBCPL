@@ -1,0 +1,42 @@
+// Test individual PAIR operations to understand the semantics
+LET START() BE $(
+
+	WRITEF("=== Testing Individual PAIR Operations ===*N")
+
+	// Test 1: PAIR creation and access
+	LET p1 = PAIR(6, 8)
+	LET p2 = PAIR(3, 2)
+
+	WRITEF("p1 = %P*N", p1)
+	WRITEF("p2 = %P*N", p2)
+
+	// Test 2: PAIR addition
+	LET p_add = p1 + p2
+	WRITEF("p1 + p2 = %P*N", p_add)
+	WRITEF("Expected: (6+3, 8+2) = (9, 10)*N")
+
+	// Test 3: PAIR subtraction
+	LET p_sub = p1 - p2
+	WRITEF("p1 - p2 = %P*N", p_sub)
+	WRITEF("Expected: (6-3, 8-2) = (3, 6)*N")
+
+	// Test 4: PAIR multiplication
+	LET p_mul = p1 * p2
+	WRITEF("p1 * p2 = %P*N", p_mul)
+	WRITEF("Expected: (6*3, 8*2) = (18, 16)*N")
+
+	// Test 5: Let's see what's happening with multiplication in vectors
+	WRITEF("*NTesting in vector context:*N")
+	LET V1 = PAIRS(2)
+	LET V2 = PAIRS(2)
+	V1!0 := PAIR(6, 8)
+	V1!1 := PAIR(10, 20)
+	V2!0 := PAIR(3, 2)
+	V2!1 := PAIR(5, 4)
+
+	LET V3 = V1 * V2
+	WRITEF("V3!0 = %P (expected (18,16))*N", V3!0)
+	WRITEF("V3!1 = %P (expected (50,80))*N", V3!1)
+
+	WRITEF("*N=== Test Complete ===*N")
+$)

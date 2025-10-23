@@ -1,0 +1,48 @@
+// Test to prove type inference error for PAIR literals
+LET START() BE $(
+
+	WRITEF("=== Type Inference Test ===*N")
+
+	// Test 1: Direct PAIR literals
+	WRITEF("1. Testing direct PAIR literals:*N")
+	LET direct_result = PAIR(6, 8) * PAIR(3, 2)
+	WRITEF("   Result: %P*N", direct_result)
+	WRITEF("   Type of direct result: ")
+	WRITES(TYPE(direct_result))
+	WRITEF("*N")
+
+	// Test 2: PAIR variables
+	WRITEF("2. Testing PAIR variables:*N")
+	LET p1 = PAIR(6, 8)
+	LET p2 = PAIR(3, 2)
+	WRITEF("   Type of p1: ")
+	WRITES(TYPE(p1))
+	WRITEF("*N")
+	WRITEF("   Type of p2: ")
+	WRITES(TYPE(p2))
+	WRITEF("*N")
+
+	LET var_result = p1 * p2
+	WRITEF("   Result: %P*N", var_result)
+	WRITEF("   Type of var result: ")
+	WRITES(TYPE(var_result))
+	WRITEF("*N")
+
+	// Test 3: Direct PAIR literal (just one)
+	WRITEF("3. Testing single PAIR literal:*N")
+	LET single_pair = PAIR(6, 8)
+	WRITEF("   Type of PAIR(6,8): ")
+	WRITES(TYPE(single_pair))
+	WRITEF("*N")
+
+	// Test 4: Type of the literal expression itself
+	WRITEF("4. Testing literal expression type:*N")
+	WRITEF("   Type of PAIR(6,8) * PAIR(3,2): ")
+	WRITES(TYPE(PAIR(6, 8) * PAIR(3, 2)))
+	WRITEF("*N")
+
+	WRITEF("*N=== Expected Types ===*N")
+	WRITEF("PAIR should be: 16 (PAIR type)*N")
+	WRITEF("INTEGER should be: 1 (INTEGER type)*N")
+
+$)

@@ -675,6 +675,26 @@ VarType NewCodeGenerator::infer_expression_type_local(const Expression* expr) co
         return static_cast<VarType>(static_cast<int64_t>(VarType::POINTER_TO) | static_cast<int64_t>(VarType::ANY));
     }
     
+    // Handle PAIR expressions
+    if (dynamic_cast<const PairExpression*>(expr)) {
+        return VarType::PAIR;
+    }
+    
+    // Handle FPAIR expressions
+    if (dynamic_cast<const FPairExpression*>(expr)) {
+        return VarType::FPAIR;
+    }
+    
+    // Handle QUAD expressions
+    if (dynamic_cast<const QuadExpression*>(expr)) {
+        return VarType::QUAD;
+    }
+    
+    // Handle FQUAD expressions
+    if (dynamic_cast<const FQuadExpression*>(expr)) {
+        return VarType::FQUAD;
+    }
+    
     // Handle variable access using pre-computed metrics
     if (auto* var = dynamic_cast<const VariableAccess*>(expr)) {
         // Look up variable type from function metrics

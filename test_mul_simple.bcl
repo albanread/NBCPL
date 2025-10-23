@@ -1,0 +1,20 @@
+// Very simple multiplication test to isolate the issue
+LET START() BE $(
+	// Test 1: Direct PAIR multiplication (should work)
+	WRITEF("Direct PAIR multiplication:*N")
+	LET result1 = PAIR(6, 8) * PAIR(3, 2)
+	WRITEF("PAIR(6,8) * PAIR(3,2) = %P*N", result1)
+
+	// Test 2: PAIR multiplication with variables
+	WRITEF("PAIR multiplication with variables:*N")
+	LET p1 = PAIR(6, 8)
+	LET p2 = PAIR(3, 2)
+	LET result2 = p1 * p2
+	WRITEF("p1 * p2 = %P*N", result2)
+
+	// Test 3: After vector allocation
+	WRITEF("After vector allocation:*N")
+	LET v = PAIRS(1)
+	LET result3 = PAIR(6, 8) * PAIR(3, 2)
+	WRITEF("PAIR(6,8) * PAIR(3,2) = %P*N", result3)
+$)

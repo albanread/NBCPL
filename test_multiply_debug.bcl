@@ -1,0 +1,48 @@
+// Isolated multiplication test to debug the vector lowering issue
+LET START() BE $(
+
+	WRITEF("=== Multiplication Debug Test ===*N")
+
+	// Test 1: Individual PAIR multiplication (known to work)
+	WRITEF("1. Testing individual PAIR multiplication:*N")
+	LET p1 = PAIR(6, 8)
+	LET p2 = PAIR(3, 2)
+	LET p_result = p1 * p2
+	WRITEF("   PAIR(6,8) * PAIR(3,2) = %P*N", p_result)
+	WRITEF("   Expected: (18, 16)*N")
+
+	// Test 2: Single element vector multiplication
+	WRITEF("2. Testing single element vector multiplication:*N")
+	LET V1_single = PAIRS(1)
+	LET V2_single = PAIRS(1)
+	V1_single!0 := PAIR(6, 8)
+	V2_single!0 := PAIR(3, 2)
+
+	WRITEF("   Before: V1_single!0 = %P, V2_single!0 = %P*N", V1_single!0, V2_single!0)
+	LET V3_single = V1_single * V2_single
+	WRITEF("   After:  V3_single!0 = %P*N", V3_single!0)
+	WRITEF("   Expected: (18, 16)*N")
+
+	// Test 3: Two element vector multiplication (the failing case)
+	WRITEF("3. Testing two element vector multiplication:*N")
+	LET V1_double = PAIRS(2)
+	LET V2_double = PAIRS(2)
+	V1_double!0 := PAIR(6, 8)
+	V1_double!1 := PAIR(10, 20)
+	V2_double!0 := PAIR(3, 2)
+	V2_double!1 := PAIR(5, 4)
+
+	WRITEF("   Before: V1_double!0 = %P, V1_double!1 = %P*N", V1_double!0, V1_double!1)
+	WRITEF("   Before: V2_double!0 = %P, V2_double!1 = %P*N", V2_double!0, V2_double!1)
+
+	LET V3_double = V1_double * V2_double
+	WRITEF("   After:  V3_double!0 = %P (expected (18,16))*N", V3_double!0)
+	WRITEF("   After:  V3_double!1 = %P (expected (50,80))*N", V3_double!1)
+
+	// Test 4: Let's manually verify what we expect vs what we get
+	WRITEF("4. Manual verification:*N")
+	WRITEF("   Element 0: PAIR(6,8) * PAIR(3,2) should be (6*3, 8*2) = (18, 16)*N")
+	WRITEF("   Element 1: PAIR(10,20) * PAIR(5,4) should be (10*5, 20*4) = (50, 80)*N")
+
+	WRITEF("*N=== Debug Test Complete ===*N")
+$)

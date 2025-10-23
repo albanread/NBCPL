@@ -1,0 +1,83 @@
+// Debug test to trace type inference step by step
+LET START() BE $(
+
+	WRITEF("=== Detailed Type Inference Debug ===*N")
+
+	// Test 1: Simple PAIR variable
+	WRITEF("1. Simple PAIR variable:*N")
+	LET p1 = PAIR(6, 8)
+	WRITEF("   p1 = %P*N", p1)
+	WRITEF("   TYPE(p1) = ")
+	WRITES(TYPE(p1))
+	WRITEF("*N")
+
+	// Test 2: Another PAIR variable
+	WRITEF("2. Another PAIR variable:*N")
+	LET p2 = PAIR(3, 2)
+	WRITEF("   p2 = %P*N", p2)
+	WRITEF("   TYPE(p2) = ")
+	WRITES(TYPE(p2))
+	WRITEF("*N")
+
+	// Test 3: PAIR variable multiplication
+	WRITEF("3. PAIR variable multiplication:*N")
+	LET result_vars = p1 * p2
+	WRITEF("   p1 * p2 = %P*N", result_vars)
+	WRITEF("   TYPE(p1 * p2) = ")
+	WRITES(TYPE(result_vars))
+	WRITEF("*N")
+
+	// Test 4: Direct PAIR literal (just one)
+	WRITEF("4. Single direct PAIR literal:*N")
+	LET single_literal = PAIR(6, 8)
+	WRITEF("   PAIR(6,8) = %P*N", single_literal)
+	WRITEF("   TYPE(PAIR(6,8)) = ")
+	WRITES(TYPE(single_literal))
+	WRITEF("*N")
+
+	// Test 5: Immediate PAIR literal multiplication
+	WRITEF("5. Immediate PAIR literal multiplication:*N")
+	LET result_literals = PAIR(6, 8) * PAIR(3, 2)
+	WRITEF("   PAIR(6,8) * PAIR(3,2) = %P*N", result_literals)
+	WRITEF("   TYPE(PAIR(6,8) * PAIR(3,2)) = ")
+	WRITES(TYPE(result_literals))
+	WRITEF("*N")
+
+	// Test 6: Step by step breakdown
+	WRITEF("6. Step by step breakdown:*N")
+	WRITEF("   Left operand PAIR(6,8):*N")
+	LET left_op = PAIR(6, 8)
+	WRITEF("     Value: %P*N", left_op)
+	WRITEF("     Type: ")
+	WRITES(TYPE(left_op))
+	WRITEF("*N")
+
+	WRITEF("   Right operand PAIR(3,2):*N")
+	LET right_op = PAIR(3, 2)
+	WRITEF("     Value: %P*N", right_op)
+	WRITEF("     Type: ")
+	WRITES(TYPE(right_op))
+	WRITEF("*N")
+
+	WRITEF("   Multiplication result:*N")
+	LET step_result = left_op * right_op
+	WRITEF("     Value: %P*N", step_result)
+	WRITEF("     Type: ")
+	WRITES(TYPE(step_result))
+	WRITEF("*N")
+
+	// Test 7: Compare with expected
+	WRITEF("*N7. Summary of results:*N")
+	WRITEF("   Variable mult: %P (type: ", result_vars)
+	WRITES(TYPE(result_vars))
+	WRITEF(")*N")
+	WRITEF("   Literal mult:  %P (type: ", result_literals)
+	WRITES(TYPE(result_literals))
+	WRITEF(")*N")
+	WRITEF("   Step mult:     %P (type: ", step_result)
+	WRITES(TYPE(step_result))
+	WRITEF(")*N")
+
+	WRITEF("*NExpected behavior: All should be (18,16) with type PAIR*N")
+
+$)

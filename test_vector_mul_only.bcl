@@ -1,0 +1,26 @@
+// Minimal test focusing only on vector multiplication
+LET START() BE $(
+
+	WRITEF("=== Vector Multiplication Only Test ===*N")
+
+	// Create two simple vectors with one element each
+	LET V1 = PAIRS(1)
+	LET V2 = PAIRS(1)
+
+	// Set simple values
+	V1!0 := PAIR(6, 8)
+	V2!0 := PAIR(3, 2)
+
+	WRITEF("V1!0 = %P*N", V1!0)
+	WRITEF("V2!0 = %P*N", V2!0)
+
+	// This should trigger the vector lowering pass
+	LET V3 = V1 * V2
+
+	WRITEF("V3!0 = %P*N", V3!0)
+	WRITEF("Expected: (18, 16)*N")
+	// Manual verification - this should work correctly
+	LET manual_result = V1!0 * V2!0
+	WRITEF("Manual PAIR multiplication: %P*N", manual_result)
+
+$)
