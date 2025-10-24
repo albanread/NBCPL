@@ -26529,10 +26529,11 @@ std::unique_ptr<BlockStatement> VectorPairwiseLowerer::lowerVectorOperation(cons
     // Step 3: Create optimized loops for 128-bit NEON operations
     // For PAIRS vectors, process 2 elements at a time (128-bit) when possible
     
-    if (base_vector_type == VarType::PAIRS || base_vector_type == VarType::POINTER_TO_PAIRS) {
-        // Generate 128-bit optimized loop for pairs of PAIR elements
+    if (base_vector_type == VarType::PAIRS || base_vector_type == VarType::POINTER_TO_PAIRS || 
+        base_vector_type == VarType::FPAIRS || base_vector_type == VarType::POINTER_TO_FPAIRS) {
+        // Generate 128-bit optimized loop for pairs of elements
         
-        // Main loop: Process 2 PAIRs at a time using 128-bit NEON (for even lengths >= 2)
+        // Main loop: Process 2 elements at a time using 128-bit NEON (for even lengths >= 2)
         auto main_loop_body = std::make_unique<BlockStatement>(
             std::vector<DeclPtr>{}, std::vector<StmtPtr>{}
         );
