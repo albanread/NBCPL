@@ -1,0 +1,65 @@
+// Simple test for QUADS allocation and basic operations
+// This test verifies that QUADS can be allocated and accessed correctly
+
+LET start() BE {
+    WRITEF("Testing QUADS allocation and basic operations*N");
+
+    // Test 1: Basic QUADS allocation
+    WRITEF("1. Testing QUADS allocation...*N");
+    LET q_vec = QUADS(3);  // Allocate vector of 3 QUADs
+    WRITEF("   QUADS(3) returned: %N*N", q_vec);
+
+    TEST q_vec <> 0 THEN {
+        WRITEF("   ✓ QUADS allocation successful*N");
+
+        // Test 2: Check vector length
+        LET len = LEN(q_vec);
+        WRITEF("   LEN(q_vec) = %N*N", len);
+        TEST len = 3 THEN {
+            WRITEF("   ✓ Vector length correct*N");
+        } ELSE {
+            WRITEF("   ✗ Vector length incorrect (expected 3, got %N)*N", len);
+        }
+
+        // Test 3: Basic assignment to vector elements
+        WRITEF("2. Testing QUADS vector element assignment...*N");
+        q_vec!0 := QUAD(1, 2, 3, 4);
+        q_vec!1 := QUAD(10, 20, 30, 40);
+        q_vec!2 := QUAD(100, 200, 300, 400);
+        WRITEF("   ✓ Assigned values to q_vec[0], q_vec[1], q_vec[2]*N");
+
+        // Test 4: Basic access to vector elements
+        WRITEF("3. Testing QUADS vector element access...*N");
+        LET q0 = q_vec!0;
+        LET q1 = q_vec!1;
+        LET q2 = q_vec!2;
+        WRITEF("   q_vec[0] = %N (QUAD)*N", q0);
+        WRITEF("   q_vec[1] = %N (QUAD)*N", q1);
+        WRITEF("   q_vec[2] = %N (QUAD)*N", q2);
+
+        // Test 5: QUAD element access
+        WRITEF("4. Testing QUAD element access...*N");
+        LET q0_first = q0.FIRST;
+        LET q0_second = q0.SECOND;
+        LET q0_third = q0.THIRD;
+        LET q0_fourth = q0.FOURTH;
+        WRITEF("   q_vec[0].FIRST = %N*N", q0_first);
+        WRITEF("   q_vec[0].SECOND = %N*N", q0_second);
+        WRITEF("   q_vec[0].THIRD = %N*N", q0_third);
+        WRITEF("   q_vec[0].FOURTH = %N*N", q0_fourth);
+
+        TEST q0_first = 1 & q0_second = 2 & q0_third = 3 & q0_fourth = 4 THEN {
+            WRITEF("   ✓ QUAD element access correct*N");
+        } ELSE {
+            WRITEF("   ✗ QUAD element access incorrect*N");
+        }
+
+        FREEVEC(q_vec);
+        WRITEF("   ✓ FREEVEC successful*N");
+
+    } ELSE {
+        WRITEF("   ✗ QUADS allocation failed*N");
+    }
+
+    WRITEF("*NQUADS basic test completed.*N");
+}

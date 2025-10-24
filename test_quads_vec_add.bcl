@@ -1,0 +1,102 @@
+// Test for QUADS vector addition using NEON operations
+// This test verifies that QUADS vector arithmetic works with 128-bit NEON optimization
+
+LET start() BE {
+    WRITEF("Testing QUADS vector addition with NEON optimization*N");
+
+    // Test: QUADS vector addition
+    WRITEF("1. Creating test vectors...*N");
+
+    LET V1 = QUADS(6);  // First vector - 6 QUADs
+    LET V2 = QUADS(6);  // Second vector - 6 QUADs
+
+    TEST V1 <> 0 & V2 <> 0 THEN {
+        WRITEF("   ✓ QUADS vectors allocated successfully*N");
+
+        // Initialize V1 with test data
+        V1!0 := QUAD(1, 2, 3, 4);
+        V1!1 := QUAD(5, 6, 7, 8);
+        V1!2 := QUAD(10, 11, 12, 13);
+        V1!3 := QUAD(20, 21, 22, 23);
+        V1!4 := QUAD(30, 31, 32, 33);
+        V1!5 := QUAD(40, 41, 42, 43);
+
+        // Initialize V2 with test data
+        V2!0 := QUAD(100, 200, 300, 400);
+        V2!1 := QUAD(110, 210, 310, 410);
+        V2!2 := QUAD(120, 220, 320, 420);
+        V2!3 := QUAD(130, 230, 330, 430);
+        V2!4 := QUAD(140, 240, 340, 440);
+        V2!5 := QUAD(150, 250, 350, 450);
+
+        WRITEF("   ✓ Test data initialized*N");
+
+        // Perform vector addition (should use 128-bit NEON operations)
+        WRITEF("2. Performing QUADS vector addition: V3 = V1 + V2*N");
+        LET V3 = V1 + V2;
+
+        TEST V3 <> 0 THEN {
+            WRITEF("   ✓ Vector addition completed*N");
+
+            // Verify results
+            WRITEF("3. Verifying results...*N");
+
+            FOR i = 0 TO LEN(V3) - 1 DO {
+                LET result_quad = V3!i;
+                LET v1_quad = V1!i;
+                LET v2_quad = V2!i;
+
+                // Extract elements for verification
+                LET r_first = result_quad.FIRST;
+                LET r_second = result_quad.SECOND;
+                LET r_third = result_quad.THIRD;
+                LET r_fourth = result_quad.FOURTH;
+
+                LET v1_first = v1_quad.FIRST;
+                LET v1_second = v1_quad.SECOND;
+                LET v1_third = v1_quad.THIRD;
+                LET v1_fourth = v1_quad.FOURTH;
+
+                LET v2_first = v2_quad.FIRST;
+                LET v2_second = v2_quad.SECOND;
+                LET v2_third = v2_quad.THIRD;
+                LET v2_fourth = v2_quad.FOURTH;
+
+                // Calculate expected values
+                LET expected_first = v1_first + v2_first;
+                LET expected_second = v1_second + v2_second;
+                LET expected_third = v1_third + v2_third;
+                LET expected_fourth = v1_fourth + v2_fourth;
+
+                WRITEF("   V3[%N]: (%N,%N,%N,%N) ", i, r_first, r_second, r_third, r_fourth);
+
+                TEST r_first = expected_first & r_second = expected_second &
+                     r_third = expected_third & r_fourth = expected_fourth THEN {
+                    WRITEF("✓*N");
+                } ELSE {
+                    WRITEF("✗ Expected: (%N,%N,%N,%N)*N",
+                           expected_first, expected_second, expected_third, expected_fourth);
+                }
+            }
+
+            WRITEF("4. Performance note: This should use 128-bit NEON operations*N");
+            WRITEF("   - Each 128-bit operation processes 2 QUADs simultaneously*N");
+            WRITEF("   - Uses .8H arrangement (8×16-bit integers)*N");
+
+            FREEVEC(V3);
+            WRITEF("   ✓ Result vector freed*N");
+
+        } ELSE {
+            WRITEF("   ✗ Vector addition failed*N");
+        }
+
+        FREEVEC(V1);
+        FREEVEC(V2);
+        WRITEF("   ✓ Input vectors freed*N");
+
+    } ELSE {
+        WRITEF("   ✗ Vector allocation failed*N");
+    }
+
+    WRITEF("*NQUADS vector addition test completed.*N");
+}

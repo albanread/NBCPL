@@ -1,0 +1,16 @@
+// Minimal test to check if QUADS parsing works
+// This test just checks if the parser can handle QUADS syntax
+
+LET start() BE {
+    WRITEF("Testing QUADS parsing...*N");
+
+    // Test 1: Basic QUADS allocation
+    LET q_vec = QUADS(1);
+    WRITEF("QUADS(1) allocated successfully*N");
+
+    // Test 2: Check if we can access length
+    LET len = LEN(q_vec);
+    WRITEF("Length of QUADS vector: %N*N", len);
+
+    WRITEF("QUADS parsing test completed.*N");
+}

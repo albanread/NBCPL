@@ -1,0 +1,20 @@
+LET START() BE $(
+
+	LET V1 = QUADS(3)
+
+	FOR I=0 TO 2 DO $(
+  	 V1!I := QUAD(1,2,3,4)
+	$)
+
+	WRITEF("*NQUADS allocation completed!*N")
+	WRITEF("Length of V1: %N*N", LEN(V1))
+
+	WRITEF("*NVerifying results:*N")
+	FOR I=0 TO 2 DO $(
+		LET result_quad = V1!I
+		WRITEF("V1[%N] = (%N,%N,%N,%N)*N", I, result_quad.|0|, result_quad.|1|, result_quad.|2|, result_quad.|3|)
+	$)
+
+	FREEVEC(V1)
+	WRITEF("QUADS test completed successfully!*N")
+$)

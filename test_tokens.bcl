@@ -1,0 +1,40 @@
+// Test to see which tokens are being recognized
+// This test will help diagnose token recognition issues
+
+LET start() BE {
+    WRITEF("Testing token recognition...*N");
+
+    // Test 1: Try VEC (should work)
+    WRITEF("Testing VEC...*N");
+    LET v1 = VEC(1);
+    WRITEF("VEC works*N");
+
+    // Test 2: Try PAIRS (should work)
+    WRITEF("Testing PAIRS...*N");
+    LET p1 = PAIRS(1);
+    WRITEF("PAIRS works*N");
+
+    // Test 3: Try FPAIRS (should work)
+    WRITEF("Testing FPAIRS...*N");
+    LET fp1 = FPAIRS(1);
+    WRITEF("FPAIRS works*N");
+
+    // Test 4: Try basic QUAD construction (should work)
+    WRITEF("Testing QUAD construction...*N");
+    LET q1 = QUAD(1, 2, 3, 4);
+    WRITEF("QUAD construction works*N");
+
+    // Test 5: Try FQUAD construction (should work)
+    WRITEF("Testing FQUAD construction...*N");
+    LET fq1 = FQUAD(1, 2, 3, 4);
+    WRITEF("FQUAD construction works*N");
+
+    WRITEF("All basic tokens work. Now testing allocation...*N");
+
+    // Test 6: This is where QUADS might fail
+    // WRITEF("Testing QUADS allocation...*N");
+    // LET qvec = QUADS(1);
+    // WRITEF("QUADS works*N");
+
+    WRITEF("Token recognition test completed.*N");
+}

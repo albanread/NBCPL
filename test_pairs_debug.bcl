@@ -1,0 +1,16 @@
+LET START() BE $(
+
+	WRITEF("*NPAIRS Debug Test - Baseline Comparison*N")
+
+	// Test 1: Simple PAIRS allocation
+	WRITEF("1. Testing PAIRS allocation...*N")
+	LET V1 = PAIRS(1)
+	WRITEF("   PAIRS(1) allocated*N")
+
+	// Test 2: Try to get length (this should work)
+	WRITEF("2. Testing LEN on PAIRS...*N")
+	LET len = LEN(V1)
+	WRITEF("   Length: %N*N", len)
+
+	WRITEF("PAIRS debug test completed.*N")
+$)

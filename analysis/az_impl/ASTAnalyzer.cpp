@@ -766,6 +766,8 @@ VarType ASTAnalyzer::infer_expression_type(const Expression* expr) const {
             case ASTNode::NodeType::FVecAllocationExpr:
             case ASTNode::NodeType::PairsAllocationExpr:
             case ASTNode::NodeType::FPairsAllocationExpr:
+            case ASTNode::NodeType::QuadsAllocationExpr:
+            case ASTNode::NodeType::FQuadsAllocationExpr:
             case ASTNode::NodeType::StringAllocationExpr:
                 return infer_allocation_type(expr);
                 
@@ -1007,6 +1009,24 @@ VarType ASTAnalyzer::infer_function_call_type(const FunctionCall* func_call) con
                     std::cerr << "DEBUG: SUM() inferred return type: FPAIR (element of FPAIRS)" << std::endl;
                 }
                 return VarType::FPAIR;
+            }
+            
+            // If arguments are QUADS vectors, return QUAD (single element)
+            if (arg_type == VarType::QUADS || 
+                (static_cast<int64_t>(arg_type) & static_cast<int64_t>(VarType::QUADS)) != 0) {
+                if (trace_enabled_) {
+                    std::cerr << "DEBUG: SUM() inferred return type: QUAD (element of QUADS)" << std::endl;
+                }
+                return VarType::QUAD;
+            }
+            
+            // If arguments are FQUADS vectors, return FQUAD (single element)
+            if (arg_type == VarType::FQUADS || 
+                (static_cast<int64_t>(arg_type) & static_cast<int64_t>(VarType::FQUADS)) != 0) {
+                if (trace_enabled_) {
+                    std::cerr << "DEBUG: SUM() inferred return type: FQUAD (element of FQUADS)" << std::endl;
+                }
+                return VarType::FQUAD;
             }
             // If arguments are VEC OF INTEGER, return INTEGER
             else if ((static_cast<int64_t>(arg_type) & static_cast<int64_t>(VarType::VEC)) != 0 &&
@@ -1335,6 +1355,32 @@ if (left_type == VarType::POINTER_TO_FQUADS && right_type == VarType::POINTER_TO
             return VarType::FPAIRS;
         }
     }
+
+    // Handle QUADS + QUADS operations (vector element-wise operations)
+    if (left_type == VarType::QUADS && right_type == VarType::QUADS) {
+        if (bin_op->op == BinaryOp::Operator::Add ||
+            bin_op->op == BinaryOp::Operator::Subtract ||
+            bin_op->op == BinaryOp::Operator::Multiply ||
+            bin_op->op == BinaryOp::Operator::Divide) {
+            if (trace_enabled_) {
+                std::cerr << "DEBUG: Detected QUADS + QUADS vector operation, result type: QUADS" << std::endl;
+            }
+            return VarType::QUADS;
+        }
+    }
+
+    // Handle FQUADS + FQUADS operations (vector element-wise operations)
+    if (left_type == VarType::FQUADS && right_type == VarType::FQUADS) {
+        if (bin_op->op == BinaryOp::Operator::Add ||
+            bin_op->op == BinaryOp::Operator::Subtract ||
+            bin_op->op == BinaryOp::Operator::Multiply ||
+            bin_op->op == BinaryOp::Operator::Divide) {
+            if (trace_enabled_) {
+                std::cerr << "DEBUG: Detected FQUADS + FQUADS vector operation, result type: FQUADS" << std::endl;
+            }
+            return VarType::FQUADS;
+        }
+    }
     
     // Handle QUADS + QUADS operations (vector element-wise operations)
     if (left_type == VarType::QUADS && right_type == VarType::QUADS) {
@@ -1591,6 +1637,16 @@ VarType ASTAnalyzer::infer_access_type(const Expression* expr) const {
             return VarType::FPAIR;
         }
         
+        // Handle QUADS vector access - return QUAD for each element
+        if ((static_cast<int64_t>(vector_type) & static_cast<int64_t>(VarType::QUADS)) != 0) {
+            return VarType::QUAD;
+        }
+        
+        // Handle FQUADS vector access - return FQUAD for each element
+        if ((static_cast<int64_t>(vector_type) & static_cast<int64_t>(VarType::FQUADS)) != 0) {
+            return VarType::FQUAD;
+        }
+        
         // Handle QUAD vector access - return QUAD for each element
         if ((static_cast<int64_t>(vector_type) & static_cast<int64_t>(VarType::QUAD)) != 0) {
             return VarType::QUAD;
@@ -1639,6 +1695,14 @@ VarType ASTAnalyzer::infer_allocation_type(const Expression* expr) const {
     
     if (dynamic_cast<const FPairsAllocationExpression*>(expr)) {
         return VarType::POINTER_TO_FPAIRS;
+    }
+    
+    if (dynamic_cast<const QuadsAllocationExpression*>(expr)) {
+        return VarType::POINTER_TO_QUADS;
+    }
+    
+    if (dynamic_cast<const FQuadsAllocationExpression*>(expr)) {
+        return VarType::POINTER_TO_FQUADS;
     }
     
     if (dynamic_cast<const StringAllocationExpression*>(expr)) {

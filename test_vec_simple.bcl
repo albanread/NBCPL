@@ -1,0 +1,28 @@
+// Simple test to verify VEC allocation works (baseline test)
+// This test checks if the basic VEC parsing and allocation is functional
+
+LET start() BE {
+    WRITEF("Testing VEC allocation...*N");
+
+    // Test 1: Basic VEC allocation
+    LET v_vec = VEC(3);
+    WRITEF("VEC(3) allocated successfully*N");
+
+    // Test 2: Check if we can access length
+    LET len = LEN(v_vec);
+    WRITEF("Length of VEC vector: %N*N", len);
+
+    // Test 3: Basic assignment
+    v_vec!0 := 10;
+    v_vec!1 := 20;
+    v_vec!2 := 30;
+    WRITEF("Assigned values to vector*N");
+
+    // Test 4: Basic access
+    WRITEF("v_vec[0] = %N*N", v_vec!0);
+    WRITEF("v_vec[1] = %N*N", v_vec!1);
+    WRITEF("v_vec[2] = %N*N", v_vec!2);
+
+    FREEVEC(v_vec);
+    WRITEF("VEC test completed.*N");
+}

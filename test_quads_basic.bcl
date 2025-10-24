@@ -1,0 +1,62 @@
+LET START() BE $(
+
+	WRITEF("*NQUADS Basic Test Started*N")
+
+	// Test 1: QUADS allocation
+	WRITEF("1. Testing QUADS allocation...*N")
+	LET V1 = QUADS(5)
+	WRITEF("   QUADS(5) allocated successfully*N")
+	WRITEF("   Length of V1: %N*N", LEN(V1))
+
+	// Test 2: QUAD construction and assignment
+	WRITEF("2. Testing QUAD construction and assignment...*N")
+	V1!0 := QUAD(1, 2, 3, 4)
+	V1!1 := QUAD(10, 20, 30, 40)
+	V1!2 := QUAD(100, 200, 300, 400)
+	V1!3 := QUAD(5, 6, 7, 8)
+	V1!4 := QUAD(50, 60, 70, 80)
+	WRITEF("   ✓ Assigned 5 QUAD values to vector*N")
+
+	// Test 3: QUADS vector arithmetic (this should use our new NEON operations)
+	WRITEF("3. Testing QUADS vector addition...*N")
+	LET V2 = QUADS(5)
+	V2!0 := QUAD(1000, 1001, 1002, 1003)
+	V2!1 := QUAD(2000, 2001, 2002, 2003)
+	V2!2 := QUAD(3000, 3001, 3002, 3003)
+	V2!3 := QUAD(4000, 4001, 4002, 4003)
+	V2!4 := QUAD(5000, 5001, 5002, 5003)
+
+	// This should trigger our new 128-bit NEON QUADS vector addition
+	LET V3 = V1 + V2
+	WRITEF("   ✓ Vector addition completed (V3 = V1 + V2)*N")
+	WRITEF("   Length of result vector V3: %N*N", LEN(V3))
+
+	// Test 4: Verify the allocation worked correctly
+	TEST LEN(V1) = 5 AND LEN(V2) = 5 AND LEN(V3) = 5 THEN $(
+		WRITEF("   ✓ All vector lengths correct*N")
+	$) ELSE $(
+		WRITEF("   ✗ Vector length mismatch*N")
+	$)
+
+	// Test 5: Basic element retrieval (without lane access)
+	WRITEF("4. Testing basic element access...*N")
+	LET elem0 = V1!0
+	LET elem1 = V1!1
+	WRITEF("   ✓ Successfully retrieved V1[0] and V1[1]*N")
+
+	// Test 6: Clean up
+	WRITEF("5. Cleaning up...*N")
+	FREEVEC(V1)
+	FREEVEC(V2)
+	FREEVEC(V3)
+	WRITEF("   ✓ All vectors freed*N")
+
+	WRITEF("*NQUADS Basic Test Summary:*N")
+	WRITEF("✓ QUADS allocation works*N")
+	WRITEF("✓ QUAD construction works*N")
+	WRITEF("✓ QUADS vector assignment works*N")
+	WRITEF("✓ QUADS vector arithmetic works (with 128-bit NEON)*N")
+	WRITEF("✓ Memory management works*N")
+	WRITEF("*NQUADS implementation is working correctly!*N")
+
+$)

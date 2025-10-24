@@ -1,0 +1,31 @@
+// Simple test to verify PAIRS allocation works (baseline test)
+// This test checks if the basic PAIRS parsing and allocation is functional
+
+LET start() BE {
+    WRITEF("Testing PAIRS allocation...*N");
+
+    // Test 1: Basic PAIRS allocation
+    LET p_vec = PAIRS(3);
+    WRITEF("PAIRS(3) allocated successfully*N");
+
+    // Test 2: Check if we can access length
+    LET len = LEN(p_vec);
+    WRITEF("Length of PAIRS vector: %N*N", len);
+
+    // Test 3: Basic assignment
+    p_vec!0 := PAIR(10, 20);
+    p_vec!1 := PAIR(30, 40);
+    p_vec!2 := PAIR(50, 60);
+    WRITEF("Assigned values to vector*N");
+
+    // Test 4: Basic access
+    LET p0 = p_vec!0;
+    LET p1 = p_vec!1;
+    LET p2 = p_vec!2;
+    WRITEF("p_vec[0] = PAIR(%N,%N)*N", p0.FIRST, p0.SECOND);
+    WRITEF("p_vec[1] = PAIR(%N,%N)*N", p1.FIRST, p1.SECOND);
+    WRITEF("p_vec[2] = PAIR(%N,%N)*N", p2.FIRST, p2.SECOND);
+
+    FREEVEC(p_vec);
+    WRITEF("PAIRS test completed.*N");
+}

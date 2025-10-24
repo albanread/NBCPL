@@ -235,6 +235,8 @@ private:
     void visit(PairwiseReductionLoopStatement& node) override;
     void visit(Neon128BitPairOpStatement& node) override;
     void visit(Neon128BitFPairOpStatement& node) override;
+    void visit(Neon128BitQuadOpStatement& node) override;
+    void visit(Neon128BitFQuadOpStatement& node) override;
 
     void visit(OctExpression& node) override;
     void visit(FOctExpression& node) override;
@@ -271,6 +273,8 @@ private:
     void visit(FVecAllocationExpression& node) override;
     void visit(PairsAllocationExpression& node) override;
     void visit(FPairsAllocationExpression& node) override;
+    void visit(QuadsAllocationExpression& node) override;
+    void visit(FQuadsAllocationExpression& node) override;
     void visit(StringAllocationExpression& node) override;
     void visit(AssignmentStatement& node) override;
     void visit(RoutineCallStatement& node) override;

@@ -223,6 +223,140 @@ void NewCodeGenerator::visit(Neon128BitFPairOpStatement& node) {
     register_manager_.release_vec_scratch_reg(neon_result);
 }
 
+void NewCodeGenerator::visit(Neon128BitQuadOpStatement& node) {
+    std::cout << "[DEBUG CODEGEN] *** VISITING Neon128BitQuadOpStatement! ***" << std::endl;
+    debug_print("Generating optimized 128-bit NEON quad operation");
+    
+    // Get register addresses for the vectors
+    std::string dest_addr = get_variable_register(node.dest_vector_name);
+    std::string left_addr = get_variable_register(node.left_vector_name);
+    std::string right_addr = get_variable_register(node.right_vector_name);
+    // Get loop variable from NEON statement since we manage it ourselves with WHILE loop
+    std::string index_reg = get_variable_register(node.loop_index_name);
+    
+    // Calculate byte offset for current quad (each QUAD is 8 bytes)
+    std::string offset_reg = register_manager_.acquire_spillable_temp_reg(*this);
+    emit(Encoder::create_lsl_imm(offset_reg, index_reg, 3)); // multiply index by 8
+    
+    // Load two consecutive QUADs (16 bytes total) into 128-bit NEON registers
+    std::string neon_left = register_manager_.acquire_q_scratch_reg(*this);
+    std::string neon_right = register_manager_.acquire_q_scratch_reg(*this);
+    std::string neon_result = register_manager_.acquire_q_scratch_reg(*this);
+    
+    // Load 128-bit data: LDR Q0, [left_addr + offset] and LDR Q1, [right_addr + offset]
+    emit(Encoder::create_add_reg(left_addr, left_addr, offset_reg));
+    emit(Encoder::create_ldr_vec_imm(neon_left, left_addr, 0));  // Load 128-bit
+    emit(Encoder::create_sub_reg(left_addr, left_addr, offset_reg));  // Restore base address
+    
+    emit(Encoder::create_add_reg(right_addr, right_addr, offset_reg));
+    emit(Encoder::create_ldr_vec_imm(neon_right, right_addr, 0)); // Load 128-bit
+    emit(Encoder::create_sub_reg(right_addr, right_addr, offset_reg)); // Restore base address
+    
+    // Convert Q registers to V registers for NEON arithmetic (Q0->V0, Q1->V1, Q2->V2)
+    std::string v_left = "V" + neon_left.substr(1);    // Q0 -> V0
+    std::string v_right = "V" + neon_right.substr(1);  // Q1 -> V1  
+    std::string v_result = "V" + neon_result.substr(1); // Q2 -> V2
+    
+    // Perform 128-bit NEON operation based on operation type
+    // Each QUAD is 4×16-bit ints, so 2 QUADs = 8×16-bit ints (.8H arrangement)
+    switch (node.operation) {
+        case 0: // Add
+            emit(Encoder::create_add_vector_reg(v_result, v_left, v_right, "8H"));
+            debug_print("Generated 128-bit NEON ADD for two QUADs (.8H arrangement)");
+            break;
+        case 1: // Subtract  
+            emit(Encoder::create_sub_vector_reg(v_result, v_left, v_right, "8H"));
+            debug_print("Generated 128-bit NEON SUB for two QUADs (.8H arrangement)");
+            break;
+        case 2: // Multiply
+            emit(Encoder::create_mul_vector_reg(v_result, v_left, v_right, "8H"));
+            debug_print("Generated 128-bit NEON MUL for two QUADs (.8H arrangement)");
+            debug_print("NOTE: Each QUAD = 4×16-bit ints, so 128-bit = 2 QUADs = 8×16-bit elements");
+            break;
+        default:
+            debug_print("Unsupported 128-bit NEON quad operation: " + std::to_string(node.operation));
+            break;
+    }
+    
+    // Store 128-bit result back to destination
+    emit(Encoder::create_add_reg(dest_addr, dest_addr, offset_reg));
+    emit(Encoder::create_str_vec_imm(neon_result, dest_addr, 0)); // Store 128-bit
+    emit(Encoder::create_sub_reg(dest_addr, dest_addr, offset_reg));   // Restore base address
+    
+    // Release temporary registers
+    register_manager_.release_register(offset_reg);
+    register_manager_.release_vec_scratch_reg(neon_left);
+    register_manager_.release_vec_scratch_reg(neon_right);
+    register_manager_.release_vec_scratch_reg(neon_result);
+}
+
+void NewCodeGenerator::visit(Neon128BitFQuadOpStatement& node) {
+    std::cout << "[DEBUG CODEGEN] *** VISITING Neon128BitFQuadOpStatement! ***" << std::endl;
+    debug_print("Generating optimized 128-bit NEON floating point quad operation");
+    
+    // Get register addresses for the vectors
+    std::string dest_addr = get_variable_register(node.dest_vector_name);
+    std::string left_addr = get_variable_register(node.left_vector_name);
+    std::string right_addr = get_variable_register(node.right_vector_name);
+    // Get loop variable from NEON statement since we manage it ourselves with WHILE loop
+    std::string index_reg = get_variable_register(node.loop_index_name);
+    
+    // Calculate byte offset for current fquad (each FQUAD is 8 bytes)
+    std::string offset_reg = register_manager_.acquire_spillable_temp_reg(*this);
+    emit(Encoder::create_lsl_imm(offset_reg, index_reg, 3)); // multiply index by 8
+    
+    // Load two consecutive FQUADs (16 bytes total) into 128-bit NEON registers
+    std::string neon_left = register_manager_.acquire_q_scratch_reg(*this);
+    std::string neon_right = register_manager_.acquire_q_scratch_reg(*this);
+    std::string neon_result = register_manager_.acquire_q_scratch_reg(*this);
+    
+    // Load 128-bit data: LDR Q0, [left_addr + offset] and LDR Q1, [right_addr + offset]
+    emit(Encoder::create_add_reg(left_addr, left_addr, offset_reg));
+    emit(Encoder::create_ldr_vec_imm(neon_left, left_addr, 0));  // Load 128-bit
+    emit(Encoder::create_sub_reg(left_addr, left_addr, offset_reg));  // Restore base address
+    
+    emit(Encoder::create_add_reg(right_addr, right_addr, offset_reg));
+    emit(Encoder::create_ldr_vec_imm(neon_right, right_addr, 0)); // Load 128-bit
+    emit(Encoder::create_sub_reg(right_addr, right_addr, offset_reg)); // Restore base address
+    
+    // Convert Q registers to V registers for NEON arithmetic (Q0->V0, Q1->V1, Q2->V2)
+    std::string v_left = "V" + neon_left.substr(1);    // Q0 -> V0
+    std::string v_right = "V" + neon_right.substr(1);  // Q1 -> V1  
+    std::string v_result = "V" + neon_result.substr(1); // Q2 -> V2
+    
+    // Perform 128-bit NEON floating point operation based on operation type
+    // Each FQUAD is 4×16-bit floats, so 2 FQUADs = 8×16-bit floats (.8H arrangement)
+    switch (node.operation) {
+        case 0: // Add
+            emit(Encoder::create_fadd_vector_reg(v_result, v_left, v_right, "8H"));
+            debug_print("Generated 128-bit NEON FADD for two FQUADs (.8H arrangement)");
+            break;
+        case 1: // Subtract  
+            emit(Encoder::enc_create_fsub_vector_reg(v_result, v_left, v_right, "8H"));
+            debug_print("Generated 128-bit NEON FSUB for two FQUADs (.8H arrangement)");
+            break;
+        case 2: // Multiply
+            emit(Encoder::create_fmul_vector_reg(v_result, v_left, v_right, "8H"));
+            debug_print("Generated 128-bit NEON FMUL for two FQUADs (.8H arrangement)");
+            debug_print("NOTE: Each FQUAD = 4×16-bit floats, so 128-bit = 2 FQUADs = 8×16-bit elements");
+            break;
+        default:
+            debug_print("Unsupported 128-bit NEON floating point quad operation: " + std::to_string(node.operation));
+            break;
+    }
+    
+    // Store 128-bit result back to destination
+    emit(Encoder::create_add_reg(dest_addr, dest_addr, offset_reg));
+    emit(Encoder::create_str_vec_imm(neon_result, dest_addr, 0)); // Store 128-bit
+    emit(Encoder::create_sub_reg(dest_addr, dest_addr, offset_reg));   // Restore base address
+    
+    // Release temporary registers
+    register_manager_.release_register(offset_reg);
+    register_manager_.release_vec_scratch_reg(neon_left);
+    register_manager_.release_vec_scratch_reg(neon_right);
+    register_manager_.release_vec_scratch_reg(neon_result);
+}
+
 void NewCodeGenerator::visit(PairwiseReductionLoopStatement& node) {
     std::cout << "[DEBUG CODEGEN] *** VISITING PairwiseReductionLoopStatement! ***" << std::endl;
     debug_print("Generating type-aware NEON pairwise reduction with intrinsic: " + node.intrinsic_name);

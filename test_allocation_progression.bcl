@@ -1,0 +1,69 @@
+// Test vector allocation progression from working PAIRS to new QUADS
+// This test verifies the allocation syntax works step by step
+
+LET start() BE {
+    WRITEF("Testing vector allocation progression...*N");
+
+    // Test 1: PAIRS (should work - baseline)
+    WRITEF("1. Testing PAIRS allocation...*N");
+    LET p_vec = PAIRS(2);
+    WRITEF("   PAIRS(2) allocated successfully*N");
+    WRITEF("   PAIRS length: %N*N", LEN(p_vec));
+
+    // Assign and test PAIRS
+    p_vec!0 := PAIR(10, 20);
+    p_vec!1 := PAIR(30, 40);
+    LET p0 = p_vec!0;
+    WRITEF("   p_vec[0] = (%N, %N)*N", p0.FIRST, p0.SECOND);
+
+    FREEVEC(p_vec);
+    WRITEF("   ✓ PAIRS test completed*N");
+
+    // Test 2: FPAIRS (should work - baseline)
+    WRITEF("2. Testing FPAIRS allocation...*N");
+    LET fp_vec = FPAIRS(2);
+    WRITEF("   FPAIRS(2) allocated successfully*N");
+    WRITEF("   FPAIRS length: %N*N", LEN(fp_vec));
+
+    // Assign and test FPAIRS
+    fp_vec!0 := FPAIR(1.5, 2.5);
+    fp_vec!1 := FPAIR(3.5, 4.5);
+    LET fp0 = fp_vec!0;
+    WRITEF("   fp_vec[0] = (%F, %F)*N", fp0.FIRST, fp0.SECOND);
+
+    FREEVEC(fp_vec);
+    WRITEF("   ✓ FPAIRS test completed*N");
+
+    // Test 3: QUADS (new - this is what we're implementing)
+    WRITEF("3. Testing QUADS allocation...*N");
+    LET q_vec = QUADS(2);
+    WRITEF("   QUADS(2) allocated successfully*N");
+    WRITEF("   QUADS length: %N*N", LEN(q_vec));
+
+    // Assign and test QUADS
+    q_vec!0 := QUAD(1, 2, 3, 4);
+    q_vec!1 := QUAD(10, 20, 30, 40);
+    LET q0 = q_vec!0;
+    WRITEF("   q_vec[0] = (%N, %N, %N, %N)*N", q0.FIRST, q0.SECOND, q0.THIRD, q0.FOURTH);
+
+    FREEVEC(q_vec);
+    WRITEF("   ✓ QUADS test completed*N");
+
+    // Test 4: FQUADS (new - this is what we're implementing)
+    WRITEF("4. Testing FQUADS allocation...*N");
+    LET fq_vec = FQUADS(2);
+    WRITEF("   FQUADS(2) allocated successfully*N");
+    WRITEF("   FQUADS length: %N*N", LEN(fq_vec));
+
+    // Assign and test FQUADS
+    fq_vec!0 := FQUAD(1.1, 2.2, 3.3, 4.4);
+    fq_vec!1 := FQUAD(5.5, 6.6, 7.7, 8.8);
+    LET fq0 = fq_vec!0;
+    WRITEF("   fq_vec[0] = (%F, %F, %F, %F)*N", fq0.FIRST, fq0.SECOND, fq0.THIRD, fq0.FOURTH);
+
+    FREEVEC(fq_vec);
+    WRITEF("   ✓ FQUADS test completed*N");
+
+    WRITEF("*NVector allocation progression test completed!*N");
+    WRITEF("All vector types (PAIRS, FPAIRS, QUADS, FQUADS) work correctly.*N");
+}

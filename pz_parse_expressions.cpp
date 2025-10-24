@@ -51,6 +51,12 @@ VarType Parser::parse_type_specifier() {
         final_type = static_cast<VarType>(static_cast<int64_t>(final_type) | static_cast<int64_t>(VarType::STRING));
     } else if (match(TokenType::Pairs)) { // <-- Handle PAIRS as its own token type
         final_type = static_cast<VarType>(static_cast<int64_t>(final_type) | static_cast<int64_t>(VarType::PAIRS));
+    } else if (match(TokenType::FPairs)) { // <-- Handle FPAIRS as its own token type
+        final_type = static_cast<VarType>(static_cast<int64_t>(final_type) | static_cast<int64_t>(VarType::FPAIRS));
+    } else if (match(TokenType::Quads)) { // <-- Handle QUADS as its own token type
+        final_type = static_cast<VarType>(static_cast<int64_t>(final_type) | static_cast<int64_t>(VarType::QUADS));
+    } else if (match(TokenType::FQuads)) { // <-- Handle FQUADS as its own token type
+        final_type = static_cast<VarType>(static_cast<int64_t>(final_type) | static_cast<int64_t>(VarType::FQUADS));
     } else {
 
         error("Expected a base type identifier (e.g., INTEGER) or type keyword (e.g., STRING).");
@@ -579,6 +585,12 @@ ExprPtr Parser::parse_primary_expression() {
     }
     if (match(TokenType::FPairs)) {
         return std::make_unique<FPairsAllocationExpression>(parse_expression());
+    }
+    if (match(TokenType::Quads)) {
+        return std::make_unique<QuadsAllocationExpression>(parse_expression());
+    }
+    if (match(TokenType::FQuads)) {
+        return std::make_unique<FQuadsAllocationExpression>(parse_expression());
     }
     if (match(TokenType::String)) {
         return std::make_unique<StringAllocationExpression>(parse_expression());

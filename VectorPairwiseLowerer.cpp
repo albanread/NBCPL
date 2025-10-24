@@ -289,8 +289,16 @@ std::unique_ptr<BlockStatement> VectorPairwiseLowerer::lowerVectorOperation(cons
         dest_rhs.push_back(std::make_unique<FPairsAllocationExpression>(
             std::make_unique<VariableAccess>(length_var_name)
         ));
+    } else if (alloc_type == "QUADS") {
+        dest_rhs.push_back(std::make_unique<QuadsAllocationExpression>(
+            std::make_unique<VariableAccess>(length_var_name)
+        ));
+    } else if (alloc_type == "FQUADS") {
+        dest_rhs.push_back(std::make_unique<FQuadsAllocationExpression>(
+            std::make_unique<VariableAccess>(length_var_name)
+        ));
     } else {
-        // For QUADS/FQUADS, use VEC allocation for now (can be extended later)
+        // For other vector types, use VEC allocation
         dest_rhs.push_back(std::make_unique<VecAllocationExpression>(
             std::make_unique<VariableAccess>(length_var_name)
         ));
@@ -338,6 +346,26 @@ std::unique_ptr<BlockStatement> VectorPairwiseLowerer::lowerVectorOperation(cons
             // Generate floating point NEON operation for FPAIRS
             debugPrint("Generating Neon128BitFPairOpStatement for FPAIRS vector operation");
             neon_pair_op = std::make_unique<Neon128BitFPairOpStatement>(
+                dest_var_name,           // destination vector
+                left_vector_name,        // left operand vector  
+                right_vector_name,       // right operand vector
+                loop_var_name,           // loop index variable we manage
+                static_cast<int>(binary_op->op)  // operation type (Add, Subtract, Multiply, etc.)
+            );
+        } else if (base_vector_type == VarType::FQUADS || base_vector_type == VarType::POINTER_TO_FQUADS) {
+            // Generate floating point NEON operation for FQUADS
+            debugPrint("Generating Neon128BitFQuadOpStatement for FQUADS vector operation");
+            neon_pair_op = std::make_unique<Neon128BitFQuadOpStatement>(
+                dest_var_name,           // destination vector
+                left_vector_name,        // left operand vector  
+                right_vector_name,       // right operand vector
+                loop_var_name,           // loop index variable we manage
+                static_cast<int>(binary_op->op)  // operation type (Add, Subtract, Multiply, etc.)
+            );
+        } else if (base_vector_type == VarType::QUADS || base_vector_type == VarType::POINTER_TO_QUADS) {
+            // Generate integer NEON operation for QUADS
+            debugPrint("Generating Neon128BitQuadOpStatement for QUADS vector operation");
+            neon_pair_op = std::make_unique<Neon128BitQuadOpStatement>(
                 dest_var_name,           // destination vector
                 left_vector_name,        // left operand vector  
                 right_vector_name,       // right operand vector

@@ -1,0 +1,16 @@
+LET START() BE $(
+
+	WRITEF("*NQUADS Debug Test - Type Inference Issue*N")
+
+	// Test 1: Simple QUADS allocation
+	WRITEF("1. Testing QUADS allocation...*N")
+	LET V1 = QUADS(1)
+	WRITEF("   QUADS(1) allocated*N")
+
+	// Test 2: Try to get length (this is where it fails)
+	WRITEF("2. Testing LEN on QUADS...*N")
+	LET len = LEN(V1)
+	WRITEF("   Length: %N*N", len)
+
+	WRITEF("QUADS debug test completed.*N")
+$)

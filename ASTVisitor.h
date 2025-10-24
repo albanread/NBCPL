@@ -32,6 +32,10 @@ class FloatValofExpression;
 class VecAllocationExpression;
 class StringAllocationExpression;
 class FVecAllocationExpression;
+class PairsAllocationExpression;
+class FPairsAllocationExpression;
+class QuadsAllocationExpression;
+class FQuadsAllocationExpression;
 class TableExpression;
 class AssignmentStatement;
 class RoutineCallStatement;
@@ -65,6 +69,10 @@ class MaxStatement;
 class SumStatement;
 class ReductionStatement;
 class PairwiseReductionLoopStatement;
+class Neon128BitPairOpStatement;
+class Neon128BitFPairOpStatement;
+class Neon128BitQuadOpStatement;
+class Neon128BitFQuadOpStatement;
 
 
 // Forward declaration for SUPER node
@@ -111,6 +119,8 @@ public:
     virtual void visit(FVecAllocationExpression& node) {}
     virtual void visit(PairsAllocationExpression& node) {}
     virtual void visit(FPairsAllocationExpression& node) {}
+    virtual void visit(QuadsAllocationExpression& node) {}
+    virtual void visit(FQuadsAllocationExpression& node) {}
     virtual void visit(StringAllocationExpression& node) {}
     virtual void visit(TableExpression& node) {}
     virtual void visit(ListExpression& node) {}
@@ -171,4 +181,6 @@ public:
     virtual void visit(PairwiseReductionLoopStatement& node) {} // <-- Added for pairwise reduction loop metadata
     virtual void visit(Neon128BitPairOpStatement& node) {} // <-- Added for 128-bit NEON pair operations
     virtual void visit(Neon128BitFPairOpStatement& node) {} // <-- Added for 128-bit NEON floating point pair operations
+    virtual void visit(Neon128BitQuadOpStatement& node) {} // <-- Added for 128-bit NEON quad operations
+    virtual void visit(Neon128BitFQuadOpStatement& node) {} // <-- Added for 128-bit NEON floating point quad operations
 };
