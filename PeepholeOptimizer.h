@@ -134,6 +134,9 @@ private:
 
     // Declaration for copy propagation pattern
     static std::unique_ptr<InstructionPattern> createCopyPropagationPattern();
+
+    // Declaration for 128-bit NEON fusion pattern
+    static std::unique_ptr<InstructionPattern> createNeon128BitFusionPattern();
 };
 
 

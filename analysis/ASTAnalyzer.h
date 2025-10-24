@@ -49,6 +49,15 @@ class ASTAnalyzer : public ASTVisitor {
     // Safe parameter type setter that preserves SignatureAnalysisVisitor results
     void set_parameter_type_safe(const std::string& function_name, const std::string& param_name, VarType new_type);
     
+    // Get effective variable name (handles FOR-loop name transformation)
+    std::string get_effective_variable_name(const std::string& original_name) const;
+    
+    // Get for statements map (for accessing unique loop variable names)
+    const std::map<std::string, const ForStatement*>& get_for_statements() const { return for_statements_; }
+    
+    // Get current FOR loop variable counter (for generating consistent variable names)
+    int get_for_loop_var_counter() const { return for_loop_var_counter_; }
+    
     // Return a list of instruction indices where function calls occur in the given function
     const std::vector<int>& get_call_sites_for(const std::string& function_name) const;
     
@@ -186,7 +195,7 @@ class ASTAnalyzer : public ASTVisitor {
     ASTAnalyzer& operator=(const ASTAnalyzer&) = delete;
 
     void reset_state();
-    std::string get_effective_variable_name(const std::string& original_name) const;
+
     void first_pass_discover_functions(Program& program);
     void transform_let_declarations(std::vector<DeclPtr>& declarations);
     void processClassMethods(const std::string& class_name);

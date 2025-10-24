@@ -92,7 +92,8 @@ public:
         SumStmt, // <-- Added for SUM statement (DEPRECATED - use ReductionStmt)
         ReductionStmt, // <-- Added for generic reduction statement
         ReductionLoopStmt, // <-- Added for reduction loop metadata
-        PairwiseReductionLoopStmt // <-- Added for pairwise reduction loop metadata
+        PairwiseReductionLoopStmt, // <-- Added for pairwise reduction loop metadata
+        Neon128BitPairOpStmt // <-- Added for 128-bit NEON pair operations
     };
 
     ASTNode(NodeType type) : type_(type) {}
@@ -1300,6 +1301,26 @@ public:
           right_temp(std::move(right)), result_temp(std::move(result)),
           index_name(std::move(index)), chunks_name(std::move(chunks)),
           result_variable(std::move(result_var)), reduction_op(op) {}
+    
+    void accept(ASTVisitor& visitor) override;
+    ASTNodePtr clone() const override;
+};
+
+// 128-bit NEON pair operation statement for optimized vector operations
+class Neon128BitPairOpStatement : public Statement {
+public:
+    std::string dest_vector_name;     // Destination vector (e.g., "V3")
+    std::string left_vector_name;     // Left operand vector (e.g., "V1") 
+    std::string right_vector_name;    // Right operand vector (e.g., "V2")
+    std::string loop_index_name;      // Loop index variable that we manage ourselves
+    int operation;                    // BinaryOp::Operator value (Add=0, Subtract=1, Multiply=2, etc.)
+    
+    Neon128BitPairOpStatement(std::string dest_vec, std::string left_vec, std::string right_vec,
+                             std::string loop_idx, int op)
+        : Statement(NodeType::Neon128BitPairOpStmt),
+          dest_vector_name(std::move(dest_vec)), left_vector_name(std::move(left_vec)),
+          right_vector_name(std::move(right_vec)), loop_index_name(std::move(loop_idx)),
+          operation(op) {}
     
     void accept(ASTVisitor& visitor) override;
     ASTNodePtr clone() const override;

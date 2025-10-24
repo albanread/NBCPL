@@ -151,12 +151,12 @@ L_START:
     ADRP X28, L__data_segment_base@PAGE
     ADD X28, X28, L__data_segment_base@PAGEOFF
 L_START_Entry_0:
-    MOVZ X9, #10
+    MOVZ X9, #11
     MOV X0, X9
     BL _GETVEC
     MOV X20, X0
     STR X20, [X29, #24] ; V1
-    MOVZ X9, #10
+    MOVZ X9, #11
     MOV X0, X9
     BL _GETVEC
     MOV X20, X0
@@ -219,13 +219,13 @@ L_START_ForExit_4:
     B L_START_WhileHeader_5
 L_START_ForHeader_1:
     MOV X9, X22
-    MOVZ X10, #9
+    MOVZ X10, #10
     CMP X9, X10
     B.GT L_START_ForExit_4
     B L_START_ForBody_2
 L_START_ForHeader_10:
     MOV X9, X22
-    MOVZ X11, #9
+    MOVZ X11, #10
     CMP X9, X11
     B.GT L_START_Exit_14
     B L_START_ForBody_11
@@ -282,7 +282,7 @@ L_START_Then_8:
     LDR X10, [X12, #0]
     fmov D0, X9
     fmov D1, X10
-    add v0.2s, v0.2s, v1.2s    ; new dedicated 2s encoder
+    sub v0.2s, v0.2s, v1.2s    ; new dedicated 2s encoder
     fmov X27, D0
     MOV X10, X24
     SUB X10, X10, #1
@@ -299,7 +299,7 @@ L_START_WhileBody_6:
     ADD X23, X23, X20
     LDR Q1, [X23, #0]
     SUB X23, X23, X20
-    ADD V2.2D, V0.2D, V1.2D
+    SUB V2.2D, V0.2D, V1.2D
     ADD X26, X26, X20
     STR Q2, [X26, #0]
     SUB X26, X26, X20
@@ -340,7 +340,7 @@ L_0:
     RET
 L___veneer_:
     movz x16, #4144
-    movk x16, #631, lsl #16
+    movk x16, #232, lsl #16
     movk x16, #1, lsl #32
     movk x16, #0, lsl #48
     blr x16
@@ -368,7 +368,7 @@ L_str0_plus_8:
     .long 0x0
 .p2align 3
 L_str1:
-    .quad 0x1c
+    .quad 0x1f
     ; (upper half)
 .p2align 2
 L_str1_plus_8:
@@ -380,10 +380,13 @@ L_str1_plus_8:
     .long 0x6f
     .long 0x72
     .long 0x20
+    .long 0x73
+    .long 0x75
+    .long 0x62
+    .long 0x74
+    .long 0x72
     .long 0x61
-    .long 0x64
-    .long 0x64
-    .long 0x69
+    .long 0x63
     .long 0x74
     .long 0x69
     .long 0x6f
@@ -490,7 +493,7 @@ L_str4_plus_8:
     .long 0x69
     .long 0x5d
     .long 0x20
-    .long 0x2b
+    .long 0x2d
     .long 0x20
     .long 0x56
     .long 0x32
@@ -501,43 +504,44 @@ L_str4_plus_8:
     .long 0x3d
     .long 0x20
     .long 0x28
-    .long 0x31
+    .long 0x32
     .long 0x30
     .long 0x2c
-    .long 0x31
+    .long 0x33
     .long 0x30
     .long 0x29
     .long 0x20
-    .long 0x2b
+    .long 0x2d
     .long 0x20
     .long 0x28
-    .long 0x33
+    .long 0x35
     .long 0x2c
-    .long 0x34
+    .long 0x38
     .long 0x29
     .long 0x20
     .long 0x3d
     .long 0x20
     .long 0x28
     .long 0x31
-    .long 0x33
+    .long 0x35
     .long 0x2c
-    .long 0x31
-    .long 0x34
+    .long 0x32
+    .long 0x32
     .long 0x29
     .long 0xa
     .long 0x0
     .long 0x0
 .p2align 3
 L_pair0:
-    .quad 0xa0000000a
+    .quad 0x1e00000014
     ; (upper half)
 L_pair1:
-    .quad 0x400000003
+    .quad 0x800000005
     ; (upper half)
 
 .section __DATA,__data
 .p2align 3
+    .long 0x0
     .long 0x0
     .long 0x0
     .long 0x0

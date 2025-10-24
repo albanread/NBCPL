@@ -3356,3 +3356,44 @@ void CFGBuilderPass::build_destructuring_list_foreach_cfg(ForEachStatement& node
                       << " (horizontal reduction)" << std::endl;
         }
     }
+
+    // === Missing Visitor Methods ===
+    
+    void CFGBuilderPass::visit(ReductionLoopStatement& node) {
+        if (trace_enabled_) {
+            std::cout << "[CFGBuilderPass] visit(ReductionLoopStatement) entered" << std::endl;
+        }
+        
+        if (!current_basic_block) end_current_block_and_start_new();
+        current_basic_block->add_statement(std::unique_ptr<Statement>(static_cast<Statement*>(node.clone().release())));
+        
+        if (trace_enabled_) {
+            std::cout << "[CFGBuilderPass] visit(ReductionLoopStatement) exiting" << std::endl;
+        }
+    }
+
+    void CFGBuilderPass::visit(PairwiseReductionLoopStatement& node) {
+        if (trace_enabled_) {
+            std::cout << "[CFGBuilderPass] visit(PairwiseReductionLoopStatement) entered" << std::endl;
+        }
+        
+        if (!current_basic_block) end_current_block_and_start_new();
+        current_basic_block->add_statement(std::unique_ptr<Statement>(static_cast<Statement*>(node.clone().release())));
+        
+        if (trace_enabled_) {
+            std::cout << "[CFGBuilderPass] visit(PairwiseReductionLoopStatement) exiting" << std::endl;
+        }
+    }
+
+    void CFGBuilderPass::visit(Neon128BitPairOpStatement& node) {
+        if (trace_enabled_) {
+            std::cout << "[CFGBuilderPass] visit(Neon128BitPairOpStatement) entered for 128-bit NEON pair operation" << std::endl;
+        }
+        
+        if (!current_basic_block) end_current_block_and_start_new();
+        current_basic_block->add_statement(std::unique_ptr<Statement>(static_cast<Statement*>(node.clone().release())));
+        
+        if (trace_enabled_) {
+            std::cout << "[CFGBuilderPass] visit(Neon128BitPairOpStatement) exiting" << std::endl;
+        }
+    }

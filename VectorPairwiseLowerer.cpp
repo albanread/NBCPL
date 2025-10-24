@@ -237,6 +237,9 @@ std::unique_ptr<BlockStatement> VectorPairwiseLowerer::lowerVectorOperation(cons
     std::string loop_var_name = createTempVarName("__vec_i");
     std::string length_var_name = createTempVarName("__vec_len");
     
+    // Register the loop variable in symbol table since we manage it ourselves with WHILE loop
+    registerTempVariable(loop_var_name, VarType::INTEGER);
+    
     // Create the block that will contain our lowered code
     auto lowered_block = std::make_unique<BlockStatement>(
         std::vector<DeclPtr>{}, std::vector<StmtPtr>{}
@@ -303,59 +306,201 @@ std::unique_ptr<BlockStatement> VectorPairwiseLowerer::lowerVectorOperation(cons
     
     lowered_block->statements.push_back(std::move(dest_assignment));
     
-    // Step 3: Create the loop - FOR __vec_i = 0 TO __vec_len - 1 DO
-    auto loop_body = std::make_unique<BlockStatement>(
-        std::vector<DeclPtr>{}, std::vector<StmtPtr>{}
-    );
+    // Step 3: Create optimized loops for 128-bit NEON operations
+    // For PAIRS vectors, process 2 elements at a time (128-bit) when possible
     
-    // Loop body: dest_var[__vec_i] = left[__vec_i] op right[__vec_i]
-    std::vector<ExprPtr> loop_assign_lhs;
-    loop_assign_lhs.push_back(std::make_unique<VectorAccess>(
-        std::make_unique<VariableAccess>(dest_var_name),
-        std::make_unique<VariableAccess>(loop_var_name)
-    ));
-    
-    std::vector<ExprPtr> loop_assign_rhs;
-    loop_assign_rhs.push_back(std::make_unique<BinaryOp>(
-        binary_op->op,
-        std::make_unique<VectorAccess>(
-            std::unique_ptr<Expression>(static_cast<Expression*>(binary_op->left->clone().release())),
-            std::make_unique<VariableAccess>(loop_var_name)
-        ),
-        std::make_unique<VectorAccess>(
-            std::unique_ptr<Expression>(static_cast<Expression*>(binary_op->right->clone().release())),
-            std::make_unique<VariableAccess>(loop_var_name)
-        )
-    ));
-    
-    // Create the loop body assignment
-    auto loop_assignment = std::make_unique<AssignmentStatement>(
-        std::move(loop_assign_lhs), std::move(loop_assign_rhs)
-    );
-    
-    // Analyze the loop assignment statement immediately after creation
-    loop_assignment->accept(*analyzer_);
-    
-    loop_body->statements.push_back(std::move(loop_assignment));
-    
-    // Create the FOR loop: FOR __vec_i = 0 TO __vec_len - 1 (BCPL vectors are 0-indexed)
-    // Note: The loop variable will be registered automatically when ForLoop is analyzed
-    auto for_loop = std::make_unique<ForStatement>(
-        loop_var_name,
-        std::make_unique<NumberLiteral>(static_cast<int64_t>(0)), // start: 0
-        std::make_unique<BinaryOp>(                                // end: __vec_len - 1
-            BinaryOp::Operator::Subtract,
-            std::make_unique<VariableAccess>(length_var_name),
+    if (base_vector_type == VarType::PAIRS || base_vector_type == VarType::POINTER_TO_PAIRS) {
+        // Generate 128-bit optimized loop for pairs of PAIR elements
+        
+        // Main loop: Process 2 PAIRs at a time using 128-bit NEON (for even lengths >= 2)
+        auto main_loop_body = std::make_unique<BlockStatement>(
+            std::vector<DeclPtr>{}, std::vector<StmtPtr>{}
+        );
+        
+        // Extract vector names for the specialized 128-bit NEON operation
+        std::string left_vector_name = "UNKNOWN_LEFT";
+        std::string right_vector_name = "UNKNOWN_RIGHT";
+        
+        // Extract variable names from the binary operation operands
+        if (auto left_var = dynamic_cast<VariableAccess*>(binary_op->left.get())) {
+            left_vector_name = left_var->name;
+        }
+        if (auto right_var = dynamic_cast<VariableAccess*>(binary_op->right.get())) {
+            right_vector_name = right_var->name;
+        }
+        // Create a single 128-bit NEON pair operation statement
+        // This will be recognized by the code generator and emit optimized NEON instructions
+        // We manage the loop variable ourselves with WHILE loop infrastructure
+        auto neon_pair_op = std::make_unique<Neon128BitPairOpStatement>(
+            dest_var_name,           // destination vector
+            left_vector_name,        // left operand vector  
+            right_vector_name,       // right operand vector
+            loop_var_name,           // loop index variable we manage
+            static_cast<int>(binary_op->op)  // operation type (Add, Subtract, Multiply, etc.)
+        );
+        
+        // NEON operation will be added to loop body after loop variable initialization
+        
+        // Initialize loop variable: __vec_i = 0
+        std::vector<ExprPtr> loop_init_lhs;
+        loop_init_lhs.push_back(std::make_unique<VariableAccess>(loop_var_name));
+        std::vector<ExprPtr> loop_init_rhs;
+        loop_init_rhs.push_back(std::make_unique<NumberLiteral>(static_cast<int64_t>(0)));
+        auto loop_init = std::make_unique<AssignmentStatement>(
+            std::move(loop_init_lhs), std::move(loop_init_rhs), "loop_init"
+        );
+        loop_init->accept(*analyzer_);
+        lowered_block->statements.push_back(std::move(loop_init));
+        
+        // Add NEON operation to loop body
+        main_loop_body->statements.push_back(std::move(neon_pair_op));
+        
+        // Add loop increment: __vec_i = __vec_i + 2
+        std::vector<ExprPtr> loop_incr_lhs;
+        loop_incr_lhs.push_back(std::make_unique<VariableAccess>(loop_var_name));
+        std::vector<ExprPtr> loop_incr_rhs;
+        loop_incr_rhs.push_back(std::make_unique<BinaryOp>(
+            BinaryOp::Operator::Add,
+            std::make_unique<VariableAccess>(loop_var_name),
+            std::make_unique<NumberLiteral>(static_cast<int64_t>(2))
+        ));
+        auto loop_incr = std::make_unique<AssignmentStatement>(
+            std::move(loop_incr_lhs), std::move(loop_incr_rhs), "loop_increment"
+        );
+        main_loop_body->statements.push_back(std::move(loop_incr));
+        
+        // Main loop: WHILE __vec_i <= __vec_len-2 DO (process 2 elements at a time)
+        auto loop_condition = std::make_unique<BinaryOp>(
+            BinaryOp::Operator::LessEqual,
+            std::make_unique<VariableAccess>(loop_var_name),
+            std::make_unique<BinaryOp>(
+                BinaryOp::Operator::Subtract,
+                std::make_unique<VariableAccess>(length_var_name),
+                std::make_unique<NumberLiteral>(static_cast<int64_t>(2))
+            )
+        );
+        
+        auto main_while_loop = std::make_unique<WhileStatement>(
+            std::move(loop_condition),
+            std::move(main_loop_body)
+        );
+        
+        main_while_loop->accept(*analyzer_);
+        lowered_block->statements.push_back(std::move(main_while_loop));
+        
+        // Cleanup loop: Handle the last element if vector length is odd
+        // IF (__vec_len & 1) == 1 THEN dest_var[__vec_len-1] = left[__vec_len-1] op right[__vec_len-1]
+        
+        // Condition: (__vec_len & 1) == 1
+        auto odd_check = std::make_unique<BinaryOp>(
+            BinaryOp::Operator::Equal,
+            std::make_unique<BinaryOp>(
+                BinaryOp::Operator::BitwiseAnd,
+                std::make_unique<VariableAccess>(length_var_name),
+                std::make_unique<NumberLiteral>(static_cast<int64_t>(1))
+            ),
             std::make_unique<NumberLiteral>(static_cast<int64_t>(1))
-        ),
-        std::move(loop_body),
-        nullptr  // step (default to 1)
-    );
-    
-    // Analyze the FOR loop immediately after creation - this will handle the scope management
-    for_loop->accept(*analyzer_);
-    
-    lowered_block->statements.push_back(std::move(for_loop));
+        );
+        
+        // Cleanup assignment for the last odd element
+        std::vector<ExprPtr> cleanup_lhs;
+        cleanup_lhs.push_back(std::make_unique<VectorAccess>(
+            std::make_unique<VariableAccess>(dest_var_name),
+            std::make_unique<BinaryOp>(
+                BinaryOp::Operator::Subtract,
+                std::make_unique<VariableAccess>(length_var_name),
+                std::make_unique<NumberLiteral>(static_cast<int64_t>(1))
+            )
+        ));
+        
+        std::vector<ExprPtr> cleanup_rhs;
+        cleanup_rhs.push_back(std::make_unique<BinaryOp>(
+            binary_op->op,
+            std::make_unique<VectorAccess>(
+                std::unique_ptr<Expression>(static_cast<Expression*>(binary_op->left->clone().release())),
+                std::make_unique<BinaryOp>(
+                    BinaryOp::Operator::Subtract,
+                    std::make_unique<VariableAccess>(length_var_name),
+                    std::make_unique<NumberLiteral>(static_cast<int64_t>(1))
+                )
+            ),
+            std::make_unique<VectorAccess>(
+                std::unique_ptr<Expression>(static_cast<Expression*>(binary_op->right->clone().release())),
+                std::make_unique<BinaryOp>(
+                    BinaryOp::Operator::Subtract,
+                    std::make_unique<VariableAccess>(length_var_name),
+                    std::make_unique<NumberLiteral>(static_cast<int64_t>(1))
+                )
+            )
+        ));
+        
+        auto cleanup_assignment = std::make_unique<AssignmentStatement>(
+            std::move(cleanup_lhs), std::move(cleanup_rhs)
+        );
+        cleanup_assignment->accept(*analyzer_);
+        
+        auto cleanup_body = std::make_unique<BlockStatement>(
+            std::vector<DeclPtr>{}, std::vector<StmtPtr>{}
+        );
+        cleanup_body->statements.push_back(std::move(cleanup_assignment));
+        
+        auto cleanup_if = std::make_unique<IfStatement>(
+            std::move(odd_check),
+            std::move(cleanup_body)
+        );
+        
+        cleanup_if->accept(*analyzer_);
+        lowered_block->statements.push_back(std::move(cleanup_if));
+        
+    } else {
+        // For non-PAIRS vectors, use the original single-element loop
+        auto loop_body = std::make_unique<BlockStatement>(
+            std::vector<DeclPtr>{}, std::vector<StmtPtr>{}
+        );
+        
+        // Loop body: dest_var[__vec_i] = left[__vec_i] op right[__vec_i]
+        std::vector<ExprPtr> loop_assign_lhs;
+        loop_assign_lhs.push_back(std::make_unique<VectorAccess>(
+            std::make_unique<VariableAccess>(dest_var_name),
+            std::make_unique<VariableAccess>(loop_var_name)
+        ));
+        
+        std::vector<ExprPtr> loop_assign_rhs;
+        loop_assign_rhs.push_back(std::make_unique<BinaryOp>(
+            binary_op->op,
+            std::make_unique<VectorAccess>(
+                std::unique_ptr<Expression>(static_cast<Expression*>(binary_op->left->clone().release())),
+                std::make_unique<VariableAccess>(loop_var_name)
+            ),
+            std::make_unique<VectorAccess>(
+                std::unique_ptr<Expression>(static_cast<Expression*>(binary_op->right->clone().release())),
+                std::make_unique<VariableAccess>(loop_var_name)
+            )
+        ));
+        
+        // Create the loop body assignment
+        auto loop_assignment = std::make_unique<AssignmentStatement>(
+            std::move(loop_assign_lhs), std::move(loop_assign_rhs)
+        );
+        loop_assignment->accept(*analyzer_);
+        loop_body->statements.push_back(std::move(loop_assignment));
+        
+        // Create the FOR loop: FOR __vec_i = 0 TO __vec_len - 1 (BCPL vectors are 0-indexed)
+        auto for_loop = std::make_unique<ForStatement>(
+            loop_var_name,
+            std::make_unique<NumberLiteral>(static_cast<int64_t>(0)), // start: 0
+            std::make_unique<BinaryOp>(                                // end: __vec_len - 1
+                BinaryOp::Operator::Subtract,
+                std::make_unique<VariableAccess>(length_var_name),
+                std::make_unique<NumberLiteral>(static_cast<int64_t>(1))
+            ),
+            std::move(loop_body),
+            nullptr  // step (default to 1)
+        );
+        
+        for_loop->accept(*analyzer_);
+        lowered_block->statements.push_back(std::move(for_loop));
+    }
     
     // Analyze the entire lowered block to ensure all nested nodes are properly analyzed
     lowered_block->accept(*analyzer_);

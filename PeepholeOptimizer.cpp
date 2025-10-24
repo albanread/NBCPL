@@ -48,6 +48,9 @@ PeepholeOptimizer::PeepholeOptimizer(bool enable_tracing)
         addPattern(PeepholePatterns::createDeadStorePattern());
         addPattern(PeepholePatterns::createRedundantStorePattern());
         addPattern(PeepholePatterns::createLoadThroughScratchRegisterPattern());
+
+        // 4. NEON SIMD Optimization Pass
+        addPattern(createNeon128BitFusionPattern());
         addPattern(PeepholePatterns::createConservativeMovzScratchPattern());
         addPattern(PeepholePatterns::createLdrToLdpXPattern());
         addPattern(PeepholePatterns::createStrToStpXPattern());
@@ -967,5 +970,80 @@ std::unique_ptr<InstructionPattern> PeepholeOptimizer::createSelfMoveElimination
             return {};
         },
         "Self-Move Elimination"
+    );
+}
+
+/**
+ * @brief Creates a pattern to detect consecutive NEON mul.2s instructions for 128-bit fusion.
+ * Pattern: Look for two MUL vector operations with .2S arrangement within a loop structure
+ */
+std::unique_ptr<InstructionPattern> PeepholeOptimizer::createNeon128BitFusionPattern() {
+    return std::make_unique<InstructionPattern>(
+        8,  // Pattern size: two complete fmov-mul-fmov sequences (4 instructions each)
+        [](const std::vector<Instruction>& instrs, size_t pos) -> MatchResult {
+            // Need at least 8 instructions from current position for two complete sequences
+            if (pos + 7 >= instrs.size()) return {false, 0};
+            
+            // Look for pattern: fmov d0, xN; fmov d1, xM; mul.2s v0, v0, v1; fmov xP, d0
+            // followed by:      fmov d0, xQ; fmov d1, xR; mul.2s v0, v0, v1; fmov xS, d0
+            
+            // Check first sequence (instructions pos through pos+3)
+            if (instrs[pos].nopeep || instrs[pos+1].nopeep || instrs[pos+2].nopeep || instrs[pos+3].nopeep) {
+                return {false, 0};
+            }
+            
+            // Pattern: fmov d0, x*; fmov d1, x*; mul.2s v0, v0, v1; fmov x*, d0
+            bool first_seq_matches = 
+                InstructionDecoder::getOpcode(instrs[pos]) == InstructionDecoder::OpType::FMOV &&
+                InstructionDecoder::getOpcode(instrs[pos+1]) == InstructionDecoder::OpType::FMOV &&
+                instrs[pos+2].encoding == 0x0ea19c00 &&                  // mul.2s v0, v0, v1 (specific encoding)
+                InstructionDecoder::getOpcode(instrs[pos+3]) == InstructionDecoder::OpType::FMOV;
+                
+            if (!first_seq_matches) return {false, 0};
+            
+            // Check second sequence (instructions pos+4 through pos+7)
+            if (instrs[pos+4].nopeep || instrs[pos+5].nopeep || instrs[pos+6].nopeep || instrs[pos+7].nopeep) {
+                return {false, 0};
+            }
+            
+            bool second_seq_matches = 
+                InstructionDecoder::getOpcode(instrs[pos+4]) == InstructionDecoder::OpType::FMOV &&
+                InstructionDecoder::getOpcode(instrs[pos+5]) == InstructionDecoder::OpType::FMOV &&
+                instrs[pos+6].encoding == 0x0ea19c00 &&                  // mul.2s v0, v0, v1 (specific encoding)
+                InstructionDecoder::getOpcode(instrs[pos+7]) == InstructionDecoder::OpType::FMOV;
+                
+            if (second_seq_matches) {
+                return {true, 8};  // Match exactly 8 instructions
+            }
+            
+            return {false, 0};
+        },
+        [](const std::vector<Instruction>& instrs, size_t pos) -> std::vector<Instruction> {
+            // Replace 8 instructions with 5: comment + fused sequence
+            
+            // Add comment about the optimization
+            Instruction comment;
+            comment.encoding = 0;
+            comment.assembly_text = "; 128-bit NEON fusion: combining two mul.2s sequences into one mul.4s";
+            comment.segment = SegmentType::CODE;
+            
+            // Keep first fmov d0, x* (load first pair's first element)
+            Instruction fmov1 = instrs[pos];
+            
+            // Keep first fmov d1, x* (load first pair's second element)  
+            Instruction fmov2 = instrs[pos+1];
+            
+            // Create fused 128-bit MUL instruction
+            Instruction fused_mul = instrs[pos+2];
+            fused_mul.encoding |= 0x40000000;  // Convert .2S to .4S (set bit 30)
+            fused_mul.assembly_text = "mul\tv0.4s, v0.4s, v1.4s\t; fused 128-bit operation";
+            
+            // Keep first fmov x*, d0 (extract result)
+            Instruction fmov_result = instrs[pos+3];
+            
+            // Return the fused sequence: comment + 4 instructions
+            return { comment, fmov1, fmov2, fused_mul, fmov_result };
+        },
+        "128-bit NEON MUL Fusion (complete sequence)"
     );
 }

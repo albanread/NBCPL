@@ -1,1 +1,24 @@
-ld: warning: ignoring duplicate libraries: '-lc++'
+Rename failed: /Users/oberon/projects/NewBCPL/build/obj/gen_QuadExpression-f783b3f1.o.tmp -> /Users/oberon/projects/NewBCPL/build/obj/gen_QuadExpression.o: No such file or directory
+error: unable to rename temporary '/Users/oberon/projects/NewBCPL/build/obj/gen_QuadExpression-f783b3f1.o.tmp' to output file '/Users/oberon/projects/NewBCPL/build/obj/gen_QuadExpression.o': 'No such file or directory'
+1 error generated.
+Rename failed: /Users/oberon/projects/NewBCPL/build/obj/gen_PairExpression-5d673f68.o.tmp -> /Users/oberon/projects/NewBCPL/build/obj/gen_PairExpression.o: No such file or directory
+error: unable to rename temporary '/Users/oberon/projects/NewBCPL/build/obj/gen_PairExpression-5d673f68.o.tmp' to output file '/Users/oberon/projects/NewBCPL/build/obj/gen_PairExpression.o': 'No such file or directory'
+1 error generated.
+Rename failed: /Users/oberon/projects/NewBCPL/build/obj/gen_PairsAllocationExpression-2d8ea6ab.o.tmp -> /Users/oberon/projects/NewBCPL/build/obj/gen_PairsAllocationExpression.o: No such file or directory
+error: unable to rename temporary '/Users/oberon/projects/NewBCPL/build/obj/gen_PairsAllocationExpression-2d8ea6ab.o.tmp' to output file '/Users/oberon/projects/NewBCPL/build/obj/gen_PairsAllocationExpression.o': 'No such file or directory'
+1 error generated.
+Rename failed: /Users/oberon/projects/NewBCPL/build/obj/gen_ResultisStatement-acba18b6.o.tmp -> /Users/oberon/projects/NewBCPL/build/obj/gen_ResultisStatement.o: No such file or directory
+error: unable to rename temporary '/Users/oberon/projects/NewBCPL/build/obj/gen_ResultisStatement-acba18b6.o.tmp' to output file '/Users/oberon/projects/NewBCPL/build/obj/gen_ResultisStatement.o': 'No such file or directory'
+1 error generated.
+Rename failed: /Users/oberon/projects/NewBCPL/build/obj/gen_GlobalDeclaration-c453e483.o.tmp -> /Users/oberon/projects/NewBCPL/build/obj/gen_GlobalDeclaration.o: No such file or directory
+error: unable to rename temporary '/Users/oberon/projects/NewBCPL/build/obj/gen_GlobalDeclaration-c453e483.o.tmp' to output file '/Users/oberon/projects/NewBCPL/build/obj/gen_GlobalDeclaration.o': 'No such file or directory'
+1 error generated.
+Rename failed: /Users/oberon/projects/NewBCPL/build/obj/gen_RoutineCallStatement-626d1c3d.o.tmp -> /Users/oberon/projects/NewBCPL/build/obj/gen_RoutineCallStatement.o: No such file or directory
+error: unable to rename temporary '/Users/oberon/projects/NewBCPL/build/obj/gen_RoutineCallStatement-626d1c3d.o.tmp' to output file '/Users/oberon/projects/NewBCPL/build/obj/gen_RoutineCallStatement.o': 'No such file or directory'
+1 error generated.
+Rename failed: /Users/oberon/projects/NewBCPL/build/obj/gen_CharIndirection-008812a4.o.tmp -> /Users/oberon/projects/NewBCPL/build/obj/gen_CharIndirection.o: No such file or directory
+error: unable to rename temporary '/Users/oberon/projects/NewBCPL/build/obj/gen_CharIndirection-008812a4.o.tmp' to output file '/Users/oberon/projects/NewBCPL/build/obj/gen_CharIndirection.o': 'No such file or directory'
+1 error generated.
+Rename failed: /Users/oberon/projects/NewBCPL/build/obj/gen_FPairExpression-2fc8e95c.o.tmp -> /Users/oberon/projects/NewBCPL/build/obj/gen_FPairExpression.o: No such file or directory
+error: unable to rename temporary '/Users/oberon/projects/NewBCPL/build/obj/gen_FPairExpression-2fc8e95c.o.tmp' to output file '/Users/oberon/projects/NewBCPL/build/obj/gen_FPairExpression.o': 'No such file or directory'
+1 error generated.

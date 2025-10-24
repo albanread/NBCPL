@@ -1,5 +1,5 @@
 
-vec_add.o:	file format mach-o arm64
+vec_multiply.o:	file format mach-o arm64
 
 Disassembly of section __TEXT,__text:
 
@@ -135,7 +135,7 @@ Disassembly of section __TEXT,__text:
      200: f940018a     	ldr	x10, [x12]
      204: 9e670120     	fmov	d0, x9
      208: 9e670141     	fmov	d1, x10
-     20c: 0ea18400     	add.2s	v0, v0, v1
+     20c: 0ea19c00     	mul.2s	v0, v0, v1
      210: 9e66001b     	fmov	x27, d0
      214: aa1803ea     	mov	x10, x24
      218: d100054a     	sub	x10, x10, #0x1
@@ -151,7 +151,7 @@ Disassembly of section __TEXT,__text:
      240: 8b1402f7     	add	x23, x23, x20
      244: 3dc002e1     	ldr	q1, [x23]
      248: cb1402f7     	sub	x23, x23, x20
-     24c: 4ee18402     	add.2d	v2, v0, v1
+     24c: 4ea19c02     	mul.4s	v2, v0, v1
      250: 8b14035a     	add	x26, x26, x20
      254: 3d800342     	str	q2, [x26]
      258: cb14035a     	sub	x26, x26, x20
@@ -186,8 +186,8 @@ Disassembly of section __TEXT,__text:
      2cc: a9407bfd     	ldp	x29, x30, [sp]
      2d0: 910043ff     	add	sp, sp, #0x10
      2d4: d65f03c0     	ret
-     2d8: d2820610     	mov	x16, #0x1030            ; =4144
-     2dc: f2a04ef0     	movk	x16, #0x277, lsl #16
+     2d8: d29a0610     	mov	x16, #0xd030            ; =53296
+     2dc: f2a01b10     	movk	x16, #0xd8, lsl #16
      2e0: f2c00030     	movk	x16, #0x1, lsl #32
      2e4: f2e00010     	movk	x16, #0x0, lsl #48
      2e8: d63f0200     	blr	x16

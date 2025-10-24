@@ -31,6 +31,7 @@ std::string to_string(ASTNode::NodeType type) {
         case ASTNode::NodeType::ReductionStmt: return "ReductionStatement";
         case ASTNode::NodeType::ReductionLoopStmt: return "ReductionLoopStatement";
         case ASTNode::NodeType::PairwiseReductionLoopStmt: return "PairwiseReductionLoopStatement";
+        case ASTNode::NodeType::Neon128BitPairOpStmt: return "Neon128BitPairOpStatement";
         // --- ADDED CASES END HERE ---
 
         case ASTNode::NodeType::RetainStmt: return "RetainStatement";

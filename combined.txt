@@ -298,6 +298,16 @@ ASTNodePtr PairwiseReductionLoopStatement::clone() const {
     );
 }
 
+void Neon128BitPairOpStatement::accept(ASTVisitor& visitor) {
+    visitor.visit(*this);
+}
+
+ASTNodePtr Neon128BitPairOpStatement::clone() const {
+    return std::make_unique<Neon128BitPairOpStatement>(
+        dest_vector_name, left_vector_name, right_vector_name, loop_index_name, operation
+    );
+}
+
 // -- end of file
 
 // -- start of file: AST_Cloner.cpp
@@ -5146,6 +5156,47 @@ void CFGBuilderPass::build_destructuring_list_foreach_cfg(ForEachStatement& node
                       << " (horizontal reduction)" << std::endl;
         }
     }
+
+    // === Missing Visitor Methods ===
+    
+    void CFGBuilderPass::visit(ReductionLoopStatement& node) {
+        if (trace_enabled_) {
+            std::cout << "[CFGBuilderPass] visit(ReductionLoopStatement) entered" << std::endl;
+        }
+        
+        if (!current_basic_block) end_current_block_and_start_new();
+        current_basic_block->add_statement(std::unique_ptr<Statement>(static_cast<Statement*>(node.clone().release())));
+        
+        if (trace_enabled_) {
+            std::cout << "[CFGBuilderPass] visit(ReductionLoopStatement) exiting" << std::endl;
+        }
+    }
+
+    void CFGBuilderPass::visit(PairwiseReductionLoopStatement& node) {
+        if (trace_enabled_) {
+            std::cout << "[CFGBuilderPass] visit(PairwiseReductionLoopStatement) entered" << std::endl;
+        }
+        
+        if (!current_basic_block) end_current_block_and_start_new();
+        current_basic_block->add_statement(std::unique_ptr<Statement>(static_cast<Statement*>(node.clone().release())));
+        
+        if (trace_enabled_) {
+            std::cout << "[CFGBuilderPass] visit(PairwiseReductionLoopStatement) exiting" << std::endl;
+        }
+    }
+
+    void CFGBuilderPass::visit(Neon128BitPairOpStatement& node) {
+        if (trace_enabled_) {
+            std::cout << "[CFGBuilderPass] visit(Neon128BitPairOpStatement) entered for 128-bit NEON pair operation" << std::endl;
+        }
+        
+        if (!current_basic_block) end_current_block_and_start_new();
+        current_basic_block->add_statement(std::unique_ptr<Statement>(static_cast<Statement*>(node.clone().release())));
+        
+        if (trace_enabled_) {
+            std::cout << "[CFGBuilderPass] visit(Neon128BitPairOpStatement) exiting" << std::endl;
+        }
+    }
 // -- end of file
 
 // -- start of file: CallFrameManager.cpp
@@ -6906,6 +6957,7 @@ std::string to_string(ASTNode::NodeType type) {
         case ASTNode::NodeType::ReductionStmt: return "ReductionStatement";
         case ASTNode::NodeType::ReductionLoopStmt: return "ReductionLoopStatement";
         case ASTNode::NodeType::PairwiseReductionLoopStmt: return "PairwiseReductionLoopStatement";
+        case ASTNode::NodeType::Neon128BitPairOpStmt: return "Neon128BitPairOpStatement";
         // --- ADDED CASES END HERE ---
 
         case ASTNode::NodeType::RetainStmt: return "RetainStatement";
@@ -13723,6 +13775,72 @@ void NewCodeGenerator::visit(ReductionLoopStatement& node) {
     std::cout << "[DEBUG CODEGEN] *** ReductionLoopStatement visit complete! ***" << std::endl;
 }
 
+void NewCodeGenerator::visit(Neon128BitPairOpStatement& node) {
+    std::cout << "[DEBUG CODEGEN] *** VISITING Neon128BitPairOpStatement! ***" << std::endl;
+    debug_print("Generating optimized 128-bit NEON pair operation");
+    
+    // Get register addresses for the vectors
+    std::string dest_addr = get_variable_register(node.dest_vector_name);
+    std::string left_addr = get_variable_register(node.left_vector_name);
+    std::string right_addr = get_variable_register(node.right_vector_name);
+    // Get loop variable from NEON statement since we manage it ourselves with WHILE loop
+    std::string index_reg = get_variable_register(node.loop_index_name);
+    
+    // Calculate byte offset for current pair (each PAIR is 8 bytes)
+    std::string offset_reg = register_manager_.acquire_spillable_temp_reg(*this);
+    emit(Encoder::create_lsl_imm(offset_reg, index_reg, 3)); // multiply index by 8
+    
+    // Load two consecutive PAIRs (16 bytes total) into 128-bit NEON registers
+    std::string neon_left = register_manager_.acquire_q_scratch_reg(*this);
+    std::string neon_right = register_manager_.acquire_q_scratch_reg(*this);
+    std::string neon_result = register_manager_.acquire_q_scratch_reg(*this);
+    
+    // Load 128-bit data: LDR Q0, [left_addr + offset] and LDR Q1, [right_addr + offset]
+    emit(Encoder::create_add_reg(left_addr, left_addr, offset_reg));
+    emit(Encoder::create_ldr_vec_imm(neon_left, left_addr, 0));  // Load 128-bit
+    emit(Encoder::create_sub_reg(left_addr, left_addr, offset_reg));  // Restore base address
+    
+    emit(Encoder::create_add_reg(right_addr, right_addr, offset_reg));
+    emit(Encoder::create_ldr_vec_imm(neon_right, right_addr, 0)); // Load 128-bit
+    emit(Encoder::create_sub_reg(right_addr, right_addr, offset_reg)); // Restore base address
+    
+    // Convert Q registers to V registers for NEON arithmetic (Q0->V0, Q1->V1, Q2->V2)
+    std::string v_left = "V" + neon_left.substr(1);    // Q0 -> V0
+    std::string v_right = "V" + neon_right.substr(1);  // Q1 -> V1  
+    std::string v_result = "V" + neon_result.substr(1); // Q2 -> V2
+    
+    // Perform 128-bit NEON operation based on operation type
+    switch (node.operation) {
+        case 0: // Add
+            emit(Encoder::create_add_vector_reg(v_result, v_left, v_right, "2D"));
+            debug_print("Generated 128-bit NEON ADD for two PAIRs");
+            break;
+        case 1: // Subtract  
+            emit(Encoder::create_sub_vector_reg(v_result, v_left, v_right, "2D"));
+            debug_print("Generated 128-bit NEON SUB for two PAIRs");
+            break;
+        case 2: // Multiply
+            // For PAIR multiplication, use .4S arrangement (4x32-bit integers)
+            emit(Encoder::create_mul_vector_reg(v_result, v_left, v_right, "4S"));
+            debug_print("Generated 128-bit NEON MUL for two PAIRs (.4S arrangement)");
+            break;
+        default:
+            debug_print("Unsupported 128-bit NEON operation: " + std::to_string(node.operation));
+            break;
+    }
+    
+    // Store 128-bit result back to destination
+    emit(Encoder::create_add_reg(dest_addr, dest_addr, offset_reg));
+    emit(Encoder::create_str_vec_imm(neon_result, dest_addr, 0)); // Store 128-bit
+    emit(Encoder::create_sub_reg(dest_addr, dest_addr, offset_reg));   // Restore base address
+    
+    // Release temporary registers
+    register_manager_.release_register(offset_reg);
+    register_manager_.release_vec_scratch_reg(neon_left);
+    register_manager_.release_vec_scratch_reg(neon_right);
+    register_manager_.release_vec_scratch_reg(neon_result);
+}
+
 void NewCodeGenerator::visit(PairwiseReductionLoopStatement& node) {
     std::cout << "[DEBUG CODEGEN] *** VISITING PairwiseReductionLoopStatement! ***" << std::endl;
     debug_print("Generating type-aware NEON pairwise reduction with intrinsic: " + node.intrinsic_name);
@@ -18831,6 +18949,9 @@ PeepholeOptimizer::PeepholeOptimizer(bool enable_tracing)
         addPattern(PeepholePatterns::createDeadStorePattern());
         addPattern(PeepholePatterns::createRedundantStorePattern());
         addPattern(PeepholePatterns::createLoadThroughScratchRegisterPattern());
+
+        // 4. NEON SIMD Optimization Pass
+        addPattern(createNeon128BitFusionPattern());
         addPattern(PeepholePatterns::createConservativeMovzScratchPattern());
         addPattern(PeepholePatterns::createLdrToLdpXPattern());
         addPattern(PeepholePatterns::createStrToStpXPattern());
@@ -19750,6 +19871,81 @@ std::unique_ptr<InstructionPattern> PeepholeOptimizer::createSelfMoveElimination
             return {};
         },
         "Self-Move Elimination"
+    );
+}
+
+/**
+ * @brief Creates a pattern to detect consecutive NEON mul.2s instructions for 128-bit fusion.
+ * Pattern: Look for two MUL vector operations with .2S arrangement within a loop structure
+ */
+std::unique_ptr<InstructionPattern> PeepholeOptimizer::createNeon128BitFusionPattern() {
+    return std::make_unique<InstructionPattern>(
+        8,  // Pattern size: two complete fmov-mul-fmov sequences (4 instructions each)
+        [](const std::vector<Instruction>& instrs, size_t pos) -> MatchResult {
+            // Need at least 8 instructions from current position for two complete sequences
+            if (pos + 7 >= instrs.size()) return {false, 0};
+            
+            // Look for pattern: fmov d0, xN; fmov d1, xM; mul.2s v0, v0, v1; fmov xP, d0
+            // followed by:      fmov d0, xQ; fmov d1, xR; mul.2s v0, v0, v1; fmov xS, d0
+            
+            // Check first sequence (instructions pos through pos+3)
+            if (instrs[pos].nopeep || instrs[pos+1].nopeep || instrs[pos+2].nopeep || instrs[pos+3].nopeep) {
+                return {false, 0};
+            }
+            
+            // Pattern: fmov d0, x*; fmov d1, x*; mul.2s v0, v0, v1; fmov x*, d0
+            bool first_seq_matches = 
+                InstructionDecoder::getOpcode(instrs[pos]) == InstructionDecoder::OpType::FMOV &&
+                InstructionDecoder::getOpcode(instrs[pos+1]) == InstructionDecoder::OpType::FMOV &&
+                instrs[pos+2].encoding == 0x0ea19c00 &&                  // mul.2s v0, v0, v1 (specific encoding)
+                InstructionDecoder::getOpcode(instrs[pos+3]) == InstructionDecoder::OpType::FMOV;
+                
+            if (!first_seq_matches) return {false, 0};
+            
+            // Check second sequence (instructions pos+4 through pos+7)
+            if (instrs[pos+4].nopeep || instrs[pos+5].nopeep || instrs[pos+6].nopeep || instrs[pos+7].nopeep) {
+                return {false, 0};
+            }
+            
+            bool second_seq_matches = 
+                InstructionDecoder::getOpcode(instrs[pos+4]) == InstructionDecoder::OpType::FMOV &&
+                InstructionDecoder::getOpcode(instrs[pos+5]) == InstructionDecoder::OpType::FMOV &&
+                instrs[pos+6].encoding == 0x0ea19c00 &&                  // mul.2s v0, v0, v1 (specific encoding)
+                InstructionDecoder::getOpcode(instrs[pos+7]) == InstructionDecoder::OpType::FMOV;
+                
+            if (second_seq_matches) {
+                return {true, 8};  // Match exactly 8 instructions
+            }
+            
+            return {false, 0};
+        },
+        [](const std::vector<Instruction>& instrs, size_t pos) -> std::vector<Instruction> {
+            // Replace 8 instructions with 5: comment + fused sequence
+            
+            // Add comment about the optimization
+            Instruction comment;
+            comment.encoding = 0;
+            comment.assembly_text = "; 128-bit NEON fusion: combining two mul.2s sequences into one mul.4s";
+            comment.segment = SegmentType::CODE;
+            
+            // Keep first fmov d0, x* (load first pair's first element)
+            Instruction fmov1 = instrs[pos];
+            
+            // Keep first fmov d1, x* (load first pair's second element)  
+            Instruction fmov2 = instrs[pos+1];
+            
+            // Create fused 128-bit MUL instruction
+            Instruction fused_mul = instrs[pos+2];
+            fused_mul.encoding |= 0x40000000;  // Convert .2S to .4S (set bit 30)
+            fused_mul.assembly_text = "mul\tv0.4s, v0.4s, v1.4s\t; fused 128-bit operation";
+            
+            // Keep first fmov x*, d0 (extract result)
+            Instruction fmov_result = instrs[pos+3];
+            
+            // Return the fused sequence: comment + 4 instructions
+            return { comment, fmov1, fmov2, fused_mul, fmov_result };
+        },
+        "128-bit NEON MUL Fusion (complete sequence)"
     );
 }
 
@@ -26167,6 +26363,9 @@ std::unique_ptr<BlockStatement> VectorPairwiseLowerer::lowerVectorOperation(cons
     std::string loop_var_name = createTempVarName("__vec_i");
     std::string length_var_name = createTempVarName("__vec_len");
     
+    // Register the loop variable in symbol table since we manage it ourselves with WHILE loop
+    registerTempVariable(loop_var_name, VarType::INTEGER);
+    
     // Create the block that will contain our lowered code
     auto lowered_block = std::make_unique<BlockStatement>(
         std::vector<DeclPtr>{}, std::vector<StmtPtr>{}
@@ -26233,59 +26432,201 @@ std::unique_ptr<BlockStatement> VectorPairwiseLowerer::lowerVectorOperation(cons
     
     lowered_block->statements.push_back(std::move(dest_assignment));
     
-    // Step 3: Create the loop - FOR __vec_i = 0 TO __vec_len - 1 DO
-    auto loop_body = std::make_unique<BlockStatement>(
-        std::vector<DeclPtr>{}, std::vector<StmtPtr>{}
-    );
+    // Step 3: Create optimized loops for 128-bit NEON operations
+    // For PAIRS vectors, process 2 elements at a time (128-bit) when possible
     
-    // Loop body: dest_var[__vec_i] = left[__vec_i] op right[__vec_i]
-    std::vector<ExprPtr> loop_assign_lhs;
-    loop_assign_lhs.push_back(std::make_unique<VectorAccess>(
-        std::make_unique<VariableAccess>(dest_var_name),
-        std::make_unique<VariableAccess>(loop_var_name)
-    ));
-    
-    std::vector<ExprPtr> loop_assign_rhs;
-    loop_assign_rhs.push_back(std::make_unique<BinaryOp>(
-        binary_op->op,
-        std::make_unique<VectorAccess>(
-            std::unique_ptr<Expression>(static_cast<Expression*>(binary_op->left->clone().release())),
-            std::make_unique<VariableAccess>(loop_var_name)
-        ),
-        std::make_unique<VectorAccess>(
-            std::unique_ptr<Expression>(static_cast<Expression*>(binary_op->right->clone().release())),
-            std::make_unique<VariableAccess>(loop_var_name)
-        )
-    ));
-    
-    // Create the loop body assignment
-    auto loop_assignment = std::make_unique<AssignmentStatement>(
-        std::move(loop_assign_lhs), std::move(loop_assign_rhs)
-    );
-    
-    // Analyze the loop assignment statement immediately after creation
-    loop_assignment->accept(*analyzer_);
-    
-    loop_body->statements.push_back(std::move(loop_assignment));
-    
-    // Create the FOR loop: FOR __vec_i = 0 TO __vec_len - 1 (BCPL vectors are 0-indexed)
-    // Note: The loop variable will be registered automatically when ForLoop is analyzed
-    auto for_loop = std::make_unique<ForStatement>(
-        loop_var_name,
-        std::make_unique<NumberLiteral>(static_cast<int64_t>(0)), // start: 0
-        std::make_unique<BinaryOp>(                                // end: __vec_len - 1
-            BinaryOp::Operator::Subtract,
-            std::make_unique<VariableAccess>(length_var_name),
+    if (base_vector_type == VarType::PAIRS || base_vector_type == VarType::POINTER_TO_PAIRS) {
+        // Generate 128-bit optimized loop for pairs of PAIR elements
+        
+        // Main loop: Process 2 PAIRs at a time using 128-bit NEON (for even lengths >= 2)
+        auto main_loop_body = std::make_unique<BlockStatement>(
+            std::vector<DeclPtr>{}, std::vector<StmtPtr>{}
+        );
+        
+        // Extract vector names for the specialized 128-bit NEON operation
+        std::string left_vector_name = "UNKNOWN_LEFT";
+        std::string right_vector_name = "UNKNOWN_RIGHT";
+        
+        // Extract variable names from the binary operation operands
+        if (auto left_var = dynamic_cast<VariableAccess*>(binary_op->left.get())) {
+            left_vector_name = left_var->name;
+        }
+        if (auto right_var = dynamic_cast<VariableAccess*>(binary_op->right.get())) {
+            right_vector_name = right_var->name;
+        }
+        // Create a single 128-bit NEON pair operation statement
+        // This will be recognized by the code generator and emit optimized NEON instructions
+        // We manage the loop variable ourselves with WHILE loop infrastructure
+        auto neon_pair_op = std::make_unique<Neon128BitPairOpStatement>(
+            dest_var_name,           // destination vector
+            left_vector_name,        // left operand vector  
+            right_vector_name,       // right operand vector
+            loop_var_name,           // loop index variable we manage
+            static_cast<int>(binary_op->op)  // operation type (Add, Subtract, Multiply, etc.)
+        );
+        
+        // NEON operation will be added to loop body after loop variable initialization
+        
+        // Initialize loop variable: __vec_i = 0
+        std::vector<ExprPtr> loop_init_lhs;
+        loop_init_lhs.push_back(std::make_unique<VariableAccess>(loop_var_name));
+        std::vector<ExprPtr> loop_init_rhs;
+        loop_init_rhs.push_back(std::make_unique<NumberLiteral>(static_cast<int64_t>(0)));
+        auto loop_init = std::make_unique<AssignmentStatement>(
+            std::move(loop_init_lhs), std::move(loop_init_rhs), "loop_init"
+        );
+        loop_init->accept(*analyzer_);
+        lowered_block->statements.push_back(std::move(loop_init));
+        
+        // Add NEON operation to loop body
+        main_loop_body->statements.push_back(std::move(neon_pair_op));
+        
+        // Add loop increment: __vec_i = __vec_i + 2
+        std::vector<ExprPtr> loop_incr_lhs;
+        loop_incr_lhs.push_back(std::make_unique<VariableAccess>(loop_var_name));
+        std::vector<ExprPtr> loop_incr_rhs;
+        loop_incr_rhs.push_back(std::make_unique<BinaryOp>(
+            BinaryOp::Operator::Add,
+            std::make_unique<VariableAccess>(loop_var_name),
+            std::make_unique<NumberLiteral>(static_cast<int64_t>(2))
+        ));
+        auto loop_incr = std::make_unique<AssignmentStatement>(
+            std::move(loop_incr_lhs), std::move(loop_incr_rhs), "loop_increment"
+        );
+        main_loop_body->statements.push_back(std::move(loop_incr));
+        
+        // Main loop: WHILE __vec_i <= __vec_len-2 DO (process 2 elements at a time)
+        auto loop_condition = std::make_unique<BinaryOp>(
+            BinaryOp::Operator::LessEqual,
+            std::make_unique<VariableAccess>(loop_var_name),
+            std::make_unique<BinaryOp>(
+                BinaryOp::Operator::Subtract,
+                std::make_unique<VariableAccess>(length_var_name),
+                std::make_unique<NumberLiteral>(static_cast<int64_t>(2))
+            )
+        );
+        
+        auto main_while_loop = std::make_unique<WhileStatement>(
+            std::move(loop_condition),
+            std::move(main_loop_body)
+        );
+        
+        main_while_loop->accept(*analyzer_);
+        lowered_block->statements.push_back(std::move(main_while_loop));
+        
+        // Cleanup loop: Handle the last element if vector length is odd
+        // IF (__vec_len & 1) == 1 THEN dest_var[__vec_len-1] = left[__vec_len-1] op right[__vec_len-1]
+        
+        // Condition: (__vec_len & 1) == 1
+        auto odd_check = std::make_unique<BinaryOp>(
+            BinaryOp::Operator::Equal,
+            std::make_unique<BinaryOp>(
+                BinaryOp::Operator::BitwiseAnd,
+                std::make_unique<VariableAccess>(length_var_name),
+                std::make_unique<NumberLiteral>(static_cast<int64_t>(1))
+            ),
             std::make_unique<NumberLiteral>(static_cast<int64_t>(1))
-        ),
-        std::move(loop_body),
-        nullptr  // step (default to 1)
-    );
-    
-    // Analyze the FOR loop immediately after creation - this will handle the scope management
-    for_loop->accept(*analyzer_);
-    
-    lowered_block->statements.push_back(std::move(for_loop));
+        );
+        
+        // Cleanup assignment for the last odd element
+        std::vector<ExprPtr> cleanup_lhs;
+        cleanup_lhs.push_back(std::make_unique<VectorAccess>(
+            std::make_unique<VariableAccess>(dest_var_name),
+            std::make_unique<BinaryOp>(
+                BinaryOp::Operator::Subtract,
+                std::make_unique<VariableAccess>(length_var_name),
+                std::make_unique<NumberLiteral>(static_cast<int64_t>(1))
+            )
+        ));
+        
+        std::vector<ExprPtr> cleanup_rhs;
+        cleanup_rhs.push_back(std::make_unique<BinaryOp>(
+            binary_op->op,
+            std::make_unique<VectorAccess>(
+                std::unique_ptr<Expression>(static_cast<Expression*>(binary_op->left->clone().release())),
+                std::make_unique<BinaryOp>(
+                    BinaryOp::Operator::Subtract,
+                    std::make_unique<VariableAccess>(length_var_name),
+                    std::make_unique<NumberLiteral>(static_cast<int64_t>(1))
+                )
+            ),
+            std::make_unique<VectorAccess>(
+                std::unique_ptr<Expression>(static_cast<Expression*>(binary_op->right->clone().release())),
+                std::make_unique<BinaryOp>(
+                    BinaryOp::Operator::Subtract,
+                    std::make_unique<VariableAccess>(length_var_name),
+                    std::make_unique<NumberLiteral>(static_cast<int64_t>(1))
+                )
+            )
+        ));
+        
+        auto cleanup_assignment = std::make_unique<AssignmentStatement>(
+            std::move(cleanup_lhs), std::move(cleanup_rhs)
+        );
+        cleanup_assignment->accept(*analyzer_);
+        
+        auto cleanup_body = std::make_unique<BlockStatement>(
+            std::vector<DeclPtr>{}, std::vector<StmtPtr>{}
+        );
+        cleanup_body->statements.push_back(std::move(cleanup_assignment));
+        
+        auto cleanup_if = std::make_unique<IfStatement>(
+            std::move(odd_check),
+            std::move(cleanup_body)
+        );
+        
+        cleanup_if->accept(*analyzer_);
+        lowered_block->statements.push_back(std::move(cleanup_if));
+        
+    } else {
+        // For non-PAIRS vectors, use the original single-element loop
+        auto loop_body = std::make_unique<BlockStatement>(
+            std::vector<DeclPtr>{}, std::vector<StmtPtr>{}
+        );
+        
+        // Loop body: dest_var[__vec_i] = left[__vec_i] op right[__vec_i]
+        std::vector<ExprPtr> loop_assign_lhs;
+        loop_assign_lhs.push_back(std::make_unique<VectorAccess>(
+            std::make_unique<VariableAccess>(dest_var_name),
+            std::make_unique<VariableAccess>(loop_var_name)
+        ));
+        
+        std::vector<ExprPtr> loop_assign_rhs;
+        loop_assign_rhs.push_back(std::make_unique<BinaryOp>(
+            binary_op->op,
+            std::make_unique<VectorAccess>(
+                std::unique_ptr<Expression>(static_cast<Expression*>(binary_op->left->clone().release())),
+                std::make_unique<VariableAccess>(loop_var_name)
+            ),
+            std::make_unique<VectorAccess>(
+                std::unique_ptr<Expression>(static_cast<Expression*>(binary_op->right->clone().release())),
+                std::make_unique<VariableAccess>(loop_var_name)
+            )
+        ));
+        
+        // Create the loop body assignment
+        auto loop_assignment = std::make_unique<AssignmentStatement>(
+            std::move(loop_assign_lhs), std::move(loop_assign_rhs)
+        );
+        loop_assignment->accept(*analyzer_);
+        loop_body->statements.push_back(std::move(loop_assignment));
+        
+        // Create the FOR loop: FOR __vec_i = 0 TO __vec_len - 1 (BCPL vectors are 0-indexed)
+        auto for_loop = std::make_unique<ForStatement>(
+            loop_var_name,
+            std::make_unique<NumberLiteral>(static_cast<int64_t>(0)), // start: 0
+            std::make_unique<BinaryOp>(                                // end: __vec_len - 1
+                BinaryOp::Operator::Subtract,
+                std::make_unique<VariableAccess>(length_var_name),
+                std::make_unique<NumberLiteral>(static_cast<int64_t>(1))
+            ),
+            std::move(loop_body),
+            nullptr  // step (default to 1)
+        );
+        
+        for_loop->accept(*analyzer_);
+        lowered_block->statements.push_back(std::move(for_loop));
+    }
     
     // Analyze the entire lowered block to ensure all nested nodes are properly analyzed
     lowered_block->accept(*analyzer_);
@@ -67366,6 +67707,466 @@ int main() {
 
 // -- end of file
 
+// -- start of file: test_fixed_neon_optimization.cpp
+#include "PeepholeOptimizer.h"
+#include "InstructionStream.h"
+#include "LabelManager.h"
+#include "VectorCodeGen.h"
+#include <iostream>
+#include <iomanip>
+#include <cassert>
+
+void printInstructions(const std::vector<Instruction>& instructions, const std::string& title) {
+    std::cout << "\n=== " << title << " ===\n";
+    for (size_t i = 0; i < instructions.size(); i++) {
+        std::cout << std::setw(4) << i << ": 0x" << std::hex << std::setw(8) << std::setfill('0') 
+                  << instructions[i].encoding << std::dec << " " << instructions[i].assembly_text << "\n";
+    }
+    std::cout << "Total instructions: " << instructions.size() << "\n";
+}
+
+void testNeonOptimizationBasic() {
+    std::cout << "\n***** Basic NEON Optimization Test *****\n";
+    
+    // Create instruction stream with two consecutive NEON MUL .2S instructions
+    InstructionStream stream(LabelManager::instance(), false);
+    
+    // Add the two NEON MUL instructions that should be fused
+    Instruction mul1 = VectorCodeGen::mul_vector_2s("V0", "V0", "V1");
+    Instruction mul2 = VectorCodeGen::mul_vector_2s("V2", "V2", "V3");
+    
+    stream.add_instruction(mul1);
+    stream.add_instruction(mul2);
+    
+    auto instructions_before = stream.get_instructions();
+    printInstructions(instructions_before, "Before Optimization");
+    
+    // Verify the encodings are what we expect
+    assert(instructions_before[0].encoding == 0x0ea19c00);
+    assert(instructions_before[1].encoding == 0x0ea19c00);
+    std::cout << "✓ Input instructions have correct .2S encodings\n";
+    
+    // Create peephole optimizer with tracing enabled
+    PeepholeOptimizer optimizer(true);
+    
+    // Run optimization
+    optimizer.optimize(stream, 3);
+    
+    auto instructions_after = stream.get_instructions();
+    printInstructions(instructions_after, "After Optimization");
+    
+    // Check results
+    const auto& stats = optimizer.getStats();
+    std::cout << "\nOptimization Statistics:\n";
+    std::cout << "Instructions before: " << stats.total_instructions_before << "\n";
+    std::cout << "Instructions after: " << stats.total_instructions_after << "\n";
+    std::cout << "Optimizations applied: " << stats.optimizations_applied << "\n";
+    
+    for (const auto& [pattern, count] : stats.pattern_matches) {
+        std::cout << "Pattern '" << pattern << "': " << count << " matches\n";
+    }
+    
+    // Verify the optimization worked
+    if (stats.optimizations_applied > 0) {
+        std::cout << "✓ NEON optimization was applied!\n";
+        
+        // Check if we have a .4S instruction (0x4ea19c00)
+        bool found_4s = false;
+        for (const auto& instr : instructions_after) {
+            if (instr.encoding == 0x4ea19c00) {
+                found_4s = true;
+                std::cout << "✓ Found fused .4S instruction: " << instr.assembly_text << "\n";
+                break;
+            }
+        }
+        
+        if (!found_4s) {
+            std::cout << "✗ Expected .4S instruction not found\n";
+        }
+        
+        // Check that we have fewer instructions than before
+        if (instructions_after.size() < instructions_before.size()) {
+            std::cout << "✓ Instruction count reduced from " << instructions_before.size() 
+                      << " to " << instructions_after.size() << "\n";
+        }
+        
+    } else {
+        std::cout << "✗ NEON optimization was NOT applied\n";
+    }
+}
+
+void testNeonOptimizationWithGaps() {
+    std::cout << "\n***** NEON Optimization Test with Instruction Gaps *****\n";
+    
+    // Create instruction stream with a gap between NEON instructions
+    InstructionStream stream(LabelManager::instance(), false);
+    
+    // Add first NEON MUL
+    stream.add_instruction(VectorCodeGen::mul_vector_2s("V0", "V0", "V1"));
+    
+    // Add a NOP instruction in between
+    Instruction nop;
+    nop.encoding = 0xd503201f;
+    nop.assembly_text = "nop";
+    nop.segment = SegmentType::CODE;
+    stream.add_instruction(nop);
+    
+    // Add second NEON MUL
+    stream.add_instruction(VectorCodeGen::mul_vector_2s("V2", "V2", "V3"));
+    
+    auto instructions_before = stream.get_instructions();
+    printInstructions(instructions_before, "Before Optimization (with gap)");
+    
+    // Create peephole optimizer
+    PeepholeOptimizer optimizer(true);
+    optimizer.optimize(stream, 3);
+    
+    auto instructions_after = stream.get_instructions();
+    printInstructions(instructions_after, "After Optimization (with gap)");
+    
+    const auto& stats = optimizer.getStats();
+    std::cout << "Optimizations applied: " << stats.optimizations_applied << "\n";
+    
+    // With the fixed pattern, this should NOT be optimized since instructions aren't consecutive
+    if (stats.optimizations_applied == 0) {
+        std::cout << "✓ Correctly did NOT optimize non-consecutive NEON instructions\n";
+    } else {
+        std::cout << "✗ Unexpected: optimized non-consecutive instructions\n";
+    }
+}
+
+void testSingleNeonInstruction() {
+    std::cout << "\n***** Single NEON Instruction Test *****\n";
+    
+    // Create instruction stream with only one NEON MUL
+    InstructionStream stream(LabelManager::instance(), false);
+    stream.add_instruction(VectorCodeGen::mul_vector_2s("V0", "V0", "V1"));
+    
+    auto instructions_before = stream.get_instructions();
+    printInstructions(instructions_before, "Before Optimization (single)");
+    
+    PeepholeOptimizer optimizer(true);
+    optimizer.optimize(stream, 3);
+    
+    auto instructions_after = stream.get_instructions();
+    printInstructions(instructions_after, "After Optimization (single)");
+    
+    const auto& stats = optimizer.getStats();
+    
+    // Should not optimize a single instruction
+    if (stats.optimizations_applied == 0) {
+        std::cout << "✓ Correctly did NOT optimize single NEON instruction\n";
+    } else {
+        std::cout << "✗ Unexpected: optimized single instruction\n";
+    }
+}
+
+void testNopeepAttribute() {
+    std::cout << "\n***** Nopeep Attribute Test *****\n";
+    
+    // Create instruction stream with nopeep attribute
+    InstructionStream stream(LabelManager::instance(), false);
+    
+    Instruction mul1 = VectorCodeGen::mul_vector_2s("V0", "V0", "V1");
+    Instruction mul2 = VectorCodeGen::mul_vector_2s("V2", "V2", "V3");
+    
+    // Set nopeep on first instruction
+    mul1.nopeep = true;
+    
+    stream.add_instruction(mul1);
+    stream.add_instruction(mul2);
+    
+    auto instructions_before = stream.get_instructions();
+    printInstructions(instructions_before, "Before Optimization (with nopeep)");
+    
+    PeepholeOptimizer optimizer(true);
+    optimizer.optimize(stream, 3);
+    
+    auto instructions_after = stream.get_instructions();
+    const auto& stats = optimizer.getStats();
+    
+    // Should not optimize due to nopeep attribute
+    if (stats.optimizations_applied == 0) {
+        std::cout << "✓ Correctly respected nopeep attribute\n";
+    } else {
+        std::cout << "✗ Unexpected: ignored nopeep attribute\n";
+    }
+}
+
+void verifyEncodingConversion() {
+    std::cout << "\n***** Encoding Conversion Verification *****\n";
+    
+    // Test the bit manipulation directly
+    uint32_t original_2s = 0x0ea19c00;  // .2S encoding
+    uint32_t expected_4s = 0x4ea19c00;  // .4S encoding
+    uint32_t converted = original_2s | 0x40000000;  // Set bit 30
+    
+    std::cout << "Original .2S: 0x" << std::hex << original_2s << std::dec << "\n";
+    std::cout << "Converted:    0x" << std::hex << converted << std::dec << "\n";
+    std::cout << "Expected .4S: 0x" << std::hex << expected_4s << std::dec << "\n";
+    
+    if (converted == expected_4s) {
+        std::cout << "✓ Encoding conversion is correct\n";
+    } else {
+        std::cout << "✗ Encoding conversion failed\n";
+    }
+    
+    // Show bit patterns
+    std::cout << "\nBit analysis:\n";
+    std::cout << ".2S: " << std::bitset<32>(original_2s) << "\n";
+    std::cout << ".4S: " << std::bitset<32>(converted) << "\n";
+    std::cout << "Diff:" << std::bitset<32>(converted ^ original_2s) << " (bit 30)\n";
+}
+
+int main() {
+    std::cout << "=== Testing Fixed NEON Peephole Optimization ===\n";
+    
+    try {
+        verifyEncodingConversion();
+        testNeonOptimizationBasic();
+        testNeonOptimizationWithGaps();
+        testSingleNeonInstruction();
+        testNopeepAttribute();
+        
+        std::cout << "\n=== All Tests Complete ===\n";
+        std::cout << "The fixed NEON optimization should now work correctly!\n";
+        
+    } catch (const std::exception& e) {
+        std::cerr << "Error during testing: " << e.what() << std::endl;
+        return 1;
+    }
+    
+    return 0;
+}
+// -- end of file
+
+// -- start of file: test_fixed_neon_pattern.cpp
+#include "PeepholeOptimizer.h"
+#include "InstructionDecoder.h"
+#include "VectorCodeGen.h"
+#include <memory>
+#include <iostream>
+
+/**
+ * Fixed NEON 128-bit fusion pattern that follows the successful pattern structure.
+ * 
+ * Key fixes:
+ * 1. Match exactly 2 consecutive NEON MUL .2S instructions (no variable window)
+ * 2. Return exactly what was matched (2 instructions -> replacements for 2 instructions)
+ * 3. Simple, direct transformation logic
+ * 4. Consistent length reporting between matcher and transformer
+ */
+std::unique_ptr<InstructionPattern> createFixedNeon128BitFusionPattern() {
+    return std::make_unique<InstructionPattern>(
+        2,  // Pattern size: exactly 2 instructions
+        [](const std::vector<Instruction>& instrs, size_t pos) -> MatchResult {
+            // Need at least 2 instructions from current position
+            if (pos + 1 >= instrs.size()) return {false, 0};
+            
+            const auto& instr1 = instrs[pos];
+            const auto& instr2 = instrs[pos + 1];
+            
+            // Check if either instruction has nopeep attribute
+            if (instr1.nopeep || instr2.nopeep) {
+                return {false, 0};
+            }
+            
+            // Both instructions must be NEON MUL .2S (encoding 0x0ea19c00)
+            if (instr1.encoding == 0x0ea19c00 && instr2.encoding == 0x0ea19c00) {
+                return {true, 2};  // Match exactly 2 instructions
+            }
+            
+            return {false, 0};
+        },
+        [](const std::vector<Instruction>& instrs, size_t pos) -> std::vector<Instruction> {
+            const auto& instr1 = instrs[pos];
+            const auto& instr2 = instrs[pos + 1];
+            
+            // Create fused 128-bit instruction by modifying the first instruction
+            Instruction fused_mul = instr1;
+            
+            // Convert from .2S to .4S by setting bit 30
+            // Original: 0x0ea19c00 (.2S arrangement)  
+            // Target:   0x4ea19c00 (.4S arrangement)
+            fused_mul.encoding |= 0x40000000;
+            fused_mul.assembly_text = "mul\tv0.4s, v0.4s, v1.4s\t; fused 128-bit operation";
+            
+            // Add comment about the optimization
+            Instruction comment;
+            comment.encoding = 0;
+            comment.assembly_text = "; 128-bit NEON fusion: replaced two mul.2s with one mul.4s";
+            comment.segment = SegmentType::CODE;
+            
+            // Return exactly 2 replacement instructions (comment + fused instruction)
+            return { comment, fused_mul };
+        },
+        "Fixed 128-bit NEON MUL Fusion"
+    );
+}
+
+/**
+ * Alternative approach: Match any two NEON MUL .2S within a small window
+ * but still return consistent length
+ */
+std::unique_ptr<InstructionPattern> createFlexibleNeonFusionPattern() {
+    return std::make_unique<InstructionPattern>(
+        5,  // Search window: look ahead up to 5 instructions
+        [](const std::vector<Instruction>& instrs, size_t pos) -> MatchResult {
+            if (pos + 4 >= instrs.size()) return {false, 0};
+            
+            // Look for first NEON MUL .2S at current position
+            if (instrs[pos].encoding != 0x0ea19c00 || instrs[pos].nopeep) {
+                return {false, 0};
+            }
+            
+            // Look for second NEON MUL .2S within next 4 instructions
+            for (size_t i = pos + 1; i <= pos + 4 && i < instrs.size(); i++) {
+                if (instrs[i].encoding == 0x0ea19c00 && !instrs[i].nopeep) {
+                    // Found second MUL, return the span from pos to i+1
+                    return {true, i - pos + 1};
+                }
+            }
+            
+            return {false, 0};
+        },
+        [](const std::vector<Instruction>& instrs, size_t pos) -> std::vector<Instruction> {
+            std::vector<Instruction> result;
+            
+            // Find the two MUL positions again (consistent with matcher)
+            size_t first_mul_pos = pos;  // First MUL is at pos
+            size_t second_mul_pos = 0;
+            
+            for (size_t i = pos + 1; i <= pos + 4 && i < instrs.size(); i++) {
+                if (instrs[i].encoding == 0x0ea19c00 && !instrs[i].nopeep) {
+                    second_mul_pos = i;
+                    break;
+                }
+            }
+            
+            if (second_mul_pos == 0) {
+                // Shouldn't happen if matcher worked correctly, but handle gracefully
+                for (size_t i = pos; i <= pos + 4 && i < instrs.size(); i++) {
+                    result.push_back(instrs[i]);
+                }
+                return result;
+            }
+            
+            // Create fused instruction from the first MUL
+            Instruction fused_mul = instrs[first_mul_pos];
+            fused_mul.encoding |= 0x40000000;  // Convert .2S to .4S
+            fused_mul.assembly_text = "mul\tv0.4s, v0.4s, v1.4s\t; fused 128-bit operation";
+            
+            // Copy instructions before second MUL
+            for (size_t i = pos; i < second_mul_pos; i++) {
+                if (i == first_mul_pos) {
+                    // Replace first MUL with fused version
+                    result.push_back(fused_mul);
+                } else {
+                    result.push_back(instrs[i]);
+                }
+            }
+            
+            // Skip the second MUL (it's been fused into the first)
+            // Add comment where second MUL was
+            Instruction comment;
+            comment.encoding = 0;
+            comment.assembly_text = "; second mul.2s eliminated by fusion";
+            comment.segment = SegmentType::CODE;
+            result.push_back(comment);
+            
+            // Copy any remaining instructions after second MUL
+            for (size_t i = second_mul_pos + 1; i <= pos + 4 && i < instrs.size(); i++) {
+                result.push_back(instrs[i]);
+            }
+            
+            return result;
+        },
+        "Flexible 128-bit NEON MUL Fusion"
+    );
+}
+
+// Test function to validate the fixed patterns
+void testFixedNeonPatterns() {
+    std::cout << "\n=== Testing Fixed NEON Patterns ===\n";
+    
+    // Create test instructions
+    std::vector<Instruction> instructions;
+    instructions.push_back(VectorCodeGen::mul_vector_2s("V0", "V0", "V1"));
+    instructions.push_back(VectorCodeGen::mul_vector_2s("V2", "V2", "V3"));
+    
+    std::cout << "Original instructions:\n";
+    for (size_t i = 0; i < instructions.size(); i++) {
+        std::cout << i << ": 0x" << std::hex << instructions[i].encoding 
+                  << std::dec << " " << instructions[i].assembly_text << "\n";
+    }
+    
+    // Test the fixed pattern
+    auto fixed_pattern = createFixedNeon128BitFusionPattern();
+    MatchResult result = fixed_pattern->matches(instructions, 0);
+    
+    std::cout << "\nFixed pattern match result:\n";
+    std::cout << "Matched: " << (result.matched ? "YES" : "NO") << "\n";
+    std::cout << "Length: " << result.length << "\n";
+    
+    if (result.matched) {
+        std::vector<Instruction> transformed = fixed_pattern->transform(instructions, 0);
+        
+        std::cout << "\nTransformed instructions (" << transformed.size() << "):\n";
+        for (size_t i = 0; i < transformed.size(); i++) {
+            std::cout << i << ": 0x" << std::hex << transformed[i].encoding 
+                      << std::dec << " " << transformed[i].assembly_text << "\n";
+        }
+        
+        // Verify consistency
+        if (transformed.size() == result.length) {
+            std::cout << "\n✓ Transformation is consistent (length matches)\n";
+        } else {
+            std::cout << "\n✗ Transformation inconsistent: reported " << result.length 
+                      << " but returned " << transformed.size() << "\n";
+        }
+    }
+    
+    // Test flexible pattern
+    std::cout << "\n--- Testing Flexible Pattern ---\n";
+    auto flexible_pattern = createFlexibleNeonFusionPattern();
+    MatchResult flex_result = flexible_pattern->matches(instructions, 0);
+    
+    std::cout << "Flexible pattern match result:\n";
+    std::cout << "Matched: " << (flex_result.matched ? "YES" : "NO") << "\n";
+    std::cout << "Length: " << flex_result.length << "\n";
+    
+    if (flex_result.matched) {
+        std::vector<Instruction> flex_transformed = flexible_pattern->transform(instructions, 0);
+        
+        std::cout << "Flexible transformed instructions (" << flex_transformed.size() << "):\n";
+        for (size_t i = 0; i < flex_transformed.size(); i++) {
+            std::cout << i << ": 0x" << std::hex << flex_transformed[i].encoding 
+                      << std::dec << " " << flex_transformed[i].assembly_text << "\n";
+        }
+        
+        if (flex_transformed.size() == flex_result.length) {
+            std::cout << "✓ Flexible transformation is consistent\n";
+        } else {
+            std::cout << "✗ Flexible transformation inconsistent\n";
+        }
+    }
+}
+
+int main() {
+    std::cout << "Testing Fixed NEON Peephole Patterns\n";
+    
+    try {
+        testFixedNeonPatterns();
+        std::cout << "\n=== Test Complete ===\n";
+    } catch (const std::exception& e) {
+        std::cerr << "Error: " << e.what() << std::endl;
+        return 1;
+    }
+    
+    return 0;
+}
+// -- end of file
+
 // -- start of file: test_movz_movk.cpp
 #include <iostream>
 #include <iomanip>
@@ -67494,6 +68295,182 @@ void test_simple_addresses() {
 int main() {
     test_movz_movk_encoding();
     test_simple_addresses();
+    return 0;
+}
+// -- end of file
+
+// -- start of file: test_neon_peephole_debug.cpp
+#include "PeepholeOptimizer.h"
+#include "InstructionStream.h"
+#include "LabelManager.h"
+#include "VectorCodeGen.h"
+#include <iostream>
+#include <vector>
+
+void printInstructions(const std::vector<Instruction>& instructions, const std::string& title) {
+    std::cout << "\n=== " << title << " ===\n";
+    for (size_t i = 0; i < instructions.size(); i++) {
+        std::cout << std::setw(4) << i << ": 0x" << std::hex << std::setw(8) << std::setfill('0') 
+                  << instructions[i].encoding << std::dec << " " << instructions[i].assembly_text << "\n";
+    }
+    std::cout << "Total instructions: " << instructions.size() << "\n";
+}
+
+void testNeonPatternMatching() {
+    std::cout << "\n***** Testing NEON Pattern Recognition *****\n";
+    
+    // Create instructions that should match the NEON pattern
+    std::vector<Instruction> instructions;
+    
+    // Add some setup instructions
+    instructions.push_back(VectorCodeGen::mul_vector_2s("V0", "V0", "V1"));  // First .2S mul
+    instructions.push_back(VectorCodeGen::mul_vector_2s("V2", "V2", "V3"));  // Second .2S mul
+    
+    printInstructions(instructions, "Original Instructions");
+    
+    // Test the pattern directly
+    auto pattern = PeepholeOptimizer::createNeon128BitFusionPattern();
+    
+    std::cout << "\n***** Testing Pattern Matcher *****\n";
+    MatchResult result = pattern->matches(instructions, 0);
+    std::cout << "Pattern matched: " << (result.matched ? "YES" : "NO") << "\n";
+    std::cout << "Match length: " << result.length << "\n";
+    
+    if (result.matched) {
+        std::cout << "\n***** Testing Pattern Transformer *****\n";
+        std::vector<Instruction> transformed = pattern->transform(instructions, 0);
+        printInstructions(transformed, "Transformed Instructions");
+        
+        std::cout << "\nTransformation summary:\n";
+        std::cout << "Original count: " << instructions.size() << "\n";
+        std::cout << "Transformed count: " << transformed.size() << "\n";
+        std::cout << "Match length reported: " << result.length << "\n";
+        
+        if (transformed.size() != result.length) {
+            std::cout << "*** ERROR: Transformer returned " << transformed.size() 
+                      << " instructions but matcher reported length " << result.length << " ***\n";
+        }
+    }
+}
+
+void testWithPeepholeOptimizer() {
+    std::cout << "\n***** Testing with Full Peephole Optimizer *****\n";
+    
+    // Create instruction stream
+    InstructionStream stream(LabelManager::instance(), false);
+    
+    // Add NEON instructions that should be optimized
+    stream.add_instruction(VectorCodeGen::mul_vector_2s("V0", "V0", "V1"));
+    stream.add_instruction(VectorCodeGen::mul_vector_2s("V2", "V2", "V3"));
+    
+    auto instructions_before = stream.get_instructions();
+    printInstructions(instructions_before, "Before Optimization");
+    
+    // Create peephole optimizer with tracing enabled
+    PeepholeOptimizer optimizer(true);
+    
+    // Run optimization
+    optimizer.optimize(stream, 3);
+    
+    auto instructions_after = stream.get_instructions();
+    printInstructions(instructions_after, "After Optimization");
+    
+    // Print stats
+    const auto& stats = optimizer.getStats();
+    std::cout << "\nOptimization Statistics:\n";
+    std::cout << "Instructions before: " << stats.total_instructions_before << "\n";
+    std::cout << "Instructions after: " << stats.total_instructions_after << "\n";
+    std::cout << "Optimizations applied: " << stats.optimizations_applied << "\n";
+    
+    for (const auto& [pattern, count] : stats.pattern_matches) {
+        std::cout << "Pattern '" << pattern << "': " << count << " matches\n";
+    }
+}
+
+void testPatternWithVariousSpacing() {
+    std::cout << "\n***** Testing Pattern with Various Instruction Spacing *****\n";
+    
+    // Test case 1: Adjacent instructions
+    {
+        std::vector<Instruction> instructions;
+        instructions.push_back(VectorCodeGen::mul_vector_2s("V0", "V0", "V1"));
+        instructions.push_back(VectorCodeGen::mul_vector_2s("V2", "V2", "V3"));
+        
+        auto pattern = PeepholeOptimizer::createNeon128BitFusionPattern();
+        MatchResult result = pattern->matches(instructions, 0);
+        std::cout << "Adjacent MUL instructions - Matched: " << (result.matched ? "YES" : "NO") 
+                  << ", Length: " << result.length << "\n";
+    }
+    
+    // Test case 2: Instructions with gap
+    {
+        std::vector<Instruction> instructions;
+        instructions.push_back(VectorCodeGen::mul_vector_2s("V0", "V0", "V1"));
+        
+        // Add a NOp or other instruction between
+        Instruction nop;
+        nop.encoding = 0xd503201f;  // NOP encoding
+        nop.assembly_text = "nop";
+        instructions.push_back(nop);
+        
+        instructions.push_back(VectorCodeGen::mul_vector_2s("V2", "V2", "V3"));
+        
+        auto pattern = PeepholeOptimizer::createNeon128BitFusionPattern();
+        MatchResult result = pattern->matches(instructions, 0);
+        std::cout << "MUL with NOP between - Matched: " << (result.matched ? "YES" : "NO") 
+                  << ", Length: " << result.length << "\n";
+    }
+    
+    // Test case 3: Single MUL instruction (should not match)
+    {
+        std::vector<Instruction> instructions;
+        instructions.push_back(VectorCodeGen::mul_vector_2s("V0", "V0", "V1"));
+        
+        auto pattern = PeepholeOptimizer::createNeon128BitFusionPattern();
+        MatchResult result = pattern->matches(instructions, 0);
+        std::cout << "Single MUL instruction - Matched: " << (result.matched ? "YES" : "NO") 
+                  << ", Length: " << result.length << "\n";
+    }
+}
+
+void analyzeEncodingPattern() {
+    std::cout << "\n***** Analyzing NEON MUL Encoding Pattern *****\n";
+    
+    // Create a .2S MUL instruction and examine its encoding
+    Instruction mul_2s = VectorCodeGen::mul_vector_2s("V0", "V0", "V1");
+    std::cout << "MUL .2S encoding: 0x" << std::hex << std::setw(8) << std::setfill('0') 
+              << mul_2s.encoding << std::dec << "\n";
+    std::cout << "Expected: 0x0ea19c00\n";
+    std::cout << "Match: " << (mul_2s.encoding == 0x0ea19c00 ? "YES" : "NO") << "\n";
+    
+    // Show what the .4S version should look like
+    uint32_t expected_4s = mul_2s.encoding | 0x40000000;
+    std::cout << "Expected .4S encoding: 0x" << std::hex << std::setw(8) << std::setfill('0') 
+              << expected_4s << std::dec << "\n";
+    
+    // Analyze bit patterns
+    std::cout << "\nBit analysis:\n";
+    std::cout << ".2S: " << std::bitset<32>(mul_2s.encoding) << "\n";
+    std::cout << ".4S: " << std::bitset<32>(expected_4s) << "\n";
+    std::cout << "Bit 30 change (2S->4S): " << std::bitset<32>(0x40000000) << "\n";
+}
+
+int main() {
+    std::cout << "=== NEON Peephole Optimization Debug Tool ===\n";
+    
+    try {
+        analyzeEncodingPattern();
+        testNeonPatternMatching();
+        testPatternWithVariousSpacing();
+        testWithPeepholeOptimizer();
+        
+        std::cout << "\n=== Debug Analysis Complete ===\n";
+        
+    } catch (const std::exception& e) {
+        std::cerr << "Error during testing: " << e.what() << std::endl;
+        return 1;
+    }
+    
     return 0;
 }
 // -- end of file

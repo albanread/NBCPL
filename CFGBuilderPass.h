@@ -169,6 +169,9 @@ private:
     void visit(MaxStatement& node) override;
     void visit(SumStatement& node) override;
     void visit(ReductionStatement& node) override;  // New modular reduction visitor
+    void visit(ReductionLoopStatement& node) override;
+    void visit(PairwiseReductionLoopStatement& node) override;
+    void visit(Neon128BitPairOpStatement& node) override;  // NEON 128-bit pair operation visitor
     
     // Helper method for generating reduction CFG structures
     void generateReductionCFG(Expression* left_expr, Expression* right_expr,

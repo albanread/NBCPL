@@ -296,3 +296,13 @@ ASTNodePtr PairwiseReductionLoopStatement::clone() const {
         vector_a_name, vector_b_name, result_vector_name, intrinsic_name, reduction_op
     );
 }
+
+void Neon128BitPairOpStatement::accept(ASTVisitor& visitor) {
+    visitor.visit(*this);
+}
+
+ASTNodePtr Neon128BitPairOpStatement::clone() const {
+    return std::make_unique<Neon128BitPairOpStatement>(
+        dest_vector_name, left_vector_name, right_vector_name, loop_index_name, operation
+    );
+}

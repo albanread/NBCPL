@@ -1,0 +1,63 @@
+// Performance test for vector multiplication to measure current approach
+LET START() BE $(
+
+	WRITEF("=== Vector Performance Test ===*N")
+
+	// Test different vector sizes to see scaling
+	LET sizes = VEC 4
+	sizes!0 := 2
+	sizes!1 := 4
+	sizes!2 := 8
+	sizes!3 := 16
+
+	FOR s = 0 TO 3 DO $(
+		LET size = sizes!s
+		WRITEF("*NTesting size %N:*N", size)
+
+		// Create vectors
+		LET V1 = PAIRS(size)
+		LET V2 = PAIRS(size)
+
+		// Fill with test data
+		FOR i = 0 TO size-1 DO $(
+			V1!i := PAIR(i+1, i+2)
+			V2!i := PAIR(i+3, i+4)
+		$)
+
+		// Perform vector multiplication
+		LET V3 = V1 * V2
+
+		// Verify first few results
+		WRITEF("V3!0 = %P*N", V3!0)
+		IF size > 1 THEN WRITEF("V3!1 = %P*N", V3!1)
+		IF size > 2 THEN WRITEF("V3!2 = %P*N", V3!2)
+
+		// Expected results for verification:
+		// V3!0 = PAIR(1,2) * PAIR(3,4) = PAIR(3,8)
+		// V3!1 = PAIR(2,3) * PAIR(4,5) = PAIR(8,15)
+		// V3!2 = PAIR(3,4) * PAIR(5,6) = PAIR(15,24)
+	$)
+
+	WRITEF("*N=== Large Vector Test ===*N")
+
+	// Test larger vector to see if there are performance differences
+	LET large_size = 32
+	LET VL1 = PAIRS(large_size)
+	LET VL2 = PAIRS(large_size)
+
+	// Fill large vectors
+	FOR i = 0 TO large_size-1 DO $(
+		VL1!i := PAIR(i*2+1, i*2+2)
+		VL2!i := PAIR(i+5, i+6)
+	$)
+
+	WRITEF("Computing %N element vector multiplication...*N", large_size)
+	LET VL3 = VL1 * VL2
+
+	WRITEF("Results:*N")
+	WRITEF("VL3!0 = %P*N", VL3!0)
+	WRITEF("VL3!%N = %P*N", large_size-1, VL3!(large_size-1))
+
+	WRITEF("*NTest completed - check assembly for optimization opportunities*N")
+
+$)

@@ -1,5 +1,5 @@
 
-vec_add.o:	file format mach-o arm64
+vec_subtract.o:	file format mach-o arm64
 
 Disassembly of section __TEXT,__text:
 
@@ -14,12 +14,12 @@ Disassembly of section __TEXT,__text:
       1c: a908f3bb     	stp	x27, x28, [x29, #0x88]
       20: 9000001c     	adrp	x28, 0x0 <ltmp0>
       24: 9100039c     	add	x28, x28, #0x0
-      28: d2800149     	mov	x9, #0xa                ; =10
+      28: d2800169     	mov	x9, #0xb                ; =11
       2c: aa0903e0     	mov	x0, x9
       30: 94000000     	bl	0x30 <ltmp0+0x30>
       34: aa0003f4     	mov	x20, x0
       38: f9000fb4     	str	x20, [x29, #0x18]
-      3c: d2800149     	mov	x9, #0xa                ; =10
+      3c: d2800169     	mov	x9, #0xb                ; =11
       40: aa0903e0     	mov	x0, x9
       44: 94000000     	bl	0x44 <ltmp0+0x44>
       48: aa0003f4     	mov	x20, x0
@@ -77,12 +77,12 @@ Disassembly of section __TEXT,__text:
      118: aa0903f9     	mov	x25, x9
      11c: 1400005a     	b	0x284 <ltmp0+0x284>
      120: aa1603e9     	mov	x9, x22
-     124: d280012a     	mov	x10, #0x9               ; =9
+     124: d280014a     	mov	x10, #0xa               ; =10
      128: eb0a013f     	cmp	x9, x10
      12c: 54fffdac     	b.gt	0xe0 <ltmp0+0xe0>
      130: 17ffffdc     	b	0xa0 <ltmp0+0xa0>
      134: aa1603e9     	mov	x9, x22
-     138: d280012b     	mov	x11, #0x9               ; =9
+     138: d280014b     	mov	x11, #0xa               ; =10
      13c: eb0b013f     	cmp	x9, x11
      140: 54fff8ec     	b.gt	0x5c <ltmp0+0x5c>
      144: 17ffffc7     	b	0x60 <ltmp0+0x60>
@@ -135,7 +135,7 @@ Disassembly of section __TEXT,__text:
      200: f940018a     	ldr	x10, [x12]
      204: 9e670120     	fmov	d0, x9
      208: 9e670141     	fmov	d1, x10
-     20c: 0ea18400     	add.2s	v0, v0, v1
+     20c: 2ea18400     	sub.2s	v0, v0, v1
      210: 9e66001b     	fmov	x27, d0
      214: aa1803ea     	mov	x10, x24
      218: d100054a     	sub	x10, x10, #0x1
@@ -151,7 +151,7 @@ Disassembly of section __TEXT,__text:
      240: 8b1402f7     	add	x23, x23, x20
      244: 3dc002e1     	ldr	q1, [x23]
      248: cb1402f7     	sub	x23, x23, x20
-     24c: 4ee18402     	add.2d	v2, v0, v1
+     24c: 6ee18402     	sub.2d	v2, v0, v1
      250: 8b14035a     	add	x26, x26, x20
      254: 3d800342     	str	q2, [x26]
      258: cb14035a     	sub	x26, x26, x20
@@ -187,7 +187,7 @@ Disassembly of section __TEXT,__text:
      2d0: 910043ff     	add	sp, sp, #0x10
      2d4: d65f03c0     	ret
      2d8: d2820610     	mov	x16, #0x1030            ; =4144
-     2dc: f2a04ef0     	movk	x16, #0x277, lsl #16
+     2dc: f2a01d10     	movk	x16, #0xe8, lsl #16
      2e0: f2c00030     	movk	x16, #0x1, lsl #32
      2e4: f2e00010     	movk	x16, #0x0, lsl #48
      2e8: d63f0200     	blr	x16
