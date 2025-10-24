@@ -174,9 +174,8 @@ void ClassPass::finalize_class_layout(const std::string& class_name, std::unorde
         }
     }
     
-    // --- Step 6: Inject initializers into the CREATE method ---
-    if (trace_enabled_) std::cout << "[CLASSPASS] About to call inject_initializers for class: " << class_name << std::endl;
-    inject_initializers(class_node, class_name);
+    // --- Step 6: Member initialization removed ---
+    // Automatic initializer injection has been removed for stability
     
     entry->instance_size = current_offset;
     entry->is_layout_finalized = true;
@@ -226,106 +225,7 @@ void ClassPass::process_method(ClassTableEntry* entry, const std::string& method
     entry->add_member_method(minfo);
 }
 
-void ClassPass::inject_initializers(ClassDeclaration* class_node, const std::string& class_name) {
-    if (trace_enabled_) std::cout << "[CLASSPASS] inject_initializers called for class: " << class_name << std::endl;
-    
-    RoutineDeclaration* create_routine = nullptr;
-    for (const auto& member : class_node->members) {
-        if (auto* routine = dynamic_cast<RoutineDeclaration*>(member.declaration.get())) {
-            if (trace_enabled_) std::cout << "[CLASSPASS] Found routine: " << routine->name << std::endl;
-            if (routine->name == "CREATE") {
-                create_routine = routine;
-                if (trace_enabled_) std::cout << "[CLASSPASS] Found CREATE routine!" << std::endl;
-                break;
-            }
-        }
-    }
-    if (!create_routine) {
-        if (trace_enabled_) std::cout << "[CLASSPASS] ERROR: No CREATE routine found for " << class_name << std::endl;
-        return; // Should not happen
-    }
-
-    std::vector<StmtPtr> initializers;
-    if (trace_enabled_) std::cout << "[CLASSPASS] Looking for LET declarations with initializers..." << std::endl;
-    
-    for (const auto& member : class_node->members) {
-        if (auto* let = dynamic_cast<LetDeclaration*>(member.declaration.get())) {
-            if (trace_enabled_) std::cout << "[CLASSPASS] Found LetDeclaration with " << let->names.size() << " names and " << let->initializers.size() << " initializers" << std::endl;
-            
-            for (size_t i = 0; i < let->names.size(); ++i) {
-                if (trace_enabled_) std::cout << "[CLASSPASS] Processing name[" << i << "]: " << let->names[i] << std::endl;
-                
-                if (i < let->initializers.size() && let->initializers[i]) {
-                    if (trace_enabled_) std::cout << "[CLASSPASS] Found initializer for " << let->names[i] << "! Creating assignment." << std::endl;
-                    
-                    auto lhs = std::make_unique<MemberAccessExpression>(std::make_unique<VariableAccess>("_this"), let->names[i]);
-                    std::vector<ExprPtr> lhs_vec;
-                    lhs_vec.push_back(std::move(lhs));
-                    std::vector<ExprPtr> rhs_vec;
-                    rhs_vec.push_back(std::unique_ptr<Expression>(static_cast<Expression*>(let->initializers[i]->clone().release())));
-                    initializers.push_back(std::make_unique<AssignmentStatement>(std::move(lhs_vec), std::move(rhs_vec)));
-                } else {
-                    if (trace_enabled_) std::cout << "[CLASSPASS] No initializer for " << let->names[i] << std::endl;
-                }
-            }
-        }
-    }
-    
-    if (trace_enabled_) std::cout << "[CLASSPASS] Found " << initializers.size() << " initializers to inject" << std::endl;
-
-    if (auto* body = dynamic_cast<CompoundStatement*>(create_routine->body.get())) {
-        // Find the position to insert member initializations and SUPER call
-        auto insert_pos = body->statements.begin();
-        
-        // Look for existing SUPER calls and find where to insert before them
-        for (auto it = body->statements.begin(); it != body->statements.end(); ++it) {
-            if (auto* routine_call = dynamic_cast<RoutineCallStatement*>(it->get())) {
-                if (auto* super_call = dynamic_cast<SuperMethodCallExpression*>(routine_call->routine_expr.get())) {
-                    insert_pos = it;
-                    break;
-                }
-            }
-        }
-        
-        // Insert member initializations first (before any SUPER calls)
-        if (!initializers.empty()) {
-            body->statements.insert(insert_pos, std::make_move_iterator(initializers.begin()), std::make_move_iterator(initializers.end()));
-        }
-        
-        // Check if this class has a parent and needs a SUPER.CREATE() call
-        const ClassTableEntry* entry = class_table_.get_class(class_name);
-        if (entry && !entry->parent_name.empty()) {
-            // Check if there's already a SUPER.CREATE call in the method
-            bool has_super_create = false;
-            for (const auto& stmt : body->statements) {
-                if (auto* routine_call = dynamic_cast<RoutineCallStatement*>(stmt.get())) {
-                    if (auto* super_call = dynamic_cast<SuperMethodCallExpression*>(routine_call->routine_expr.get())) {
-                        if (super_call->member_name == "CREATE") {
-                            has_super_create = true;
-                            break;
-                        }
-                    }
-                }
-            }
-            
-            // If no SUPER.CREATE call exists, add one after member initializations
-            if (!has_super_create) {
-                // Create SUPER.CREATE() call with appropriate parameters from CREATE method signature
-                std::vector<ExprPtr> super_args;
-                for (const auto& param : create_routine->parameters) {
-                    super_args.push_back(std::make_unique<VariableAccess>(param));
-                }
-                
-                auto super_call = std::make_unique<SuperMethodCallExpression>("CREATE", std::move(super_args));
-                auto super_stmt = std::make_unique<RoutineCallStatement>(std::move(super_call), std::vector<ExprPtr>{});
-                
-                // Insert after member initializations
-                auto super_insert_pos = body->statements.begin() + initializers.size();
-                body->statements.insert(super_insert_pos, std::move(super_stmt));
-            }
-        }
-    }
-}
+// inject_initializers method removed - automatic initialization disabled
 
 // Inject automatic SUPER.RELEASE() chaining for user-defined RELEASE methods
 void ClassPass::inject_superclass_release_calls(ClassDeclaration* class_node, ClassTableEntry* entry) {

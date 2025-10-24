@@ -1,0 +1,7 @@
+// simple_hello.bcl
+// Minimal test without classes to check if basic compiler functionality works
+
+LET START() BE $(
+    WRITES("Hello from NewBCPL!*N")
+    WRITES("Basic compiler test successful.*N")
+$)

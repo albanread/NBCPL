@@ -341,6 +341,8 @@ Parser::parse_function_or_routine_body(const std::string &name,
                                        std::vector<std::string> params, bool is_float) {
   TraceGuard guard(*this, "parse_function_or_routine_body");
 
+
+
   // Check for VIRTUAL and FINAL modifiers before FUNCTION/ROUTINE
   bool is_virtual = false;
   bool is_final = false;
@@ -371,6 +373,28 @@ Parser::parse_function_or_routine_body(const std::string &name,
     // to avoid confusion.
     // Routine without a return value (body is a statement).
     auto body = parse_statement();
+    
+    // If this is a CREATE routine in a class context, inject member initializers
+    if (name == "CREATE" && !current_class_name_.empty()) {
+        if (!pending_member_initializers_.empty()) {
+            auto initializer_assignments = create_member_initializer_assignments();
+            
+            // Create a compound statement that combines initializers with the original body
+            std::vector<StmtPtr> combined_statements;
+            
+            // Add all initializer assignments first
+            for (auto& assignment : initializer_assignments) {
+                combined_statements.push_back(std::move(assignment));
+            }
+            
+            // Add the original body
+            combined_statements.push_back(std::move(body));
+            
+            // Create compound statement to hold everything
+            body = std::make_unique<CompoundStatement>(std::move(combined_statements));
+        }
+    }
+    
     auto routine_decl = std::make_unique<RoutineDeclaration>(
         name, std::move(params), std::move(body));
     routine_decl->is_virtual = is_virtual;
@@ -380,6 +404,39 @@ Parser::parse_function_or_routine_body(const std::string &name,
   // If neither '=' nor 'BE' is found, report error and return nullptr.
   error("Expect '=' or 'BE' in function/routine declaration.");
   return nullptr;
+}
+
+// --- Helper method for member initializer assignments ---
+
+std::vector<StmtPtr> Parser::create_member_initializer_assignments() {
+    std::vector<StmtPtr> assignments;
+    
+    for (const auto& initializer : pending_member_initializers_) {
+        // Create LHS: _this.member_name
+        auto this_expr = std::make_unique<VariableAccess>("_this");
+        auto member_access = std::make_unique<MemberAccessExpression>(
+            std::move(this_expr),
+            initializer.member_name
+        );
+        
+        // Create assignment statement: _this.member_name := initializer_expr
+        std::vector<ExprPtr> lhs;
+        lhs.push_back(std::move(member_access));
+        
+        std::vector<ExprPtr> rhs;
+        rhs.push_back(std::unique_ptr<Expression>(
+            static_cast<Expression*>(initializer.initializer_expr->clone().release()))); // Clone the stored expression
+        
+        auto assignment = std::make_unique<AssignmentStatement>(
+            std::move(lhs), 
+            std::move(rhs),
+            "member_initializer"
+        );
+        
+        assignments.push_back(std::move(assignment));
+    }
+    
+    return assignments;
 }
 
 // --- Core Parser Methods (Implementations) ---

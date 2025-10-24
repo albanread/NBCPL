@@ -1,0 +1,1700 @@
+NeonReducerRegistry: Registered 13 NEON reduction encoders
+NewBCPL Compiler Version 1.0.2620
+
+--- Initial Abstract Syntax Tree ---
+Program:
+  Declarations:
+    ClassDeclaration: DebugInit
+      Members:
+        LetDeclaration:
+          Name: initialized_member
+          Initializer:
+            NumberLiteral: 999
+        LetDeclaration:
+          Name: uninitialized_member
+        RoutineDeclaration: CREATE
+          Parameters: _this 
+          Body:
+            BlockStatement:
+              Statements:
+                RoutineCallStatement:
+                  Callee:
+                    VariableAccess: WRITES
+                  Arguments:
+                    StringLiteral: "=== Inside CREATE method ===
+"
+                RoutineCallStatement:
+                  Callee:
+                    VariableAccess: WRITES
+                  Arguments:
+                    StringLiteral: "initialized_member value: "
+                RoutineCallStatement:
+                  Callee:
+                    VariableAccess: WRITEN
+                  Arguments:
+                    VariableAccess: initialized_member
+                RoutineCallStatement:
+                  Callee:
+                    VariableAccess: WRITES
+                  Arguments:
+                    StringLiteral: " (should be 999)
+"
+                RoutineCallStatement:
+                  Callee:
+                    VariableAccess: WRITES
+                  Arguments:
+                    StringLiteral: "uninitialized_member value: "
+                RoutineCallStatement:
+                  Callee:
+                    VariableAccess: WRITEN
+                  Arguments:
+                    VariableAccess: uninitialized_member
+                RoutineCallStatement:
+                  Callee:
+                    VariableAccess: WRITES
+                  Arguments:
+                    StringLiteral: " (undefined, could be anything)
+"
+                AssignmentStatement:
+                  LHS:
+                    VariableAccess: uninitialized_member
+                  RHS:
+                    NumberLiteral: 555
+                RoutineCallStatement:
+                  Callee:
+                    VariableAccess: WRITES
+                  Arguments:
+                    StringLiteral: "Set uninitialized_member to 555
+"
+                RoutineCallStatement:
+                  Callee:
+                    VariableAccess: WRITES
+                  Arguments:
+                    StringLiteral: "=== Exiting CREATE method ===
+"
+        FunctionDeclaration: getInitialized
+          Parameters: _this 
+          Body:
+            ValofExpression:
+              ResultisStatement:
+                VariableAccess: initialized_member
+        FunctionDeclaration: getUninitialized
+          Parameters: _this 
+          Body:
+            ValofExpression:
+              ResultisStatement:
+                VariableAccess: uninitialized_member
+        RoutineDeclaration: RELEASE
+          Body:
+            CompoundStatement:
+    RoutineDeclaration: START
+      Body:
+        BlockStatement:
+          Statements:
+            RoutineCallStatement:
+              Callee:
+                VariableAccess: WRITES
+              Arguments:
+                StringLiteral: "=== Testing Member Initialization Debug ===
+"
+            RoutineCallStatement:
+              Callee:
+                VariableAccess: WRITES
+              Arguments:
+                StringLiteral: "Creating object (should call CREATE)...
+"
+            AssignmentStatement:
+              LHS:
+                VariableAccess: obj
+              RHS:
+                NewExpression: DebugInit
+            RoutineCallStatement:
+              Callee:
+                VariableAccess: WRITES
+              Arguments:
+                StringLiteral: "
+Reading values after object creation:
+"
+            AssignmentStatement:
+              LHS:
+                VariableAccess: init_val
+              RHS:
+                FunctionCall:
+                  Callee:
+                    MemberAccess: getInitialized
+                      Object:
+                        VariableAccess: obj
+              AssignmentStatement:
+                LHS:
+                  VariableAccess: uninit_val
+                RHS:
+                  FunctionCall:
+                    Callee:
+                      MemberAccess: getUninitialized
+                        Object:
+                          VariableAccess: obj
+                RoutineCallStatement:
+                  Callee:
+                    VariableAccess: WRITES
+                  Arguments:
+                    StringLiteral: "initialized_member via method: "
+                RoutineCallStatement:
+                  Callee:
+                    VariableAccess: WRITEN
+                  Arguments:
+                    VariableAccess: init_val
+                RoutineCallStatement:
+                  Callee:
+                    VariableAccess: WRITES
+                  Arguments:
+                    StringLiteral: " (should be 999)
+"
+                RoutineCallStatement:
+                  Callee:
+                    VariableAccess: WRITES
+                  Arguments:
+                    StringLiteral: "uninitialized_member via method: "
+                RoutineCallStatement:
+                  Callee:
+                    VariableAccess: WRITEN
+                  Arguments:
+                    VariableAccess: uninit_val
+                RoutineCallStatement:
+                  Callee:
+                    VariableAccess: WRITES
+                  Arguments:
+                    StringLiteral: " (should be 555)
+"
+                RoutineCallStatement:
+                  Callee:
+                    VariableAccess: WRITES
+                  Arguments:
+                    StringLiteral: "
+Direct member access:
+"
+                RoutineCallStatement:
+                  Callee:
+                    VariableAccess: WRITES
+                  Arguments:
+                    StringLiteral: "initialized_member direct: "
+                RoutineCallStatement:
+                  Callee:
+                    VariableAccess: WRITEN
+                  Arguments:
+                    MemberAccess: initialized_member
+                      Object:
+                        VariableAccess: obj
+                  RoutineCallStatement:
+                    Callee:
+                      VariableAccess: WRITES
+                    Arguments:
+                      StringLiteral: " (should be 999)
+"
+                  RoutineCallStatement:
+                    Callee:
+                      VariableAccess: WRITES
+                    Arguments:
+                      StringLiteral: "uninitialized_member direct: "
+                  RoutineCallStatement:
+                    Callee:
+                      VariableAccess: WRITEN
+                    Arguments:
+                      MemberAccess: uninitialized_member
+                        Object:
+                          VariableAccess: obj
+                    RoutineCallStatement:
+                      Callee:
+                        VariableAccess: WRITES
+                      Arguments:
+                        StringLiteral: " (should be 555)
+"
+                    TestStatement:
+                      Condition:
+                        BinaryOp: LogicalAnd
+                          BinaryOp: LogicalAnd
+                            BinaryOp: LogicalAnd
+                              BinaryOp: Equal
+                                VariableAccess: init_val
+                                NumberLiteral: 999
+                              BinaryOp: Equal
+                                VariableAccess: uninit_val
+                                NumberLiteral: 555
+                            BinaryOp: Equal
+                              MemberAccess: initialized_member
+                                Object:
+                                  VariableAccess: obj
+                                NumberLiteral: 999
+                            BinaryOp: Equal
+                              MemberAccess: uninitialized_member
+                                Object:
+                                  VariableAccess: obj
+                                NumberLiteral: 555
+                          Then:
+                            BlockStatement:
+                              Statements:
+                                RoutineCallStatement:
+                                  Callee:
+                                    VariableAccess: WRITES
+                                  Arguments:
+                                    StringLiteral: "
+✓ PASS: All initialization working correctly
+"
+                          Else:
+                            BlockStatement:
+                              Statements:
+                                RoutineCallStatement:
+                                  Callee:
+                                    VariableAccess: WRITES
+                                  Arguments:
+                                    StringLiteral: "
+✗ FAIL: Initialization problems detected
+"
+                                RoutineCallStatement:
+                                  Callee:
+                                    VariableAccess: WRITES
+                                  Arguments:
+                                    StringLiteral: "Expected: init=999, uninit=555, direct_init=999, direct_uninit=555
+"
+                                RoutineCallStatement:
+                                  Callee:
+                                    VariableAccess: WRITES
+                                  Arguments:
+                                    StringLiteral: "Got: init="
+                                RoutineCallStatement:
+                                  Callee:
+                                    VariableAccess: WRITEN
+                                  Arguments:
+                                    VariableAccess: init_val
+                                RoutineCallStatement:
+                                  Callee:
+                                    VariableAccess: WRITES
+                                  Arguments:
+                                    StringLiteral: ", uninit="
+                                RoutineCallStatement:
+                                  Callee:
+                                    VariableAccess: WRITEN
+                                  Arguments:
+                                    VariableAccess: uninit_val
+                                RoutineCallStatement:
+                                  Callee:
+                                    VariableAccess: WRITES
+                                  Arguments:
+                                    StringLiteral: ", direct_init="
+                                RoutineCallStatement:
+                                  Callee:
+                                    VariableAccess: WRITEN
+                                  Arguments:
+                                    MemberAccess: initialized_member
+                                      Object:
+                                        VariableAccess: obj
+                                  RoutineCallStatement:
+                                    Callee:
+                                      VariableAccess: WRITES
+                                    Arguments:
+                                      StringLiteral: ", direct_uninit="
+                                  RoutineCallStatement:
+                                    Callee:
+                                      VariableAccess: WRITEN
+                                    Arguments:
+                                      MemberAccess: uninitialized_member
+                                        Object:
+                                          VariableAccess: obj
+                                    RoutineCallStatement:
+                                      Callee:
+                                        VariableAccess: WRITEC
+                                      Arguments:
+                                        CharLiteral: '
+'
+                            RoutineCallStatement:
+                              Callee:
+                                VariableAccess: WRITES
+                              Arguments:
+                                StringLiteral: "=== Initialization Debug Test Complete ===
+"
+----------------------------------
+
+
+--- AST After Global Initializer Injection ---
+Program:
+  Declarations:
+    ClassDeclaration: DebugInit
+      Members:
+        LetDeclaration:
+          Name: initialized_member
+          Initializer:
+            NumberLiteral: 999
+        LetDeclaration:
+          Name: uninitialized_member
+        RoutineDeclaration: CREATE
+          Parameters: _this 
+          Body:
+            BlockStatement:
+              Statements:
+                RoutineCallStatement:
+                  Callee:
+                    VariableAccess: WRITES
+                  Arguments:
+                    StringLiteral: "=== Inside CREATE method ===
+"
+                RoutineCallStatement:
+                  Callee:
+                    VariableAccess: WRITES
+                  Arguments:
+                    StringLiteral: "initialized_member value: "
+                RoutineCallStatement:
+                  Callee:
+                    VariableAccess: WRITEN
+                  Arguments:
+                    VariableAccess: initialized_member
+                RoutineCallStatement:
+                  Callee:
+                    VariableAccess: WRITES
+                  Arguments:
+                    StringLiteral: " (should be 999)
+"
+                RoutineCallStatement:
+                  Callee:
+                    VariableAccess: WRITES
+                  Arguments:
+                    StringLiteral: "uninitialized_member value: "
+                RoutineCallStatement:
+                  Callee:
+                    VariableAccess: WRITEN
+                  Arguments:
+                    VariableAccess: uninitialized_member
+                RoutineCallStatement:
+                  Callee:
+                    VariableAccess: WRITES
+                  Arguments:
+                    StringLiteral: " (undefined, could be anything)
+"
+                AssignmentStatement:
+                  LHS:
+                    VariableAccess: uninitialized_member
+                  RHS:
+                    NumberLiteral: 555
+                RoutineCallStatement:
+                  Callee:
+                    VariableAccess: WRITES
+                  Arguments:
+                    StringLiteral: "Set uninitialized_member to 555
+"
+                RoutineCallStatement:
+                  Callee:
+                    VariableAccess: WRITES
+                  Arguments:
+                    StringLiteral: "=== Exiting CREATE method ===
+"
+        FunctionDeclaration: getInitialized
+          Parameters: _this 
+          Body:
+            ValofExpression:
+              ResultisStatement:
+                VariableAccess: initialized_member
+        FunctionDeclaration: getUninitialized
+          Parameters: _this 
+          Body:
+            ValofExpression:
+              ResultisStatement:
+                VariableAccess: uninitialized_member
+        RoutineDeclaration: RELEASE
+          Body:
+            CompoundStatement:
+    RoutineDeclaration: START
+      Body:
+        BlockStatement:
+          Statements:
+            RoutineCallStatement:
+              Callee:
+                VariableAccess: WRITES
+              Arguments:
+                StringLiteral: "=== Testing Member Initialization Debug ===
+"
+            RoutineCallStatement:
+              Callee:
+                VariableAccess: WRITES
+              Arguments:
+                StringLiteral: "Creating object (should call CREATE)...
+"
+            AssignmentStatement:
+              LHS:
+                VariableAccess: obj
+              RHS:
+                NewExpression: DebugInit
+            RoutineCallStatement:
+              Callee:
+                VariableAccess: WRITES
+              Arguments:
+                StringLiteral: "
+Reading values after object creation:
+"
+            AssignmentStatement:
+              LHS:
+                VariableAccess: init_val
+              RHS:
+                FunctionCall:
+                  Callee:
+                    MemberAccess: getInitialized
+                      Object:
+                        VariableAccess: obj
+              AssignmentStatement:
+                LHS:
+                  VariableAccess: uninit_val
+                RHS:
+                  FunctionCall:
+                    Callee:
+                      MemberAccess: getUninitialized
+                        Object:
+                          VariableAccess: obj
+                RoutineCallStatement:
+                  Callee:
+                    VariableAccess: WRITES
+                  Arguments:
+                    StringLiteral: "initialized_member via method: "
+                RoutineCallStatement:
+                  Callee:
+                    VariableAccess: WRITEN
+                  Arguments:
+                    VariableAccess: init_val
+                RoutineCallStatement:
+                  Callee:
+                    VariableAccess: WRITES
+                  Arguments:
+                    StringLiteral: " (should be 999)
+"
+                RoutineCallStatement:
+                  Callee:
+                    VariableAccess: WRITES
+                  Arguments:
+                    StringLiteral: "uninitialized_member via method: "
+                RoutineCallStatement:
+                  Callee:
+                    VariableAccess: WRITEN
+                  Arguments:
+                    VariableAccess: uninit_val
+                RoutineCallStatement:
+                  Callee:
+                    VariableAccess: WRITES
+                  Arguments:
+                    StringLiteral: " (should be 555)
+"
+                RoutineCallStatement:
+                  Callee:
+                    VariableAccess: WRITES
+                  Arguments:
+                    StringLiteral: "
+Direct member access:
+"
+                RoutineCallStatement:
+                  Callee:
+                    VariableAccess: WRITES
+                  Arguments:
+                    StringLiteral: "initialized_member direct: "
+                RoutineCallStatement:
+                  Callee:
+                    VariableAccess: WRITEN
+                  Arguments:
+                    MemberAccess: initialized_member
+                      Object:
+                        VariableAccess: obj
+                  RoutineCallStatement:
+                    Callee:
+                      VariableAccess: WRITES
+                    Arguments:
+                      StringLiteral: " (should be 999)
+"
+                  RoutineCallStatement:
+                    Callee:
+                      VariableAccess: WRITES
+                    Arguments:
+                      StringLiteral: "uninitialized_member direct: "
+                  RoutineCallStatement:
+                    Callee:
+                      VariableAccess: WRITEN
+                    Arguments:
+                      MemberAccess: uninitialized_member
+                        Object:
+                          VariableAccess: obj
+                    RoutineCallStatement:
+                      Callee:
+                        VariableAccess: WRITES
+                      Arguments:
+                        StringLiteral: " (should be 555)
+"
+                    TestStatement:
+                      Condition:
+                        BinaryOp: LogicalAnd
+                          BinaryOp: LogicalAnd
+                            BinaryOp: LogicalAnd
+                              BinaryOp: Equal
+                                VariableAccess: init_val
+                                NumberLiteral: 999
+                              BinaryOp: Equal
+                                VariableAccess: uninit_val
+                                NumberLiteral: 555
+                            BinaryOp: Equal
+                              MemberAccess: initialized_member
+                                Object:
+                                  VariableAccess: obj
+                                NumberLiteral: 999
+                            BinaryOp: Equal
+                              MemberAccess: uninitialized_member
+                                Object:
+                                  VariableAccess: obj
+                                NumberLiteral: 555
+                          Then:
+                            BlockStatement:
+                              Statements:
+                                RoutineCallStatement:
+                                  Callee:
+                                    VariableAccess: WRITES
+                                  Arguments:
+                                    StringLiteral: "
+✓ PASS: All initialization working correctly
+"
+                          Else:
+                            BlockStatement:
+                              Statements:
+                                RoutineCallStatement:
+                                  Callee:
+                                    VariableAccess: WRITES
+                                  Arguments:
+                                    StringLiteral: "
+✗ FAIL: Initialization problems detected
+"
+                                RoutineCallStatement:
+                                  Callee:
+                                    VariableAccess: WRITES
+                                  Arguments:
+                                    StringLiteral: "Expected: init=999, uninit=555, direct_init=999, direct_uninit=555
+"
+                                RoutineCallStatement:
+                                  Callee:
+                                    VariableAccess: WRITES
+                                  Arguments:
+                                    StringLiteral: "Got: init="
+                                RoutineCallStatement:
+                                  Callee:
+                                    VariableAccess: WRITEN
+                                  Arguments:
+                                    VariableAccess: init_val
+                                RoutineCallStatement:
+                                  Callee:
+                                    VariableAccess: WRITES
+                                  Arguments:
+                                    StringLiteral: ", uninit="
+                                RoutineCallStatement:
+                                  Callee:
+                                    VariableAccess: WRITEN
+                                  Arguments:
+                                    VariableAccess: uninit_val
+                                RoutineCallStatement:
+                                  Callee:
+                                    VariableAccess: WRITES
+                                  Arguments:
+                                    StringLiteral: ", direct_init="
+                                RoutineCallStatement:
+                                  Callee:
+                                    VariableAccess: WRITEN
+                                  Arguments:
+                                    MemberAccess: initialized_member
+                                      Object:
+                                        VariableAccess: obj
+                                  RoutineCallStatement:
+                                    Callee:
+                                      VariableAccess: WRITES
+                                    Arguments:
+                                      StringLiteral: ", direct_uninit="
+                                  RoutineCallStatement:
+                                    Callee:
+                                      VariableAccess: WRITEN
+                                    Arguments:
+                                      MemberAccess: uninitialized_member
+                                        Object:
+                                          VariableAccess: obj
+                                    RoutineCallStatement:
+                                      Callee:
+                                        VariableAccess: WRITEC
+                                      Arguments:
+                                        CharLiteral: '
+'
+                            RoutineCallStatement:
+                              Callee:
+                                VariableAccess: WRITES
+                              Arguments:
+                                StringLiteral: "=== Initialization Debug Test Complete ===
+"
+------------------------------------------
+
+Pass 1: Analyzing function signatures...
+[SignatureAnalysis] Starting signature analysis pass...
+[SignatureAnalysis] Analyzing program signatures...
+[SignatureAnalysis] Analyzing routine signature: START
+[SignatureAnalysis] Processing routine signature: START
+[SignatureAnalysis] Signature analysis complete.
+Debug: Checking function metrics after signature analysis...
+Function: START
+Pass 2: Full AST analysis...
+Cleared FOR loop state before analysis to prevent corruption
+[ANALYZER TRACE] Starting analysis...
+[ANALYZER TRACE] Skipping reset - signature analysis already complete.
+[ANALYZER TRACE] --- PASS 1: Discovering all function definitions ---
+[ANALYZER TRACE] Visiting Program.
+[ANALYZER TRACE] Visiting ClassDeclaration: DebugInit
+[ANALYZER TRACE] Visiting class.
+[ANALYZER TRACE] Visiting RoutineDeclaration: CREATE
+[ANALYZER IMPORTANT] Setting _this parameter type to POINTER_TO_OBJECT for DebugInit::CREATE
+[ANALYZER IMPORTANT] Added _this symbol to symbol table with class_name: DebugInit
+[ANALYZER] Starting parameter type inference for function: DebugInit::CREATE
+[ANALYZER] Set parameter type: _this in DebugInit::CREATE to 1310720
+[ANALYZER TRACE] Updated parameter type for _this in DebugInit::CREATE to 1310720 after inference
+[ANALYZER TRACE] ASTAnalyzer::visit(RoutineDeclaration&) is traversing body for routine: CREATE
+[ANALYZER TRACE] Entering block scope: DebugInit::CREATE_block_1 (Function scope remains: DebugInit::CREATE)
+[ANALYZER TRACE] BlockStatement: Traversing 10 statements.
+[ANALYZER TRACE] BlockStatement: Calling accept on statement 0 of type 57
+[ANALYZER TRACE] Entered ASTAnalyzer::visit(RoutineCallStatement&) for node at 0x101c0c4d0
+[ANALYZER TRACE]   Detected call to runtime function: WRITES, Type: INTEGER
+[ANALYZER TRACE] BlockStatement: Calling accept on statement 1 of type 57
+[ANALYZER TRACE] Entered ASTAnalyzer::visit(RoutineCallStatement&) for node at 0x101c0c5a0
+[ANALYZER TRACE]   Detected call to runtime function: WRITES, Type: INTEGER
+[ANALYZER TRACE] BlockStatement: Calling accept on statement 2 of type 57
+[ANALYZER TRACE] Entered ASTAnalyzer::visit(RoutineCallStatement&) for node at 0x101c0c690
+[ANALYZER TRACE]   Detected call to runtime function: WRITEN, Type: INTEGER
+[ANALYZER TRACE] Visiting VariableAccess: initialized_member
+[DEBUG get_effective_variable_name] Called with: 'initialized_member'
+[DEBUG get_effective_variable_name] Loop context stack size: 0
+[DEBUG get_effective_variable_name] Active FOR loop scopes size: 0
+[DEBUG get_effective_variable_name] FOR variable aliases size: 0
+[DEBUG get_effective_variable_name] In FOR loop context: NO
+[DEBUG get_effective_variable_name] Not in FOR loop context, returning original: 'initialized_member'
+[ANALYZER TRACE] Identified 'initialized_member' as class member of 'DebugInit'
+[ANALYZER TRACE] BlockStatement: Calling accept on statement 3 of type 57
+[ANALYZER TRACE] Entered ASTAnalyzer::visit(RoutineCallStatement&) for node at 0x101c0c740
+[ANALYZER TRACE]   Detected call to runtime function: WRITES, Type: INTEGER
+[ANALYZER TRACE] BlockStatement: Calling accept on statement 4 of type 57
+[ANALYZER TRACE] Entered ASTAnalyzer::visit(RoutineCallStatement&) for node at 0x101c0c7f0
+[ANALYZER TRACE]   Detected call to runtime function: WRITES, Type: INTEGER
+[ANALYZER TRACE] BlockStatement: Calling accept on statement 5 of type 57
+[ANALYZER TRACE] Entered ASTAnalyzer::visit(RoutineCallStatement&) for node at 0x101c0c920
+[ANALYZER TRACE]   Detected call to runtime function: WRITEN, Type: INTEGER
+[ANALYZER TRACE] Visiting VariableAccess: uninitialized_member
+[DEBUG get_effective_variable_name] Called with: 'uninitialized_member'
+[DEBUG get_effective_variable_name] Loop context stack size: 0
+[DEBUG get_effective_variable_name] Active FOR loop scopes size: 0
+[DEBUG get_effective_variable_name] FOR variable aliases size: 0
+[DEBUG get_effective_variable_name] In FOR loop context: NO
+[DEBUG get_effective_variable_name] Not in FOR loop context, returning original: 'uninitialized_member'
+[ANALYZER TRACE] Identified 'uninitialized_member' as class member of 'DebugInit'
+[ANALYZER TRACE] BlockStatement: Calling accept on statement 6 of type 57
+[ANALYZER TRACE] Entered ASTAnalyzer::visit(RoutineCallStatement&) for node at 0x101c0c9d0
+[ANALYZER TRACE]   Detected call to runtime function: WRITES, Type: INTEGER
+[ANALYZER TRACE] BlockStatement: Calling accept on statement 7 of type 56
+[ASSIGNMENT VISITOR] Processing AssignmentStatement with 1 LHS variables
+[ANALYZER TRACE] BlockStatement: Calling accept on statement 8 of type 57
+[ANALYZER TRACE] Entered ASTAnalyzer::visit(RoutineCallStatement&) for node at 0xcb6c14000
+[ANALYZER TRACE]   Detected call to runtime function: WRITES, Type: INTEGER
+[ANALYZER TRACE] BlockStatement: Calling accept on statement 9 of type 57
+[ANALYZER TRACE] Entered ASTAnalyzer::visit(RoutineCallStatement&) for node at 0xcb6c14030
+[ANALYZER TRACE]   Detected call to runtime function: WRITES, Type: INTEGER
+[ANALYZER TRACE] Exiting block scope, returning to: DebugInit::CREATE
+[ANALYZER TRACE] Visiting FunctionDeclaration: getInitialized
+[ANALYZER IMPORTANT] Setting _this parameter type to POINTER_TO_OBJECT for DebugInit::getInitialized
+[ANALYZER IMPORTANT] Added _this symbol to symbol table with class_name: DebugInit
+[ANALYZER] Starting parameter type inference for function: DebugInit::getInitialized
+[ANALYZER] Set parameter type: _this in DebugInit::getInitialized to 1310720
+[ANALYZER TRACE] Updated parameter type for _this in DebugInit::getInitialized to 1310720 after inference
+[ANALYZER TRACE] Visiting VariableAccess: initialized_member
+[DEBUG get_effective_variable_name] Called with: 'initialized_member'
+[DEBUG get_effective_variable_name] Loop context stack size: 0
+[DEBUG get_effective_variable_name] Active FOR loop scopes size: 0
+[DEBUG get_effective_variable_name] FOR variable aliases size: 0
+[DEBUG get_effective_variable_name] In FOR loop context: NO
+[DEBUG get_effective_variable_name] Not in FOR loop context, returning original: 'initialized_member'
+[ANALYZER TRACE] Identified 'initialized_member' as class member of 'DebugInit'
+DEBUG: infer_expression_type called on expression type: 16
+DEBUG: current_function_scope_: 'DebugInit::getInitialized'
+DEBUG: current_class_name_: 'DebugInit'
+DEBUG: infer_variable_access_type for 'initialized_member'
+[DEBUG get_variable_type] Looking for 'initialized_member' in function 'DebugInit::getInitialized'
+[DEBUG get_variable_type] Found function metrics for 'DebugInit::getInitialized'
+[DEBUG get_variable_type] Parameter types count: 1
+[DEBUG get_variable_type] Variable types count: 1
+[DEBUG get_variable_type] Variable 'initialized_member' not found in function metrics
+[DEBUG get_variable_type] Found in symbol table: initialized_member -> 1
+DEBUG: Found variable 'initialized_member' with type 1
+[ASTAnalyzer] Analyzing callee-saved register usage for function: DebugInit::getInitialized
+[ASTAnalyzer] Function DebugInit::getInitialized requires 0 callee-saved temp registers
+[ANALYZER TRACE] Visiting FunctionDeclaration: getUninitialized
+[ANALYZER IMPORTANT] Setting _this parameter type to POINTER_TO_OBJECT for DebugInit::getUninitialized
+[ANALYZER IMPORTANT] Added _this symbol to symbol table with class_name: DebugInit
+[ANALYZER] Starting parameter type inference for function: DebugInit::getUninitialized
+[ANALYZER] Set parameter type: _this in DebugInit::getUninitialized to 1310720
+[ANALYZER TRACE] Updated parameter type for _this in DebugInit::getUninitialized to 1310720 after inference
+[ANALYZER TRACE] Visiting VariableAccess: uninitialized_member
+[DEBUG get_effective_variable_name] Called with: 'uninitialized_member'
+[DEBUG get_effective_variable_name] Loop context stack size: 0
+[DEBUG get_effective_variable_name] Active FOR loop scopes size: 0
+[DEBUG get_effective_variable_name] FOR variable aliases size: 0
+[DEBUG get_effective_variable_name] In FOR loop context: NO
+[DEBUG get_effective_variable_name] Not in FOR loop context, returning original: 'uninitialized_member'
+[ANALYZER TRACE] Identified 'uninitialized_member' as class member of 'DebugInit'
+DEBUG: infer_expression_type called on expression type: 16
+DEBUG: current_function_scope_: 'DebugInit::getUninitialized'
+DEBUG: current_class_name_: 'DebugInit'
+DEBUG: infer_variable_access_type for 'uninitialized_member'
+[DEBUG get_variable_type] Looking for 'uninitialized_member' in function 'DebugInit::getUninitialized'
+[DEBUG get_variable_type] Found function metrics for 'DebugInit::getUninitialized'
+[DEBUG get_variable_type] Parameter types count: 1
+[DEBUG get_variable_type] Variable types count: 1
+[DEBUG get_variable_type] Variable 'uninitialized_member' not found in function metrics
+[DEBUG get_variable_type] Found in symbol table: uninitialized_member -> 1
+DEBUG: Found variable 'uninitialized_member' with type 1
+[ASTAnalyzer] Analyzing callee-saved register usage for function: DebugInit::getUninitialized
+[ASTAnalyzer] Function DebugInit::getUninitialized requires 0 callee-saved temp registers
+[ANALYZER TRACE] Visiting RoutineDeclaration: RELEASE
+
+[ANALYZER IMPORTANT] === Adding _this parameter to method: DebugInit::RELEASE ===
+[ANALYZER TRACE]   Injected '_this' parameter for method: DebugInit::RELEASE
+[ANALYZER IMPORTANT] Setting _this parameter type to POINTER_TO_OBJECT for DebugInit::RELEASE
+[ANALYZER IMPORTANT] Added _this symbol to symbol table with class_name: DebugInit
+[ANALYZER] Starting parameter type inference for function: DebugInit::RELEASE
+[ANALYZER] Set parameter type: _this in DebugInit::RELEASE to 1310720
+[ANALYZER TRACE] Updated parameter type for _this in DebugInit::RELEASE to 1310720 after inference
+[ANALYZER TRACE] ASTAnalyzer::visit(RoutineDeclaration&) is traversing body for routine: RELEASE
+[ANALYZER TRACE] Visiting RoutineDeclaration: START
+[ANALYZER] Starting parameter type inference for function: START
+[ANALYZER TRACE] ASTAnalyzer::visit(RoutineDeclaration&) is traversing body for routine: START
+[ANALYZER TRACE] Entering block scope: START_block_1 (Function scope remains: START)
+[ANALYZER TRACE] BlockStatement: Traversing 21 statements.
+DEBUG: ASTAnalyzer::visit(LetDeclaration) called with 1 variables
+DEBUG: LetDeclaration has 0 initializers
+DEBUG: Processing variable 'obj' in ASTAnalyzer
+DEBUG: Variable 'obj' initializer is null
+DEBUG: Variable 'obj' current_function_scope_='START'
+DEBUG: Variable 'obj' current_function_scope_='START'
+DEBUG: Variable 'obj' has no initializer, using declaration type: INTEGER
+DEBUG: Variable 'obj' final determined_type: INTEGER before symbol table update
+DEBUG: ASTAnalyzer::visit(LetDeclaration) called with 1 variables
+DEBUG: LetDeclaration has 0 initializers
+DEBUG: Processing variable 'init_val' in ASTAnalyzer
+DEBUG: Variable 'init_val' initializer is null
+DEBUG: Variable 'init_val' current_function_scope_='START'
+DEBUG: Variable 'init_val' current_function_scope_='START'
+DEBUG: Variable 'init_val' has no initializer, using declaration type: INTEGER
+DEBUG: Variable 'init_val' final determined_type: INTEGER before symbol table update
+DEBUG: ASTAnalyzer::visit(LetDeclaration) called with 1 variables
+DEBUG: LetDeclaration has 0 initializers
+DEBUG: Processing variable 'uninit_val' in ASTAnalyzer
+DEBUG: Variable 'uninit_val' initializer is null
+DEBUG: Variable 'uninit_val' current_function_scope_='START'
+DEBUG: Variable 'uninit_val' current_function_scope_='START'
+DEBUG: Variable 'uninit_val' has no initializer, using declaration type: INTEGER
+DEBUG: Variable 'uninit_val' final determined_type: INTEGER before symbol table update
+[ANALYZER TRACE] BlockStatement: Calling accept on statement 0 of type 57
+[ANALYZER TRACE] Entered ASTAnalyzer::visit(RoutineCallStatement&) for node at 0xcb6c14060
+[ANALYZER TRACE]   Detected call to runtime function: WRITES, Type: INTEGER
+[ANALYZER TRACE] BlockStatement: Calling accept on statement 1 of type 57
+[ANALYZER TRACE] Entered ASTAnalyzer::visit(RoutineCallStatement&) for node at 0xcb6c14090
+[ANALYZER TRACE]   Detected call to runtime function: WRITES, Type: INTEGER
+[ANALYZER TRACE] BlockStatement: Calling accept on statement 2 of type 56
+[ASSIGNMENT VISITOR] Processing AssignmentStatement with 1 LHS variables
+[DEBUG] Processing assignment to variable: obj
+[DEBUG] Symbol lookup for 'obj': FOUND
+[DEBUG] Symbol 'obj' owns_heap_memory: FALSE
+DEBUG: infer_expression_type called on expression type: 27
+DEBUG: current_function_scope_: 'START'
+DEBUG: current_class_name_: ''
+DEBUG: Assignment - inferred RHS type: 1310720
+DEBUG: Found existing symbol 'obj' with type: 1
+DEBUG: Updated to RHS type: 1310720
+[DEBUG] Updated variable 'obj' type to POINTER_TO|OBJECT
+[ANALYZER TRACE] Visiting VariableAccess: obj
+[DEBUG get_effective_variable_name] Called with: 'obj'
+[DEBUG get_effective_variable_name] Loop context stack size: 0
+[DEBUG get_effective_variable_name] Active FOR loop scopes size: 0
+[DEBUG get_effective_variable_name] FOR variable aliases size: 0
+[DEBUG get_effective_variable_name] In FOR loop context: NO
+[DEBUG get_effective_variable_name] Not in FOR loop context, returning original: 'obj'
+[ANALYZER TRACE] BlockStatement: Calling accept on statement 3 of type 57
+[ANALYZER TRACE] Entered ASTAnalyzer::visit(RoutineCallStatement&) for node at 0xcb6c140c0
+[ANALYZER TRACE]   Detected call to runtime function: WRITES, Type: INTEGER
+[ANALYZER TRACE] BlockStatement: Calling accept on statement 4 of type 56
+[ASSIGNMENT VISITOR] Processing AssignmentStatement with 1 LHS variables
+[DEBUG] Processing assignment to variable: init_val
+[DEBUG] Symbol lookup for 'init_val': FOUND
+[DEBUG] Symbol 'init_val' owns_heap_memory: FALSE
+DEBUG: infer_expression_type called on expression type: 22
+DEBUG: current_function_scope_: 'START'
+DEBUG: current_class_name_: ''
+DEBUG: infer_function_call_type
+DEBUG: Function call is not a simple variable access
+DEBUG: Assignment - inferred RHS type: 1
+DEBUG: Found existing symbol 'init_val' with type: 1
+DEBUG: Updated to RHS type: 1
+[DEBUG] Updated variable 'init_val' type to INTEGER
+[ANALYZER TRACE] Visiting VariableAccess: init_val
+[DEBUG get_effective_variable_name] Called with: 'init_val'
+[DEBUG get_effective_variable_name] Loop context stack size: 0
+[DEBUG get_effective_variable_name] Active FOR loop scopes size: 0
+[DEBUG get_effective_variable_name] FOR variable aliases size: 0
+[DEBUG get_effective_variable_name] In FOR loop context: NO
+[DEBUG get_effective_variable_name] Not in FOR loop context, returning original: 'init_val'
+[ANALYZER TRACE] BlockStatement: Calling accept on statement 5 of type 56
+[ASSIGNMENT VISITOR] Processing AssignmentStatement with 1 LHS variables
+[DEBUG] Processing assignment to variable: uninit_val
+[DEBUG] Symbol lookup for 'uninit_val': FOUND
+[DEBUG] Symbol 'uninit_val' owns_heap_memory: FALSE
+DEBUG: infer_expression_type called on expression type: 22
+DEBUG: current_function_scope_: 'START'
+DEBUG: current_class_name_: ''
+DEBUG: infer_function_call_type
+DEBUG: Function call is not a simple variable access
+DEBUG: Assignment - inferred RHS type: 1
+DEBUG: Found existing symbol 'uninit_val' with type: 1
+DEBUG: Updated to RHS type: 1
+[DEBUG] Updated variable 'uninit_val' type to INTEGER
+[ANALYZER TRACE] Visiting VariableAccess: uninit_val
+[DEBUG get_effective_variable_name] Called with: 'uninit_val'
+[DEBUG get_effective_variable_name] Loop context stack size: 0
+[DEBUG get_effective_variable_name] Active FOR loop scopes size: 0
+[DEBUG get_effective_variable_name] FOR variable aliases size: 0
+[DEBUG get_effective_variable_name] In FOR loop context: NO
+[DEBUG get_effective_variable_name] Not in FOR loop context, returning original: 'uninit_val'
+[ANALYZER TRACE] BlockStatement: Calling accept on statement 6 of type 57
+[ANALYZER TRACE] Entered ASTAnalyzer::visit(RoutineCallStatement&) for node at 0xcb6c140f0
+[ANALYZER TRACE]   Detected call to runtime function: WRITES, Type: INTEGER
+[ANALYZER TRACE] BlockStatement: Calling accept on statement 7 of type 57
+[ANALYZER TRACE] Entered ASTAnalyzer::visit(RoutineCallStatement&) for node at 0xcb6c14120
+[ANALYZER TRACE]   Detected call to runtime function: WRITEN, Type: INTEGER
+[ANALYZER TRACE] Visiting VariableAccess: init_val
+[DEBUG get_effective_variable_name] Called with: 'init_val'
+[DEBUG get_effective_variable_name] Loop context stack size: 0
+[DEBUG get_effective_variable_name] Active FOR loop scopes size: 0
+[DEBUG get_effective_variable_name] FOR variable aliases size: 0
+[DEBUG get_effective_variable_name] In FOR loop context: NO
+[DEBUG get_effective_variable_name] Not in FOR loop context, returning original: 'init_val'
+[ANALYZER TRACE] BlockStatement: Calling accept on statement 8 of type 57
+[ANALYZER TRACE] Entered ASTAnalyzer::visit(RoutineCallStatement&) for node at 0xcb6c14150
+[ANALYZER TRACE]   Detected call to runtime function: WRITES, Type: INTEGER
+[ANALYZER TRACE] BlockStatement: Calling accept on statement 9 of type 57
+[ANALYZER TRACE] Entered ASTAnalyzer::visit(RoutineCallStatement&) for node at 0xcb6c14180
+[ANALYZER TRACE]   Detected call to runtime function: WRITES, Type: INTEGER
+[ANALYZER TRACE] BlockStatement: Calling accept on statement 10 of type 57
+[ANALYZER TRACE] Entered ASTAnalyzer::visit(RoutineCallStatement&) for node at 0xcb6c141b0
+[ANALYZER TRACE]   Detected call to runtime function: WRITEN, Type: INTEGER
+[ANALYZER TRACE] Visiting VariableAccess: uninit_val
+[DEBUG get_effective_variable_name] Called with: 'uninit_val'
+[DEBUG get_effective_variable_name] Loop context stack size: 0
+[DEBUG get_effective_variable_name] Active FOR loop scopes size: 0
+[DEBUG get_effective_variable_name] FOR variable aliases size: 0
+[DEBUG get_effective_variable_name] In FOR loop context: NO
+[DEBUG get_effective_variable_name] Not in FOR loop context, returning original: 'uninit_val'
+[ANALYZER TRACE] BlockStatement: Calling accept on statement 11 of type 57
+[ANALYZER TRACE] Entered ASTAnalyzer::visit(RoutineCallStatement&) for node at 0xcb6c141e0
+[ANALYZER TRACE]   Detected call to runtime function: WRITES, Type: INTEGER
+[ANALYZER TRACE] BlockStatement: Calling accept on statement 12 of type 57
+[ANALYZER TRACE] Entered ASTAnalyzer::visit(RoutineCallStatement&) for node at 0xcb6c14210
+[ANALYZER TRACE]   Detected call to runtime function: WRITES, Type: INTEGER
+[ANALYZER TRACE] BlockStatement: Calling accept on statement 13 of type 57
+[ANALYZER TRACE] Entered ASTAnalyzer::visit(RoutineCallStatement&) for node at 0xcb6c14240
+[ANALYZER TRACE]   Detected call to runtime function: WRITES, Type: INTEGER
+[ANALYZER TRACE] BlockStatement: Calling accept on statement 14 of type 57
+[ANALYZER TRACE] Entered ASTAnalyzer::visit(RoutineCallStatement&) for node at 0xcb6c14270
+[ANALYZER TRACE]   Detected call to runtime function: WRITEN, Type: INTEGER
+[ANALYZER TRACE] Visiting VariableAccess: obj
+[DEBUG get_effective_variable_name] Called with: 'obj'
+[DEBUG get_effective_variable_name] Loop context stack size: 0
+[DEBUG get_effective_variable_name] Active FOR loop scopes size: 0
+[DEBUG get_effective_variable_name] FOR variable aliases size: 0
+[DEBUG get_effective_variable_name] In FOR loop context: NO
+[DEBUG get_effective_variable_name] Not in FOR loop context, returning original: 'obj'
+[ANALYZER TRACE] BlockStatement: Calling accept on statement 15 of type 57
+[ANALYZER TRACE] Entered ASTAnalyzer::visit(RoutineCallStatement&) for node at 0xcb6c142a0
+[ANALYZER TRACE]   Detected call to runtime function: WRITES, Type: INTEGER
+[ANALYZER TRACE] BlockStatement: Calling accept on statement 16 of type 57
+[ANALYZER TRACE] Entered ASTAnalyzer::visit(RoutineCallStatement&) for node at 0xcb6c142d0
+[ANALYZER TRACE]   Detected call to runtime function: WRITES, Type: INTEGER
+[ANALYZER TRACE] BlockStatement: Calling accept on statement 17 of type 57
+[ANALYZER TRACE] Entered ASTAnalyzer::visit(RoutineCallStatement&) for node at 0xcb6c14300
+[ANALYZER TRACE]   Detected call to runtime function: WRITEN, Type: INTEGER
+[ANALYZER TRACE] Visiting VariableAccess: obj
+[DEBUG get_effective_variable_name] Called with: 'obj'
+[DEBUG get_effective_variable_name] Loop context stack size: 0
+[DEBUG get_effective_variable_name] Active FOR loop scopes size: 0
+[DEBUG get_effective_variable_name] FOR variable aliases size: 0
+[DEBUG get_effective_variable_name] In FOR loop context: NO
+[DEBUG get_effective_variable_name] Not in FOR loop context, returning original: 'obj'
+[ANALYZER TRACE] BlockStatement: Calling accept on statement 18 of type 57
+[ANALYZER TRACE] Entered ASTAnalyzer::visit(RoutineCallStatement&) for node at 0xcb6c14330
+[ANALYZER TRACE]   Detected call to runtime function: WRITES, Type: INTEGER
+[ANALYZER TRACE] BlockStatement: Calling accept on statement 19 of type 60
+[ANALYZER TRACE] Visiting VariableAccess: init_val
+[DEBUG get_effective_variable_name] Called with: 'init_val'
+[DEBUG get_effective_variable_name] Loop context stack size: 0
+[DEBUG get_effective_variable_name] Active FOR loop scopes size: 0
+[DEBUG get_effective_variable_name] FOR variable aliases size: 0
+[DEBUG get_effective_variable_name] In FOR loop context: NO
+[DEBUG get_effective_variable_name] Not in FOR loop context, returning original: 'init_val'
+DEBUG: infer_expression_type called on expression type: 16
+DEBUG: current_function_scope_: 'START'
+DEBUG: current_class_name_: ''
+DEBUG: infer_variable_access_type for 'init_val'
+[DEBUG get_variable_type] Looking for 'init_val' in function 'START'
+[DEBUG get_variable_type] Found function metrics for 'START'
+[DEBUG get_variable_type] Parameter types count: 0
+[DEBUG get_variable_type] Variable types count: 3
+[DEBUG get_variable_type] Found in variable_types: init_val -> 1
+DEBUG: Found variable 'init_val' with type 1
+DEBUG: infer_expression_type called on expression type: 11
+DEBUG: current_function_scope_: 'START'
+DEBUG: current_class_name_: ''
+DEBUG: infer_literal_type called
+DEBUG: NumberLiteral dynamic_cast succeeded
+DEBUG: literal_type = 0
+[ANALYZER TRACE] Visiting VariableAccess: uninit_val
+[DEBUG get_effective_variable_name] Called with: 'uninit_val'
+[DEBUG get_effective_variable_name] Loop context stack size: 0
+[DEBUG get_effective_variable_name] Active FOR loop scopes size: 0
+[DEBUG get_effective_variable_name] FOR variable aliases size: 0
+[DEBUG get_effective_variable_name] In FOR loop context: NO
+[DEBUG get_effective_variable_name] Not in FOR loop context, returning original: 'uninit_val'
+DEBUG: infer_expression_type called on expression type: 16
+DEBUG: current_function_scope_: 'START'
+DEBUG: current_class_name_: ''
+DEBUG: infer_variable_access_type for 'uninit_val'
+[DEBUG get_variable_type] Looking for 'uninit_val' in function 'START'
+[DEBUG get_variable_type] Found function metrics for 'START'
+[DEBUG get_variable_type] Parameter types count: 0
+[DEBUG get_variable_type] Variable types count: 3
+[DEBUG get_variable_type] Found in variable_types: uninit_val -> 1
+DEBUG: Found variable 'uninit_val' with type 1
+DEBUG: infer_expression_type called on expression type: 11
+DEBUG: current_function_scope_: 'START'
+DEBUG: current_class_name_: ''
+DEBUG: infer_literal_type called
+DEBUG: NumberLiteral dynamic_cast succeeded
+DEBUG: literal_type = 0
+DEBUG: infer_expression_type called on expression type: 17
+DEBUG: current_function_scope_: 'START'
+DEBUG: current_class_name_: ''
+DEBUG: infer_binary_op_type
+DEBUG: infer_expression_type called on expression type: 16
+DEBUG: current_function_scope_: 'START'
+DEBUG: current_class_name_: ''
+DEBUG: infer_variable_access_type for 'init_val'
+[DEBUG get_variable_type] Looking for 'init_val' in function 'START'
+[DEBUG get_variable_type] Found function metrics for 'START'
+[DEBUG get_variable_type] Parameter types count: 0
+[DEBUG get_variable_type] Variable types count: 3
+[DEBUG get_variable_type] Found in variable_types: init_val -> 1
+DEBUG: Found variable 'init_val' with type 1
+DEBUG: infer_expression_type called on expression type: 11
+DEBUG: current_function_scope_: 'START'
+DEBUG: current_class_name_: ''
+DEBUG: infer_literal_type called
+DEBUG: NumberLiteral dynamic_cast succeeded
+DEBUG: literal_type = 0
+DEBUG: Binary op - left type: 1, right type: 1
+DEBUG: infer_expression_type called on expression type: 17
+DEBUG: current_function_scope_: 'START'
+DEBUG: current_class_name_: ''
+DEBUG: infer_binary_op_type
+DEBUG: infer_expression_type called on expression type: 16
+DEBUG: current_function_scope_: 'START'
+DEBUG: current_class_name_: ''
+DEBUG: infer_variable_access_type for 'uninit_val'
+[DEBUG get_variable_type] Looking for 'uninit_val' in function 'START'
+[DEBUG get_variable_type] Found function metrics for 'START'
+[DEBUG get_variable_type] Parameter types count: 0
+[DEBUG get_variable_type] Variable types count: 3
+[DEBUG get_variable_type] Found in variable_types: uninit_val -> 1
+DEBUG: Found variable 'uninit_val' with type 1
+DEBUG: infer_expression_type called on expression type: 11
+DEBUG: current_function_scope_: 'START'
+DEBUG: current_class_name_: ''
+DEBUG: infer_literal_type called
+DEBUG: NumberLiteral dynamic_cast succeeded
+DEBUG: literal_type = 0
+DEBUG: Binary op - left type: 1, right type: 1
+[ANALYZER TRACE] Visiting VariableAccess: obj
+[DEBUG get_effective_variable_name] Called with: 'obj'
+[DEBUG get_effective_variable_name] Loop context stack size: 0
+[DEBUG get_effective_variable_name] Active FOR loop scopes size: 0
+[DEBUG get_effective_variable_name] FOR variable aliases size: 0
+[DEBUG get_effective_variable_name] In FOR loop context: NO
+[DEBUG get_effective_variable_name] Not in FOR loop context, returning original: 'obj'
+DEBUG: infer_expression_type called on expression type: 28
+DEBUG: current_function_scope_: 'START'
+DEBUG: current_class_name_: ''
+DEBUG: infer_access_type
+[ANALYZER TRACE] get_class_member_type: Determined class 'DebugInit' for member 'initialized_member'
+[ANALYZER TRACE] get_class_member_type: Found member 'initialized_member' with type 1
+DEBUG: infer_expression_type called on expression type: 11
+DEBUG: current_function_scope_: 'START'
+DEBUG: current_class_name_: ''
+DEBUG: infer_literal_type called
+DEBUG: NumberLiteral dynamic_cast succeeded
+DEBUG: literal_type = 0
+DEBUG: infer_expression_type called on expression type: 17
+DEBUG: current_function_scope_: 'START'
+DEBUG: current_class_name_: ''
+DEBUG: infer_binary_op_type
+DEBUG: infer_expression_type called on expression type: 17
+DEBUG: current_function_scope_: 'START'
+DEBUG: current_class_name_: ''
+DEBUG: infer_binary_op_type
+DEBUG: infer_expression_type called on expression type: 16
+DEBUG: current_function_scope_: 'START'
+DEBUG: current_class_name_: ''
+DEBUG: infer_variable_access_type for 'init_val'
+[DEBUG get_variable_type] Looking for 'init_val' in function 'START'
+[DEBUG get_variable_type] Found function metrics for 'START'
+[DEBUG get_variable_type] Parameter types count: 0
+[DEBUG get_variable_type] Variable types count: 3
+[DEBUG get_variable_type] Found in variable_types: init_val -> 1
+DEBUG: Found variable 'init_val' with type 1
+DEBUG: infer_expression_type called on expression type: 11
+DEBUG: current_function_scope_: 'START'
+DEBUG: current_class_name_: ''
+DEBUG: infer_literal_type called
+DEBUG: NumberLiteral dynamic_cast succeeded
+DEBUG: literal_type = 0
+DEBUG: Binary op - left type: 1, right type: 1
+DEBUG: infer_expression_type called on expression type: 17
+DEBUG: current_function_scope_: 'START'
+DEBUG: current_class_name_: ''
+DEBUG: infer_binary_op_type
+DEBUG: infer_expression_type called on expression type: 16
+DEBUG: current_function_scope_: 'START'
+DEBUG: current_class_name_: ''
+DEBUG: infer_variable_access_type for 'uninit_val'
+[DEBUG get_variable_type] Looking for 'uninit_val' in function 'START'
+[DEBUG get_variable_type] Found function metrics for 'START'
+[DEBUG get_variable_type] Parameter types count: 0
+[DEBUG get_variable_type] Variable types count: 3
+[DEBUG get_variable_type] Found in variable_types: uninit_val -> 1
+DEBUG: Found variable 'uninit_val' with type 1
+DEBUG: infer_expression_type called on expression type: 11
+DEBUG: current_function_scope_: 'START'
+DEBUG: current_class_name_: ''
+DEBUG: infer_literal_type called
+DEBUG: NumberLiteral dynamic_cast succeeded
+DEBUG: literal_type = 0
+DEBUG: Binary op - left type: 1, right type: 1
+DEBUG: Binary op - left type: 1, right type: 1
+DEBUG: infer_expression_type called on expression type: 17
+DEBUG: current_function_scope_: 'START'
+DEBUG: current_class_name_: ''
+DEBUG: infer_binary_op_type
+DEBUG: infer_expression_type called on expression type: 28
+DEBUG: current_function_scope_: 'START'
+DEBUG: current_class_name_: ''
+DEBUG: infer_access_type
+[ANALYZER TRACE] get_class_member_type: Determined class 'DebugInit' for member 'initialized_member'
+[ANALYZER TRACE] get_class_member_type: Found member 'initialized_member' with type 1
+DEBUG: infer_expression_type called on expression type: 11
+DEBUG: current_function_scope_: 'START'
+DEBUG: current_class_name_: ''
+DEBUG: infer_literal_type called
+DEBUG: NumberLiteral dynamic_cast succeeded
+DEBUG: literal_type = 0
+DEBUG: Binary op - left type: 1, right type: 1
+[ANALYZER TRACE] Visiting VariableAccess: obj
+[DEBUG get_effective_variable_name] Called with: 'obj'
+[DEBUG get_effective_variable_name] Loop context stack size: 0
+[DEBUG get_effective_variable_name] Active FOR loop scopes size: 0
+[DEBUG get_effective_variable_name] FOR variable aliases size: 0
+[DEBUG get_effective_variable_name] In FOR loop context: NO
+[DEBUG get_effective_variable_name] Not in FOR loop context, returning original: 'obj'
+DEBUG: infer_expression_type called on expression type: 28
+DEBUG: current_function_scope_: 'START'
+DEBUG: current_class_name_: ''
+DEBUG: infer_access_type
+[ANALYZER TRACE] get_class_member_type: Determined class 'DebugInit' for member 'uninitialized_member'
+[ANALYZER TRACE] get_class_member_type: Found member 'uninitialized_member' with type 1
+DEBUG: infer_expression_type called on expression type: 11
+DEBUG: current_function_scope_: 'START'
+DEBUG: current_class_name_: ''
+DEBUG: infer_literal_type called
+DEBUG: NumberLiteral dynamic_cast succeeded
+DEBUG: literal_type = 0
+DEBUG: infer_expression_type called on expression type: 17
+DEBUG: current_function_scope_: 'START'
+DEBUG: current_class_name_: ''
+DEBUG: infer_binary_op_type
+DEBUG: infer_expression_type called on expression type: 17
+DEBUG: current_function_scope_: 'START'
+DEBUG: current_class_name_: ''
+DEBUG: infer_binary_op_type
+DEBUG: infer_expression_type called on expression type: 17
+DEBUG: current_function_scope_: 'START'
+DEBUG: current_class_name_: ''
+DEBUG: infer_binary_op_type
+DEBUG: infer_expression_type called on expression type: 16
+DEBUG: current_function_scope_: 'START'
+DEBUG: current_class_name_: ''
+DEBUG: infer_variable_access_type for 'init_val'
+[DEBUG get_variable_type] Looking for 'init_val' in function 'START'
+[DEBUG get_variable_type] Found function metrics for 'START'
+[DEBUG get_variable_type] Parameter types count: 0
+[DEBUG get_variable_type] Variable types count: 3
+[DEBUG get_variable_type] Found in variable_types: init_val -> 1
+DEBUG: Found variable 'init_val' with type 1
+DEBUG: infer_expression_type called on expression type: 11
+DEBUG: current_function_scope_: 'START'
+DEBUG: current_class_name_: ''
+DEBUG: infer_literal_type called
+DEBUG: NumberLiteral dynamic_cast succeeded
+DEBUG: literal_type = 0
+DEBUG: Binary op - left type: 1, right type: 1
+DEBUG: infer_expression_type called on expression type: 17
+DEBUG: current_function_scope_: 'START'
+DEBUG: current_class_name_: ''
+DEBUG: infer_binary_op_type
+DEBUG: infer_expression_type called on expression type: 16
+DEBUG: current_function_scope_: 'START'
+DEBUG: current_class_name_: ''
+DEBUG: infer_variable_access_type for 'uninit_val'
+[DEBUG get_variable_type] Looking for 'uninit_val' in function 'START'
+[DEBUG get_variable_type] Found function metrics for 'START'
+[DEBUG get_variable_type] Parameter types count: 0
+[DEBUG get_variable_type] Variable types count: 3
+[DEBUG get_variable_type] Found in variable_types: uninit_val -> 1
+DEBUG: Found variable 'uninit_val' with type 1
+DEBUG: infer_expression_type called on expression type: 11
+DEBUG: current_function_scope_: 'START'
+DEBUG: current_class_name_: ''
+DEBUG: infer_literal_type called
+DEBUG: NumberLiteral dynamic_cast succeeded
+DEBUG: literal_type = 0
+DEBUG: Binary op - left type: 1, right type: 1
+DEBUG: Binary op - left type: 1, right type: 1
+DEBUG: infer_expression_type called on expression type: 17
+DEBUG: current_function_scope_: 'START'
+DEBUG: current_class_name_: ''
+DEBUG: infer_binary_op_type
+DEBUG: infer_expression_type called on expression type: 28
+DEBUG: current_function_scope_: 'START'
+DEBUG: current_class_name_: ''
+DEBUG: infer_access_type
+[ANALYZER TRACE] get_class_member_type: Determined class 'DebugInit' for member 'initialized_member'
+[ANALYZER TRACE] get_class_member_type: Found member 'initialized_member' with type 1
+DEBUG: infer_expression_type called on expression type: 11
+DEBUG: current_function_scope_: 'START'
+DEBUG: current_class_name_: ''
+DEBUG: infer_literal_type called
+DEBUG: NumberLiteral dynamic_cast succeeded
+DEBUG: literal_type = 0
+DEBUG: Binary op - left type: 1, right type: 1
+DEBUG: Binary op - left type: 1, right type: 1
+DEBUG: infer_expression_type called on expression type: 17
+DEBUG: current_function_scope_: 'START'
+DEBUG: current_class_name_: ''
+DEBUG: infer_binary_op_type
+DEBUG: infer_expression_type called on expression type: 28
+DEBUG: current_function_scope_: 'START'
+DEBUG: current_class_name_: ''
+DEBUG: infer_access_type
+[ANALYZER TRACE] get_class_member_type: Determined class 'DebugInit' for member 'uninitialized_member'
+[ANALYZER TRACE] get_class_member_type: Found member 'uninitialized_member' with type 1
+DEBUG: infer_expression_type called on expression type: 11
+DEBUG: current_function_scope_: 'START'
+DEBUG: current_class_name_: ''
+DEBUG: infer_literal_type called
+DEBUG: NumberLiteral dynamic_cast succeeded
+DEBUG: literal_type = 0
+DEBUG: Binary op - left type: 1, right type: 1
+[ANALYZER TRACE] Entering block scope: START_block_1_block_4 (Function scope remains: START)
+[ANALYZER TRACE] BlockStatement: Traversing 1 statements.
+[ANALYZER TRACE] BlockStatement: Calling accept on statement 0 of type 57
+[ANALYZER TRACE] Entered ASTAnalyzer::visit(RoutineCallStatement&) for node at 0xcb6c14360
+[ANALYZER TRACE]   Detected call to runtime function: WRITES, Type: INTEGER
+[ANALYZER TRACE] Exiting block scope, returning to: START_block_1
+[ANALYZER TRACE] Entering block scope: START_block_1_block_4 (Function scope remains: START)
+[ANALYZER TRACE] BlockStatement: Traversing 11 statements.
+[ANALYZER TRACE] BlockStatement: Calling accept on statement 0 of type 57
+[ANALYZER TRACE] Entered ASTAnalyzer::visit(RoutineCallStatement&) for node at 0xcb6c14390
+[ANALYZER TRACE]   Detected call to runtime function: WRITES, Type: INTEGER
+[ANALYZER TRACE] BlockStatement: Calling accept on statement 1 of type 57
+[ANALYZER TRACE] Entered ASTAnalyzer::visit(RoutineCallStatement&) for node at 0xcb6c143c0
+[ANALYZER TRACE]   Detected call to runtime function: WRITES, Type: INTEGER
+[ANALYZER TRACE] BlockStatement: Calling accept on statement 2 of type 57
+[ANALYZER TRACE] Entered ASTAnalyzer::visit(RoutineCallStatement&) for node at 0xcb6c143f0
+[ANALYZER TRACE]   Detected call to runtime function: WRITES, Type: INTEGER
+[ANALYZER TRACE] BlockStatement: Calling accept on statement 3 of type 57
+[ANALYZER TRACE] Entered ASTAnalyzer::visit(RoutineCallStatement&) for node at 0xcb6c14420
+[ANALYZER TRACE]   Detected call to runtime function: WRITEN, Type: INTEGER
+[ANALYZER TRACE] Visiting VariableAccess: init_val
+[DEBUG get_effective_variable_name] Called with: 'init_val'
+[DEBUG get_effective_variable_name] Loop context stack size: 0
+[DEBUG get_effective_variable_name] Active FOR loop scopes size: 0
+[DEBUG get_effective_variable_name] FOR variable aliases size: 0
+[DEBUG get_effective_variable_name] In FOR loop context: NO
+[DEBUG get_effective_variable_name] Not in FOR loop context, returning original: 'init_val'
+[ANALYZER TRACE] BlockStatement: Calling accept on statement 4 of type 57
+[ANALYZER TRACE] Entered ASTAnalyzer::visit(RoutineCallStatement&) for node at 0xcb6c14450
+[ANALYZER TRACE]   Detected call to runtime function: WRITES, Type: INTEGER
+[ANALYZER TRACE] BlockStatement: Calling accept on statement 5 of type 57
+[ANALYZER TRACE] Entered ASTAnalyzer::visit(RoutineCallStatement&) for node at 0xcb6c14480
+[ANALYZER TRACE]   Detected call to runtime function: WRITEN, Type: INTEGER
+[ANALYZER TRACE] Visiting VariableAccess: uninit_val
+[DEBUG get_effective_variable_name] Called with: 'uninit_val'
+[DEBUG get_effective_variable_name] Loop context stack size: 0
+[DEBUG get_effective_variable_name] Active FOR loop scopes size: 0
+[DEBUG get_effective_variable_name] FOR variable aliases size: 0
+[DEBUG get_effective_variable_name] In FOR loop context: NO
+[DEBUG get_effective_variable_name] Not in FOR loop context, returning original: 'uninit_val'
+[ANALYZER TRACE] BlockStatement: Calling accept on statement 6 of type 57
+[ANALYZER TRACE] Entered ASTAnalyzer::visit(RoutineCallStatement&) for node at 0xcb6c144b0
+[ANALYZER TRACE]   Detected call to runtime function: WRITES, Type: INTEGER
+[ANALYZER TRACE] BlockStatement: Calling accept on statement 7 of type 57
+[ANALYZER TRACE] Entered ASTAnalyzer::visit(RoutineCallStatement&) for node at 0xcb6c144e0
+[ANALYZER TRACE]   Detected call to runtime function: WRITEN, Type: INTEGER
+[ANALYZER TRACE] Visiting VariableAccess: obj
+[DEBUG get_effective_variable_name] Called with: 'obj'
+[DEBUG get_effective_variable_name] Loop context stack size: 0
+[DEBUG get_effective_variable_name] Active FOR loop scopes size: 0
+[DEBUG get_effective_variable_name] FOR variable aliases size: 0
+[DEBUG get_effective_variable_name] In FOR loop context: NO
+[DEBUG get_effective_variable_name] Not in FOR loop context, returning original: 'obj'
+[ANALYZER TRACE] BlockStatement: Calling accept on statement 8 of type 57
+[ANALYZER TRACE] Entered ASTAnalyzer::visit(RoutineCallStatement&) for node at 0xcb6c14510
+[ANALYZER TRACE]   Detected call to runtime function: WRITES, Type: INTEGER
+[ANALYZER TRACE] BlockStatement: Calling accept on statement 9 of type 57
+[ANALYZER TRACE] Entered ASTAnalyzer::visit(RoutineCallStatement&) for node at 0xcb6c14540
+[ANALYZER TRACE]   Detected call to runtime function: WRITEN, Type: INTEGER
+[ANALYZER TRACE] Visiting VariableAccess: obj
+[DEBUG get_effective_variable_name] Called with: 'obj'
+[DEBUG get_effective_variable_name] Loop context stack size: 0
+[DEBUG get_effective_variable_name] Active FOR loop scopes size: 0
+[DEBUG get_effective_variable_name] FOR variable aliases size: 0
+[DEBUG get_effective_variable_name] In FOR loop context: NO
+[DEBUG get_effective_variable_name] Not in FOR loop context, returning original: 'obj'
+[ANALYZER TRACE] BlockStatement: Calling accept on statement 10 of type 57
+[ANALYZER TRACE] Entered ASTAnalyzer::visit(RoutineCallStatement&) for node at 0xcb6c14570
+[ANALYZER TRACE]   Detected call to runtime function: WRITEC, Type: INTEGER
+[ANALYZER TRACE] Exiting block scope, returning to: START_block_1
+[ANALYZER TRACE] BlockStatement: Calling accept on statement 20 of type 57
+[ANALYZER TRACE] Entered ASTAnalyzer::visit(RoutineCallStatement&) for node at 0xcb6c145a0
+[ANALYZER TRACE]   Detected call to runtime function: WRITES, Type: INTEGER
+[ANALYZER TRACE] Exiting block scope, returning to: START
+[SAMM OPTIMIZATION] Starting heap allocation propagation...
+[SAMM OPTIMIZATION] Propagation iteration 1
+[SAMM OPTIMIZATION] Propagation completed after 1 iterations
+[SAMM OPTIMIZATION] Results:
+  Total functions: 5
+  Allocation-free functions: 4
+  Allocation-free leaf functions: 3
+  Allocation-free non-leaf functions: 1
+[ANALYZER TRACE] Analysis complete.
+Initial AST analysis complete.
+==== ASTAnalyzer Function Metrics Report ====
+Function: DebugInit::CREATE
+  Type: int
+  Parameters: 1
+  Integer Locals: 0
+  Float Locals: 0
+  Runtime Calls: 9
+  Local Function Calls: 0
+  Local Routine Calls: 0
+  Vector Allocations: no
+  Accesses Globals: yes
+  Max Live Variables (Register Pressure): 0
+  Required Callee-Saved Temps: 0
+--------------------------------------------
+Function: DebugInit::RELEASE
+  Type: int
+  Parameters: 1
+  Integer Locals: 0
+  Float Locals: 0
+  Runtime Calls: 0
+  Local Function Calls: 0
+  Local Routine Calls: 0
+  Vector Allocations: no
+  Accesses Globals: no
+  Max Live Variables (Register Pressure): 0
+  Required Callee-Saved Temps: 0
+--------------------------------------------
+Function: DebugInit::getInitialized
+  Type: int
+  Parameters: 1
+  Integer Locals: 0
+  Float Locals: 0
+  Runtime Calls: 0
+  Local Function Calls: 0
+  Local Routine Calls: 0
+  Vector Allocations: no
+  Accesses Globals: no
+  Max Live Variables (Register Pressure): 0
+  Required Callee-Saved Temps: 0
+--------------------------------------------
+Function: DebugInit::getUninitialized
+  Type: int
+  Parameters: 1
+  Integer Locals: 0
+  Float Locals: 0
+  Runtime Calls: 0
+  Local Function Calls: 0
+  Local Routine Calls: 0
+  Vector Allocations: no
+  Accesses Globals: no
+  Max Live Variables (Register Pressure): 0
+  Required Callee-Saved Temps: 0
+--------------------------------------------
+Function: START
+  Type: int
+  Parameters: 0
+  Integer Locals: 6
+  Float Locals: 0
+  Runtime Calls: 29
+  Local Function Calls: 0
+  Local Routine Calls: 0
+  Vector Allocations: no
+  Accesses Globals: yes
+  Max Live Variables (Register Pressure): 0
+  Required Callee-Saved Temps: 0
+--------------------------------------------
+Cleared FOR loop state before AST transformation to prevent corruption
+[ANALYZER TRACE] Starting AST transformation...
+[ANALYZER TRACE] AST transformation complete.
+AST transformation complete.
+[ANALYZER DEBUG] Registered call site at instruction 122 for function 'START'
+[ANALYZER DEBUG] Registered call site at instruction 123 for function 'START'
+[ANALYZER DEBUG] Registered call site at instruction 124 for function 'START'
+[ANALYZER DEBUG] Registered call site at instruction 125 for function 'START'
+[ANALYZER DEBUG] Registered call site at instruction 126 for function 'START'
+[ANALYZER DEBUG] Registered call site at instruction 127 for function 'START'
+
+--- AST Dump Immediately Before Code Generation ---
+Program:
+  Declarations:
+    ClassDeclaration: DebugInit
+      Members:
+        LetDeclaration:
+          Name: initialized_member
+          Initializer:
+            NumberLiteral: 999
+        LetDeclaration:
+          Name: uninitialized_member
+        RoutineDeclaration: CREATE
+          Parameters: _this 
+          Body:
+            BlockStatement:
+              Statements:
+                RoutineCallStatement:
+                  Callee:
+                    VariableAccess: WRITES
+                  Arguments:
+                    StringLiteral: "=== Inside CREATE method ===
+"
+                RoutineCallStatement:
+                  Callee:
+                    VariableAccess: WRITES
+                  Arguments:
+                    StringLiteral: "initialized_member value: "
+                RoutineCallStatement:
+                  Callee:
+                    VariableAccess: WRITEN
+                  Arguments:
+                    VariableAccess: initialized_member
+                RoutineCallStatement:
+                  Callee:
+                    VariableAccess: WRITES
+                  Arguments:
+                    StringLiteral: " (should be 999)
+"
+                RoutineCallStatement:
+                  Callee:
+                    VariableAccess: WRITES
+                  Arguments:
+                    StringLiteral: "uninitialized_member value: "
+                RoutineCallStatement:
+                  Callee:
+                    VariableAccess: WRITEN
+                  Arguments:
+                    VariableAccess: uninitialized_member
+                RoutineCallStatement:
+                  Callee:
+                    VariableAccess: WRITES
+                  Arguments:
+                    StringLiteral: " (undefined, could be anything)
+"
+                AssignmentStatement:
+                  LHS:
+                    VariableAccess: uninitialized_member
+                  RHS:
+                    NumberLiteral: 555
+                RoutineCallStatement:
+                  Callee:
+                    VariableAccess: WRITES
+                  Arguments:
+                    StringLiteral: "Set uninitialized_member to 555
+"
+                RoutineCallStatement:
+                  Callee:
+                    VariableAccess: WRITES
+                  Arguments:
+                    StringLiteral: "=== Exiting CREATE method ===
+"
+        FunctionDeclaration: getInitialized
+          Parameters: _this 
+          Body:
+            ValofExpression:
+              ResultisStatement:
+                VariableAccess: initialized_member
+        FunctionDeclaration: getUninitialized
+          Parameters: _this 
+          Body:
+            ValofExpression:
+              ResultisStatement:
+                VariableAccess: uninitialized_member
+        RoutineDeclaration: RELEASE
+          Parameters: _this 
+          Body:
+            CompoundStatement:
+    RoutineDeclaration: START
+      Body:
+        BlockStatement:
+          Statements:
+            RoutineCallStatement:
+              Callee:
+                VariableAccess: WRITES
+              Arguments:
+                StringLiteral: "=== Testing Member Initialization Debug ===
+"
+            RoutineCallStatement:
+              Callee:
+                VariableAccess: WRITES
+              Arguments:
+                StringLiteral: "Creating object (should call CREATE)...
+"
+            AssignmentStatement:
+              LHS:
+                VariableAccess: obj
+              RHS:
+                NewExpression: DebugInit
+            RoutineCallStatement:
+              Callee:
+                VariableAccess: WRITES
+              Arguments:
+                StringLiteral: "
+Reading values after object creation:
+"
+            AssignmentStatement:
+              LHS:
+                VariableAccess: init_val
+              RHS:
+                FunctionCall:
+                  Callee:
+                    MemberAccess: getInitialized
+                      Object:
+                        VariableAccess: obj
+              AssignmentStatement:
+                LHS:
+                  VariableAccess: uninit_val
+                RHS:
+                  FunctionCall:
+                    Callee:
+                      MemberAccess: getUninitialized
+                        Object:
+                          VariableAccess: obj
+                RoutineCallStatement:
+                  Callee:
+                    VariableAccess: WRITES
+                  Arguments:
+                    StringLiteral: "initialized_member via method: "
+                RoutineCallStatement:
+                  Callee:
+                    VariableAccess: WRITEN
+                  Arguments:
+                    VariableAccess: init_val
+                RoutineCallStatement:
+                  Callee:
+                    VariableAccess: WRITES
+                  Arguments:
+                    StringLiteral: " (should be 999)
+"
+                RoutineCallStatement:
+                  Callee:
+                    VariableAccess: WRITES
+                  Arguments:
+                    StringLiteral: "uninitialized_member via method: "
+                RoutineCallStatement:
+                  Callee:
+                    VariableAccess: WRITEN
+                  Arguments:
+                    VariableAccess: uninit_val
+                RoutineCallStatement:
+                  Callee:
+                    VariableAccess: WRITES
+                  Arguments:
+                    StringLiteral: " (should be 555)
+"
+                RoutineCallStatement:
+                  Callee:
+                    VariableAccess: WRITES
+                  Arguments:
+                    StringLiteral: "
+Direct member access:
+"
+                RoutineCallStatement:
+                  Callee:
+                    VariableAccess: WRITES
+                  Arguments:
+                    StringLiteral: "initialized_member direct: "
+                RoutineCallStatement:
+                  Callee:
+                    VariableAccess: WRITEN
+                  Arguments:
+                    MemberAccess: initialized_member
+                      Object:
+                        VariableAccess: obj
+                  RoutineCallStatement:
+                    Callee:
+                      VariableAccess: WRITES
+                    Arguments:
+                      StringLiteral: " (should be 999)
+"
+                  RoutineCallStatement:
+                    Callee:
+                      VariableAccess: WRITES
+                    Arguments:
+                      StringLiteral: "uninitialized_member direct: "
+                  RoutineCallStatement:
+                    Callee:
+                      VariableAccess: WRITEN
+                    Arguments:
+                      MemberAccess: uninitialized_member
+                        Object:
+                          VariableAccess: obj
+                    RoutineCallStatement:
+                      Callee:
+                        VariableAccess: WRITES
+                      Arguments:
+                        StringLiteral: " (should be 555)
+"
+                    TestStatement:
+                      Condition:
+                        BinaryOp: LogicalAnd
+                          BinaryOp: LogicalAnd
+                            BinaryOp: LogicalAnd
+                              BinaryOp: Equal
+                                VariableAccess: init_val
+                                NumberLiteral: 999
+                              BinaryOp: Equal
+                                VariableAccess: uninit_val
+                                NumberLiteral: 555
+                            BinaryOp: Equal
+                              MemberAccess: initialized_member
+                                Object:
+                                  VariableAccess: obj
+                                NumberLiteral: 999
+                            BinaryOp: Equal
+                              MemberAccess: uninitialized_member
+                                Object:
+                                  VariableAccess: obj
+                                NumberLiteral: 555
+                          Then:
+                            BlockStatement:
+                              Statements:
+                                RoutineCallStatement:
+                                  Callee:
+                                    VariableAccess: WRITES
+                                  Arguments:
+                                    StringLiteral: "
+✓ PASS: All initialization working correctly
+"
+                          Else:
+                            BlockStatement:
+                              Statements:
+                                RoutineCallStatement:
+                                  Callee:
+                                    VariableAccess: WRITES
+                                  Arguments:
+                                    StringLiteral: "
+✗ FAIL: Initialization problems detected
+"
+                                RoutineCallStatement:
+                                  Callee:
+                                    VariableAccess: WRITES
+                                  Arguments:
+                                    StringLiteral: "Expected: init=999, uninit=555, direct_init=999, direct_uninit=555
+"
+                                RoutineCallStatement:
+                                  Callee:
+                                    VariableAccess: WRITES
+                                  Arguments:
+                                    StringLiteral: "Got: init="
+                                RoutineCallStatement:
+                                  Callee:
+                                    VariableAccess: WRITEN
+                                  Arguments:
+                                    VariableAccess: init_val
+                                RoutineCallStatement:
+                                  Callee:
+                                    VariableAccess: WRITES
+                                  Arguments:
+                                    StringLiteral: ", uninit="
+                                RoutineCallStatement:
+                                  Callee:
+                                    VariableAccess: WRITEN
+                                  Arguments:
+                                    VariableAccess: uninit_val
+                                RoutineCallStatement:
+                                  Callee:
+                                    VariableAccess: WRITES
+                                  Arguments:
+                                    StringLiteral: ", direct_init="
+                                RoutineCallStatement:
+                                  Callee:
+                                    VariableAccess: WRITEN
+                                  Arguments:
+                                    MemberAccess: initialized_member
+                                      Object:
+                                        VariableAccess: obj
+                                  RoutineCallStatement:
+                                    Callee:
+                                      VariableAccess: WRITES
+                                    Arguments:
+                                      StringLiteral: ", direct_uninit="
+                                  RoutineCallStatement:
+                                    Callee:
+                                      VariableAccess: WRITEN
+                                    Arguments:
+                                      MemberAccess: uninitialized_member
+                                        Object:
+                                          VariableAccess: obj
+                                    RoutineCallStatement:
+                                      Callee:
+                                        VariableAccess: WRITEC
+                                      Arguments:
+                                        CharLiteral: '
+'
+                            RoutineCallStatement:
+                              Callee:
+                                VariableAccess: WRITES
+                              Arguments:
+                                StringLiteral: "=== Initialization Debug Test Complete ===
+"
+----------------------------------
+
+=== Testing Member Initialization Debug ===
+Creating object (should call CREATE)...
+=== Inside CREATE method ===
+initialized_member value: 0 (should be 999)
+uninitialized_member value: 0 (undefined, could be anything)
+Set uninitialized_member to 555
+=== Exiting CREATE method ===
+
+Reading values after object creation:
+initialized_member via method: 0 (should be 999)
+uninitialized_member via method: 555 (should be 555)
+
+Direct member access:
+initialized_member direct: 0 (should be 999)
+uninitialized_member direct: 555 (should be 555)
+
+✗ FAIL: Initialization problems detected
+Expected: init=999, uninit=555, direct_init=999, direct_uninit=555
+Got: init=0, uninit=555, direct_init=0, direct_uninit=555
+=== Initialization Debug Test Complete ===

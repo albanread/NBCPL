@@ -1,0 +1,19 @@
+// debug_crash_test.bcl
+// Minimal test to isolate the crash in class initialization
+
+CLASS MinimalTest $(
+    LET simple_init = 42
+
+    ROUTINE CREATE() BE $(
+        WRITES("MinimalTest CREATE called*N")
+    $)
+$)
+
+LET START() BE $(
+    WRITES("=== Minimal Crash Test ===*N")
+
+    LET obj = NEW MinimalTest()
+
+    WRITES("Object created successfully*N")
+    WRITES("=== Test Complete ===*N")
+$)

@@ -1,0 +1,96 @@
+NeonReducerRegistry: Registered 13 NEON reduction encoders
+[CLASSPASS] Starting class discovery phase...
+[CLASSPASS] Discovered class: DebugInit
+[CLASSPASS] Starting class finalization phase...
+[CLASSPASS] finalize_class_layout called for class: DebugInit
+[CLASSPASS] Member variable 'initialized_member' in class 'DebugInit' assigned offset 8 with visibility 0
+[CLASSPASS] Member variable 'uninitialized_member' in class 'DebugInit' assigned offset 16 with visibility 0
+[CLASSPASS] Method 'CREATE' placed in reserved vtable slot 0.
+[CLASSPASS] Method 'getInitialized' assigned new slot 2
+[CLASSPASS] Method 'getUninitialized' assigned new slot 3
+[CLASSPASS] Skipping RELEASE synthesis for class DebugInit - SAMM is active
+[CLASSPASS] Method 'RELEASE' placed in reserved vtable slot 1.
+[CLASSPASS] About to call inject_initializers for class: DebugInit
+[CLASSPASS] inject_initializers called for class: DebugInit
+[CLASSPASS] Found routine: CREATE
+[CLASSPASS] Found CREATE routine!
+[CLASSPASS] Looking for LET declarations with initializers...
+[CLASSPASS] Found LetDeclaration with 1 names and 1 initializers
+[CLASSPASS] Processing name[0]: initialized_member
+[CLASSPASS] Found initializer for initialized_member! Creating assignment.
+[CLASSPASS] Found LetDeclaration with 1 names and 0 initializers
+[CLASSPASS] Processing name[0]: uninitialized_member
+[CLASSPASS] No initializer for uninitialized_member
+[CLASSPASS] Found 1 initializers to inject
+[CLASSPASS] Finalized class: DebugInit
+
+[CLASSPASS] Memory layout for class 'DebugInit' (size: 24 bytes)
+  [Offset 0]: vtable (8 bytes)
+  [Offset 8]: initialized_member (8 bytes)
+  [Offset 16]: uninitialized_member (8 bytes)
+
+  Vtable entries (4 slots):
+    [Slot 0]: DebugInit::CREATE
+    [Slot 1]: DebugInit::RELEASE
+    [Slot 2]: DebugInit::getInitialized
+    [Slot 3]: DebugInit::getUninitialized
+
+
+[CLASSPASS] Validating memory layouts for all classes...
+[CLASSPASS] Class 'DebugInit' has valid memory layout
+[CLASSPASS] Vtable for class 'DebugInit' has 4 slots:
+[CLASSPASS]   Slot 0: DebugInit::CREATE
+[CLASSPASS]   Slot 1: DebugInit::RELEASE
+[CLASSPASS]   Slot 2: DebugInit::getInitialized
+[CLASSPASS]   Slot 3: DebugInit::getUninitialized
+[CLASSPASS] All class memory layouts are valid!
+
+--- Class Table Dump ---
+
+Class: DebugInit
+  - Instance Size: 24 bytes
+  - Members (2):
+    - uninitialized_member (Type: UNKNOWN, Offset: 16)
+    - initialized_member (Type: UNKNOWN, Offset: 8)
+  - VTable (4 entries):
+    - Slot 0: DebugInit::CREATE
+    - Slot 1: DebugInit::RELEASE
+    - Slot 2: DebugInit::getInitialized
+    - Slot 3: DebugInit::getUninitialized
+--- End Class Table Dump ---
+
+
+--- Class Table Dump ---
+
+Class: DebugInit
+  - Instance Size: 24 bytes
+  - Members (2):
+    - uninitialized_member (Type: INTEGER, Offset: 16)
+    - initialized_member (Type: INTEGER, Offset: 8)
+  - VTable (4 entries):
+    - Slot 0: DebugInit::CREATE
+    - Slot 1: DebugInit::RELEASE
+    - Slot 2: DebugInit::getInitialized
+    - Slot 3: DebugInit::getUninitialized
+--- End Class Table Dump ---
+
+=== Testing Member Initialization Debug ===
+Creating object (should call CREATE)...
+=== Inside CREATE method ===
+initialized_member value: 0 (should be 999)
+uninitialized_member value: 0 (undefined, could be anything)
+Set uninitialized_member to 555
+=== Exiting CREATE method ===
+
+Reading values after object creation:
+initialized_member via method: 0 (should be 999)
+uninitialized_member via method: 555 (should be 555)
+
+Direct member access:
+initialized_member direct: 0 (should be 999)
+uninitialized_member direct: 555 (should be 555)
+
+✗ FAIL: Initialization problems detected
+Expected: init=999, uninit=555, direct_init=999, direct_uninit=555
+Got: init=0, uninit=555, direct_init=0, direct_uninit=555
+=== Initialization Debug Test Complete ===

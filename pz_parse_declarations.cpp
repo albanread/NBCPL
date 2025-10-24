@@ -2,8 +2,7 @@
 #include <stdexcept>
 #include <vector>
 
-// --- Class context tracking ---
-static std::string current_class_name_;
+
 
 DeclPtr Parser::parse_member_declaration() {
     TraceGuard guard(*this, "parse_member_declaration");
@@ -98,6 +97,20 @@ DeclPtr Parser::parse_member_let_declaration() {
             }
         }
 
+        // Collect initializers for CREATE injection
+        if (!initializers.empty()) {
+            for (size_t i = 0; i < names.size() && i < initializers.size(); ++i) {
+                // Clone the initializer expression for CREATE injection
+                ExprPtr cloned_initializer = std::unique_ptr<Expression>(
+                    static_cast<Expression*>(initializers[i]->clone().release()));
+                pending_member_initializers_.emplace_back(
+                    names[i], 
+                    std::move(cloned_initializer), 
+                    is_float
+                );
+            }
+        }
+        
         auto decl = std::make_unique<LetDeclaration>(std::move(names), std::move(initializers));
         decl->is_float_declaration = is_float;
         return decl;
@@ -354,8 +367,9 @@ DeclPtr Parser::parse_class_declaration() {
 
     consume(TokenType::LBrace, "Expect '$(' or '{' after class name or EXTENDS clause.");
 
-    // Set class context
+    // Set class context and initialize member initializers tracking
     current_class_name_ = class_name;
+    pending_member_initializers_.clear();
 
     // Track current visibility level - default to PUBLIC
     Visibility current_visibility = Visibility::Public;
@@ -390,8 +404,40 @@ DeclPtr Parser::parse_class_declaration() {
     }
     consume(TokenType::RBrace, "Expect '$)' or '}' to close class declaration.");
 
-    // Clear class context
+    // If we have member initializers but no CREATE method, synthesize one
+    if (!pending_member_initializers_.empty()) {
+        bool has_create_method = false;
+        for (const auto& member : members) {
+            if (auto routine_decl = dynamic_cast<RoutineDeclaration*>(member.declaration.get())) {
+                if (routine_decl->name == "CREATE") {
+                    has_create_method = true;
+                    break;
+                }
+            }
+        }
+        
+        if (!has_create_method) {
+            // Synthesize a CREATE method with just the initializer assignments
+            auto initializer_assignments = create_member_initializer_assignments();
+            
+            // Create compound statement with all initializer assignments
+            auto body = std::make_unique<CompoundStatement>(std::move(initializer_assignments));
+            
+            // Create parameters with _this
+            std::vector<std::string> params = {"_this"};
+            
+            // Create the synthetic CREATE routine
+            auto create_routine = std::make_unique<RoutineDeclaration>(
+                "CREATE", std::move(params), std::move(body));
+            
+            // Add the synthetic CREATE method to the class members
+            members.emplace_back(std::move(create_routine), Visibility::Public);
+        }
+    }
+
+    // Clear class context and member initializers
     current_class_name_.clear();
+    pending_member_initializers_.clear();
 
     return std::make_unique<ClassDeclaration>(class_name, parent_class_name, std::move(members));
 }
@@ -405,6 +451,8 @@ DeclPtr Parser::parse_function_or_routine_declaration() {
 
     std::string name = current_token_.value;
     consume(TokenType::Identifier, "Expect name after FUNCTION/ROUTINE keyword.");
+
+
 
     // Inject _this if inside a class
     bool inject_this = !current_class_name_.empty();
@@ -437,6 +485,28 @@ DeclPtr Parser::parse_function_or_routine_declaration() {
     } else if (is_routine) {
         consume(TokenType::Be, "A ROUTINE must be defined with 'BE'.");
         auto body = parse_statement();
+        
+        // If this is a CREATE routine in a class context, inject member initializers
+        if (name == "CREATE" && !current_class_name_.empty()) {
+            if (!pending_member_initializers_.empty()) {
+                auto initializer_assignments = create_member_initializer_assignments();
+                
+                // Create a compound statement that combines initializers with the original body
+                std::vector<StmtPtr> combined_statements;
+                
+                // Add all initializer assignments first
+                for (auto& assignment : initializer_assignments) {
+                    combined_statements.push_back(std::move(assignment));
+                }
+                
+                // Add the original body
+                combined_statements.push_back(std::move(body));
+                
+                // Create compound statement to hold everything
+                body = std::make_unique<CompoundStatement>(std::move(combined_statements));
+            }
+        }
+        
         return std::make_unique<RoutineDeclaration>(name, std::move(params), std::move(body));
     }
 

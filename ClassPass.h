@@ -61,12 +61,7 @@ public:
 private:
     void inject_superclass_release_calls(ClassDeclaration* class_node, ClassTableEntry* entry);
     
-    /**
-     * @brief Inject initializers from let declarations into the CREATE method
-     * @param class_node The class AST node
-     * @param class_name The name of the class
-     */
-    void inject_initializers(ClassDeclaration* class_node, const std::string& class_name);
+    // inject_initializers method removed - automatic initialization disabled
 
     // Visitor methods for AST traversal (Discovery phase)
     void visit(Program& node) override;

@@ -28,6 +28,17 @@ private:
 
     // --- Class context tracking ---
     std::string current_class_name_;
+    
+    // Structure to track member initializers during class parsing
+    struct MemberInitializer {
+        std::string member_name;
+        ExprPtr initializer_expr;
+        bool is_float;
+        
+        MemberInitializer(std::string name, ExprPtr expr, bool float_flag)
+            : member_name(std::move(name)), initializer_expr(std::move(expr)), is_float(float_flag) {}
+    };
+    std::vector<MemberInitializer> pending_member_initializers_;
 
     Token current_token_;
     Token previous_token_;
@@ -129,6 +140,12 @@ public:
      * @return A DeclPtr to the created FunctionDeclaration or RoutineDeclaration.
      */
     DeclPtr parse_function_or_routine_body(const std::string& name, std::vector<std::string> params, bool is_float = false);
+
+    /**
+     * @brief Creates assignment statements for member initializers to inject into CREATE method.
+     * @return A vector of assignment statements for member initialization.
+     */
+    std::vector<StmtPtr> create_member_initializer_assignments();
 
     // --- Unified LET Parser ---
     /**
