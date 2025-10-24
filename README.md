@@ -19,9 +19,16 @@ The addition of more heap allocated variables drives the need to add a simple me
 SAMM is absolutely not a garbage collector, but it takes care of memory on the heap, in a similar scoped way to local variables.
 
  
-#### more to read
+#### Documentation
 
-There is quite a lot of other documentation here.
+Comprehensive technical documentation is available in the `docs/` directory:
+
+- **[docs/tech_note_lists.md](docs/tech_note_lists.md)** - Detailed analysis of the lists implementation including AST representation, dual code generation, runtime data structures, and performance characteristics
+- **[docs/README.md](docs/README.md)** - Complete documentation index with guides for contributors, users, and performance analysis
+- **[docs/runtime.md](docs/runtime.md)** - Runtime system overview and API reference
+- **[docs/SymbolTable.md](docs/SymbolTable.md)** - Symbol table implementation and scoping rules
+
+There is quite a lot of other documentation available covering compiler architecture, optimizations, and language features.
 
 #### Why?
 

@@ -315,8 +315,8 @@ void NewCodeGenerator::visit(UnaryOp& node) {
             operand_type == VarType::CONST_POINTER_TO_FLOAT_LIST ||
             operand_type == VarType::CONST_POINTER_TO_STRING_LIST
         ) {
-            // It's a list. The length is at offset 24 in the ListHeader struct.
-            Instruction ldr_instr = Encoder::create_ldr_imm(dest_reg, payload_ptr_reg, 24, "Load list length");
+            // It's a list. The length is at offset 8 in the ListHeader struct.
+            Instruction ldr_instr = Encoder::create_ldr_imm(dest_reg, payload_ptr_reg, 8, "Load list length");
             ldr_instr.nopeep = true; // Protect from peephole optimization  
             emit(ldr_instr);
         } else {

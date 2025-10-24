@@ -1,0 +1,31 @@
+// Simple test to verify PAIR types work in lists
+// This tests the basic functionality of the type system fix
+
+LET START() BE
+$(
+    WRITEF("Testing PAIR in lists...*N")
+
+    // Test basic PAIR creation and list storage
+    LET p1 = PAIR(10, 20)
+    LET p2 = PAIR(30, 40)
+
+    WRITEF("Created pairs: PAIR(10,20) and PAIR(30,40)*N")
+
+    // Test storing pairs in a list
+    LET pair_list = LIST(p1, p2)
+
+    WRITEF("Created list with pairs*N")
+    WRITEF("List length: %N*N", LEN(pair_list))
+
+    // Test static pair literals in list
+    LET static_list = LIST(PAIR(1, 2), PAIR(3, 4))
+
+    WRITEF("Created static list with pair literals*N")
+    WRITEF("Static list length: %N*N", LEN(static_list))
+
+    WRITEF("PAIR in lists test completed successfully!*N")
+
+    // Cleanup
+    FREEVEC(pair_list)
+    FREEVEC(static_list)
+$)

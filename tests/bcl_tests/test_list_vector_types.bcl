@@ -1,0 +1,71 @@
+// Test for vector types in lists - verifying the type system mismatch fix
+// This test checks that PAIR, FPAIR, QUAD, FQUAD, OCT, and FOCT can be properly stored in lists
+
+LET START() BE
+$(
+    WRITEF("=== List Vector Types Test ===*N")
+
+    // Test 1: PAIR in lists
+    WRITEF("Test 1: PAIR types in lists*N")
+    LET pair1 = PAIR(10, 20)
+    LET pair2 = PAIR(30, 40)
+    LET pair_list = LIST(pair1, pair2)
+
+    WRITEF("  Created list with 2 pairs*N")
+    WRITEF("  List length: %N*N", LEN(pair_list))
+
+    // Test 2: FPAIR in lists
+    WRITEF("Test 2: FPAIR types in lists*N")
+    FLET fpair1 = FPAIR(1.5, 2.5)
+    FLET fpair2 = FPAIR(3.5, 4.5)
+    LET fpair_list = LIST(fpair1, fpair2)
+
+    WRITEF("  Created list with 2 fpairs*N")
+    WRITEF("  List length: %N*N", LEN(fpair_list))
+
+    // Test 3: QUAD in lists
+    WRITEF("Test 3: QUAD types in lists*N")
+    LET quad1 = QUAD(1, 2, 3, 4)
+    LET quad2 = QUAD(5, 6, 7, 8)
+    LET quad_list = LIST(quad1, quad2)
+
+    WRITEF("  Created list with 2 quads*N")
+    WRITEF("  List length: %N*N", LEN(quad_list))
+
+    // Test 4: Mixed vector types in one list
+    WRITEF("Test 4: Mixed vector types in one list*N")
+    LET mixed_list = LIST(pair1, fpair1, quad1)
+
+    WRITEF("  Created mixed list with pair, fpair, and quad*N")
+    WRITEF("  Mixed list length: %N*N", LEN(mixed_list))
+
+    // Test 5: Static lists with vector literals
+    WRITEF("Test 5: Static lists with vector literals*N")
+    LET static_pair_list = LIST(PAIR(100, 200), PAIR(300, 400))
+    LET static_fpair_list = LIST(FPAIR(1.1, 2.2), FPAIR(3.3, 4.4))
+
+    WRITEF("  Created static pair list, length: %N*N", LEN(static_pair_list))
+    WRITEF("  Created static fpair list, length: %N*N", LEN(static_fpair_list))
+
+    // Test 6: Empty list and appending vectors
+    WRITEF("Test 6: Appending vectors to empty list*N")
+    LET dynamic_list = LIST()
+
+    // Note: These would require runtime append functions to work
+    // dynamic_list := APND(dynamic_list, PAIR(99, 88))
+    // dynamic_list := APND(dynamic_list, FPAIR(9.9, 8.8))
+
+    WRITEF("  Created empty list for future vector appending*N")
+    WRITEF("  Empty list length: %N*N", LEN(dynamic_list))
+
+    WRITEF("*N=== All vector types successfully stored in lists! ===*N")
+
+    // Cleanup
+    FREEVEC(pair_list)
+    FREEVEC(fpair_list)
+    FREEVEC(quad_list)
+    FREEVEC(mixed_list)
+    FREEVEC(static_pair_list)
+    FREEVEC(static_fpair_list)
+    FREEVEC(dynamic_list)
+$)

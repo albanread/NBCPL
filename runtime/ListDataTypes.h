@@ -12,6 +12,11 @@
 #define ATOM_LIST_POINTER 4
 #define ATOM_OBJECT   5
 #define ATOM_PAIR     6
+#define ATOM_FPAIR    7
+#define ATOM_QUAD     8
+#define ATOM_FQUAD    9
+#define ATOM_OCT      10
+#define ATOM_FOCT     11
 
 // This structure for data nodes remains the same.
 typedef struct ListAtom {

@@ -1,0 +1,22 @@
+// Minimal test to check if PAIR types compile with lists
+LET START() BE
+$(
+    WRITEF("Basic PAIR test starting...*N")
+
+    // Just test basic PAIR creation
+    LET p = PAIR(1, 2)
+    WRITEF("Created PAIR(1, 2)*N")
+
+    // Test simple list with integers first
+    LET int_list = LIST(1, 2, 3)
+    WRITEF("Created integer list, length: %N*N", LEN(int_list))
+
+    // Now test PAIR in a list
+    LET pair_list = LIST(p)
+    WRITEF("Created list with PAIR, length: %N*N", LEN(pair_list))
+
+    WRITEF("Basic test completed*N")
+
+    FREEVEC(int_list)
+    FREEVEC(pair_list)
+$)

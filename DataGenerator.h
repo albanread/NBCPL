@@ -12,6 +12,7 @@
 #include <unordered_map>
 #include <cstdint>
 #include <memory>
+#include <array>
 
 // Forward declaration for AssemblerData
 class AssemblerData;
@@ -59,6 +60,43 @@ public:
         }
     };
 
+    // Hash functions for floating point types
+    struct FPairHash {
+        std::size_t operator()(const std::pair<double, double>& p) const {
+            return std::hash<double>()(p.first) ^ (std::hash<double>()(p.second) << 1);
+        }
+    };
+
+    struct FQuadHash {
+        std::size_t operator()(const std::tuple<double, double, double, double>& q) const {
+            auto h1 = std::hash<double>{}(std::get<0>(q));
+            auto h2 = std::hash<double>{}(std::get<1>(q));
+            auto h3 = std::hash<double>{}(std::get<2>(q));
+            auto h4 = std::hash<double>{}(std::get<3>(q));
+            return h1 ^ (h2 << 1) ^ (h3 << 2) ^ (h4 << 3);
+        }
+    };
+
+    struct OctHash {
+        std::size_t operator()(const std::array<int64_t, 8>& oct) const {
+            std::size_t result = 0;
+            for (size_t i = 0; i < 8; ++i) {
+                result ^= std::hash<int64_t>{}(oct[i]) << i;
+            }
+            return result;
+        }
+    };
+
+    struct FOctHash {
+        std::size_t operator()(const std::array<double, 8>& oct) const {
+            std::size_t result = 0;
+            for (size_t i = 0; i < 8; ++i) {
+                result ^= std::hash<double>{}(oct[i]) << i;
+            }
+            return result;
+        }
+    };
+
     struct FloatLiteralInfo {
         std::string label;
         double value;
@@ -100,6 +138,30 @@ public:
         int64_t fourth_value;
     };
 
+    struct FPairLiteralInfo {
+        std::string label;
+        double first_value;
+        double second_value;
+    };
+
+    struct FQuadLiteralInfo {
+        std::string label;
+        double first_value;
+        double second_value;
+        double third_value;
+        double fourth_value;
+    };
+
+    struct OctLiteralInfo {
+        std::string label;
+        int64_t values[8];
+    };
+
+    struct FOctLiteralInfo {
+        std::string label;
+        double values[8];
+    };
+
     // Memoization: map canonical string key to generated header label
     std::unordered_map<std::string, std::string> list_literal_label_map;
 
@@ -113,7 +175,11 @@ public:
     std::string add_string_literal(const std::string& value);
     std::string add_float_literal(double value);
     std::string add_pair_literal(int64_t first_value, int64_t second_value);
+    std::string add_fpair_literal(double first_value, double second_value);
     std::string add_quad_literal(int64_t first_value, int64_t second_value, int64_t third_value, int64_t fourth_value);
+    std::string add_fquad_literal(double first_value, double second_value, double third_value, double fourth_value);
+    std::string add_oct_literal(int64_t v1, int64_t v2, int64_t v3, int64_t v4, int64_t v5, int64_t v6, int64_t v7, int64_t v8);
+    std::string add_foct_literal(double v1, double v2, double v3, double v4, double v5, double v6, double v7, double v8);
 
     // Emit all interned strings from the string table
     void emit_interned_strings();
@@ -175,6 +241,22 @@ private:
     size_t next_quad_id_ = 0;
     std::unordered_map<std::tuple<int64_t, int64_t, int64_t, int64_t>, std::string, QuadHash> quad_literal_map_;
     std::vector<QuadLiteralInfo> quad_literals_;
+
+    size_t next_fpair_id_ = 0;
+    std::unordered_map<std::pair<double, double>, std::string, FPairHash> fpair_literal_map_;
+    std::vector<FPairLiteralInfo> fpair_literals_;
+
+    size_t next_fquad_id_ = 0;
+    std::unordered_map<std::tuple<double, double, double, double>, std::string, FQuadHash> fquad_literal_map_;
+    std::vector<FQuadLiteralInfo> fquad_literals_;
+
+    size_t next_oct_id_ = 0;
+    std::unordered_map<std::array<int64_t, 8>, std::string, OctHash> oct_literal_map_;
+    std::vector<OctLiteralInfo> oct_literals_;
+
+    size_t next_foct_id_ = 0;
+    std::unordered_map<std::array<double, 8>, std::string, FOctHash> foct_literal_map_;
+    std::vector<FOctLiteralInfo> foct_literals_;
 
     // String interning: map string content to generated label
     std::map<std::string, std::string> interned_strings_;

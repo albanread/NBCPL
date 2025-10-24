@@ -47,8 +47,8 @@ void NewCodeGenerator::visit(ListExpression& node) {
         emit(Encoder::create_branch_with_link("BCPL_LIST_CREATE_EMPTY"));
         // The pointer to the new header is now in X0.
 
-        // 2. Store this pointer in a safe, persistent register.
-        std::string list_header_reg = register_manager_.acquire_callee_saved_temp_reg(*current_frame_manager_);
+        // 2. Store this pointer in a scratch register.
+        std::string list_header_reg = register_manager_.acquire_scratch_reg(*this);
         emit(Encoder::create_mov_reg(list_header_reg, "X0"));
 
         // 3. Iterate through each initializer expression and append it.
@@ -70,22 +70,40 @@ void NewCodeGenerator::visit(ListExpression& node) {
             } else {
                 // Arg 2 for integers/pointers is in X1
                 emit(Encoder::create_mov_reg("X1", value_reg));
-                if (expr_type == VarType::POINTER_TO_STRING) {
+                
+                // Check for vector types first (most specific)
+                if (expr_type == VarType::PAIR) {
+                    emit(Encoder::create_branch_with_link("BCPL_LIST_APPEND_PAIR"));
+                } else if (expr_type == VarType::FPAIR) {
+                    emit(Encoder::create_branch_with_link("BCPL_LIST_APPEND_FPAIR"));
+                } else if (expr_type == VarType::QUAD) {
+                    emit(Encoder::create_branch_with_link("BCPL_LIST_APPEND_QUAD"));
+                } else if (expr_type == VarType::FQUAD) {
+                    emit(Encoder::create_branch_with_link("BCPL_LIST_APPEND_FQUAD"));
+                } else if (expr_type == VarType::OCT) {
+                    emit(Encoder::create_branch_with_link("BCPL_LIST_APPEND_OCT"));
+                } else if (expr_type == VarType::FOCT) {
+                    emit(Encoder::create_branch_with_link("BCPL_LIST_APPEND_FOCT"));
+                } else if (expr_type == VarType::POINTER_TO_STRING) {
                     emit(Encoder::create_branch_with_link("BCPL_LIST_APPEND_STRING"));
                 } else if (expr_type == VarType::POINTER_TO_ANY_LIST ||
                            expr_type == VarType::POINTER_TO_INT_LIST ||
                            expr_type == VarType::POINTER_TO_FLOAT_LIST ||
                            expr_type == VarType::POINTER_TO_STRING_LIST) {
                     emit(Encoder::create_branch_with_link("BCPL_LIST_APPEND_LIST"));
-                }
-                else {
+                } else if ((static_cast<int64_t>(expr_type) & static_cast<int64_t>(VarType::OBJECT)) != 0) {
+                    emit(Encoder::create_branch_with_link("BCPL_LIST_APPEND_OBJECT"));
+                } else {
+                    // Default to integer for primitive types
                     emit(Encoder::create_branch_with_link("BCPL_LIST_APPEND_INT"));
                 }
             }
             register_manager_.release_register(value_reg);
         }
 
-        // 4. The final result is the pointer to the list header.
-        expression_result_reg_ = list_header_reg;
+        // 4. Move the final result back to X0 and release scratch register.
+        emit(Encoder::create_mov_reg("X0", list_header_reg));
+        register_manager_.release_scratch_reg(list_header_reg);
+        expression_result_reg_ = "X0";
     }
 }

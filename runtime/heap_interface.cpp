@@ -165,6 +165,138 @@ void BCPL_LIST_APPEND_OBJECT(ListHeader* header, void* object_ptr) {
     header->length++;
 }
 
+/**
+ * @brief Appends a PAIR pointer to a list (O(1) operation).
+ */
+void BCPL_LIST_APPEND_PAIR(ListHeader* header, void* pair_ptr) {
+    if (!header || header->type != ATOM_SENTINEL) return;
+
+    ListAtom* new_node = getNodeFromFreelist();
+    new_node->type = ATOM_PAIR;
+    new_node->pad = 0;
+    new_node->value.ptr_value = pair_ptr;
+    new_node->next = nullptr;
+
+    if (header->head == nullptr) {
+        header->head = new_node;
+        header->tail = new_node;
+    } else {
+        header->tail->next = new_node;
+        header->tail = new_node;
+    }
+    header->length++;
+}
+
+/**
+ * @brief Appends an FPAIR pointer to a list (O(1) operation).
+ */
+void BCPL_LIST_APPEND_FPAIR(ListHeader* header, void* fpair_ptr) {
+    if (!header || header->type != ATOM_SENTINEL) return;
+
+    ListAtom* new_node = getNodeFromFreelist();
+    new_node->type = ATOM_FPAIR;
+    new_node->pad = 0;
+    new_node->value.ptr_value = fpair_ptr;
+    new_node->next = nullptr;
+
+    if (header->head == nullptr) {
+        header->head = new_node;
+        header->tail = new_node;
+    } else {
+        header->tail->next = new_node;
+        header->tail = new_node;
+    }
+    header->length++;
+}
+
+/**
+ * @brief Appends a QUAD pointer to a list (O(1) operation).
+ */
+void BCPL_LIST_APPEND_QUAD(ListHeader* header, void* quad_ptr) {
+    if (!header || header->type != ATOM_SENTINEL) return;
+
+    ListAtom* new_node = getNodeFromFreelist();
+    new_node->type = ATOM_QUAD;
+    new_node->pad = 0;
+    new_node->value.ptr_value = quad_ptr;
+    new_node->next = nullptr;
+
+    if (header->head == nullptr) {
+        header->head = new_node;
+        header->tail = new_node;
+    } else {
+        header->tail->next = new_node;
+        header->tail = new_node;
+    }
+    header->length++;
+}
+
+/**
+ * @brief Appends an FQUAD pointer to a list (O(1) operation).
+ */
+void BCPL_LIST_APPEND_FQUAD(ListHeader* header, void* fquad_ptr) {
+    if (!header || header->type != ATOM_SENTINEL) return;
+
+    ListAtom* new_node = getNodeFromFreelist();
+    new_node->type = ATOM_FQUAD;
+    new_node->pad = 0;
+    new_node->value.ptr_value = fquad_ptr;
+    new_node->next = nullptr;
+
+    if (header->head == nullptr) {
+        header->head = new_node;
+        header->tail = new_node;
+    } else {
+        header->tail->next = new_node;
+        header->tail = new_node;
+    }
+    header->length++;
+}
+
+/**
+ * @brief Appends an OCT pointer to a list (O(1) operation).
+ */
+void BCPL_LIST_APPEND_OCT(ListHeader* header, void* oct_ptr) {
+    if (!header || header->type != ATOM_SENTINEL) return;
+
+    ListAtom* new_node = getNodeFromFreelist();
+    new_node->type = ATOM_OCT;
+    new_node->pad = 0;
+    new_node->value.ptr_value = oct_ptr;
+    new_node->next = nullptr;
+
+    if (header->head == nullptr) {
+        header->head = new_node;
+        header->tail = new_node;
+    } else {
+        header->tail->next = new_node;
+        header->tail = new_node;
+    }
+    header->length++;
+}
+
+/**
+ * @brief Appends an FOCT pointer to a list (O(1) operation).
+ */
+void BCPL_LIST_APPEND_FOCT(ListHeader* header, void* foct_ptr) {
+    if (!header || header->type != ATOM_SENTINEL) return;
+
+    ListAtom* new_node = getNodeFromFreelist();
+    new_node->type = ATOM_FOCT;
+    new_node->pad = 0;
+    new_node->value.ptr_value = foct_ptr;
+    new_node->next = nullptr;
+
+    if (header->head == nullptr) {
+        header->head = new_node;
+        header->tail = new_node;
+    } else {
+        header->tail->next = new_node;
+        header->tail = new_node;
+    }
+    header->length++;
+}
+
 
 // ============================================================================
 // List Accessors
@@ -180,6 +312,48 @@ double BCPL_LIST_GET_HEAD_AS_FLOAT(void* header_ptr) {
     ListHeader* header = (ListHeader*)header_ptr;
     if (!header || header->type != ATOM_SENTINEL || !header->head) return 0.0;
     return header->head->value.float_value;
+}
+
+void* BCPL_LIST_GET_HEAD_AS_PAIR(void* header_ptr) {
+    ListHeader* header = (ListHeader*)header_ptr;
+    if (!header || header->type != ATOM_SENTINEL || !header->head) return nullptr;
+    if (header->head->type != ATOM_PAIR) return nullptr;
+    return header->head->value.ptr_value;
+}
+
+void* BCPL_LIST_GET_HEAD_AS_FPAIR(void* header_ptr) {
+    ListHeader* header = (ListHeader*)header_ptr;
+    if (!header || header->type != ATOM_SENTINEL || !header->head) return nullptr;
+    if (header->head->type != ATOM_FPAIR) return nullptr;
+    return header->head->value.ptr_value;
+}
+
+void* BCPL_LIST_GET_HEAD_AS_QUAD(void* header_ptr) {
+    ListHeader* header = (ListHeader*)header_ptr;
+    if (!header || header->type != ATOM_SENTINEL || !header->head) return nullptr;
+    if (header->head->type != ATOM_QUAD) return nullptr;
+    return header->head->value.ptr_value;
+}
+
+void* BCPL_LIST_GET_HEAD_AS_FQUAD(void* header_ptr) {
+    ListHeader* header = (ListHeader*)header_ptr;
+    if (!header || header->type != ATOM_SENTINEL || !header->head) return nullptr;
+    if (header->head->type != ATOM_FQUAD) return nullptr;
+    return header->head->value.ptr_value;
+}
+
+void* BCPL_LIST_GET_HEAD_AS_OCT(void* header_ptr) {
+    ListHeader* header = (ListHeader*)header_ptr;
+    if (!header || header->type != ATOM_SENTINEL || !header->head) return nullptr;
+    if (header->head->type != ATOM_OCT) return nullptr;
+    return header->head->value.ptr_value;
+}
+
+void* BCPL_LIST_GET_HEAD_AS_FOCT(void* header_ptr) {
+    ListHeader* header = (ListHeader*)header_ptr;
+    if (!header || header->type != ATOM_SENTINEL || !header->head) return nullptr;
+    if (header->head->type != ATOM_FOCT) return nullptr;
+    return header->head->value.ptr_value;
 }
 
 void* BCPL_LIST_GET_TAIL(void* header_ptr) {

@@ -26,6 +26,12 @@ int64_t     list_get_head_as_int(ListHeader* header);
 // BCPL_ capitalized C ABI wrappers for runtime-published functions:
 int64_t  BCPL_LIST_GET_HEAD_AS_INT(void* header_ptr);
 double   BCPL_LIST_GET_HEAD_AS_FLOAT(void* header_ptr);
+void*    BCPL_LIST_GET_HEAD_AS_PAIR(void* header_ptr);
+void*    BCPL_LIST_GET_HEAD_AS_FPAIR(void* header_ptr);
+void*    BCPL_LIST_GET_HEAD_AS_QUAD(void* header_ptr);
+void*    BCPL_LIST_GET_HEAD_AS_FQUAD(void* header_ptr);
+void*    BCPL_LIST_GET_HEAD_AS_OCT(void* header_ptr);
+void*    BCPL_LIST_GET_HEAD_AS_FOCT(void* header_ptr);
 void*    BCPL_LIST_GET_TAIL(void* header_ptr);
 void*    BCPL_LIST_GET_REST(void* header_ptr);
 int64_t  BCPL_GET_ATOM_TYPE(void* header_ptr);
@@ -39,6 +45,14 @@ ListHeader* BCPL_LIST_CREATE_EMPTY(void);
  */
 void BCPL_LIST_APPEND_STRING(ListHeader* header, uint32_t* value);
 void BCPL_LIST_APPEND_OBJECT(ListHeader* header, void* object_ptr);
+
+// Vector type append functions
+void BCPL_LIST_APPEND_PAIR(ListHeader* header, void* pair_ptr);
+void BCPL_LIST_APPEND_FPAIR(ListHeader* header, void* fpair_ptr);
+void BCPL_LIST_APPEND_QUAD(ListHeader* header, void* quad_ptr);
+void BCPL_LIST_APPEND_FQUAD(ListHeader* header, void* fquad_ptr);
+void BCPL_LIST_APPEND_OCT(ListHeader* header, void* oct_ptr);
+void BCPL_LIST_APPEND_FOCT(ListHeader* header, void* foct_ptr);
 
 // Internal (typed) versions for use within the runtime:
 double   list_get_head_as_float(ListHeader* header);

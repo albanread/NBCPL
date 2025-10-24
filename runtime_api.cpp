@@ -83,6 +83,20 @@ extern "C" {
     int BCPL_REVERSE_LIST(int list_ptr);
     int BCPL_FIND_IN_LIST(int list_ptr, int value, int compare_func);
     int BCPL_LIST_FILTER(int list_ptr, int filter_func);
+    
+    // Vector type list functions
+    int BCPL_LIST_APPEND_PAIR(int list_ptr, int pair_ptr);
+    int BCPL_LIST_APPEND_FPAIR(int list_ptr, int fpair_ptr);
+    int BCPL_LIST_APPEND_QUAD(int list_ptr, int quad_ptr);
+    int BCPL_LIST_APPEND_FQUAD(int list_ptr, int fquad_ptr);
+    int BCPL_LIST_APPEND_OCT(int list_ptr, int oct_ptr);
+    int BCPL_LIST_APPEND_FOCT(int list_ptr, int foct_ptr);
+    int BCPL_LIST_GET_HEAD_AS_PAIR(int list_ptr);
+    int BCPL_LIST_GET_HEAD_AS_FPAIR(int list_ptr);
+    int BCPL_LIST_GET_HEAD_AS_QUAD(int list_ptr);
+    int BCPL_LIST_GET_HEAD_AS_FQUAD(int list_ptr);
+    int BCPL_LIST_GET_HEAD_AS_OCT(int list_ptr);
+    int BCPL_LIST_GET_HEAD_AS_FOCT(int list_ptr);
     void returnNodeToFreelist_runtime(int node_ptr);
     
     // Math functions
@@ -500,6 +514,73 @@ static const RuntimeFunctionDescriptor g_runtime_manifest[] = {
         "LPND", "_LPND", reinterpret_cast<RuntimeFunctionPtr>(BCPL_LIST_APPEND_LIST), 2,
         RuntimeFunctionType::STANDARD, RuntimeReturnType::STRING_LIST,
         "Append list to list (alias)", "List"
+    },
+    {
+        "BCPL_LIST_CREATE_EMPTY", "_BCPL_LIST_CREATE_EMPTY", reinterpret_cast<RuntimeFunctionPtr>(BCPL_LIST_CREATE_EMPTY), 0,
+        RuntimeFunctionType::STANDARD, RuntimeReturnType::STRING_LIST,
+        "Create empty list", "List"
+    },
+    
+    // Vector type list functions
+    {
+        "BCPL_LIST_APPEND_PAIR", "_BCPL_LIST_APPEND_PAIR", reinterpret_cast<RuntimeFunctionPtr>(BCPL_LIST_APPEND_PAIR), 2,
+        RuntimeFunctionType::STANDARD, RuntimeReturnType::STRING_LIST,
+        "Append PAIR to list", "List"
+    },
+    {
+        "BCPL_LIST_APPEND_FPAIR", "_BCPL_LIST_APPEND_FPAIR", reinterpret_cast<RuntimeFunctionPtr>(BCPL_LIST_APPEND_FPAIR), 2,
+        RuntimeFunctionType::STANDARD, RuntimeReturnType::STRING_LIST,
+        "Append FPAIR to list", "List"
+    },
+    {
+        "BCPL_LIST_APPEND_QUAD", "_BCPL_LIST_APPEND_QUAD", reinterpret_cast<RuntimeFunctionPtr>(BCPL_LIST_APPEND_QUAD), 2,
+        RuntimeFunctionType::STANDARD, RuntimeReturnType::STRING_LIST,
+        "Append QUAD to list", "List"
+    },
+    {
+        "BCPL_LIST_APPEND_FQUAD", "_BCPL_LIST_APPEND_FQUAD", reinterpret_cast<RuntimeFunctionPtr>(BCPL_LIST_APPEND_FQUAD), 2,
+        RuntimeFunctionType::STANDARD, RuntimeReturnType::STRING_LIST,
+        "Append FQUAD to list", "List"
+    },
+    {
+        "BCPL_LIST_APPEND_OCT", "_BCPL_LIST_APPEND_OCT", reinterpret_cast<RuntimeFunctionPtr>(BCPL_LIST_APPEND_OCT), 2,
+        RuntimeFunctionType::STANDARD, RuntimeReturnType::STRING_LIST,
+        "Append OCT to list", "List"
+    },
+    {
+        "BCPL_LIST_APPEND_FOCT", "_BCPL_LIST_APPEND_FOCT", reinterpret_cast<RuntimeFunctionPtr>(BCPL_LIST_APPEND_FOCT), 2,
+        RuntimeFunctionType::STANDARD, RuntimeReturnType::STRING_LIST,
+        "Append FOCT to list", "List"
+    },
+    {
+        "BCPL_LIST_GET_HEAD_AS_PAIR", "_BCPL_LIST_GET_HEAD_AS_PAIR", reinterpret_cast<RuntimeFunctionPtr>(BCPL_LIST_GET_HEAD_AS_PAIR), 1,
+        RuntimeFunctionType::STANDARD, RuntimeReturnType::INTEGER,
+        "Get first element of list as PAIR", "List"
+    },
+    {
+        "BCPL_LIST_GET_HEAD_AS_FPAIR", "_BCPL_LIST_GET_HEAD_AS_FPAIR", reinterpret_cast<RuntimeFunctionPtr>(BCPL_LIST_GET_HEAD_AS_FPAIR), 1,
+        RuntimeFunctionType::STANDARD, RuntimeReturnType::INTEGER,
+        "Get first element of list as FPAIR", "List"
+    },
+    {
+        "BCPL_LIST_GET_HEAD_AS_QUAD", "_BCPL_LIST_GET_HEAD_AS_QUAD", reinterpret_cast<RuntimeFunctionPtr>(BCPL_LIST_GET_HEAD_AS_QUAD), 1,
+        RuntimeFunctionType::STANDARD, RuntimeReturnType::INTEGER,
+        "Get first element of list as QUAD", "List"
+    },
+    {
+        "BCPL_LIST_GET_HEAD_AS_FQUAD", "_BCPL_LIST_GET_HEAD_AS_FQUAD", reinterpret_cast<RuntimeFunctionPtr>(BCPL_LIST_GET_HEAD_AS_FQUAD), 1,
+        RuntimeFunctionType::STANDARD, RuntimeReturnType::INTEGER,
+        "Get first element of list as FQUAD", "List"
+    },
+    {
+        "BCPL_LIST_GET_HEAD_AS_OCT", "_BCPL_LIST_GET_HEAD_AS_OCT", reinterpret_cast<RuntimeFunctionPtr>(BCPL_LIST_GET_HEAD_AS_OCT), 1,
+        RuntimeFunctionType::STANDARD, RuntimeReturnType::INTEGER,
+        "Get first element of list as OCT", "List"
+    },
+    {
+        "BCPL_LIST_GET_HEAD_AS_FOCT", "_BCPL_LIST_GET_HEAD_AS_FOCT", reinterpret_cast<RuntimeFunctionPtr>(BCPL_LIST_GET_HEAD_AS_FOCT), 1,
+        RuntimeFunctionType::STANDARD, RuntimeReturnType::INTEGER,
+        "Get first element of list as FOCT", "List"
     },
     {
         "returnNodeToFreelist", "_returnNodeToFreelist", reinterpret_cast<RuntimeFunctionPtr>(returnNodeToFreelist_runtime), 1,

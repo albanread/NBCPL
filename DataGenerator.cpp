@@ -183,6 +183,80 @@ std::string DataGenerator::add_quad_literal(int64_t first_value, int64_t second_
     return label;
 }
 
+std::string DataGenerator::add_fpair_literal(double first_value, double second_value) {
+    std::pair<double, double> fpair_key = {first_value, second_value};
+    
+    // Check if we've already generated this fpair literal
+    auto it = fpair_literal_map_.find(fpair_key);
+    if (it != fpair_literal_map_.end()) {
+        return it->second;
+    }
+    
+    // Generate new label and store the fpair literal
+    std::string label = "L_fpair" + std::to_string(next_fpair_id_++);
+    fpair_literal_map_[fpair_key] = label;
+    fpair_literals_.push_back({label, first_value, second_value});
+    return label;
+}
+
+std::string DataGenerator::add_fquad_literal(double first_value, double second_value, double third_value, double fourth_value) {
+    std::tuple<double, double, double, double> fquad_key = {first_value, second_value, third_value, fourth_value};
+    
+    // Check if we've already generated this fquad literal
+    auto it = fquad_literal_map_.find(fquad_key);
+    if (it != fquad_literal_map_.end()) {
+        return it->second;
+    }
+    
+    // Generate new label and store the fquad literal
+    std::string label = "L_fquad" + std::to_string(next_fquad_id_++);
+    fquad_literal_map_[fquad_key] = label;
+    fquad_literals_.push_back({label, first_value, second_value, third_value, fourth_value});
+    return label;
+}
+
+std::string DataGenerator::add_oct_literal(int64_t v1, int64_t v2, int64_t v3, int64_t v4, int64_t v5, int64_t v6, int64_t v7, int64_t v8) {
+    std::array<int64_t, 8> oct_key = {v1, v2, v3, v4, v5, v6, v7, v8};
+    
+    // Check if we've already generated this oct literal
+    auto it = oct_literal_map_.find(oct_key);
+    if (it != oct_literal_map_.end()) {
+        return it->second;
+    }
+    
+    // Generate new label and store the oct literal
+    std::string label = "L_oct" + std::to_string(next_oct_id_++);
+    oct_literal_map_[oct_key] = label;
+    OctLiteralInfo oct_info;
+    oct_info.label = label;
+    for (int i = 0; i < 8; i++) {
+        oct_info.values[i] = oct_key[i];
+    }
+    oct_literals_.push_back(oct_info);
+    return label;
+}
+
+std::string DataGenerator::add_foct_literal(double v1, double v2, double v3, double v4, double v5, double v6, double v7, double v8) {
+    std::array<double, 8> foct_key = {v1, v2, v3, v4, v5, v6, v7, v8};
+    
+    // Check if we've already generated this foct literal
+    auto it = foct_literal_map_.find(foct_key);
+    if (it != foct_literal_map_.end()) {
+        return it->second;
+    }
+    
+    // Generate new label and store the foct literal
+    std::string label = "L_foct" + std::to_string(next_foct_id_++);
+    foct_literal_map_[foct_key] = label;
+    FOctLiteralInfo foct_info;
+    foct_info.label = label;
+    for (int i = 0; i < 8; i++) {
+        foct_info.values[i] = foct_key[i];
+    }
+    foct_literals_.push_back(foct_info);
+    return label;
+}
+
 // Other add methods like add_table_literal...
 std::string DataGenerator::add_table_literal(const std::vector<ExprPtr>& initializers) {
     std::string label = "L_tbl" + std::to_string(next_table_id_++);
@@ -278,6 +352,133 @@ std::string DataGenerator::add_list_literal(const ListExpression* node) {
                 
                 node_data.type_tag = ATOM_PAIR; // ATOM_PAIR type for pairs
                 node_data.value_ptr_label = add_pair_literal(first_val, second_val);
+                node_data.value_is_ptr = true;
+            } else {
+                throw std::runtime_error("List initializers must be constant literals.");
+            }
+        } else if (auto* fpair_lit = dynamic_cast<FPairExpression*>(expr.get())) {
+            // Handle FPAIR literals by storing them in rodata and using pointer
+            if (fpair_lit->first_expr->is_literal() && fpair_lit->second_expr->is_literal()) {
+                // Extract literal values
+                double first_val = 0.0, second_val = 0.0;
+                if (auto* first_num = dynamic_cast<NumberLiteral*>(fpair_lit->first_expr.get())) {
+                    first_val = first_num->literal_type == NumberLiteral::LiteralType::Float ? 
+                                first_num->float_value : static_cast<double>(first_num->int_value);
+                }
+                if (auto* second_num = dynamic_cast<NumberLiteral*>(fpair_lit->second_expr.get())) {
+                    second_val = second_num->literal_type == NumberLiteral::LiteralType::Float ? 
+                                 second_num->float_value : static_cast<double>(second_num->int_value);
+                }
+                
+                node_data.type_tag = ATOM_FPAIR;
+                node_data.value_ptr_label = add_fpair_literal(first_val, second_val);
+                node_data.value_is_ptr = true;
+            } else {
+                throw std::runtime_error("List initializers must be constant literals.");
+            }
+        } else if (auto* quad_lit = dynamic_cast<QuadExpression*>(expr.get())) {
+            // Handle QUAD literals by storing them in rodata and using pointer
+            if (quad_lit->first_expr->is_literal() && quad_lit->second_expr->is_literal() && 
+                quad_lit->third_expr->is_literal() && quad_lit->fourth_expr->is_literal()) {
+                // Extract literal values
+                int64_t first_val = 0, second_val = 0, third_val = 0, fourth_val = 0;
+                if (auto* first_num = dynamic_cast<NumberLiteral*>(quad_lit->first_expr.get())) {
+                    first_val = first_num->int_value;
+                }
+                if (auto* second_num = dynamic_cast<NumberLiteral*>(quad_lit->second_expr.get())) {
+                    second_val = second_num->int_value;
+                }
+                if (auto* third_num = dynamic_cast<NumberLiteral*>(quad_lit->third_expr.get())) {
+                    third_val = third_num->int_value;
+                }
+                if (auto* fourth_num = dynamic_cast<NumberLiteral*>(quad_lit->fourth_expr.get())) {
+                    fourth_val = fourth_num->int_value;
+                }
+                
+                node_data.type_tag = ATOM_QUAD;
+                node_data.value_ptr_label = add_quad_literal(first_val, second_val, third_val, fourth_val);
+                node_data.value_is_ptr = true;
+            } else {
+                throw std::runtime_error("List initializers must be constant literals.");
+            }
+        } else if (auto* fquad_lit = dynamic_cast<FQuadExpression*>(expr.get())) {
+            // Handle FQUAD literals by storing them in rodata and using pointer
+            if (fquad_lit->first_expr->is_literal() && fquad_lit->second_expr->is_literal() && 
+                fquad_lit->third_expr->is_literal() && fquad_lit->fourth_expr->is_literal()) {
+                // Extract literal values
+                double first_val = 0.0, second_val = 0.0, third_val = 0.0, fourth_val = 0.0;
+                if (auto* first_num = dynamic_cast<NumberLiteral*>(fquad_lit->first_expr.get())) {
+                    first_val = first_num->literal_type == NumberLiteral::LiteralType::Float ? 
+                                first_num->float_value : static_cast<double>(first_num->int_value);
+                }
+                if (auto* second_num = dynamic_cast<NumberLiteral*>(fquad_lit->second_expr.get())) {
+                    second_val = second_num->literal_type == NumberLiteral::LiteralType::Float ? 
+                                 second_num->float_value : static_cast<double>(second_num->int_value);
+                }
+                if (auto* third_num = dynamic_cast<NumberLiteral*>(fquad_lit->third_expr.get())) {
+                    third_val = third_num->literal_type == NumberLiteral::LiteralType::Float ? 
+                                third_num->float_value : static_cast<double>(third_num->int_value);
+                }
+                if (auto* fourth_num = dynamic_cast<NumberLiteral*>(fquad_lit->fourth_expr.get())) {
+                    fourth_val = fourth_num->literal_type == NumberLiteral::LiteralType::Float ? 
+                                 fourth_num->float_value : static_cast<double>(fourth_num->int_value);
+                }
+                
+                node_data.type_tag = ATOM_FQUAD;
+                node_data.value_ptr_label = add_fquad_literal(first_val, second_val, third_val, fourth_val);
+                node_data.value_is_ptr = true;
+            } else {
+                throw std::runtime_error("List initializers must be constant literals.");
+            }
+        } else if (auto* oct_lit = dynamic_cast<OctExpression*>(expr.get())) {
+            // Handle OCT literals by storing them in rodata and using pointer
+            if (oct_lit->first_expr->is_literal() && oct_lit->second_expr->is_literal() && 
+                oct_lit->third_expr->is_literal() && oct_lit->fourth_expr->is_literal() &&
+                oct_lit->fifth_expr->is_literal() && oct_lit->sixth_expr->is_literal() &&
+                oct_lit->seventh_expr->is_literal() && oct_lit->eighth_expr->is_literal()) {
+                // Extract literal values
+                int64_t values[8] = {0};
+                Expression* exprs[] = {oct_lit->first_expr.get(), oct_lit->second_expr.get(), 
+                                     oct_lit->third_expr.get(), oct_lit->fourth_expr.get(),
+                                     oct_lit->fifth_expr.get(), oct_lit->sixth_expr.get(),
+                                     oct_lit->seventh_expr.get(), oct_lit->eighth_expr.get()};
+                
+                for (int i = 0; i < 8; i++) {
+                    if (auto* num = dynamic_cast<NumberLiteral*>(exprs[i])) {
+                        values[i] = num->int_value;
+                    }
+                }
+                
+                node_data.type_tag = ATOM_OCT;
+                node_data.value_ptr_label = add_oct_literal(values[0], values[1], values[2], values[3],
+                                                          values[4], values[5], values[6], values[7]);
+                node_data.value_is_ptr = true;
+            } else {
+                throw std::runtime_error("List initializers must be constant literals.");
+            }
+        } else if (auto* foct_lit = dynamic_cast<FOctExpression*>(expr.get())) {
+            // Handle FOCT literals by storing them in rodata and using pointer
+            if (foct_lit->first_expr->is_literal() && foct_lit->second_expr->is_literal() && 
+                foct_lit->third_expr->is_literal() && foct_lit->fourth_expr->is_literal() &&
+                foct_lit->fifth_expr->is_literal() && foct_lit->sixth_expr->is_literal() &&
+                foct_lit->seventh_expr->is_literal() && foct_lit->eighth_expr->is_literal()) {
+                // Extract literal values
+                double values[8] = {0.0};
+                Expression* exprs[] = {foct_lit->first_expr.get(), foct_lit->second_expr.get(), 
+                                     foct_lit->third_expr.get(), foct_lit->fourth_expr.get(),
+                                     foct_lit->fifth_expr.get(), foct_lit->sixth_expr.get(),
+                                     foct_lit->seventh_expr.get(), foct_lit->eighth_expr.get()};
+                
+                for (int i = 0; i < 8; i++) {
+                    if (auto* num = dynamic_cast<NumberLiteral*>(exprs[i])) {
+                        values[i] = num->literal_type == NumberLiteral::LiteralType::Float ? 
+                                   num->float_value : static_cast<double>(num->int_value);
+                    }
+                }
+                
+                node_data.type_tag = ATOM_FOCT;
+                node_data.value_ptr_label = add_foct_literal(values[0], values[1], values[2], values[3],
+                                                           values[4], values[5], values[6], values[7]);
                 node_data.value_is_ptr = true;
             } else {
                 throw std::runtime_error("List initializers must be constant literals.");

@@ -7863,6 +7863,80 @@ std::string DataGenerator::add_quad_literal(int64_t first_value, int64_t second_
     return label;
 }
 
+std::string DataGenerator::add_fpair_literal(double first_value, double second_value) {
+    std::pair<double, double> fpair_key = {first_value, second_value};
+    
+    // Check if we've already generated this fpair literal
+    auto it = fpair_literal_map_.find(fpair_key);
+    if (it != fpair_literal_map_.end()) {
+        return it->second;
+    }
+    
+    // Generate new label and store the fpair literal
+    std::string label = "L_fpair" + std::to_string(next_fpair_id_++);
+    fpair_literal_map_[fpair_key] = label;
+    fpair_literals_.push_back({label, first_value, second_value});
+    return label;
+}
+
+std::string DataGenerator::add_fquad_literal(double first_value, double second_value, double third_value, double fourth_value) {
+    std::tuple<double, double, double, double> fquad_key = {first_value, second_value, third_value, fourth_value};
+    
+    // Check if we've already generated this fquad literal
+    auto it = fquad_literal_map_.find(fquad_key);
+    if (it != fquad_literal_map_.end()) {
+        return it->second;
+    }
+    
+    // Generate new label and store the fquad literal
+    std::string label = "L_fquad" + std::to_string(next_fquad_id_++);
+    fquad_literal_map_[fquad_key] = label;
+    fquad_literals_.push_back({label, first_value, second_value, third_value, fourth_value});
+    return label;
+}
+
+std::string DataGenerator::add_oct_literal(int64_t v1, int64_t v2, int64_t v3, int64_t v4, int64_t v5, int64_t v6, int64_t v7, int64_t v8) {
+    std::array<int64_t, 8> oct_key = {v1, v2, v3, v4, v5, v6, v7, v8};
+    
+    // Check if we've already generated this oct literal
+    auto it = oct_literal_map_.find(oct_key);
+    if (it != oct_literal_map_.end()) {
+        return it->second;
+    }
+    
+    // Generate new label and store the oct literal
+    std::string label = "L_oct" + std::to_string(next_oct_id_++);
+    oct_literal_map_[oct_key] = label;
+    OctLiteralInfo oct_info;
+    oct_info.label = label;
+    for (int i = 0; i < 8; i++) {
+        oct_info.values[i] = oct_key[i];
+    }
+    oct_literals_.push_back(oct_info);
+    return label;
+}
+
+std::string DataGenerator::add_foct_literal(double v1, double v2, double v3, double v4, double v5, double v6, double v7, double v8) {
+    std::array<double, 8> foct_key = {v1, v2, v3, v4, v5, v6, v7, v8};
+    
+    // Check if we've already generated this foct literal
+    auto it = foct_literal_map_.find(foct_key);
+    if (it != foct_literal_map_.end()) {
+        return it->second;
+    }
+    
+    // Generate new label and store the foct literal
+    std::string label = "L_foct" + std::to_string(next_foct_id_++);
+    foct_literal_map_[foct_key] = label;
+    FOctLiteralInfo foct_info;
+    foct_info.label = label;
+    for (int i = 0; i < 8; i++) {
+        foct_info.values[i] = foct_key[i];
+    }
+    foct_literals_.push_back(foct_info);
+    return label;
+}
+
 // Other add methods like add_table_literal...
 std::string DataGenerator::add_table_literal(const std::vector<ExprPtr>& initializers) {
     std::string label = "L_tbl" + std::to_string(next_table_id_++);
@@ -7958,6 +8032,133 @@ std::string DataGenerator::add_list_literal(const ListExpression* node) {
                 
                 node_data.type_tag = ATOM_PAIR; // ATOM_PAIR type for pairs
                 node_data.value_ptr_label = add_pair_literal(first_val, second_val);
+                node_data.value_is_ptr = true;
+            } else {
+                throw std::runtime_error("List initializers must be constant literals.");
+            }
+        } else if (auto* fpair_lit = dynamic_cast<FPairExpression*>(expr.get())) {
+            // Handle FPAIR literals by storing them in rodata and using pointer
+            if (fpair_lit->first_expr->is_literal() && fpair_lit->second_expr->is_literal()) {
+                // Extract literal values
+                double first_val = 0.0, second_val = 0.0;
+                if (auto* first_num = dynamic_cast<NumberLiteral*>(fpair_lit->first_expr.get())) {
+                    first_val = first_num->literal_type == NumberLiteral::LiteralType::Float ? 
+                                first_num->float_value : static_cast<double>(first_num->int_value);
+                }
+                if (auto* second_num = dynamic_cast<NumberLiteral*>(fpair_lit->second_expr.get())) {
+                    second_val = second_num->literal_type == NumberLiteral::LiteralType::Float ? 
+                                 second_num->float_value : static_cast<double>(second_num->int_value);
+                }
+                
+                node_data.type_tag = ATOM_FPAIR;
+                node_data.value_ptr_label = add_fpair_literal(first_val, second_val);
+                node_data.value_is_ptr = true;
+            } else {
+                throw std::runtime_error("List initializers must be constant literals.");
+            }
+        } else if (auto* quad_lit = dynamic_cast<QuadExpression*>(expr.get())) {
+            // Handle QUAD literals by storing them in rodata and using pointer
+            if (quad_lit->first_expr->is_literal() && quad_lit->second_expr->is_literal() && 
+                quad_lit->third_expr->is_literal() && quad_lit->fourth_expr->is_literal()) {
+                // Extract literal values
+                int64_t first_val = 0, second_val = 0, third_val = 0, fourth_val = 0;
+                if (auto* first_num = dynamic_cast<NumberLiteral*>(quad_lit->first_expr.get())) {
+                    first_val = first_num->int_value;
+                }
+                if (auto* second_num = dynamic_cast<NumberLiteral*>(quad_lit->second_expr.get())) {
+                    second_val = second_num->int_value;
+                }
+                if (auto* third_num = dynamic_cast<NumberLiteral*>(quad_lit->third_expr.get())) {
+                    third_val = third_num->int_value;
+                }
+                if (auto* fourth_num = dynamic_cast<NumberLiteral*>(quad_lit->fourth_expr.get())) {
+                    fourth_val = fourth_num->int_value;
+                }
+                
+                node_data.type_tag = ATOM_QUAD;
+                node_data.value_ptr_label = add_quad_literal(first_val, second_val, third_val, fourth_val);
+                node_data.value_is_ptr = true;
+            } else {
+                throw std::runtime_error("List initializers must be constant literals.");
+            }
+        } else if (auto* fquad_lit = dynamic_cast<FQuadExpression*>(expr.get())) {
+            // Handle FQUAD literals by storing them in rodata and using pointer
+            if (fquad_lit->first_expr->is_literal() && fquad_lit->second_expr->is_literal() && 
+                fquad_lit->third_expr->is_literal() && fquad_lit->fourth_expr->is_literal()) {
+                // Extract literal values
+                double first_val = 0.0, second_val = 0.0, third_val = 0.0, fourth_val = 0.0;
+                if (auto* first_num = dynamic_cast<NumberLiteral*>(fquad_lit->first_expr.get())) {
+                    first_val = first_num->literal_type == NumberLiteral::LiteralType::Float ? 
+                                first_num->float_value : static_cast<double>(first_num->int_value);
+                }
+                if (auto* second_num = dynamic_cast<NumberLiteral*>(fquad_lit->second_expr.get())) {
+                    second_val = second_num->literal_type == NumberLiteral::LiteralType::Float ? 
+                                 second_num->float_value : static_cast<double>(second_num->int_value);
+                }
+                if (auto* third_num = dynamic_cast<NumberLiteral*>(fquad_lit->third_expr.get())) {
+                    third_val = third_num->literal_type == NumberLiteral::LiteralType::Float ? 
+                                third_num->float_value : static_cast<double>(third_num->int_value);
+                }
+                if (auto* fourth_num = dynamic_cast<NumberLiteral*>(fquad_lit->fourth_expr.get())) {
+                    fourth_val = fourth_num->literal_type == NumberLiteral::LiteralType::Float ? 
+                                 fourth_num->float_value : static_cast<double>(fourth_num->int_value);
+                }
+                
+                node_data.type_tag = ATOM_FQUAD;
+                node_data.value_ptr_label = add_fquad_literal(first_val, second_val, third_val, fourth_val);
+                node_data.value_is_ptr = true;
+            } else {
+                throw std::runtime_error("List initializers must be constant literals.");
+            }
+        } else if (auto* oct_lit = dynamic_cast<OctExpression*>(expr.get())) {
+            // Handle OCT literals by storing them in rodata and using pointer
+            if (oct_lit->first_expr->is_literal() && oct_lit->second_expr->is_literal() && 
+                oct_lit->third_expr->is_literal() && oct_lit->fourth_expr->is_literal() &&
+                oct_lit->fifth_expr->is_literal() && oct_lit->sixth_expr->is_literal() &&
+                oct_lit->seventh_expr->is_literal() && oct_lit->eighth_expr->is_literal()) {
+                // Extract literal values
+                int64_t values[8] = {0};
+                Expression* exprs[] = {oct_lit->first_expr.get(), oct_lit->second_expr.get(), 
+                                     oct_lit->third_expr.get(), oct_lit->fourth_expr.get(),
+                                     oct_lit->fifth_expr.get(), oct_lit->sixth_expr.get(),
+                                     oct_lit->seventh_expr.get(), oct_lit->eighth_expr.get()};
+                
+                for (int i = 0; i < 8; i++) {
+                    if (auto* num = dynamic_cast<NumberLiteral*>(exprs[i])) {
+                        values[i] = num->int_value;
+                    }
+                }
+                
+                node_data.type_tag = ATOM_OCT;
+                node_data.value_ptr_label = add_oct_literal(values[0], values[1], values[2], values[3],
+                                                          values[4], values[5], values[6], values[7]);
+                node_data.value_is_ptr = true;
+            } else {
+                throw std::runtime_error("List initializers must be constant literals.");
+            }
+        } else if (auto* foct_lit = dynamic_cast<FOctExpression*>(expr.get())) {
+            // Handle FOCT literals by storing them in rodata and using pointer
+            if (foct_lit->first_expr->is_literal() && foct_lit->second_expr->is_literal() && 
+                foct_lit->third_expr->is_literal() && foct_lit->fourth_expr->is_literal() &&
+                foct_lit->fifth_expr->is_literal() && foct_lit->sixth_expr->is_literal() &&
+                foct_lit->seventh_expr->is_literal() && foct_lit->eighth_expr->is_literal()) {
+                // Extract literal values
+                double values[8] = {0.0};
+                Expression* exprs[] = {foct_lit->first_expr.get(), foct_lit->second_expr.get(), 
+                                     foct_lit->third_expr.get(), foct_lit->fourth_expr.get(),
+                                     foct_lit->fifth_expr.get(), foct_lit->sixth_expr.get(),
+                                     foct_lit->seventh_expr.get(), foct_lit->eighth_expr.get()};
+                
+                for (int i = 0; i < 8; i++) {
+                    if (auto* num = dynamic_cast<NumberLiteral*>(exprs[i])) {
+                        values[i] = num->literal_type == NumberLiteral::LiteralType::Float ? 
+                                   num->float_value : static_cast<double>(num->int_value);
+                    }
+                }
+                
+                node_data.type_tag = ATOM_FOCT;
+                node_data.value_ptr_label = add_foct_literal(values[0], values[1], values[2], values[3],
+                                                           values[4], values[5], values[6], values[7]);
                 node_data.value_is_ptr = true;
             } else {
                 throw std::runtime_error("List initializers must be constant literals.");
@@ -51174,8 +51375,8 @@ void NewCodeGenerator::visit(ListExpression& node) {
         emit(Encoder::create_branch_with_link("BCPL_LIST_CREATE_EMPTY"));
         // The pointer to the new header is now in X0.
 
-        // 2. Store this pointer in a safe, persistent register.
-        std::string list_header_reg = register_manager_.acquire_callee_saved_temp_reg(*current_frame_manager_);
+        // 2. Store this pointer in a scratch register.
+        std::string list_header_reg = register_manager_.acquire_scratch_reg(*this);
         emit(Encoder::create_mov_reg(list_header_reg, "X0"));
 
         // 3. Iterate through each initializer expression and append it.
@@ -51197,23 +51398,41 @@ void NewCodeGenerator::visit(ListExpression& node) {
             } else {
                 // Arg 2 for integers/pointers is in X1
                 emit(Encoder::create_mov_reg("X1", value_reg));
-                if (expr_type == VarType::POINTER_TO_STRING) {
+                
+                // Check for vector types first (most specific)
+                if (expr_type == VarType::PAIR) {
+                    emit(Encoder::create_branch_with_link("BCPL_LIST_APPEND_PAIR"));
+                } else if (expr_type == VarType::FPAIR) {
+                    emit(Encoder::create_branch_with_link("BCPL_LIST_APPEND_FPAIR"));
+                } else if (expr_type == VarType::QUAD) {
+                    emit(Encoder::create_branch_with_link("BCPL_LIST_APPEND_QUAD"));
+                } else if (expr_type == VarType::FQUAD) {
+                    emit(Encoder::create_branch_with_link("BCPL_LIST_APPEND_FQUAD"));
+                } else if (expr_type == VarType::OCT) {
+                    emit(Encoder::create_branch_with_link("BCPL_LIST_APPEND_OCT"));
+                } else if (expr_type == VarType::FOCT) {
+                    emit(Encoder::create_branch_with_link("BCPL_LIST_APPEND_FOCT"));
+                } else if (expr_type == VarType::POINTER_TO_STRING) {
                     emit(Encoder::create_branch_with_link("BCPL_LIST_APPEND_STRING"));
                 } else if (expr_type == VarType::POINTER_TO_ANY_LIST ||
                            expr_type == VarType::POINTER_TO_INT_LIST ||
                            expr_type == VarType::POINTER_TO_FLOAT_LIST ||
                            expr_type == VarType::POINTER_TO_STRING_LIST) {
                     emit(Encoder::create_branch_with_link("BCPL_LIST_APPEND_LIST"));
-                }
-                else {
+                } else if ((static_cast<int64_t>(expr_type) & static_cast<int64_t>(VarType::OBJECT)) != 0) {
+                    emit(Encoder::create_branch_with_link("BCPL_LIST_APPEND_OBJECT"));
+                } else {
+                    // Default to integer for primitive types
                     emit(Encoder::create_branch_with_link("BCPL_LIST_APPEND_INT"));
                 }
             }
             register_manager_.release_register(value_reg);
         }
 
-        // 4. The final result is the pointer to the list header.
-        expression_result_reg_ = list_header_reg;
+        // 4. Move the final result back to X0 and release scratch register.
+        emit(Encoder::create_mov_reg("X0", list_header_reg));
+        register_manager_.release_scratch_reg(list_header_reg);
+        expression_result_reg_ = "X0";
     }
 }
 
@@ -53744,8 +53963,8 @@ void NewCodeGenerator::visit(UnaryOp& node) {
             operand_type == VarType::CONST_POINTER_TO_FLOAT_LIST ||
             operand_type == VarType::CONST_POINTER_TO_STRING_LIST
         ) {
-            // It's a list. The length is at offset 24 in the ListHeader struct.
-            Instruction ldr_instr = Encoder::create_ldr_imm(dest_reg, payload_ptr_reg, 24, "Load list length");
+            // It's a list. The length is at offset 8 in the ListHeader struct.
+            Instruction ldr_instr = Encoder::create_ldr_imm(dest_reg, payload_ptr_reg, 8, "Load list length");
             ldr_instr.nopeep = true; // Protect from peephole optimization  
             emit(ldr_instr);
         } else {
@@ -65043,6 +65262,138 @@ void BCPL_LIST_APPEND_OBJECT(ListHeader* header, void* object_ptr) {
     header->length++;
 }
 
+/**
+ * @brief Appends a PAIR pointer to a list (O(1) operation).
+ */
+void BCPL_LIST_APPEND_PAIR(ListHeader* header, void* pair_ptr) {
+    if (!header || header->type != ATOM_SENTINEL) return;
+
+    ListAtom* new_node = getNodeFromFreelist();
+    new_node->type = ATOM_PAIR;
+    new_node->pad = 0;
+    new_node->value.ptr_value = pair_ptr;
+    new_node->next = nullptr;
+
+    if (header->head == nullptr) {
+        header->head = new_node;
+        header->tail = new_node;
+    } else {
+        header->tail->next = new_node;
+        header->tail = new_node;
+    }
+    header->length++;
+}
+
+/**
+ * @brief Appends an FPAIR pointer to a list (O(1) operation).
+ */
+void BCPL_LIST_APPEND_FPAIR(ListHeader* header, void* fpair_ptr) {
+    if (!header || header->type != ATOM_SENTINEL) return;
+
+    ListAtom* new_node = getNodeFromFreelist();
+    new_node->type = ATOM_FPAIR;
+    new_node->pad = 0;
+    new_node->value.ptr_value = fpair_ptr;
+    new_node->next = nullptr;
+
+    if (header->head == nullptr) {
+        header->head = new_node;
+        header->tail = new_node;
+    } else {
+        header->tail->next = new_node;
+        header->tail = new_node;
+    }
+    header->length++;
+}
+
+/**
+ * @brief Appends a QUAD pointer to a list (O(1) operation).
+ */
+void BCPL_LIST_APPEND_QUAD(ListHeader* header, void* quad_ptr) {
+    if (!header || header->type != ATOM_SENTINEL) return;
+
+    ListAtom* new_node = getNodeFromFreelist();
+    new_node->type = ATOM_QUAD;
+    new_node->pad = 0;
+    new_node->value.ptr_value = quad_ptr;
+    new_node->next = nullptr;
+
+    if (header->head == nullptr) {
+        header->head = new_node;
+        header->tail = new_node;
+    } else {
+        header->tail->next = new_node;
+        header->tail = new_node;
+    }
+    header->length++;
+}
+
+/**
+ * @brief Appends an FQUAD pointer to a list (O(1) operation).
+ */
+void BCPL_LIST_APPEND_FQUAD(ListHeader* header, void* fquad_ptr) {
+    if (!header || header->type != ATOM_SENTINEL) return;
+
+    ListAtom* new_node = getNodeFromFreelist();
+    new_node->type = ATOM_FQUAD;
+    new_node->pad = 0;
+    new_node->value.ptr_value = fquad_ptr;
+    new_node->next = nullptr;
+
+    if (header->head == nullptr) {
+        header->head = new_node;
+        header->tail = new_node;
+    } else {
+        header->tail->next = new_node;
+        header->tail = new_node;
+    }
+    header->length++;
+}
+
+/**
+ * @brief Appends an OCT pointer to a list (O(1) operation).
+ */
+void BCPL_LIST_APPEND_OCT(ListHeader* header, void* oct_ptr) {
+    if (!header || header->type != ATOM_SENTINEL) return;
+
+    ListAtom* new_node = getNodeFromFreelist();
+    new_node->type = ATOM_OCT;
+    new_node->pad = 0;
+    new_node->value.ptr_value = oct_ptr;
+    new_node->next = nullptr;
+
+    if (header->head == nullptr) {
+        header->head = new_node;
+        header->tail = new_node;
+    } else {
+        header->tail->next = new_node;
+        header->tail = new_node;
+    }
+    header->length++;
+}
+
+/**
+ * @brief Appends an FOCT pointer to a list (O(1) operation).
+ */
+void BCPL_LIST_APPEND_FOCT(ListHeader* header, void* foct_ptr) {
+    if (!header || header->type != ATOM_SENTINEL) return;
+
+    ListAtom* new_node = getNodeFromFreelist();
+    new_node->type = ATOM_FOCT;
+    new_node->pad = 0;
+    new_node->value.ptr_value = foct_ptr;
+    new_node->next = nullptr;
+
+    if (header->head == nullptr) {
+        header->head = new_node;
+        header->tail = new_node;
+    } else {
+        header->tail->next = new_node;
+        header->tail = new_node;
+    }
+    header->length++;
+}
+
 
 // ============================================================================
 // List Accessors
@@ -65058,6 +65409,48 @@ double BCPL_LIST_GET_HEAD_AS_FLOAT(void* header_ptr) {
     ListHeader* header = (ListHeader*)header_ptr;
     if (!header || header->type != ATOM_SENTINEL || !header->head) return 0.0;
     return header->head->value.float_value;
+}
+
+void* BCPL_LIST_GET_HEAD_AS_PAIR(void* header_ptr) {
+    ListHeader* header = (ListHeader*)header_ptr;
+    if (!header || header->type != ATOM_SENTINEL || !header->head) return nullptr;
+    if (header->head->type != ATOM_PAIR) return nullptr;
+    return header->head->value.ptr_value;
+}
+
+void* BCPL_LIST_GET_HEAD_AS_FPAIR(void* header_ptr) {
+    ListHeader* header = (ListHeader*)header_ptr;
+    if (!header || header->type != ATOM_SENTINEL || !header->head) return nullptr;
+    if (header->head->type != ATOM_FPAIR) return nullptr;
+    return header->head->value.ptr_value;
+}
+
+void* BCPL_LIST_GET_HEAD_AS_QUAD(void* header_ptr) {
+    ListHeader* header = (ListHeader*)header_ptr;
+    if (!header || header->type != ATOM_SENTINEL || !header->head) return nullptr;
+    if (header->head->type != ATOM_QUAD) return nullptr;
+    return header->head->value.ptr_value;
+}
+
+void* BCPL_LIST_GET_HEAD_AS_FQUAD(void* header_ptr) {
+    ListHeader* header = (ListHeader*)header_ptr;
+    if (!header || header->type != ATOM_SENTINEL || !header->head) return nullptr;
+    if (header->head->type != ATOM_FQUAD) return nullptr;
+    return header->head->value.ptr_value;
+}
+
+void* BCPL_LIST_GET_HEAD_AS_OCT(void* header_ptr) {
+    ListHeader* header = (ListHeader*)header_ptr;
+    if (!header || header->type != ATOM_SENTINEL || !header->head) return nullptr;
+    if (header->head->type != ATOM_OCT) return nullptr;
+    return header->head->value.ptr_value;
+}
+
+void* BCPL_LIST_GET_HEAD_AS_FOCT(void* header_ptr) {
+    ListHeader* header = (ListHeader*)header_ptr;
+    if (!header || header->type != ATOM_SENTINEL || !header->head) return nullptr;
+    if (header->head->type != ATOM_FOCT) return nullptr;
+    return header->head->value.ptr_value;
 }
 
 void* BCPL_LIST_GET_TAIL(void* header_ptr) {
@@ -66780,6 +67173,20 @@ extern "C" {
     int BCPL_REVERSE_LIST(int list_ptr);
     int BCPL_FIND_IN_LIST(int list_ptr, int value, int compare_func);
     int BCPL_LIST_FILTER(int list_ptr, int filter_func);
+    
+    // Vector type list functions
+    int BCPL_LIST_APPEND_PAIR(int list_ptr, int pair_ptr);
+    int BCPL_LIST_APPEND_FPAIR(int list_ptr, int fpair_ptr);
+    int BCPL_LIST_APPEND_QUAD(int list_ptr, int quad_ptr);
+    int BCPL_LIST_APPEND_FQUAD(int list_ptr, int fquad_ptr);
+    int BCPL_LIST_APPEND_OCT(int list_ptr, int oct_ptr);
+    int BCPL_LIST_APPEND_FOCT(int list_ptr, int foct_ptr);
+    int BCPL_LIST_GET_HEAD_AS_PAIR(int list_ptr);
+    int BCPL_LIST_GET_HEAD_AS_FPAIR(int list_ptr);
+    int BCPL_LIST_GET_HEAD_AS_QUAD(int list_ptr);
+    int BCPL_LIST_GET_HEAD_AS_FQUAD(int list_ptr);
+    int BCPL_LIST_GET_HEAD_AS_OCT(int list_ptr);
+    int BCPL_LIST_GET_HEAD_AS_FOCT(int list_ptr);
     void returnNodeToFreelist_runtime(int node_ptr);
     
     // Math functions
@@ -67197,6 +67604,73 @@ static const RuntimeFunctionDescriptor g_runtime_manifest[] = {
         "LPND", "_LPND", reinterpret_cast<RuntimeFunctionPtr>(BCPL_LIST_APPEND_LIST), 2,
         RuntimeFunctionType::STANDARD, RuntimeReturnType::STRING_LIST,
         "Append list to list (alias)", "List"
+    },
+    {
+        "BCPL_LIST_CREATE_EMPTY", "_BCPL_LIST_CREATE_EMPTY", reinterpret_cast<RuntimeFunctionPtr>(BCPL_LIST_CREATE_EMPTY), 0,
+        RuntimeFunctionType::STANDARD, RuntimeReturnType::STRING_LIST,
+        "Create empty list", "List"
+    },
+    
+    // Vector type list functions
+    {
+        "BCPL_LIST_APPEND_PAIR", "_BCPL_LIST_APPEND_PAIR", reinterpret_cast<RuntimeFunctionPtr>(BCPL_LIST_APPEND_PAIR), 2,
+        RuntimeFunctionType::STANDARD, RuntimeReturnType::STRING_LIST,
+        "Append PAIR to list", "List"
+    },
+    {
+        "BCPL_LIST_APPEND_FPAIR", "_BCPL_LIST_APPEND_FPAIR", reinterpret_cast<RuntimeFunctionPtr>(BCPL_LIST_APPEND_FPAIR), 2,
+        RuntimeFunctionType::STANDARD, RuntimeReturnType::STRING_LIST,
+        "Append FPAIR to list", "List"
+    },
+    {
+        "BCPL_LIST_APPEND_QUAD", "_BCPL_LIST_APPEND_QUAD", reinterpret_cast<RuntimeFunctionPtr>(BCPL_LIST_APPEND_QUAD), 2,
+        RuntimeFunctionType::STANDARD, RuntimeReturnType::STRING_LIST,
+        "Append QUAD to list", "List"
+    },
+    {
+        "BCPL_LIST_APPEND_FQUAD", "_BCPL_LIST_APPEND_FQUAD", reinterpret_cast<RuntimeFunctionPtr>(BCPL_LIST_APPEND_FQUAD), 2,
+        RuntimeFunctionType::STANDARD, RuntimeReturnType::STRING_LIST,
+        "Append FQUAD to list", "List"
+    },
+    {
+        "BCPL_LIST_APPEND_OCT", "_BCPL_LIST_APPEND_OCT", reinterpret_cast<RuntimeFunctionPtr>(BCPL_LIST_APPEND_OCT), 2,
+        RuntimeFunctionType::STANDARD, RuntimeReturnType::STRING_LIST,
+        "Append OCT to list", "List"
+    },
+    {
+        "BCPL_LIST_APPEND_FOCT", "_BCPL_LIST_APPEND_FOCT", reinterpret_cast<RuntimeFunctionPtr>(BCPL_LIST_APPEND_FOCT), 2,
+        RuntimeFunctionType::STANDARD, RuntimeReturnType::STRING_LIST,
+        "Append FOCT to list", "List"
+    },
+    {
+        "BCPL_LIST_GET_HEAD_AS_PAIR", "_BCPL_LIST_GET_HEAD_AS_PAIR", reinterpret_cast<RuntimeFunctionPtr>(BCPL_LIST_GET_HEAD_AS_PAIR), 1,
+        RuntimeFunctionType::STANDARD, RuntimeReturnType::INTEGER,
+        "Get first element of list as PAIR", "List"
+    },
+    {
+        "BCPL_LIST_GET_HEAD_AS_FPAIR", "_BCPL_LIST_GET_HEAD_AS_FPAIR", reinterpret_cast<RuntimeFunctionPtr>(BCPL_LIST_GET_HEAD_AS_FPAIR), 1,
+        RuntimeFunctionType::STANDARD, RuntimeReturnType::INTEGER,
+        "Get first element of list as FPAIR", "List"
+    },
+    {
+        "BCPL_LIST_GET_HEAD_AS_QUAD", "_BCPL_LIST_GET_HEAD_AS_QUAD", reinterpret_cast<RuntimeFunctionPtr>(BCPL_LIST_GET_HEAD_AS_QUAD), 1,
+        RuntimeFunctionType::STANDARD, RuntimeReturnType::INTEGER,
+        "Get first element of list as QUAD", "List"
+    },
+    {
+        "BCPL_LIST_GET_HEAD_AS_FQUAD", "_BCPL_LIST_GET_HEAD_AS_FQUAD", reinterpret_cast<RuntimeFunctionPtr>(BCPL_LIST_GET_HEAD_AS_FQUAD), 1,
+        RuntimeFunctionType::STANDARD, RuntimeReturnType::INTEGER,
+        "Get first element of list as FQUAD", "List"
+    },
+    {
+        "BCPL_LIST_GET_HEAD_AS_OCT", "_BCPL_LIST_GET_HEAD_AS_OCT", reinterpret_cast<RuntimeFunctionPtr>(BCPL_LIST_GET_HEAD_AS_OCT), 1,
+        RuntimeFunctionType::STANDARD, RuntimeReturnType::INTEGER,
+        "Get first element of list as OCT", "List"
+    },
+    {
+        "BCPL_LIST_GET_HEAD_AS_FOCT", "_BCPL_LIST_GET_HEAD_AS_FOCT", reinterpret_cast<RuntimeFunctionPtr>(BCPL_LIST_GET_HEAD_AS_FOCT), 1,
+        RuntimeFunctionType::STANDARD, RuntimeReturnType::INTEGER,
+        "Get first element of list as FOCT", "List"
     },
     {
         "returnNodeToFreelist", "_returnNodeToFreelist", reinterpret_cast<RuntimeFunctionPtr>(returnNodeToFreelist_runtime), 1,
