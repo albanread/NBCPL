@@ -75,6 +75,12 @@ const std::unordered_map<std::string, TokenType> Lexer::keywords_ = {
     {"TYPE_STRING", TokenType::TypeString},
     {"TYPE_LIST",   TokenType::TypeList},
     {"TYPE_VEC",    TokenType::TypeVec},
+    {"TYPE_PAIR",   TokenType::TypePair},
+    {"TYPE_FPAIR",  TokenType::TypeFpair},
+    {"TYPE_QUAD",   TokenType::TypeQuad},
+    {"TYPE_FQUAD",  TokenType::TypeFquad},
+    {"TYPE_OCT",    TokenType::TypeOct},
+    {"TYPE_FOCT",   TokenType::TypeFoct},
     // {"TYPE_POINTER",TokenType::TypePointer}, // <-- REMOVED
     {"TYPE_CONST",  TokenType::TypeConst},
     {"TYPE_ANY",    TokenType::TypeAny},

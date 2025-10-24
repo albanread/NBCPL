@@ -48,6 +48,12 @@ enum class TokenType {
     TypeString,
     TypeList,
     TypeVec,
+    TypePair,        // TYPE_PAIR constant
+    TypeFpair,       // TYPE_FPAIR constant  
+    TypeQuad,        // TYPE_QUAD constant
+    TypeFquad,       // TYPE_FQUAD constant
+    TypeOct,         // TYPE_OCT constant
+    TypeFoct,        // TYPE_FOCT constant
     TypeAsString,    // TYPE(expr) macro support
     TypePointer,
     TypeConst,

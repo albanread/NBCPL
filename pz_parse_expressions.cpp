@@ -409,6 +409,30 @@ ExprPtr Parser::parse_primary_expression() {
         // VarType::VEC = 256
         return std::make_unique<NumberLiteral>(static_cast<int64_t>(256));
     }
+    if (match(TokenType::TypePair)) {
+        // ATOM_PAIR = 6
+        return std::make_unique<NumberLiteral>(static_cast<int64_t>(6));
+    }
+    if (match(TokenType::TypeFpair)) {
+        // ATOM_FPAIR = 7
+        return std::make_unique<NumberLiteral>(static_cast<int64_t>(7));
+    }
+    if (match(TokenType::TypeQuad)) {
+        // ATOM_QUAD = 8
+        return std::make_unique<NumberLiteral>(static_cast<int64_t>(8));
+    }
+    if (match(TokenType::TypeFquad)) {
+        // ATOM_FQUAD = 9
+        return std::make_unique<NumberLiteral>(static_cast<int64_t>(9));
+    }
+    if (match(TokenType::TypeOct)) {
+        // ATOM_OCT = 10
+        return std::make_unique<NumberLiteral>(static_cast<int64_t>(10));
+    }
+    if (match(TokenType::TypeFoct)) {
+        // ATOM_FOCT = 11
+        return std::make_unique<NumberLiteral>(static_cast<int64_t>(11));
+    }
     if (match(TokenType::TypePointer)) {
         // VarType::POINTER_TO = 4096
         return std::make_unique<NumberLiteral>(static_cast<int64_t>(4096));
