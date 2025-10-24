@@ -1,0 +1,12 @@
+LET START() BE {
+    WRITEF("Testing OCTS allocation only\n")
+
+    // Test basic OCTS allocation
+    LET octs_vec = OCTS(2)
+    WRITEF("OCTS vector allocated successfully\n")
+
+    // Test length
+    WRITEF("OCTS vector length: %d\n", LEN(octs_vec))
+
+    WRITEF("✅ OCTS allocation test completed\n")
+}

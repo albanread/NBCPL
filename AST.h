@@ -78,7 +78,7 @@ public:
         FQuadExpr, FQuadAccessExpr, // New: For fquad(a,b,c,d) and fq.first/fq.second/fq.third/fq.fourth
         OctExpr, FOctExpr, // New: For oct(...) and foct(...) 8-lane vectors
         LaneAccessExpr, // New: For vector.|n| lane access
-        ConditionalExpr, ValofExpr, FloatValofExpr, VecAllocationExpr, FVecAllocationExpr, PairsAllocationExpr, FPairsAllocationExpr, QuadsAllocationExpr, FQuadsAllocationExpr, StringAllocationExpr, TableExpr,
+        ConditionalExpr, ValofExpr, FloatValofExpr, VecAllocationExpr, FVecAllocationExpr, PairsAllocationExpr, FPairsAllocationExpr, QuadsAllocationExpr, FQuadsAllocationExpr, OctsAllocationExpr, FOctsAllocationExpr, StringAllocationExpr, TableExpr,
         VecInitializerExpr, // Add this new type
         AssignmentStmt, RoutineCallStmt, IfStmt, UnlessStmt, TestStmt, WhileStmt, UntilStmt,
         RepeatStmt, ForStmt, ForEachStmt, SwitchonStmt, GotoStmt, ReturnStmt, FinishStmt, BreakStmt,
@@ -96,7 +96,9 @@ public:
         Neon128BitPairOpStmt, // <-- Added for 128-bit NEON pair operations
         Neon128BitFPairOpStmt, // <-- Added for 128-bit NEON floating point pair operations
         Neon128BitQuadOpStmt, // <-- Added for 128-bit NEON quad operations
-        Neon128BitFQuadOpStmt // <-- Added for 128-bit NEON floating point quad operations
+        Neon128BitFQuadOpStmt, // <-- Added for 128-bit NEON floating point quad operations
+        Neon128BitOctOpStmt, // <-- Added for 128-bit NEON oct operations
+        Neon128BitFOctOpStmt // <-- Added for 128-bit NEON floating point oct operations
     };
 
     ASTNode(NodeType type) : type_(type) {}
@@ -729,6 +731,28 @@ public:
     std::string variable_name; // Name of the variable being allocated
     FQuadsAllocationExpression(ExprPtr size_expr)
         : Expression(NodeType::FQuadsAllocationExpr), size_expr(std::move(size_expr)), variable_name("") {}
+        
+    void accept(ASTVisitor& visitor) override;
+    ASTNodePtr clone() const override;
+};
+
+class OctsAllocationExpression : public Expression {
+public:
+    ExprPtr size_expr;
+    std::string variable_name; // Name of the variable being allocated
+    OctsAllocationExpression(ExprPtr size_expr)
+        : Expression(NodeType::OctsAllocationExpr), size_expr(std::move(size_expr)), variable_name("") {}
+        
+    void accept(ASTVisitor& visitor) override;
+    ASTNodePtr clone() const override;
+};
+
+class FOctsAllocationExpression : public Expression {
+public:
+    ExprPtr size_expr;
+    std::string variable_name; // Name of the variable being allocated
+    FOctsAllocationExpression(ExprPtr size_expr)
+        : Expression(NodeType::FOctsAllocationExpr), size_expr(std::move(size_expr)), variable_name("") {}
         
     void accept(ASTVisitor& visitor) override;
     ASTNodePtr clone() const override;
@@ -1405,6 +1429,48 @@ public:
     Neon128BitFQuadOpStatement(std::string dest_vec, std::string left_vec, std::string right_vec,
                               std::string loop_idx, int op)
         : Statement(NodeType::Neon128BitFQuadOpStmt),
+          dest_vector_name(std::move(dest_vec)),
+          left_vector_name(std::move(left_vec)), 
+          right_vector_name(std::move(right_vec)),
+          loop_index_name(std::move(loop_idx)),
+          operation(op) {}
+          
+    void accept(ASTVisitor& visitor) override;
+    ASTNodePtr clone() const override;
+};
+
+class Neon128BitOctOpStatement : public Statement {
+public:
+    std::string dest_vector_name;     // Destination vector (e.g., "V3")
+    std::string left_vector_name;     // Left operand vector (e.g., "V1") 
+    std::string right_vector_name;    // Right operand vector (e.g., "V2")
+    std::string loop_index_name;      // Loop index variable that we manage ourselves
+    int operation;                    // BinaryOp::Operator value (Add=0, Subtract=1, Multiply=2, etc.)
+    
+    Neon128BitOctOpStatement(std::string dest_vec, std::string left_vec, std::string right_vec,
+                             std::string loop_idx, int op)
+        : Statement(NodeType::Neon128BitOctOpStmt),
+          dest_vector_name(std::move(dest_vec)),
+          left_vector_name(std::move(left_vec)), 
+          right_vector_name(std::move(right_vec)),
+          loop_index_name(std::move(loop_idx)),
+          operation(op) {}
+          
+    void accept(ASTVisitor& visitor) override;
+    ASTNodePtr clone() const override;
+};
+
+class Neon128BitFOctOpStatement : public Statement {
+public:
+    std::string dest_vector_name;     // Destination vector (e.g., "V3")
+    std::string left_vector_name;     // Left operand vector (e.g., "V1") 
+    std::string right_vector_name;    // Right operand vector (e.g., "V2")
+    std::string loop_index_name;      // Loop index variable that we manage ourselves
+    int operation;                    // BinaryOp::Operator value (Add=0, Subtract=1, Multiply=2, etc.)
+    
+    Neon128BitFOctOpStatement(std::string dest_vec, std::string left_vec, std::string right_vec,
+                              std::string loop_idx, int op)
+        : Statement(NodeType::Neon128BitFOctOpStmt),
           dest_vector_name(std::move(dest_vec)),
           left_vector_name(std::move(left_vec)), 
           right_vector_name(std::move(right_vec)),

@@ -1705,6 +1705,14 @@ VarType ASTAnalyzer::infer_allocation_type(const Expression* expr) const {
         return VarType::POINTER_TO_FQUADS;
     }
     
+    if (dynamic_cast<const OctsAllocationExpression*>(expr)) {
+        return VarType::POINTER_TO_OCTS;
+    }
+    
+    if (dynamic_cast<const FOctsAllocationExpression*>(expr)) {
+        return VarType::POINTER_TO_FOCTS;
+    }
+    
     if (dynamic_cast<const StringAllocationExpression*>(expr)) {
         return VarType::POINTER_TO_STRING;
     }

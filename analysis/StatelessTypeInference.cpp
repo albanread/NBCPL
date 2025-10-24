@@ -96,6 +96,26 @@ VarType StatelessTypeInference::infer_expression_type(const Expression* expr, co
         return VarType::POINTER_TO_FPAIRS;
     }
 
+    // QUADS allocation
+    if (const auto* quads_alloc = dynamic_cast<const QuadsAllocationExpression*>(expr)) {
+        return VarType::POINTER_TO_QUADS;
+    }
+
+    // FQUADS allocation
+    if (const auto* fquads_alloc = dynamic_cast<const FQuadsAllocationExpression*>(expr)) {
+        return VarType::POINTER_TO_FQUADS;
+    }
+
+    // OCTS allocation
+    if (const auto* octs_alloc = dynamic_cast<const OctsAllocationExpression*>(expr)) {
+        return VarType::POINTER_TO_OCTS;
+    }
+
+    // FOCTS allocation
+    if (const auto* focts_alloc = dynamic_cast<const FOctsAllocationExpression*>(expr)) {
+        return VarType::POINTER_TO_FOCTS;
+    }
+
     // String allocation
     if (const auto* str_alloc = dynamic_cast<const StringAllocationExpression*>(expr)) {
         return VarType::STRING;

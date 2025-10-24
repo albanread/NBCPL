@@ -35,6 +35,8 @@ std::string to_string(ASTNode::NodeType type) {
         case ASTNode::NodeType::Neon128BitFPairOpStmt: return "Neon128BitFPairOpStatement";
         case ASTNode::NodeType::Neon128BitQuadOpStmt: return "Neon128BitQuadOpStatement";
         case ASTNode::NodeType::Neon128BitFQuadOpStmt: return "Neon128BitFQuadOpStatement";
+        case ASTNode::NodeType::Neon128BitOctOpStmt: return "Neon128BitOctOpStatement";
+        case ASTNode::NodeType::Neon128BitFOctOpStmt: return "Neon128BitFOctOpStatement";
         // --- ADDED CASES END HERE ---
 
         case ASTNode::NodeType::RetainStmt: return "RetainStatement";
@@ -74,6 +76,8 @@ std::string to_string(ASTNode::NodeType type) {
         case ASTNode::NodeType::FPairsAllocationExpr: return "FPairsAllocationExpr";
         case ASTNode::NodeType::QuadsAllocationExpr: return "QuadsAllocationExpr";
         case ASTNode::NodeType::FQuadsAllocationExpr: return "FQuadsAllocationExpr";
+        case ASTNode::NodeType::OctsAllocationExpr: return "OctsAllocationExpr";
+        case ASTNode::NodeType::FOctsAllocationExpr: return "FOctsAllocationExpr";
         case ASTNode::NodeType::StringAllocationExpr: return "StringAllocationExpr";
         case ASTNode::NodeType::TableExpr: return "TableExpr";
         case ASTNode::NodeType::VecInitializerExpr: return "VecInitializerExpr";

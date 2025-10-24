@@ -293,6 +293,7 @@ void NewCodeGenerator::visit(UnaryOp& node) {
             operand_type == VarType::POINTER_TO_FPAIRS ||
             operand_type == VarType::POINTER_TO_QUADS ||
             operand_type == VarType::POINTER_TO_OCTS ||
+            operand_type == VarType::POINTER_TO_FOCTS ||
             operand_type == VarType::POINTER_TO_FQUADS ||
             operand_type == VarType::POINTER_TO_STRING
         ) {

@@ -1,0 +1,17 @@
+LET START() BE {
+    WRITEF("Testing minimal OCTS allocation without LEN\n")
+
+    // Test basic OCTS allocation
+    LET octs_vec = OCTS(2)
+    WRITEF("OCTS vector allocated\n")
+
+    // Create a simple OCT
+    LET oct1 = OCT(1, 2, 3, 4, 5, 6, 7, 8)
+    WRITEF("OCT created\n")
+
+    // Assign to vector
+    octs_vec!0 := oct1
+    WRITEF("OCT assigned to vector\n")
+
+    WRITEF("✅ Minimal OCTS test completed\n")
+}

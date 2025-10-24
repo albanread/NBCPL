@@ -18,6 +18,8 @@ const std::unordered_map<std::string, TokenType> Lexer::keywords_ = {
     {"FQUADS", TokenType::FQuads}, // Added FQUADS as a keyword
     {"OCT", TokenType::Oct}, // Added OCT as a keyword
     {"FOCT", TokenType::FOct}, // Added FOCT as a keyword
+    {"OCTS", TokenType::Octs}, // Added OCTS as a keyword
+    {"FOCTS", TokenType::FOcts}, // Added FOCTS as a keyword
     {"UNLESS", TokenType::Unless}, {"TEST", TokenType::Test}, {"WHILE", TokenType::While},
     {"UNTIL", TokenType::Until}, {"REPEAT", TokenType::Repeat}, {"FOR", TokenType::For},
     {"FOREACH", TokenType::ForEach},

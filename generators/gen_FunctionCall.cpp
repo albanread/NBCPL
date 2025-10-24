@@ -205,8 +205,10 @@ void NewCodeGenerator::handle_special_built_in_call(FunctionCall& node, const st
         
         if (operand_type == VarType::PAIRS || operand_type == VarType::FPAIRS || 
             operand_type == VarType::QUADS || operand_type == VarType::FQUADS ||
+            operand_type == VarType::OCTS || operand_type == VarType::FOCTS ||
             operand_type == VarType::POINTER_TO_PAIRS || operand_type == VarType::POINTER_TO_FPAIRS ||
             operand_type == VarType::POINTER_TO_QUADS || operand_type == VarType::POINTER_TO_FQUADS ||
+            operand_type == VarType::POINTER_TO_OCTS || operand_type == VarType::POINTER_TO_FOCTS ||
             operand_type == VarType::VEC ||
             operand_type == VarType::STRING || operand_type == VarType::POINTER_TO_STRING) {
             

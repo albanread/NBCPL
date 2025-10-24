@@ -275,6 +275,8 @@ private:
     void visit(FPairsAllocationExpression& node) override;
     void visit(QuadsAllocationExpression& node) override;
     void visit(FQuadsAllocationExpression& node) override;
+    void visit(OctsAllocationExpression& node) override;
+    void visit(FOctsAllocationExpression& node) override;
     void visit(StringAllocationExpression& node) override;
     void visit(AssignmentStatement& node) override;
     void visit(RoutineCallStatement& node) override;

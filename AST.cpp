@@ -58,6 +58,8 @@ ACCEPT_METHOD_IMPL(PairsAllocationExpression)
 ACCEPT_METHOD_IMPL(FPairsAllocationExpression)
 ACCEPT_METHOD_IMPL(QuadsAllocationExpression)
 ACCEPT_METHOD_IMPL(FQuadsAllocationExpression)
+ACCEPT_METHOD_IMPL(OctsAllocationExpression)
+ACCEPT_METHOD_IMPL(FOctsAllocationExpression)
 ACCEPT_METHOD_IMPL(StringAllocationExpression)
 ACCEPT_METHOD_IMPL(TableExpression)
 ACCEPT_METHOD_IMPL(ListExpression)
@@ -331,6 +333,18 @@ ASTNodePtr FQuadsAllocationExpression::clone() const {
     );
 }
 
+ASTNodePtr OctsAllocationExpression::clone() const {
+    return std::make_unique<OctsAllocationExpression>(
+        size_expr ? std::unique_ptr<Expression>(static_cast<Expression*>(size_expr->clone().release())) : nullptr
+    );
+}
+
+ASTNodePtr FOctsAllocationExpression::clone() const {
+    return std::make_unique<FOctsAllocationExpression>(
+        size_expr ? std::unique_ptr<Expression>(static_cast<Expression*>(size_expr->clone().release())) : nullptr
+    );
+}
+
 void Neon128BitQuadOpStatement::accept(ASTVisitor& visitor) {
     visitor.visit(*this);
 }
@@ -347,6 +361,26 @@ void Neon128BitFQuadOpStatement::accept(ASTVisitor& visitor) {
 
 ASTNodePtr Neon128BitFQuadOpStatement::clone() const {
     return std::make_unique<Neon128BitFQuadOpStatement>(
+        dest_vector_name, left_vector_name, right_vector_name, loop_index_name, operation
+    );
+}
+
+void Neon128BitOctOpStatement::accept(ASTVisitor& visitor) {
+    visitor.visit(*this);
+}
+
+ASTNodePtr Neon128BitOctOpStatement::clone() const {
+    return std::make_unique<Neon128BitOctOpStatement>(
+        dest_vector_name, left_vector_name, right_vector_name, loop_index_name, operation
+    );
+}
+
+void Neon128BitFOctOpStatement::accept(ASTVisitor& visitor) {
+    visitor.visit(*this);
+}
+
+ASTNodePtr Neon128BitFOctOpStatement::clone() const {
+    return std::make_unique<Neon128BitFOctOpStatement>(
         dest_vector_name, left_vector_name, right_vector_name, loop_index_name, operation
     );
 }

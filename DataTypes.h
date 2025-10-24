@@ -42,6 +42,7 @@ enum class VarType : int64_t {
     TABLE        = 1 << 16, // 65536
     FQUADS       = 1 << 17, // 131072 - Vector of FQUADs
     OBJECT       = 1 << 18, // 262144
+    FOCTS        = 1 << 19, // 524288 - Vector of FOCTs
     
     // Type Modifiers (highest bits, highest priority when combined)
     POINTER_TO   = 1 << 20, // 1048576
@@ -68,6 +69,7 @@ enum class VarType : int64_t {
     POINTER_TO_FPAIRS       = POINTER_TO | FPAIRS,
     POINTER_TO_QUADS        = POINTER_TO | QUADS,
     POINTER_TO_OCTS         = POINTER_TO | OCTS,
+    POINTER_TO_FOCTS        = POINTER_TO | FOCTS,
     POINTER_TO_FQUADS       = POINTER_TO | FQUADS,
     POINTER_TO_STRING       = POINTER_TO | STRING,
     POINTER_TO_TABLE        = POINTER_TO | TABLE,
@@ -127,6 +129,7 @@ inline std::string vartype_to_string(VarType t) {
     if (v & static_cast<int64_t>(VarType::FPAIRS)) result += "FPAIRS|";
     if (v & static_cast<int64_t>(VarType::QUADS)) result += "QUADS|";
     if (v & static_cast<int64_t>(VarType::OCTS)) result += "OCTS|";
+    if (v & static_cast<int64_t>(VarType::FOCTS)) result += "FOCTS|";
     if (v & static_cast<int64_t>(VarType::FQUADS)) result += "FQUADS|";
     if (v & static_cast<int64_t>(VarType::NOTUSED)) result += "NOTUSED|";
 
