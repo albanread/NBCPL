@@ -594,7 +594,7 @@ int main(int argc, char* argv[]) {
 
         // Verify that runtime function import was successful
         if (enable_tracing || trace_symbols || trace_runtime) std::cout << "Verifying runtime function import...\n";
-        RuntimeImporter::verify_import_completeness(*symbol_table);
+        RuntimeImporter::verify_import_completeness(*symbol_table, enable_tracing || trace_symbols || trace_runtime);
 
         // (CSE pass removed; now handled after CFG construction)
         // --- String Table Pass: Construct early and wire to pipeline ---

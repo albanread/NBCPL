@@ -1,0 +1,80 @@
+// test_simple_inheritance.bcl
+// Tests basic single inheritance functionality
+
+CLASS Parent $(
+    DECL parent_value
+
+    ROUTINE CREATE(value) BE $(
+        parent_value := value
+        WRITES("Parent created with parent_value: ")
+        WRITEN(parent_value)
+        WRITEC('*N')
+    $)
+
+    FUNCTION getParentValue() = VALOF RESULTIS parent_value
+
+    ROUTINE parentMethod() BE $(
+        WRITES("Called parent method*N")
+    $)
+$)
+
+CLASS Child EXTENDS Parent $(
+    DECL child_value
+
+    ROUTINE CREATE(p_value, c_value) BE $(
+        parent_value := p_value
+        child_value := c_value
+        WRITES("Child created with parent_value: ")
+        WRITEN(parent_value)
+        WRITES(", child_value: ")
+        WRITEN(child_value)
+        WRITEC('*N')
+    $)
+
+    FUNCTION getChildValue() = VALOF RESULTIS child_value
+$)
+
+LET START() BE $(
+    WRITES("=== Testing Simple Inheritance ===*N")
+
+    // Test 1: Create child object
+    LET child = NEW Child(10, 20)
+
+    // Test 2: Access inherited member variable
+    LET parent_val = child.parent_value
+    LET child_val = child.child_value
+
+    WRITES("Accessed values: parent_value=")
+    WRITEN(parent_val)
+    WRITES(", child_value=")
+    WRITEN(child_val)
+    WRITEC('*N')
+
+    // Test 3: Call inherited method
+    LET inherited_value = child.getParentValue()
+    child.parentMethod()
+
+    // Test 4: Call child-specific method
+    LET child_specific_value = child.getChildValue()
+
+    // Test 5: Verify all values are correct
+    TEST parent_val = 10 AND child_val = 20 AND inherited_value = 10 AND child_specific_value = 20
+    THEN $(
+        WRITES("✓ PASS: Inheritance working correctly*N")
+    $)
+    ELSE $(
+        WRITES("✗ FAIL: Inheritance failed*N")
+        WRITES("Expected: parent=10, child=20, inherited=10, child_specific=20*N")
+        WRITES("Got: parent=")
+        WRITEN(parent_val)
+        WRITES(", child=")
+        WRITEN(child_val)
+        WRITES(", inherited=")
+        WRITEN(inherited_value)
+        WRITES(", child_specific=")
+        WRITEN(child_specific_value)
+        WRITEC('*N')
+    $)
+
+    WRITES("=== Simple Inheritance Test Complete ===*N")
+$)

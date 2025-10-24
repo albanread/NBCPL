@@ -80,8 +80,10 @@ bool RuntimeImporter::import_all_runtime_functions(SymbolTable& symbol_table, bo
     return success;
 }
 
-void RuntimeImporter::verify_import_completeness(SymbolTable& symbol_table) {
-    std::cout << "=== Verifying Runtime Function Import Completeness ===" << std::endl;
+void RuntimeImporter::verify_import_completeness(SymbolTable& symbol_table, bool trace_enabled) {
+    if (trace_enabled) {
+        std::cout << "=== Verifying Runtime Function Import Completeness ===" << std::endl;
+    }
     
     int function_count = 0;
     const RuntimeFunctionDescriptor* manifest = get_runtime_manifest(function_count);
@@ -109,7 +111,9 @@ void RuntimeImporter::verify_import_completeness(SymbolTable& symbol_table) {
         exit(1);
     }
     
-    std::cout << "✅ Runtime function import verification passed (" << function_count << " functions)" << std::endl;
+    if (trace_enabled) {
+        std::cout << "✅ Runtime function import verification passed (" << function_count << " functions)" << std::endl;
+    }
 }
 
 void RuntimeImporter::list_runtime_functions(bool show_categories, const char* category_filter) {

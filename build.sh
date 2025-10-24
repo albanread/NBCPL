@@ -90,7 +90,7 @@ awk '
 
 # Find all potential source files
 # Core files (excluding files that are explicitly added elsewhere)
-CORE_SRC_FILES=$(find . -maxdepth 1 -name "*.cpp" ! -name "main.cpp" ! -name "live_*.cpp" ! -name "peephole_test.cpp" ! -name "test_sdl2_minimal.cpp" ! -name "test_*.cpp" ! -name "debug_samm_simple.cpp" -print; \
+CORE_SRC_FILES=$(find . -maxdepth 1 -name "*.cpp" ! -name "main.cpp" ! -name "live_*.cpp" ! -name "peephole_test.cpp" ! -name "test_sdl2_minimal.cpp" ! -name "test_*.cpp" ! -name "debug_*.cpp" -print; \
                  find encoders -name "*.cpp" -print; \
                  find passes -name "*.cpp" -print; \
                  find linker_helpers -name "*.cpp" -print; \

@@ -1,0 +1,111 @@
+// test_method_overriding.bcl
+// Tests virtual method overriding and polymorphism
+
+CLASS Animal $(
+    PUBLIC:
+        LET species_id = 0
+
+        ROUTINE CREATE(id) BE $(
+            species_id := id
+            WRITES("Animal created with species_id: ")
+            WRITEN(species_id)
+            WRITEC('*N')
+        $)
+
+        VIRTUAL ROUTINE makeSound() BE $(
+            WRITES("Generic animal sound*N")
+        $)
+
+        VIRTUAL FUNCTION getDescription() = VALOF RESULTIS 1000  // Generic animal description code
+
+        ROUTINE identify() BE $(
+            WRITES("This is an animal with ID: ")
+            WRITEN(species_id)
+            WRITES(", description: ")
+            WRITEN(getDescription())  // This should call overridden version
+            WRITEC('*N')
+        $)
+$)
+
+CLASS Dog EXTENDS Animal $(
+    PUBLIC:
+        ROUTINE CREATE(id) BE $(
+            species_id := id
+            WRITES("Dog created with species_id: ")
+            WRITEN(species_id)
+            WRITEC('*N')
+        $)
+
+        // Override virtual method
+        ROUTINE makeSound() BE $(
+            WRITES("Woof! Woof!*N")
+        $)
+
+        // Override virtual function
+        FUNCTION getDescription() = VALOF RESULTIS 2000  // Dog-specific description code
+$)
+
+CLASS Cat EXTENDS Animal $(
+    PUBLIC:
+        ROUTINE CREATE(id) BE $(
+            species_id := id
+            WRITES("Cat created with species_id: ")
+            WRITEN(species_id)
+            WRITEC('*N')
+        $)
+
+        // Override virtual method
+        ROUTINE makeSound() BE $(
+            WRITES("Meow! Meow!*N")
+        $)
+
+        // Override virtual function
+        FUNCTION getDescription() = VALOF RESULTIS 3000  // Cat-specific description code
+$)
+
+LET START() BE $(
+    WRITES("=== Testing Method Overriding ===*N")
+
+    // Test 1: Create base class object
+    LET animal = NEW Animal(1)
+    WRITES("Base class methods:*N")
+    animal.makeSound()
+    LET animal_desc = animal.getDescription()
+
+    // Test 2: Create derived class objects
+    LET dog = NEW Dog(2)
+    LET cat = NEW Cat(3)
+
+    // Test 3: Call overridden methods directly
+    WRITES("Derived class methods called directly:*N")
+    dog.makeSound()
+    cat.makeSound()
+
+    LET dog_desc = dog.getDescription()
+    LET cat_desc = cat.getDescription()
+
+    // Test 4: Call method that uses virtual dispatch internally
+    WRITES("Virtual dispatch through base class method:*N")
+    animal.identify()
+    dog.identify()  // Should use Dog's getDescription()
+    cat.identify()  // Should use Cat's getDescription()
+
+    // Test 5: Verify all descriptions are correct
+    TEST animal_desc = 1000 AND dog_desc = 2000 AND cat_desc = 3000
+    THEN $(
+        WRITES("✓ PASS: Method overriding working correctly*N")
+    $)
+    ELSE $(
+        WRITES("✗ FAIL: Method overriding failed*N")
+        WRITES("Expected: animal=1000, dog=2000, cat=3000*N")
+        WRITES("Got: animal=")
+        WRITEN(animal_desc)
+        WRITES(", dog=")
+        WRITEN(dog_desc)
+        WRITES(", cat=")
+        WRITEN(cat_desc)
+        WRITEC('*N')
+    $)
+
+    WRITES("=== Method Overriding Test Complete ===*N")
+$)

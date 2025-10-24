@@ -61,6 +61,8 @@ void ClassPass::finalize_layouts() {
 }
 
 void ClassPass::finalize_class_layout(const std::string& class_name, std::unordered_set<std::string>& resolution_path) {
+    if (trace_enabled_) std::cout << "[CLASSPASS] finalize_class_layout called for class: " << class_name << std::endl;
+    
     if (resolution_path.count(class_name)) {
         throw std::runtime_error("Circular inheritance detected involving class: " + class_name);
     }
@@ -68,6 +70,7 @@ void ClassPass::finalize_class_layout(const std::string& class_name, std::unorde
 
     ClassTableEntry* entry = class_table_.get_class(class_name);
     if (!entry || entry->is_layout_finalized) {
+        if (trace_enabled_) std::cout << "[CLASSPASS] Early return for " << class_name << " - entry=" << (entry ? "exists" : "null") << ", finalized=" << (entry ? (entry->is_layout_finalized ? "true" : "false") : "N/A") << std::endl;
         resolution_path.erase(class_name);
         return;
     }
@@ -172,6 +175,7 @@ void ClassPass::finalize_class_layout(const std::string& class_name, std::unorde
     }
     
     // --- Step 6: Inject initializers into the CREATE method ---
+    if (trace_enabled_) std::cout << "[CLASSPASS] About to call inject_initializers for class: " << class_name << std::endl;
     inject_initializers(class_node, class_name);
     
     entry->instance_size = current_offset;
@@ -223,32 +227,51 @@ void ClassPass::process_method(ClassTableEntry* entry, const std::string& method
 }
 
 void ClassPass::inject_initializers(ClassDeclaration* class_node, const std::string& class_name) {
+    if (trace_enabled_) std::cout << "[CLASSPASS] inject_initializers called for class: " << class_name << std::endl;
+    
     RoutineDeclaration* create_routine = nullptr;
     for (const auto& member : class_node->members) {
         if (auto* routine = dynamic_cast<RoutineDeclaration*>(member.declaration.get())) {
+            if (trace_enabled_) std::cout << "[CLASSPASS] Found routine: " << routine->name << std::endl;
             if (routine->name == "CREATE") {
                 create_routine = routine;
+                if (trace_enabled_) std::cout << "[CLASSPASS] Found CREATE routine!" << std::endl;
                 break;
             }
         }
     }
-    if (!create_routine) return; // Should not happen
+    if (!create_routine) {
+        if (trace_enabled_) std::cout << "[CLASSPASS] ERROR: No CREATE routine found for " << class_name << std::endl;
+        return; // Should not happen
+    }
 
     std::vector<StmtPtr> initializers;
+    if (trace_enabled_) std::cout << "[CLASSPASS] Looking for LET declarations with initializers..." << std::endl;
+    
     for (const auto& member : class_node->members) {
         if (auto* let = dynamic_cast<LetDeclaration*>(member.declaration.get())) {
+            if (trace_enabled_) std::cout << "[CLASSPASS] Found LetDeclaration with " << let->names.size() << " names and " << let->initializers.size() << " initializers" << std::endl;
+            
             for (size_t i = 0; i < let->names.size(); ++i) {
+                if (trace_enabled_) std::cout << "[CLASSPASS] Processing name[" << i << "]: " << let->names[i] << std::endl;
+                
                 if (i < let->initializers.size() && let->initializers[i]) {
+                    if (trace_enabled_) std::cout << "[CLASSPASS] Found initializer for " << let->names[i] << "! Creating assignment." << std::endl;
+                    
                     auto lhs = std::make_unique<MemberAccessExpression>(std::make_unique<VariableAccess>("_this"), let->names[i]);
                     std::vector<ExprPtr> lhs_vec;
                     lhs_vec.push_back(std::move(lhs));
                     std::vector<ExprPtr> rhs_vec;
-                    rhs_vec.push_back(std::move(let->initializers[i]));
+                    rhs_vec.push_back(std::unique_ptr<Expression>(static_cast<Expression*>(let->initializers[i]->clone().release())));
                     initializers.push_back(std::make_unique<AssignmentStatement>(std::move(lhs_vec), std::move(rhs_vec)));
+                } else {
+                    if (trace_enabled_) std::cout << "[CLASSPASS] No initializer for " << let->names[i] << std::endl;
                 }
             }
         }
     }
+    
+    if (trace_enabled_) std::cout << "[CLASSPASS] Found " << initializers.size() << " initializers to inject" << std::endl;
 
     if (auto* body = dynamic_cast<CompoundStatement*>(create_routine->body.get())) {
         // Find the position to insert member initializations and SUPER call

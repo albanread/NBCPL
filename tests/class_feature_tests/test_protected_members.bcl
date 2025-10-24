@@ -1,0 +1,102 @@
+// test_protected_members.bcl
+// Tests that protected members are accessible in derived classes but not externally
+
+CLASS BaseClass $(
+    PUBLIC:
+        LET public_value = 10
+
+        ROUTINE CREATE() BE $(
+            protected_value := 50
+            private_value := 100
+            WRITES("BaseClass created*N")
+        $)
+
+        FUNCTION getPublicValue() = VALOF RESULTIS public_value
+
+    PROTECTED:
+        LET protected_value = 0
+
+        ROUTINE protected_method() BE $(
+            WRITES("Protected method called*N")
+        $)
+
+        FUNCTION getProtectedValue() = VALOF RESULTIS protected_value
+
+    PRIVATE:
+        LET private_value = 0
+$)
+
+CLASS DerivedClass EXTENDS BaseClass $(
+    PUBLIC:
+        ROUTINE CREATE() BE $(
+            WRITES("DerivedClass created*N")
+        $)
+
+        // This should work - accessing protected members from derived class
+        FUNCTION accessProtectedFromDerived() = VALOF $(
+            // Access protected member variable
+            LET prot_val = protected_value
+
+            // Call protected method
+            protected_method()
+
+            // Access protected method
+            LET prot_method_result = getProtectedValue()
+
+            RESULTIS prot_val + prot_method_result
+        $)
+
+        ROUTINE modifyProtectedFromDerived(new_value) BE $(
+            protected_value := new_value
+        $)
+$)
+
+LET START() BE $(
+    WRITES("=== Testing Protected Member Access Control ===*N")
+
+    // Test 1: Create derived object
+    LET derived = NEW DerivedClass()
+
+    // Test 2: Access public member - should work
+    LET public_val = derived.public_value
+    WRITES("Public value: ")
+    WRITEN(public_val)
+    WRITEC('*N')
+
+    // Test 3: Access protected member through derived class method - should work
+    LET protected_access_result = derived.accessProtectedFromDerived()
+    WRITES("Protected access result: ")
+    WRITEN(protected_access_result)
+    WRITEC('*N')
+
+    // Test 4: Modify protected member through derived class method
+    derived.modifyProtectedFromDerived(75)
+    LET modified_result = derived.accessProtectedFromDerived()
+    WRITES("Modified protected access result: ")
+    WRITEN(modified_result)
+    WRITEC('*N')
+
+    // Test 5: Verify results
+    TEST public_val = 10 AND protected_access_result = 100 AND modified_result = 150
+    THEN $(
+        WRITES("✓ PASS: Protected member access control working correctly*N")
+    $)
+    ELSE $(
+        WRITES("✗ FAIL: Protected member access control failed*N")
+        WRITES("Expected: public=10, protected_result=100, modified_result=150*N")
+        WRITES("Got: public=")
+        WRITEN(public_val)
+        WRITES(", protected_result=")
+        WRITEN(protected_access_result)
+        WRITES(", modified_result=")
+        WRITEN(modified_result)
+        WRITEC('*N')
+    $)
+
+    // NOTE: The following should cause compilation errors if access control is enforced:
+    // LET direct_protected = derived.protected_value  // Should fail - external access to protected
+    // derived.protected_method()                      // Should fail - external call to protected method
+
+    WRITES("=== Protected Member Test Complete ===*N")
+    WRITES("NOTE: Compile this test to verify that external access to protected members fails*N")
+$)

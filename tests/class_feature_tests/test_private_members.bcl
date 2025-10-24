@@ -1,0 +1,69 @@
+// test_private_members.bcl
+// Tests that private members are properly restricted
+
+CLASS PrivateTestClass $(
+    PUBLIC:
+        LET public_value = 10
+
+        ROUTINE CREATE() BE $(
+            private_value := 42
+            WRITES("PrivateTestClass created*N")
+        $)
+
+        FUNCTION getPublicValue() = VALOF RESULTIS public_value
+
+        FUNCTION getPrivateValueThroughMethod() = VALOF RESULTIS private_value
+
+        ROUTINE setPrivateValueThroughMethod(new_value) BE $(
+            private_value := new_value
+        $)
+
+    PRIVATE:
+        LET private_value = 0
+
+        ROUTINE private_method() BE $(
+            WRITES("This is a private method*N")
+        $)
+$)
+
+LET START() BE $(
+    WRITES("=== Testing Private Member Access Control ===*N")
+
+    // Test 1: Create object
+    LET obj = NEW PrivateTestClass()
+
+    // Test 2: Access public member - should work
+    LET public_val = obj.public_value
+    WRITES("Public value accessed: ")
+    WRITEN(public_val)
+    WRITEC('*N')
+
+    // Test 3: Access private member through public method - should work
+    LET private_val_via_method = obj.getPrivateValueThroughMethod()
+    WRITES("Private value via method: ")
+    WRITEN(private_val_via_method)
+    WRITEC('*N')
+
+    // Test 4: Modify private member through public method - should work
+    obj.setPrivateValueThroughMethod(100)
+    LET modified_private_val = obj.getPrivateValueThroughMethod()
+    WRITES("Modified private value via method: ")
+    WRITEN(modified_private_val)
+    WRITEC('*N')
+
+    // Test 5: Verify values
+    TEST public_val = 10 AND private_val_via_method = 42 AND modified_private_val = 100
+    THEN $(
+        WRITES("✓ PASS: Private member access control working correctly*N")
+    $)
+    ELSE $(
+        WRITES("✗ FAIL: Private member access control failed*N")
+    $)
+
+    // NOTE: The following should cause compilation errors if access control is enforced:
+    // LET direct_private = obj.private_value  // Should fail - direct access to private member
+    // obj.private_method()                    // Should fail - call to private method
+
+    WRITES("=== Private Member Test Complete ===*N")
+    WRITES("NOTE: Compile this test to verify that direct access to private members fails*N")
+$)

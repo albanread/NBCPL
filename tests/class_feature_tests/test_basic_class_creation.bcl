@@ -1,0 +1,38 @@
+// test_basic_class_creation.bcl
+// Tests basic class declaration and object creation
+
+CLASS SimpleClass $(
+    DECL value
+
+    ROUTINE CREATE(initial_value) BE $(
+        value := initial_value
+        WRITES("SimpleClass created with value: ")
+        WRITEN(value)
+        WRITEC('*N')
+    $)
+
+    FUNCTION getValue() = VALOF RESULTIS value
+$)
+
+LET START() BE $(
+    WRITES("=== Testing Basic Class Creation ===*N")
+
+    // Test 1: Create object with constructor parameter
+    LET obj = NEW SimpleClass(42)
+
+    // Test 2: Access member through method
+    LET retrieved_value = obj.getValue()
+
+    // Test 3: Verify the value is correct
+    TEST retrieved_value = 42
+    THEN $(
+        WRITES("✓ PASS: Object creation and method call successful*N")
+    $)
+    ELSE $(
+        WRITES("✗ FAIL: Expected 42, got ")
+        WRITEN(retrieved_value)
+        WRITEC('*N')
+    $)
+
+    WRITES("=== Basic Class Creation Test Complete ===*N")
+$)

@@ -1,0 +1,48 @@
+// test_private_access_violation.bcl
+// This test should FAIL to compile if private access control is working
+// The purpose is to verify that the compiler prevents direct access to private members
+
+CLASS TestPrivateAccess $(
+    PUBLIC:
+        LET public_member = 10
+
+        ROUTINE CREATE() BE $(
+            private_member := 42
+            WRITES("TestPrivateAccess created*N")
+        $)
+
+        FUNCTION getPublicMember() = VALOF RESULTIS public_member
+
+    PRIVATE:
+        LET private_member = 0
+
+        ROUTINE private_routine() BE $(
+            WRITES("This is a private routine*N")
+        $)
+$)
+
+LET START() BE $(
+    WRITES("=== Testing Private Access Violation (Should FAIL to compile) ===*N")
+
+    LET obj = NEW TestPrivateAccess()
+
+    // This should work - accessing public member
+    LET public_val = obj.public_member
+    WRITES("Public member value: ")
+    WRITEN(public_val)
+    WRITEC('*N')
+
+    // The following lines should cause COMPILATION ERRORS if access control works:
+
+    // ERROR 1: Direct access to private member variable
+    LET private_val = obj.private_member  // Should fail
+    WRITES("Private member value: ")
+    WRITEN(private_val)
+    WRITEC('*N')
+
+    // ERROR 2: Direct call to private method
+    obj.private_routine()  // Should fail
+
+    WRITES("If you see this message, private access control is NOT working!*N")
+    WRITES("=== Private Access Violation Test Complete ===*N")
+$)

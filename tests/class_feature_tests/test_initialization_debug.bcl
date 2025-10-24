@@ -1,0 +1,75 @@
+// test_initialization_debug.bcl
+// Simple test to debug member initialization with detailed output
+
+CLASS DebugInit $(
+    LET initialized_member = 999
+    DECL uninitialized_member
+
+    ROUTINE CREATE() BE $(
+        WRITES("=== Inside CREATE method ===*N")
+        WRITES("initialized_member value: ")
+        WRITEN(initialized_member)
+        WRITES(" (should be 999)*N")
+
+        WRITES("uninitialized_member value: ")
+        WRITEN(uninitialized_member)
+        WRITES(" (undefined, could be anything)*N")
+
+        // Set the uninitialized member to a known value
+        uninitialized_member := 555
+        WRITES("Set uninitialized_member to 555*N")
+        WRITES("=== Exiting CREATE method ===*N")
+    $)
+
+    FUNCTION getInitialized() = VALOF RESULTIS initialized_member
+    FUNCTION getUninitialized() = VALOF RESULTIS uninitialized_member
+$)
+
+LET START() BE $(
+    WRITES("=== Testing Member Initialization Debug ===*N")
+
+    WRITES("Creating object (should call CREATE)...*N")
+    LET obj = NEW DebugInit()
+
+    WRITES("*NReading values after object creation:*N")
+    LET init_val = obj.getInitialized()
+    LET uninit_val = obj.getUninitialized()
+
+    WRITES("initialized_member via method: ")
+    WRITEN(init_val)
+    WRITES(" (should be 999)*N")
+
+    WRITES("uninitialized_member via method: ")
+    WRITEN(uninit_val)
+    WRITES(" (should be 555)*N")
+
+    WRITES("*NDirect member access:*N")
+    WRITES("initialized_member direct: ")
+    WRITEN(obj.initialized_member)
+    WRITES(" (should be 999)*N")
+
+    WRITES("uninitialized_member direct: ")
+    WRITEN(obj.uninitialized_member)
+    WRITES(" (should be 555)*N")
+
+    // Test results
+    TEST init_val = 999 AND uninit_val = 555 AND obj.initialized_member = 999 AND obj.uninitialized_member = 555
+    THEN $(
+        WRITES("*N✓ PASS: All initialization working correctly*N")
+    $)
+    ELSE $(
+        WRITES("*N✗ FAIL: Initialization problems detected*N")
+        WRITES("Expected: init=999, uninit=555, direct_init=999, direct_uninit=555*N")
+        WRITES("Got: init=")
+        WRITEN(init_val)
+        WRITES(", uninit=")
+        WRITEN(uninit_val)
+        WRITES(", direct_init=")
+        WRITEN(obj.initialized_member)
+        WRITES(", direct_uninit=")
+        WRITEN(obj.uninitialized_member)
+        WRITEC('*N')
+    $)
+
+    WRITES("=== Initialization Debug Test Complete ===*N")
+$)

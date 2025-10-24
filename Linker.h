@@ -66,7 +66,8 @@ private:
     uint32_t apply_movz_movk_relocation(
         uint32_t instruction_encoding,
         size_t target_address,
-        RelocationType type
+        RelocationType type,
+        bool enable_tracing = false
     );
 
     // --- Smart Veneer System ---

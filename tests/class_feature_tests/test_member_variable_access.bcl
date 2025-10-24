@@ -1,0 +1,54 @@
+// test_member_variable_access.bcl
+// Tests direct access to class member variables
+
+CLASS TestClass $(
+    DECL x, y
+    LET initialized_value = 100
+
+    ROUTINE CREATE() BE $(
+        x := 10
+        y := 20
+        WRITES("TestClass created with x=10, y=20, initialized_value=100*N")
+    $)
+$)
+
+LET START() BE $(
+    WRITES("=== Testing Member Variable Access ===*N")
+
+    // Test 1: Create object
+    LET obj = NEW TestClass()
+
+    // Test 2: Read member variables directly
+    LET read_x = obj.x
+    LET read_y = obj.y
+    LET read_init = obj.initialized_value
+
+    WRITES("Read values: x=")
+    WRITEN(read_x)
+    WRITES(", y=")
+    WRITEN(read_y)
+    WRITES(", initialized_value=")
+    WRITEN(read_init)
+    WRITEC('*N')
+
+    // Test 3: Modify member variables directly
+    obj.x := 50
+    obj.y := 75
+
+    WRITES("After modification: x=")
+    WRITEN(obj.x)
+    WRITES(", y=")
+    WRITEN(obj.y)
+    WRITEC('*N')
+
+    // Test 4: Verify changes
+    TEST obj.x = 50 AND obj.y = 75 AND obj.initialized_value = 100
+    THEN $(
+        WRITES("✓ PASS: Member variable access and modification successful*N")
+    $)
+    ELSE $(
+        WRITES("✗ FAIL: Member variable access failed*N")
+    $)
+
+    WRITES("=== Member Variable Access Test Complete ===*N")
+$)

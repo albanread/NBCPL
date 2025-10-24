@@ -1,0 +1,50 @@
+// test_protected_access_violation.bcl
+// This test should FAIL to compile if protected access control is working
+// The purpose is to verify that the compiler prevents external access to protected members
+
+CLASS BaseWithProtected $(
+    PUBLIC:
+        LET public_member = 10
+
+        ROUTINE CREATE() BE $(
+            protected_member := 50
+            WRITES("BaseWithProtected created*N")
+        $)
+
+        FUNCTION getPublicMember() = VALOF RESULTIS public_member
+
+    PROTECTED:
+        LET protected_member = 0
+
+        ROUTINE protected_routine() BE $(
+            WRITES("This is a protected routine*N")
+        $)
+
+        FUNCTION getProtectedMember() = VALOF RESULTIS protected_member
+$)
+
+LET START() BE $(
+    WRITES("=== Testing Protected Access Violation (Should FAIL to compile) ===*N")
+
+    LET obj = NEW BaseWithProtected()
+
+    // This should work - accessing public member
+    LET public_val = obj.public_member
+    WRITES("Public member value: ")
+    WRITEN(public_val)
+    WRITEC('*N')
+
+    // The following lines should cause COMPILATION ERRORS if access control works:
+
+    // ERROR 1: External access to protected member variable
+    LET protected_val = obj.protected_member  // Should fail
+    WRITES("Protected member value: ")
+    WRITEN(protected_val)
+    WRITEC('*N')
+
+    // ERROR 2: External call to protected method
+    obj.protected_routine()  // Should fail
+
+    WRITES("If you see this message, protected access control is NOT working!*N")
+    WRITES("=== Protected Access Violation Test Complete ===*N")
+$)

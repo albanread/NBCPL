@@ -42,7 +42,7 @@ public:
      * 
      * @param symbol_table Symbol table to verify against
      */
-    static void verify_import_completeness(SymbolTable& symbol_table);
+    static void verify_import_completeness(SymbolTable& symbol_table, bool trace_enabled = false);
     
     /**
      * @brief List all available runtime functions

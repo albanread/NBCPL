@@ -206,8 +206,8 @@ L_0:
     ADD SP, SP, #16 ; Deallocate space for saved FP/LR
     RET
 L___veneer_:
-    movz x16, #24404
-    movk x16, #127, lsl #16
+    movz x16, #10904
+    movk x16, #1144, lsl #16
     movk x16, #1, lsl #32
     movk x16, #0, lsl #48
     blr x16

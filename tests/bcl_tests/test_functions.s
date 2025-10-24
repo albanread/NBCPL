@@ -12,20 +12,19 @@
 .globl _BCPL_ALLOC_WORDS
 .globl _SPLIT
 .globl _BCPL_CHECK_AND_DISPLAY_ERRORS
-.globl _SLURP
-.globl _UNPACKSTRING
-.globl _FREEVEC
-.globl _SDL2_DELAY
-.globl _SDL2_CREATE_WINDOW
-.globl _DEEPCOPYLIST
-.globl _BCPL_FREE_LIST_SAFE
-.globl _STRCOPY
-.globl _LIST_APPEND_STRING
-.globl _LIST_HEAD_INT
-.globl _WRITEC
-.globl _FILE_READ
+.globl _FIND
+.globl _SDL2_GET_EVENT_BUTTON
 .globl _LPND
 .globl _FGETVEC
+.globl _SLURP
+.globl _DEEPCOPYLIST
+.globl _BCPL_FREE_LIST_SAFE
+.globl _WRITEC
+.globl _TIMER_DISPLAY
+.globl _FILE_READ
+.globl _UNPACKSTRING
+.globl _SDL2_DELAY
+.globl _FREEVEC
 .globl _BCPL_CONCAT_LISTS
 .globl _SDL2_GET_EVENT_KEY
 .globl _LIST_CREATE
@@ -42,6 +41,9 @@
 .globl _DEEPCOPYLITERALLIST
 .globl _FCOS
 .globl _APND
+.globl _LIST_HEAD_INT
+.globl _STRCOPY
+.globl _LIST_APPEND_STRING
 .globl _FILE_OPEN_READ
 .globl _LIST_APPEND_FLOAT
 .globl _JOIN
@@ -79,53 +81,57 @@
 .globl _FINISH
 .globl _LIST_HEAD_FLOAT
 .globl _HEAPMANAGER_ENTER_SCOPE
-.globl _SDL2_GET_EVENT_BUTTON
 .globl _SDL2_DRAW_POINT
 .globl _HEAPMANAGER_EXIT_SCOPE
 .globl _FILE_OPEN_WRITE
 .globl _SDL2_GET_TICKS
 .globl _WRITEF6
 .globl _HEAPMANAGER_SETSAMMENABLED
-.globl _BCPL_LIST_GET_REST
-.globl _SDL2_DESTROY_RENDERER
-.globl _SDL2_CLEAR
-.globl _SDL2_CLEAR_ERROR
-.globl _SDL2_CREATE_RENDERER
-.globl _SDL2_SET_WINDOW_SIZE
 .globl _SETTYPE
 .globl _FILE_SEEK
+.globl _SDL2_GET_VERSION
 .globl _SDL2_TEST_BASIC
 .globl _OBJECT_HEAP_ALLOC
-.globl _SDL2_GET_VERSION
-.globl _WRITEF7
-.globl _SDL2_DESTROY_WINDOW
-.globl _SDL2_SET_WINDOW_TITLE
 .globl _FILE_WRITES
 .globl _PIC_RUNTIME_HELPER
+.globl _SDL2_DRAW_RECT
+.globl _TIMER_CLEAR
+.globl _SDL2_CLEAR_ERROR
+.globl _SDL2_SET_WINDOW_SIZE
+.globl _SDL2_CREATE_RENDERER
 .globl _WRITEF4
 .globl _FEXP
 .globl _FPND
 .globl _FIX
 .globl _WRITEF1
 .globl _FILE_WRITE
-.globl _SDL2_DRAW_RECT
+.globl _TIMER_GET_CALL_COUNT
 .globl _COPYLIST
 .globl _SDL2_GET_DISPLAY_MODES
 .globl _BCPL_GET_LAST_ERROR
 .globl _SDL2_PRESENT
 .globl _SPND
 .globl _SDL2_CREATE_RENDERER_EX
-.globl _SDL2_SET_DRAW_COLOR
-.globl _OBJECT_HEAP_FREE
-.globl _CONCAT
-.globl _SDL2_DRAW_LINE
-.globl _LIST_TAIL
-.globl _SDL2_GET_ERROR
-.globl _FIND
-.globl _FILE_EOF
-.globl _RUNTIME_METHOD_LOOKUP
+.globl _BCPL_LIST_GET_REST
+.globl _SDL2_DESTROY_RENDERER
+.globl _SDL2_CLEAR
+.globl _WRITEF7
+.globl _SDL2_DESTROY_WINDOW
+.globl _SDL2_SET_WINDOW_TITLE
 .globl _HEAPMANAGER_WAITFORSAMM
 .globl _SDL2_POLL_EVENT
+.globl _LIST_TAIL
+.globl _SDL2_GET_ERROR
+.globl _FILE_EOF
+.globl _SDL2_CREATE_WINDOW
+.globl _TIMER_GET_TOTAL_NS
+.globl _RUNTIME_METHOD_LOOKUP
+.globl _TIMER_START
+.globl _SDL2_SET_DRAW_COLOR
+.globl _CONCAT
+.globl _SDL2_DRAW_LINE
+.globl _OBJECT_HEAP_FREE
+.globl _TIMER_END
 .p2align 2
 _start:
 _START:
@@ -156,15 +162,24 @@ L_FACT_ForBody_2:
     MOV X9, X26
     MUL X9, X9, X25
     MOV X26, X9
+    SUB SP, SP, #16
     ADRP X9, L_str0_plus_8@PAGE
     ADD X9, X9, L_str0_plus_8@PAGEOFF
-    MOV X0, X9
+    STR X9, [SP, #0]
+    LDR X0, [SP, #0]
+    ADD SP, SP, #16
     BL _WRITES
-    MOV X0, X26
+    SUB SP, SP, #16
+    STR X26, [SP, #0]
+    LDR X0, [SP, #0]
+    ADD SP, SP, #16
     BL _WRITEN
+    SUB SP, SP, #16
     ADRP X9, L_str1_plus_8@PAGE
     ADD X9, X9, L_str1_plus_8@PAGEOFF
-    MOV X0, X9
+    STR X9, [SP, #0]
+    LDR X0, [SP, #0]
+    ADD SP, SP, #16
     BL _WRITES
     B L_FACT_ForIncrement_3
 L_FACT_ForHeader_1:
@@ -188,33 +203,75 @@ L_0:
     ADD SP, SP, #16 ; Deallocate space for saved FP/LR
     RET
 L_START:
-    STP X29, X30, [SP, #-64]!
+    STP X29, X30, [SP, #-96]!
     MOV X29, SP
-    STP x19, x27, [x29, #32]
-    STR X28, [X29, #48] ; Saved Reg: X28 @ FP+48
+    STP x19, x20, [x29, #40]
+    STP x24, x25, [x29, #56]
+    STP x26, x27, [x29, #72]
+    STR X28, [X29, #88] ; Saved Reg: X28 @ FP+88
     ADRP X28, L__data_segment_base@PAGE
     ADD X28, X28, L__data_segment_base@PAGEOFF
 L_START_Entry_0:
+    SUB SP, SP, #16
     ADRP X9, L_str2_plus_8@PAGE
     ADD X9, X9, L_str2_plus_8@PAGEOFF
-    MOV X0, X9
+    STR X9, [SP, #0]
+    LDR X0, [SP, #0]
+    ADD SP, SP, #16
     BL _WRITES
     MOVZ X9, #12
     MOV X27, X9
-    MOVZ x20, #5
-    MOV X0, X20
-    BL L_FACT
-    MOV X27, X0
-    ADRP X10, L_str3_plus_8@PAGE
-    ADD X10, X10, L_str3_plus_8@PAGEOFF
-    MOV X0, X10
-    BL _WRITES
-    B L_START_Exit_1
-L_START_Exit_1:
+    MOVZ X9, #1
+    MOV X26, X9
+    B L_START_ForHeader_1
+L_START_Exit_5:
     B L_1
+L_START_ForBody_2:
+    SUB SP, SP, #16
+    ADRP X9, L_str3_plus_8@PAGE
+    ADD X9, X9, L_str3_plus_8@PAGEOFF
+    STR X9, [SP, #0]
+    LDR X0, [SP, #0]
+    ADD SP, SP, #16
+    BL _TIMER_START
+    SUB SP, SP, #16
+    STR X27, [SP, #0]
+    LDR X0, [SP, #0]
+    ADD SP, SP, #16
+    BL L_FACT
+    MOV X25, X0
+    SUB SP, SP, #16
+    ADRP X9, L_str3_plus_8@PAGE
+    ADD X9, X9, L_str3_plus_8@PAGEOFF
+    STR X9, [SP, #0]
+    LDR X0, [SP, #0]
+    ADD SP, SP, #16
+    BL _TIMER_END
+    B L_START_ForIncrement_3
+L_START_ForExit_4:
+    SUB SP, SP, #16
+    ADRP X9, L_str4_plus_8@PAGE
+    ADD X9, X9, L_str4_plus_8@PAGEOFF
+    STR X9, [SP, #0]
+    LDR X0, [SP, #0]
+    ADD SP, SP, #16
+    BL _WRITES
+    BL _TIMER_DISPLAY
+    B L_START_Exit_5
+L_START_ForHeader_1:
+    MOV X9, X26
+    MOVZ X10, #10000
+    CMP X9, X10
+    B.GT L_START_ForExit_4
+    B L_START_ForBody_2
+L_START_ForIncrement_3:
+    ADD X26, X26, #1
+    B L_START_ForHeader_1
 L_1:
-    LDP x19, x27, [x29, #32]
-    LDR X28, [X29, #48] ; Restored Reg: X28 @ FP+48
+    LDP x19, x20, [x29, #40]
+    LDP x24, x25, [x29, #56]
+    LDP x26, x27, [x29, #72]
+    LDR X28, [X29, #88] ; Restored Reg: X28 @ FP+88
     MOV SP, X29 ; Deallocate frame by moving FP to SP
     LDP x29, x30, [SP, #0]
     ADD SP, SP, #16 ; Deallocate space for saved FP/LR
@@ -263,6 +320,18 @@ L_str3:
     ; (upper half)
 .p2align 2
 L_str3_plus_8:
+    .long 0x46
+    .long 0x61
+    .long 0x63
+    .long 0x74
+    .long 0x0
+    .long 0x0
+.p2align 3
+L_str4:
+    .quad 0x4
+    ; (upper half)
+.p2align 2
+L_str4_plus_8:
     .long 0x45
     .long 0x4e
     .long 0x44
@@ -272,6 +341,7 @@ L_str3_plus_8:
 
 .section __DATA,__data
 .p2align 3
+    .long 0x0
     .long 0x0
 .p2align 2
 L__data_segment_base:

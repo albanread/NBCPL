@@ -16,36 +16,41 @@
 uint32_t Linker::apply_movz_movk_relocation(
     uint32_t instruction_encoding,
     size_t target_address,
-    RelocationType type
+    RelocationType type,
+    bool enable_tracing
 ) {
-    std::cout << "[LINKER_DEBUG] apply_movz_movk_relocation: target_address=0x" 
-              << std::hex << target_address << std::dec << " type=";
+    if (enable_tracing) {
+        std::cout << "[LINKER_DEBUG] apply_movz_movk_relocation: target_address=0x" 
+                  << std::hex << target_address << std::dec << " type=";
+    }
     
     BitPatcher patcher(instruction_encoding);
     uint16_t imm16 = 0;
 
     switch (type) {
         case RelocationType::MOVZ_MOVK_IMM_0:
-            std::cout << "MOVZ_MOVK_IMM_0";
+            if (enable_tracing) std::cout << "MOVZ_MOVK_IMM_0";
             imm16 = (target_address >> 0) & 0xFFFF;
             break;
         case RelocationType::MOVZ_MOVK_IMM_16:
-            std::cout << "MOVZ_MOVK_IMM_16";
+            if (enable_tracing) std::cout << "MOVZ_MOVK_IMM_16";
             imm16 = (target_address >> 16) & 0xFFFF;
             break;
         case RelocationType::MOVZ_MOVK_IMM_32:
-            std::cout << "MOVZ_MOVK_IMM_32";
+            if (enable_tracing) std::cout << "MOVZ_MOVK_IMM_32";
             imm16 = (target_address >> 32) & 0xFFFF;
             break;
         case RelocationType::MOVZ_MOVK_IMM_48:
-            std::cout << "MOVZ_MOVK_IMM_48";
+            if (enable_tracing) std::cout << "MOVZ_MOVK_IMM_48";
             imm16 = (target_address >> 48) & 0xFFFF;
             break;
         default:
-            throw std::runtime_error("Unsupported MOVZ/MOVK relocation type.");
+            throw std::runtime_error("Unsupported MOVZ/MOVK relocation type in apply_movz_movk_relocation");
     }
-    
-    std::cout << " immediate=0x" << std::hex << imm16 << std::dec << std::endl;
+
+    if (enable_tracing) {
+        std::cout << " immediate=0x" << std::hex << imm16 << std::dec << std::endl;
+    }
     patcher.patch(imm16, 5, 16);
     uint32_t result = patcher.get_value();
     

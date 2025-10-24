@@ -224,7 +224,7 @@ void Linker::performRelocations(
             case RelocationType::MOVZ_MOVK_IMM_32:
             case RelocationType::MOVZ_MOVK_IMM_48:
                 // std::cout << "[LINKER_DEBUG] Processing MOVZ/MOVK relocation for target: " << instr.target_label << std::endl;
-                instr.encoding = apply_movz_movk_relocation(instr.encoding, target_address, instr.relocation);
+                instr.encoding = apply_movz_movk_relocation(instr.encoding, target_address, instr.relocation, enable_tracing);
                 break;
 
             case RelocationType::ABSOLUTE_ADDRESS_LO32: {

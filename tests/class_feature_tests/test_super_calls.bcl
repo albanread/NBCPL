@@ -1,0 +1,108 @@
+// test_super_calls.bcl
+// Tests SUPER method calls to parent class methods
+
+CLASS Parent $(
+    PUBLIC:
+        LET base_value = 100
+
+        ROUTINE CREATE(value) BE $(
+            base_value := value
+            WRITES("Parent created with base_value: ")
+            WRITEN(base_value)
+            WRITEC('*N')
+        $)
+
+        ROUTINE parentMethod() BE $(
+            WRITES("Parent method called, base_value: ")
+            WRITEN(base_value)
+            WRITEC('*N')
+        $)
+
+        FUNCTION getBaseValue() = base_value
+
+        ROUTINE setBaseValue(new_value) BE $(
+            base_value := new_value
+            WRITES("Parent setBaseValue called with: ")
+            WRITEN(new_value)
+            WRITEC('*N')
+        $)
+$)
+
+CLASS Child EXTENDS Parent $(
+    PUBLIC:
+        LET child_value = 0
+
+        ROUTINE CREATE(parent_val, child_val) BE $(
+            // Call parent constructor
+            SUPER.CREATE(parent_val)
+            child_value := child_val
+            WRITES("Child created with child_value: ")
+            WRITEN(child_value)
+            WRITEC('*N')
+        $)
+
+        ROUTINE childMethod() BE $(
+            WRITES("Child method called*N")
+            // Call parent method using SUPER
+            SUPER.parentMethod()
+        $)
+
+        ROUTINE updateValues(new_parent, new_child) BE $(
+            // Use SUPER to call parent's setter
+            SUPER.setBaseValue(new_parent)
+            child_value := new_child
+            WRITES("Child updateValues: child_value set to ")
+            WRITEN(child_value)
+            WRITEC('*N')
+        $)
+
+        FUNCTION getTotalValue() = VALOF $(
+            // Use SUPER to get parent value
+            LET parent_val = SUPER.getBaseValue()
+            RESULTIS parent_val + child_value
+        $)
+$)
+
+LET START() BE $(
+    WRITES("=== Testing SUPER Method Calls ===*N")
+
+    // Test 1: Create child object (tests SUPER in constructor)
+    LET child = NEW Child(50, 25)
+
+    // Test 2: Call method that uses SUPER
+    WRITES("Calling childMethod (which calls SUPER.parentMethod):*N")
+    child.childMethod()
+
+    // Test 3: Test SUPER call in regular method
+    WRITES("Calling updateValues (which calls SUPER.setBaseValue):*N")
+    child.updateValues(75, 35)
+
+    // Test 4: Test SUPER call in function
+    WRITES("Calling getTotalValue (which calls SUPER.getBaseValue):*N")
+    LET total = child.getTotalValue()
+    WRITES("Total value: ")
+    WRITEN(total)
+    WRITEC('*N')
+
+    // Test 5: Verify all values are correct
+    LET base_val = child.getBaseValue()
+    LET child_val = child.child_value
+
+    TEST base_val = 75 AND child_val = 35 AND total = 110
+    THEN $(
+        WRITES("✓ PASS: SUPER method calls working correctly*N")
+    $)
+    ELSE $(
+        WRITES("✗ FAIL: SUPER method calls failed*N")
+        WRITES("Expected: base=75, child=35, total=110*N")
+        WRITES("Got: base=")
+        WRITEN(base_val)
+        WRITES(", child=")
+        WRITEN(child_val)
+        WRITES(", total=")
+        WRITEN(total)
+        WRITEC('*N')
+    $)
+
+    WRITES("=== SUPER Method Calls Test Complete ===*N")
+$)
