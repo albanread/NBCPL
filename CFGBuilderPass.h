@@ -172,6 +172,7 @@ private:
     void visit(ReductionLoopStatement& node) override;
     void visit(PairwiseReductionLoopStatement& node) override;
     void visit(Neon128BitPairOpStatement& node) override;  // NEON 128-bit pair operation visitor
+    void visit(Neon128BitFPairOpStatement& node) override;  // NEON 128-bit floating point pair operation visitor
     
     // Helper method for generating reduction CFG structures
     void generateReductionCFG(Expression* left_expr, Expression* right_expr,

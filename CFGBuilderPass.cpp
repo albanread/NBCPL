@@ -3397,3 +3397,16 @@ void CFGBuilderPass::build_destructuring_list_foreach_cfg(ForEachStatement& node
             std::cout << "[CFGBuilderPass] visit(Neon128BitPairOpStatement) exiting" << std::endl;
         }
     }
+
+    void CFGBuilderPass::visit(Neon128BitFPairOpStatement& node) {
+        if (trace_enabled_) {
+            std::cout << "[CFGBuilderPass] visit(Neon128BitFPairOpStatement) entered for 128-bit NEON floating point pair operation" << std::endl;
+        }
+        
+        if (!current_basic_block) end_current_block_and_start_new();
+        current_basic_block->add_statement(std::unique_ptr<Statement>(static_cast<Statement*>(node.clone().release())));
+        
+        if (trace_enabled_) {
+            std::cout << "[CFGBuilderPass] visit(Neon128BitFPairOpStatement) exiting" << std::endl;
+        }
+    }

@@ -170,4 +170,5 @@ public:
     virtual void visit(ReductionLoopStatement& node) {} // <-- Added for reduction loop metadata
     virtual void visit(PairwiseReductionLoopStatement& node) {} // <-- Added for pairwise reduction loop metadata
     virtual void visit(Neon128BitPairOpStatement& node) {} // <-- Added for 128-bit NEON pair operations
+    virtual void visit(Neon128BitFPairOpStatement& node) {} // <-- Added for 128-bit NEON floating point pair operations
 };

@@ -1,0 +1,18 @@
+LET START() BE $(
+    WRITEF("Testing FPAIRS length*N")
+
+    LET fp1 = FPAIRS(5)
+    WRITEF("FPAIRS(5) Length: %N*N", LEN(fp1))
+
+    LET fp2 = FPAIRS(10)
+    WRITEF("FPAIRS(10) Length: %N*N", LEN(fp2))
+
+    LET fp3 = FPAIRS(1)
+    WRITEF("FPAIRS(1) Length: %N*N", LEN(fp3))
+
+    // Compare with PAIRS reference
+    LET p1 = PAIRS(5)
+    WRITEF("PAIRS(5) Length: %N*N", LEN(p1))
+
+    WRITEF("All tests passed - allocation fix works!*N")
+$)

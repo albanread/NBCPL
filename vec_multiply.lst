@@ -186,8 +186,8 @@ Disassembly of section __TEXT,__text:
      2cc: a9407bfd     	ldp	x29, x30, [sp]
      2d0: 910043ff     	add	sp, sp, #0x10
      2d4: d65f03c0     	ret
-     2d8: d29a0610     	mov	x16, #0xd030            ; =53296
-     2dc: f2a01b10     	movk	x16, #0xd8, lsl #16
+     2d8: d28a0610     	mov	x16, #0x5030            ; =20528
+     2dc: f2a05210     	movk	x16, #0x290, lsl #16
      2e0: f2c00030     	movk	x16, #0x1, lsl #32
      2e4: f2e00010     	movk	x16, #0x0, lsl #48
      2e8: d63f0200     	blr	x16

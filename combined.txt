@@ -308,6 +308,16 @@ ASTNodePtr Neon128BitPairOpStatement::clone() const {
     );
 }
 
+void Neon128BitFPairOpStatement::accept(ASTVisitor& visitor) {
+    visitor.visit(*this);
+}
+
+ASTNodePtr Neon128BitFPairOpStatement::clone() const {
+    return std::make_unique<Neon128BitFPairOpStatement>(
+        dest_vector_name, left_vector_name, right_vector_name, loop_index_name, operation
+    );
+}
+
 // -- end of file
 
 // -- start of file: AST_Cloner.cpp
@@ -5197,6 +5207,19 @@ void CFGBuilderPass::build_destructuring_list_foreach_cfg(ForEachStatement& node
             std::cout << "[CFGBuilderPass] visit(Neon128BitPairOpStatement) exiting" << std::endl;
         }
     }
+
+    void CFGBuilderPass::visit(Neon128BitFPairOpStatement& node) {
+        if (trace_enabled_) {
+            std::cout << "[CFGBuilderPass] visit(Neon128BitFPairOpStatement) entered for 128-bit NEON floating point pair operation" << std::endl;
+        }
+        
+        if (!current_basic_block) end_current_block_and_start_new();
+        current_basic_block->add_statement(std::unique_ptr<Statement>(static_cast<Statement*>(node.clone().release())));
+        
+        if (trace_enabled_) {
+            std::cout << "[CFGBuilderPass] visit(Neon128BitFPairOpStatement) exiting" << std::endl;
+        }
+    }
 // -- end of file
 
 // -- start of file: CallFrameManager.cpp
@@ -6958,6 +6981,7 @@ std::string to_string(ASTNode::NodeType type) {
         case ASTNode::NodeType::ReductionLoopStmt: return "ReductionLoopStatement";
         case ASTNode::NodeType::PairwiseReductionLoopStmt: return "PairwiseReductionLoopStatement";
         case ASTNode::NodeType::Neon128BitPairOpStmt: return "Neon128BitPairOpStatement";
+        case ASTNode::NodeType::Neon128BitFPairOpStmt: return "Neon128BitFPairOpStatement";
         // --- ADDED CASES END HERE ---
 
         case ASTNode::NodeType::RetainStmt: return "RetainStatement";
@@ -13821,11 +13845,81 @@ void NewCodeGenerator::visit(Neon128BitPairOpStatement& node) {
             break;
         case 2: // Multiply
             // For PAIR multiplication, use .4S arrangement (4x32-bit integers)
+            // Each PAIR is two 32-bit integers, so 128-bit holds 2 PAIRs = 4 integers
             emit(Encoder::create_mul_vector_reg(v_result, v_left, v_right, "4S"));
             debug_print("Generated 128-bit NEON MUL for two PAIRs (.4S arrangement)");
+            debug_print("NOTE: Each PAIR = 2x32-bit, so 128-bit = 2 PAIRs = 4x32-bit elements");
             break;
         default:
             debug_print("Unsupported 128-bit NEON operation: " + std::to_string(node.operation));
+            break;
+    }
+    
+    // Store 128-bit result back to destination
+    emit(Encoder::create_add_reg(dest_addr, dest_addr, offset_reg));
+    emit(Encoder::create_str_vec_imm(neon_result, dest_addr, 0)); // Store 128-bit
+    emit(Encoder::create_sub_reg(dest_addr, dest_addr, offset_reg));   // Restore base address
+    
+    // Release temporary registers
+    register_manager_.release_register(offset_reg);
+    register_manager_.release_vec_scratch_reg(neon_left);
+    register_manager_.release_vec_scratch_reg(neon_right);
+    register_manager_.release_vec_scratch_reg(neon_result);
+}
+
+void NewCodeGenerator::visit(Neon128BitFPairOpStatement& node) {
+    std::cout << "[DEBUG CODEGEN] *** VISITING Neon128BitFPairOpStatement! ***" << std::endl;
+    debug_print("Generating optimized 128-bit NEON floating point pair operation");
+    
+    // Get register addresses for the vectors
+    std::string dest_addr = get_variable_register(node.dest_vector_name);
+    std::string left_addr = get_variable_register(node.left_vector_name);
+    std::string right_addr = get_variable_register(node.right_vector_name);
+    // Get loop variable from NEON statement since we manage it ourselves with WHILE loop
+    std::string index_reg = get_variable_register(node.loop_index_name);
+    
+    // Calculate byte offset for current pair (each FPAIR is 8 bytes)
+    std::string offset_reg = register_manager_.acquire_spillable_temp_reg(*this);
+    emit(Encoder::create_lsl_imm(offset_reg, index_reg, 3)); // multiply index by 8
+    
+    // Load two consecutive FPAIRs (16 bytes total) into 128-bit NEON registers
+    std::string neon_left = register_manager_.acquire_q_scratch_reg(*this);
+    std::string neon_right = register_manager_.acquire_q_scratch_reg(*this);
+    std::string neon_result = register_manager_.acquire_q_scratch_reg(*this);
+    
+    // Load 128-bit data: LDR Q0, [left_addr + offset] and LDR Q1, [right_addr + offset]
+    emit(Encoder::create_add_reg(left_addr, left_addr, offset_reg));
+    emit(Encoder::create_ldr_vec_imm(neon_left, left_addr, 0));  // Load 128-bit
+    emit(Encoder::create_sub_reg(left_addr, left_addr, offset_reg));  // Restore base address
+    
+    emit(Encoder::create_add_reg(right_addr, right_addr, offset_reg));
+    emit(Encoder::create_ldr_vec_imm(neon_right, right_addr, 0)); // Load 128-bit
+    emit(Encoder::create_sub_reg(right_addr, right_addr, offset_reg)); // Restore base address
+    
+    // Convert Q registers to V registers for NEON arithmetic (Q0->V0, Q1->V1, Q2->V2)
+    std::string v_left = "V" + neon_left.substr(1);    // Q0 -> V0
+    std::string v_right = "V" + neon_right.substr(1);  // Q1 -> V1  
+    std::string v_result = "V" + neon_result.substr(1); // Q2 -> V2
+    
+    // Perform 128-bit NEON floating point operation based on operation type
+    switch (node.operation) {
+        case 0: // Add
+            emit(Encoder::create_fadd_vector_reg(v_result, v_left, v_right, "4S"));
+            debug_print("Generated 128-bit NEON FADD for two FPAIRs (.4S arrangement)");
+            break;
+        case 1: // Subtract  
+            emit(Encoder::enc_create_fsub_vector_reg(v_result, v_left, v_right, "4S"));
+            debug_print("Generated 128-bit NEON FSUB for two FPAIRs (.4S arrangement)");
+            break;
+        case 2: // Multiply
+            // For FPAIR multiplication, use .4S arrangement (4x32-bit floats)
+            // Each FPAIR is two 32-bit floats, so 128-bit holds 2 FPAIRs = 4 floats
+            emit(Encoder::create_fmul_vector_reg(v_result, v_left, v_right, "4S"));
+            debug_print("Generated 128-bit NEON FMUL for two FPAIRs (.4S arrangement)");
+            debug_print("NOTE: Each FPAIR = 2x32-bit floats, so 128-bit = 2 FPAIRs = 4x32-bit elements");
+            break;
+        default:
+            debug_print("Unsupported 128-bit NEON floating point operation: " + std::to_string(node.operation));
             break;
     }
     
@@ -26454,16 +26548,32 @@ std::unique_ptr<BlockStatement> VectorPairwiseLowerer::lowerVectorOperation(cons
         if (auto right_var = dynamic_cast<VariableAccess*>(binary_op->right.get())) {
             right_vector_name = right_var->name;
         }
-        // Create a single 128-bit NEON pair operation statement
+        // Create appropriate 128-bit NEON operation statement based on vector type
         // This will be recognized by the code generator and emit optimized NEON instructions
         // We manage the loop variable ourselves with WHILE loop infrastructure
-        auto neon_pair_op = std::make_unique<Neon128BitPairOpStatement>(
-            dest_var_name,           // destination vector
-            left_vector_name,        // left operand vector  
-            right_vector_name,       // right operand vector
-            loop_var_name,           // loop index variable we manage
-            static_cast<int>(binary_op->op)  // operation type (Add, Subtract, Multiply, etc.)
-        );
+        std::unique_ptr<Statement> neon_pair_op;
+        
+        if (base_vector_type == VarType::FPAIRS || base_vector_type == VarType::POINTER_TO_FPAIRS) {
+            // Generate floating point NEON operation for FPAIRS
+            debugPrint("Generating Neon128BitFPairOpStatement for FPAIRS vector operation");
+            neon_pair_op = std::make_unique<Neon128BitFPairOpStatement>(
+                dest_var_name,           // destination vector
+                left_vector_name,        // left operand vector  
+                right_vector_name,       // right operand vector
+                loop_var_name,           // loop index variable we manage
+                static_cast<int>(binary_op->op)  // operation type (Add, Subtract, Multiply, etc.)
+            );
+        } else {
+            // Generate integer NEON operation for PAIRS (default)
+            debugPrint("Generating Neon128BitPairOpStatement for PAIRS vector operation");
+            neon_pair_op = std::make_unique<Neon128BitPairOpStatement>(
+                dest_var_name,           // destination vector
+                left_vector_name,        // left operand vector  
+                right_vector_name,       // right operand vector
+                loop_var_name,           // loop index variable we manage
+                static_cast<int>(binary_op->op)  // operation type (Add, Subtract, Multiply, etc.)
+            );
+        }
         
         // NEON operation will be added to loop body after loop variable initialization
         
@@ -49217,39 +49327,22 @@ void NewCodeGenerator::visit(FPairsAllocationExpression& node) {
     generate_expression_code(*node.size_expr);
     std::string size_fpairs_reg = expression_result_reg_; // Register holding the number of FPAIRs
     
-    // Keep a copy of the fpair count for the header
-    std::string fpair_count_reg = register_manager_.acquire_spillable_temp_reg(*this);
-    emit(Encoder::create_mov_reg(fpair_count_reg, size_fpairs_reg));
 
-    // 2. Calculate total words needed: size_fpairs * 2 (each FPAIR = 2 words)
-    std::string total_words_reg = register_manager_.acquire_spillable_temp_reg(*this);
-    emit(Encoder::create_lsl_imm(total_words_reg, size_fpairs_reg, 1)); // total_words = size_fpairs << 1
-    
-    // 3. Move the total number of words to X0 (GETVEC expects word count in X0).
-    if (total_words_reg != "X0") {
-        emit(Encoder::create_mov_reg("X0", total_words_reg));
+    // 2. Pass element count directly to FGETVEC (FGETVEC handles internal sizing)
+    if (size_fpairs_reg != "X0") {
+        emit(Encoder::create_mov_reg("X0", size_fpairs_reg));
     }
-    register_manager_.release_register(total_words_reg);
     register_manager_.release_register(size_fpairs_reg);
 
-    // 4. Call the FGETVEC runtime function for float vectors.
+    // 4. Call the FGETVEC runtime function.
     // FGETVEC allocates memory and returns the base address in X0.
     emit(Encoder::create_branch_with_link("FGETVEC"));
 
-    // 5. Fix the length header: Replace word count with FPAIR count
-    // The vector header is at [result_ptr - 8], and currently contains total_words
-    // We need to replace it with fpair_count (the number of FPAIRs)
+    // 5. FGETVEC already sets the correct length, just return the result
     std::string result_reg = register_manager_.acquire_spillable_temp_reg(*this);
     if (result_reg != "X0") {
         emit(Encoder::create_mov_reg(result_reg, "X0"));
     }
-    
-    // Store the FPAIR count in the length header at [result_ptr - 8]
-    std::string header_addr_reg = register_manager_.acquire_scratch_reg(*this);
-    emit(Encoder::create_sub_imm(header_addr_reg, result_reg, 8)); // header_addr = result_ptr - 8
-    emit(Encoder::create_str_imm(fpair_count_reg, header_addr_reg, 0)); // Store FPAIR count in header
-    register_manager_.release_register(header_addr_reg);
-    register_manager_.release_register(fpair_count_reg);
 
     expression_result_reg_ = result_reg;
     debug_print("Finished visiting FPairsAllocationExpression node. Result in " + expression_result_reg_);

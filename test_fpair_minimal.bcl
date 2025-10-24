@@ -1,0 +1,26 @@
+LET START() BE $(
+    WRITEF("Ultra-minimal FPAIR test*N")
+
+    // Test 1: Single FPAIR creation with literal values
+    LET fp = FPAIR(1.0, 2.0)
+    WRITEF("Created single FPAIR*N")
+
+    // Test 2: Access components directly
+    WRITEF("First component: %F*N", fp!0)
+    WRITEF("Second component: %F*N", fp!1)
+
+    // Test 3: Try FPAIRS allocation with size 1
+    WRITEF("Creating FPAIRS(1)*N")
+    LET fvec = FPAIRS(1)
+    WRITEF("FPAIRS allocated*N")
+
+    // Test 4: Assign to first element
+    fvec!0 := FPAIR(3.0, 4.0)
+    WRITEF("Assigned to fvec!0*N")
+
+    // Test 5: Read back
+    LET retrieved = fvec!0
+    WRITEF("Retrieved element: %F, %F*N", retrieved!0, retrieved!1)
+
+    WRITEF("Test completed*N")
+$)

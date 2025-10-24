@@ -328,16 +328,32 @@ std::unique_ptr<BlockStatement> VectorPairwiseLowerer::lowerVectorOperation(cons
         if (auto right_var = dynamic_cast<VariableAccess*>(binary_op->right.get())) {
             right_vector_name = right_var->name;
         }
-        // Create a single 128-bit NEON pair operation statement
+        // Create appropriate 128-bit NEON operation statement based on vector type
         // This will be recognized by the code generator and emit optimized NEON instructions
         // We manage the loop variable ourselves with WHILE loop infrastructure
-        auto neon_pair_op = std::make_unique<Neon128BitPairOpStatement>(
-            dest_var_name,           // destination vector
-            left_vector_name,        // left operand vector  
-            right_vector_name,       // right operand vector
-            loop_var_name,           // loop index variable we manage
-            static_cast<int>(binary_op->op)  // operation type (Add, Subtract, Multiply, etc.)
-        );
+        std::unique_ptr<Statement> neon_pair_op;
+        
+        if (base_vector_type == VarType::FPAIRS || base_vector_type == VarType::POINTER_TO_FPAIRS) {
+            // Generate floating point NEON operation for FPAIRS
+            debugPrint("Generating Neon128BitFPairOpStatement for FPAIRS vector operation");
+            neon_pair_op = std::make_unique<Neon128BitFPairOpStatement>(
+                dest_var_name,           // destination vector
+                left_vector_name,        // left operand vector  
+                right_vector_name,       // right operand vector
+                loop_var_name,           // loop index variable we manage
+                static_cast<int>(binary_op->op)  // operation type (Add, Subtract, Multiply, etc.)
+            );
+        } else {
+            // Generate integer NEON operation for PAIRS (default)
+            debugPrint("Generating Neon128BitPairOpStatement for PAIRS vector operation");
+            neon_pair_op = std::make_unique<Neon128BitPairOpStatement>(
+                dest_var_name,           // destination vector
+                left_vector_name,        // left operand vector  
+                right_vector_name,       // right operand vector
+                loop_var_name,           // loop index variable we manage
+                static_cast<int>(binary_op->op)  // operation type (Add, Subtract, Multiply, etc.)
+            );
+        }
         
         // NEON operation will be added to loop body after loop variable initialization
         

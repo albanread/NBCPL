@@ -152,26 +152,34 @@ L_START:
     ADD X28, X28, L__data_segment_base@PAGEOFF
 L_START_Entry_0:
     MOVZ X9, #10
-    MOV X0, X9
-    BL _GETVEC
+    MOV X20, X9
+    LSL X20, X9, #1
+    MOV X0, X20
+    BL _FGETVEC
     MOV X20, X0
+    SUB X9, X20, #8
+    STR X20, [X9, #0]
     STR X20, [X29, #24] ; V1
     MOVZ X9, #10
-    MOV X0, X9
-    BL _GETVEC
+    MOV X20, X9
+    LSL X20, X9, #1
+    MOV X0, X20
+    BL _FGETVEC
     MOV X20, X0
-    MOV X23, X20
+    SUB X9, X20, #8
+    STR X20, [X9, #0]
+    MOV X24, X20
     MOVZ X9, #0
-    MOV X22, X9
+    MOV X23, X9
     B L_START_ForHeader_1
-L_START_Exit_14:
+L_START_Exit_13:
     B L_0
-L_START_ForBody_11:
+L_START_ForBody_10:
     SUB X10, X26, #8
     LDR X9, [X10, #0] ; Load vector length for bounds check
-    CMP X22, X9
+    CMP X23, X9
     B.HS L__bounds_error_handler_START
-    MOV X9, X22
+    MOV X9, X23
     LSL X9, X9, #3
     ADD X10, X26, X9
     LDR X9, [X10, #0]
@@ -179,63 +187,95 @@ L_START_ForBody_11:
     ADRP X9, L_str0_plus_8@PAGE
     ADD X9, X9, L_str0_plus_8@PAGEOFF
     MOV X0, X9
-    MOV X1, X22
+    MOV X1, X23
     MOV X2, X27
     BL _WRITEF2
-    B L_START_ForIncrement_12
+    B L_START_ForIncrement_11
 L_START_ForBody_2:
-    ADRP X9, L_pair0@PAGE
-    ADD X9, X9, L_pair0@PAGEOFF
-    LDR X9, [X9, #0]
+    MOVZ X9, #0
+    ADRP X11, L_float0@PAGE
+    ADD X11, X11, L_float0@PAGEOFF
+    LDR D0, [X11, #0]
+    FCVT S1, D0 ;encoder.
+    FMOV W11, S1
+    BFXIL X9, X11, #0, #32
+    ADRP X12, L_float1@PAGE
+    ADD X12, X12, L_float1@PAGEOFF
+    LDR D0, [X12, #0]
+    FCVT S1, D0 ;encoder.
+    FMOV W12, S1
+    BFI X9, X12, #32, #32
+    MOV X21, X9
+    MOVZ X9, #0
+    ADRP X13, L_float2@PAGE
+    ADD X13, X13, L_float2@PAGEOFF
+    LDR D0, [X13, #0]
+    FCVT S1, D0 ;encoder.
+    FMOV W13, S1
+    BFXIL X9, X13, #0, #32
+    ADRP X14, L_float3@PAGE
+    ADD X14, X14, L_float3@PAGEOFF
+    LDR D0, [X14, #0]
+    FCVT S1, D0 ;encoder.
+    FMOV W14, S1
+    BFI X9, X14, #32, #32
     MOV X20, X9
-    ADRP X9, L_pair1@PAGE
-    ADD X9, X9, L_pair1@PAGEOFF
-    LDR X9, [X9, #0]
-    MOV X19, X9
     LDR X9, [X29, #24] ; V1
-    LSL X10, X22, #3
-    ADD X11, X9, X10
-    STR X20, [X11, #0]
-    LSL X9, X22, #3
-    ADD X10, X23, X9
-    STR X19, [X10, #0]
+    LSL X14, X23, #3
+    ADD X15, X9, X14
+    STR X21, [X15, #0]
+    LSL X9, X23, #3
+    ADD X14, X24, X9
+    STR X20, [X14, #0]
     B L_START_ForIncrement_3
+L_START_ForBody_6:
+    LDR X9, [X29, #24] ; V1
+    SUB X15, X9, #8
+    LDR X14, [X15, #0] ; Load vector length for bounds check
+    CMP X19, X14
+    B.HS L__bounds_error_handler_START
+    MOV X14, X19
+    LSL X14, X14, #3
+    ADD X15, X9, X14
+    LDR X9, [X15, #0]
+    SUB X15, X24, #8
+    LDR X14, [X15, #0] ; Load vector length for bounds check
+    CMP X19, X14
+    B.HS L__bounds_error_handler_START
+    MOV X14, X19
+    LSL X14, X14, #3
+    ADD X15, X24, X14
+    LDR X14, [X15, #0]
+    fmov D0, X9
+    fmov D1, X14
+    fmul v0.2s, v0.2s, v1.2s    ; dedicated 2s encoder
+    fmov X27, D0
+    LSL X14, X19, #3
+    ADD X15, X26, X14
+    STR X27, [X15, #0]
+    B L_START_ForIncrement_7
 L_START_ForExit_4:
     SUB SP, SP, #16
-    LDR X9, [X29, #24] ; V1
-    STR X9, [SP, #0]
+    LDR X14, [X29, #24] ; V1
+    STR X14, [SP, #0]
     LDR X0, [SP, #0]
     ADD SP, SP, #16
-    LDR X9, [X29, #24] ; V1
-    SUB X11, X9, #8
-    LDR X10, [X11, #0] ; Load vector/string length
-    MOV X24, X10
-    MOV X0, X24
-    BL _GETVEC
+    LDR X14, [X29, #24] ; V1
+    SUB X9, X14, #8
+    LDR X15, [X9, #0] ; Load vector/string length
+    MOV X25, X15
+    MOV X20, X25
+    LSL X27, X25, #1
+    MOV X0, X27
+    BL _FGETVEC
     MOV X27, X0
+    SUB X9, X27, #8
+    STR X20, [X9, #0]
     MOV X26, X27
     MOVZ X9, #0
-    MOV X25, X9
-    B L_START_WhileHeader_5
-L_START_ForHeader_1:
-    MOV X9, X22
-    MOVZ X10, #9
-    CMP X9, X10
-    B.GT L_START_ForExit_4
-    B L_START_ForBody_2
-L_START_ForHeader_10:
-    MOV X9, X22
-    MOVZ X11, #9
-    CMP X9, X11
-    B.GT L_START_Exit_14
-    B L_START_ForBody_11
-L_START_ForIncrement_12:
-    ADD X22, X22, #1
-    B L_START_ForHeader_10
-L_START_ForIncrement_3:
-    ADD X22, X22, #1
-    B L_START_ForHeader_1
-L_START_Join_9:
+    MOV X19, X9
+    B L_START_ForHeader_5
+L_START_ForExit_8:
     ADRP X9, L_str1_plus_8@PAGE
     ADD X9, X9, L_str1_plus_8@PAGEOFF
     MOV X0, X9
@@ -256,72 +296,36 @@ L_START_Join_9:
     MOV X0, X9
     BL _WRITEF
     MOVZ X9, #0
-    MOV X22, X9
-    B L_START_ForHeader_10
-L_START_Then_8:
-    LDR X9, [X29, #24] ; V1
-    MOV X10, X24
-    SUB X10, X10, #1
-    SUB X12, X9, #8
-    LDR X11, [X12, #0] ; Load vector length for bounds check
-    CMP X10, X11
-    B.HS L__bounds_error_handler_START
-    MOV X11, X10
-    LSL X11, X11, #3
-    ADD X12, X9, X11
-    LDR X9, [X12, #0]
-    MOV X10, X24
-    SUB X10, X10, #1
-    SUB X12, X23, #8
-    LDR X11, [X12, #0] ; Load vector length for bounds check
-    CMP X10, X11
-    B.HS L__bounds_error_handler_START
-    MOV X11, X10
-    LSL X11, X11, #3
-    ADD X12, X23, X11
-    LDR X10, [X12, #0]
-    fmov D0, X9
-    fmov D1, X10
-    mul v0.2s, v0.2s, v1.2s    ; new dedicated 2s encoder
-    fmov X27, D0
-    MOV X10, X24
-    SUB X10, X10, #1
-    LSL X11, X10, #3
-    ADD X12, X26, X11
-    STR X27, [X12, #0]
-    B L_START_Join_9
-L_START_WhileBody_6:
-    LDR X10, [X29, #24] ; V1
-    LSL X20, X25, #3
-    ADD X10, X10, X20
-    LDR Q0, [X10, #0]
-    SUB X10, X10, X20
-    ADD X23, X23, X20
-    LDR Q1, [X23, #0]
-    SUB X23, X23, X20
-    MUL V2.4S, V0.4S, V1.4S
-    ADD X26, X26, X20
-    STR Q2, [X26, #0]
-    SUB X26, X26, X20
-    ADD X25, X25, #2
-    B L_START_WhileHeader_5
-L_START_WhileExit_7:
-    MOV X11, X24
-    MOVZ X12, #1
-    AND X11, X11, X12
-    CMP X11, #1
-    CSET X12, EQ
-    CMP X12, XZR
-    B.EQ L_START_Join_9
-    B L_START_Then_8
-L_START_WhileHeader_5:
-    MOV X11, X24
-    SUB X11, X11, #2
-    CMP x25, x11
-    CSET X13, LE
-    CMP X13, XZR
-    B.EQ L_START_WhileExit_7
-    B L_START_WhileBody_6
+    MOV X23, X9
+    B L_START_ForHeader_9
+L_START_ForHeader_1:
+    MOV X9, X23
+    MOVZ X10, #9
+    CMP X9, X10
+    B.GT L_START_ForExit_4
+    B L_START_ForBody_2
+L_START_ForHeader_5:
+    MOV X9, X19
+    MOV X11, X25
+    SUB X11, X11, #1
+    CMP X9, X11
+    B.GT L_START_ForExit_8
+    B L_START_ForBody_6
+L_START_ForHeader_9:
+    MOV X9, X23
+    MOVZ X12, #9
+    CMP X9, X12
+    B.GT L_START_Exit_13
+    B L_START_ForBody_10
+L_START_ForIncrement_11:
+    ADD X23, X23, #1
+    B L_START_ForHeader_9
+L_START_ForIncrement_3:
+    ADD X23, X23, #1
+    B L_START_ForHeader_1
+L_START_ForIncrement_7:
+    ADD X19, X19, #1
+    B L_START_ForHeader_5
 L__bounds_error_handler_START:
     MOVZ X0, #0
     MOVZ X1, #65535
@@ -339,8 +343,8 @@ L_0:
     ADD SP, SP, #16 ; Deallocate space for saved FP/LR
     RET
 L___veneer_:
-    movz x16, #20528
-    movk x16, #656, lsl #16
+    movz x16, #36964
+    movk x16, #206, lsl #16
     movk x16, #1, lsl #32
     movk x16, #0, lsl #48
     blr x16
@@ -362,18 +366,33 @@ L_str0_plus_8:
     .long 0x3d
     .long 0x20
     .long 0x25
-    .long 0x50
+    .long 0x51
     .long 0xa
     .long 0x0
     .long 0x0
 .p2align 3
 L_str1:
-    .quad 0x22
+    .quad 0x31
     ; (upper half)
 .p2align 2
 L_str1_plus_8:
     .long 0xa
-    .long 0x56
+    .long 0x46
+    .long 0x6c
+    .long 0x6f
+    .long 0x61
+    .long 0x74
+    .long 0x69
+    .long 0x6e
+    .long 0x67
+    .long 0x20
+    .long 0x70
+    .long 0x6f
+    .long 0x69
+    .long 0x6e
+    .long 0x74
+    .long 0x20
+    .long 0x76
     .long 0x65
     .long 0x63
     .long 0x74
@@ -463,7 +482,7 @@ L_str3_plus_8:
     .long 0x0
 .p2align 3
 L_str4:
-    .quad 0x3f
+    .quad 0x49
     ; (upper half)
 .p2align 2
 L_str4_plus_8:
@@ -507,41 +526,58 @@ L_str4_plus_8:
     .long 0x3d
     .long 0x20
     .long 0x28
-    .long 0x36
+    .long 0x32
+    .long 0x2e
+    .long 0x35
     .long 0x2c
-    .long 0x38
+    .long 0x34
+    .long 0x2e
+    .long 0x30
     .long 0x29
     .long 0x20
     .long 0x2a
     .long 0x20
     .long 0x28
     .long 0x33
+    .long 0x2e
+    .long 0x30
     .long 0x2c
-    .long 0x32
+    .long 0x31
+    .long 0x2e
+    .long 0x35
     .long 0x29
     .long 0x20
     .long 0x3d
     .long 0x20
     .long 0x28
-    .long 0x31
-    .long 0x38
+    .long 0x37
+    .long 0x2e
+    .long 0x35
     .long 0x2c
-    .long 0x31
     .long 0x36
+    .long 0x2e
+    .long 0x30
     .long 0x29
     .long 0xa
     .long 0x0
     .long 0x0
 .p2align 3
-L_pair0:
-    .quad 0x800000006
+L_float0:
+    .quad 0x4004000000000000
     ; (upper half)
-L_pair1:
-    .quad 0x200000003
+L_float1:
+    .quad 0x4010000000000000
+    ; (upper half)
+L_float2:
+    .quad 0x4008000000000000
+    ; (upper half)
+L_float3:
+    .quad 0x3ff8000000000000
     ; (upper half)
 
 .section __DATA,__data
 .p2align 3
+    .long 0x0
     .long 0x0
     .long 0x0
     .long 0x0

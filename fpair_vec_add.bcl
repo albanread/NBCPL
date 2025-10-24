@@ -1,0 +1,24 @@
+LET START() BE $(
+
+	LET V1 = FPAIRS(10)
+	LET V2 = FPAIRS(10)
+
+	FOR I=0 TO 9 DO $(
+  	 V1!I := FPAIR(10.5,20.25)
+         V2!I := FPAIR(3.75,4.5)
+	$)
+
+	LET V3 = V1+V2
+
+	WRITEF("*NFPAIR vector addition completed!*N")
+	WRITEF("Length of V3: %N*N", LEN(V3))
+
+	WRITEF("*NVerifying results:*N")
+	WRITEF("Expected: Each V3[i] = V1[i] + V2[i] = (10.5,20.25) + (3.75,4.5) = (14.25,24.75)*N")
+
+	FOR I=0 TO 9 DO $(
+		LET result_fpair = V3!I
+		WRITEF("V3[%N] = %Q*N", I, result_fpair)
+	$)
+
+$)

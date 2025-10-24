@@ -1,0 +1,104 @@
+LET START() BE $(
+
+	WRITEF("*N=== COMPREHENSIVE FPAIR VECTOR ARITHMETIC TEST ===*N")
+
+	// Test 1: FPAIR Vector Addition
+	WRITEF("Test 1: FPAIR Vector Addition*N")
+	LET V1_ADD = FPAIRS(8)
+	LET V2_ADD = FPAIRS(8)
+
+	FOR I=0 TO 7 DO $(
+  	 V1_ADD!I := FPAIR(10.5, 20.25)
+         V2_ADD!I := FPAIR(3.75, 4.5)
+	$)
+
+	LET V3_ADD = V1_ADD + V2_ADD
+
+	WRITEF("  Expected: (10.5,20.25) + (3.75,4.5) = (14.25,24.75)*N")
+	WRITEF("  Length of result: %N*N", LEN(V3_ADD))
+	FOR I=0 TO 7 DO $(
+		LET result = V3_ADD!I
+		WRITEF("  V3_ADD[%N] = %Q*N", I, result)
+	$)
+
+	// Test 2: FPAIR Vector Subtraction
+	WRITEF("*NTest 2: FPAIR Vector Subtraction*N")
+	LET V1_SUB = FPAIRS(6)
+	LET V2_SUB = FPAIRS(6)
+
+	FOR I=0 TO 5 DO $(
+  	 V1_SUB!I := FPAIR(25.75, 30.5)
+         V2_SUB!I := FPAIR(5.25, 8.0)
+	$)
+
+	LET V3_SUB = V1_SUB - V2_SUB
+
+	WRITEF("  Expected: (25.75,30.5) - (5.25,8.0) = (20.5,22.5)*N")
+	WRITEF("  Length of result: %N*N", LEN(V3_SUB))
+	FOR I=0 TO 5 DO $(
+		LET result = V3_SUB!I
+		WRITEF("  V3_SUB[%N] = %Q*N", I, result)
+	$)
+
+	// Test 3: FPAIR Vector Multiplication
+	WRITEF("*NTest 3: FPAIR Vector Multiplication*N")
+	LET V1_MUL = FPAIRS(4)
+	LET V2_MUL = FPAIRS(4)
+
+	FOR I=0 TO 3 DO $(
+  	 V1_MUL!I := FPAIR(2.5, 4.0)
+         V2_MUL!I := FPAIR(3.0, 1.5)
+	$)
+
+	LET V3_MUL = V1_MUL * V2_MUL
+
+	WRITEF("  Expected: (2.5,4.0) * (3.0,1.5) = (7.5,6.0)*N")
+	WRITEF("  Length of result: %N*N", LEN(V3_MUL))
+	FOR I=0 TO 3 DO $(
+		LET result = V3_MUL!I
+		WRITEF("  V3_MUL[%N] = %Q*N", I, result)
+	$)
+
+	// Test 4: Odd-length FPAIR vectors
+	WRITEF("*NTest 4: Odd-length FPAIR Vector (7 elements)*N")
+	LET V1_ODD = FPAIRS(7)
+	LET V2_ODD = FPAIRS(7)
+
+	FOR I=0 TO 6 DO $(
+  	 V1_ODD!I := FPAIR(1.0, 2.0)
+         V2_ODD!I := FPAIR(0.5, 1.5)
+	$)
+
+	LET V3_ODD = V1_ODD + V2_ODD
+
+	WRITEF("  Expected: (1.0,2.0) + (0.5,1.5) = (1.5,3.5)*N")
+	WRITEF("  Length of result: %N*N", LEN(V3_ODD))
+	FOR I=0 TO 6 DO $(
+		LET result = V3_ODD!I
+		WRITEF("  V3_ODD[%N] = %Q*N", I, result)
+	$)
+
+	// Test 5: Mixed precision test
+	WRITEF("*NTest 5: Mixed Precision Test*N")
+	LET V1_MIX = FPAIRS(3)
+	LET V2_MIX = FPAIRS(3)
+
+	V1_MIX!0 := FPAIR(1.111, 2.222)
+	V1_MIX!1 := FPAIR(3.333, 4.444)
+	V1_MIX!2 := FPAIR(5.555, 6.666)
+
+	V2_MIX!0 := FPAIR(0.001, 0.002)
+	V2_MIX!1 := FPAIR(0.003, 0.004)
+	V2_MIX!2 := FPAIR(0.005, 0.006)
+
+	LET V3_MIX = V1_MIX + V2_MIX
+
+	WRITEF("  Mixed precision addition results:*N")
+	FOR I=0 TO 2 DO $(
+		LET result = V3_MIX!I
+		WRITEF("  V3_MIX[%N] = %Q*N", I, result)
+	$)
+
+	WRITEF("*N=== FPAIR VECTOR ARITHMETIC TESTS COMPLETE ===*N")
+
+$)

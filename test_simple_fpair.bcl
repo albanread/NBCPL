@@ -1,0 +1,14 @@
+LET START() BE $(
+    WRITEF("Simple FPAIR test*N")
+
+    LET f1 = FPAIRS(2)
+    f1!0 := FPAIR(1.0, 2.0)
+    f1!1 := FPAIR(3.0, 4.0)
+
+    WRITEF("Created FPAIRS vector*N")
+    WRITEF("Length: %N*N", LEN(f1))
+    WRITEF("f1!0: %Q*N", f1!0)
+    WRITEF("f1!1: %Q*N", f1!1)
+
+    WRITEF("Test completed without crash*N")
+$)

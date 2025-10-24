@@ -234,6 +234,7 @@ private:
     void visit(ReductionLoopStatement& node) override;
     void visit(PairwiseReductionLoopStatement& node) override;
     void visit(Neon128BitPairOpStatement& node) override;
+    void visit(Neon128BitFPairOpStatement& node) override;
 
     void visit(OctExpression& node) override;
     void visit(FOctExpression& node) override;

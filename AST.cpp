@@ -306,3 +306,13 @@ ASTNodePtr Neon128BitPairOpStatement::clone() const {
         dest_vector_name, left_vector_name, right_vector_name, loop_index_name, operation
     );
 }
+
+void Neon128BitFPairOpStatement::accept(ASTVisitor& visitor) {
+    visitor.visit(*this);
+}
+
+ASTNodePtr Neon128BitFPairOpStatement::clone() const {
+    return std::make_unique<Neon128BitFPairOpStatement>(
+        dest_vector_name, left_vector_name, right_vector_name, loop_index_name, operation
+    );
+}

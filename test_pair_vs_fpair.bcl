@@ -1,0 +1,36 @@
+LET START() BE $(
+    WRITEF("Comparing PAIR vs FPAIR functionality*N")
+
+    // Test 1: Basic PAIR (should work)
+    WRITEF("=== Test 1: Basic PAIR ===*N")
+    LET p = PAIR(10, 20)
+    WRITEF("Created PAIR(10, 20)*N")
+    WRITEF("Using %%P format: %P*N", p)
+    WRITEF("First component: %N*N", p!0)
+    WRITEF("Second component: %N*N", p!1)
+    WRITEF("*N")
+
+    // Test 2: Basic FPAIR (might have issues)
+    WRITEF("=== Test 2: Basic FPAIR ===*N")
+    LET fp = FPAIR(1.5, 2.5)
+    WRITEF("Created FPAIR(1.5, 2.5)*N")
+    WRITEF("Using %%Q format: %Q*N", fp)
+    WRITEF("First component: %F*N", fp!0)
+    WRITEF("Second component: %F*N", fp!1)
+    WRITEF("*N")
+
+    // Test 3: Type information
+    WRITEF("=== Test 3: Type Information ===*N")
+    WRITEF("Both PAIR and FPAIR should be 2-element structures*N")
+    WRITEF("*N")
+
+    // Test 4: Assignment and retrieval
+    WRITEF("=== Test 4: Assignment Test ===*N")
+    LET p2 = p
+    LET fp2 = fp
+    WRITEF("Assigned PAIR: %P*N", p2)
+    WRITEF("Assigned FPAIR: %Q*N", fp2)
+    WRITEF("*N")
+
+    WRITEF("Test completed - compare outputs*N")
+$)
