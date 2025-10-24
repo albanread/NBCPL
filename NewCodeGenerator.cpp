@@ -1083,6 +1083,30 @@ VarType NewCodeGenerator::infer_expression_type_local(const Expression* expr) co
         return VarType::POINTER_TO_FLOAT_VEC;
     }
     
+    if (dynamic_cast<const PairsAllocationExpression*>(expr)) {
+        return VarType::POINTER_TO_PAIRS;
+    }
+    
+    if (dynamic_cast<const FPairsAllocationExpression*>(expr)) {
+        return VarType::POINTER_TO_FPAIRS;
+    }
+    
+    if (dynamic_cast<const QuadsAllocationExpression*>(expr)) {
+        return VarType::POINTER_TO_QUADS;
+    }
+    
+    if (dynamic_cast<const FQuadsAllocationExpression*>(expr)) {
+        return VarType::POINTER_TO_FQUADS;
+    }
+    
+    if (dynamic_cast<const OctsAllocationExpression*>(expr)) {
+        return VarType::POINTER_TO_OCTS;
+    }
+    
+    if (dynamic_cast<const FOctsAllocationExpression*>(expr)) {
+        return VarType::POINTER_TO_FOCTS;
+    }
+    
     if (dynamic_cast<const StringAllocationExpression*>(expr)) {
         return VarType::POINTER_TO_STRING;
     }

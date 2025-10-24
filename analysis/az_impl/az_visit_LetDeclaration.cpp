@@ -207,6 +207,24 @@ void ASTAnalyzer::visit(LetDeclaration& node) {
             } else if (dynamic_cast<VecAllocationExpression*>(initializer)) {
                 determined_type = VarType::POINTER_TO_INT_VEC;
                 std::cerr << "DEBUG: Variable '" << name << "' is VecAllocation with type: " << vartype_to_string(determined_type) << std::endl;
+            } else if (dynamic_cast<PairsAllocationExpression*>(initializer)) {
+                determined_type = VarType::POINTER_TO_PAIRS;
+                std::cerr << "DEBUG: Variable '" << name << "' is PairsAllocation with type: " << vartype_to_string(determined_type) << std::endl;
+            } else if (dynamic_cast<FPairsAllocationExpression*>(initializer)) {
+                determined_type = VarType::POINTER_TO_FPAIRS;
+                std::cerr << "DEBUG: Variable '" << name << "' is FPairsAllocation with type: " << vartype_to_string(determined_type) << std::endl;
+            } else if (dynamic_cast<QuadsAllocationExpression*>(initializer)) {
+                determined_type = VarType::POINTER_TO_QUADS;
+                std::cerr << "DEBUG: Variable '" << name << "' is QuadsAllocation with type: " << vartype_to_string(determined_type) << std::endl;
+            } else if (dynamic_cast<FQuadsAllocationExpression*>(initializer)) {
+                determined_type = VarType::POINTER_TO_FQUADS;
+                std::cerr << "DEBUG: Variable '" << name << "' is FQuadsAllocation with type: " << vartype_to_string(determined_type) << std::endl;
+            } else if (dynamic_cast<OctsAllocationExpression*>(initializer)) {
+                determined_type = VarType::POINTER_TO_OCTS;
+                std::cerr << "DEBUG: Variable '" << name << "' is OctsAllocation with type: " << vartype_to_string(determined_type) << std::endl;
+            } else if (dynamic_cast<FOctsAllocationExpression*>(initializer)) {
+                determined_type = VarType::POINTER_TO_FOCTS;
+                std::cerr << "DEBUG: Variable '" << name << "' is FOctsAllocation with type: " << vartype_to_string(determined_type) << std::endl;
             } else {
                 // For all other expressions, use the primary type inferencer.
                 VarType inferred_type = infer_expression_type(initializer);

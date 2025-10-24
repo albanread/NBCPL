@@ -1,0 +1,8 @@
+LET START() BE {
+    WRITEF("Testing direct LEN on OCTS allocation\n")
+
+    // Test LEN directly on OCTS allocation
+    WRITEF("Direct OCTS length: %d\n", LEN(OCTS(2)))
+
+    WRITEF("✅ Direct OCTS LEN test completed\n")
+}

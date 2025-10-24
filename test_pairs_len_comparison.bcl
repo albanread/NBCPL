@@ -1,0 +1,13 @@
+LET START() BE {
+    WRITEF("Testing PAIRS LEN comparison\n")
+
+    // Test direct LEN on PAIRS allocation
+    WRITEF("Direct PAIRS length: %d\n", LEN(PAIRS(3)))
+
+    // Test LEN on PAIRS variable (this might fail if same issue exists)
+    LET pairs_vec = PAIRS(3)
+    WRITEF("PAIRS vector allocated\n")
+    WRITEF("PAIRS vector length: %d\n", LEN(pairs_vec))
+
+    WRITEF("✅ PAIRS LEN comparison test completed\n")
+}
