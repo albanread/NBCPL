@@ -5701,6 +5701,11 @@ void ClassPass::process_method(ClassTableEntry* entry, const std::string& method
             }
             // Inherit the slot from the parent method
             minfo.vtable_slot = parent_method->vtable_slot;
+            // CRITICAL FIX: Inherit virtual flag from parent method
+            if (parent_method->is_virtual) {
+                minfo.is_virtual = true;
+                if (trace_enabled_) std::cout << "[CLASSPASS] Method '" << method_name << "' inherits virtual flag from parent method" << std::endl;
+            }
             entry->vtable_blueprint[minfo.vtable_slot] = minfo.qualified_name;
             if (trace_enabled_) std::cout << "[CLASSPASS] Method '" << method_name << "' overrides parent method at slot " << minfo.vtable_slot << std::endl;
         } else {
@@ -16663,18 +16668,18 @@ void NewCodeGenerator::visit(NewExpression& node) {
     emit(Encoder::create_add_literal(vtable_reg, vtable_reg, vtable_label));
     emit(Encoder::create_str_imm(vtable_reg, obj_ptr_reg, 0, "store vtable ptr"));
     
-    // --- DEBUG: Add vtable store verification --- (DISABLED FOR JIT TESTING)
-    // std::string verify_reg = register_manager_.acquire_scratch_reg(*this);
-    // emit(Encoder::create_ldr_imm(verify_reg, obj_ptr_reg, 0, "Read back stored vtable ptr"));
-    // 
-    // // Emit debug print to verify vtable was stored correctly
-    // emit(Instruction(0, "// DEBUG VTABLE STORE for " + node.class_name));
-    // emit(Encoder::create_mov_reg("X0", obj_ptr_reg));  // Object address in X0
-    // emit(Encoder::create_mov_reg("X1", vtable_reg));   // Original vtable address in X1
-    // emit(Encoder::create_mov_reg("X2", verify_reg));   // Read-back vtable address in X2
-    // emit(Encoder::create_branch_with_link("DEBUG_PRINT_VTABLE_STORE"));
-    // 
-    // register_manager_.release_register(verify_reg);
+    // --- DEBUG: Add vtable store verification ---
+    std::string verify_reg = register_manager_.acquire_scratch_reg(*this);
+    emit(Encoder::create_ldr_imm(verify_reg, obj_ptr_reg, 0, "Read back stored vtable ptr"));
+    
+    // Emit debug print to verify vtable was stored correctly
+    emit(Instruction(0, "// DEBUG VTABLE STORE for " + node.class_name));
+    emit(Encoder::create_mov_reg("X0", obj_ptr_reg));  // Object address in X0
+    emit(Encoder::create_mov_reg("X1", vtable_reg));   // Original vtable address in X1
+    emit(Encoder::create_mov_reg("X2", verify_reg));   // Read-back vtable address in X2
+    emit(Encoder::create_branch_with_link("DEBUG_PRINT_VTABLE_STORE"));
+    
+    register_manager_.release_register(verify_reg);
     register_manager_.release_register(vtable_reg);
 
     // --- STEP 3: Call the CREATE Routine (Constructor) ---
@@ -16716,14 +16721,14 @@ void NewCodeGenerator::visit(NewExpression& node) {
         register_manager_.release_register(method_addr_reg);
     }
 
-    // --- DEBUG: Verify object pointer before assignment --- (DISABLED FOR JIT TESTING)
-    // emit(Instruction(0, "// DEBUG FINAL OBJECT POINTER for " + node.class_name));
-    // emit(Encoder::create_mov_reg("X0", obj_ptr_reg));  // Final object pointer
-    // std::string final_vtable_reg = register_manager_.acquire_scratch_reg(*this);
-    // emit(Encoder::create_ldr_imm(final_vtable_reg, obj_ptr_reg, 0, "Load final vtable ptr"));
-    // emit(Encoder::create_mov_reg("X1", final_vtable_reg));  // Final vtable pointer
-    // emit(Encoder::create_branch_with_link("DEBUG_PRINT_FINAL_OBJECT"));
-    // register_manager_.release_register(final_vtable_reg);
+    // --- DEBUG: Verify object pointer before assignment ---
+    emit(Instruction(0, "// DEBUG FINAL OBJECT POINTER for " + node.class_name));
+    emit(Encoder::create_mov_reg("X0", obj_ptr_reg));  // Final object pointer
+    std::string final_vtable_reg = register_manager_.acquire_scratch_reg(*this);
+    emit(Encoder::create_ldr_imm(final_vtable_reg, obj_ptr_reg, 0, "Load final vtable ptr"));
+    emit(Encoder::create_mov_reg("X1", final_vtable_reg));  // Final vtable pointer
+    emit(Encoder::create_branch_with_link("DEBUG_PRINT_FINAL_OBJECT"));
+    register_manager_.release_register(final_vtable_reg);
     
     // --- STEP 4: The result of the NEW expression is the object pointer ---
     expression_result_reg_ = obj_ptr_reg;
@@ -51556,20 +51561,14 @@ void NewCodeGenerator::visit(MemberAccessExpression& node) {
 
     if (auto* var_access = dynamic_cast<VariableAccess*>(node.object_expr.get())) {
         debug_print("  Object is VariableAccess: " + var_access->name);
-        std::cerr << "[DEBUG] MemberAccess: Looking up variable '" << var_access->name << "'" << std::endl;
         if (symbol_table_ && symbol_table_->lookup(var_access->name, object_symbol)) {
             class_name = object_symbol.class_name;
             debug_print("  Found symbol with class name: " + class_name);
-            std::cerr << "[DEBUG] MemberAccess: Variable '" << var_access->name << "' has class_name '" << class_name << "'" << std::endl;
-        } else {
-            debug_print("  WARNING: Symbol lookup failed for: " + var_access->name);
-            std::cerr << "[DEBUG] MemberAccess: Symbol lookup FAILED for variable '" << var_access->name << "'" << std::endl;
         }
     } else {
         debug_print("  Object is not a VariableAccess, using get_class_name_for_expression");
         try {
             class_name = get_class_name_for_expression(node.object_expr.get());
-            std::cerr << "[DEBUG] MemberAccess: get_class_name_for_expression returned '" << class_name << "'" << std::endl;
         } catch (const std::exception& e) {
             debug_print("  get_class_name_for_expression failed: " + std::string(e.what()));
         }
@@ -51578,7 +51577,6 @@ void NewCodeGenerator::visit(MemberAccessExpression& node) {
     if (class_name.empty()) {
         debug_print("  ERROR: Could not determine class name for object in member access");
         debug_print("  Member being accessed: " + node.member_name);
-        std::cerr << "[DEBUG] MemberAccess: ERROR - Empty class_name for member '" << node.member_name << "'" << std::endl;
         
         // Set a safe dummy register and return to prevent crashes
         std::string dummy_reg = register_manager_.acquire_scratch_reg(*this);
@@ -51602,16 +51600,9 @@ void NewCodeGenerator::visit(MemberAccessExpression& node) {
     
     // Use the helper method to lookup the method (handles both simple and qualified names)
     debug_print("  Looking up class method '" + node.member_name + "' in class '" + class_name + "'");
-    std::cerr << "[DEBUG] MemberAccess: Looking up method '" << node.member_name << "' in class '" << class_name << "'" << std::endl;
     ClassMethodInfo* method_info_ptr = class_table_->lookup_class_method(class_name, node.member_name);
     
     debug_print("  Method lookup result: " + std::string(method_info_ptr != nullptr ? "FOUND" : "NOT FOUND"));
-    if (method_info_ptr) {
-        std::cerr << "[DEBUG] MemberAccess: Method found - is_virtual: " << (method_info_ptr->is_virtual ? "true" : "false") 
-                  << ", qualified_name: " << method_info_ptr->qualified_name << std::endl;
-    } else {
-        std::cerr << "[DEBUG] MemberAccess: Method NOT FOUND" << std::endl;
-    }
 
     if (member_it != class_entry->member_variables.end()) {
         // --- PATH A: DATA MEMBER (e.g., p.x) ---
@@ -51648,10 +51639,22 @@ void NewCodeGenerator::visit(MemberAccessExpression& node) {
         emit(Encoder::create_mov_reg("X0", object_ptr_reg));
         register_manager_.release_register(object_ptr_reg);
 
+        // *** CRITICAL FIX: Always use virtual dispatch for virtual methods ***
+        // The static analysis may resolve to a base class method, but at runtime
+        // we need to call through the vtable to get the correct overridden method.
+        // Only use direct calls for non-virtual (final) methods.
+        
+        std::cout << "*** METHOD DEBUG *** method=" << node.member_name 
+                  << " class=" << class_name 
+                  << " qualified_name=" << method_info.qualified_name
+                  << " is_virtual=" << (method_info.is_virtual ? "true" : "false") << std::endl;
+        
         if (method_info.is_virtual) {
+            std::cout << "*** USING VIRTUAL DISPATCH ***" << std::endl;
             debug_print("Generating virtual method dispatch for: " + node.member_name);
             generate_virtual_method_call(method_info);
         } else {
+            std::cout << "*** USING DIRECT DISPATCH ***" << std::endl;
             debug_print("Generating direct method call for: " + node.member_name);
             generate_direct_method_call(method_info);
         }
@@ -52843,7 +52846,18 @@ void NewCodeGenerator::visit(RoutineCallStatement& node) {
         
         // Look up method signature for parameter types
         std::string class_name = get_class_name_for_expression(member_access->object_expr.get());
-        ClassMethodInfo* method_info = class_table_->lookup_class_method(class_name, member_access->member_name);
+        ClassMethodInfo* method_info = class_table_->lookup_class_method(class_name, member_access->member_name, true);
+        
+        // Debug output to see method lookup results
+        std::cout << "*** ROUTINE CALL METHOD DEBUG *** method=" << member_access->member_name 
+                  << " class=" << class_name;
+        if (method_info) {
+            std::cout << " qualified_name=" << method_info->qualified_name
+                      << " is_virtual=" << (method_info->is_virtual ? "true" : "false")
+                      << " is_final=" << (method_info->is_final ? "true" : "false") << std::endl;
+        } else {
+            std::cout << " method_info=NULL" << std::endl;
+        }
         Symbol method_symbol;
         bool has_symbol_param_info = false;
         std::string method_qualified_name = class_name + "::" + member_access->member_name;

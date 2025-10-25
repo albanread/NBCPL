@@ -2739,18 +2739,18 @@ void NewCodeGenerator::visit(NewExpression& node) {
     emit(Encoder::create_add_literal(vtable_reg, vtable_reg, vtable_label));
     emit(Encoder::create_str_imm(vtable_reg, obj_ptr_reg, 0, "store vtable ptr"));
     
-    // --- DEBUG: Add vtable store verification --- (DISABLED FOR JIT TESTING)
-    // std::string verify_reg = register_manager_.acquire_scratch_reg(*this);
-    // emit(Encoder::create_ldr_imm(verify_reg, obj_ptr_reg, 0, "Read back stored vtable ptr"));
-    // 
-    // // Emit debug print to verify vtable was stored correctly
-    // emit(Instruction(0, "// DEBUG VTABLE STORE for " + node.class_name));
-    // emit(Encoder::create_mov_reg("X0", obj_ptr_reg));  // Object address in X0
-    // emit(Encoder::create_mov_reg("X1", vtable_reg));   // Original vtable address in X1
-    // emit(Encoder::create_mov_reg("X2", verify_reg));   // Read-back vtable address in X2
-    // emit(Encoder::create_branch_with_link("DEBUG_PRINT_VTABLE_STORE"));
-    // 
-    // register_manager_.release_register(verify_reg);
+    // --- DEBUG: Add vtable store verification ---
+    std::string verify_reg = register_manager_.acquire_scratch_reg(*this);
+    emit(Encoder::create_ldr_imm(verify_reg, obj_ptr_reg, 0, "Read back stored vtable ptr"));
+    
+    // Emit debug print to verify vtable was stored correctly
+    emit(Instruction(0, "// DEBUG VTABLE STORE for " + node.class_name));
+    emit(Encoder::create_mov_reg("X0", obj_ptr_reg));  // Object address in X0
+    emit(Encoder::create_mov_reg("X1", vtable_reg));   // Original vtable address in X1
+    emit(Encoder::create_mov_reg("X2", verify_reg));   // Read-back vtable address in X2
+    emit(Encoder::create_branch_with_link("DEBUG_PRINT_VTABLE_STORE"));
+    
+    register_manager_.release_register(verify_reg);
     register_manager_.release_register(vtable_reg);
 
     // --- STEP 3: Call the CREATE Routine (Constructor) ---
@@ -2792,14 +2792,14 @@ void NewCodeGenerator::visit(NewExpression& node) {
         register_manager_.release_register(method_addr_reg);
     }
 
-    // --- DEBUG: Verify object pointer before assignment --- (DISABLED FOR JIT TESTING)
-    // emit(Instruction(0, "// DEBUG FINAL OBJECT POINTER for " + node.class_name));
-    // emit(Encoder::create_mov_reg("X0", obj_ptr_reg));  // Final object pointer
-    // std::string final_vtable_reg = register_manager_.acquire_scratch_reg(*this);
-    // emit(Encoder::create_ldr_imm(final_vtable_reg, obj_ptr_reg, 0, "Load final vtable ptr"));
-    // emit(Encoder::create_mov_reg("X1", final_vtable_reg));  // Final vtable pointer
-    // emit(Encoder::create_branch_with_link("DEBUG_PRINT_FINAL_OBJECT"));
-    // register_manager_.release_register(final_vtable_reg);
+    // --- DEBUG: Verify object pointer before assignment ---
+    emit(Instruction(0, "// DEBUG FINAL OBJECT POINTER for " + node.class_name));
+    emit(Encoder::create_mov_reg("X0", obj_ptr_reg));  // Final object pointer
+    std::string final_vtable_reg = register_manager_.acquire_scratch_reg(*this);
+    emit(Encoder::create_ldr_imm(final_vtable_reg, obj_ptr_reg, 0, "Load final vtable ptr"));
+    emit(Encoder::create_mov_reg("X1", final_vtable_reg));  // Final vtable pointer
+    emit(Encoder::create_branch_with_link("DEBUG_PRINT_FINAL_OBJECT"));
+    register_manager_.release_register(final_vtable_reg);
     
     // --- STEP 4: The result of the NEW expression is the object pointer ---
     expression_result_reg_ = obj_ptr_reg;

@@ -212,6 +212,11 @@ void ClassPass::process_method(ClassTableEntry* entry, const std::string& method
             }
             // Inherit the slot from the parent method
             minfo.vtable_slot = parent_method->vtable_slot;
+            // CRITICAL FIX: Inherit virtual flag from parent method
+            if (parent_method->is_virtual) {
+                minfo.is_virtual = true;
+                if (trace_enabled_) std::cout << "[CLASSPASS] Method '" << method_name << "' inherits virtual flag from parent method" << std::endl;
+            }
             entry->vtable_blueprint[minfo.vtable_slot] = minfo.qualified_name;
             if (trace_enabled_) std::cout << "[CLASSPASS] Method '" << method_name << "' overrides parent method at slot " << minfo.vtable_slot << std::endl;
         } else {

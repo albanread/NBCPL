@@ -227,7 +227,18 @@ void NewCodeGenerator::visit(RoutineCallStatement& node) {
         
         // Look up method signature for parameter types
         std::string class_name = get_class_name_for_expression(member_access->object_expr.get());
-        ClassMethodInfo* method_info = class_table_->lookup_class_method(class_name, member_access->member_name);
+        ClassMethodInfo* method_info = class_table_->lookup_class_method(class_name, member_access->member_name, true);
+        
+        // Debug output to see method lookup results
+        std::cout << "*** ROUTINE CALL METHOD DEBUG *** method=" << member_access->member_name 
+                  << " class=" << class_name;
+        if (method_info) {
+            std::cout << " qualified_name=" << method_info->qualified_name
+                      << " is_virtual=" << (method_info->is_virtual ? "true" : "false")
+                      << " is_final=" << (method_info->is_final ? "true" : "false") << std::endl;
+        } else {
+            std::cout << " method_info=NULL" << std::endl;
+        }
         Symbol method_symbol;
         bool has_symbol_param_info = false;
         std::string method_qualified_name = class_name + "::" + member_access->member_name;
