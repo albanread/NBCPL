@@ -312,8 +312,37 @@ bool RuntimeImporter::register_with_symbol_table(const RuntimeFunctionDescriptor
             "Global"  // function_name - this is key for proper lookup!
         );
         
-        // TODO: Add parameter information if needed in the future
-        // symbol.parameters = ...;
+        // Add parameter information from runtime function descriptor
+        if (desc.parameter_types && desc.arg_count > 0) {
+            for (int i = 0; i < desc.arg_count; ++i) {
+                Symbol::ParameterInfo param_info;
+                param_info.is_optional = false; // Runtime functions don't have optional parameters
+                
+                // Convert RuntimeParameterType to VarType
+                switch (desc.parameter_types[i]) {
+                    case RuntimeParameterType::INTEGER:
+                    case RuntimeParameterType::POINTER:
+                        param_info.type = VarType::INTEGER;
+                        break;
+                    case RuntimeParameterType::DOUBLE:
+                        param_info.type = VarType::FLOAT;
+                        break;
+                    case RuntimeParameterType::STRING:
+                    case RuntimeParameterType::VECTOR:
+                        param_info.type = VarType::INTEGER; // Pointers in BCPL
+                        break;
+                    default:
+                        param_info.type = VarType::UNKNOWN;
+                        break;
+                }
+                
+                symbol.parameters.push_back(param_info);
+            }
+            
+            if (enable_tracing) {
+                std::cout << "  Added " << desc.arg_count << " parameter types to symbol: " << desc.veneer_name << std::endl;
+            }
+        }
         
         if (!symbol_table.addSymbol(symbol)) {
             std::cerr << "Symbol table rejected: " << desc.veneer_name << " (duplicate?)" << std::endl;
