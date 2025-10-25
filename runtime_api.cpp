@@ -41,6 +41,8 @@ extern "C" {
     void CAIRO_SET_LINE_JOIN(CairoSurfaceHandle surface_handle, int64_t join_style);
     void CAIRO_SET_LINE_CAP(CairoSurfaceHandle surface_handle, int64_t cap_style);
     void CAIRO_SET_OPACITY(CairoSurfaceHandle surface_handle, double opacity);
+    void CAIRO_SET_ANTIALIAS(CairoSurfaceHandle surface_handle, int64_t antialias_mode);
+    int64_t CAIRO_GET_ANTIALIAS(CairoSurfaceHandle surface_handle);
 
     void CAIRO_FILL_RECT(CairoSurfaceHandle surface_handle, double x, double y, double width, double height);
     void CAIRO_STROKE_RECT(CairoSurfaceHandle surface_handle, double x, double y, double width, double height);
@@ -99,6 +101,13 @@ extern "C" {
     void CAIRO_SAMM_GET_STATS(int64_t* active_surfaces, int64_t* active_images, int64_t* memory_usage);
     void CAIRO_SAMM_SET_TRACE(int64_t enabled);
     void CAIRO_SAMM_DUMP_STATE(void);
+
+    // SDL2 Display Integration functions
+    void CAIRO_DISPLAY_SDL(CairoSurfaceHandle surface_handle, int64_t sdl_window_id);
+    int64_t CAIRO_CREATE_SDL_WINDOW(bcpl_string_t title, int64_t width, int64_t height);
+    void CAIRO_UPDATE_SDL_WINDOW(CairoSurfaceHandle surface_handle, int64_t sdl_window_id);
+    int64_t CAIRO_TO_SDL_TEXTURE(CairoSurfaceHandle surface_handle, int64_t sdl_renderer_id);
+    
     // Core I/O functions
     void WRITES(int string_ptr);
     void WRITEN(int value);
@@ -345,6 +354,75 @@ static const RuntimeParameterType cairo_surface_vector_params[] = {
 static const RuntimeParameterType cairo_draw_image_params[] = {
     RuntimeParameterType::INTEGER, RuntimeParameterType::INTEGER, RuntimeParameterType::DOUBLE, 
     RuntimeParameterType::DOUBLE
+};
+
+// Additional Cairo parameter types
+static const RuntimeParameterType cairo_draw_image_scaled_params[] = {
+    RuntimeParameterType::INTEGER, RuntimeParameterType::INTEGER, RuntimeParameterType::DOUBLE, 
+    RuntimeParameterType::DOUBLE, RuntimeParameterType::DOUBLE, RuntimeParameterType::DOUBLE
+};
+
+static const RuntimeParameterType cairo_draw_image_rotated_params[] = {
+    RuntimeParameterType::INTEGER, RuntimeParameterType::INTEGER, RuntimeParameterType::DOUBLE, 
+    RuntimeParameterType::DOUBLE, RuntimeParameterType::DOUBLE
+};
+
+static const RuntimeParameterType cairo_curve_to_params[] = {
+    RuntimeParameterType::INTEGER, RuntimeParameterType::DOUBLE, RuntimeParameterType::DOUBLE,
+    RuntimeParameterType::DOUBLE, RuntimeParameterType::DOUBLE, RuntimeParameterType::DOUBLE, RuntimeParameterType::DOUBLE
+};
+
+static const RuntimeParameterType cairo_draw_text_colored_params[] = {
+    RuntimeParameterType::INTEGER, RuntimeParameterType::DOUBLE, RuntimeParameterType::DOUBLE, 
+    RuntimeParameterType::STRING, RuntimeParameterType::INTEGER
+};
+
+static const RuntimeParameterType cairo_translate_params[] = {
+    RuntimeParameterType::INTEGER, RuntimeParameterType::DOUBLE, RuntimeParameterType::DOUBLE
+};
+
+static const RuntimeParameterType cairo_scale_params[] = {
+    RuntimeParameterType::INTEGER, RuntimeParameterType::DOUBLE, RuntimeParameterType::DOUBLE
+};
+
+static const RuntimeParameterType cairo_rotate_params[] = {
+    RuntimeParameterType::INTEGER, RuntimeParameterType::DOUBLE
+};
+
+static const RuntimeParameterType cairo_antialias_params[] = {
+    RuntimeParameterType::INTEGER, RuntimeParameterType::INTEGER
+};
+
+static const RuntimeParameterType cairo_polyline_params[] = {
+    RuntimeParameterType::INTEGER, RuntimeParameterType::VECTOR, RuntimeParameterType::INTEGER
+};
+
+static const RuntimeParameterType cairo_sdl_window_params[] = {
+    RuntimeParameterType::STRING, RuntimeParameterType::INTEGER, RuntimeParameterType::INTEGER
+};
+
+static const RuntimeParameterType cairo_sdl_display_params[] = {
+    RuntimeParameterType::INTEGER, RuntimeParameterType::INTEGER
+};
+
+static const RuntimeParameterType cairo_string_only_params[] = {
+    RuntimeParameterType::STRING
+};
+
+static const RuntimeParameterType cairo_image_handle_only_params[] = {
+    RuntimeParameterType::INTEGER
+};
+
+static const RuntimeParameterType cairo_retained_surface_params[] = {
+    RuntimeParameterType::INTEGER, RuntimeParameterType::INTEGER, RuntimeParameterType::INTEGER
+};
+
+static const RuntimeParameterType cairo_retained_png_params[] = {
+    RuntimeParameterType::STRING, RuntimeParameterType::INTEGER
+};
+
+static const RuntimeParameterType cairo_retained_image_params[] = {
+    RuntimeParameterType::STRING, RuntimeParameterType::INTEGER
 };
 
 /**
@@ -1094,8 +1172,9 @@ static const RuntimeFunctionDescriptor g_runtime_manifest[] = {
         "SDL2_TEST_BASIC", "_SDL2_TEST_BASIC", reinterpret_cast<RuntimeFunctionPtr>(SDL2_TEST_BASIC), 0,
         RuntimeFunctionType::STANDARD, RuntimeReturnType::INTEGER,
         "Test basic SDL2 functionality", "SDL", nullptr
-    },
+    }
 #endif
+    ,
 
     // -------------------------------------------------------------------------
     // TIMING AND PERFORMANCE METRICS
@@ -1238,13 +1317,325 @@ static const RuntimeFunctionDescriptor g_runtime_manifest[] = {
         "CAIRO_IS_AVAILABLE", "_CAIRO_IS_AVAILABLE",
         reinterpret_cast<RuntimeFunctionPtr>(CAIRO_IS_AVAILABLE), 0,
         RuntimeFunctionType::STANDARD, RuntimeReturnType::INTEGER,
-        "Check if Cairo graphics is available", "GRAPHICS", nullptr
+        "Check if Cairo is properly initialized", "GRAPHICS", nullptr
     },
     {
         "CAIRO_GET_VERSION", "_CAIRO_GET_VERSION",
         reinterpret_cast<RuntimeFunctionPtr>(CAIRO_GET_VERSION), 0,
         RuntimeFunctionType::STANDARD, RuntimeReturnType::STRING,
-        "Get Cairo version string", "GRAPHICS"
+        "Get Cairo version string", "GRAPHICS", nullptr
+    },
+    
+    // Missing Drawing State functions
+    {
+        "CAIRO_SET_LINE_WIDTH", "_CAIRO_SET_LINE_WIDTH",
+        reinterpret_cast<RuntimeFunctionPtr>(CAIRO_SET_LINE_WIDTH), 2,
+        RuntimeFunctionType::ROUTINE, RuntimeReturnType::VOID,
+        "Set line width for strokes (surface, width)", "GRAPHICS", cairo_set_line_width_params
+    },
+    {
+        "CAIRO_SET_LINE_JOIN", "_CAIRO_SET_LINE_JOIN",
+        reinterpret_cast<RuntimeFunctionPtr>(CAIRO_SET_LINE_JOIN), 2,
+        RuntimeFunctionType::ROUTINE, RuntimeReturnType::VOID,
+        "Set line join style (surface, join_style)", "GRAPHICS", cairo_surface_int_params
+    },
+    {
+        "CAIRO_SET_LINE_CAP", "_CAIRO_SET_LINE_CAP",
+        reinterpret_cast<RuntimeFunctionPtr>(CAIRO_SET_LINE_CAP), 2,
+        RuntimeFunctionType::ROUTINE, RuntimeReturnType::VOID,
+        "Set line cap style (surface, cap_style)", "GRAPHICS", cairo_surface_int_params
+    },
+    {
+        "CAIRO_SET_OPACITY", "_CAIRO_SET_OPACITY",
+        reinterpret_cast<RuntimeFunctionPtr>(CAIRO_SET_OPACITY), 2,
+        RuntimeFunctionType::ROUTINE, RuntimeReturnType::VOID,
+        "Set opacity for drawing operations (surface, opacity)", "GRAPHICS", cairo_set_opacity_params
+    },
+    {
+        "CAIRO_SET_ANTIALIAS", "_CAIRO_SET_ANTIALIAS",
+        reinterpret_cast<RuntimeFunctionPtr>(CAIRO_SET_ANTIALIAS), 2,
+        RuntimeFunctionType::ROUTINE, RuntimeReturnType::VOID,
+        "Set antialiasing mode (surface, antialias_mode)", "GRAPHICS", cairo_antialias_params
+    },
+    {
+        "CAIRO_GET_ANTIALIAS", "_CAIRO_GET_ANTIALIAS",
+        reinterpret_cast<RuntimeFunctionPtr>(CAIRO_GET_ANTIALIAS), 1,
+        RuntimeFunctionType::STANDARD, RuntimeReturnType::INTEGER,
+        "Get current antialiasing mode (surface)", "GRAPHICS", cairo_surface_handle_only_params
+    },
+
+    // Missing Basic Shapes functions
+    {
+        "CAIRO_STROKE_RECT", "_CAIRO_STROKE_RECT",
+        reinterpret_cast<RuntimeFunctionPtr>(CAIRO_STROKE_RECT), 5,
+        RuntimeFunctionType::ROUTINE, RuntimeReturnType::VOID,
+        "Stroke rectangle outline (surface, x, y, width, height)", "GRAPHICS", cairo_stroke_rect_params
+    },
+    {
+        "CAIRO_STROKE_CIRCLE", "_CAIRO_STROKE_CIRCLE",
+        reinterpret_cast<RuntimeFunctionPtr>(CAIRO_STROKE_CIRCLE), 4,
+        RuntimeFunctionType::ROUTINE, RuntimeReturnType::VOID,
+        "Stroke circle outline (surface, cx, cy, radius)", "GRAPHICS", cairo_stroke_circle_params
+    },
+    {
+        "CAIRO_DRAW_POINT", "_CAIRO_DRAW_POINT",
+        reinterpret_cast<RuntimeFunctionPtr>(CAIRO_DRAW_POINT), 3,
+        RuntimeFunctionType::ROUTINE, RuntimeReturnType::VOID,
+        "Draw single point (surface, x, y)", "GRAPHICS", cairo_draw_point_params
+    },
+
+    // Vector Operations functions (duplicates removed)
+    {
+        "CAIRO_DRAW_POLYLINE", "_CAIRO_DRAW_POLYLINE",
+        reinterpret_cast<RuntimeFunctionPtr>(CAIRO_DRAW_POLYLINE), 3,
+        RuntimeFunctionType::ROUTINE, RuntimeReturnType::VOID,
+        "Draw polyline from vector (surface, points, close_path)", "GRAPHICS", cairo_polyline_params
+    },
+    {
+        "CAIRO_FILL_POLYGON", "_CAIRO_FILL_POLYGON",
+        reinterpret_cast<RuntimeFunctionPtr>(CAIRO_FILL_POLYGON), 2,
+        RuntimeFunctionType::ROUTINE, RuntimeReturnType::VOID,
+        "Fill polygon from vector (surface, points)", "GRAPHICS", cairo_surface_vector_params
+    },
+
+    // Path Operations functions
+    {
+        "CAIRO_BEGIN_PATH", "_CAIRO_BEGIN_PATH",
+        reinterpret_cast<RuntimeFunctionPtr>(CAIRO_BEGIN_PATH), 1,
+        RuntimeFunctionType::ROUTINE, RuntimeReturnType::VOID,
+        "Begin new path (surface)", "GRAPHICS", cairo_surface_handle_only_params
+    },
+    {
+        "CAIRO_MOVE_TO", "_CAIRO_MOVE_TO",
+        reinterpret_cast<RuntimeFunctionPtr>(CAIRO_MOVE_TO), 3,
+        RuntimeFunctionType::ROUTINE, RuntimeReturnType::VOID,
+        "Move to point without drawing (surface, x, y)", "GRAPHICS", cairo_draw_point_params
+    },
+    {
+        "CAIRO_LINE_TO", "_CAIRO_LINE_TO",
+        reinterpret_cast<RuntimeFunctionPtr>(CAIRO_LINE_TO), 3,
+        RuntimeFunctionType::ROUTINE, RuntimeReturnType::VOID,
+        "Line to point from current position (surface, x, y)", "GRAPHICS", cairo_draw_point_params
+    },
+    {
+        "CAIRO_CURVE_TO", "_CAIRO_CURVE_TO",
+        reinterpret_cast<RuntimeFunctionPtr>(CAIRO_CURVE_TO), 7,
+        RuntimeFunctionType::ROUTINE, RuntimeReturnType::VOID,
+        "Draw cubic Bezier curve (surface, x1, y1, x2, y2, x3, y3)", "GRAPHICS", cairo_curve_to_params
+    },
+    {
+        "CAIRO_CLOSE_PATH", "_CAIRO_CLOSE_PATH",
+        reinterpret_cast<RuntimeFunctionPtr>(CAIRO_CLOSE_PATH), 1,
+        RuntimeFunctionType::ROUTINE, RuntimeReturnType::VOID,
+        "Close current path (surface)", "GRAPHICS", cairo_surface_handle_only_params
+    },
+    {
+        "CAIRO_FILL_PATH", "_CAIRO_FILL_PATH",
+        reinterpret_cast<RuntimeFunctionPtr>(CAIRO_FILL_PATH), 1,
+        RuntimeFunctionType::ROUTINE, RuntimeReturnType::VOID,
+        "Fill current path (surface)", "GRAPHICS", cairo_surface_handle_only_params
+    },
+    {
+        "CAIRO_STROKE_PATH", "_CAIRO_STROKE_PATH",
+        reinterpret_cast<RuntimeFunctionPtr>(CAIRO_STROKE_PATH), 1,
+        RuntimeFunctionType::ROUTINE, RuntimeReturnType::VOID,
+        "Stroke current path (surface)", "GRAPHICS", cairo_surface_handle_only_params
+    },
+
+    // Text Operations functions
+    {
+        "CAIRO_TEXT_SIZE", "_CAIRO_TEXT_SIZE",
+        reinterpret_cast<RuntimeFunctionPtr>(CAIRO_TEXT_SIZE), 4,
+        RuntimeFunctionType::ROUTINE, RuntimeReturnType::VOID,
+        "Get text dimensions (surface, text, width_ptr, height_ptr)", "GRAPHICS", nullptr
+    },
+    {
+        "CAIRO_DRAW_TEXT_COLORED", "_CAIRO_DRAW_TEXT_COLORED",
+        reinterpret_cast<RuntimeFunctionPtr>(CAIRO_DRAW_TEXT_COLORED), 5,
+        RuntimeFunctionType::ROUTINE, RuntimeReturnType::VOID,
+        "Draw text with specific color (surface, x, y, text, rgba_color)", "GRAPHICS", cairo_draw_text_colored_params
+    },
+
+    // Image Operations functions (CAIRO_LOAD_IMAGE already registered above)
+    {
+        "CAIRO_DRAW_IMAGE_SCALED", "_CAIRO_DRAW_IMAGE_SCALED",
+        reinterpret_cast<RuntimeFunctionPtr>(CAIRO_DRAW_IMAGE_SCALED), 6,
+        RuntimeFunctionType::ROUTINE, RuntimeReturnType::VOID,
+        "Draw image with scaling (surface, image, x, y, scale_x, scale_y)", "GRAPHICS", cairo_draw_image_scaled_params
+    },
+    {
+        "CAIRO_DRAW_IMAGE_ROTATED", "_CAIRO_DRAW_IMAGE_ROTATED",
+        reinterpret_cast<RuntimeFunctionPtr>(CAIRO_DRAW_IMAGE_ROTATED), 5,
+        RuntimeFunctionType::ROUTINE, RuntimeReturnType::VOID,
+        "Draw image with rotation (surface, image, x, y, angle)", "GRAPHICS", cairo_draw_image_rotated_params
+    },
+    {
+        "CAIRO_IMAGE_SIZE", "_CAIRO_IMAGE_SIZE",
+        reinterpret_cast<RuntimeFunctionPtr>(CAIRO_IMAGE_SIZE), 3,
+        RuntimeFunctionType::ROUTINE, RuntimeReturnType::VOID,
+        "Get image dimensions (image, width_ptr, height_ptr)", "GRAPHICS", nullptr
+    },
+
+    // Transformation Operations functions
+    {
+        "CAIRO_SAVE", "_CAIRO_SAVE",
+        reinterpret_cast<RuntimeFunctionPtr>(CAIRO_SAVE), 1,
+        RuntimeFunctionType::ROUTINE, RuntimeReturnType::VOID,
+        "Save current transformation state (surface)", "GRAPHICS", cairo_surface_handle_only_params
+    },
+    {
+        "CAIRO_RESTORE", "_CAIRO_RESTORE",
+        reinterpret_cast<RuntimeFunctionPtr>(CAIRO_RESTORE), 1,
+        RuntimeFunctionType::ROUTINE, RuntimeReturnType::VOID,
+        "Restore previous transformation state (surface)", "GRAPHICS", cairo_surface_handle_only_params
+    },
+    {
+        "CAIRO_TRANSLATE", "_CAIRO_TRANSLATE",
+        reinterpret_cast<RuntimeFunctionPtr>(CAIRO_TRANSLATE), 3,
+        RuntimeFunctionType::ROUTINE, RuntimeReturnType::VOID,
+        "Translate coordinate system (surface, tx, ty)", "GRAPHICS", cairo_translate_params
+    },
+    {
+        "CAIRO_SCALE", "_CAIRO_SCALE",
+        reinterpret_cast<RuntimeFunctionPtr>(CAIRO_SCALE), 3,
+        RuntimeFunctionType::ROUTINE, RuntimeReturnType::VOID,
+        "Scale coordinate system (surface, sx, sy)", "GRAPHICS", cairo_scale_params
+    },
+    {
+        "CAIRO_ROTATE", "_CAIRO_ROTATE",
+        reinterpret_cast<RuntimeFunctionPtr>(CAIRO_ROTATE), 2,
+        RuntimeFunctionType::ROUTINE, RuntimeReturnType::VOID,
+        "Rotate coordinate system (surface, angle)", "GRAPHICS", cairo_rotate_params
+    },
+
+    // Surface Management functions
+    {
+        "CAIRO_GET_SIZE", "_CAIRO_GET_SIZE",
+        reinterpret_cast<RuntimeFunctionPtr>(CAIRO_GET_SIZE), 3,
+        RuntimeFunctionType::ROUTINE, RuntimeReturnType::VOID,
+        "Get surface dimensions (surface, width_ptr, height_ptr)", "GRAPHICS", nullptr
+    },
+    {
+        "CAIRO_CLONE_SURFACE", "_CAIRO_CLONE_SURFACE",
+        reinterpret_cast<RuntimeFunctionPtr>(CAIRO_CLONE_SURFACE), 1,
+        RuntimeFunctionType::STANDARD, RuntimeReturnType::INTEGER,
+        "Clone surface for double-buffering", "GRAPHICS", cairo_surface_handle_only_params
+    },
+
+    // Resource Management functions
+    {
+        "CAIRO_RELEASE_SURFACE", "_CAIRO_RELEASE_SURFACE",
+        reinterpret_cast<RuntimeFunctionPtr>(CAIRO_RELEASE_SURFACE), 1,
+        RuntimeFunctionType::ROUTINE, RuntimeReturnType::VOID,
+        "Manually release surface (surface)", "GRAPHICS", cairo_surface_handle_only_params
+    },
+    {
+        "CAIRO_RELEASE_IMAGE", "_CAIRO_RELEASE_IMAGE",
+        reinterpret_cast<RuntimeFunctionPtr>(CAIRO_RELEASE_IMAGE), 1,
+        RuntimeFunctionType::ROUTINE, RuntimeReturnType::VOID,
+        "Manually release image (image)", "GRAPHICS", cairo_image_handle_only_params
+    },
+    {
+        "CAIRO_SURFACE_COUNT", "_CAIRO_SURFACE_COUNT",
+        reinterpret_cast<RuntimeFunctionPtr>(CAIRO_SURFACE_COUNT), 0,
+        RuntimeFunctionType::STANDARD, RuntimeReturnType::INTEGER,
+        "Get number of active surfaces", "GRAPHICS", nullptr
+    },
+    {
+        "CAIRO_IMAGE_COUNT", "_CAIRO_IMAGE_COUNT",
+        reinterpret_cast<RuntimeFunctionPtr>(CAIRO_IMAGE_COUNT), 0,
+        RuntimeFunctionType::STANDARD, RuntimeReturnType::INTEGER,
+        "Get number of active images", "GRAPHICS", nullptr
+    },
+
+    // Utility functions (duplicates removed - already registered above)
+    {
+        "CAIRO_GET_ERROR", "_CAIRO_GET_ERROR",
+        reinterpret_cast<RuntimeFunctionPtr>(CAIRO_GET_ERROR), 0,
+        RuntimeFunctionType::STANDARD, RuntimeReturnType::STRING,
+        "Get last Cairo error message", "GRAPHICS", nullptr
+    },
+    {
+        "CAIRO_CLEAR_ERROR", "_CAIRO_CLEAR_ERROR",
+        reinterpret_cast<RuntimeFunctionPtr>(CAIRO_CLEAR_ERROR), 0,
+        RuntimeFunctionType::ROUTINE, RuntimeReturnType::VOID,
+        "Clear any pending Cairo error", "GRAPHICS", nullptr
+    },
+
+    // SAMM integration functions
+    {
+        "CAIRO_CREATE_SURFACE_RETAINED", "_CAIRO_CREATE_SURFACE_RETAINED",
+        reinterpret_cast<RuntimeFunctionPtr>(CAIRO_CREATE_SURFACE_RETAINED), 3,
+        RuntimeFunctionType::STANDARD, RuntimeReturnType::INTEGER,
+        "Create surface retained in parent scope (width, height, parent_scope_offset)", "GRAPHICS", cairo_retained_surface_params
+    },
+    {
+        "CAIRO_LOAD_PNG_RETAINED", "_CAIRO_LOAD_PNG_RETAINED",
+        reinterpret_cast<RuntimeFunctionPtr>(CAIRO_LOAD_PNG_RETAINED), 2,
+        RuntimeFunctionType::STANDARD, RuntimeReturnType::INTEGER,
+        "Load PNG retained in parent scope (filename, parent_scope_offset)", "GRAPHICS", cairo_retained_png_params
+    },
+    {
+        "CAIRO_LOAD_IMAGE_RETAINED", "_CAIRO_LOAD_IMAGE_RETAINED",
+        reinterpret_cast<RuntimeFunctionPtr>(CAIRO_LOAD_IMAGE_RETAINED), 2,
+        RuntimeFunctionType::STANDARD, RuntimeReturnType::INTEGER,
+        "Load image retained in parent scope (filename, parent_scope_offset)", "GRAPHICS", cairo_retained_image_params
+    },
+    {
+        "CAIRO_SAMM_SCOPE_DEPTH", "_CAIRO_SAMM_SCOPE_DEPTH",
+        reinterpret_cast<RuntimeFunctionPtr>(CAIRO_SAMM_SCOPE_DEPTH), 0,
+        RuntimeFunctionType::STANDARD, RuntimeReturnType::INTEGER,
+        "Get current SAMM scope depth", "GRAPHICS", nullptr
+    },
+    {
+        "CAIRO_SAMM_FORCE_CLEANUP", "_CAIRO_SAMM_FORCE_CLEANUP",
+        reinterpret_cast<RuntimeFunctionPtr>(CAIRO_SAMM_FORCE_CLEANUP), 0,
+        RuntimeFunctionType::ROUTINE, RuntimeReturnType::VOID,
+        "Force cleanup of Cairo resources", "GRAPHICS", nullptr
+    },
+    {
+        "CAIRO_SAMM_GET_STATS", "_CAIRO_SAMM_GET_STATS",
+        reinterpret_cast<RuntimeFunctionPtr>(CAIRO_SAMM_GET_STATS), 3,
+        RuntimeFunctionType::ROUTINE, RuntimeReturnType::VOID,
+        "Get SAMM statistics (active_surfaces_ptr, active_images_ptr, memory_usage_ptr)", "GRAPHICS", nullptr
+    },
+    {
+        "CAIRO_SAMM_SET_TRACE", "_CAIRO_SAMM_SET_TRACE",
+        reinterpret_cast<RuntimeFunctionPtr>(CAIRO_SAMM_SET_TRACE), 1,
+        RuntimeFunctionType::ROUTINE, RuntimeReturnType::VOID,
+        "Enable/disable SAMM debug tracing (enabled)", "GRAPHICS", cairo_surface_handle_only_params
+    },
+    {
+        "CAIRO_SAMM_DUMP_STATE", "_CAIRO_SAMM_DUMP_STATE",
+        reinterpret_cast<RuntimeFunctionPtr>(CAIRO_SAMM_DUMP_STATE), 0,
+        RuntimeFunctionType::ROUTINE, RuntimeReturnType::VOID,
+        "Dump SAMM state for debugging", "GRAPHICS", nullptr
+    },
+
+    // SDL2 Display Integration functions
+    {
+        "CAIRO_DISPLAY_SDL", "_CAIRO_DISPLAY_SDL",
+        reinterpret_cast<RuntimeFunctionPtr>(CAIRO_DISPLAY_SDL), 2,
+        RuntimeFunctionType::ROUTINE, RuntimeReturnType::VOID,
+        "Display Cairo surface in SDL2 window (surface, sdl_window_id)", "GRAPHICS", cairo_sdl_display_params
+    },
+    {
+        "CAIRO_CREATE_SDL_WINDOW", "_CAIRO_CREATE_SDL_WINDOW",
+        reinterpret_cast<RuntimeFunctionPtr>(CAIRO_CREATE_SDL_WINDOW), 3,
+        RuntimeFunctionType::STANDARD, RuntimeReturnType::INTEGER,
+        "Create SDL2 window for Cairo display (title, width, height)", "GRAPHICS", cairo_sdl_window_params
+    },
+    {
+        "CAIRO_UPDATE_SDL_WINDOW", "_CAIRO_UPDATE_SDL_WINDOW",
+        reinterpret_cast<RuntimeFunctionPtr>(CAIRO_UPDATE_SDL_WINDOW), 2,
+        RuntimeFunctionType::ROUTINE, RuntimeReturnType::VOID,
+        "Update SDL2 window with Cairo surface (surface, sdl_window_id)", "GRAPHICS", cairo_sdl_display_params
+    },
+    {
+        "CAIRO_TO_SDL_TEXTURE", "_CAIRO_TO_SDL_TEXTURE",
+        reinterpret_cast<RuntimeFunctionPtr>(CAIRO_TO_SDL_TEXTURE), 2,
+        RuntimeFunctionType::STANDARD, RuntimeReturnType::INTEGER,
+        "Convert Cairo surface to SDL2 texture (surface, sdl_renderer_id)", "GRAPHICS", cairo_sdl_display_params
     }
 };
 

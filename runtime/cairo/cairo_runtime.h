@@ -114,6 +114,22 @@ void CAIRO_SET_LINE_CAP(CairoSurfaceHandle surface_handle, int64_t cap_style);
  */
 void CAIRO_SET_OPACITY(CairoSurfaceHandle surface_handle, double opacity);
 
+/**
+ * Set antialiasing mode for drawing operations
+ * BCPL Usage: CAIRO_SET_ANTIALIAS(surface, antialias_mode)
+ * @param surface_handle Handle to surface
+ * @param antialias_mode Antialiasing mode (0=default, 1=none, 2=gray, 3=subpixel, 4=fast, 5=good, 6=best)
+ */
+void CAIRO_SET_ANTIALIAS(CairoSurfaceHandle surface_handle, int64_t antialias_mode);
+
+/**
+ * Get current antialiasing mode
+ * BCPL Usage: mode = CAIRO_GET_ANTIALIAS(surface)
+ * @param surface_handle Handle to surface
+ * @return Current antialiasing mode
+ */
+int64_t CAIRO_GET_ANTIALIAS(CairoSurfaceHandle surface_handle);
+
 // =============================================================================
 // BASIC SHAPES
 // =============================================================================

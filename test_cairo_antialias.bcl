@@ -1,0 +1,152 @@
+LET START() BE
+$(
+    WRITES("Testing Cairo Antialiasing Settings...*N")
+
+    LET cairo_available = CAIRO_IS_AVAILABLE()
+    WRITEF("CAIRO_IS_AVAILABLE() returns: %N*N", cairo_available)
+
+    TEST cairo_available = 0 THEN
+    $(
+        WRITES("Cairo is not available in this build*N")
+        RETURN
+    $)
+    ELSE
+    $(
+        // Continue with tests
+    $)
+
+    WRITES("Cairo is available! Testing antialiasing modes...*N")
+
+    // Create test surfaces for different antialiasing modes
+    LET surface1 = CAIRO_CREATE_SURFACE(400, 300)
+    LET surface2 = CAIRO_CREATE_SURFACE(400, 300)
+    LET surface3 = CAIRO_CREATE_SURFACE(400, 300)
+
+    TEST surface1 = 0 | surface2 = 0 | surface3 = 0 THEN
+    $(
+        WRITES("ERROR: Failed to create Cairo surfaces*N")
+        RETURN
+    $)
+    ELSE
+    $(
+        WRITES("Created 3 test surfaces successfully*N")
+    $)
+
+    // Test 1: No antialiasing (aliased/pixelated)
+    WRITES("Testing CAIRO_SET_ANTIALIAS with mode 1 (NONE)...*N")
+    CAIRO_SET_ANTIALIAS(surface1, 1)  // CAIRO_ANTIALIAS_NONE
+    LET mode1 = CAIRO_GET_ANTIALIAS(surface1)
+    WRITEF("Surface1 antialias mode set to: %N*N", mode1)
+
+    CAIRO_CLEAR(surface1, #xFFFFFFFF)  // White background
+    CAIRO_SET_COLOR(surface1, #xFF0000FF)  // Red
+    CAIRO_SET_LINE_WIDTH(surface1, 2.0)
+
+    // Draw diagonal lines and curves (should look pixelated)
+    CAIRO_DRAW_LINE(surface1, 10.0, 10.0, 390.0, 290.0)
+    CAIRO_DRAW_LINE(surface1, 390.0, 10.0, 10.0, 290.0)
+
+    // Draw circles (should have jagged edges)
+    CAIRO_SET_COLOR(surface1, #x0000FFFF)  // Blue
+    CAIRO_STROKE_CIRCLE(surface1, 200.0, 150.0, 80.0)
+    CAIRO_STROKE_CIRCLE(surface1, 200.0, 150.0, 50.0)
+
+    // Test 2: Gray antialiasing (smooth)
+    WRITES("Testing CAIRO_SET_ANTIALIAS with mode 2 (GRAY)...*N")
+    CAIRO_SET_ANTIALIAS(surface2, 2)  // CAIRO_ANTIALIAS_GRAY
+    LET mode2 = CAIRO_GET_ANTIALIAS(surface2)
+    WRITEF("Surface2 antialias mode set to: %N*N", mode2)
+
+    CAIRO_CLEAR(surface2, #xFFFFFFFF)  // White background
+    CAIRO_SET_COLOR(surface2, #xFF0000FF)  // Red
+    CAIRO_SET_LINE_WIDTH(surface2, 2.0)
+
+    // Same drawing operations (should look smooth)
+    CAIRO_DRAW_LINE(surface2, 10.0, 10.0, 390.0, 290.0)
+    CAIRO_DRAW_LINE(surface2, 390.0, 10.0, 10.0, 290.0)
+
+    CAIRO_SET_COLOR(surface2, #x0000FFFF)  // Blue
+    CAIRO_STROKE_CIRCLE(surface2, 200.0, 150.0, 80.0)
+    CAIRO_STROKE_CIRCLE(surface2, 200.0, 150.0, 50.0)
+
+    // Test 3: Best quality antialiasing
+    WRITES("Testing CAIRO_SET_ANTIALIAS with mode 6 (BEST)...*N")
+    CAIRO_SET_ANTIALIAS(surface3, 6)  // CAIRO_ANTIALIAS_BEST
+    LET mode3 = CAIRO_GET_ANTIALIAS(surface3)
+    WRITEF("Surface3 antialias mode set to: %N*N", mode3)
+
+    CAIRO_CLEAR(surface3, #xFFFFFFFF)  // White background
+    CAIRO_SET_COLOR(surface3, #xFF0000FF)  // Red
+    CAIRO_SET_LINE_WIDTH(surface3, 2.0)
+
+    // Same drawing operations (should look highest quality)
+    CAIRO_DRAW_LINE(surface3, 10.0, 10.0, 390.0, 290.0)
+    CAIRO_DRAW_LINE(surface3, 390.0, 10.0, 10.0, 290.0)
+
+    CAIRO_SET_COLOR(surface3, #x0000FFFF)  // Blue
+    CAIRO_STROKE_CIRCLE(surface3, 200.0, 150.0, 80.0)
+    CAIRO_STROKE_CIRCLE(surface3, 200.0, 150.0, 50.0)
+
+    // Add text to show the difference
+    CAIRO_SET_FONT(surface1, "Arial", 16.0)
+    CAIRO_SET_COLOR(surface1, #x000000FF)  // Black
+    CAIRO_DRAW_TEXT(surface1, 10.0, 280.0, "ANTIALIAS_NONE (Pixelated)")
+
+    CAIRO_SET_FONT(surface2, "Arial", 16.0)
+    CAIRO_SET_COLOR(surface2, #x000000FF)  // Black
+    CAIRO_DRAW_TEXT(surface2, 10.0, 280.0, "ANTIALIAS_GRAY (Smooth)")
+
+    CAIRO_SET_FONT(surface3, "Arial", 16.0)
+    CAIRO_SET_COLOR(surface3, #x000000FF)  // Black
+    CAIRO_DRAW_TEXT(surface3, 10.0, 280.0, "ANTIALIAS_BEST (Highest Quality)")
+
+    // Save the results
+    CAIRO_SAVE_PNG(surface1, "antialias_none.png")
+    CAIRO_SAVE_PNG(surface2, "antialias_gray.png")
+    CAIRO_SAVE_PNG(surface3, "antialias_best.png")
+
+    WRITES("Saved comparison images:*N")
+    WRITES("  - antialias_none.png (pixelated, no antialiasing)*N")
+    WRITES("  - antialias_gray.png (smooth grayscale antialiasing)*N")
+    WRITES("  - antialias_best.png (highest quality antialiasing)*N")
+
+    // Test all antialiasing modes
+    WRITES("*NTesting all antialiasing modes:*N")
+    LET test_modes = VEC 6
+    test_modes!0 := 0  // DEFAULT
+    test_modes!1 := 1  // NONE
+    test_modes!2 := 2  // GRAY
+    test_modes!3 := 3  // SUBPIXEL
+    test_modes!4 := 4  // FAST
+    test_modes!5 := 5  // GOOD
+    test_modes!6 := 6  // BEST
+
+    LET mode_names = VEC 6
+    mode_names!0 := "DEFAULT"
+    mode_names!1 := "NONE"
+    mode_names!2 := "GRAY"
+    mode_names!3 := "SUBPIXEL"
+    mode_names!4 := "FAST"
+    mode_names!5 := "GOOD"
+    mode_names!6 := "BEST"
+
+    FOR i = 0 TO 6 DO
+    $(
+        LET mode = test_modes!i
+        LET name = mode_names!i
+        CAIRO_SET_ANTIALIAS(surface1, mode)
+        LET retrieved_mode = CAIRO_GET_ANTIALIAS(surface1)
+        WRITES("Mode ")
+        WRITEN(mode)
+        WRITES(" (")
+        WRITES(name)
+        WRITES("): Set=")
+        WRITEN(mode)
+        WRITES(", Retrieved=")
+        WRITEN(retrieved_mode)
+        WRITES("*N")
+    $)
+
+    WRITES("*NCairo antialiasing test completed successfully!*N")
+    WRITES("Compare the generated PNG files to see the visual differences.*N")
+$)

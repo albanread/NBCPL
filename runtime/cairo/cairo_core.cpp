@@ -220,6 +220,19 @@ void CairoSurface::setOpacity(double opacity) {
     }
 }
 
+void CairoSurface::setAntialias(cairo_antialias_t antialias) {
+    if (context_) {
+        cairo_set_antialias(context_, antialias);
+    }
+}
+
+cairo_antialias_t CairoSurface::getAntialias() const {
+    if (context_) {
+        return cairo_get_antialias(context_);
+    }
+    return CAIRO_ANTIALIAS_DEFAULT;
+}
+
 void CairoSurface::setFont(const std::string& font_name, double font_size) {
     if (context_) {
         cairo_select_font_face(context_, font_name.c_str(), 

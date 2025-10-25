@@ -164,6 +164,8 @@ public:
     void setLineJoin(cairo_line_join_t join);
     void setLineCap(cairo_line_cap_t cap);
     void setOpacity(double opacity);
+    void setAntialias(cairo_antialias_t antialias);
+    cairo_antialias_t getAntialias() const;
     void setFont(const std::string& font_name, double font_size);
 
     // --- Basic Shape Drawing ---

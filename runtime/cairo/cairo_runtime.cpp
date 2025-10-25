@@ -286,6 +286,61 @@ void CAIRO_SET_OPACITY(CairoSurfaceHandle surface_handle, double opacity) {
     }
 }
 
+void CAIRO_SET_ANTIALIAS(CairoSurfaceHandle surface_handle, int64_t antialias_mode) {
+    try {
+        clearLastError();
+        CairoSurface* surface = CairoResourceManager::getSurface(surface_handle);
+        if (!surface) {
+            setLastError("Invalid surface handle");
+            return;
+        }
+        
+        // Convert integer mode to Cairo antialias enum
+        cairo_antialias_t antialias;
+        switch (antialias_mode) {
+            case 0: antialias = CAIRO_ANTIALIAS_DEFAULT; break;
+            case 1: antialias = CAIRO_ANTIALIAS_NONE; break;
+            case 2: antialias = CAIRO_ANTIALIAS_GRAY; break;
+            case 3: antialias = CAIRO_ANTIALIAS_SUBPIXEL; break;
+            case 4: antialias = CAIRO_ANTIALIAS_FAST; break;
+            case 5: antialias = CAIRO_ANTIALIAS_GOOD; break;
+            case 6: antialias = CAIRO_ANTIALIAS_BEST; break;
+            default: antialias = CAIRO_ANTIALIAS_DEFAULT; break;
+        }
+        
+        surface->setAntialias(antialias);
+    } catch (const std::exception& e) {
+        setLastError(e.what());
+    }
+}
+
+int64_t CAIRO_GET_ANTIALIAS(CairoSurfaceHandle surface_handle) {
+    try {
+        clearLastError();
+        CairoSurface* surface = CairoResourceManager::getSurface(surface_handle);
+        if (!surface) {
+            setLastError("Invalid surface handle");
+            return 0;
+        }
+        
+        // Convert Cairo antialias enum to integer mode
+        cairo_antialias_t antialias = surface->getAntialias();
+        switch (antialias) {
+            case CAIRO_ANTIALIAS_DEFAULT: return 0;
+            case CAIRO_ANTIALIAS_NONE: return 1;
+            case CAIRO_ANTIALIAS_GRAY: return 2;
+            case CAIRO_ANTIALIAS_SUBPIXEL: return 3;
+            case CAIRO_ANTIALIAS_FAST: return 4;
+            case CAIRO_ANTIALIAS_GOOD: return 5;
+            case CAIRO_ANTIALIAS_BEST: return 6;
+            default: return 0;
+        }
+    } catch (const std::exception& e) {
+        setLastError(e.what());
+        return 0;
+    }
+}
+
 // =============================================================================
 // BASIC SHAPES
 // =============================================================================

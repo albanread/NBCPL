@@ -1,0 +1,67 @@
+LET START() BE
+$(
+    WRITES("Testing Cairo availability...*N")
+
+    LET cairo_available = CAIRO_IS_AVAILABLE()
+    WRITEF("CAIRO_IS_AVAILABLE() returns: %N*N", cairo_available)
+
+    TEST cairo_available = 0 THEN
+    $(
+        WRITES("Cairo is not available in this build*N")
+        RETURN
+    $)
+    ELSE
+    $(
+        // Continue with tests
+    $)
+
+    WRITES("Cairo is available! Testing basic functions...*N")
+
+    // Test version info
+    LET version = CAIRO_GET_VERSION()
+    WRITES("Cairo version: ")
+    WRITES(version)
+    WRITES("*N")
+
+    // Test surface creation
+    WRITES("Testing surface creation...*N")
+    LET surface = CAIRO_CREATE_SURFACE(400, 300)
+    WRITEF("Created surface handle: %N*N", surface)
+
+    CAIRO_SET_ANTIALIAS(surface, 5)
+ 
+        TEST surface ~= 0 THEN
+        $(
+            WRITES("Surface created successfully!*N")
+
+            // Test basic drawing operations
+            CAIRO_CLEAR(surface, #xFFFFFFFF)  // White background
+            CAIRO_SET_COLOR(surface, #xFF0000FF)  // Red color
+            CAIRO_FILL_RECT(surface, 50, 50, 100, 80)
+            CAIRO_SET_COLOR(surface, #x0000FFFF)  // Blue color
+            CAIRO_FILL_CIRCLE(surface, 200, 150, 40)
+
+            // Test line drawing
+            CAIRO_SET_COLOR(surface, #x00FF00FF)  // Green color
+            CAIRO_DRAW_LINE(surface, 10, 10, 390, 290)
+
+            // Test text rendering if font functions are available
+            CAIRO_SET_FONT(surface, "Arial", 16)
+            CAIRO_SET_COLOR(surface, #x000000FF)  // Black color
+            CAIRO_DRAW_TEXT(surface, 20, 280, "Hello Cairo from BCPL!")
+
+            // Save the result
+            CAIRO_SAVE_PNG(surface, "test_cairo_functions.png")
+            WRITES("Saved test image to test_cairo_functions.png*N")
+
+            // Test resource counting
+            LET surface_count = CAIRO_SURFACE_COUNT()
+            WRITEF("Active surfaces: %N*N", surface_count)
+
+            WRITES("All basic Cairo tests completed successfully!*N")
+        $)
+        ELSE
+        $(
+            WRITES("ERROR: Failed to create Cairo surface*N")
+        $)
+$)

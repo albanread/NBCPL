@@ -41,7 +41,9 @@ LET START() BE
 
     // Draw rectangle
     WRITEF("Drawing rectangle...*N")
-    CAIRO_FILL_RECT(surface, 10.0, 10.0, 50.0, 30.0)
+    CAIRO_FILL_RECT(surface, 10, 10, 50, 30)
+
+    CAIRO_DRAW_LINE(surface,10,10,150,150)
    
     // Save image
     WRITEF("Saving image...*N")
