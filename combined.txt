@@ -34216,18 +34216,28 @@ void ASTAnalyzer::visit(AssignmentStatement& node) {
                 if (symbol_table_->lookup(var->name, symbol)) {
                     // Update type using priority system - more specific types win
                     symbol.type = variable_type;
+                    std::cerr << "[DEBUG ASSIGN] Processing assignment to '" << var->name << "'" << std::endl;
                     if (auto* new_expr = dynamic_cast<NewExpression*>(node.rhs[i].get())) {
                         symbol.class_name = new_expr->class_name;
+                        std::cerr << "[DEBUG ASSIGN] Set class_name '" << new_expr->class_name << "' from NewExpression to '" << var->name << "'" << std::endl;
                     } else if (auto* var_access = dynamic_cast<VariableAccess*>(node.rhs[i].get())) {
                         // Propagate class name from variable to variable (e.g., animal1 = dog)
+                        std::cerr << "[DEBUG ASSIGN] Variable assignment: '" << var->name << "' = '" << var_access->name << "'" << std::endl;
                         Symbol rhs_symbol;
-                        if (symbol_table_->lookup(var_access->name, rhs_symbol) && !rhs_symbol.class_name.empty()) {
-                            symbol.class_name = rhs_symbol.class_name;
-                            if (trace_enabled_) {
-                                std::cerr << "[ASSIGNMENT VISITOR] Propagated class name '" << rhs_symbol.class_name 
+                        if (symbol_table_->lookup(var_access->name, rhs_symbol)) {
+                            std::cerr << "[DEBUG ASSIGN] Found RHS symbol '" << var_access->name << "' with class_name '" << rhs_symbol.class_name << "'" << std::endl;
+                            if (!rhs_symbol.class_name.empty()) {
+                                symbol.class_name = rhs_symbol.class_name;
+                                std::cerr << "[DEBUG ASSIGN] Propagated class name '" << rhs_symbol.class_name 
                                          << "' from '" << var_access->name << "' to '" << var->name << "'" << std::endl;
+                            } else {
+                                std::cerr << "[DEBUG ASSIGN] RHS symbol has empty class_name" << std::endl;
                             }
+                        } else {
+                            std::cerr << "[DEBUG ASSIGN] Could not find RHS symbol '" << var_access->name << "' in symbol table" << std::endl;
                         }
+                    } else {
+                        std::cerr << "[DEBUG ASSIGN] RHS is not NewExpression or VariableAccess" << std::endl;
                     }
 
                     // 2. Correctly set the ownership flag based on the RHS expression type.
@@ -35580,6 +35590,27 @@ void ASTAnalyzer::visit(LetDeclaration& node) {
             determined_class_name = new_expr->class_name;
             std::cerr << "DEBUG: Variable '" << name << "' is NewExpression for class: " << determined_class_name << " with type: " << vartype_to_string(determined_type) << std::endl;
         }
+        // --- HANDLE VariableAccess expressions and PROPAGATE class_name ---
+        else if (initializer && dynamic_cast<VariableAccess*>(initializer)) {
+            auto* var_access = static_cast<VariableAccess*>(initializer);
+            std::cerr << "[DEBUG] Processing LetDeclaration: '" << name << "' = '" << var_access->name << "'" << std::endl;
+            if (symbol_table_) {
+                Symbol rhs_symbol;
+                if (symbol_table_->lookup(var_access->name, rhs_symbol)) {
+                    std::cerr << "[DEBUG] Found RHS symbol '" << var_access->name << "' with class_name: '" << rhs_symbol.class_name << "'" << std::endl;
+                    if (!rhs_symbol.class_name.empty()) {
+                        determined_type = rhs_symbol.type;
+                        determined_class_name = rhs_symbol.class_name;
+                        std::cerr << "[DEBUG] Variable '" << name << "' assigned from '" << var_access->name 
+                                  << "' with class: " << determined_class_name << " and type: " << vartype_to_string(determined_type) << std::endl;
+                    } else {
+                        std::cerr << "[DEBUG] RHS symbol '" << var_access->name << "' has empty class_name" << std::endl;
+                    }
+                } else {
+                    std::cerr << "[DEBUG] Could not find RHS symbol '" << var_access->name << "' in symbol table" << std::endl;
+                }
+            }
+        }
         else if (initializer) {
             // First, check for explicit vector allocations which have unambiguous types.
             if (dynamic_cast<FVecAllocationExpression*>(initializer)) {
@@ -35692,6 +35723,9 @@ void ASTAnalyzer::visit(LetDeclaration& node) {
             );
             if (!determined_class_name.empty()) {
                 updated_symbol.class_name = determined_class_name;
+                std::cerr << "[DEBUG] Setting class_name for symbol '" << name << "' to '" << determined_class_name << "'" << std::endl;
+            } else {
+                std::cerr << "[DEBUG] No class_name determined for symbol '" << name << "'" << std::endl;
             }
             updated_symbol.owns_heap_memory = owns_heap_memory;
             updated_symbol.contains_literals = contains_literals;
@@ -51506,16 +51540,20 @@ void NewCodeGenerator::visit(MemberAccessExpression& node) {
 
     if (auto* var_access = dynamic_cast<VariableAccess*>(node.object_expr.get())) {
         debug_print("  Object is VariableAccess: " + var_access->name);
+        std::cerr << "[DEBUG] MemberAccess: Looking up variable '" << var_access->name << "'" << std::endl;
         if (symbol_table_ && symbol_table_->lookup(var_access->name, object_symbol)) {
             class_name = object_symbol.class_name;
             debug_print("  Found symbol with class name: " + class_name);
+            std::cerr << "[DEBUG] MemberAccess: Variable '" << var_access->name << "' has class_name '" << class_name << "'" << std::endl;
         } else {
             debug_print("  WARNING: Symbol lookup failed for: " + var_access->name);
+            std::cerr << "[DEBUG] MemberAccess: Symbol lookup FAILED for variable '" << var_access->name << "'" << std::endl;
         }
     } else {
         debug_print("  Object is not a VariableAccess, using get_class_name_for_expression");
         try {
             class_name = get_class_name_for_expression(node.object_expr.get());
+            std::cerr << "[DEBUG] MemberAccess: get_class_name_for_expression returned '" << class_name << "'" << std::endl;
         } catch (const std::exception& e) {
             debug_print("  get_class_name_for_expression failed: " + std::string(e.what()));
         }
@@ -51524,6 +51562,7 @@ void NewCodeGenerator::visit(MemberAccessExpression& node) {
     if (class_name.empty()) {
         debug_print("  ERROR: Could not determine class name for object in member access");
         debug_print("  Member being accessed: " + node.member_name);
+        std::cerr << "[DEBUG] MemberAccess: ERROR - Empty class_name for member '" << node.member_name << "'" << std::endl;
         
         // Set a safe dummy register and return to prevent crashes
         std::string dummy_reg = register_manager_.acquire_scratch_reg(*this);
@@ -51547,9 +51586,16 @@ void NewCodeGenerator::visit(MemberAccessExpression& node) {
     
     // Use the helper method to lookup the method (handles both simple and qualified names)
     debug_print("  Looking up class method '" + node.member_name + "' in class '" + class_name + "'");
+    std::cerr << "[DEBUG] MemberAccess: Looking up method '" << node.member_name << "' in class '" << class_name << "'" << std::endl;
     ClassMethodInfo* method_info_ptr = class_table_->lookup_class_method(class_name, node.member_name);
     
     debug_print("  Method lookup result: " + std::string(method_info_ptr != nullptr ? "FOUND" : "NOT FOUND"));
+    if (method_info_ptr) {
+        std::cerr << "[DEBUG] MemberAccess: Method found - is_virtual: " << (method_info_ptr->is_virtual ? "true" : "false") 
+                  << ", qualified_name: " << method_info_ptr->qualified_name << std::endl;
+    } else {
+        std::cerr << "[DEBUG] MemberAccess: Method NOT FOUND" << std::endl;
+    }
 
     if (member_it != class_entry->member_variables.end()) {
         // --- PATH A: DATA MEMBER (e.g., p.x) ---

@@ -199,6 +199,27 @@ void ASTAnalyzer::visit(LetDeclaration& node) {
             determined_class_name = new_expr->class_name;
             std::cerr << "DEBUG: Variable '" << name << "' is NewExpression for class: " << determined_class_name << " with type: " << vartype_to_string(determined_type) << std::endl;
         }
+        // --- HANDLE VariableAccess expressions and PROPAGATE class_name ---
+        else if (initializer && dynamic_cast<VariableAccess*>(initializer)) {
+            auto* var_access = static_cast<VariableAccess*>(initializer);
+            std::cerr << "[DEBUG] Processing LetDeclaration: '" << name << "' = '" << var_access->name << "'" << std::endl;
+            if (symbol_table_) {
+                Symbol rhs_symbol;
+                if (symbol_table_->lookup(var_access->name, rhs_symbol)) {
+                    std::cerr << "[DEBUG] Found RHS symbol '" << var_access->name << "' with class_name: '" << rhs_symbol.class_name << "'" << std::endl;
+                    if (!rhs_symbol.class_name.empty()) {
+                        determined_type = rhs_symbol.type;
+                        determined_class_name = rhs_symbol.class_name;
+                        std::cerr << "[DEBUG] Variable '" << name << "' assigned from '" << var_access->name 
+                                  << "' with class: " << determined_class_name << " and type: " << vartype_to_string(determined_type) << std::endl;
+                    } else {
+                        std::cerr << "[DEBUG] RHS symbol '" << var_access->name << "' has empty class_name" << std::endl;
+                    }
+                } else {
+                    std::cerr << "[DEBUG] Could not find RHS symbol '" << var_access->name << "' in symbol table" << std::endl;
+                }
+            }
+        }
         else if (initializer) {
             // First, check for explicit vector allocations which have unambiguous types.
             if (dynamic_cast<FVecAllocationExpression*>(initializer)) {
@@ -311,6 +332,9 @@ void ASTAnalyzer::visit(LetDeclaration& node) {
             );
             if (!determined_class_name.empty()) {
                 updated_symbol.class_name = determined_class_name;
+                std::cerr << "[DEBUG] Setting class_name for symbol '" << name << "' to '" << determined_class_name << "'" << std::endl;
+            } else {
+                std::cerr << "[DEBUG] No class_name determined for symbol '" << name << "'" << std::endl;
             }
             updated_symbol.owns_heap_memory = owns_heap_memory;
             updated_symbol.contains_literals = contains_literals;

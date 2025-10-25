@@ -15,16 +15,20 @@ void NewCodeGenerator::visit(MemberAccessExpression& node) {
 
     if (auto* var_access = dynamic_cast<VariableAccess*>(node.object_expr.get())) {
         debug_print("  Object is VariableAccess: " + var_access->name);
+        std::cerr << "[DEBUG] MemberAccess: Looking up variable '" << var_access->name << "'" << std::endl;
         if (symbol_table_ && symbol_table_->lookup(var_access->name, object_symbol)) {
             class_name = object_symbol.class_name;
             debug_print("  Found symbol with class name: " + class_name);
+            std::cerr << "[DEBUG] MemberAccess: Variable '" << var_access->name << "' has class_name '" << class_name << "'" << std::endl;
         } else {
             debug_print("  WARNING: Symbol lookup failed for: " + var_access->name);
+            std::cerr << "[DEBUG] MemberAccess: Symbol lookup FAILED for variable '" << var_access->name << "'" << std::endl;
         }
     } else {
         debug_print("  Object is not a VariableAccess, using get_class_name_for_expression");
         try {
             class_name = get_class_name_for_expression(node.object_expr.get());
+            std::cerr << "[DEBUG] MemberAccess: get_class_name_for_expression returned '" << class_name << "'" << std::endl;
         } catch (const std::exception& e) {
             debug_print("  get_class_name_for_expression failed: " + std::string(e.what()));
         }
@@ -33,6 +37,7 @@ void NewCodeGenerator::visit(MemberAccessExpression& node) {
     if (class_name.empty()) {
         debug_print("  ERROR: Could not determine class name for object in member access");
         debug_print("  Member being accessed: " + node.member_name);
+        std::cerr << "[DEBUG] MemberAccess: ERROR - Empty class_name for member '" << node.member_name << "'" << std::endl;
         
         // Set a safe dummy register and return to prevent crashes
         std::string dummy_reg = register_manager_.acquire_scratch_reg(*this);
@@ -56,9 +61,16 @@ void NewCodeGenerator::visit(MemberAccessExpression& node) {
     
     // Use the helper method to lookup the method (handles both simple and qualified names)
     debug_print("  Looking up class method '" + node.member_name + "' in class '" + class_name + "'");
+    std::cerr << "[DEBUG] MemberAccess: Looking up method '" << node.member_name << "' in class '" << class_name << "'" << std::endl;
     ClassMethodInfo* method_info_ptr = class_table_->lookup_class_method(class_name, node.member_name);
     
     debug_print("  Method lookup result: " + std::string(method_info_ptr != nullptr ? "FOUND" : "NOT FOUND"));
+    if (method_info_ptr) {
+        std::cerr << "[DEBUG] MemberAccess: Method found - is_virtual: " << (method_info_ptr->is_virtual ? "true" : "false") 
+                  << ", qualified_name: " << method_info_ptr->qualified_name << std::endl;
+    } else {
+        std::cerr << "[DEBUG] MemberAccess: Method NOT FOUND" << std::endl;
+    }
 
     if (member_it != class_entry->member_variables.end()) {
         // --- PATH A: DATA MEMBER (e.g., p.x) ---
