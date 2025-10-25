@@ -128,6 +128,7 @@ public:
     DeclPtr parse_member_declaration(); // New: for members within a class
     DeclPtr parse_member_let_declaration(); // New: for LET/FLET declarations within a class
     DeclPtr parse_function_or_routine_declaration(); // New: for top-level function/routine declarations
+    DeclPtr parse_function_or_routine_declaration_with_modifiers(bool is_virtual, bool is_final); // New: with VIRTUAL/FINAL support
     DeclPtr parse_retaining_declaration(); // <-- ADD THIS
 
     // Helper for parameter parsing with optional _this injection

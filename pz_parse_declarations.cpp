@@ -7,6 +7,18 @@
 DeclPtr Parser::parse_member_declaration() {
     TraceGuard guard(*this, "parse_member_declaration");
 
+    // Check for VIRTUAL and FINAL modifiers before member declarations
+    bool is_virtual = false;
+    bool is_final = false;
+    while (check(TokenType::Virtual) || check(TokenType::Final)) {
+        if (match(TokenType::Virtual)) {
+            is_virtual = true;
+        }
+        if (match(TokenType::Final)) {
+            is_final = true;
+        }
+    }
+
     if (check(TokenType::Decl)) {
         advance(); // Consume 'DECL'
         std::vector<std::string> names;
@@ -22,7 +34,7 @@ DeclPtr Parser::parse_member_declaration() {
     }
 
     if (check(TokenType::Function) || check(TokenType::Routine)) {
-        return parse_function_or_routine_declaration();
+        return parse_function_or_routine_declaration_with_modifiers(is_virtual, is_final);
     }
 
     error("Expected DECL, LET, FLET, FUNCTION, or ROUTINE for class member declaration.");
@@ -444,7 +456,11 @@ DeclPtr Parser::parse_class_declaration() {
 
 
 DeclPtr Parser::parse_function_or_routine_declaration() {
-    TraceGuard guard(*this, "parse_function_or_routine_declaration");
+    return parse_function_or_routine_declaration_with_modifiers(false, false);
+}
+
+DeclPtr Parser::parse_function_or_routine_declaration_with_modifiers(bool is_virtual, bool is_final) {
+    TraceGuard guard(*this, "parse_function_or_routine_declaration_with_modifiers");
 
     bool is_function = match(TokenType::Function);
     bool is_routine = !is_function && match(TokenType::Routine);
@@ -481,7 +497,10 @@ DeclPtr Parser::parse_function_or_routine_declaration() {
             error("Expect 'VALOF' or 'FVALOF' for FUNCTION body.");
             return nullptr;
         }
-        return std::make_unique<FunctionDeclaration>(name, std::move(params), std::move(body));
+        auto func_decl = std::make_unique<FunctionDeclaration>(name, std::move(params), std::move(body));
+        func_decl->is_virtual = is_virtual;
+        func_decl->is_final = is_final;
+        return func_decl;
     } else if (is_routine) {
         consume(TokenType::Be, "A ROUTINE must be defined with 'BE'.");
         auto body = parse_statement();
@@ -507,7 +526,10 @@ DeclPtr Parser::parse_function_or_routine_declaration() {
             }
         }
         
-        return std::make_unique<RoutineDeclaration>(name, std::move(params), std::move(body));
+        auto routine_decl = std::make_unique<RoutineDeclaration>(name, std::move(params), std::move(body));
+        routine_decl->is_virtual = is_virtual;
+        routine_decl->is_final = is_final;
+        return routine_decl;
     }
 
     error("Expected 'FUNCTION' or 'ROUTINE' for class member.");

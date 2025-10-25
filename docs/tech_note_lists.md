@@ -305,6 +305,187 @@ VarType infer_list_type(const ListExpression* node) {
 }
 ```
 
+## Type Inspection and Runtime Type Checking
+
+### TYPE Constants
+
+The compiler provides built-in TYPE constants that correspond to the runtime ATOM type tags. These constants can be used with `TYPEOF()` and in `FOREACH` loops for type-safe list processing:
+
+```bcpl
+// Available TYPE constants:
+TYPE_INT     = 1   // Integer values
+TYPE_FLOAT   = 2   // Floating-point values  
+TYPE_STRING  = 3   // String values
+TYPE_LIST    = 4   // Nested list pointers
+TYPE_PAIR    = 6   // Integer pairs: PAIR(x, y)
+TYPE_FPAIR   = 7   // Float pairs: FPAIR(x, y)
+TYPE_QUAD    = 8   // Integer quads: QUAD(a, b, c, d)
+TYPE_FQUAD   = 9   // Float quads: FQUAD(a, b, c, d)
+TYPE_OCT     = 10  // Integer octets: OCT(a, b, c, d, e, f, g, h)
+TYPE_FOCT    = 11  // Float octets: FOCT(a, b, c, d, e, f, g, h)
+```
+
+### Using TYPEOF for Single Element Inspection
+
+```bcpl
+LET START() BE $(
+    LET L = LIST("hello", 42, PAIR(10, 20), FPAIR(1.5, 2.5))
+    
+    // Get the first element and check its type
+    LET FirstNodePtr = L!0 
+    IF FirstNodePtr = 0 THEN FINISH
+    
+    LET T = TYPEOF(FirstNodePtr)
+    
+    SWITCHON T INTO $(
+        CASE TYPE_STRING: $(
+            LET S = AS_STRING(FirstNodePtr)
+            WRITES("Found string: ")
+            WRITES(S)
+            ENDCASE
+        $)
+        CASE TYPE_INT: $(
+            LET I = AS_INT(FirstNodePtr)
+            WRITES("Found integer: ")
+            WRITEN(I)
+            ENDCASE
+        $)
+        CASE TYPE_PAIR: $(
+            WRITES("Found integer pair")
+            // Use AS_PAIR() to extract values if needed
+            ENDCASE
+        $)
+        CASE TYPE_FPAIR: $(
+            WRITES("Found float pair")
+            // Use AS_FPAIR() to extract values if needed
+            ENDCASE
+        $)
+        DEFAULT: $(
+            WRITES("Unknown type: ")
+            WRITEN(T)
+            ENDCASE
+        $)
+    $)
+$)
+```
+
+### Using FOREACH with Type Variables
+
+The two-variable `FOREACH` syntax provides automatic type inspection:
+
+```bcpl
+LET ProcessMixedList(L) BE $(
+    // FOREACH T, E IN L provides:
+    // T = type tag (same as TYPEOF(E))  
+    // E = element pointer
+    
+    FOREACH T, E IN L DO $(
+        SWITCHON T INTO $(
+            CASE TYPE_STRING: $(
+                WRITES("String: ")
+                WRITES(AS_STRING(E))
+                WRITES("*N")
+                ENDCASE
+            $)
+            CASE TYPE_INT: $(
+                WRITES("Integer: ")
+                WRITEN(AS_INT(E))
+                WRITES("*N")
+                ENDCASE
+            $)
+            CASE TYPE_FLOAT: $(
+                WRITES("Float: ")
+                WRITEF(AS_FLOAT(E))
+                WRITES("*N")
+                ENDCASE
+            $)
+            CASE TYPE_PAIR: $(
+                WRITES("Integer Pair*N")
+                // Process pair elements
+                ENDCASE
+            $)
+            CASE TYPE_FPAIR: $(
+                WRITES("Float Pair*N")
+                // Process float pair elements
+                ENDCASE
+            $)
+            CASE TYPE_QUAD: $(
+                WRITES("Integer Quad*N")
+                // Process quad elements
+                ENDCASE
+            $)
+            CASE TYPE_FQUAD: $(
+                WRITES("Float Quad*N")
+                // Process float quad elements
+                ENDCASE
+            $)
+            CASE TYPE_OCT: $(
+                WRITES("Integer Octet*N")
+                // Process octet elements
+                ENDCASE
+            $)
+            CASE TYPE_FOCT: $(
+                WRITES("Float Octet*N")
+                // Process float octet elements
+                ENDCASE
+            $)
+            CASE TYPE_LIST: $(
+                WRITES("Nested List*N")
+                // Recursively process nested list
+                ProcessMixedList(AS_LIST(E))
+                ENDCASE
+            $)
+            DEFAULT: $(
+                WRITES("Unknown type: ")
+                WRITEN(T)
+                WRITES("*N")
+                ENDCASE
+            $)
+        $)
+    $)
+$)
+```
+
+### Type-Filtered Processing
+
+You can combine type checking with filtering for specialized processing:
+
+```bcpl
+LET ProcessOnlyVectors(L) BE $(
+    FOREACH T, E IN L DO $(
+        // Only process vector types
+        IF T = TYPE_PAIR | T = TYPE_FPAIR | T = TYPE_QUAD | 
+           T = TYPE_FQUAD | T = TYPE_OCT | T = TYPE_FOCT THEN $(
+            WRITES("Processing vector type: ")
+            WRITEN(T)
+            WRITES("*N")
+            // Process vector element...
+        $)
+    $)
+$)
+```
+
+### Runtime Type Safety
+
+The TYPE constants ensure compile-time safety when working with heterogeneous lists:
+
+```bcpl
+LET SafeExtractNumber(NodePtr) = VALOF $(
+    LET T = TYPEOF(NodePtr)
+    
+    SWITCHON T INTO $(
+        CASE TYPE_INT: RESULTIS AS_INT(NodePtr)
+        CASE TYPE_FLOAT: RESULTIS FIX(AS_FLOAT(NodePtr))  // Convert to int
+        DEFAULT: $(
+            WRITES("Error: Expected numeric type, got: ")
+            WRITEN(T)
+            WRITES("*N")
+            RESULTIS 0
+        $)
+    $)
+$)
+```
+
 ## Memory Management
 
 ### SAMM Integration (Scope-Aware Memory Management)

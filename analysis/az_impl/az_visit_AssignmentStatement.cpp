@@ -296,6 +296,16 @@ void ASTAnalyzer::visit(AssignmentStatement& node) {
                     symbol.type = variable_type;
                     if (auto* new_expr = dynamic_cast<NewExpression*>(node.rhs[i].get())) {
                         symbol.class_name = new_expr->class_name;
+                    } else if (auto* var_access = dynamic_cast<VariableAccess*>(node.rhs[i].get())) {
+                        // Propagate class name from variable to variable (e.g., animal1 = dog)
+                        Symbol rhs_symbol;
+                        if (symbol_table_->lookup(var_access->name, rhs_symbol) && !rhs_symbol.class_name.empty()) {
+                            symbol.class_name = rhs_symbol.class_name;
+                            if (trace_enabled_) {
+                                std::cerr << "[ASSIGNMENT VISITOR] Propagated class name '" << rhs_symbol.class_name 
+                                         << "' from '" << var_access->name << "' to '" << var->name << "'" << std::endl;
+                            }
+                        }
                     }
 
                     // 2. Correctly set the ownership flag based on the RHS expression type.

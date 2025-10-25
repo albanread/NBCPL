@@ -30,6 +30,8 @@ const std::unordered_map<std::string, TokenType> Lexer::keywords_ = {
     {"REMANAGE", TokenType::Remanage},
     {"SEND", TokenType::Send},
     {"ACCEPT", TokenType::Accept},
+    {"VIRTUAL", TokenType::Virtual},
+    {"FINAL", TokenType::Final},
     {"FLOAT", TokenType::FLOAT}, {"FIX", TokenType::FIX}, {"FLET", TokenType::FLet},
     {"FSQRT", TokenType::FSQRT}, // Added FSQRT as a keyword
     {"ENTIER", TokenType::ENTIER}, // Added ENTIER as a keyword

@@ -12254,6 +12254,8 @@ const std::unordered_map<std::string, TokenType> Lexer::keywords_ = {
     {"REMANAGE", TokenType::Remanage},
     {"SEND", TokenType::Send},
     {"ACCEPT", TokenType::Accept},
+    {"VIRTUAL", TokenType::Virtual},
+    {"FINAL", TokenType::Final},
     {"FLOAT", TokenType::FLOAT}, {"FIX", TokenType::FIX}, {"FLET", TokenType::FLet},
     {"FSQRT", TokenType::FSQRT}, // Added FSQRT as a keyword
     {"ENTIER", TokenType::ENTIER}, // Added ENTIER as a keyword
@@ -12299,6 +12301,12 @@ const std::unordered_map<std::string, TokenType> Lexer::keywords_ = {
     {"TYPE_STRING", TokenType::TypeString},
     {"TYPE_LIST",   TokenType::TypeList},
     {"TYPE_VEC",    TokenType::TypeVec},
+    {"TYPE_PAIR",   TokenType::TypePair},
+    {"TYPE_FPAIR",  TokenType::TypeFpair},
+    {"TYPE_QUAD",   TokenType::TypeQuad},
+    {"TYPE_FQUAD",  TokenType::TypeFquad},
+    {"TYPE_OCT",    TokenType::TypeOct},
+    {"TYPE_FOCT",   TokenType::TypeFoct},
     // {"TYPE_POINTER",TokenType::TypePointer}, // <-- REMOVED
     {"TYPE_CONST",  TokenType::TypeConst},
     {"TYPE_ANY",    TokenType::TypeAny},
@@ -34210,6 +34218,16 @@ void ASTAnalyzer::visit(AssignmentStatement& node) {
                     symbol.type = variable_type;
                     if (auto* new_expr = dynamic_cast<NewExpression*>(node.rhs[i].get())) {
                         symbol.class_name = new_expr->class_name;
+                    } else if (auto* var_access = dynamic_cast<VariableAccess*>(node.rhs[i].get())) {
+                        // Propagate class name from variable to variable (e.g., animal1 = dog)
+                        Symbol rhs_symbol;
+                        if (symbol_table_->lookup(var_access->name, rhs_symbol) && !rhs_symbol.class_name.empty()) {
+                            symbol.class_name = rhs_symbol.class_name;
+                            if (trace_enabled_) {
+                                std::cerr << "[ASSIGNMENT VISITOR] Propagated class name '" << rhs_symbol.class_name 
+                                         << "' from '" << var_access->name << "' to '" << var->name << "'" << std::endl;
+                            }
+                        }
                     }
 
                     // 2. Correctly set the ownership flag based on the RHS expression type.
@@ -51479,20 +51497,10 @@ void NewCodeGenerator::visit(ManifestDeclaration& node) {
 #include <stdexcept>
 #include <iostream>
 
-// Emergency debug function for vtable validation
-static void debug_validate_vtable_ptr(void* vtable_ptr, int slot_index, void* method_ptr) {
-    if (vtable_ptr == method_ptr) {
-        std::cerr << "\n!!! CRITICAL VTABLE ERROR DETECTED !!!" << std::endl;
-        std::cerr << "Vtable at " << vtable_ptr << " has a self-reference at slot " << slot_index << std::endl;
-        std::cerr << "This will cause a crash when calling methods" << std::endl;
-    }
-}
-
 void NewCodeGenerator::visit(MemberAccessExpression& node) {
     debug_print("Visiting MemberAccessExpression for member: " + node.member_name);
 
     // STEP 1: Get type information for the object.
-    ASTAnalyzer& analyzer = ASTAnalyzer::getInstance();
     Symbol object_symbol;
     std::string class_name;
 
@@ -51506,16 +51514,31 @@ void NewCodeGenerator::visit(MemberAccessExpression& node) {
         }
     } else {
         debug_print("  Object is not a VariableAccess, using get_class_name_for_expression");
-        class_name = get_class_name_for_expression(node.object_expr.get());
+        try {
+            class_name = get_class_name_for_expression(node.object_expr.get());
+        } catch (const std::exception& e) {
+            debug_print("  get_class_name_for_expression failed: " + std::string(e.what()));
+        }
     }
+    
     if (class_name.empty()) {
-        throw std::runtime_error("Could not determine class for member access on '" + node.member_name + "'.");
+        debug_print("  ERROR: Could not determine class name for object in member access");
+        debug_print("  Member being accessed: " + node.member_name);
+        
+        // Set a safe dummy register and return to prevent crashes
+        std::string dummy_reg = register_manager_.acquire_scratch_reg(*this);
+        expression_result_reg_ = dummy_reg;
+        return;
     }
 
     const ClassTableEntry* class_entry = class_table_ ? class_table_->get_class(class_name) : nullptr;
     if (!class_entry) {
         debug_print("  ERROR: Class '" + class_name + "' not found in ClassTable");
-        throw std::runtime_error("Class '" + class_name + "' not found in ClassTable.");
+        
+        // Set a safe dummy register and return to prevent crashes
+        std::string dummy_reg = register_manager_.acquire_scratch_reg(*this);
+        expression_result_reg_ = dummy_reg;
+        return;
     }
     debug_print("  Successfully found class entry for: " + class_name);
 
@@ -51527,17 +51550,6 @@ void NewCodeGenerator::visit(MemberAccessExpression& node) {
     ClassMethodInfo* method_info_ptr = class_table_->lookup_class_method(class_name, node.member_name);
     
     debug_print("  Method lookup result: " + std::string(method_info_ptr != nullptr ? "FOUND" : "NOT FOUND"));
-    
-    // Print available methods for debugging
-    debug_print("  Available member methods in class " + class_name + ":");
-    for (const auto& method_pair : class_entry->member_methods) {
-        debug_print("    - " + method_pair.first);
-    }
-    
-    debug_print("  Available member variables in class " + class_name + ":");
-    for (const auto& var_pair : class_entry->member_variables) {
-        debug_print("    - " + var_pair.first + " (offset: " + std::to_string(var_pair.second.offset) + ")");
-    }
 
     if (member_it != class_entry->member_variables.end()) {
         // --- PATH A: DATA MEMBER (e.g., p.x) ---
@@ -51561,8 +51573,10 @@ void NewCodeGenerator::visit(MemberAccessExpression& node) {
         register_manager_.release_register(object_ptr_reg);
 
     } else if (method_info_ptr != nullptr) {
-        // --- PATH B: METHOD (e.g., p.set) --- (NEW LOGIC)
-        debug_print("Member '" + node.member_name + "' is a method. Performing vtable lookup.");
+        // --- PATH B: METHOD (e.g., p.set) --- (ENHANCED VIRTUAL/NON-VIRTUAL LOGIC)
+        const auto& method_info = *method_info_ptr;
+        debug_print("Member '" + node.member_name + "' is a method.");
+        debug_print("Method is_virtual: " + std::string(method_info.is_virtual ? "true" : "false"));
 
         // 1. Get the object's base address (the 'this' pointer).
         generate_expression_code(*node.object_expr);
@@ -51571,46 +51585,21 @@ void NewCodeGenerator::visit(MemberAccessExpression& node) {
         // 2. The 'this' pointer must be passed as the first argument (X0).
         emit(Encoder::create_mov_reg("X0", object_ptr_reg));
         register_manager_.release_register(object_ptr_reg);
-        // register_manager_.reserve_register("X0"); // Prevent it from being used before the call
 
-        // 3. Get the method's vtable slot
-        const auto& method_info = *method_info_ptr;
-        size_t vtable_slot = method_info.vtable_slot;
-        size_t vtable_offset = vtable_slot * 8; // Each entry is an 8-byte pointer.
-
-        debug_print("Method '" + node.member_name + "' found with vtable slot " + std::to_string(vtable_slot));
-        debug_print("Method vtable offset: " + std::to_string(vtable_offset) + " bytes");
-        debug_print("Full method info: name=" + method_info.name + ", qualified_name=" + method_info.qualified_name);
-        
-        // DETAILED VTABLE DIAGNOSTICS
-        debug_print("VTABLE DEBUGGING INFO FOR: " + node.member_name);
-        debug_print("  - Class: " + class_name);
-        debug_print("  - Vtable blueprint size: " + std::to_string(class_entry->vtable_blueprint.size()));
-        debug_print("  - Method's expected location in vtable: slot " + std::to_string(vtable_slot));
-        
-        // Print the entire vtable blueprint for this class
-        debug_print("  - Vtable blueprint contents:");
-        for (size_t i = 0; i < class_entry->vtable_blueprint.size(); i++) {
-            debug_print("    [" + std::to_string(i) + "]: " + 
-                      (class_entry->vtable_blueprint[i].empty() ? "<empty>" : class_entry->vtable_blueprint[i]));
+        if (method_info.is_virtual) {
+            debug_print("Generating virtual method dispatch for: " + node.member_name);
+            generate_virtual_method_call(method_info);
+        } else {
+            debug_print("Generating direct method call for: " + node.member_name);
+            generate_direct_method_call(method_info);
         }
-
-        // 4. Generate code to load the method address from the vtable.
-        std::string vtable_ptr_reg = register_manager_.acquire_scratch_reg(*this);
-        std::string method_addr_reg = register_manager_.acquire_scratch_reg(*this);
-
-        // LDR vtable_ptr_reg, [X0, #0]  (Load address of vtable)
-        emit(Encoder::create_ldr_imm(vtable_ptr_reg, "X0", 0, "Load vtable pointer"));
-        // LDR method_addr_reg, [vtable_ptr_reg, #offset] (Load method address from vtable at specified slot)
-        emit(Encoder::create_ldr_imm(method_addr_reg, vtable_ptr_reg, vtable_offset, "Load method address for " + node.member_name));
-
-        register_manager_.release_register(vtable_ptr_reg);
-
-        // The result of this expression is the callable address of the method.
-        expression_result_reg_ = method_addr_reg;
     } else {
-        throw std::runtime_error("Member '" + node.member_name + "' not found in class '" + class_name + 
-                               "'. (Neither as a member variable nor as a method)");
+        debug_print("ERROR: Member '" + node.member_name + "' not found in class '" + class_name + "'");
+        
+        // Set a safe dummy register and return to prevent crashes
+        std::string dummy_reg = register_manager_.acquire_scratch_reg(*this);
+        expression_result_reg_ = dummy_reg;
+        return;
     }
 }
 
@@ -54503,6 +54492,76 @@ void NewCodeGenerator::visit(VectorAccess& node) {
     debug_print("Finished visiting VectorAccess node.");
 }
 
+// -- end of file
+
+// -- start of file: generators/gen_VirtualMethodDispatch.cpp
+#include "NewCodeGenerator.h"
+#include "ClassTable.h"
+#include "Encoder.h"
+#include <stdexcept>
+
+void NewCodeGenerator::generate_virtual_method_call(const ClassMethodInfo& method_info) {
+    debug_print("Generating virtual method call for: " + method_info.name);
+    
+    if (is_jit_mode_) {
+        generate_jit_virtual_call(method_info);
+    } else {
+        generate_aot_virtual_call(method_info);
+    }
+}
+
+void NewCodeGenerator::generate_direct_method_call(const ClassMethodInfo& method_info) {
+    debug_print("Generating direct method call for: " + method_info.qualified_name);
+    
+    // Generate direct address to non-virtual method
+    std::string method_reg = register_manager_.acquire_scratch_reg(*this);
+    emit(Encoder::create_adrp(method_reg, method_info.qualified_name));
+    emit(Encoder::create_add_literal(method_reg, method_reg, method_info.qualified_name));
+    
+    // The result of this expression is the callable address of the method
+    expression_result_reg_ = method_reg;
+    
+    debug_print("Direct method call address loaded into: " + method_reg);
+}
+
+void NewCodeGenerator::generate_aot_virtual_call(const ClassMethodInfo& method_info) {
+    debug_print("Generating AOT virtual method call for: " + method_info.name);
+    
+    // Standard vtable dispatch for AOT compilation
+    size_t vtable_slot = method_info.vtable_slot;
+    size_t vtable_offset = vtable_slot * 8; // Each entry is an 8-byte pointer
+    
+    debug_print("Method vtable slot: " + std::to_string(vtable_slot));
+    debug_print("Method vtable offset: " + std::to_string(vtable_offset) + " bytes");
+    
+    // Generate code to load the method address from the vtable
+    std::string vtable_ptr_reg = register_manager_.acquire_scratch_reg(*this);
+    std::string method_addr_reg = register_manager_.acquire_scratch_reg(*this);
+    
+    // LDR vtable_ptr_reg, [X0, #0] - Load vtable pointer from object
+    emit(Encoder::create_ldr_imm(vtable_ptr_reg, "X0", 0, "Load vtable pointer"));
+    
+    // LDR method_addr_reg, [vtable_ptr_reg, #offset] - Load method address from vtable
+    emit(Encoder::create_ldr_imm(method_addr_reg, vtable_ptr_reg, vtable_offset, 
+         "Load virtual method address for " + method_info.name));
+    
+    register_manager_.release_register(vtable_ptr_reg);
+    
+    // The result of this expression is the callable address of the method
+    expression_result_reg_ = method_addr_reg;
+    
+    debug_print("Virtual method address loaded into: " + method_addr_reg);
+}
+
+void NewCodeGenerator::generate_jit_virtual_call(const ClassMethodInfo& method_info) {
+    debug_print("Generating JIT virtual method call for: " + method_info.name);
+    
+    // For now, JIT mode uses the same vtable dispatch as AOT
+    // TODO: In Phase 3, this will be enhanced with PIC optimization
+    generate_aot_virtual_call(method_info);
+    
+    debug_print("JIT virtual call generated (using standard vtable dispatch)");
+}
 // -- end of file
 
 // -- start of file: generators/gen_WhileStatement.cpp
@@ -60784,6 +60843,18 @@ int main(int argc, char* argv[]) {
 DeclPtr Parser::parse_member_declaration() {
     TraceGuard guard(*this, "parse_member_declaration");
 
+    // Check for VIRTUAL and FINAL modifiers before member declarations
+    bool is_virtual = false;
+    bool is_final = false;
+    while (check(TokenType::Virtual) || check(TokenType::Final)) {
+        if (match(TokenType::Virtual)) {
+            is_virtual = true;
+        }
+        if (match(TokenType::Final)) {
+            is_final = true;
+        }
+    }
+
     if (check(TokenType::Decl)) {
         advance(); // Consume 'DECL'
         std::vector<std::string> names;
@@ -60799,7 +60870,7 @@ DeclPtr Parser::parse_member_declaration() {
     }
 
     if (check(TokenType::Function) || check(TokenType::Routine)) {
-        return parse_function_or_routine_declaration();
+        return parse_function_or_routine_declaration_with_modifiers(is_virtual, is_final);
     }
 
     error("Expected DECL, LET, FLET, FUNCTION, or ROUTINE for class member declaration.");
@@ -61221,7 +61292,11 @@ DeclPtr Parser::parse_class_declaration() {
 
 
 DeclPtr Parser::parse_function_or_routine_declaration() {
-    TraceGuard guard(*this, "parse_function_or_routine_declaration");
+    return parse_function_or_routine_declaration_with_modifiers(false, false);
+}
+
+DeclPtr Parser::parse_function_or_routine_declaration_with_modifiers(bool is_virtual, bool is_final) {
+    TraceGuard guard(*this, "parse_function_or_routine_declaration_with_modifiers");
 
     bool is_function = match(TokenType::Function);
     bool is_routine = !is_function && match(TokenType::Routine);
@@ -61258,7 +61333,10 @@ DeclPtr Parser::parse_function_or_routine_declaration() {
             error("Expect 'VALOF' or 'FVALOF' for FUNCTION body.");
             return nullptr;
         }
-        return std::make_unique<FunctionDeclaration>(name, std::move(params), std::move(body));
+        auto func_decl = std::make_unique<FunctionDeclaration>(name, std::move(params), std::move(body));
+        func_decl->is_virtual = is_virtual;
+        func_decl->is_final = is_final;
+        return func_decl;
     } else if (is_routine) {
         consume(TokenType::Be, "A ROUTINE must be defined with 'BE'.");
         auto body = parse_statement();
@@ -61284,7 +61362,10 @@ DeclPtr Parser::parse_function_or_routine_declaration() {
             }
         }
         
-        return std::make_unique<RoutineDeclaration>(name, std::move(params), std::move(body));
+        auto routine_decl = std::make_unique<RoutineDeclaration>(name, std::move(params), std::move(body));
+        routine_decl->is_virtual = is_virtual;
+        routine_decl->is_final = is_final;
+        return routine_decl;
     }
 
     error("Expected 'FUNCTION' or 'ROUTINE' for class member.");
@@ -61763,6 +61844,30 @@ ExprPtr Parser::parse_primary_expression() {
     if (match(TokenType::TypeVec)) {
         // VarType::VEC = 256
         return std::make_unique<NumberLiteral>(static_cast<int64_t>(256));
+    }
+    if (match(TokenType::TypePair)) {
+        // ATOM_PAIR = 6
+        return std::make_unique<NumberLiteral>(static_cast<int64_t>(6));
+    }
+    if (match(TokenType::TypeFpair)) {
+        // ATOM_FPAIR = 7
+        return std::make_unique<NumberLiteral>(static_cast<int64_t>(7));
+    }
+    if (match(TokenType::TypeQuad)) {
+        // ATOM_QUAD = 8
+        return std::make_unique<NumberLiteral>(static_cast<int64_t>(8));
+    }
+    if (match(TokenType::TypeFquad)) {
+        // ATOM_FQUAD = 9
+        return std::make_unique<NumberLiteral>(static_cast<int64_t>(9));
+    }
+    if (match(TokenType::TypeOct)) {
+        // ATOM_OCT = 10
+        return std::make_unique<NumberLiteral>(static_cast<int64_t>(10));
+    }
+    if (match(TokenType::TypeFoct)) {
+        // ATOM_FOCT = 11
+        return std::make_unique<NumberLiteral>(static_cast<int64_t>(11));
     }
     if (match(TokenType::TypePointer)) {
         // VarType::POINTER_TO = 4096

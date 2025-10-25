@@ -381,6 +381,12 @@ private:
     size_t max_fp_pressure_ = 0;   // Maximum floating-point register pressure observed
     void generate_float_to_int_truncation(const std::string& dest_x_reg, const std::string& src_d_reg);
     
+    // Virtual method dispatch helpers
+    void generate_virtual_method_call(const ClassMethodInfo& method_info);
+    void generate_direct_method_call(const ClassMethodInfo& method_info);
+    void generate_jit_virtual_call(const ClassMethodInfo& method_info);
+    void generate_aot_virtual_call(const ClassMethodInfo& method_info);
+    
     // Helper to determine if a live interval crosses any function call sites
     bool does_interval_cross_call(const LiveInterval& interval, const std::vector<int>& call_sites) const;
 
