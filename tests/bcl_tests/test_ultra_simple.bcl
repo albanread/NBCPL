@@ -1,8 +1,14 @@
-// Ultra-simple test to debug variable type determination
-LET START() BE
-$(
-    // This should be an INTEGER variable with float expression coercion
-    LET my_int = 1.5 + 2.5
+LET START() BE $(
+    WRITEF("Ultra-simple FPAIR test*N")
 
-    WRITEF("Test completed")
+    LET f = FPAIRS(1)
+    WRITEF("Allocated FPAIRS(1)*N")
+
+    f!0 := FPAIR(5.0, 7.0)
+    WRITEF("Assigned FPAIR(5.0, 7.0)*N")
+
+    LET retrieved = f!0
+    WRITEF("Retrieved: %Q*N", retrieved)
+
+    WRITEF("Done*N")
 $)

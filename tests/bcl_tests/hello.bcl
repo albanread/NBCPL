@@ -1,10 +1,8 @@
-// Simple hello world program
+// Simple hello world test for NewBCPL
+// This file tests the enhanced command line file search functionality
 
-GET "LIBHDR"
-
-LET start() = VALOF
-{
-    WRITES("Hello, world!")
-    NEWLINE()
-    RESULTIS 0
-}
+LET START() BE
+$(
+    WRITEF("Hello, World!*N")
+    WRITEF("This is a test from bcl_scripts directory*N")
+$)

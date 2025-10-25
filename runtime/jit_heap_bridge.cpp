@@ -15,6 +15,7 @@
 extern "C" {
     extern HeapBlock g_heap_blocks_array[MAX_HEAP_BLOCKS];
     extern size_t g_heap_blocks_index;
+    extern bool g_enable_heap_trace;
 }
 
 #ifdef __cplusplus
@@ -26,9 +27,11 @@ void* bcpl_alloc_words(int64_t num_words, const char* func, const char* var) {
     // Note: Ignoring func and var in JIT mode as HeapManager handles tracking
     void* result = HeapManager::getInstance().allocVec(num_words);
 
-    // Debug print to verify heap tracking in JIT context
-    printf("[JIT Heap] Allocated vector at %p, current g_heap_blocks_index: %zu\n", 
-           result, g_heap_blocks_index);
+    // Debug print to verify heap tracking in JIT context (only if trace enabled)
+    if (g_enable_heap_trace) {
+        printf("[JIT Heap] Allocated vector at %p, current g_heap_blocks_index: %zu\n", 
+               result, g_heap_blocks_index);
+    }
 
     return result;
 }

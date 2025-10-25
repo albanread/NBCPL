@@ -1,4 +1,1 @@
-LET START() BE
-$(
-    WRITES("Hello World*N")
-$)
+LET START() BE $( $)

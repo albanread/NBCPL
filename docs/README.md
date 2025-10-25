@@ -1,115 +1,37 @@
-# NewBCPL Documentation Index
+### New BCPL
 
-This directory contains technical documentation for the NewBCPL compiler and runtime system.
+Not production ready (yet), under development, this has just started to work, and is now being tested and debugged.
 
-## Core Technical Notes
+Targets ARM 64 bit processors, and especially Apple Mx series, and eventually Linux also.
 
-### Language Implementation
-- **[tech_note_lists.md](tech_note_lists.md)** - Comprehensive analysis of the lists implementation, covering AST representation, dual code generation, runtime data structures, and performance characteristics
-- **[manifestlist.md](manifestlist.md)** - Documentation on read-only MANIFESTLIST functionality
-- **[enhancelists.md](enhancelists.md)** - List enhancement proposals and implementation notes
+## I will keep this brief, this is the New BCPL programming language.
 
-### Compiler Architecture
-- **[SymbolTable.md](SymbolTable.md)** - Symbol table implementation and scoping rules
-- **[Preprocessor.md](Preprocessor.md)** - Preprocessor functionality and macro system
-- **[VENEER_SYSTEM_GUIDE.md](VENEER_SYSTEM_GUIDE.md)** - Veneer system for external function integration
+The language is inspired by classic BCPL with a few useful extensions, such as integrated floating point, Pairs, Lists and Objects.
 
-### Code Generation & Optimization
-- **[foreach_optimization.md](foreach_optimization.md)** - FOREACH loop optimizations and control flow analysis
-- **[modular_reduction_system.md](modular_reduction_system.md)** - Modular reduction system architecture
-- **[NeonReducer_Architecture.md](NeonReducer_Architecture.md)** - NEON SIMD reducer implementation
-- **[Vector_Type_Reducer_Integration.md](Vector_Type_Reducer_Integration.md)** - Vector type system integration
+I have kept the language additions simple.
 
-### Runtime System
-- **[runtime.md](runtime.md)** - Runtime system overview and API documentation
-- **[RuntimeFunctionProcess.md](RuntimeFunctionProcess.md)** - Runtime function integration process
+This is not based on the elegant classic compiler, this is completely new and ugly, and not designed for portability, or constrained systems.
 
-### Platform-Specific
-- **[ARM64_CALLING_CONVENTION_BUG_ANALYSIS.md](ARM64_CALLING_CONVENTION_BUG_ANALYSIS.md)** - ARM64 calling convention implementation details and bug analysis
+The addition of types without changing the feel of the language, drives the need for extensive type inference.
 
-### Legacy & Cleanup
-- **[Legacy_Reducer_Cleanup_Summary.md](Legacy_Reducer_Cleanup_Summary.md)** - Summary of legacy reducer cleanup and modernization
+The addition of more heap allocated variables drives the need to add a simple memory management assistant called SAMM.
 
-## Documentation Organization
+SAMM is absolutely not a garbage collector, but it takes care of memory on the heap, in a similar scoped way to local variables.
 
-### By Topic
+ 
+#### Documentation
 
-**Memory Management:**
-- Lists implementation (tech_note_lists.md)
-- Runtime system (runtime.md)
-- SAMM integration (see runtime.md)
+Comprehensive technical documentation is available in the `docs/` directory:
 
-**Type System:**
-- Symbol table (SymbolTable.md)
-- Vector types (Vector_Type_Reducer_Integration.md)
-- Lists type inference (tech_note_lists.md)
+- **[docs/tech_note_lists.md](docs/tech_note_lists.md)** - Detailed analysis of the lists implementation including AST representation, dual code generation, runtime data structures, and performance characteristics
+- **[docs/README.md](docs/README.md)** - Complete documentation index with guides for contributors, users, and performance analysis
+- **[docs/runtime.md](docs/runtime.md)** - Runtime system overview and API reference
+- **[docs/SymbolTable.md](docs/SymbolTable.md)** - Symbol table implementation and scoping rules
 
-**Code Generation:**
-- FOREACH optimization (foreach_optimization.md)
-- NEON SIMD (NeonReducer_Architecture.md)
-- Lists dual generation (tech_note_lists.md)
+There is quite a lot of other documentation available covering compiler architecture, optimizations, and language features.
 
-**Language Features:**
-- Lists and MANIFESTLIST (tech_note_lists.md, manifestlist.md)
-- Preprocessor (Preprocessor.md)
-- External functions (VENEER_SYSTEM_GUIDE.md)
+#### Why?
 
-### By Development Phase
+Why - I enjoy simplicity in my programming languages, and I like to actually use the hardware features of the machines I own.
 
-**Core Language:**
-1. Symbol table and scoping
-2. Type system and inference
-3. Lists implementation
-4. Runtime integration
 
-**Optimizations:**
-1. FOREACH loop optimization
-2. Vector/SIMD code generation
-3. Modular reduction system
-4. Platform-specific optimizations
-
-**Integration:**
-1. External function veneers
-2. Runtime function process
-3. ARM64 calling conventions
-4. Legacy system cleanup
-
-## Quick Reference
-
-### For New Contributors
-Start with:
-1. [SymbolTable.md](SymbolTable.md) - Understanding scoping and symbol resolution
-2. [tech_note_lists.md](tech_note_lists.md) - Major language feature implementation
-3. [runtime.md](runtime.md) - Runtime system overview
-
-### For Language Users
-Reference:
-1. [manifestlist.md](manifestlist.md) - List usage patterns
-2. [Preprocessor.md](Preprocessor.md) - Macro and preprocessing features
-3. [runtime.md](runtime.md) - Available runtime functions
-
-### For Performance Analysis
-Focus on:
-1. [tech_note_lists.md](tech_note_lists.md) - Lists performance characteristics
-2. [foreach_optimization.md](foreach_optimization.md) - Loop optimization details
-3. [NeonReducer_Architecture.md](NeonReducer_Architecture.md) - SIMD performance
-4. [ARM64_CALLING_CONVENTION_BUG_ANALYSIS.md](ARM64_CALLING_CONVENTION_BUG_ANALYSIS.md) - Platform performance
-
-## Contributing to Documentation
-
-When adding new documentation:
-
-1. **Technical Notes**: Use the `tech_note_*.md` naming convention for comprehensive implementation analyses
-2. **Feature Documentation**: Use descriptive names for specific feature documentation
-3. **Architecture Guides**: Include diagrams and code examples where helpful
-4. **Update This Index**: Add new documents to the appropriate sections above
-
-## Related Documentation
-
-- **Main README**: [../README.md](../README.md) - Project overview and getting started
-- **Examples**: [../examples/](../examples/) - Code examples and test cases
-- **Tests**: [../tests/](../tests/) - Test suite and validation examples
-
----
-
-*This documentation covers the NewBCPL compiler as of December 2024. For the most current information, please check the git commit history and recent changes.*

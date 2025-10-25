@@ -294,28 +294,17 @@ void ASTAnalyzer::visit(AssignmentStatement& node) {
                 if (symbol_table_->lookup(var->name, symbol)) {
                     // Update type using priority system - more specific types win
                     symbol.type = variable_type;
-                    std::cerr << "[DEBUG ASSIGN] Processing assignment to '" << var->name << "'" << std::endl;
+                    
                     if (auto* new_expr = dynamic_cast<NewExpression*>(node.rhs[i].get())) {
                         symbol.class_name = new_expr->class_name;
-                        std::cerr << "[DEBUG ASSIGN] Set class_name '" << new_expr->class_name << "' from NewExpression to '" << var->name << "'" << std::endl;
                     } else if (auto* var_access = dynamic_cast<VariableAccess*>(node.rhs[i].get())) {
                         // Propagate class name from variable to variable (e.g., animal1 = dog)
-                        std::cerr << "[DEBUG ASSIGN] Variable assignment: '" << var->name << "' = '" << var_access->name << "'" << std::endl;
                         Symbol rhs_symbol;
                         if (symbol_table_->lookup(var_access->name, rhs_symbol)) {
-                            std::cerr << "[DEBUG ASSIGN] Found RHS symbol '" << var_access->name << "' with class_name '" << rhs_symbol.class_name << "'" << std::endl;
                             if (!rhs_symbol.class_name.empty()) {
                                 symbol.class_name = rhs_symbol.class_name;
-                                std::cerr << "[DEBUG ASSIGN] Propagated class name '" << rhs_symbol.class_name 
-                                         << "' from '" << var_access->name << "' to '" << var->name << "'" << std::endl;
-                            } else {
-                                std::cerr << "[DEBUG ASSIGN] RHS symbol has empty class_name" << std::endl;
                             }
-                        } else {
-                            std::cerr << "[DEBUG ASSIGN] Could not find RHS symbol '" << var_access->name << "' in symbol table" << std::endl;
                         }
-                    } else {
-                        std::cerr << "[DEBUG ASSIGN] RHS is not NewExpression or VariableAccess" << std::endl;
                     }
 
                     // 2. Correctly set the ownership flag based on the RHS expression type.

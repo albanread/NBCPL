@@ -1,6 +1,1 @@
-LET start() = VALOF
-{
-    WRITES("Hello, World!")
-    NEWLINE()
-    RESULTIS 0
-}
+LET START() BE $( $)

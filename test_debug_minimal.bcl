@@ -1,4 +1,0 @@
-LET START() BE {
-    WRITEF("Minimal debug test\n")
-    WRITEF("Test completed\n")
-}
