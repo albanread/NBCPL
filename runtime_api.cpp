@@ -145,6 +145,10 @@ extern "C" {
     void HeapManager_OBJECT_HEAP_FREE(int ptr);
     int HeapManager_RUNTIME_METHOD_LOOKUP(int class_id, int method_id);
     int HeapManager_PIC_RUNTIME_HELPER();
+    
+    // Debug functions for vtable store verification
+    void DEBUG_PRINT_VTABLE_STORE(int object_ptr, int original_vtable, int readback_vtable);
+    void DEBUG_PRINT_FINAL_OBJECT(int object_ptr, int vtable_ptr);
 
 #ifdef SDL2_RUNTIME_ENABLED
     // SDL2 functions
@@ -764,6 +768,16 @@ static const RuntimeFunctionDescriptor g_runtime_manifest[] = {
         "PIC_RUNTIME_HELPER", "_PIC_RUNTIME_HELPER", reinterpret_cast<RuntimeFunctionPtr>(HeapManager_PIC_RUNTIME_HELPER), 0,
         RuntimeFunctionType::STANDARD, RuntimeReturnType::INTEGER,
         "Polymorphic inline cache helper", "Memory"
+    },
+    {
+        "DEBUG_PRINT_VTABLE_STORE", "_DEBUG_PRINT_VTABLE_STORE", reinterpret_cast<RuntimeFunctionPtr>(DEBUG_PRINT_VTABLE_STORE), 3,
+        RuntimeFunctionType::ROUTINE, RuntimeReturnType::VOID,
+        "Debug print vtable store verification", "Debug"
+    },
+    {
+        "DEBUG_PRINT_FINAL_OBJECT", "_DEBUG_PRINT_FINAL_OBJECT", reinterpret_cast<RuntimeFunctionPtr>(DEBUG_PRINT_FINAL_OBJECT), 2,
+        RuntimeFunctionType::ROUTINE, RuntimeReturnType::VOID,
+        "Debug print final object state", "Debug"
     }
 
 #ifdef SDL2_RUNTIME_ENABLED

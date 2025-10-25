@@ -24,6 +24,21 @@ extern "C" {
     void HeapManager_PIC_RUNTIME_HELPER() {
         // HeapManager::getInstance().PIC_RUNTIME_HELPER();
     }
+    
+    void DEBUG_PRINT_VTABLE_STORE(int object_ptr, int original_vtable, int readback_vtable) {
+        printf("[DEBUG VTABLE STORE] Object: 0x%llx, Original vtable: 0x%llx, Readback vtable: 0x%llx\n", 
+               (unsigned long long)object_ptr, (unsigned long long)original_vtable, (unsigned long long)readback_vtable);
+        if (original_vtable != readback_vtable) {
+            printf("[ERROR] VTABLE STORE MISMATCH! Original != Readback\n");
+        }
+        fflush(stdout);
+    }
+    
+    void DEBUG_PRINT_FINAL_OBJECT(int object_ptr, int vtable_ptr) {
+        printf("[DEBUG FINAL OBJECT] Object: 0x%llx, Final vtable: 0x%llx\n", 
+               (unsigned long long)object_ptr, (unsigned long long)vtable_ptr);
+        fflush(stdout);
+    }
 }
 
 // RuntimeBridge.cpp

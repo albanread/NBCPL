@@ -16662,6 +16662,19 @@ void NewCodeGenerator::visit(NewExpression& node) {
     emit(Encoder::create_adrp(vtable_reg, vtable_label));
     emit(Encoder::create_add_literal(vtable_reg, vtable_reg, vtable_label));
     emit(Encoder::create_str_imm(vtable_reg, obj_ptr_reg, 0, "store vtable ptr"));
+    
+    // --- DEBUG: Add vtable store verification --- (DISABLED FOR JIT TESTING)
+    // std::string verify_reg = register_manager_.acquire_scratch_reg(*this);
+    // emit(Encoder::create_ldr_imm(verify_reg, obj_ptr_reg, 0, "Read back stored vtable ptr"));
+    // 
+    // // Emit debug print to verify vtable was stored correctly
+    // emit(Instruction(0, "// DEBUG VTABLE STORE for " + node.class_name));
+    // emit(Encoder::create_mov_reg("X0", obj_ptr_reg));  // Object address in X0
+    // emit(Encoder::create_mov_reg("X1", vtable_reg));   // Original vtable address in X1
+    // emit(Encoder::create_mov_reg("X2", verify_reg));   // Read-back vtable address in X2
+    // emit(Encoder::create_branch_with_link("DEBUG_PRINT_VTABLE_STORE"));
+    // 
+    // register_manager_.release_register(verify_reg);
     register_manager_.release_register(vtable_reg);
 
     // --- STEP 3: Call the CREATE Routine (Constructor) ---
@@ -16703,6 +16716,15 @@ void NewCodeGenerator::visit(NewExpression& node) {
         register_manager_.release_register(method_addr_reg);
     }
 
+    // --- DEBUG: Verify object pointer before assignment --- (DISABLED FOR JIT TESTING)
+    // emit(Instruction(0, "// DEBUG FINAL OBJECT POINTER for " + node.class_name));
+    // emit(Encoder::create_mov_reg("X0", obj_ptr_reg));  // Final object pointer
+    // std::string final_vtable_reg = register_manager_.acquire_scratch_reg(*this);
+    // emit(Encoder::create_ldr_imm(final_vtable_reg, obj_ptr_reg, 0, "Load final vtable ptr"));
+    // emit(Encoder::create_mov_reg("X1", final_vtable_reg));  // Final vtable pointer
+    // emit(Encoder::create_branch_with_link("DEBUG_PRINT_FINAL_OBJECT"));
+    // register_manager_.release_register(final_vtable_reg);
+    
     // --- STEP 4: The result of the NEW expression is the object pointer ---
     expression_result_reg_ = obj_ptr_reg;
 }
@@ -35593,21 +35615,15 @@ void ASTAnalyzer::visit(LetDeclaration& node) {
         // --- HANDLE VariableAccess expressions and PROPAGATE class_name ---
         else if (initializer && dynamic_cast<VariableAccess*>(initializer)) {
             auto* var_access = static_cast<VariableAccess*>(initializer);
-            std::cerr << "[DEBUG] Processing LetDeclaration: '" << name << "' = '" << var_access->name << "'" << std::endl;
             if (symbol_table_) {
                 Symbol rhs_symbol;
-                if (symbol_table_->lookup(var_access->name, rhs_symbol)) {
-                    std::cerr << "[DEBUG] Found RHS symbol '" << var_access->name << "' with class_name: '" << rhs_symbol.class_name << "'" << std::endl;
-                    if (!rhs_symbol.class_name.empty()) {
-                        determined_type = rhs_symbol.type;
-                        determined_class_name = rhs_symbol.class_name;
-                        std::cerr << "[DEBUG] Variable '" << name << "' assigned from '" << var_access->name 
-                                  << "' with class: " << determined_class_name << " and type: " << vartype_to_string(determined_type) << std::endl;
-                    } else {
-                        std::cerr << "[DEBUG] RHS symbol '" << var_access->name << "' has empty class_name" << std::endl;
+                if (symbol_table_->lookup(var_access->name, rhs_symbol) && !rhs_symbol.class_name.empty()) {
+                    determined_type = rhs_symbol.type;
+                    determined_class_name = rhs_symbol.class_name;
+                    if (trace_enabled_) {
+                        std::cerr << "[LET DECLARATION VISITOR] Propagated class name '" << determined_class_name 
+                                  << "' from '" << var_access->name << "' to '" << name << "'" << std::endl;
                     }
-                } else {
-                    std::cerr << "[DEBUG] Could not find RHS symbol '" << var_access->name << "' in symbol table" << std::endl;
                 }
             }
         }
@@ -35723,9 +35739,9 @@ void ASTAnalyzer::visit(LetDeclaration& node) {
             );
             if (!determined_class_name.empty()) {
                 updated_symbol.class_name = determined_class_name;
-                std::cerr << "[DEBUG] Setting class_name for symbol '" << name << "' to '" << determined_class_name << "'" << std::endl;
-            } else {
-                std::cerr << "[DEBUG] No class_name determined for symbol '" << name << "'" << std::endl;
+                if (trace_enabled_) {
+                    std::cerr << "[LET DECLARATION VISITOR] Set class_name '" << determined_class_name << "' for symbol '" << name << "'" << std::endl;
+                }
             }
             updated_symbol.owns_heap_memory = owns_heap_memory;
             updated_symbol.contains_literals = contains_literals;
@@ -63677,6 +63693,21 @@ extern "C" {
     void HeapManager_PIC_RUNTIME_HELPER() {
         // HeapManager::getInstance().PIC_RUNTIME_HELPER();
     }
+    
+    void DEBUG_PRINT_VTABLE_STORE(int object_ptr, int original_vtable, int readback_vtable) {
+        printf("[DEBUG VTABLE STORE] Object: 0x%llx, Original vtable: 0x%llx, Readback vtable: 0x%llx\n", 
+               (unsigned long long)object_ptr, (unsigned long long)original_vtable, (unsigned long long)readback_vtable);
+        if (original_vtable != readback_vtable) {
+            printf("[ERROR] VTABLE STORE MISMATCH! Original != Readback\n");
+        }
+        fflush(stdout);
+    }
+    
+    void DEBUG_PRINT_FINAL_OBJECT(int object_ptr, int vtable_ptr) {
+        printf("[DEBUG FINAL OBJECT] Object: 0x%llx, Final vtable: 0x%llx\n", 
+               (unsigned long long)object_ptr, (unsigned long long)vtable_ptr);
+        fflush(stdout);
+    }
 }
 
 // RuntimeBridge.cpp
@@ -67386,6 +67417,10 @@ extern "C" {
     void HeapManager_OBJECT_HEAP_FREE(int ptr);
     int HeapManager_RUNTIME_METHOD_LOOKUP(int class_id, int method_id);
     int HeapManager_PIC_RUNTIME_HELPER();
+    
+    // Debug functions for vtable store verification
+    void DEBUG_PRINT_VTABLE_STORE(int object_ptr, int original_vtable, int readback_vtable);
+    void DEBUG_PRINT_FINAL_OBJECT(int object_ptr, int vtable_ptr);
 
 #ifdef SDL2_RUNTIME_ENABLED
     // SDL2 functions
@@ -68005,6 +68040,16 @@ static const RuntimeFunctionDescriptor g_runtime_manifest[] = {
         "PIC_RUNTIME_HELPER", "_PIC_RUNTIME_HELPER", reinterpret_cast<RuntimeFunctionPtr>(HeapManager_PIC_RUNTIME_HELPER), 0,
         RuntimeFunctionType::STANDARD, RuntimeReturnType::INTEGER,
         "Polymorphic inline cache helper", "Memory"
+    },
+    {
+        "DEBUG_PRINT_VTABLE_STORE", "_DEBUG_PRINT_VTABLE_STORE", reinterpret_cast<RuntimeFunctionPtr>(DEBUG_PRINT_VTABLE_STORE), 3,
+        RuntimeFunctionType::ROUTINE, RuntimeReturnType::VOID,
+        "Debug print vtable store verification", "Debug"
+    },
+    {
+        "DEBUG_PRINT_FINAL_OBJECT", "_DEBUG_PRINT_FINAL_OBJECT", reinterpret_cast<RuntimeFunctionPtr>(DEBUG_PRINT_FINAL_OBJECT), 2,
+        RuntimeFunctionType::ROUTINE, RuntimeReturnType::VOID,
+        "Debug print final object state", "Debug"
     }
 
 #ifdef SDL2_RUNTIME_ENABLED
