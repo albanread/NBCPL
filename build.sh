@@ -17,7 +17,7 @@ BUILD_DIR="build"
 OBJ_DIR="${BUILD_DIR}/obj"
 BIN_DIR="${BUILD_DIR}/bin"
 ERRORS_FILE="errors.txt"
-MAX_JOBS=8 # Number of parallel compilation jobs
+MAX_JOBS=$(nproc 2>/dev/null || sysctl -n hw.ncpu 2>/dev/null || echo 4) # Auto-detect CPU cores, fallback to 4
 RUNTIME_MODE="jit" # Default runtime mode: jit, standalone, or unified
 
 # Clear the errors file at the start of the build
@@ -53,7 +53,19 @@ if ${CLEAN_BUILD}; then
         cp libbcpl_runtime.a temp_lib_backup/
     fi
 
-    rm -rf "${BUILD_DIR}"
+    # Force remove build directory, handling locked files and temp files
+    if [ -d "${BUILD_DIR}" ]; then
+        # Remove any temporary files first
+        find "${BUILD_DIR}" -name "*.tmp" -delete 2>/dev/null || true
+        # Force remove the directory
+        rm -rf "${BUILD_DIR}" 2>/dev/null || {
+            echo "Warning: Some build files may be in use. Attempting force cleanup..."
+            chmod -R 755 "${BUILD_DIR}" 2>/dev/null || true
+            rm -rf "${BUILD_DIR}" 2>/dev/null || {
+                echo "Warning: Could not completely clean build directory. Continuing anyway..."
+            }
+        }
+    fi
 
     # Restore runtime libraries if they were backed up
     if [ -f "temp_lib_backup/libbcpl_runtime_jit.a" ]; then
@@ -161,19 +173,19 @@ fi
 
 # Remove any trailing newline from the list of files to compile
 FILES_TO_COMPILE=$(echo -e "${FILES_TO_COMPILE}" | sed '/^$/d')
-echo "Debug: Files to compile:"
-echo "${FILES_TO_COMPILE}"
 
 # --- Compilation Phase ---
 if [ -z "${FILES_TO_COMPILE}" ] && ! ${CLEAN_BUILD}; then
     echo "No source files need recompilation."
 else
-    echo "Compiling source files (debug enabled, clang++)..."
-    echo "Debug: Starting compilation for the following files:"
-    echo "${FILES_TO_COMPILE}"
-    # Use xargs for parallel compilation, stopping on the first error.
-    # Each compilation command is run in a subshell.
-    echo "${FILES_TO_COMPILE}" | xargs -P "${MAX_JOBS}" -I {} bash -c '
+    TOTAL_FILES=$(echo "${FILES_TO_COMPILE}" | wc -l)
+    PROGRESS_DIR="/tmp/build_progress_$$"
+    mkdir -p "${PROGRESS_DIR}"
+
+    echo "Compiling ${TOTAL_FILES} source files (debug enabled, clang++, ${MAX_JOBS} parallel jobs)..."
+
+    # Simple approach - compile without complex progress tracking
+    if echo "${FILES_TO_COMPILE}" | xargs -P "${MAX_JOBS}" -I {} bash -c '
         src_file="$1"
         obj_dir="$2"
         errors_file="$3"
@@ -182,39 +194,53 @@ else
         obj_name="${base_filename%.cpp}.o"
         obj_file="${obj_dir}/${obj_name}"
 
-        # Compile the source file:
-        # -g: Include debug info
-        # -fno-omit-frame-pointer: Ensure frame pointers for easier debugging
-        # -std=c++17: Use C++17 standard
-        # -DSDL2_RUNTIME_ENABLED: Enable SDL2 runtime support in symbol table
-        # -I.: Include current directory
-        # -I./NewBCPL: Include NewBCPL directory
-        # -I./analysis/az_impl: Include analysis/az_impl directory for modular visitors
-        # -c: Compile only, do not link
-        # -o: Output object file
-        # > /dev/null: Redirect stdout (success messages) to null
-        # 2>> "${errors_file}": Append stderr (error messages) to the errors file
+        # Compile the source file
         if ! clang++ -g -fno-omit-frame-pointer -std=c++17 -DSDL2_RUNTIME_ENABLED -I. -I./NewBCPL -I./analysis/az_impl -I./analysis -I./ -I./include -I./HeapManager -I./runtime -c "${src_file}" -o "${obj_file}" 2>> "${errors_file}"; then
-            # If compilation fails, print an error message to stderr and exit the subshell.
-            # Exiting the subshell will cause xargs to stop processing further arguments.
             echo "Error: Compilation failed for ${src_file}. See ${errors_file} for details." >&2
             exit 1
         fi
-    ' _ {} "${OBJ_DIR}" "${ERRORS_FILE}" # Pass OBJ_DIR and ERRORS_FILE as arguments to the subshell
+    ' _ {} "${OBJ_DIR}" "${ERRORS_FILE}"; then
+        echo "Compilation phase completed successfully."
+    else
+        echo "Compilation failed." >&2
+        exit 1
+    fi
 fi
 
 # Check if any compilation errors occurred by checking the size of the errors file
 if [ -s "${ERRORS_FILE}" ]; then
     echo "----------------------------------------"
-    echo "BUILD FAILED: Errors detected during compilation. See '${ERRORS_FILE}' for details." >&2
+    echo "❌ BUILD FAILED: Compilation errors detected!" >&2
+    echo "Please check errors.txt and fix errors" >&2
+    echo "----------------------------------------" >&2
     exit 1 # Exit the script with an error code
+else
+    echo "----------------------------------------"
+    echo "✅ Compilation succeeded, please continue"
+    echo "----------------------------------------"
 fi
 
 # --- Linking Phase ---
-# Use unified runtime with static SDL2 by default (fully self-contained)
-RUNTIME_LIB="./libbcpl_runtime_sdl2_static.a"
-LINK_DESC="unified runtime library with static SDL2 (self-contained)"
-echo "📝 Using unified runtime library with static SDL2"
+# Use Cairo+SDL2 runtime library if available, fallback to SDL2-only
+if [ -f "./libbcpl_runtime_graphics_static.a" ]; then
+    RUNTIME_LIB="./libbcpl_runtime_graphics_static.a"
+    LINK_DESC="unified runtime library with Cairo graphics and static SDL2 (self-contained)"
+    echo "📝 Using unified runtime library with Cairo graphics and static SDL2"
+    CAIRO_LIBS=$(pkg-config --libs cairo 2>/dev/null || echo "-lcairo")
+    SDL2_LIBS=$(pkg-config --libs sdl2 2>/dev/null || echo "-lSDL2")
+elif [ -f "./libbcpl_runtime_cairo_static.a" ]; then
+    RUNTIME_LIB="./libbcpl_runtime_cairo_static.a"
+    LINK_DESC="unified runtime library with Cairo graphics (self-contained)"
+    echo "📝 Using unified runtime library with Cairo graphics"
+    CAIRO_LIBS=$(pkg-config --libs cairo 2>/dev/null || echo "-lcairo")
+    SDL2_LIBS=""
+else
+    RUNTIME_LIB="./libbcpl_runtime_sdl2_static.a"
+    LINK_DESC="unified runtime library with static SDL2 (self-contained)"
+    echo "📝 Using unified runtime library with static SDL2"
+    CAIRO_LIBS=""
+    SDL2_LIBS=$(pkg-config --libs sdl2 2>/dev/null || echo "-lSDL2")
+fi
 
 echo "Linking object files with ${LINK_DESC} (debug enabled, clang++)..."
 
@@ -224,8 +250,22 @@ echo "Linking object files with ${LINK_DESC} (debug enabled, clang++)..."
 # Add macOS system frameworks required for static SDL2 linking
 EXTRA_LIBS="-lstdc++ -framework Cocoa -framework CoreVideo -framework IOKit -framework Carbon -framework AudioToolbox -framework ForceFeedback -framework CoreAudio -framework CoreFoundation -framework Foundation -framework GameController -framework CoreHaptics -framework Metal"
 
-if ! clang++ -g -std=c++17 -DSDL2_RUNTIME_ENABLED -I. -I./include -I./HeapManager -I./runtime -o "${BIN_DIR}/NewBCPL" "${OBJ_DIR}"/*.o "${RUNTIME_LIB}" -lpthread ${EXTRA_LIBS} 2>> "${ERRORS_FILE}"; then
-    echo "Error: Linking failed. See '${ERRORS_FILE}' for details." >&2
+# Add Cairo libraries if Cairo runtime is being used
+if [ -n "$CAIRO_LIBS" ]; then
+    DEFINES="-DSDL2_RUNTIME_ENABLED -DCAIRO_RUNTIME_ENABLED"
+    echo "📝 Including Cairo libraries in link"
+else
+    DEFINES="-DSDL2_RUNTIME_ENABLED"
+fi
+
+# Add SDL2 libraries if SDL2 runtime is being used
+if [ -n "$SDL2_LIBS" ]; then
+    echo "📝 Including SDL2 libraries in link"
+fi
+
+if ! clang++ -g -std=c++17 $DEFINES -I. -I./include -I./HeapManager -I./runtime -o "${BIN_DIR}/NewBCPL" "${OBJ_DIR}"/*.o "${RUNTIME_LIB}" -lpthread ${EXTRA_LIBS} ${CAIRO_LIBS} ${SDL2_LIBS} 2>> "${ERRORS_FILE}"; then
+    echo "❌ BUILD FAILED: Linking errors detected!" >&2
+    echo "Please check errors.txt and fix errors" >&2
     exit 1
 fi
 
@@ -234,7 +274,8 @@ echo "Codesigning the binary with JIT entitlement..."
 # Codesign the executable for JIT entitlements.
 # Redirect stderr to the errors file.
 if ! codesign --entitlements entitlements.plist --sign "-" "${BIN_DIR}/NewBCPL" 2>> "${ERRORS_FILE}"; then
-    echo "Error: Codesigning failed. See '${ERRORS_FILE}' for details." >&2
+    echo "❌ BUILD FAILED: Codesigning errors detected!" >&2
+    echo "Please check errors.txt and fix errors" >&2
     exit 1
 fi
 
@@ -243,7 +284,8 @@ echo "Build complete. Executable is at ${BIN_DIR}/NewBCPL"
 
 # Copy the executable to the NewBCPL folder
 if ! cp "${BIN_DIR}/NewBCPL" ../NewBCPL/NewBCPL 2>> "${ERRORS_FILE}"; then
-    echo "Error: Failed to copy executable. See '${ERRORS_FILE}' for details." >&2
+    echo "❌ BUILD FAILED: Failed to copy executable!" >&2
+    echo "Please check errors.txt and fix errors" >&2
     exit 1
 fi
 echo "Executable copied to ./NewBCPL/NewBCPL"

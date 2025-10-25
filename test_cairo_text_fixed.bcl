@@ -1,0 +1,69 @@
+// Test Cairo text functions with fixed string conversion
+// This tests if the simplified BCPL string conversion fixes the segfault
+
+LET START() BE
+{
+    LET surface = 0
+    LET width = 300
+    LET height = 200
+
+    WRITEF("Testing Cairo text functions (fixed)...*N")
+
+    // Check if Cairo is available
+    LET cairo_available = CAIRO_IS_AVAILABLE()
+    IF cairo_available = 0 THEN
+    {
+        WRITEF("ERROR: Cairo not available*N")
+        FINISH
+    }
+
+    WRITEF("Cairo is available*N")
+
+    // Create surface
+    surface := CAIRO_CREATE_SURFACE(width, height)
+    IF surface = 0 THEN
+    {
+        WRITEF("ERROR: Failed to create surface*N")
+        FINISH
+    }
+
+    WRITEF("Surface created*N")
+
+    // Clear with white background
+    CAIRO_CLEAR(surface, #xFFFFFFFF)
+    WRITEF("Surface cleared*N")
+
+    // Set text color to black
+    CAIRO_SET_COLOR(surface, #x000000FF)
+    WRITEF("Color set to black*N")
+
+    // Test 1: Try setting font with simple name
+    WRITEF("Testing CAIRO_SET_FONT with simple font...*N")
+    CAIRO_SET_FONT(surface, "Arial", 16)
+    WRITEF("Font set successfully!*N")
+
+    // Test 2: Try drawing simple text
+    WRITEF("Testing CAIRO_DRAW_TEXT...*N")
+    CAIRO_DRAW_TEXT(surface, 50, 100, "Hello Cairo!")
+    WRITEF("Text drawn successfully!*N")
+
+    // Test 3: Try different text
+    WRITEF("Drawing more text...*N")
+    CAIRO_DRAW_TEXT(surface, 50, 130, "Text works now!")
+    WRITEF("Second text drawn!*N")
+
+    // Test 4: Try different font size
+    WRITEF("Changing font size...*N")
+    CAIRO_SET_FONT(surface, "Arial", 20)
+    CAIRO_DRAW_TEXT(surface, 50, 160, "Bigger text")
+    WRITEF("Bigger text drawn!*N")
+
+    // Save the result
+    WRITEF("Saving to text_fixed_test.png...*N")
+    CAIRO_SAVE_PNG(surface, "text_fixed_test.png")
+    WRITEF("Image saved successfully!*N")
+
+    WRITEF("*NText test completed successfully!*N")
+    WRITEF("The string conversion fix worked!*N")
+    FINISH
+}

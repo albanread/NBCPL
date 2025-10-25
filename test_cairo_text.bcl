@@ -1,0 +1,49 @@
+// Test Cairo text drawing functions specifically
+// This isolates the text drawing functionality to identify the segfault
+
+LET START() BE
+{
+    LET surface = 0
+    LET width = 300
+    LET height = 200
+
+    WRITEF("Testing Cairo text functions...*N")
+
+    // Check if Cairo is available
+    LET cairo_available = CAIRO_IS_AVAILABLE()
+    IF cairo_available = 0 THEN
+    {
+        WRITEF("ERROR: Cairo not available*N")
+        FINISH
+    }
+
+    // Create surface
+    surface := CAIRO_CREATE_SURFACE(width, height)
+    IF surface = 0 THEN
+    {
+        WRITEF("ERROR: Failed to create surface*N")
+        FINISH
+    }
+
+    // Clear with white background
+    CAIRO_CLEAR(surface, #xFFFFFFFF)
+
+    // Set text color to black
+    CAIRO_SET_COLOR(surface, #x000000FF)
+
+    // Test 1: Try setting font (this might be where the segfault occurs)
+    WRITEF("Testing CAIRO_SET_FONT...*N")
+    CAIRO_SET_FONT(surface, "Arial", 16)
+    WRITEF("Font set successfully*N")
+
+    // Test 2: Try drawing text
+    WRITEF("Testing CAIRO_DRAW_TEXT...*N")
+    CAIRO_DRAW_TEXT(surface, 50, 100, "Test Text")
+    WRITEF("Text drawn successfully*N")
+
+    // Save the result
+    CAIRO_SAVE_PNG(surface, "text_test.png")
+
+    WRITEF("Text test completed successfully!*N")
+    FINISH
+}

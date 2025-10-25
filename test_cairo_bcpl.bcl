@@ -1,0 +1,48 @@
+// Minimal Cairo Test for BCPL
+// Tests if Cairo functions are available in the runtime
+
+LET START() BE
+$(
+    WRITEF("=== Testing Cairo Availability ===*N")
+
+    // Test if Cairo is available
+    TEST CAIRO_IS_AVAILABLE() = 1 THEN
+    $(
+        WRITEF("✅ Cairo is available!*N")
+
+        // Get version
+        LET version = CAIRO_GET_VERSION()
+        WRITEF("Cairo version: ")
+        WRITES(version)
+        WRITEF("*N")
+
+        // Test basic surface creation
+        LET surface = CAIRO_CREATE_SURFACE(200, 100)
+        TEST surface = 0 THEN
+        $(
+            WRITEF("❌ Failed to create surface*N")
+        $) ELSE
+        $(
+            WRITEF("✅ Created surface with handle: %N*N", surface)
+
+            // Clear to white
+            CAIRO_CLEAR(surface, #xFFFFFFFF)
+
+            // Draw red rectangle
+            CAIRO_SET_COLOR(surface, #xFF0000FF)
+            CAIRO_FILL_RECT(surface, 10.0, 10.0, 50.0, 30.0)
+
+            // Save result
+            CAIRO_SAVE_PNG(surface, "bcpl_test.png")
+            WRITEF("✅ Saved test image to bcpl_test.png*N")
+
+            WRITEF("✅ Basic Cairo test passed!*N")
+        $)
+    $) ELSE
+    $(
+        WRITEF("❌ Cairo is not available*N")
+        WRITEF("   Make sure the Cairo-enabled runtime is being used*N")
+    $)
+
+    WRITEF("=== Test Complete ===*N")
+$)

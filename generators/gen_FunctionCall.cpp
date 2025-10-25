@@ -4,6 +4,7 @@
 #include <stdexcept>
 #include "CodeGenUtils.h"
 #include "../runtime/ListDataTypes.h"
+#include "../runtime_api.h"
 
 // In generators/gen_FunctionCall.cpp
 
@@ -415,6 +416,8 @@ void NewCodeGenerator::handle_regular_call(FunctionCall& node, const std::vector
         function_name = var_access->name;
     }
     
+    debug_print("CALL_DEBUG: handle_regular_call for function: " + function_name);
+    
     // FAIL-FAST: Check if function exists before doing any work
     if (!function_name.empty()) {
         bool function_exists = false;
@@ -458,11 +461,23 @@ void NewCodeGenerator::handle_regular_call(FunctionCall& node, const std::vector
     // Look up parameter types for this function
     Symbol function_symbol;
     bool has_param_info = false;
+    const RuntimeFunctionDescriptor* runtime_desc = nullptr;
+    
     if (!function_name.empty() && symbol_table_->lookup(function_name, function_symbol)) {
         has_param_info = true;
         debug_print("Found function symbol: " + function_name + " with " + std::to_string(function_symbol.parameters.size()) + " parameters");
         for (size_t i = 0; i < function_symbol.parameters.size(); ++i) {
             debug_print("  Parameter " + std::to_string(i) + " type: " + vartype_to_string(function_symbol.parameters[i].type));
+        }
+    } else if (!function_name.empty() && RuntimeManager::instance().is_function_registered(function_name)) {
+        // Check if this is a runtime function with parameter type information
+        debug_print("PARAMETER_DEBUG: Checking runtime function: " + function_name);
+        runtime_desc = lookup_runtime_function(function_name.c_str());
+        if (runtime_desc && runtime_desc->parameter_types) {
+            has_param_info = true;
+            debug_print("PARAMETER_DEBUG: Found runtime function: " + function_name + " with parameter types defined");
+        } else {
+            debug_print("PARAMETER_DEBUG: Runtime function found but no parameter types: " + function_name);
         }
     } else {
         debug_print("Function symbol not found for: " + function_name);
@@ -479,7 +494,26 @@ void NewCodeGenerator::handle_regular_call(FunctionCall& node, const std::vector
         
         // Determine expected parameter type based on function signature
         VarType expected_type = VarType::UNKNOWN;
-        if (has_param_info && i < function_symbol.parameters.size()) {
+        if (has_param_info && runtime_desc && runtime_desc->parameter_types) {
+            // Runtime function with parameter type information
+            if (i < runtime_desc->arg_count) {
+                switch (runtime_desc->parameter_types[i]) {
+                    case RuntimeParameterType::INTEGER:
+                    case RuntimeParameterType::POINTER:
+                        expected_type = VarType::INTEGER;
+                        break;
+                    case RuntimeParameterType::DOUBLE:
+                        expected_type = VarType::FLOAT;
+                        break;
+                    case RuntimeParameterType::STRING:
+                    case RuntimeParameterType::VECTOR:
+                        expected_type = VarType::INTEGER; // Pointers
+                        break;
+                }
+                debug_print("PARAMETER_DEBUG: Runtime param " + std::to_string(i) + " type: " + vartype_to_string(expected_type));
+            }
+        } else if (has_param_info && i < function_symbol.parameters.size()) {
+            // User-defined function with parameter information
             expected_type = function_symbol.parameters[i].type;
         }
         expected_types.push_back(expected_type);

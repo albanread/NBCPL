@@ -1,0 +1,160 @@
+// Test Cairo errors after each operation
+// This checks for errors after every single Cairo function call
+
+LET START() BE
+{
+    LET surface = 0
+    LET error_msg = 0
+
+    WRITEF("=== Cairo Error After Each Operation Test ==.*N")
+
+    // Test 1: Check availability
+    WRITEF("1. Checking Cairo availability...*N")
+    LET available = CAIRO_IS_AVAILABLE()
+    WRITEF("   Result: %N*N", available)
+
+    error_msg := CAIRO_GET_ERROR()
+    IF error_msg ~= 0 THEN
+    {
+        WRITEF("   ERROR: ")
+        WRITES(error_msg)
+        WRITEF("*N")
+        CAIRO_CLEAR_ERROR()
+    }
+
+    IF available = 0 THEN
+    {
+        WRITEF("Cairo not available - stopping*N")
+        FINISH
+    }
+
+    // Test 2: Create surface
+    WRITEF("2. Creating surface...*N")
+    surface := CAIRO_CREATE_SURFACE(200, 150)
+    WRITEF("   Surface handle: %X8*N", surface)
+
+    error_msg := CAIRO_GET_ERROR()
+    IF error_msg ~= 0 THEN
+    {
+        WRITEF("   ERROR after CREATE_SURFACE: ")
+        WRITES(error_msg)
+        WRITEF("*N")
+        CAIRO_CLEAR_ERROR()
+    }
+
+    IF surface = 0 THEN
+    {
+        WRITEF("Failed to create surface - stopping*N")
+        FINISH
+    }
+
+    // Test 3: Clear surface
+    WRITEF("3. Clearing surface...*N")
+    CAIRO_CLEAR(surface, #xFFFFFFFF)
+
+    error_msg := CAIRO_GET_ERROR()
+    IF error_msg ~= 0 THEN
+    {
+        WRITEF("   ERROR after CLEAR: ")
+        WRITES(error_msg)
+        WRITEF("*N")
+        CAIRO_CLEAR_ERROR()
+    }
+
+    // Test 4: Set color
+    WRITEF("4. Setting color...*N")
+    CAIRO_SET_COLOR(surface, #xFF0000FF)
+
+    error_msg := CAIRO_GET_ERROR()
+    IF error_msg ~= 0 THEN
+    {
+        WRITEF("   ERROR after SET_COLOR: ")
+        WRITES(error_msg)
+        WRITEF("*N")
+        CAIRO_CLEAR_ERROR()
+    }
+
+    // Test 5: Fill rectangle
+    WRITEF("5. Drawing rectangle...*N")
+    CAIRO_FILL_RECT(surface, 10.0, 10.0, 50.0, 40.0)
+
+    error_msg := CAIRO_GET_ERROR()
+    IF error_msg ~= 0 THEN
+    {
+        WRITEF("   ERROR after FILL_RECT: ")
+        WRITES(error_msg)
+        WRITEF("*N")
+        CAIRO_CLEAR_ERROR()
+    }
+
+    // Test 6: Set different color
+    WRITEF("6. Setting blue color...*N")
+    CAIRO_SET_COLOR(surface, #x0000FFFF)
+
+    error_msg := CAIRO_GET_ERROR()
+    IF error_msg ~= 0 THEN
+    {
+        WRITEF("   ERROR after SET_COLOR (blue): ")
+        WRITES(error_msg)
+        WRITEF("*N")
+        CAIRO_CLEAR_ERROR()
+    }
+
+    // Test 7: Fill circle
+    WRITEF("7. Drawing circle...*N")
+    CAIRO_FILL_CIRCLE(surface, 100.0, 75.0, 25.0)
+
+    error_msg := CAIRO_GET_ERROR()
+    IF error_msg ~= 0 THEN
+    {
+        WRITEF("   ERROR after FILL_CIRCLE: ")
+        WRITES(error_msg)
+        WRITEF("*N")
+        CAIRO_CLEAR_ERROR()
+    }
+
+    // Test 8: Draw line
+    WRITEF("8. Drawing line...*N")
+    CAIRO_SET_COLOR(surface, #x00FF00FF)
+    CAIRO_DRAW_LINE(surface, 20.0, 120.0, 180.0, 130.0)
+
+    error_msg := CAIRO_GET_ERROR()
+    IF error_msg ~= 0 THEN
+    {
+        WRITEF("   ERROR after DRAW_LINE: ")
+        WRITES(error_msg)
+        WRITEF("*N")
+        CAIRO_CLEAR_ERROR()
+    }
+
+    // Test 9: Save PNG
+    WRITEF("9. Saving PNG...*N")
+    CAIRO_SAVE_PNG(surface, "error_each_test.png")
+
+    error_msg := CAIRO_GET_ERROR()
+    IF error_msg ~= 0 THEN
+    {
+        WRITEF("   ERROR after SAVE_PNG: ")
+        WRITES(error_msg)
+        WRITEF("*N")
+        CAIRO_CLEAR_ERROR()
+    }
+
+    // Final check
+    WRITEF("10. Final error check...*N")
+    error_msg := CAIRO_GET_ERROR()
+    TEST error_msg ~= 0 THEN
+    {
+        WRITEF("   FINAL ERROR: ")
+        WRITES(error_msg)
+        WRITEF("*N")
+    }
+    ELSE
+        WRITEF("   No final errors detected*N")
+
+    WRITEF("*NTest completed. Check error_each_test.png*N")
+    WRITEF("If no errors were reported but image is empty,*N")
+    WRITEF("the issue is in the Cairo drawing context itself.*N")
+
+    FINISH
+}

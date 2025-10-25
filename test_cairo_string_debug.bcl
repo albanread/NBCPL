@@ -1,0 +1,72 @@
+// Debug program to test string passing to Cairo functions
+// This will help us understand how BCPL strings are formatted
+
+LET START() BE
+{
+    WRITEF("=== BCPL String Debug Test ===%N")
+
+    // Test 1: Basic string output with WRITES
+    WRITEF("Test 1: Basic WRITES test%N")
+    WRITES("Hello")
+    WRITEF("%N")
+
+    // Test 2: Check Cairo availability first
+    WRITEF("Test 2: Cairo availability%N")
+    LET cairo_available = CAIRO_IS_AVAILABLE()
+    WRITEF("Cairo available: %N", cairo_available)
+
+    IF cairo_available = 0 THEN
+    {
+        WRITEF("ERROR: Cairo not available - stopping test%N")
+        FINISH
+    }
+
+    // Test 3: Try to get Cairo version (this uses string conversion)
+    WRITEF("Test 3: Cairo version%N")
+    LET version = CAIRO_GET_VERSION()
+    WRITEF("Version result: %N", version)
+
+    // Test 4: Create surface (no string conversion needed)
+    WRITEF("Test 4: Create surface%N")
+    LET surface = CAIRO_CREATE_SURFACE(100, 100)
+    WRITEF("Surface handle: %N", surface)
+
+    IF surface = 0 THEN
+    {
+        WRITEF("ERROR: Failed to create surface%N")
+        FINISH
+    }
+
+    // Test 5: Clear surface (no string conversion)
+    WRITEF("Test 5: Clear surface%N")
+    CAIRO_CLEAR(surface, #xFFFFFFFF)
+    WRITEF("Surface cleared%N")
+
+    // Test 6: Set color (no string conversion)
+    WRITEF("Test 6: Set color%N")
+    CAIRO_SET_COLOR(surface, #xFF0000FF)
+    WRITEF("Color set%N")
+
+    // Test 7: Draw rectangle (no string conversion)
+    WRITEF("Test 7: Draw rectangle%N")
+    CAIRO_FILL_RECT(surface, 10.0, 10.0, 50.0, 30.0)
+    WRITEF("Rectangle drawn%N")
+
+    // Test 8: Try to save PNG (this uses string conversion - likely to fail)
+    WRITEF("Test 8: Save PNG (string conversion test)%N")
+    CAIRO_SAVE_PNG(surface, "debug_string_test.png")
+    WRITEF("PNG save attempted%N")
+
+    // Test 9: Try to set font (this uses string conversion - likely to fail)
+    WRITEF("Test 9: Set font (string conversion test)%N")
+    CAIRO_SET_FONT(surface, "Arial", 12.0)
+    WRITEF("Font set attempted%N")
+
+    // Test 10: Try to draw text (this uses string conversion - likely to crash)
+    WRITEF("Test 10: Draw text (string conversion test - may crash)%N")
+    CAIRO_DRAW_TEXT(surface, 10.0, 50.0, "Test")
+    WRITEF("Text draw attempted%N")
+
+    WRITEF("=== All tests completed ===%N")
+    FINISH
+}

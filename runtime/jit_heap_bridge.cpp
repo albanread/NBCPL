@@ -15,8 +15,10 @@
 extern "C" {
     extern HeapBlock g_heap_blocks_array[MAX_HEAP_BLOCKS];
     extern size_t g_heap_blocks_index;
-    extern bool g_enable_heap_trace;
 }
+
+// Use the C++ declaration from the header
+extern bool g_enable_heap_trace;
 
 #ifdef __cplusplus
 extern "C" {

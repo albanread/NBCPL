@@ -1,4 +1,5 @@
 LET START() BE $(
+
     WRITEF("Testing FPAIRS allocation and length*N")
     WRITEF("========================================*N")
 
@@ -7,7 +8,7 @@ LET START() BE $(
     LET fp_vec = FPAIRS(5)
     WRITEF("Expected length: 5*N")
     WRITEF("Actual length: %N*N", LEN(fp_vec))
-    IF LEN(fp_vec) = 5 THEN $(
+    TEST LEN(fp_vec) = 5 THEN $(
         WRITEF("✓ PASS: Length is correct*N")
     $) ELSE $(
         WRITEF("✗ FAIL: Length mismatch!*N")
@@ -19,7 +20,7 @@ LET START() BE $(
     LET fp_vec2 = FPAIRS(10)
     WRITEF("Expected length: 10*N")
     WRITEF("Actual length: %N*N", LEN(fp_vec2))
-    IF LEN(fp_vec2) = 10 THEN $(
+    TEST LEN(fp_vec2) = 10 THEN $(
         WRITEF("✓ PASS: Length is correct*N")
     $) ELSE $(
         WRITEF("✗ FAIL: Length mismatch!*N")
@@ -30,7 +31,7 @@ LET START() BE $(
     WRITEF("Test 3: Reference PAIRS allocation*N")
     LET p_vec = PAIRS(7)
     WRITEF("PAIRS(7) length: %N*N", LEN(p_vec))
-    IF LEN(p_vec) = 7 THEN $(
+    TEST LEN(p_vec) = 7 THEN $(
         WRITEF("✓ PAIRS reference works correctly*N")
     $) ELSE $(
         WRITEF("✗ PAIRS reference broken too!*N")
@@ -41,7 +42,7 @@ LET START() BE $(
     WRITEF("Test 4: Edge case FPAIRS(1)*N")
     LET fp_single = FPAIRS(1)
     WRITEF("FPAIRS(1) length: %N*N", LEN(fp_single))
-    IF LEN(fp_single) = 1 THEN $(
+    TEST LEN(fp_single) = 1 THEN $(
         WRITEF("✓ PASS: Single element works*N")
     $) ELSE $(
         WRITEF("✗ FAIL: Single element broken*N")

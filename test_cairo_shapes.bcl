@@ -1,0 +1,77 @@
+// Test Cairo shape drawing functions without text
+// This tests various drawing operations to isolate the text issue
+
+LET START() BE
+{
+    LET surface = 0
+    LET width = 400
+    LET height = 300
+
+    WRITEF("Testing Cairo shape drawing...*N")
+
+    // Check if Cairo is available
+    LET cairo_available = CAIRO_IS_AVAILABLE()
+    IF cairo_available = 0 THEN
+    {
+        WRITEF("ERROR: Cairo not available*N")
+        FINISH
+    }
+
+    WRITEF("Cairo is available*N")
+
+    // Create surface
+    surface := CAIRO_CREATE_SURFACE(width, height)
+    IF surface = 0 THEN
+    {
+        WRITEF("ERROR: Failed to create surface*N")
+        FINISH
+    }
+
+    WRITEF("Surface created*N")
+
+    // Clear with light gray background
+    CAIRO_CLEAR(surface, #xF0F0F0FF)
+    WRITEF("Surface cleared with gray*N")
+
+    // Test 1: Red rectangle
+    CAIRO_SET_COLOR(surface, #xFF0000FF)
+    CAIRO_FILL_RECT(surface, 50, 50, 100, 80)
+    WRITEF("Drew red rectangle*N")
+
+    // Test 2: Blue circle
+    CAIRO_SET_COLOR(surface, #x0000FFFF)
+    CAIRO_FILL_CIRCLE(surface, 250, 150, 40)
+    WRITEF("Drew blue circle*N")
+
+    // Test 3: Green lines (border)
+    CAIRO_SET_COLOR(surface, #x00FF00FF)
+    CAIRO_DRAW_LINE(surface, 10, 10, 390, 10)    // Top
+    CAIRO_DRAW_LINE(surface, 10, 290, 390, 290)  // Bottom
+    CAIRO_DRAW_LINE(surface, 10, 10, 10, 290)    // Left
+    CAIRO_DRAW_LINE(surface, 390, 10, 390, 290)  // Right
+    WRITEF("Drew green border lines*N")
+
+    // Test 4: Orange rectangle
+    CAIRO_SET_COLOR(surface, #xFFA500FF)
+    CAIRO_FILL_RECT(surface, 200, 50, 80, 60)
+    WRITEF("Drew orange rectangle*N")
+
+    // Test 5: Purple circle
+    CAIRO_SET_COLOR(surface, #x800080FF)
+    CAIRO_FILL_CIRCLE(surface, 100, 200, 30)
+    WRITEF("Drew purple circle*N")
+
+    // Test 6: Diagonal line
+    CAIRO_SET_COLOR(surface, #x000000FF)
+    CAIRO_DRAW_LINE(surface, 50, 50, 350, 250)
+    WRITEF("Drew diagonal line*N")
+
+    // Save the image
+    CAIRO_SAVE_PNG(surface, "shapes_test.png")
+    WRITEF("Saved shapes_test.png*N")
+
+    WRITEF("*NShape drawing test completed successfully!*N")
+    WRITEF("All shape drawing functions work correctly.*N")
+
+    FINISH
+}

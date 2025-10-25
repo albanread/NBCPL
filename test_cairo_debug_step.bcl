@@ -1,0 +1,25 @@
+// Minimal test to debug parameter passing for CAIRO_FILL_RECT
+LET START() BE
+{
+    LET surface = 0
+
+    WRITEF("Creating surface...*N")
+    surface := CAIRO_CREATE_SURFACE(100, 100)
+
+    IF surface = 0 THEN
+    {
+        WRITEF("ERROR: Failed to create surface*N")
+        FINISH
+    }
+
+    WRITEF("Surface created: %N*N", surface)
+
+    // Test with simple integer coordinates first
+    WRITEF("Calling CAIRO_FILL_RECT")
+    CAIRO_FILL_RECT(surface, 10.0, 20.0, 30.0, 40.0)
+
+
+
+    WRITEF("Test completed*N")
+    FINISH
+}

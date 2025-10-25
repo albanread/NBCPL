@@ -32,6 +32,17 @@ enum class RuntimeFunctionType {
 };
 
 /**
+ * @brief Parameter type categories for runtime functions
+ */
+enum class RuntimeParameterType {
+    INTEGER,            // Integer/pointer parameter (most common)
+    DOUBLE,             // Double-precision floating-point parameter
+    STRING,             // BCPL string parameter (length-prefixed)
+    VECTOR,             // BCPL vector parameter
+    POINTER             // Generic pointer parameter
+};
+
+/**
  * @brief Return type categories for runtime functions
  */
 enum class RuntimeReturnType {
@@ -54,14 +65,15 @@ enum class RuntimeReturnType {
  * - Provide user documentation
  */
 struct RuntimeFunctionDescriptor {
-    const char* veneer_name;            // Name used in BCPL code (e.g., "JOIN")
-    const char* linker_symbol;          // Label for standalone executables (e.g., "_JOIN")
-    RuntimeFunctionPtr function_pointer; // Actual pointer to the C++ implementation
-    int arg_count;                      // Number of arguments expected
-    RuntimeFunctionType function_type;   // Calling convention type
-    RuntimeReturnType return_type;       // What the function returns
-    const char* description;            // Human-readable description
-    const char* category;               // Functional category (e.g., "I/O", "Math", "Memory")
+    const char* veneer_name;                        // Name used in BCPL code (e.g., "JOIN")
+    const char* linker_symbol;                      // Label for standalone executables (e.g., "_JOIN")
+    RuntimeFunctionPtr function_pointer;            // Actual pointer to the C++ implementation
+    int arg_count;                                  // Number of arguments expected
+    RuntimeFunctionType function_type;              // Calling convention type
+    RuntimeReturnType return_type;                  // What the function returns
+    const char* description;                        // Human-readable description
+    const char* category;                           // Functional category (e.g., "I/O", "Math", "Memory")
+    const RuntimeParameterType* parameter_types;    // Array of parameter types (NULL if all INTEGER)
 };
 
 /**

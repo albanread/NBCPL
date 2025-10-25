@@ -1,0 +1,52 @@
+// Simple Cairo test to isolate potential issues
+// This program tests basic Cairo functionality step by step
+
+LET START() BE
+{
+    LET surface = 0
+    LET width = 200
+    LET height = 150
+
+    WRITEF("Simple Cairo test...*N")
+
+    // Check if Cairo is available
+    LET cairo_available = CAIRO_IS_AVAILABLE()
+    IF cairo_available = 0 THEN
+    {
+        WRITEF("ERROR: Cairo not available*N")
+        FINISH
+    }
+
+    WRITEF("Cairo is available*N")
+
+    // Create surface
+    WRITEF("Creating surface...*N")
+    surface := CAIRO_CREATE_SURFACE(width, height)
+
+    IF surface = 0 THEN
+    {
+        WRITEF("ERROR: Failed to create surface*N")
+        FINISH
+    }
+
+    WRITEF("Surface created*N")
+
+    // Clear with white
+    WRITEF("Clearing surface...*N")
+    CAIRO_CLEAR(surface, #xFFFFFFFF)
+
+    // Set red color
+    WRITEF("Setting color...*N")
+    CAIRO_SET_COLOR(surface, #xFF0000FF)
+
+    // Draw rectangle
+    WRITEF("Drawing rectangle...*N")
+    CAIRO_FILL_RECT(surface, 10, 10, 50, 30)
+
+    // Save image
+    WRITEF("Saving image...*N")
+    CAIRO_SAVE_PNG(surface, "simple_test.png")
+
+    WRITEF("Test completed successfully!*N")
+    FINISH
+}

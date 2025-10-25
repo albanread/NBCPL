@@ -1,0 +1,465 @@
+// Cairo Graphics Example for BCPL
+// Demonstrates comprehensive Cairo functionality integrated with SAMM and SDL2
+
+LET START() BE
+$(
+    WRITEF("*N=== Cairo Graphics Demo for BCPL ===*N")
+
+    // Test basic Cairo availability
+    TEST CAIRO_IS_AVAILABLE() = 0 THEN
+    $(
+        WRITEF("ERROR: Cairo graphics not available*N")
+        RETURN
+    $) ELSE
+    $(
+        LET version = CAIRO_VERSION()
+        WRITEF("Cairo version: ")
+        WRITES(version)
+        WRITEF("*N*N")
+    $)
+
+    // Run all demo functions
+    basic_shapes_demo()
+    vector_operations_demo()
+    image_manipulation_demo()
+    text_rendering_demo()
+    animation_demo()
+
+    WRITEF("*N=== All Cairo demos completed successfully ===*N")
+$)
+
+// Demonstrate basic shape drawing
+LET basic_shapes_demo() BE
+$(
+    WRITEF("--- Basic Shapes Demo ---*N")
+
+    // Create 800x600 canvas
+    LET surface = CAIRO_CREATE_SURFACE(800, 600)
+    TEST surface = 0 THEN
+    $(
+        WRITEF("ERROR: Failed to create surface*N")
+        RETURN
+    $)
+
+    // Clear to light gray background
+    CAIRO_CLEAR(surface, #xF0F0F0FF)
+
+    // Draw filled rectangles with different colors
+    CAIRO_SET_COLOR(surface, #xFF0000FF)  // Red
+    CAIRO_FILL_RECT(surface, 50.0, 50.0, 150.0, 100.0)
+
+    CAIRO_SET_COLOR(surface, #x00FF00FF)  // Green
+    CAIRO_FILL_RECT(surface, 250.0, 50.0, 150.0, 100.0)
+
+    CAIRO_SET_COLOR(surface, #x0000FFFF)  // Blue
+    CAIRO_FILL_RECT(surface, 450.0, 50.0, 150.0, 100.0)
+
+    // Draw circles
+    CAIRO_SET_COLOR(surface, #xFFFF00FF)  // Yellow
+    CAIRO_FILL_CIRCLE(surface, 125.0, 250.0, 50.0)
+
+    CAIRO_SET_COLOR(surface, #xFF00FFFF)  // Magenta
+    CAIRO_FILL_CIRCLE(surface, 325.0, 250.0, 50.0)
+
+    CAIRO_SET_COLOR(surface, #x00FFFFFF)  // Cyan
+    CAIRO_FILL_CIRCLE(surface, 525.0, 250.0, 50.0)
+
+    // Draw lines with different widths
+    CAIRO_SET_COLOR(surface, #x000000FF)  // Black
+
+    CAIRO_SET_LINE_WIDTH(surface, 2.0)
+    CAIRO_DRAW_LINE(surface, 50.0, 350.0, 200.0, 400.0)
+
+    CAIRO_SET_LINE_WIDTH(surface, 5.0)
+    CAIRO_DRAW_LINE(surface, 250.0, 350.0, 400.0, 400.0)
+
+    CAIRO_SET_LINE_WIDTH(surface, 10.0)
+    CAIRO_DRAW_LINE(surface, 450.0, 350.0, 600.0, 400.0)
+
+    // Draw rectangle outlines
+    CAIRO_SET_LINE_WIDTH(surface, 3.0)
+    CAIRO_SET_COLOR(surface, #x800080FF)  // Purple
+    CAIRO_STROKE_RECT(surface, 100.0, 450.0, 120.0, 80.0)
+    CAIRO_STROKE_RECT(surface, 280.0, 450.0, 120.0, 80.0)
+    CAIRO_STROKE_RECT(surface, 460.0, 450.0, 120.0, 80.0)
+
+    // Save the result
+    CAIRO_SAVE_PNG(surface, "basic_shapes.png")
+    WRITEF("Saved basic_shapes.png*N")
+
+    // Surface automatically cleaned up by SAMM when function exits
+$)
+
+// Demonstrate vector batch operations
+LET vector_operations_demo() BE
+$(
+    WRITEF("--- Vector Operations Demo ---*N")
+
+    LET surface = CAIRO_CREATE_SURFACE(800, 600)
+    CAIRO_CLEAR(surface, #xFFFFFFFF)  // White background
+
+    // Create vector of line endpoints for a grid pattern
+    LET line_data = VEC 200  // Space for 50 lines (4 coords each)
+    LET line_count = 0
+
+    // Vertical lines
+    FOR x = 50 TO 750 BY 50 DO
+    $(
+        line_data!(line_count * 4 + 0) := x      // x1
+        line_data!(line_count * 4 + 1) := 50     // y1
+        line_data!(line_count * 4 + 2) := x      // x2
+        line_data!(line_count * 4 + 3) := 550    // y2
+        line_count := line_count + 1
+    $)
+
+    // Horizontal lines
+    FOR y = 50 TO 550 BY 50 DO
+    $(
+        line_data!(line_count * 4 + 0) := 50     // x1
+        line_data!(line_count * 4 + 1) := y      // y1
+        line_data!(line_count * 4 + 2) := 750    // x2
+        line_data!(line_count * 4 + 3) := y      // y2
+        line_count := line_count + 1
+    $)
+
+    // Draw all lines in one efficient batch
+    LET line_vector = CREATE_VECTOR_FROM_ARRAY(line_data, line_count * 4)
+    CAIRO_SET_COLOR(surface, #x808080FF)  // Gray
+    CAIRO_SET_LINE_WIDTH(surface, 1.0)
+    CAIRO_DRAW_LINES_VEC(surface, line_vector)
+
+    // Create vector of rectangles for a checkerboard pattern
+    LET rect_data = VEC 400  // Space for 100 rectangles (4 coords each)
+    LET rect_count = 0
+
+    FOR y = 0 TO 9 DO
+        FOR x = 0 TO 9 DO
+            TEST ((x + y) & 1) = 0 THEN
+            $(
+                rect_data!(rect_count * 4 + 0) := 50 + x * 50   // x
+                rect_data!(rect_count * 4 + 1) := 50 + y * 50   // y
+                rect_data!(rect_count * 4 + 2) := 50            // width
+                rect_data!(rect_count * 4 + 3) := 50            // height
+                rect_count := rect_count + 1
+            $)
+
+    // Draw checkerboard pattern
+    LET rect_vector = CREATE_VECTOR_FROM_ARRAY(rect_data, rect_count * 4)
+    CAIRO_SET_COLOR(surface, #xE0E0E0FF)  // Light gray
+    CAIRO_FILL_RECTS_VEC(surface, rect_vector)
+
+    // Create vector of circles for decoration
+    LET circle_data = VEC 150  // Space for 50 circles (3 coords each)
+    LET circle_count = 0
+
+    FOR i = 0 TO 49 DO
+    $(
+        LET angle = i * 0.12566  // 2*PI/50
+        LET radius = 200.0
+        LET cx = 400.0 + radius * COS(angle)
+        LET cy = 300.0 + radius * SIN(angle)
+
+        circle_data!(circle_count * 3 + 0) := cx     // center_x
+        circle_data!(circle_count * 3 + 1) := cy     // center_y
+        circle_data!(circle_count * 3 + 2) := 15     // radius
+        circle_count := circle_count + 1
+    $)
+
+    // Draw circle ring
+    LET circle_vector = CREATE_VECTOR_FROM_ARRAY(circle_data, circle_count * 3)
+    CAIRO_SET_COLOR(surface, #xFF6060FF)  // Light red
+    CAIRO_FILL_CIRCLES_VEC(surface, circle_vector)
+
+    CAIRO_SAVE_PNG(surface, "vector_operations.png")
+    WRITEF("Saved vector_operations.png*N")
+$)
+
+// Demonstrate image loading and manipulation
+LET image_manipulation_demo() BE
+$(
+    WRITEF("--- Image Manipulation Demo ---*N")
+
+    // Create a sample image first (since we may not have external images)
+    LET sample_surface = CAIRO_CREATE_SURFACE(200, 200)
+    CAIRO_CLEAR(sample_surface, #x4080FFFF)  // Nice blue
+
+    // Draw some content on the sample
+    CAIRO_SET_COLOR(sample_surface, #xFFFFFFFF)  // White
+    CAIRO_FILL_CIRCLE(sample_surface, 100.0, 100.0, 80.0)
+
+    CAIRO_SET_COLOR(sample_surface, #xFF4040FF)  // Red
+    CAIRO_FILL_CIRCLE(sample_surface, 100.0, 100.0, 40.0)
+
+    // Save sample image
+    CAIRO_SAVE_PNG(sample_surface, "sample_image.png")
+
+    // Now create composition surface
+    LET composite = CAIRO_CREATE_SURFACE(800, 600)
+    CAIRO_CLEAR(composite, #x202020FF)  // Dark background
+
+    // Load the sample image we just created
+    LET loaded_image = CAIRO_LOAD_IMAGE("sample_image.png")
+    TEST loaded_image = 0 THEN
+    $(
+        WRITEF("Could not load sample image, skipping image demo*N")
+        RETURN
+    $)
+
+    // Draw the image multiple times with different transformations
+
+    // Original size
+    CAIRO_DRAW_IMAGE(composite, loaded_image, 50.0, 50.0)
+
+    // Scaled versions
+    CAIRO_DRAW_IMAGE_SCALED(composite, loaded_image, 300.0, 50.0, 0.5, 0.5)
+    CAIRO_DRAW_IMAGE_SCALED(composite, loaded_image, 450.0, 50.0, 1.5, 0.8)
+
+    // Rotated versions
+    CAIRO_DRAW_IMAGE_ROTATED(composite, loaded_image, 150.0, 350.0, 0.785)  // 45 degrees
+    CAIRO_DRAW_IMAGE_ROTATED(composite, loaded_image, 400.0, 350.0, 1.57)   // 90 degrees
+    CAIRO_DRAW_IMAGE_ROTATED(composite, loaded_image, 600.0, 350.0, 3.14)   // 180 degrees
+
+    CAIRO_SAVE_PNG(composite, "image_manipulation.png")
+    WRITEF("Saved image_manipulation.png*N")
+$)
+
+// Demonstrate text rendering capabilities
+LET text_rendering_demo() BE
+$(
+    WRITEF("--- Text Rendering Demo ---*N")
+
+    LET surface = CAIRO_CREATE_SURFACE(800, 600)
+    CAIRO_CLEAR(surface, #xF8F8F8FF)  // Very light gray
+
+    // Title
+    CAIRO_SET_FONT(surface, "Arial", 36.0)
+    CAIRO_SET_COLOR(surface, #x000080FF)  // Dark blue
+    CAIRO_DRAW_TEXT(surface, 50.0, 60.0, "Cairo Text Rendering Demo")
+
+    // Different font sizes
+    CAIRO_SET_COLOR(surface, #x000000FF)  // Black
+
+    CAIRO_SET_FONT(surface, "Arial", 12.0)
+    CAIRO_DRAW_TEXT(surface, 50.0, 120.0, "Small text (12pt)")
+
+    CAIRO_SET_FONT(surface, "Arial", 18.0)
+    CAIRO_DRAW_TEXT(surface, 50.0, 160.0, "Medium text (18pt)")
+
+    CAIRO_SET_FONT(surface, "Arial", 24.0)
+    CAIRO_DRAW_TEXT(surface, 50.0, 200.0, "Large text (24pt)")
+
+    CAIRO_SET_FONT(surface, "Arial", 32.0)
+    CAIRO_DRAW_TEXT(surface, 50.0, 250.0, "Extra large text (32pt)")
+
+    // Colored text
+    CAIRO_SET_FONT(surface, "Arial", 20.0)
+
+    CAIRO_DRAW_TEXT_COLORED(surface, 50.0, 300.0, "Red text", #xFF0000FF)
+    CAIRO_DRAW_TEXT_COLORED(surface, 50.0, 330.0, "Green text", #x00FF00FF)
+    CAIRO_DRAW_TEXT_COLORED(surface, 50.0, 360.0, "Blue text", #x0000FFFF)
+
+    // Different fonts (if available)
+    CAIRO_SET_FONT(surface, "Times", 20.0)
+    CAIRO_SET_COLOR(surface, #x000000FF)
+    CAIRO_DRAW_TEXT(surface, 50.0, 420.0, "Times font (if available)")
+
+    CAIRO_SET_FONT(surface, "Courier", 20.0)
+    CAIRO_DRAW_TEXT(surface, 50.0, 450.0, "Courier font (if available)")
+
+    // Text layout example
+    CAIRO_SET_FONT(surface, "Arial", 16.0)
+    CAIRO_SET_COLOR(surface, #x404040FF)  // Dark gray
+
+    LET text_lines = TABLE "This is a demonstration of",
+                           "multi-line text rendering",
+                           "with Cairo graphics in BCPL."
+
+    FOR i = 0 TO 2 DO
+    $(
+        LET line = text_lines!i
+        CAIRO_DRAW_TEXT(surface, 400.0, 150.0 + i * 25.0, line)
+    $)
+
+    CAIRO_SAVE_PNG(surface, "text_rendering.png")
+    WRITEF("Saved text_rendering.png*N")
+$)
+
+// Demonstrate animation using SDL2 integration
+LET animation_demo() BE
+$(
+    WRITEF("--- Animation Demo (SDL2 Integration) ---*N")
+
+    // Check if SDL2 is available
+    TEST SDL2_INIT() < 0 THEN
+    $(
+        WRITEF("SDL2 not available, creating static animation frames instead*N")
+        static_animation_demo()
+        RETURN
+    $)
+
+    // Create Cairo surface for animation
+    LET width = 640
+    LET height = 480
+    LET surface = CAIRO_CREATE_SURFACE(width, height)
+
+    // Create SDL2 window optimized for Cairo
+    LET window = CAIRO_CREATE_SDL_WINDOW("Cairo Animation Demo", width, height)
+    TEST window = 0 THEN
+    $(
+        WRITEF("Failed to create SDL2 window*N")
+        SDL2_QUIT_IMPL()
+        RETURN
+    $)
+
+    WRITEF("Animation running... Press any key or close window to exit*N")
+
+    // Animation loop
+    LET running = TRUE
+    LET frame = 0
+
+    UNTIL NOT running DO
+    $(
+        // Handle events
+        LET event_type = SDL2_POLL_EVENT()
+        TEST event_type = SDL2_QUIT \/ event_type = SDL2_KEYDOWN THEN
+            running := FALSE
+
+        // Clear surface
+        CAIRO_CLEAR(surface, #x001020FF)  // Dark blue background
+
+        // Animate bouncing balls
+        FOR ball = 0 TO 4 DO
+        $(
+            LET angle = frame * 0.1 + ball * 1.26  // Different phase for each ball
+            LET x = 320.0 + 200.0 * COS(angle)
+            LET y = 240.0 + 150.0 * SIN(angle * 1.3)
+
+            // Set different color for each ball
+            LET colors = TABLE #xFF0000FF, #x00FF00FF, #x0000FFFF, #xFFFF00FF, #xFF00FFFF
+            CAIRO_SET_COLOR(surface, colors!ball)
+
+            CAIRO_FILL_CIRCLE(surface, x, y, 20.0)
+        $)
+
+        // Draw frame counter
+        CAIRO_SET_FONT(surface, "Arial", 16.0)
+        CAIRO_SET_COLOR(surface, #xFFFFFFFF)  // White
+        LET frame_text = NEWVEC(20)
+        SPRINTF(frame_text, "Frame: %d", frame)
+        CAIRO_DRAW_TEXT(surface, 10.0, 25.0, frame_text)
+        FREEVEC(frame_text)
+
+        // Update SDL2 window
+        CAIRO_UPDATE_SDL_WINDOW(surface, window)
+
+        // Control frame rate (~60 FPS)
+        SDL2_DELAY(16)
+
+        frame := frame + 1
+
+        // Exit after 300 frames if no user interaction
+        IF frame > 300 THEN running := FALSE
+    $)
+
+    // Cleanup
+    SDL2_QUIT_IMPL()
+    WRITEF("Animation demo completed*N")
+$)
+
+// Fallback for when SDL2 is not available
+LET static_animation_demo() BE
+$(
+    WRITEF("Creating static animation frames...*N")
+
+    FOR frame_num = 0 TO 9 DO
+    $(
+        LET surface = CAIRO_CREATE_SURFACE(640, 480)
+        CAIRO_CLEAR(surface, #x001020FF)  // Dark blue background
+
+        // Animate bouncing balls
+        FOR ball = 0 TO 4 DO
+        $(
+            LET angle = frame_num * 0.5 + ball * 1.26
+            LET x = 320.0 + 200.0 * COS(angle)
+            LET y = 240.0 + 150.0 * SIN(angle * 1.3)
+
+            LET colors = TABLE #xFF0000FF, #x00FF00FF, #x0000FFFF, #xFFFF00FF, #xFF00FFFF
+            CAIRO_SET_COLOR(surface, colors!ball)
+
+            CAIRO_FILL_CIRCLE(surface, x, y, 20.0)
+        $)
+
+        // Save frame
+        LET filename = NEWVEC(20)
+        SPRINTF(filename, "animation_frame_%02d.png", frame_num)
+        CAIRO_SAVE_PNG(surface, filename)
+        FREEVEC(filename)
+    $)
+
+    WRITEF("Created 10 animation frames (animation_frame_00.png to animation_frame_09.png)*N")
+$)
+
+// Mathematical functions (simplified versions)
+LET COS(angle) = VALOF
+$(
+    // Simple cosine approximation using Taylor series
+    LET x = angle
+    WHILE x > 3.14159 DO x := x - 6.28318
+    WHILE x < -3.14159 DO x := x + 6.28318
+
+    LET x2 = x * x
+    LET result = 1.0 - x2/2.0 + x2*x2/24.0 - x2*x2*x2/720.0
+    RESULTIS result
+$)
+
+LET SIN(angle) = COS(angle - 1.5708)  // sin(x) = cos(x - π/2)
+
+// String formatting helper (simplified)
+LET SPRINTF(buffer, format, value) BE
+$(
+    // Very basic sprintf implementation for frame numbers
+    LET i = 0
+    LET j = 0
+
+    UNTIL format%i = 0 DO
+    $(
+        TEST format%i = '%' /\ format%(i+1) = 'd' THEN
+        $(
+            // Convert number to string
+            LET temp = NEWVEC(10)
+            LET digits = 0
+            LET n = value
+
+            TEST n = 0 THEN
+            $(
+                temp%0 := '0'
+                digits := 1
+            $) ELSE
+            $(
+                UNTIL n = 0 DO
+                $(
+                    temp%digits := (n REM 10) + '0'
+                    n := n / 10
+                    digits := digits + 1
+                $)
+            $)
+
+            // Reverse digits
+            FOR k = digits-1 TO 0 BY -1 DO
+            $(
+                buffer%j := temp%k
+                j := j + 1
+            $)
+
+            FREEVEC(temp)
+            i := i + 2  // Skip %d
+        $) ELSE
+        $(
+            buffer%j := format%i
+            i := i + 1
+            j := j + 1
+        $)
+    $)
+
+    buffer%j := 0  // Null terminate
+$)

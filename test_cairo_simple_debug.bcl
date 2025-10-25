@@ -1,0 +1,157 @@
+// Simple Cairo debug test - checks for errors after each operation
+// This tests basic Cairo operations and reports any errors found
+
+LET START() BE
+{
+    LET surface = 0
+    LET width = 200
+    LET height = 150
+    LET error_msg = 0
+
+    WRITEF("=== Cairo Simple Debug Test ===%N")
+
+    // Test 1: Check Cairo availability
+    WRITEF("Test 1: Checking Cairo availability...%N")
+    LET cairo_available = CAIRO_IS_AVAILABLE()
+    WRITEF("Cairo available: %N", cairo_available)
+
+    error_msg := CAIRO_GET_ERROR()
+    IF error_msg ~= 0 THEN
+    {
+        WRITEF("ERROR after availability check: ")
+        WRITES(error_msg)
+        WRITEF("%N")
+        CAIRO_CLEAR_ERROR()
+    }
+
+    IF cairo_available = 0 THEN
+    {
+        WRITEF("ERROR: Cairo not available - stopping test%N")
+        FINISH
+    }
+
+    // Test 2: Create surface
+    WRITEF("Test 2: Creating surface...%N")
+    surface := CAIRO_CREATE_SURFACE(width, height)
+    WRITEF("Surface handle: %N", surface)
+
+    error_msg := CAIRO_GET_ERROR()
+    IF error_msg ~= 0 THEN
+    {
+        WRITEF("ERROR after surface creation: ")
+        WRITES(error_msg)
+        WRITEF("%N")
+        CAIRO_CLEAR_ERROR()
+    }
+
+    IF surface = 0 THEN
+    {
+        WRITEF("ERROR: Failed to create surface%N")
+        FINISH
+    }
+
+    // Test 3: Clear surface
+    WRITEF("Test 3: Clearing surface...%N")
+    CAIRO_CLEAR(surface, #xFFFFFFFF)
+    WRITEF("Clear operation completed%N")
+
+    error_msg := CAIRO_GET_ERROR()
+    IF error_msg ~= 0 THEN
+    {
+        WRITEF("ERROR after clear: ")
+        WRITES(error_msg)
+        WRITEF("%N")
+        CAIRO_CLEAR_ERROR()
+    }
+
+    // Test 4: Set color
+    WRITEF("Test 4: Setting color to red...%N")
+    CAIRO_SET_COLOR(surface, #xFF0000FF)
+    WRITEF("Color set operation completed%N")
+
+    error_msg := CAIRO_GET_ERROR()
+    IF error_msg ~= 0 THEN
+    {
+        WRITEF("ERROR after set color: ")
+        WRITES(error_msg)
+        WRITEF("%N")
+        CAIRO_CLEAR_ERROR()
+    }
+
+    // Test 5: Draw rectangle
+    WRITEF("Test 5: Drawing rectangle...%N")
+    CAIRO_FILL_RECT(surface, 10.0, 10.0, 50.0, 30.0)
+    WRITEF("Rectangle draw operation completed%N")
+
+    error_msg := CAIRO_GET_ERROR()
+    IF error_msg ~= 0 THEN
+    {
+        WRITEF("ERROR after rectangle draw: ")
+        WRITES(error_msg)
+        WRITEF("%N")
+        CAIRO_CLEAR_ERROR()
+    }
+
+    // Test 6: Check surface count
+    WRITEF("Test 6: Checking surface count...%N")
+    LET surface_count = CAIRO_SURFACE_COUNT()
+    WRITEF("Active surfaces: %N", surface_count)
+
+    error_msg := CAIRO_GET_ERROR()
+    IF error_msg ~= 0 THEN
+    {
+        WRITEF("ERROR after surface count: ")
+        WRITES(error_msg)
+        WRITEF("%N")
+        CAIRO_CLEAR_ERROR()
+    }
+
+    // Test 7: Set different color and draw circle
+    WRITEF("Test 7: Setting blue color and drawing circle...%N")
+    CAIRO_SET_COLOR(surface, #x0000FFFF)
+    CAIRO_FILL_CIRCLE(surface, 100.0, 75.0, 25.0)
+    WRITEF("Circle draw operation completed%N")
+
+    error_msg := CAIRO_GET_ERROR()
+    IF error_msg ~= 0 THEN
+    {
+        WRITEF("ERROR after circle draw: ")
+        WRITES(error_msg)
+        WRITEF("%N")
+        CAIRO_CLEAR_ERROR()
+    }
+
+    // Test 8: Save PNG
+    WRITEF("Test 8: Saving PNG...%N")
+    CAIRO_SAVE_PNG(surface, "simple_debug_test.png")
+    WRITEF("PNG save operation completed%N")
+
+    error_msg := CAIRO_GET_ERROR()
+    IF error_msg ~= 0 THEN
+    {
+        WRITEF("ERROR after PNG save: ")
+        WRITES(error_msg)
+        WRITEF("%N")
+        CAIRO_CLEAR_ERROR()
+    }
+
+    // Final status
+    WRITEF("%N=== Test Summary ===%N")
+    WRITEF("All operations completed without reported errors%N")
+    WRITEF("Check simple_debug_test.png to see if shapes were actually drawn%N")
+
+    // Check for any final errors
+    error_msg := CAIRO_GET_ERROR()
+    TEST error_msg ~= 0 THEN
+    {
+        WRITEF("FINAL ERROR found: ")
+        WRITES(error_msg)
+        WRITEF("%N")
+    }
+    ELSE
+    {
+        WRITEF("No errors reported by Cairo runtime%N")
+    }
+
+    FINISH
+}

@@ -1,0 +1,51 @@
+// Test to understand BCPL string format by examining how BCPL strings work
+// This will help us debug the Cairo text drawing issue
+
+LET START() BE
+{
+    WRITEF("=== BCPL String Format Test ==*N")
+
+    // Test 1: Simple string literal
+    WRITEF("Test 1: Simple string output*N")
+    WRITES("Hello World")
+    NEWLINE()
+
+    // Test 2: String with exclamation
+    WRITEF("Test 2: String with punctuation*N")
+    WRITES("Hello!")
+    NEWLINE()
+
+    // Test 3: Very short string
+    WRITEF("Test 3: Very short string*N")
+    WRITES("Hi")
+    NEWLINE()
+
+    // Test 4: Single character
+    WRITEF("Test 4: Single character*N")
+    WRITES("A")
+    NEWLINE()
+
+    // Test 5: String with numbers
+    WRITEF("Test 5: String with numbers*N")
+    WRITES("Test123")
+    NEWLINE()
+
+    // Test 6: Let's try to use the same strings that fail in Cairo
+    WRITEF("Test 6: Strings that fail in Cairo*N")
+    WRITES("Arial")
+    NEWLINE()
+    WRITES("Hello Cairo!")
+    NEWLINE()
+
+    // Test 7: Test if we can assign strings to variables
+    WRITEF("Test 7: String assignment test*N")
+    LET test_string = "TestString"
+    WRITES(test_string)
+    NEWLINE()
+
+    WRITEF("*N=== String Format Tests Complete ==*N")
+    WRITEF("If these all work, then BCPL strings are formatted correctly*N")
+    WRITEF("The problem in Cairo text drawing is likely in the conversion*N")
+
+    FINISH
+}

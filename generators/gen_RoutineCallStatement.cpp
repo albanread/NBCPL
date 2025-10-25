@@ -150,7 +150,13 @@ void validate_writef_call(const std::vector<ExprPtr>& arguments) {
 }
 
 void NewCodeGenerator::visit(RoutineCallStatement& node) {
-    debug_print("--- Entering NewCodeGenerator::visit(RoutineCallStatement& node) [ARM64 ABI COMPLIANT] ---");
+    std::string function_name = "unknown";
+    if (auto* var_access = dynamic_cast<VariableAccess*>(node.routine_expr.get())) {
+        function_name = var_access->name;
+    } else if (auto* member_access = dynamic_cast<MemberAccessExpression*>(node.routine_expr.get())) {
+        function_name = member_access->member_name;
+    }
+    debug_print("--- Entering NewCodeGenerator::visit(RoutineCallStatement& node) [ARM64 ABI COMPLIANT] --- Function: " + function_name);
 
     // Skip codegen for the SETTYPE intrinsic, as it's a compile-time directive.
     if (auto* var_access = dynamic_cast<VariableAccess*>(node.routine_expr.get())) {
@@ -500,7 +506,7 @@ void NewCodeGenerator::visit(RoutineCallStatement& node) {
 
     } else {
         // --- THIS IS A REGULAR FUNCTION/ROUTINE CALL (e.g., WRITEN(x)) ---
-        debug_print("Detected a regular function/routine call.");
+        debug_print("Detected a regular function/routine call: " + function_name);
 
         // Check if this is a special built-in like WRITEF
         if (auto* var_access = dynamic_cast<VariableAccess*>(node.routine_expr.get())) {
@@ -763,5 +769,5 @@ void NewCodeGenerator::visit(RoutineCallStatement& node) {
     // Routines don't have a return value, but the call clobbers X0.
     register_manager_.mark_register_as_used("X0");
 
-    debug_print("--- Exiting NewCodeGenerator::visit(RoutineCallStatement& node) ---");
+    debug_print("--- Exiting NewCodeGenerator::visit(RoutineCallStatement& node) --- Function: " + function_name);
 }

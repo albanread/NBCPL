@@ -1,0 +1,64 @@
+// Simple Cairo Graphics Test for BCPL
+// Tests basic Cairo functionality
+
+LET START() BE
+$(
+    WRITEF("=== Simple Cairo Graphics Test ===*N")
+
+    // Test if Cairo is available
+    TEST CAIRO_IS_AVAILABLE() = 0 THEN
+    $(
+        WRITEF("ERROR: Cairo graphics not available*N")
+        RETURN
+    $) ELSE
+    $(
+        LET version = CAIRO_VERSION()
+        WRITEF("Cairo version: ")
+        WRITES(version)
+        WRITEF("*N")
+    $)
+
+    // Create a simple 400x300 canvas
+    LET surface = CAIRO_CREATE_SURFACE(400, 300)
+    TEST surface = 0 THEN
+    $(
+        WRITEF("ERROR: Failed to create surface*N")
+        RETURN
+    $)
+
+    WRITEF("Created 400x300 surface*N")
+
+    // Clear to white background
+    CAIRO_CLEAR(surface, #xFFFFFFFF)
+
+    // Set red color and draw a rectangle
+    CAIRO_SET_COLOR(surface, #xFF0000FF)
+    CAIRO_FILL_RECT(surface, 50.0, 50.0, 100.0, 80.0)
+
+    // Set blue color and draw a circle
+    CAIRO_SET_COLOR(surface, #x0000FFFF)
+    CAIRO_FILL_CIRCLE(surface, 200.0, 150.0, 40.0)
+
+    // Draw a green line
+    CAIRO_SET_COLOR(surface, #x00FF00FF)
+    CAIRO_SET_LINE_WIDTH(surface, 3.0)
+    CAIRO_DRAW_LINE(surface, 50.0, 200.0, 350.0, 250.0)
+
+    // Add some text
+    CAIRO_SET_FONT(surface, "Arial", 16.0)
+    CAIRO_SET_COLOR(surface, #x000000FF)
+    CAIRO_DRAW_TEXT(surface, 100.0, 40.0, "Hello Cairo!")
+
+    // Save the result
+    CAIRO_SAVE_PNG(surface, "cairo_test.png")
+    WRITEF("Saved cairo_test.png*N")
+
+    // Check SAMM statistics
+    LET surfaces, images, memory = 0, 0, 0
+    CAIRO_SAMM_GET_STATS(@surfaces, @images, @memory)
+    WRITEF("SAMM Stats: %N surfaces, %N images, %N bytes*N",
+           surfaces, images, memory)
+
+    WRITEF("Test completed successfully!*N")
+    // Surface automatically cleaned up by SAMM
+$)

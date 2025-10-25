@@ -22,83 +22,6 @@
 struct ListHeader;
 
 extern "C" {
-
-    // Cairo Graphics Functions
-    typedef uint32_t* bcpl_string_t;
-    typedef uint32_t* bcpl_vector_t;
-    typedef uint64_t CairoSurfaceHandle;
-    typedef uint64_t CairoImageHandle;
-
-    CairoSurfaceHandle CAIRO_CREATE_SURFACE(int64_t width, int64_t height);
-    CairoSurfaceHandle CAIRO_LOAD_PNG(bcpl_string_t filename);
-    void CAIRO_SAVE_PNG(CairoSurfaceHandle surface_handle, bcpl_string_t filename);
-    void CAIRO_GET_SIZE(CairoSurfaceHandle surface_handle, int64_t* width, int64_t* height);
-    void CAIRO_CLEAR(CairoSurfaceHandle surface_handle, uint32_t rgba_color);
-    CairoSurfaceHandle CAIRO_CLONE_SURFACE(CairoSurfaceHandle source_handle);
-
-    void CAIRO_SET_COLOR(CairoSurfaceHandle surface_handle, uint32_t rgba_color);
-    void CAIRO_SET_LINE_WIDTH(CairoSurfaceHandle surface_handle, double width);
-    void CAIRO_SET_LINE_JOIN(CairoSurfaceHandle surface_handle, int64_t join_style);
-    void CAIRO_SET_LINE_CAP(CairoSurfaceHandle surface_handle, int64_t cap_style);
-    void CAIRO_SET_OPACITY(CairoSurfaceHandle surface_handle, double opacity);
-
-    void CAIRO_FILL_RECT(CairoSurfaceHandle surface_handle, double x, double y, double width, double height);
-    void CAIRO_STROKE_RECT(CairoSurfaceHandle surface_handle, double x, double y, double width, double height);
-    void CAIRO_FILL_CIRCLE(CairoSurfaceHandle surface_handle, double cx, double cy, double radius);
-    void CAIRO_STROKE_CIRCLE(CairoSurfaceHandle surface_handle, double cx, double cy, double radius);
-    void CAIRO_DRAW_LINE(CairoSurfaceHandle surface_handle, double x1, double y1, double x2, double y2);
-    void CAIRO_DRAW_POINT(CairoSurfaceHandle surface_handle, double x, double y);
-
-    void CAIRO_DRAW_LINES_VEC(CairoSurfaceHandle surface_handle, bcpl_vector_t point_pairs);
-    void CAIRO_FILL_RECTS_VEC(CairoSurfaceHandle surface_handle, bcpl_vector_t rect_quads);
-    void CAIRO_FILL_CIRCLES_VEC(CairoSurfaceHandle surface_handle, bcpl_vector_t circle_triples);
-    void CAIRO_DRAW_POLYLINE(CairoSurfaceHandle surface_handle, bcpl_vector_t points, int64_t close_path);
-    void CAIRO_FILL_POLYGON(CairoSurfaceHandle surface_handle, bcpl_vector_t points);
-
-    void CAIRO_BEGIN_PATH(CairoSurfaceHandle surface_handle);
-    void CAIRO_MOVE_TO(CairoSurfaceHandle surface_handle, double x, double y);
-    void CAIRO_LINE_TO(CairoSurfaceHandle surface_handle, double x, double y);
-    void CAIRO_CURVE_TO(CairoSurfaceHandle surface_handle, double x1, double y1, double x2, double y2, double x3, double y3);
-    void CAIRO_CLOSE_PATH(CairoSurfaceHandle surface_handle);
-    void CAIRO_FILL_PATH(CairoSurfaceHandle surface_handle);
-    void CAIRO_STROKE_PATH(CairoSurfaceHandle surface_handle);
-
-    void CAIRO_SET_FONT(CairoSurfaceHandle surface_handle, bcpl_string_t font_name, double font_size);
-    void CAIRO_DRAW_TEXT(CairoSurfaceHandle surface_handle, double x, double y, bcpl_string_t text);
-    void CAIRO_TEXT_SIZE(CairoSurfaceHandle surface_handle, bcpl_string_t text, double* width, double* height);
-    void CAIRO_DRAW_TEXT_COLORED(CairoSurfaceHandle surface_handle, double x, double y, bcpl_string_t text, uint32_t rgba_color);
-
-    CairoImageHandle CAIRO_LOAD_IMAGE(bcpl_string_t filename);
-    void CAIRO_DRAW_IMAGE(CairoSurfaceHandle surface_handle, CairoImageHandle image_handle, double x, double y);
-    void CAIRO_DRAW_IMAGE_SCALED(CairoSurfaceHandle surface_handle, CairoImageHandle image_handle, double x, double y, double scale_x, double scale_y);
-    void CAIRO_DRAW_IMAGE_ROTATED(CairoSurfaceHandle surface_handle, CairoImageHandle image_handle, double x, double y, double angle);
-    void CAIRO_IMAGE_SIZE(CairoImageHandle image_handle, int64_t* width, int64_t* height);
-
-    void CAIRO_SAVE(CairoSurfaceHandle surface_handle);
-    void CAIRO_RESTORE(CairoSurfaceHandle surface_handle);
-    void CAIRO_TRANSLATE(CairoSurfaceHandle surface_handle, double tx, double ty);
-    void CAIRO_SCALE(CairoSurfaceHandle surface_handle, double sx, double sy);
-    void CAIRO_ROTATE(CairoSurfaceHandle surface_handle, double angle);
-
-    void CAIRO_RELEASE_SURFACE(CairoSurfaceHandle surface_handle);
-    void CAIRO_RELEASE_IMAGE(CairoImageHandle image_handle);
-    int64_t CAIRO_SURFACE_COUNT(void);
-    int64_t CAIRO_IMAGE_COUNT(void);
-
-    int64_t CAIRO_IS_AVAILABLE(void);
-    bcpl_string_t CAIRO_GET_VERSION(void);
-    bcpl_string_t CAIRO_GET_ERROR(void);
-    void CAIRO_CLEAR_ERROR(void);
-
-    // SAMM integration functions
-    CairoSurfaceHandle CAIRO_CREATE_SURFACE_RETAINED(int64_t width, int64_t height, int64_t parent_scope_offset);
-    CairoSurfaceHandle CAIRO_LOAD_PNG_RETAINED(bcpl_string_t filename, int64_t parent_scope_offset);
-    CairoImageHandle CAIRO_LOAD_IMAGE_RETAINED(bcpl_string_t filename, int64_t parent_scope_offset);
-    int64_t CAIRO_SAMM_SCOPE_DEPTH(void);
-    void CAIRO_SAMM_FORCE_CLEANUP(void);
-    void CAIRO_SAMM_GET_STATS(int64_t* active_surfaces, int64_t* active_images, int64_t* memory_usage);
-    void CAIRO_SAMM_SET_TRACE(int64_t enabled);
-    void CAIRO_SAMM_DUMP_STATE(void);
     // Core I/O functions
     void WRITES(int string_ptr);
     void WRITEN(int value);
@@ -267,86 +190,6 @@ extern "C" {
 // RUNTIME FUNCTION MANIFEST - SINGLE SOURCE OF TRUTH
 // =============================================================================
 
-// =============================================================================
-// PARAMETER TYPE DEFINITIONS
-// =============================================================================
-
-// Parameter types for Cairo functions
-static const RuntimeParameterType cairo_create_surface_params[] = {
-    RuntimeParameterType::INTEGER, RuntimeParameterType::INTEGER
-};
-
-static const RuntimeParameterType cairo_fill_rect_params[] = {
-    RuntimeParameterType::INTEGER, RuntimeParameterType::DOUBLE, RuntimeParameterType::DOUBLE, 
-    RuntimeParameterType::DOUBLE, RuntimeParameterType::DOUBLE
-};
-
-static const RuntimeParameterType cairo_stroke_rect_params[] = {
-    RuntimeParameterType::INTEGER, RuntimeParameterType::DOUBLE, RuntimeParameterType::DOUBLE, 
-    RuntimeParameterType::DOUBLE, RuntimeParameterType::DOUBLE
-};
-
-static const RuntimeParameterType cairo_fill_circle_params[] = {
-    RuntimeParameterType::INTEGER, RuntimeParameterType::DOUBLE, RuntimeParameterType::DOUBLE, 
-    RuntimeParameterType::DOUBLE
-};
-
-static const RuntimeParameterType cairo_stroke_circle_params[] = {
-    RuntimeParameterType::INTEGER, RuntimeParameterType::DOUBLE, RuntimeParameterType::DOUBLE, 
-    RuntimeParameterType::DOUBLE
-};
-
-static const RuntimeParameterType cairo_draw_line_params[] = {
-    RuntimeParameterType::INTEGER, RuntimeParameterType::DOUBLE, RuntimeParameterType::DOUBLE, 
-    RuntimeParameterType::DOUBLE, RuntimeParameterType::DOUBLE
-};
-
-static const RuntimeParameterType cairo_draw_point_params[] = {
-    RuntimeParameterType::INTEGER, RuntimeParameterType::DOUBLE, RuntimeParameterType::DOUBLE
-};
-
-static const RuntimeParameterType cairo_set_opacity_params[] = {
-    RuntimeParameterType::INTEGER, RuntimeParameterType::DOUBLE
-};
-
-static const RuntimeParameterType cairo_set_line_width_params[] = {
-    RuntimeParameterType::INTEGER, RuntimeParameterType::DOUBLE
-};
-
-static const RuntimeParameterType cairo_draw_text_params[] = {
-    RuntimeParameterType::INTEGER, RuntimeParameterType::DOUBLE, RuntimeParameterType::DOUBLE, 
-    RuntimeParameterType::STRING
-};
-
-static const RuntimeParameterType cairo_set_font_params[] = {
-    RuntimeParameterType::INTEGER, RuntimeParameterType::STRING, RuntimeParameterType::DOUBLE
-};
-
-static const RuntimeParameterType cairo_surface_handle_only_params[] = {
-    RuntimeParameterType::INTEGER
-};
-
-static const RuntimeParameterType cairo_surface_color_params[] = {
-    RuntimeParameterType::INTEGER, RuntimeParameterType::INTEGER
-};
-
-static const RuntimeParameterType cairo_surface_int_params[] = {
-    RuntimeParameterType::INTEGER, RuntimeParameterType::INTEGER
-};
-
-static const RuntimeParameterType cairo_surface_string_params[] = {
-    RuntimeParameterType::INTEGER, RuntimeParameterType::STRING
-};
-
-static const RuntimeParameterType cairo_surface_vector_params[] = {
-    RuntimeParameterType::INTEGER, RuntimeParameterType::VECTOR
-};
-
-static const RuntimeParameterType cairo_draw_image_params[] = {
-    RuntimeParameterType::INTEGER, RuntimeParameterType::INTEGER, RuntimeParameterType::DOUBLE, 
-    RuntimeParameterType::DOUBLE
-};
-
 /**
  * Master manifest of all runtime functions published by the runtime library.
  * This is the authoritative list that the compiler imports.
@@ -362,72 +205,72 @@ static const RuntimeFunctionDescriptor g_runtime_manifest[] = {
     {
         "WRITES", "_WRITES", reinterpret_cast<RuntimeFunctionPtr>(WRITES), 1,
         RuntimeFunctionType::ROUTINE, RuntimeReturnType::VOID,
-        "Write a string to standard output", "I/O", nullptr
+        "Write a string to standard output", "I/O"
     },
     {
         "WRITEN", "_WRITEN", reinterpret_cast<RuntimeFunctionPtr>(WRITEN), 1,
         RuntimeFunctionType::ROUTINE, RuntimeReturnType::VOID,
-        "Write an integer to standard output", "I/O", nullptr
+        "Write an integer to standard output", "I/O"
     },
     {
         "FWRITE", "_FWRITE", reinterpret_cast<RuntimeFunctionPtr>(FWRITE), 1,
         RuntimeFunctionType::FLOAT_ROUTINE, RuntimeReturnType::VOID,
-        "Write a float to standard output", "I/O", nullptr
+        "Write a float to standard output", "I/O"
     },
     {
         "WRITEF", "_WRITEF", reinterpret_cast<RuntimeFunctionPtr>(WRITEF), 1,
         RuntimeFunctionType::ROUTINE, RuntimeReturnType::VOID,
-        "Write formatted output (base case)", "I/O", nullptr
+        "Write formatted output (base case)", "I/O"
     },
     {
         "WRITEF1", "_WRITEF1", reinterpret_cast<RuntimeFunctionPtr>(WRITEF1), 2,
         RuntimeFunctionType::ROUTINE, RuntimeReturnType::VOID,
-        "Write formatted output with 1 argument", "I/O", nullptr
+        "Write formatted output with 1 argument", "I/O"
     },
     {
         "WRITEF2", "_WRITEF2", reinterpret_cast<RuntimeFunctionPtr>(WRITEF2), 3,
         RuntimeFunctionType::ROUTINE, RuntimeReturnType::VOID,
-        "Write formatted output with 2 arguments", "I/O", nullptr
+        "Write formatted output with 2 arguments", "I/O"
     },
     {
         "WRITEF3", "_WRITEF3", reinterpret_cast<RuntimeFunctionPtr>(WRITEF3), 4,
         RuntimeFunctionType::ROUTINE, RuntimeReturnType::VOID,
-        "Write formatted output with 3 arguments", "I/O", nullptr
+        "Write formatted output with 3 arguments", "I/O"
     },
     {
         "WRITEF4", "_WRITEF4", reinterpret_cast<RuntimeFunctionPtr>(WRITEF4), 5,
         RuntimeFunctionType::ROUTINE, RuntimeReturnType::VOID,
-        "Write formatted output with 4 arguments", "I/O", nullptr
+        "Write formatted output with 4 arguments", "I/O"
     },
     {
         "WRITEF5", "_WRITEF5", reinterpret_cast<RuntimeFunctionPtr>(WRITEF5), 6,
         RuntimeFunctionType::ROUTINE, RuntimeReturnType::VOID,
-        "Write formatted output with 5 arguments", "I/O", nullptr
+        "Write formatted output with 5 arguments", "I/O"
     },
     {
         "WRITEF6", "_WRITEF6", reinterpret_cast<RuntimeFunctionPtr>(WRITEF6), 7,
         RuntimeFunctionType::ROUTINE, RuntimeReturnType::VOID,
-        "Write formatted output with 6 arguments", "I/O", nullptr
+        "Write formatted output with 6 arguments", "I/O"
     },
     {
         "WRITEF7", "_WRITEF7", reinterpret_cast<RuntimeFunctionPtr>(WRITEF7), 8,
         RuntimeFunctionType::ROUTINE, RuntimeReturnType::VOID,
-        "Write formatted output with 7 arguments", "I/O", nullptr
+        "Write formatted output with 7 arguments", "I/O"
     },
     {
         "WRITEC", "_WRITEC", reinterpret_cast<RuntimeFunctionPtr>(WRITEC), 1,
         RuntimeFunctionType::ROUTINE, RuntimeReturnType::VOID,
-        "Write a character to standard output", "I/O", nullptr
+        "Write a character to standard output", "I/O"
     },
     {
         "RDCH", "_RDCH", reinterpret_cast<RuntimeFunctionPtr>(RDCH), 0,
         RuntimeFunctionType::STANDARD, RuntimeReturnType::INTEGER,
-        "Read a character from standard input", "I/O", nullptr
+        "Read a character from standard input", "I/O"
     },
     {
         "NEWLINE", "_NEWLINE", reinterpret_cast<RuntimeFunctionPtr>(NEWLINE), 0,
         RuntimeFunctionType::ROUTINE, RuntimeReturnType::VOID,
-        "Output a newline character", "I/O", nullptr
+        "Output a newline character", "I/O"
     },
 
     // -------------------------------------------------------------------------
@@ -436,47 +279,47 @@ static const RuntimeFunctionDescriptor g_runtime_manifest[] = {
     {
         "SPLIT", "_SPLIT", reinterpret_cast<RuntimeFunctionPtr>(SPLIT), 2,
         RuntimeFunctionType::STANDARD, RuntimeReturnType::STRING_LIST,
-        "Split a string into a list using delimiter", "String", nullptr
+        "Split a string into a list using delimiter", "String"
     },
     {
         "JOIN", "_JOIN", reinterpret_cast<RuntimeFunctionPtr>(JOIN), 2,
         RuntimeFunctionType::STANDARD, RuntimeReturnType::STRING,
-        "Join a list of strings using delimiter", "String", nullptr
+        "Join a list of strings using delimiter", "String"
     },
     {
         "STRLEN", "_STRLEN", reinterpret_cast<RuntimeFunctionPtr>(STRLEN), 1,
         RuntimeFunctionType::STANDARD, RuntimeReturnType::INTEGER,
-        "Get length of a string", "String", nullptr
+        "Get length of a string", "String"
     },
     {
         "STRCMP", "_STRCMP", reinterpret_cast<RuntimeFunctionPtr>(STRCMP), 2,
         RuntimeFunctionType::STANDARD, RuntimeReturnType::INTEGER,
-        "Compare two strings", "String", nullptr
+        "Compare two strings", "String"
     },
     {
         "STRCOPY", "_STRCOPY", reinterpret_cast<RuntimeFunctionPtr>(STRCOPY), 2,
         RuntimeFunctionType::ROUTINE, RuntimeReturnType::VOID,
-        "Copy one string to another", "String", nullptr
+        "Copy one string to another", "String"
     },
     {
         "PACKSTRING", "_PACKSTRING", reinterpret_cast<RuntimeFunctionPtr>(PACKSTRING), 1,
         RuntimeFunctionType::STANDARD, RuntimeReturnType::STRING,
-        "Pack a string into memory", "String", nullptr
+        "Pack a string into memory", "String"
     },
     {
         "UNPACKSTRING", "_UNPACKSTRING", reinterpret_cast<RuntimeFunctionPtr>(UNPACKSTRING), 1,
         RuntimeFunctionType::STANDARD, RuntimeReturnType::STRING,
-        "Unpack a string from memory", "String", nullptr
+        "Unpack a string from memory", "String"
     },
     {
         "SLURP", "_SLURP", reinterpret_cast<RuntimeFunctionPtr>(SLURP), 1,
         RuntimeFunctionType::STANDARD, RuntimeReturnType::STRING,
-        "Read entire file into string", "String", nullptr
+        "Read entire file into string", "String"
     },
     {
         "SPIT", "_SPIT", reinterpret_cast<RuntimeFunctionPtr>(SPIT), 2,
         RuntimeFunctionType::ROUTINE, RuntimeReturnType::VOID,
-        "Write string to file", "String", nullptr
+        "Write string to file", "String"
     },
 
     // -------------------------------------------------------------------------
@@ -485,72 +328,72 @@ static const RuntimeFunctionDescriptor g_runtime_manifest[] = {
     {
         "GETVEC", "_GETVEC", reinterpret_cast<RuntimeFunctionPtr>(bcpl_getvec), 1,
         RuntimeFunctionType::STANDARD, RuntimeReturnType::INT_VECTOR,
-        "Allocate integer vector", "Memory", nullptr
+        "Allocate integer vector", "Memory"
     },
     {
         "FGETVEC", "_FGETVEC", reinterpret_cast<RuntimeFunctionPtr>(bcpl_fgetvec), 1,
         RuntimeFunctionType::STANDARD, RuntimeReturnType::FLOAT_VECTOR,
-        "Allocate float vector", "Memory", nullptr
+        "Allocate float vector", "Memory"
     },
     {
         "FREEVEC", "_FREEVEC", reinterpret_cast<RuntimeFunctionPtr>(bcpl_free), 1,
         RuntimeFunctionType::ROUTINE, RuntimeReturnType::VOID,
-        "Free allocated vector", "Memory", nullptr
+        "Free allocated vector", "Memory"
     },
     {
         "BCPL_ALLOC_WORDS", "_BCPL_ALLOC_WORDS", reinterpret_cast<RuntimeFunctionPtr>(bcpl_alloc_words), 3,
         RuntimeFunctionType::STANDARD, RuntimeReturnType::INTEGER,
-        "Allocate words with type info", "Memory", nullptr
+        "Allocate words with type info", "Memory"
     },
     {
         "BCPL_ALLOC_CHARS", "_BCPL_ALLOC_CHARS", reinterpret_cast<RuntimeFunctionPtr>(bcpl_alloc_chars), 1,
         RuntimeFunctionType::STANDARD, RuntimeReturnType::INTEGER,
-        "Allocate character buffer", "Memory", nullptr
+        "Allocate character buffer", "Memory"
     },
     {
         "MALLOC", "_MALLOC", reinterpret_cast<RuntimeFunctionPtr>(bcpl_alloc_words), 1,
         RuntimeFunctionType::STANDARD, RuntimeReturnType::INTEGER,
-        "Allocate memory (alias for BCPL_ALLOC_WORDS)", "Memory", nullptr
+        "Allocate memory (alias for BCPL_ALLOC_WORDS)", "Memory"
     },
     {
         "BCPL_FREE_LIST", "_BCPL_FREE_LIST", reinterpret_cast<RuntimeFunctionPtr>(bcpl_free_list), 1,
         RuntimeFunctionType::ROUTINE, RuntimeReturnType::VOID,
-        "Free a list structure", "Memory", nullptr
+        "Free a list structure", "Memory"
     },
     {
         "BCPL_FREE_LIST_SAFE", "_BCPL_FREE_LIST_SAFE", reinterpret_cast<RuntimeFunctionPtr>(bcpl_free_list_safe), 1,
         RuntimeFunctionType::ROUTINE, RuntimeReturnType::VOID,
-        "Safely free a list structure", "Memory", nullptr
+        "Safely free a list structure", "Memory"
     },
     {
         "BCPL_GET_LAST_ERROR", "_BCPL_GET_LAST_ERROR", reinterpret_cast<RuntimeFunctionPtr>(BCPL_GET_LAST_ERROR), 1,
         RuntimeFunctionType::STANDARD, RuntimeReturnType::INTEGER,
-        "Get last error message", "Memory", nullptr
+        "Get last error message", "Memory"
     },
     {
         "BCPL_CLEAR_ERRORS", "_BCPL_CLEAR_ERRORS", reinterpret_cast<RuntimeFunctionPtr>(BCPL_CLEAR_ERRORS), 0,
         RuntimeFunctionType::ROUTINE, RuntimeReturnType::VOID,
-        "Clear error state", "Memory", nullptr
+        "Clear error state", "Memory"
     },
     {
         "BCPL_CHECK_AND_DISPLAY_ERRORS", "_BCPL_CHECK_AND_DISPLAY_ERRORS", reinterpret_cast<RuntimeFunctionPtr>(BCPL_CHECK_AND_DISPLAY_ERRORS), 0,
         RuntimeFunctionType::ROUTINE, RuntimeReturnType::VOID,
-        "Check and display any errors", "Memory", nullptr
+        "Check and display any errors", "Memory"
     },
     {
         "BCPL_BOUNDS_ERROR", "_BCPL_BOUNDS_ERROR", reinterpret_cast<RuntimeFunctionPtr>(BCPL_BOUNDS_ERROR), 3,
         RuntimeFunctionType::ROUTINE, RuntimeReturnType::VOID,
-        "Report bounds checking error", "Memory", nullptr
+        "Report bounds checking error", "Memory"
     },
     {
         "BCPL_FREE_CELLS", "_BCPL_FREE_CELLS", reinterpret_cast<RuntimeFunctionPtr>(BCPL_FREE_CELLS), 0,
         RuntimeFunctionType::ROUTINE, RuntimeReturnType::VOID,
-        "Free memory cells", "Memory", nullptr
+        "Free memory cells", "Memory"
     },
     {
         "GET_FREE_LIST_HEAD_ADDR", "_GET_FREE_LIST_HEAD_ADDR", reinterpret_cast<RuntimeFunctionPtr>(get_g_free_list_head_address), 0,
         RuntimeFunctionType::STANDARD, RuntimeReturnType::INTEGER,
-        "Get address of free list head", "Memory", nullptr
+        "Get address of free list head", "Memory"
     },
 
     // -------------------------------------------------------------------------
@@ -559,194 +402,194 @@ static const RuntimeFunctionDescriptor g_runtime_manifest[] = {
     {
         "LIST_CREATE", "_LIST_CREATE", reinterpret_cast<RuntimeFunctionPtr>(BCPL_LIST_CREATE_EMPTY), 0,
         RuntimeFunctionType::STANDARD, RuntimeReturnType::STRING_LIST,
-        "Create empty list", "List", nullptr
+        "Create empty list", "List"
     },
     {
         "LIST_APPEND_INT", "_LIST_APPEND_INT", reinterpret_cast<RuntimeFunctionPtr>(BCPL_LIST_APPEND_INT), 2,
         RuntimeFunctionType::STANDARD, RuntimeReturnType::STRING_LIST,
-        "Append integer to list", "List", nullptr
+        "Append integer to list", "List"
     },
     {
         "LIST_APPEND_FLOAT", "_LIST_APPEND_FLOAT", reinterpret_cast<RuntimeFunctionPtr>(BCPL_LIST_APPEND_FLOAT), 2,
         RuntimeFunctionType::FLOAT, RuntimeReturnType::STRING_LIST,
-        "Append float to list", "List", nullptr
+        "Append float to list", "List"
     },
     {
         "LIST_APPEND_STRING", "_LIST_APPEND_STRING", reinterpret_cast<RuntimeFunctionPtr>(BCPL_LIST_APPEND_STRING), 2,
         RuntimeFunctionType::STANDARD, RuntimeReturnType::STRING_LIST,
-        "Append string to list", "List", nullptr
+        "Append string to list", "List"
     },
     {
         "LIST_HEAD_INT", "_LIST_HEAD_INT", reinterpret_cast<RuntimeFunctionPtr>(BCPL_LIST_GET_HEAD_AS_INT), 1,
         RuntimeFunctionType::STANDARD, RuntimeReturnType::INTEGER,
-        "Get first element of list as integer", "List", nullptr
+        "Get first element of list as integer", "List"
     },
     {
         "LIST_HEAD_FLOAT", "_LIST_HEAD_FLOAT", reinterpret_cast<RuntimeFunctionPtr>(BCPL_LIST_GET_HEAD_AS_FLOAT), 1,
         RuntimeFunctionType::FLOAT, RuntimeReturnType::FLOAT,
-        "Get first element of list as float", "List", nullptr
+        "Get first element of list as float", "List"
     },
     {
         "LIST_TAIL", "_LIST_TAIL", reinterpret_cast<RuntimeFunctionPtr>(BCPL_LIST_GET_TAIL), 1,
         RuntimeFunctionType::STANDARD, RuntimeReturnType::STRING_LIST,
-        "Get tail (rest) of list", "List", nullptr
+        "Get tail (rest) of list", "List"
     },
     {
         "LIST_FREE", "_LIST_FREE", reinterpret_cast<RuntimeFunctionPtr>(bcpl_free_list), 1,
         RuntimeFunctionType::ROUTINE, RuntimeReturnType::VOID,
-        "Free a list and all its elements", "List", nullptr
+        "Free a list and all its elements", "List"
     },
     {
         "BCPL_LIST_APPEND_LIST", "_BCPL_LIST_APPEND_LIST", reinterpret_cast<RuntimeFunctionPtr>(BCPL_LIST_APPEND_LIST), 2,
         RuntimeFunctionType::STANDARD, RuntimeReturnType::STRING_LIST,
-        "Append list to another list", "List", nullptr
+        "Append list to another list", "List"
     },
     {
         "BCPL_LIST_GET_REST", "_BCPL_LIST_GET_REST", reinterpret_cast<RuntimeFunctionPtr>(BCPL_LIST_GET_REST), 1,
         RuntimeFunctionType::STANDARD, RuntimeReturnType::STRING_LIST,
-        "Get rest of list (alias for tail)", "List", nullptr
+        "Get rest of list (alias for tail)", "List"
     },
     {
         "BCPL_GET_ATOM_TYPE", "_BCPL_GET_ATOM_TYPE", reinterpret_cast<RuntimeFunctionPtr>(BCPL_GET_ATOM_TYPE), 1,
         RuntimeFunctionType::STANDARD, RuntimeReturnType::INTEGER,
-        "Get type of atomic value", "List", nullptr
+        "Get type of atomic value", "List"
     },
     {
         "BCPL_LIST_GET_NTH", "_BCPL_LIST_GET_NTH", reinterpret_cast<RuntimeFunctionPtr>(BCPL_LIST_GET_NTH), 2,
         RuntimeFunctionType::STANDARD, RuntimeReturnType::INTEGER,
-        "Get nth element of list", "List", nullptr
+        "Get nth element of list", "List"
     },
     {
         "BCPL_CONCAT_LISTS", "_BCPL_CONCAT_LISTS", reinterpret_cast<RuntimeFunctionPtr>(BCPL_CONCAT_LISTS), 2,
         RuntimeFunctionType::STANDARD, RuntimeReturnType::STRING_LIST,
-        "Concatenate two lists", "List", nullptr
+        "Concatenate two lists", "List"
     },
     {
         "CONCAT", "_CONCAT", reinterpret_cast<RuntimeFunctionPtr>(BCPL_CONCAT_LISTS), 2,
         RuntimeFunctionType::STANDARD, RuntimeReturnType::STRING_LIST,
-        "Concatenate two lists (alias)", "List", nullptr
+        "Concatenate two lists (alias)", "List"
     },
     {
         "COPYLIST", "_COPYLIST", reinterpret_cast<RuntimeFunctionPtr>(BCPL_SHALLOW_COPY_LIST), 1,
         RuntimeFunctionType::STANDARD, RuntimeReturnType::STRING_LIST,
-        "Create shallow copy of list", "List", nullptr
+        "Create shallow copy of list", "List"
     },
     {
         "DEEPCOPYLIST", "_DEEPCOPYLIST", reinterpret_cast<RuntimeFunctionPtr>(BCPL_DEEP_COPY_LIST), 1,
         RuntimeFunctionType::STANDARD, RuntimeReturnType::STRING_LIST,
-        "Create deep copy of list", "List", nullptr
+        "Create deep copy of list", "List"
     },
     {
         "DEEPCOPYLITERALLIST", "_DEEPCOPYLITERALLIST", reinterpret_cast<RuntimeFunctionPtr>(BCPL_DEEP_COPY_LITERAL_LIST), 1,
         RuntimeFunctionType::STANDARD, RuntimeReturnType::STRING_LIST,
-        "Create deep copy of literal list", "List", nullptr
+        "Create deep copy of literal list", "List"
     },
     {
         "REVERSE", "_REVERSE", reinterpret_cast<RuntimeFunctionPtr>(BCPL_REVERSE_LIST), 1,
         RuntimeFunctionType::STANDARD, RuntimeReturnType::STRING_LIST,
-        "Reverse a list", "List", nullptr
+        "Reverse a list", "List"
     },
     {
         "FIND", "_FIND", reinterpret_cast<RuntimeFunctionPtr>(BCPL_FIND_IN_LIST), 3,
         RuntimeFunctionType::STANDARD, RuntimeReturnType::INTEGER,
-        "Find element in list", "List", nullptr
+        "Find element in list", "List"
     },
     {
         "FILTER", "_FILTER", reinterpret_cast<RuntimeFunctionPtr>(BCPL_LIST_FILTER), 2,
         RuntimeFunctionType::STANDARD, RuntimeReturnType::STRING_LIST,
-        "Filter list elements", "List", nullptr
+        "Filter list elements", "List"
     },
     {
         "APND", "_APND", reinterpret_cast<RuntimeFunctionPtr>(BCPL_LIST_APPEND_INT), 2,
         RuntimeFunctionType::STANDARD, RuntimeReturnType::STRING_LIST,
-        "Append integer to list (alias)", "List", nullptr
+        "Append integer to list (alias)", "List"
     },
     {
         "FPND", "_FPND", reinterpret_cast<RuntimeFunctionPtr>(BCPL_LIST_APPEND_FLOAT), 2,
         RuntimeFunctionType::FLOAT, RuntimeReturnType::STRING_LIST,
-        "Append float to list (alias)", "List", nullptr
+        "Append float to list (alias)", "List"
     },
     {
         "SPND", "_SPND", reinterpret_cast<RuntimeFunctionPtr>(BCPL_LIST_APPEND_STRING), 2,
         RuntimeFunctionType::STANDARD, RuntimeReturnType::STRING_LIST,
-        "Append string to list (alias)", "List", nullptr
+        "Append string to list (alias)", "List"
     },
     {
         "LPND", "_LPND", reinterpret_cast<RuntimeFunctionPtr>(BCPL_LIST_APPEND_LIST), 2,
         RuntimeFunctionType::STANDARD, RuntimeReturnType::STRING_LIST,
-        "Append list to list (alias)", "List", nullptr
+        "Append list to list (alias)", "List"
     },
     {
         "BCPL_LIST_CREATE_EMPTY", "_BCPL_LIST_CREATE_EMPTY", reinterpret_cast<RuntimeFunctionPtr>(BCPL_LIST_CREATE_EMPTY), 0,
         RuntimeFunctionType::STANDARD, RuntimeReturnType::STRING_LIST,
-        "Create empty list", "List", nullptr
+        "Create empty list", "List"
     },
     
     // Vector type list functions
     {
         "BCPL_LIST_APPEND_PAIR", "_BCPL_LIST_APPEND_PAIR", reinterpret_cast<RuntimeFunctionPtr>(BCPL_LIST_APPEND_PAIR), 2,
         RuntimeFunctionType::STANDARD, RuntimeReturnType::STRING_LIST,
-        "Append PAIR to list", "List", nullptr
+        "Append PAIR to list", "List"
     },
     {
         "BCPL_LIST_APPEND_FPAIR", "_BCPL_LIST_APPEND_FPAIR", reinterpret_cast<RuntimeFunctionPtr>(BCPL_LIST_APPEND_FPAIR), 2,
         RuntimeFunctionType::STANDARD, RuntimeReturnType::STRING_LIST,
-        "Append FPAIR to list", "List", nullptr
+        "Append FPAIR to list", "List"
     },
     {
         "BCPL_LIST_APPEND_QUAD", "_BCPL_LIST_APPEND_QUAD", reinterpret_cast<RuntimeFunctionPtr>(BCPL_LIST_APPEND_QUAD), 2,
         RuntimeFunctionType::STANDARD, RuntimeReturnType::STRING_LIST,
-        "Append QUAD to list", "List", nullptr
+        "Append QUAD to list", "List"
     },
     {
         "BCPL_LIST_APPEND_FQUAD", "_BCPL_LIST_APPEND_FQUAD", reinterpret_cast<RuntimeFunctionPtr>(BCPL_LIST_APPEND_FQUAD), 2,
         RuntimeFunctionType::STANDARD, RuntimeReturnType::STRING_LIST,
-        "Append FQUAD to list", "List", nullptr
+        "Append FQUAD to list", "List"
     },
     {
         "BCPL_LIST_APPEND_OCT", "_BCPL_LIST_APPEND_OCT", reinterpret_cast<RuntimeFunctionPtr>(BCPL_LIST_APPEND_OCT), 2,
         RuntimeFunctionType::STANDARD, RuntimeReturnType::STRING_LIST,
-        "Append OCT to list", "List", nullptr
+        "Append OCT to list", "List"
     },
     {
         "BCPL_LIST_APPEND_FOCT", "_BCPL_LIST_APPEND_FOCT", reinterpret_cast<RuntimeFunctionPtr>(BCPL_LIST_APPEND_FOCT), 2,
         RuntimeFunctionType::STANDARD, RuntimeReturnType::STRING_LIST,
-        "Append FOCT to list", "List", nullptr
+        "Append FOCT to list", "List"
     },
     {
         "BCPL_LIST_GET_HEAD_AS_PAIR", "_BCPL_LIST_GET_HEAD_AS_PAIR", reinterpret_cast<RuntimeFunctionPtr>(BCPL_LIST_GET_HEAD_AS_PAIR), 1,
         RuntimeFunctionType::STANDARD, RuntimeReturnType::INTEGER,
-        "Get first element of list as PAIR", "List", nullptr
+        "Get first element of list as PAIR", "List"
     },
     {
         "BCPL_LIST_GET_HEAD_AS_FPAIR", "_BCPL_LIST_GET_HEAD_AS_FPAIR", reinterpret_cast<RuntimeFunctionPtr>(BCPL_LIST_GET_HEAD_AS_FPAIR), 1,
         RuntimeFunctionType::STANDARD, RuntimeReturnType::INTEGER,
-        "Get first element of list as FPAIR", "List", nullptr
+        "Get first element of list as FPAIR", "List"
     },
     {
         "BCPL_LIST_GET_HEAD_AS_QUAD", "_BCPL_LIST_GET_HEAD_AS_QUAD", reinterpret_cast<RuntimeFunctionPtr>(BCPL_LIST_GET_HEAD_AS_QUAD), 1,
         RuntimeFunctionType::STANDARD, RuntimeReturnType::INTEGER,
-        "Get first element of list as QUAD", "List", nullptr
+        "Get first element of list as QUAD", "List"
     },
     {
         "BCPL_LIST_GET_HEAD_AS_FQUAD", "_BCPL_LIST_GET_HEAD_AS_FQUAD", reinterpret_cast<RuntimeFunctionPtr>(BCPL_LIST_GET_HEAD_AS_FQUAD), 1,
         RuntimeFunctionType::STANDARD, RuntimeReturnType::INTEGER,
-        "Get first element of list as FQUAD", "List", nullptr
+        "Get first element of list as FQUAD", "List"
     },
     {
         "BCPL_LIST_GET_HEAD_AS_OCT", "_BCPL_LIST_GET_HEAD_AS_OCT", reinterpret_cast<RuntimeFunctionPtr>(BCPL_LIST_GET_HEAD_AS_OCT), 1,
         RuntimeFunctionType::STANDARD, RuntimeReturnType::INTEGER,
-        "Get first element of list as OCT", "List", nullptr
+        "Get first element of list as OCT", "List"
     },
     {
         "BCPL_LIST_GET_HEAD_AS_FOCT", "_BCPL_LIST_GET_HEAD_AS_FOCT", reinterpret_cast<RuntimeFunctionPtr>(BCPL_LIST_GET_HEAD_AS_FOCT), 1,
         RuntimeFunctionType::STANDARD, RuntimeReturnType::INTEGER,
-        "Get first element of list as FOCT", "List", nullptr
+        "Get first element of list as FOCT", "List"
     },
     {
         "returnNodeToFreelist", "_returnNodeToFreelist", reinterpret_cast<RuntimeFunctionPtr>(returnNodeToFreelist_runtime), 1,
         RuntimeFunctionType::ROUTINE, RuntimeReturnType::VOID,
-        "Return node to freelist", "List", nullptr
+        "Return node to freelist", "List"
     },
 
     // -------------------------------------------------------------------------
@@ -755,52 +598,52 @@ static const RuntimeFunctionDescriptor g_runtime_manifest[] = {
     {
         "RAND", "_RAND", reinterpret_cast<RuntimeFunctionPtr>(RAND), 1,
         RuntimeFunctionType::STANDARD, RuntimeReturnType::INTEGER,
-        "Generate random integer (0 to max_val-1)", "Math", nullptr
+        "Generate random integer (0 to max_val-1)", "Math"
     },
     {
         "RND", "_RND", reinterpret_cast<RuntimeFunctionPtr>(RND), 1,
         RuntimeFunctionType::FLOAT, RuntimeReturnType::FLOAT,
-        "Generate random float (0.0 to max_val)", "Math", nullptr
+        "Generate random float (0.0 to max_val)", "Math"
     },
     {
         "FRND", "_FRND", reinterpret_cast<RuntimeFunctionPtr>(FRND), 0,
         RuntimeFunctionType::FLOAT, RuntimeReturnType::FLOAT,
-        "Generate random float (0.0 to 1.0)", "Math", nullptr
+        "Generate random float (0.0 to 1.0)", "Math"
     },
     {
         "FSIN", "_FSIN", reinterpret_cast<RuntimeFunctionPtr>(FSIN), 1,
         RuntimeFunctionType::FLOAT, RuntimeReturnType::FLOAT,
-        "Sine function (radians)", "Math", nullptr
+        "Sine function (radians)", "Math"
     },
     {
         "FCOS", "_FCOS", reinterpret_cast<RuntimeFunctionPtr>(FCOS), 1,
         RuntimeFunctionType::FLOAT, RuntimeReturnType::FLOAT,
-        "Cosine function (radians)", "Math", nullptr
+        "Cosine function (radians)", "Math"
     },
     {
         "FTAN", "_FTAN", reinterpret_cast<RuntimeFunctionPtr>(FTAN), 1,
         RuntimeFunctionType::FLOAT, RuntimeReturnType::FLOAT,
-        "Tangent function (radians)", "Math", nullptr
+        "Tangent function (radians)", "Math"
     },
     {
         "FABS", "_FABS", reinterpret_cast<RuntimeFunctionPtr>(FABS), 1,
         RuntimeFunctionType::FLOAT, RuntimeReturnType::FLOAT,
-        "Absolute value (float)", "Math", nullptr
+        "Absolute value (float)", "Math"
     },
     {
         "FLOG", "_FLOG", reinterpret_cast<RuntimeFunctionPtr>(FLOG), 1,
         RuntimeFunctionType::FLOAT, RuntimeReturnType::FLOAT,
-        "Natural logarithm", "Math", nullptr
+        "Natural logarithm", "Math"
     },
     {
         "FEXP", "_FEXP", reinterpret_cast<RuntimeFunctionPtr>(FEXP), 1,
         RuntimeFunctionType::FLOAT, RuntimeReturnType::FLOAT,
-        "Exponential function", "Math", nullptr
+        "Exponential function", "Math"
     },
     {
         "FIX", "_FIX", reinterpret_cast<RuntimeFunctionPtr>(FIX), 1,
         RuntimeFunctionType::STANDARD, RuntimeReturnType::INTEGER,
-        "Convert float to integer", "Math", nullptr
+        "Convert float to integer", "Math"
     },
 
     // -------------------------------------------------------------------------
@@ -809,57 +652,57 @@ static const RuntimeFunctionDescriptor g_runtime_manifest[] = {
     {
         "FILE_OPEN_READ", "_FILE_OPEN_READ", reinterpret_cast<RuntimeFunctionPtr>(FILE_OPEN_READ), 1,
         RuntimeFunctionType::STANDARD, RuntimeReturnType::INTEGER,
-        "Open file for reading", "File", nullptr
+        "Open file for reading", "File"
     },
     {
         "FILE_OPEN_WRITE", "_FILE_OPEN_WRITE", reinterpret_cast<RuntimeFunctionPtr>(FILE_OPEN_WRITE), 1,
         RuntimeFunctionType::STANDARD, RuntimeReturnType::INTEGER,
-        "Open file for writing", "File", nullptr
+        "Open file for writing", "File"
     },
     {
         "FILE_OPEN_APPEND", "_FILE_OPEN_APPEND", reinterpret_cast<RuntimeFunctionPtr>(FILE_OPEN_APPEND), 1,
         RuntimeFunctionType::STANDARD, RuntimeReturnType::INTEGER,
-        "Open file for appending", "File", nullptr
+        "Open file for appending", "File"
     },
     {
         "FILE_CLOSE", "_FILE_CLOSE", reinterpret_cast<RuntimeFunctionPtr>(FILE_CLOSE), 1,
         RuntimeFunctionType::STANDARD, RuntimeReturnType::INTEGER,
-        "Close file handle", "File", nullptr
+        "Close file handle", "File"
     },
     {
         "FILE_WRITES", "_FILE_WRITES", reinterpret_cast<RuntimeFunctionPtr>(FILE_WRITES), 2,
         RuntimeFunctionType::STANDARD, RuntimeReturnType::INTEGER,
-        "Write string to file", "File", nullptr
+        "Write string to file", "File"
     },
     {
         "FILE_READS", "_FILE_READS", reinterpret_cast<RuntimeFunctionPtr>(FILE_READS), 1,
         RuntimeFunctionType::STANDARD, RuntimeReturnType::STRING,
-        "Read string from file", "File", nullptr
+        "Read string from file", "File"
     },
     {
         "FILE_READ", "_FILE_READ", reinterpret_cast<RuntimeFunctionPtr>(FILE_READ), 3,
         RuntimeFunctionType::STANDARD, RuntimeReturnType::INTEGER,
-        "Read bytes from file", "File", nullptr
+        "Read bytes from file", "File"
     },
     {
         "FILE_WRITE", "_FILE_WRITE", reinterpret_cast<RuntimeFunctionPtr>(FILE_WRITE), 3,
         RuntimeFunctionType::STANDARD, RuntimeReturnType::INTEGER,
-        "Write bytes to file", "File", nullptr
+        "Write bytes to file", "File"
     },
     {
         "FILE_SEEK", "_FILE_SEEK", reinterpret_cast<RuntimeFunctionPtr>(FILE_SEEK), 3,
         RuntimeFunctionType::STANDARD, RuntimeReturnType::INTEGER,
-        "Seek to position in file", "File", nullptr
+        "Seek to position in file", "File"
     },
     {
         "FILE_TELL", "_FILE_TELL", reinterpret_cast<RuntimeFunctionPtr>(FILE_TELL), 1,
         RuntimeFunctionType::STANDARD, RuntimeReturnType::INTEGER,
-        "Get current position in file", "File", nullptr
+        "Get current position in file", "File"
     },
     {
         "FILE_EOF", "_FILE_EOF", reinterpret_cast<RuntimeFunctionPtr>(FILE_EOF), 1,
         RuntimeFunctionType::STANDARD, RuntimeReturnType::INTEGER,
-        "Check if at end of file", "File", nullptr
+        "Check if at end of file", "File"
     },
 
     // -------------------------------------------------------------------------
@@ -868,12 +711,12 @@ static const RuntimeFunctionDescriptor g_runtime_manifest[] = {
     {
         "FINISH", "_FINISH", reinterpret_cast<RuntimeFunctionPtr>(finish), 0,
         RuntimeFunctionType::ROUTINE, RuntimeReturnType::VOID,
-        "Terminate program execution", "System", nullptr
+        "Terminate program execution", "System"
     },
     {
         "SETTYPE", "_SETTYPE", nullptr, 2,
         RuntimeFunctionType::ROUTINE, RuntimeReturnType::VOID,
-        "Set type information (compiler intrinsic)", "System", nullptr
+        "Set type information (compiler intrinsic)", "System"
     },
 
 
@@ -884,52 +727,52 @@ static const RuntimeFunctionDescriptor g_runtime_manifest[] = {
     {
         "HeapManager_enter_scope", "_HeapManager_enter_scope", reinterpret_cast<RuntimeFunctionPtr>(HeapManager_enterScope), 0,
         RuntimeFunctionType::ROUTINE, RuntimeReturnType::VOID,
-        "Enter new memory management scope", "Memory", nullptr
+        "Enter new memory management scope", "Memory"
     },
     {
         "HeapManager_exit_scope", "_HeapManager_exit_scope", reinterpret_cast<RuntimeFunctionPtr>(HeapManager_exitScope), 0,
         RuntimeFunctionType::ROUTINE, RuntimeReturnType::VOID,
-        "Exit current memory management scope", "Memory", nullptr
+        "Exit current memory management scope", "Memory"
     },
     {
         "HEAPMANAGER_ISSAMMENABLED", "_HEAPMANAGER_ISSAMMENABLED", reinterpret_cast<RuntimeFunctionPtr>(HeapManager_isSAMMEnabled), 0,
         RuntimeFunctionType::STANDARD, RuntimeReturnType::INTEGER,
-        "Check if SAMM (Scope Aware Memory Management) is enabled", "Memory", nullptr
+        "Check if SAMM (Scope Aware Memory Management) is enabled", "Memory"
     },
     {
         "HEAPMANAGER_SETSAMMENABLED", "_HEAPMANAGER_SETSAMMENABLED", reinterpret_cast<RuntimeFunctionPtr>(HeapManager_setSAMMEnabled), 1,
         RuntimeFunctionType::ROUTINE, RuntimeReturnType::VOID,
-        "Enable or disable SAMM", "Memory", nullptr
+        "Enable or disable SAMM", "Memory"
     },
     {
         "HEAPMANAGER_WAITFORSAMM", "_HEAPMANAGER_WAITFORSAMM", reinterpret_cast<RuntimeFunctionPtr>(HeapManager_waitForSAMM), 0,
         RuntimeFunctionType::ROUTINE, RuntimeReturnType::VOID,
-        "Wait for SAMM operations to complete", "Memory", nullptr
+        "Wait for SAMM operations to complete", "Memory"
     },
     {
         "OBJECT_HEAP_ALLOC", "_OBJECT_HEAP_ALLOC", reinterpret_cast<RuntimeFunctionPtr>(HeapManager_OBJECT_HEAP_ALLOC), 1,
         RuntimeFunctionType::STANDARD, RuntimeReturnType::INTEGER,
-        "Allocate object on heap", "Memory", nullptr
+        "Allocate object on heap", "Memory"
     },
     {
         "OBJECT_HEAP_FREE", "_OBJECT_HEAP_FREE", reinterpret_cast<RuntimeFunctionPtr>(HeapManager_OBJECT_HEAP_FREE), 1,
         RuntimeFunctionType::ROUTINE, RuntimeReturnType::VOID,
-        "Free object from heap", "Memory", nullptr
+        "Free object from heap", "Memory"
     },
     {
         "RUNTIME_METHOD_LOOKUP", "_RUNTIME_METHOD_LOOKUP", reinterpret_cast<RuntimeFunctionPtr>(HeapManager_RUNTIME_METHOD_LOOKUP), 2,
         RuntimeFunctionType::STANDARD, RuntimeReturnType::INTEGER,
-        "Look up method at runtime", "Memory", nullptr
+        "Look up method at runtime", "Memory"
     },
     {
         "PIC_RUNTIME_HELPER", "_PIC_RUNTIME_HELPER", reinterpret_cast<RuntimeFunctionPtr>(HeapManager_PIC_RUNTIME_HELPER), 0,
         RuntimeFunctionType::STANDARD, RuntimeReturnType::INTEGER,
-        "Polymorphic inline cache helper", "Memory", nullptr
+        "Polymorphic inline cache helper", "Memory"
     },
     {
         "DEBUG_PRINT_VTABLE_STORE", "_DEBUG_PRINT_VTABLE_STORE", reinterpret_cast<RuntimeFunctionPtr>(DEBUG_PRINT_VTABLE_STORE), 3,
         RuntimeFunctionType::ROUTINE, RuntimeReturnType::VOID,
-        "Debug print vtable store verification", "Debug", nullptr
+        "Debug print vtable store verification", "Debug"
     },
     {
         "DEBUG_PRINT_FINAL_OBJECT", "_DEBUG_PRINT_FINAL_OBJECT", reinterpret_cast<RuntimeFunctionPtr>(DEBUG_PRINT_FINAL_OBJECT), 2,
@@ -943,157 +786,157 @@ static const RuntimeFunctionDescriptor g_runtime_manifest[] = {
     {
         "SDL2_INIT", "_SDL2_INIT", reinterpret_cast<RuntimeFunctionPtr>(SDL2_INIT), 0,
         RuntimeFunctionType::STANDARD, RuntimeReturnType::INTEGER,
-        "Initialize SDL2 video subsystem", "SDL", nullptr
+        "Initialize SDL2 video subsystem", "SDL"
     },
     {
         "SDL2_INIT_SUBSYSTEMS", "_SDL2_INIT_SUBSYSTEMS", reinterpret_cast<RuntimeFunctionPtr>(SDL2_INIT_SUBSYSTEMS), 1,
         RuntimeFunctionType::ROUTINE, RuntimeReturnType::VOID,
-        "Initialize specific SDL2 subsystems", "SDL", nullptr
+        "Initialize specific SDL2 subsystems", "SDL"
     },
     {
         "SDL2_QUIT", "_SDL2_QUIT", reinterpret_cast<RuntimeFunctionPtr>(SDL2_QUIT), 0,
         RuntimeFunctionType::ROUTINE, RuntimeReturnType::VOID,
-        "Quit SDL2 and cleanup all resources", "SDL", nullptr
+        "Quit SDL2 and cleanup all resources", "SDL"
     },
     {
         "SDL2_CREATE_WINDOW", "_SDL2_CREATE_WINDOW", reinterpret_cast<RuntimeFunctionPtr>(SDL2_CREATE_WINDOW), 1,
         RuntimeFunctionType::STANDARD, RuntimeReturnType::INTEGER,
-        "Create a 640x480 window with default settings", "SDL", nullptr
+        "Create a 640x480 window with default settings", "SDL"
     },
     {
         "SDL2_CREATE_WINDOW_EX", "_SDL2_CREATE_WINDOW_EX", reinterpret_cast<RuntimeFunctionPtr>(SDL2_CREATE_WINDOW_EX), 6,
         RuntimeFunctionType::STANDARD, RuntimeReturnType::INTEGER,
-        "Create a window with custom properties", "SDL", nullptr
+        "Create a window with custom properties", "SDL"
     },
     {
         "SDL2_DESTROY_WINDOW", "_SDL2_DESTROY_WINDOW", reinterpret_cast<RuntimeFunctionPtr>(SDL2_DESTROY_WINDOW), 1,
         RuntimeFunctionType::ROUTINE, RuntimeReturnType::VOID,
-        "Destroy a window and free its resources", "SDL", nullptr
+        "Destroy a window and free its resources", "SDL"
     },
     {
         "SDL2_SET_WINDOW_TITLE", "_SDL2_SET_WINDOW_TITLE", reinterpret_cast<RuntimeFunctionPtr>(SDL2_SET_WINDOW_TITLE), 2,
         RuntimeFunctionType::ROUTINE, RuntimeReturnType::VOID,
-        "Change a window's title", "SDL", nullptr
+        "Change a window's title", "SDL"
     },
     {
         "SDL2_SET_WINDOW_SIZE", "_SDL2_SET_WINDOW_SIZE", reinterpret_cast<RuntimeFunctionPtr>(SDL2_SET_WINDOW_SIZE), 3,
         RuntimeFunctionType::ROUTINE, RuntimeReturnType::VOID,
-        "Resize a window", "SDL", nullptr
+        "Resize a window", "SDL"
     },
     {
         "SDL2_CREATE_RENDERER", "_SDL2_CREATE_RENDERER", reinterpret_cast<RuntimeFunctionPtr>(SDL2_CREATE_RENDERER), 1,
         RuntimeFunctionType::STANDARD, RuntimeReturnType::INTEGER,
-        "Create a renderer for a window with default settings", "SDL", nullptr
+        "Create a renderer for a window with default settings", "SDL"
     },
     {
         "SDL2_CREATE_RENDERER_EX", "_SDL2_CREATE_RENDERER_EX", reinterpret_cast<RuntimeFunctionPtr>(SDL2_CREATE_RENDERER_EX), 2,
         RuntimeFunctionType::STANDARD, RuntimeReturnType::INTEGER,
-        "Create a renderer with custom flags", "SDL", nullptr
+        "Create a renderer with custom flags", "SDL"
     },
     {
         "SDL2_DESTROY_RENDERER", "_SDL2_DESTROY_RENDERER", reinterpret_cast<RuntimeFunctionPtr>(SDL2_DESTROY_RENDERER), 1,
         RuntimeFunctionType::ROUTINE, RuntimeReturnType::VOID,
-        "Destroy a renderer and free its resources", "SDL", nullptr
+        "Destroy a renderer and free its resources", "SDL"
     },
     {
         "SDL2_SET_DRAW_COLOR", "_SDL2_SET_DRAW_COLOR", reinterpret_cast<RuntimeFunctionPtr>(SDL2_SET_DRAW_COLOR), 5,
         RuntimeFunctionType::ROUTINE, RuntimeReturnType::VOID,
-        "Set the color for drawing operations", "SDL", nullptr
+        "Set the color for drawing operations", "SDL"
     },
     {
         "SDL2_CLEAR", "_SDL2_CLEAR", reinterpret_cast<RuntimeFunctionPtr>(SDL2_CLEAR), 1,
         RuntimeFunctionType::ROUTINE, RuntimeReturnType::VOID,
-        "Clear the screen with current draw color", "SDL", nullptr
+        "Clear the screen with current draw color", "SDL"
     },
     {
         "SDL2_PRESENT", "_SDL2_PRESENT", reinterpret_cast<RuntimeFunctionPtr>(SDL2_PRESENT), 1,
         RuntimeFunctionType::ROUTINE, RuntimeReturnType::VOID,
-        "Display the rendered frame (swap buffers)", "SDL", nullptr
+        "Display the rendered frame (swap buffers)", "SDL"
     },
     {
         "SDL2_DRAW_POINT", "_SDL2_DRAW_POINT", reinterpret_cast<RuntimeFunctionPtr>(SDL2_DRAW_POINT), 3,
         RuntimeFunctionType::ROUTINE, RuntimeReturnType::VOID,
-        "Draw a single point", "SDL", nullptr
+        "Draw a single point", "SDL"
     },
     {
         "SDL2_DRAW_LINE", "_SDL2_DRAW_LINE", reinterpret_cast<RuntimeFunctionPtr>(SDL2_DRAW_LINE), 5,
         RuntimeFunctionType::ROUTINE, RuntimeReturnType::VOID,
-        "Draw a line between two points", "SDL", nullptr
+        "Draw a line between two points", "SDL"
     },
     {
         "SDL2_DRAW_RECT", "_SDL2_DRAW_RECT", reinterpret_cast<RuntimeFunctionPtr>(SDL2_DRAW_RECT), 5,
         RuntimeFunctionType::ROUTINE, RuntimeReturnType::VOID,
-        "Draw a rectangle outline", "SDL", nullptr
+        "Draw a rectangle outline", "SDL"
     },
     {
         "SDL2_FILL_RECT", "_SDL2_FILL_RECT", reinterpret_cast<RuntimeFunctionPtr>(SDL2_FILL_RECT), 5,
         RuntimeFunctionType::ROUTINE, RuntimeReturnType::VOID,
-        "Draw a filled rectangle", "SDL", nullptr
+        "Draw a filled rectangle", "SDL"
     },
     {
         "SDL2_POLL_EVENT", "_SDL2_POLL_EVENT", reinterpret_cast<RuntimeFunctionPtr>(SDL2_POLL_EVENT), 0,
         RuntimeFunctionType::STANDARD, RuntimeReturnType::INTEGER,
-        "Check for pending events", "SDL", nullptr
+        "Check for pending events", "SDL"
     },
     {
         "SDL2_GET_EVENT_KEY", "_SDL2_GET_EVENT_KEY", reinterpret_cast<RuntimeFunctionPtr>(SDL2_GET_EVENT_KEY), 0,
         RuntimeFunctionType::STANDARD, RuntimeReturnType::INTEGER,
-        "Get the key code from the last keyboard event", "SDL", nullptr
+        "Get the key code from the last keyboard event", "SDL"
     },
     {
         "SDL2_GET_EVENT_MOUSE", "_SDL2_GET_EVENT_MOUSE", reinterpret_cast<RuntimeFunctionPtr>(SDL2_GET_EVENT_MOUSE), 2,
         RuntimeFunctionType::ROUTINE, RuntimeReturnType::VOID,
-        "Get mouse coordinates from the last mouse event", "SDL", nullptr
+        "Get mouse coordinates from the last mouse event", "SDL"
     },
     {
         "SDL2_GET_EVENT_BUTTON", "_SDL2_GET_EVENT_BUTTON", reinterpret_cast<RuntimeFunctionPtr>(SDL2_GET_EVENT_BUTTON), 0,
         RuntimeFunctionType::STANDARD, RuntimeReturnType::INTEGER,
-        "Get the mouse button from the last mouse button event", "SDL", nullptr
+        "Get the mouse button from the last mouse button event", "SDL"
     },
     {
         "SDL2_DELAY", "_SDL2_DELAY", reinterpret_cast<RuntimeFunctionPtr>(SDL2_DELAY), 1,
         RuntimeFunctionType::ROUTINE, RuntimeReturnType::VOID,
-        "Pause execution for specified time", "SDL", nullptr
+        "Pause execution for specified time", "SDL"
     },
     {
         "SDL2_GET_TICKS", "_SDL2_GET_TICKS", reinterpret_cast<RuntimeFunctionPtr>(SDL2_GET_TICKS), 0,
         RuntimeFunctionType::STANDARD, RuntimeReturnType::INTEGER,
-        "Get milliseconds since SDL initialization", "SDL", nullptr
+        "Get milliseconds since SDL initialization", "SDL"
     },
     {
         "SDL2_GET_ERROR", "_SDL2_GET_ERROR", reinterpret_cast<RuntimeFunctionPtr>(SDL2_GET_ERROR), 0,
         RuntimeFunctionType::STANDARD, RuntimeReturnType::STRING,
-        "Get the last SDL error message", "SDL", nullptr
+        "Get the last SDL error message", "SDL"
     },
     {
         "SDL2_CLEAR_ERROR", "_SDL2_CLEAR_ERROR", reinterpret_cast<RuntimeFunctionPtr>(SDL2_CLEAR_ERROR), 0,
         RuntimeFunctionType::ROUTINE, RuntimeReturnType::VOID,
-        "Clear the SDL error state", "SDL", nullptr
+        "Clear the SDL error state", "SDL"
     },
     {
         "SDL2_GET_VERSION", "_SDL2_GET_VERSION", reinterpret_cast<RuntimeFunctionPtr>(SDL2_GET_VERSION), 0,
         RuntimeFunctionType::STANDARD, RuntimeReturnType::INTEGER,
-        "Get SDL2 version information", "SDL", nullptr
+        "Get SDL2 version information", "SDL"
     },
     {
         "SDL2_GET_VIDEO_DRIVERS", "_SDL2_GET_VIDEO_DRIVERS", reinterpret_cast<RuntimeFunctionPtr>(SDL2_GET_VIDEO_DRIVERS), 0,
         RuntimeFunctionType::STANDARD, RuntimeReturnType::INTEGER,
-        "Get list of available video drivers", "SDL", nullptr
+        "Get list of available video drivers", "SDL"
     },
     {
         "SDL2_GET_CURRENT_VIDEO_DRIVER", "_SDL2_GET_CURRENT_VIDEO_DRIVER", reinterpret_cast<RuntimeFunctionPtr>(SDL2_GET_CURRENT_VIDEO_DRIVER), 0,
         RuntimeFunctionType::STANDARD, RuntimeReturnType::STRING,
-        "Get the name of the current video driver", "SDL", nullptr
+        "Get the name of the current video driver", "SDL"
     },
     {
         "SDL2_GET_DISPLAY_MODES", "_SDL2_GET_DISPLAY_MODES", reinterpret_cast<RuntimeFunctionPtr>(SDL2_GET_DISPLAY_MODES), 0,
         RuntimeFunctionType::STANDARD, RuntimeReturnType::INTEGER,
-        "Get information about available display modes", "SDL", nullptr
+        "Get information about available display modes", "SDL"
     },
     {
         "SDL2_TEST_BASIC", "_SDL2_TEST_BASIC", reinterpret_cast<RuntimeFunctionPtr>(SDL2_TEST_BASIC), 0,
         RuntimeFunctionType::STANDARD, RuntimeReturnType::INTEGER,
-        "Test basic SDL2 functionality", "SDL", nullptr
+        "Test basic SDL2 functionality", "SDL"
     },
 #endif
 
@@ -1103,148 +946,32 @@ static const RuntimeFunctionDescriptor g_runtime_manifest[] = {
     {
         "TIMER_START", "_TIMER_START", reinterpret_cast<RuntimeFunctionPtr>(TIMER_START), 1,
         RuntimeFunctionType::ROUTINE, RuntimeReturnType::VOID,
-        "Start a timer with the given name", "TIMING", nullptr
+        "Start a timer with the given name", "TIMING"
     },
     {
         "TIMER_END", "_TIMER_END", reinterpret_cast<RuntimeFunctionPtr>(TIMER_END), 1,
         RuntimeFunctionType::ROUTINE, RuntimeReturnType::VOID,
-        "End the most recently started timer with the given name", "TIMING", nullptr
+        "End the most recently started timer with the given name", "TIMING"
     },
     {
         "TIMER_DISPLAY", "_TIMER_DISPLAY", reinterpret_cast<RuntimeFunctionPtr>(TIMER_DISPLAY), 0,
         RuntimeFunctionType::ROUTINE, RuntimeReturnType::VOID,
-        "Display all collected timing metrics to standard output", "TIMING", nullptr
+        "Display all collected timing metrics to standard output", "TIMING"
     },
     {
         "TIMER_CLEAR", "_TIMER_CLEAR", reinterpret_cast<RuntimeFunctionPtr>(TIMER_CLEAR), 0,
         RuntimeFunctionType::ROUTINE, RuntimeReturnType::VOID,
-        "Clear all timing metrics", "TIMING", nullptr
+        "Clear all timing metrics", "TIMING"
     },
     {
         "TIMER_GET_TOTAL_NS", "_TIMER_GET_TOTAL_NS", reinterpret_cast<RuntimeFunctionPtr>(TIMER_GET_TOTAL_NS), 1,
         RuntimeFunctionType::STANDARD, RuntimeReturnType::INTEGER,
-        "Get total accumulated time in nanoseconds for a named timer", "TIMING", nullptr
+        "Get total accumulated time in nanoseconds for a named timer", "TIMING"
     },
     {
         "TIMER_GET_CALL_COUNT", "_TIMER_GET_CALL_COUNT", reinterpret_cast<RuntimeFunctionPtr>(TIMER_GET_CALL_COUNT), 1,
         RuntimeFunctionType::STANDARD, RuntimeReturnType::INTEGER,
-        "Get the number of times a named timer has been called", "TIMING", nullptr
-    },
-
-    // === CAIRO GRAPHICS FUNCTIONS ===
-
-    // Surface Management
-    {
-        "CAIRO_CREATE_SURFACE", "_CAIRO_CREATE_SURFACE",
-        reinterpret_cast<RuntimeFunctionPtr>(CAIRO_CREATE_SURFACE), 2,
-        RuntimeFunctionType::STANDARD, RuntimeReturnType::INTEGER,
-        "Create new Cairo drawing surface (width, height)", "GRAPHICS", cairo_create_surface_params
-    },
-    {
-        "CAIRO_LOAD_PNG", "_CAIRO_LOAD_PNG",
-        reinterpret_cast<RuntimeFunctionPtr>(CAIRO_LOAD_PNG), 1,
-        RuntimeFunctionType::STANDARD, RuntimeReturnType::INTEGER,
-        "Load PNG image as Cairo surface", "GRAPHICS", cairo_surface_string_params
-    },
-    {
-        "CAIRO_SAVE_PNG", "_CAIRO_SAVE_PNG",
-        reinterpret_cast<RuntimeFunctionPtr>(CAIRO_SAVE_PNG), 2,
-        RuntimeFunctionType::ROUTINE, RuntimeReturnType::VOID,
-        "Save Cairo surface to PNG file (surface, filename)", "GRAPHICS", cairo_surface_string_params
-    },
-    {
-        "CAIRO_CLEAR", "_CAIRO_CLEAR",
-        reinterpret_cast<RuntimeFunctionPtr>(CAIRO_CLEAR), 2,
-        RuntimeFunctionType::ROUTINE, RuntimeReturnType::VOID,
-        "Clear surface with solid color (surface, rgba_color)", "GRAPHICS", cairo_surface_color_params
-    },
-
-    // Drawing Operations
-    {
-        "CAIRO_SET_COLOR", "_CAIRO_SET_COLOR",
-        reinterpret_cast<RuntimeFunctionPtr>(CAIRO_SET_COLOR), 2,
-        RuntimeFunctionType::ROUTINE, RuntimeReturnType::VOID,
-        "Set drawing color (surface, rgba_color)", "GRAPHICS", cairo_surface_color_params
-    },
-    {
-        "CAIRO_FILL_RECT", "_CAIRO_FILL_RECT",
-        reinterpret_cast<RuntimeFunctionPtr>(CAIRO_FILL_RECT), 5,
-        RuntimeFunctionType::ROUTINE, RuntimeReturnType::VOID,
-        "Fill rectangle (surface, x, y, width, height)", "GRAPHICS", cairo_fill_rect_params
-    },
-    {
-        "CAIRO_FILL_CIRCLE", "_CAIRO_FILL_CIRCLE",
-        reinterpret_cast<RuntimeFunctionPtr>(CAIRO_FILL_CIRCLE), 4,
-        RuntimeFunctionType::ROUTINE, RuntimeReturnType::VOID,
-        "Fill circle (surface, cx, cy, radius)", "GRAPHICS", cairo_fill_circle_params
-    },
-    {
-        "CAIRO_DRAW_LINE", "_CAIRO_DRAW_LINE",
-        reinterpret_cast<RuntimeFunctionPtr>(CAIRO_DRAW_LINE), 5,
-        RuntimeFunctionType::ROUTINE, RuntimeReturnType::VOID,
-        "Draw line between points (surface, x1, y1, x2, y2)", "GRAPHICS", cairo_draw_line_params
-    },
-
-    // Vector Operations
-    {
-        "CAIRO_DRAW_LINES_VEC", "_CAIRO_DRAW_LINES_VEC",
-        reinterpret_cast<RuntimeFunctionPtr>(CAIRO_DRAW_LINES_VEC), 2,
-        RuntimeFunctionType::ROUTINE, RuntimeReturnType::VOID,
-        "Draw multiple lines from vector of point pairs", "GRAPHICS", nullptr
-    },
-    {
-        "CAIRO_FILL_RECTS_VEC", "_CAIRO_FILL_RECTS_VEC",
-        reinterpret_cast<RuntimeFunctionPtr>(CAIRO_FILL_RECTS_VEC), 2,
-        RuntimeFunctionType::ROUTINE, RuntimeReturnType::VOID,
-        "Fill multiple rectangles from vector of rect quads", "GRAPHICS", nullptr
-    },
-    {
-        "CAIRO_FILL_CIRCLES_VEC", "_CAIRO_FILL_CIRCLES_VEC",
-        reinterpret_cast<RuntimeFunctionPtr>(CAIRO_FILL_CIRCLES_VEC), 2,
-        RuntimeFunctionType::ROUTINE, RuntimeReturnType::VOID,
-        "Fill multiple circles from vector of circle data", "GRAPHICS", nullptr
-    },
-
-    // Text Operations
-    {
-        "CAIRO_SET_FONT", "_CAIRO_SET_FONT",
-        reinterpret_cast<RuntimeFunctionPtr>(CAIRO_SET_FONT), 3,
-        RuntimeFunctionType::ROUTINE, RuntimeReturnType::VOID,
-        "Set font family and size (surface, font_name, font_size)", "GRAPHICS", cairo_set_font_params
-    },
-    {
-        "CAIRO_DRAW_TEXT", "_CAIRO_DRAW_TEXT",
-        reinterpret_cast<RuntimeFunctionPtr>(CAIRO_DRAW_TEXT), 4,
-        RuntimeFunctionType::ROUTINE, RuntimeReturnType::VOID,
-        "Draw text at position (surface, x, y, text)", "GRAPHICS", cairo_draw_text_params
-    },
-
-    // Image Operations
-    {
-        "CAIRO_LOAD_IMAGE", "_CAIRO_LOAD_IMAGE",
-        reinterpret_cast<RuntimeFunctionPtr>(CAIRO_LOAD_IMAGE), 1,
-        RuntimeFunctionType::STANDARD, RuntimeReturnType::INTEGER,
-        "Load PNG image file", "GRAPHICS", nullptr
-    },
-    {
-        "CAIRO_DRAW_IMAGE", "_CAIRO_DRAW_IMAGE",
-        reinterpret_cast<RuntimeFunctionPtr>(CAIRO_DRAW_IMAGE), 4,
-        RuntimeFunctionType::ROUTINE, RuntimeReturnType::VOID,
-        "Draw image on surface (surface, image, x, y)", "GRAPHICS", cairo_draw_image_params
-    },
-
-    // Utility Functions
-    {
-        "CAIRO_IS_AVAILABLE", "_CAIRO_IS_AVAILABLE",
-        reinterpret_cast<RuntimeFunctionPtr>(CAIRO_IS_AVAILABLE), 0,
-        RuntimeFunctionType::STANDARD, RuntimeReturnType::INTEGER,
-        "Check if Cairo graphics is available", "GRAPHICS", nullptr
-    },
-    {
-        "CAIRO_GET_VERSION", "_CAIRO_GET_VERSION",
-        reinterpret_cast<RuntimeFunctionPtr>(CAIRO_GET_VERSION), 0,
-        RuntimeFunctionType::STANDARD, RuntimeReturnType::STRING,
-        "Get Cairo version string", "GRAPHICS"
+        "Get the number of times a named timer has been called", "TIMING"
     }
 };
 

@@ -1,0 +1,85 @@
+// Test program to verify Cairo integration with NewBCPL
+// This program creates a simple drawing using Cairo graphics functions
+
+LET START() BE
+{
+    LET surface = 0
+    LET width = 400
+    LET height = 300
+
+    WRITEF("Testing Cairo integration...*N")
+
+    // Check if Cairo is available
+    LET cairo_available = CAIRO_IS_AVAILABLE()
+    IF cairo_available = 0 THEN
+    {
+        WRITEF("ERROR: Cairo graphics not available*N")
+        FINISH
+    }
+
+    WRITEF("Cairo is available. Version: ")
+    LET version = CAIRO_GET_VERSION()
+    WRITES(version)
+    NEWLINE()
+
+    // Create a new Cairo surface
+    WRITEF("Creating %N x %N surface...*N", width, height)
+    surface := CAIRO_CREATE_SURFACE(width, height)
+
+    IF surface = 0 THEN
+    {
+        WRITEF("ERROR: Failed to create Cairo surface*N")
+        FINISH
+    }
+
+    WRITEF("Surface created successfully (handle: %N)*N", surface)
+
+    // Clear the surface with white background
+    WRITEF("Clearing surface with white background...*N")
+    CAIRO_CLEAR(surface, #xFFFFFFFF)  // White: RGBA(255,255,255,255)
+
+    // Set drawing color to red
+    WRITEF("Setting color to red...*N")
+    CAIRO_SET_COLOR(surface, #xFF0000FF)  // Red: RGBA(255,0,0,255)
+
+    // Draw a filled rectangle
+    WRITEF("Drawing red rectangle...*N")
+    CAIRO_FILL_RECT(surface, 50, 50, 100, 80)
+
+    // Set color to blue
+    WRITEF("Setting color to blue...*N")
+    CAIRO_SET_COLOR(surface, #x0000FFFF)  // Blue: RGBA(0,0,255,255)
+
+    // Draw a filled circle
+    WRITEF("Drawing blue circle...*N")
+    CAIRO_FILL_CIRCLE(surface, 250, 150, 40)
+
+    // Set color to green
+    WRITEF("Setting color to green...*N")
+    CAIRO_SET_COLOR(surface, #x00FF00FF)  // Green: RGBA(0,255,0,255)
+
+    // Draw some lines
+    WRITEF("Drawing green lines...*N")
+    CAIRO_DRAW_LINE(surface, 10, 10, 390, 10)    // Top border
+    CAIRO_DRAW_LINE(surface, 10, 290, 390, 290)  // Bottom border
+    CAIRO_DRAW_LINE(surface, 10, 10, 10, 290)    // Left border
+    CAIRO_DRAW_LINE(surface, 390, 10, 390, 290)  // Right border
+
+    // Set font and draw text
+    WRITEF("Setting font and drawing text...*N")
+    CAIRO_SET_FONT(surface, "Arial", 16)
+    CAIRO_SET_COLOR(surface, #x000000FF)  // Black for text
+    CAIRO_DRAW_TEXT(surface, 150, 250, "Hello Cairo!")
+
+    // Save the surface as PNG
+    WRITEF("Saving image as test_output.png...*N")
+    CAIRO_SAVE_PNG(surface, "test_output.png")
+
+    WRITEF("*NCairo integration test completed successfully!*N")
+    WRITEF("Check test_output.png for the generated image.*N")
+
+    // Clean up (in a real program you might want to keep the surface longer)
+    // Note: SAMM should automatically clean up when the scope exits
+
+    FINISH
+}

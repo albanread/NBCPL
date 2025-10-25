@@ -1,0 +1,1 @@
+LET START() BE { LET s = CAIRO_CREATE_SURFACE(100, 100); WRITEF("Got handle: %N*N", s); FINISH }

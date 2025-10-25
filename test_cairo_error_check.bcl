@@ -1,0 +1,107 @@
+// Cairo Error Check Test - Check for errors after each operation
+// This program will help diagnose why drawing operations fail silently
+
+LET START() BE
+{
+    LET surface = 0
+    LET width = 200
+    LET height = 150
+
+    WRITEF("=== Cairo Error Check Test ===%N")
+
+    // Helper procedure to check and report errors
+    LET check_cairo_error() BE
+    {
+        LET error_msg = CAIRO_GET_ERROR()
+        IF error_msg ~= 0 THEN
+        {
+            WRITEF("CAIRO ERROR: ")
+            WRITES(error_msg)
+            WRITEF("%N")
+            CAIRO_CLEAR_ERROR()
+        }
+    }
+
+    // Test 1: Check Cairo availability
+    WRITEF("Test 1: Checking Cairo availability...%N")
+    LET cairo_available = CAIRO_IS_AVAILABLE()
+    WRITEF("Cairo available: %N", cairo_available)
+    check_cairo_error()
+
+    IF cairo_available = 0 THEN
+    {
+        WRITEF("ERROR: Cairo not available - stopping test%N")
+        FINISH
+    }
+
+    // Test 2: Create surface
+    WRITEF("Test 2: Creating surface...%N")
+    surface := CAIRO_CREATE_SURFACE(width, height)
+    WRITEF("Surface handle: %N", surface)
+    check_cairo_error()
+
+    IF surface = 0 THEN
+    {
+        WRITEF("ERROR: Failed to create surface%N")
+        FINISH
+    }
+
+    // Test 3: Clear surface
+    WRITEF("Test 3: Clearing surface...%N")
+    CAIRO_CLEAR(surface, #xFFFFFFFF)
+    WRITEF("Clear operation completed%N")
+    check_cairo_error()
+
+    // Test 4: Set color
+    WRITEF("Test 4: Setting color...%N")
+    CAIRO_SET_COLOR(surface, #xFF0000FF)
+    WRITEF("Color set to red%N")
+    check_cairo_error()
+
+    // Test 5: Draw rectangle
+    WRITEF("Test 5: Drawing rectangle...%N")
+    CAIRO_FILL_RECT(surface, 10.0, 10.0, 50.0, 30.0)
+    WRITEF("Rectangle draw completed%N")
+    check_cairo_error()
+
+    // Test 6: Set different color
+    WRITEF("Test 6: Setting blue color...%N")
+    CAIRO_SET_COLOR(surface, #x0000FFFF)
+    WRITEF("Color set to blue%N")
+    check_cairo_error()
+
+    // Test 7: Draw circle
+    WRITEF("Test 7: Drawing circle...%N")
+    CAIRO_FILL_CIRCLE(surface, 100.0, 75.0, 25.0)
+    WRITEF("Circle draw completed%N")
+    check_cairo_error()
+
+    // Test 8: Draw line
+    WRITEF("Test 8: Drawing line...%N")
+    CAIRO_SET_COLOR(surface, #x00FF00FF)
+    CAIRO_DRAW_LINE(surface, 20.0, 100.0, 180.0, 130.0)
+    WRITEF("Line draw completed%N")
+    check_cairo_error()
+
+    // Test 9: Check surface count
+    WRITEF("Test 9: Checking surface count...%N")
+    LET surface_count = CAIRO_SURFACE_COUNT()
+    WRITEF("Active surfaces: %N", surface_count)
+    check_cairo_error()
+
+    // Test 10: Save PNG
+    WRITEF("Test 10: Saving PNG...%N")
+    CAIRO_SAVE_PNG(surface, "error_check_test.png")
+    WRITEF("PNG save completed%N")
+    check_cairo_error()
+
+    // Final error check
+    WRITEF("Final: Checking for any remaining errors...%N")
+    check_cairo_error()
+
+    WRITEF("%N=== Test completed ===%N")
+    WRITEF("If no errors were reported, the drawing should have worked%N")
+    WRITEF("Check error_check_test.png to see if shapes were drawn%N")
+
+    FINISH
+}

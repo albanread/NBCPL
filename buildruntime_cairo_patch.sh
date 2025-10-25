@@ -1,4 +1,29 @@
 #!/bin/bash
+# Cairo Integration Patch for buildruntime script
+# Run this script to add Cairo graphics support to your buildruntime
+
+set -e
+
+BUILDRUNTIME_FILE="buildruntime"
+BACKUP_FILE="buildruntime.backup"
+
+echo "=== Cairo Integration Patch for buildruntime ==="
+
+# Check if buildruntime exists
+if [ ! -f "$BUILDRUNTIME_FILE" ]; then
+    echo "❌ Error: buildruntime file not found"
+    exit 1
+fi
+
+# Create backup
+echo "📁 Creating backup: $BACKUP_FILE"
+cp "$BUILDRUNTIME_FILE" "$BACKUP_FILE"
+
+# Create the patched buildruntime
+echo "🔧 Patching buildruntime with Cairo support..."
+
+cat > "$BUILDRUNTIME_FILE" << 'EOF'
+#!/bin/bash
 set -e # Exit immediately on error
 
 # --- Configuration ---
@@ -125,12 +150,6 @@ compile_cairo_objects() {
             echo "   Compiling cairo_samm.cpp..."
             clang++ ${CXXFLAGS} ${DEFINES} ${INCLUDE_DIRS} -c ${CAIRO_DIR}/cairo_samm.cpp -o ${build_dir}/cairo_samm.o
             CAIRO_OBJECTS="${CAIRO_OBJECTS} ${build_dir}/cairo_samm.o"
-        fi
-
-        if [ -f "${CAIRO_DIR}/cairo_bridge_utils.cpp" ]; then
-            echo "   Compiling cairo_bridge_utils.cpp..."
-            clang++ ${CXXFLAGS} ${DEFINES} ${INCLUDE_DIRS} -c ${CAIRO_DIR}/cairo_bridge_utils.cpp -o ${build_dir}/cairo_bridge_utils.o
-            CAIRO_OBJECTS="${CAIRO_OBJECTS} ${build_dir}/cairo_bridge_utils.o"
         fi
 
         if [ -f "${CAIRO_DIR}/cairo_vectors.cpp" ]; then
@@ -496,7 +515,7 @@ case "${BUILD_MODE}" in
         # Compile C files
         clang ${CFLAGS} ${DEFINES} ${INCLUDE_DIRS} -c ${RUNTIME_DIR}/BCPLError.c -o ${UNIFIED_BUILD_DIR}/BCPLError.o
         clang ${CFLAGS} ${DEFINES} ${INCLUDE_DIRS} -c ${RUNTIME_DIR}/runtime_freelist.c -o ${UNIFIED_BUILD_DIR}/runtime_freelist.o
-        clang ${CFLAGS} ${DEFINES} ${INCLUDE_DIRS} -c ${RUNTIME_DIR}/heap_interface.c -o ${UNIFIED_BUILD_DIR}/heap_interface_c.o
+        clang ${CFLAGS} ${DEFINES} ${INCLUDE_DIRS} -c ${RUNTIME_DIR}/heap_interface_c.c -o ${UNIFIED_BUILD_DIR}/heap_interface_c.o
 
         echo "Step 2: Compiling C++ files..."
         # Compile C++ files
@@ -645,3 +664,18 @@ echo "✅ starter.o created in top-level directory"
 
 echo "---------------------------"
 echo "Build script finished."
+EOF
+
+# Make the patched buildruntime executable
+chmod +x "$BUILDRUNTIME_FILE"
+
+echo "✅ Successfully patched buildruntime with Cairo support!"
+echo ""
+echo "New Cairo build options available:"
+echo "  ./buildruntime                        # Default: full graphics (Cairo + SDL2)"
+echo "  ./buildruntime --with-cairo-static    # Cairo graphics only"
+echo "  ./buildruntime --with-graphics-static # Both Cairo and SDL2"
+echo "  ./buildruntime --jit-cairo-static     # JIT with Cairo"
+echo ""
+echo "📁 Backup saved as: $BACKUP_FILE"
+echo "🔧 Ready to build Cairo-enabled runtime!"

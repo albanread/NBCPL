@@ -1,0 +1,35 @@
+// Minimal Cairo text drawing test
+// Simple test to verify text functions work without complex formatting
+
+LET START() BE
+{
+    LET surface = 0
+
+    WRITEF("Testing Cairo text drawing...*N")
+
+    // Create surface
+    surface := CAIRO_CREATE_SURFACE(300, 200)
+    IF surface = 0 THEN
+    {
+        WRITEF("Failed to create surface*N")
+        FINISH
+    }
+
+    // Clear surface
+    CAIRO_CLEAR(surface, #xFFFFFFFF)
+
+    // Set color and font
+    CAIRO_SET_COLOR(surface, #x000000FF)
+    CAIRO_SET_FONT(surface, "Arial", 16)
+
+    // Draw text - this is the critical test
+    WRITEF("About to draw text...*N")
+    CAIRO_DRAW_TEXT(surface, 50, 100, "Hello World")
+    WRITEF("Text drawing succeeded!*N")
+
+    // Save image
+    CAIRO_SAVE_PNG(surface, "text_test.png")
+    WRITEF("Test completed successfully!*N")
+
+    FINISH
+}
