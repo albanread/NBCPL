@@ -1,5 +1,3 @@
-GET "libhdr.h"
-
 // Routine to demonstrate the SWITCHON statement
 LET TESTSWITCH(VAL) BE
 $(
@@ -10,21 +8,25 @@ $(
     SWITCHON VAL INTO
     $(
         CASE 1:
+	$(	
             WRITES("  -> Matched CASE 1*N")
             WRITEC(10)
-            ENDCASE
+        $)
         CASE 5:
+	$(
             WRITES("  -> Matched CASE 5*N")
             WRITEC(10)
-            ENDCASE
+        $)
         CASE 10:
+	$(
             WRITES("  -> Matched CASE 10*N")
             WRITEC(10)
-            ENDCASE
+	$)
         DEFAULT:
+	$(
             WRITES("  -> Fell into DEFAULT case*N")
             WRITEC(10)
-            ENDCASE
+        $)
     $)
     WRITEC(10)
 $)

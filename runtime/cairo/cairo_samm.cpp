@@ -1,6 +1,7 @@
 #include "cairo_samm.h"
 #include "cairo_core.h"
 #include "cairo_runtime.h"
+#include "cairo_samm_allocator.h"
 #include "../../HeapManager/HeapManager.h"
 #include <vector>
 #include <unordered_set>
@@ -187,7 +188,7 @@ CairoSurfaceHandle CAIRO_CREATE_SURFACE_RETAINED(int64_t width, int64_t height, 
     
     // Create surface normally but track in different scope
     try {
-        auto surface = std::make_unique<CairoSurface>(static_cast<int>(width), static_cast<int>(height));
+        auto surface = CairoSAMM::make_unique<CairoSurface>(static_cast<int>(width), static_cast<int>(height));
         CairoSurfaceHandle handle = CairoResourceManager::registerSurface(std::move(surface));
         
         g_scope_surfaces[target_scope].insert(handle);

@@ -1,0 +1,61 @@
+// test_cairo_samm_simple.bcl - Simple test for Cairo SAMM integration
+
+LET START() BE {
+    WRITES("=== Simple Cairo SAMM Test ===*N")
+
+    // Check if Cairo SAMM functions exist
+    WRITES("Testing basic Cairo SAMM functions...*N")
+
+    // Get initial scope depth
+    LET depth = CAIRO_SAMM_SCOPE_DEPTH()
+    WRITES("Initial scope depth: ")
+    WRITEN(depth)
+    WRITES("*N")
+
+    // Get initial stats
+    STATIC surf_count = 0
+    STATIC img_count = 0
+    STATIC mem_usage = 0
+    CAIRO_SAMM_GET_STATS(@surf_count, @img_count, @mem_usage)
+    WRITES("Initial: ")
+    WRITEN(surf_count)
+    WRITES(" surfaces, ")
+    WRITEN(img_count)
+    WRITES(" images, ")
+    WRITEN(mem_usage)
+    WRITES(" bytes*N")
+
+    // Create a surface
+    WRITES("Creating a Cairo surface...*N")
+    LET surface = CAIRO_CREATE_SURFACE(100, 100)
+    TEST surface = 0 THEN {
+        WRITES("ERROR: Failed to create surface*N")
+        RETURN
+    } ELSE {
+        WRITES("Created surface with handle: ")
+        WRITEN(surface)
+        WRITES("*N")
+    }
+
+    // Check stats after creation
+    CAIRO_SAMM_GET_STATS(@surf_count, @img_count, @mem_usage)
+    WRITES("After surface creation: ")
+    WRITEN(surf_count)
+    WRITES(" surfaces, ")
+    WRITEN(img_count)
+    WRITES(" images, ")
+    WRITEN(mem_usage)
+    WRITES(" bytes*N")
+
+    // Test the surface works
+    CAIRO_SET_COLOR(surface, 1.0, 0.0, 0.0, 1.0)
+    CAIRO_CLEAR(surface)
+    CAIRO_FILL_RECT(surface, 10.0, 10.0, 50.0, 50.0)
+    WRITES("Surface drawing test completed*N")
+
+    // Save the surface
+    CAIRO_SAVE_PNG(surface, "samm_test.png")
+    WRITES("Saved surface to samm_test.png*N")
+
+    WRITES("=== Test Complete ===*N")
+}

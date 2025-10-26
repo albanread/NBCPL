@@ -1,6 +1,7 @@
 #include "cairo_runtime.h"
 #include "cairo_core.h"
 #include "cairo_samm.h"
+#include "cairo_samm_allocator.h"
 #include <stdexcept>
 #include <cstring>
 #include <iostream>
@@ -64,7 +65,7 @@ CairoSurfaceHandle CAIRO_CREATE_SURFACE(int64_t width, int64_t height) {
             return 0;
         }
         
-        auto surface = std::make_unique<CairoSurface>(static_cast<int>(width), static_cast<int>(height));
+        auto surface = CairoSAMM::make_unique<CairoSurface>(static_cast<int>(width), static_cast<int>(height));
         printf("DEBUG: Created CairoSurface object at %p\n", surface.get());
         printf("DEBUG: Surface isValid: %s\n", surface->isValid() ? "true" : "false");
         
@@ -92,8 +93,8 @@ CairoSurfaceHandle CAIRO_LOAD_PNG(bcpl_string_t filename) {
             return 0;
         }
         
-        auto image = std::make_unique<CairoImage>(filepath);
-        auto surface = std::make_unique<CairoSurface>(*image);
+        auto image = CairoSAMM::make_unique<CairoImage>(filepath);
+        auto surface = CairoSAMM::make_unique<CairoSurface>(*image);
         CairoSurfaceHandle handle = CairoResourceManager::registerSurface(std::move(surface));
         
         // Track in SAMM if enabled
@@ -776,7 +777,7 @@ CairoImageHandle CAIRO_LOAD_IMAGE(bcpl_string_t filename) {
             return 0;
         }
         
-        auto image = std::make_unique<CairoImage>(filepath);
+        auto image = CairoSAMM::make_unique<CairoImage>(filepath);
         CairoImageHandle handle = CairoResourceManager::registerImage(std::move(image));
         
         // Track in SAMM if enabled

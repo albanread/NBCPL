@@ -1,0 +1,13 @@
+// Test program to verify that the Stats system is properly tracking allocations
+
+LET START() BE {
+    LET s = CAIRO_CREATE_SURFACE(50, 50)
+
+    WRITES("Surface handle: ")
+    WRITEN(s)
+    NEWLINE()
+
+    WRITES("Stats test complete*N")
+
+    FINISH()
+}

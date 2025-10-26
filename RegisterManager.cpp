@@ -378,6 +378,15 @@ bool RegisterManager::is_scratch_register(const std::string& register_name) cons
     return false;
 }
 
+// Check if a register is free (available for allocation)
+bool RegisterManager::is_register_free(const std::string& register_name) const {
+    auto it = registers.find(register_name);
+    if (it == registers.end()) {
+        return true; // Not tracked means it's available
+    }
+    return it->second.status == FREE;
+}
+
 
 
 

@@ -1,0 +1,12 @@
+// test_4args.bcl - Test for function with 4 arguments to verify stack-based fallback
+
+FUNCTION test4args(a, b, c, d) = VALOF $(
+    RESULTIS a + b + c + d
+$)
+
+LET START() BE $(
+    LET result = test4args(10, 20, 30, 40)
+    WRITES("Result of 4-argument function: ")
+    WRITEN(result)
+    WRITES("*N")
+$)

@@ -1,6 +1,7 @@
 #include "HeapManager.h"
 #include "heap_c_wrappers.h"
 #include "heap_c_wrappers.h"
+#include "Stats.h"
 #include "../SignalSafeUtils.h" // For safe_print
 #include <cstdarg> // For va_list, va_start, va_end
 #include <cstdio>  // For vsnprintf
@@ -8,6 +9,10 @@
 #include <cstring> // For memset
 #include <chrono>  // For cleanup timing
 #include "../runtime/ListDataTypes.h" // For ListHeader and ListAtom
+
+// Cairo SAMM integration
+// Include graphics resources for SAMM integration
+#include "graphics_resources.h"
 
 // Forward declarations for freelist functions
 extern "C" {
@@ -41,8 +46,22 @@ HeapManager::HeapManager()
         printf("DEBUG: HeapManager constructor called\n");
     }
     
+    // Initialize Stats system
+    stats_init();
+    
     // SAMM: Initialize scope stack with global scope
     scope_allocations_.push_back({});
+    
+    // Initialize graphics resources tracking
+    if (SAMM_initialize_graphics_resources()) {
+        if (traceEnabled) {
+            printf("SAMM: Graphics resources initialized\n");
+        }
+    } else {
+        if (traceEnabled) {
+            printf("SAMM: Warning - Graphics resources initialization failed\n");
+        }
+    }
 }
 
 // Destructor - ensures proper SAMM shutdown
@@ -265,12 +284,33 @@ void HeapManager::setSAMMEnabled(bool enabled) {
         // Enabling SAMM for the first time
         samm_enabled_.store(true);
         startBackgroundWorker();
+        
+        // Initialize graphics resources tracking
+        if (SAMM_initialize_graphics_resources()) {
+            if (traceEnabled) {
+                printf("SAMM: Graphics resources initialized\n");
+            }
+        } else {
+            if (traceEnabled) {
+                printf("SAMM: Warning - Graphics resources initialization failed\n");
+            }
+        }
+        
         if (traceEnabled) {
             printf("SAMM: ENABLED and background worker started\n");
         }
     } else if (!enabled && samm_enabled_.load()) {
         // Disabling SAMM
         samm_enabled_.store(false);
+        
+        // Shutdown graphics resources tracking
+        if (SAMM_is_graphics_initialized()) {
+            SAMM_shutdown_graphics_resources();
+            if (traceEnabled) {
+                printf("SAMM: Graphics resources shutdown completed\n");
+            }
+        }
+        
         if (traceEnabled) {
             printf("SAMM: DISABLED\n");
         }
@@ -312,6 +352,9 @@ void HeapManager::enterScope() {
     scope_allocations_.push_back({});
     samm_scopes_entered_.fetch_add(1);
     
+    // Graphics resources are tracked automatically on creation
+    // No explicit scope entry needed for graphics system
+    
     if (traceEnabled) {
         printf("SAMM: Entered scope (depth: %zu)\n", scope_allocations_.size());
     }
@@ -321,6 +364,21 @@ void HeapManager::enterScope() {
 void HeapManager::exitScope() {
     if (!samm_enabled_.load()) {
         return;
+    }
+    
+    // Get current scope depth before cleanup
+    int current_scope;
+    {
+        std::lock_guard<std::mutex> lock(scope_mutex_);
+        current_scope = static_cast<int>(scope_allocations_.size()) - 1;
+    }
+    
+    // Integrate graphics resource cleanup FIRST before HeapManager cleanup
+    if (SAMM_is_graphics_initialized()) {
+        SAMM_cleanup_graphics_resources_for_scope(current_scope);
+        if (traceEnabled) {
+            printf("SAMM: Graphics resources cleanup completed for scope %d\n", current_scope);
+        }
     }
     
     std::vector<void*> to_cleanup;
@@ -504,6 +562,14 @@ void HeapManager::waitForSAMM() {
 // SAMM: Shutdown and cleanup
 void HeapManager::shutdown() {
     if (samm_enabled_.load()) {
+        // Shutdown graphics resources tracking first
+        if (SAMM_is_graphics_initialized()) {
+            SAMM_shutdown_graphics_resources();
+            if (traceEnabled) {
+                printf("SAMM: Graphics resources shutdown completed\n");
+            }
+        }
+        
         // Process remaining cleanup queue
         handleMemoryPressure();
         
@@ -530,6 +596,9 @@ void HeapManager::shutdown() {
             printf("SAMM: Shutdown complete\n");
         }
     }
+    
+    // Note: Stats system remains active for final metrics reporting
+    // It will be cleaned up automatically at program exit
 }
 
 // SAMM: Get statistics
@@ -621,6 +690,8 @@ extern "C" void* OBJECT_HEAP_ALLOC(void* class_ptr) {
     // 2. member variables based on class definition
     size_t object_size = 24;  // Default size: 8 (vtable) + 16 (members)
     
+    printf("DEBUG: OBJECT_HEAP_ALLOC called with class_ptr=%p, size=%zu\n", class_ptr, object_size);
+    
     if (class_ptr != nullptr) {
         HeapManager::traceLog("OBJECT_HEAP_ALLOC: Class pointer provided: %p\n", class_ptr);
         // In a real implementation, we would extract the size from class metadata
@@ -668,7 +739,14 @@ extern "C" void* OBJECT_HEAP_ALLOC(void* class_ptr) {
     return obj;
 }
 
+// Get current SAMM scope depth
+int HeapManager::getCurrentScopeDepth() const {
+    std::lock_guard<std::mutex> lock(scope_mutex_);
+    return static_cast<int>(scope_allocations_.size()) - 1;
+}
+
 extern "C" void OBJECT_HEAP_FREE(void* object_ptr) {
+    printf("DEBUG: OBJECT_HEAP_FREE called with object_ptr=%p\n", object_ptr);
     printf("OBJECT_HEAP_FREE: Called with object_ptr=%p\n", object_ptr);
     
     if (object_ptr == nullptr) {

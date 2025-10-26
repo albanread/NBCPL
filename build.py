@@ -184,9 +184,9 @@ class NewBCPLBuilder:
         peephole_files = glob.glob("optimizer/patterns/*.cpp")
         all_files.update(peephole_files)
 
-        # HeapManager files
-        heap_files = glob.glob("HeapManager/*.cpp")
-        all_files.update(heap_files)
+        # HeapManager files - excluded because they're in the runtime library
+        # heap_files = glob.glob("HeapManager/*.cpp")
+        # all_files.update(heap_files)
 
         # Live analysis files
         live_files = glob.glob("./live_*.cpp")

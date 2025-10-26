@@ -37,6 +37,9 @@ public:
     // Check if a register is a scratch register
     bool is_scratch_register(const std::string& register_name) const;
 
+    // Check if a register is free (available for allocation)
+    bool is_register_free(const std::string& register_name) const;
+
 
 
 

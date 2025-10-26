@@ -9725,6 +9725,7 @@ void ExternalFunctionScanner::visit(VectorAccess& node) {
 #include "HeapManager.h"
 #include "heap_c_wrappers.h"
 #include "heap_c_wrappers.h"
+#include "Stats.h"
 #include "../SignalSafeUtils.h" // For safe_print
 #include <cstdarg> // For va_list, va_start, va_end
 #include <cstdio>  // For vsnprintf
@@ -9732,6 +9733,10 @@ void ExternalFunctionScanner::visit(VectorAccess& node) {
 #include <cstring> // For memset
 #include <chrono>  // For cleanup timing
 #include "../runtime/ListDataTypes.h" // For ListHeader and ListAtom
+
+// Cairo SAMM integration
+// Include graphics resources for SAMM integration
+#include "graphics_resources.h"
 
 // Forward declarations for freelist functions
 extern "C" {
@@ -9765,8 +9770,22 @@ HeapManager::HeapManager()
         printf("DEBUG: HeapManager constructor called\n");
     }
     
+    // Initialize Stats system
+    stats_init();
+    
     // SAMM: Initialize scope stack with global scope
     scope_allocations_.push_back({});
+    
+    // Initialize graphics resources tracking
+    if (SAMM_initialize_graphics_resources()) {
+        if (traceEnabled) {
+            printf("SAMM: Graphics resources initialized\n");
+        }
+    } else {
+        if (traceEnabled) {
+            printf("SAMM: Warning - Graphics resources initialization failed\n");
+        }
+    }
 }
 
 // Destructor - ensures proper SAMM shutdown
@@ -9989,12 +10008,33 @@ void HeapManager::setSAMMEnabled(bool enabled) {
         // Enabling SAMM for the first time
         samm_enabled_.store(true);
         startBackgroundWorker();
+        
+        // Initialize graphics resources tracking
+        if (SAMM_initialize_graphics_resources()) {
+            if (traceEnabled) {
+                printf("SAMM: Graphics resources initialized\n");
+            }
+        } else {
+            if (traceEnabled) {
+                printf("SAMM: Warning - Graphics resources initialization failed\n");
+            }
+        }
+        
         if (traceEnabled) {
             printf("SAMM: ENABLED and background worker started\n");
         }
     } else if (!enabled && samm_enabled_.load()) {
         // Disabling SAMM
         samm_enabled_.store(false);
+        
+        // Shutdown graphics resources tracking
+        if (SAMM_is_graphics_initialized()) {
+            SAMM_shutdown_graphics_resources();
+            if (traceEnabled) {
+                printf("SAMM: Graphics resources shutdown completed\n");
+            }
+        }
+        
         if (traceEnabled) {
             printf("SAMM: DISABLED\n");
         }
@@ -10036,6 +10076,9 @@ void HeapManager::enterScope() {
     scope_allocations_.push_back({});
     samm_scopes_entered_.fetch_add(1);
     
+    // Graphics resources are tracked automatically on creation
+    // No explicit scope entry needed for graphics system
+    
     if (traceEnabled) {
         printf("SAMM: Entered scope (depth: %zu)\n", scope_allocations_.size());
     }
@@ -10045,6 +10088,21 @@ void HeapManager::enterScope() {
 void HeapManager::exitScope() {
     if (!samm_enabled_.load()) {
         return;
+    }
+    
+    // Get current scope depth before cleanup
+    int current_scope;
+    {
+        std::lock_guard<std::mutex> lock(scope_mutex_);
+        current_scope = static_cast<int>(scope_allocations_.size()) - 1;
+    }
+    
+    // Integrate graphics resource cleanup FIRST before HeapManager cleanup
+    if (SAMM_is_graphics_initialized()) {
+        SAMM_cleanup_graphics_resources_for_scope(current_scope);
+        if (traceEnabled) {
+            printf("SAMM: Graphics resources cleanup completed for scope %d\n", current_scope);
+        }
     }
     
     std::vector<void*> to_cleanup;
@@ -10228,6 +10286,14 @@ void HeapManager::waitForSAMM() {
 // SAMM: Shutdown and cleanup
 void HeapManager::shutdown() {
     if (samm_enabled_.load()) {
+        // Shutdown graphics resources tracking first
+        if (SAMM_is_graphics_initialized()) {
+            SAMM_shutdown_graphics_resources();
+            if (traceEnabled) {
+                printf("SAMM: Graphics resources shutdown completed\n");
+            }
+        }
+        
         // Process remaining cleanup queue
         handleMemoryPressure();
         
@@ -10254,6 +10320,9 @@ void HeapManager::shutdown() {
             printf("SAMM: Shutdown complete\n");
         }
     }
+    
+    // Note: Stats system remains active for final metrics reporting
+    // It will be cleaned up automatically at program exit
 }
 
 // SAMM: Get statistics
@@ -10345,6 +10414,8 @@ extern "C" void* OBJECT_HEAP_ALLOC(void* class_ptr) {
     // 2. member variables based on class definition
     size_t object_size = 24;  // Default size: 8 (vtable) + 16 (members)
     
+    printf("DEBUG: OBJECT_HEAP_ALLOC called with class_ptr=%p, size=%zu\n", class_ptr, object_size);
+    
     if (class_ptr != nullptr) {
         HeapManager::traceLog("OBJECT_HEAP_ALLOC: Class pointer provided: %p\n", class_ptr);
         // In a real implementation, we would extract the size from class metadata
@@ -10392,7 +10463,14 @@ extern "C" void* OBJECT_HEAP_ALLOC(void* class_ptr) {
     return obj;
 }
 
+// Get current SAMM scope depth
+int HeapManager::getCurrentScopeDepth() const {
+    std::lock_guard<std::mutex> lock(scope_mutex_);
+    return static_cast<int>(scope_allocations_.size()) - 1;
+}
+
 extern "C" void OBJECT_HEAP_FREE(void* object_ptr) {
+    printf("DEBUG: OBJECT_HEAP_FREE called with object_ptr=%p\n", object_ptr);
     printf("OBJECT_HEAP_FREE: Called with object_ptr=%p\n", object_ptr);
     
     if (object_ptr == nullptr) {
@@ -11304,6 +11382,1001 @@ void* resizeVec(void* payload, size_t newNumElements) {
 
 // -- end of file
 
+// -- start of file: HeapManager/Stats.cpp
+#include "Stats.h"
+#include "HeapManager.h"
+#include <stdio.h>
+#include <cstdio>
+
+// Initialize static instance
+Stats* Stats::instance = nullptr;
+
+// Constructor
+Stats::Stats() : 
+    total_bytes_allocated(0),
+    total_bytes_freed(0),
+    total_allocs(0),
+    total_frees(0),
+    vec_allocs(0),
+    string_allocs(0),
+    double_free_attempts(0),
+    bytes_read(0),
+    bytes_written(0),
+    files_opened(0),
+    files_closed(0),
+    graphics_surfaces_created(0),
+    graphics_surfaces_freed(0),
+    graphics_surface_bytes_allocated(0),
+    graphics_surface_bytes_freed(0),
+    graphics_images_created(0),
+    graphics_images_freed(0),
+    graphics_image_bytes_allocated(0),
+    graphics_image_bytes_freed(0) {
+    printf("DEBUG: Stats singleton instance created at %p\n", this);
+}
+
+// Singleton access
+Stats& Stats::getInstance() {
+    if (!instance) {
+        instance = new Stats();
+        printf("DEBUG: Stats singleton getInstance() - created new instance at %p\n", instance);
+    } else {
+        printf("DEBUG: Stats singleton getInstance() - returning existing instance at %p\n", instance);
+    }
+    return *instance;
+}
+
+void Stats::destroyInstance() {
+    printf("DEBUG: Stats singleton destroyInstance() - destroying instance at %p\n", instance);
+    delete instance;
+    instance = nullptr;
+}
+
+// Memory allocation tracking
+void Stats::updateAlloc(size_t bytes, StatsAllocType type) {
+    printf("DEBUG: Stats::updateAlloc called - bytes=%zu, type=%d\n", bytes, (int)type);
+    printf("DEBUG: Before update - total_allocs=%zu, total_bytes_allocated=%zu\n", 
+           total_allocs, total_bytes_allocated);
+    
+    total_bytes_allocated += bytes;
+    total_allocs++;
+    
+    switch (type) {
+        case STATS_ALLOC_VEC:
+            vec_allocs++;
+            break;
+        case STATS_ALLOC_STRING:
+            string_allocs++;
+            break;
+        case STATS_ALLOC_GRAPHICS_SURFACE:
+            graphics_surfaces_created++;
+            graphics_surface_bytes_allocated += bytes;
+            break;
+        case STATS_ALLOC_GRAPHICS_IMAGE:
+            graphics_images_created++;
+            graphics_image_bytes_allocated += bytes;
+            break;
+        default:
+            // Generic allocation, no specific counter
+            break;
+    }
+    
+    printf("DEBUG: After update - total_allocs=%zu, total_bytes_allocated=%zu\n", 
+           total_allocs, total_bytes_allocated);
+}
+
+void Stats::updateFree(size_t bytes) {
+    total_bytes_freed += bytes;
+    total_frees++;
+}
+
+void Stats::updateDoubleFree() {
+    double_free_attempts++;
+}
+
+// File I/O tracking
+void Stats::updateIORead(size_t bytes) {
+    bytes_read += bytes;
+}
+
+void Stats::updateIOWrite(size_t bytes) {
+    bytes_written += bytes;
+}
+
+void Stats::updateFileOpened() {
+    files_opened++;
+}
+
+void Stats::updateFileClosed() {
+    files_closed++;
+}
+
+// Graphics resource tracking
+void Stats::updateGraphicsSurfaceCreated(size_t bytes) {
+    graphics_surfaces_created++;
+    graphics_surface_bytes_allocated += bytes;
+    total_bytes_allocated += bytes;
+    total_allocs++;
+}
+
+void Stats::updateGraphicsSurfaceFreed(size_t bytes) {
+    graphics_surfaces_freed++;
+    graphics_surface_bytes_freed += bytes;
+    total_bytes_freed += bytes;
+    total_frees++;
+}
+
+void Stats::updateGraphicsImageCreated(size_t bytes) {
+    graphics_images_created++;
+    graphics_image_bytes_allocated += bytes;
+    total_bytes_allocated += bytes;
+    total_allocs++;
+}
+
+void Stats::updateGraphicsImageFreed(size_t bytes) {
+    graphics_images_freed++;
+    graphics_image_bytes_freed += bytes;
+    total_bytes_freed += bytes;
+    total_frees++;
+}
+
+// Reset all metrics (for testing)
+void Stats::reset() {
+    total_bytes_allocated = 0;
+    total_bytes_freed = 0;
+    total_allocs = 0;
+    total_frees = 0;
+    vec_allocs = 0;
+    string_allocs = 0;
+    double_free_attempts = 0;
+    bytes_read = 0;
+    bytes_written = 0;
+    files_opened = 0;
+    files_closed = 0;
+    graphics_surfaces_created = 0;
+    graphics_surfaces_freed = 0;
+    graphics_surface_bytes_allocated = 0;
+    graphics_surface_bytes_freed = 0;
+    graphics_images_created = 0;
+    graphics_images_freed = 0;
+    graphics_image_bytes_allocated = 0;
+    graphics_image_bytes_freed = 0;
+}
+
+// Metrics display
+void Stats::printMetrics() const {
+    printf("DEBUG: Stats::printMetrics called on instance at %p - total_allocs=%zu, total_bytes_allocated=%zu\n", 
+           this, total_allocs, total_bytes_allocated);
+    
+    printf("\n--- BCPL Runtime Metrics ---\n");
+    printf("Memory allocations: %zu (%zu bytes)\n", total_allocs, total_bytes_allocated);
+    printf("Memory frees: %zu (%zu bytes)\n", total_frees, total_bytes_freed);
+    printf("Vector allocations: %zu\n", vec_allocs);
+    printf("String allocations: %zu\n", string_allocs);
+    printf("Double-free attempts: %zu\n", double_free_attempts);
+    printf("Current active allocations: %zu (%zu bytes)\n", 
+           total_allocs - total_frees, 
+           total_bytes_allocated - total_bytes_freed);
+    
+    // Graphics resource metrics
+    printf("Graphics Resources:\n");
+    printf("  Surfaces created: %zu (%zu bytes)\n", 
+           graphics_surfaces_created, graphics_surface_bytes_allocated);
+    printf("  Surfaces freed: %zu (%zu bytes)\n", 
+           graphics_surfaces_freed, graphics_surface_bytes_freed);
+    printf("  Active surfaces: %zu (%zu bytes)\n", 
+           graphics_surfaces_created - graphics_surfaces_freed,
+           graphics_surface_bytes_allocated - graphics_surface_bytes_freed);
+    printf("  Images created: %zu (%zu bytes)\n", 
+           graphics_images_created, graphics_image_bytes_allocated);
+    printf("  Images freed: %zu (%zu bytes)\n", 
+           graphics_images_freed, graphics_image_bytes_freed);
+    printf("  Active images: %zu (%zu bytes)\n", 
+           graphics_images_created - graphics_images_freed,
+           graphics_image_bytes_allocated - graphics_image_bytes_freed);
+    
+    // Bloom filter metrics
+    HeapManager& heap_mgr = HeapManager::getInstance();
+    printf("Bloom filter statistics:\n");
+    printf("  Items tracked: %zu\n", heap_mgr.getBloomFilterItemsAdded());
+    printf("  Memory usage: %zu bytes\n", heap_mgr.getBloomFilterMemoryUsage());
+    printf("  False positives: %zu\n", heap_mgr.getBloomFilterFalsePositives());
+    printf("  Est. false positive rate: %.4f%%\n", heap_mgr.getBloomFilterFalsePositiveRate() * 100.0);
+    
+    printf("File I/O operations:\n");
+    printf("  Files opened: %zu\n", files_opened);
+    printf("  Files closed: %zu\n", files_closed);
+    printf("  Bytes read: %zu\n", bytes_read);
+    printf("  Bytes written: %zu\n", bytes_written);
+    printf("  Open files: %zu\n", files_opened - files_closed);
+    printf("--------------------------\n");
+}
+
+// C API implementations
+extern "C" {
+    void stats_init(void) {
+        Stats::getInstance(); // Initialize singleton
+    }
+    
+    void stats_shutdown(void) {
+        Stats::destroyInstance();
+    }
+    
+    void stats_update_alloc(size_t bytes, StatsAllocType type) {
+        printf("DEBUG: stats_update_alloc C API called - bytes=%zu, type=%d\n", bytes, (int)type);
+        Stats::getInstance().updateAlloc(bytes, type);
+    }
+    
+    void stats_update_free(size_t bytes) {
+        Stats::getInstance().updateFree(bytes);
+    }
+    
+    void stats_update_double_free(void) {
+        Stats::getInstance().updateDoubleFree();
+    }
+    
+    void stats_update_io_read(size_t bytes) {
+        Stats::getInstance().updateIORead(bytes);
+    }
+    
+    void stats_update_io_write(size_t bytes) {
+        Stats::getInstance().updateIOWrite(bytes);
+    }
+    
+    void stats_update_file_opened(void) {
+        Stats::getInstance().updateFileOpened();
+    }
+    
+    void stats_update_file_closed(void) {
+        Stats::getInstance().updateFileClosed();
+    }
+    
+    void stats_update_graphics_surface_created(size_t bytes) {
+        Stats::getInstance().updateGraphicsSurfaceCreated(bytes);
+    }
+    
+    void stats_update_graphics_surface_freed(size_t bytes) {
+        Stats::getInstance().updateGraphicsSurfaceFreed(bytes);
+    }
+    
+    void stats_update_graphics_image_created(size_t bytes) {
+        Stats::getInstance().updateGraphicsImageCreated(bytes);
+    }
+    
+    void stats_update_graphics_image_freed(size_t bytes) {
+        Stats::getInstance().updateGraphicsImageFreed(bytes);
+    }
+    
+    void stats_print_metrics(void) {
+        printf("DEBUG: stats_print_metrics C API called\n");
+        Stats::getInstance().printMetrics();
+    }
+    
+    // Getter functions
+    size_t stats_get_total_allocs(void) {
+        return Stats::getInstance().getTotalAllocs();
+    }
+    
+    size_t stats_get_total_bytes_allocated(void) {
+        return Stats::getInstance().getTotalBytesAllocated();
+    }
+    
+    size_t stats_get_total_frees(void) {
+        return Stats::getInstance().getTotalFrees();
+    }
+    
+    size_t stats_get_total_bytes_freed(void) {
+        return Stats::getInstance().getTotalBytesFreed();
+    }
+    
+    size_t stats_get_vec_allocs(void) {
+        return Stats::getInstance().getVecAllocs();
+    }
+    
+    size_t stats_get_string_allocs(void) {
+        return Stats::getInstance().getStringAllocs();
+    }
+    
+    size_t stats_get_double_free_attempts(void) {
+        return Stats::getInstance().getDoubleFreeAttempts();
+    }
+    
+    size_t stats_get_bytes_read(void) {
+        return Stats::getInstance().getBytesRead();
+    }
+    
+    size_t stats_get_bytes_written(void) {
+        return Stats::getInstance().getBytesWritten();
+    }
+    
+    size_t stats_get_files_opened(void) {
+        return Stats::getInstance().getFilesOpened();
+    }
+    
+    size_t stats_get_files_closed(void) {
+        return Stats::getInstance().getFilesClosed();
+    }
+    
+    size_t stats_get_graphics_surfaces_created(void) {
+        return Stats::getInstance().getGraphicsSurfacesCreated();
+    }
+    
+    size_t stats_get_graphics_surfaces_freed(void) {
+        return Stats::getInstance().getGraphicsSurfacesFreed();
+    }
+    
+    size_t stats_get_graphics_surface_bytes_allocated(void) {
+        return Stats::getInstance().getGraphicsSurfaceBytesAllocated();
+    }
+    
+    size_t stats_get_graphics_surface_bytes_freed(void) {
+        return Stats::getInstance().getGraphicsSurfaceBytesFreed();
+    }
+    
+    size_t stats_get_graphics_images_created(void) {
+        return Stats::getInstance().getGraphicsImagesCreated();
+    }
+    
+    size_t stats_get_graphics_images_freed(void) {
+        return Stats::getInstance().getGraphicsImagesFreed();
+    }
+    
+    size_t stats_get_graphics_image_bytes_allocated(void) {
+        return Stats::getInstance().getGraphicsImageBytesAllocated();
+    }
+    
+    size_t stats_get_graphics_image_bytes_freed(void) {
+        return Stats::getInstance().getGraphicsImageBytesFreed();
+    }
+}
+// -- end of file
+
+// -- start of file: HeapManager/graphics_resources.cpp
+#include "graphics_resources.h"
+#include "HeapManager.h"
+#include <unordered_map>
+#include <vector>
+#include <mutex>
+#include <atomic>
+#include <cstring>
+#include <cstdio>
+#include <algorithm>
+
+// =============================================================================
+// INTERNAL DATA STRUCTURES
+// =============================================================================
+
+namespace {
+    // Thread-safe handle generator
+    std::atomic<uint64_t> g_next_handle_id{1};
+    
+    // Registry of available graphics backends
+    std::unordered_map<std::string, GraphicsBackend> g_backends;
+    std::mutex g_backends_mutex;
+    
+    // Tracked graphics resources by handle ID
+    std::unordered_map<uint64_t, GraphicsSurface*> g_tracked_surfaces;
+    std::unordered_map<uint64_t, GraphicsImage*> g_tracked_images;
+    std::mutex g_resources_mutex;
+    
+    // Resources organized by SAMM scope depth
+    std::unordered_map<int, std::vector<uint64_t>> g_surfaces_by_scope;
+    std::unordered_map<int, std::vector<uint64_t>> g_images_by_scope;
+    std::mutex g_scopes_mutex;
+    
+    // Configuration
+    bool g_graphics_initialized = false;
+    bool g_graphics_trace_enabled = false;
+    std::mutex g_config_mutex;
+    
+    // Statistics
+    struct GraphicsStats {
+        int64_t total_surfaces = 0;
+        int64_t total_images = 0;
+        int64_t total_memory = 0;
+        std::unordered_map<std::string, int64_t> backend_surfaces;
+        std::unordered_map<std::string, int64_t> backend_images;
+        std::unordered_map<std::string, int64_t> backend_memory;
+    };
+    GraphicsStats g_stats;
+    std::mutex g_stats_mutex;
+    
+    void trace_log(const char* format, ...) {
+        if (!g_graphics_trace_enabled) return;
+        
+        va_list args;
+        va_start(args, format);
+        printf("[SAMM Graphics] ");
+        vprintf(format, args);
+        va_end(args);
+    }
+    
+    void update_surface_stats(const GraphicsSurface* surface, int delta) {
+        std::lock_guard<std::mutex> lock(g_stats_mutex);
+        g_stats.total_surfaces += delta;
+        g_stats.backend_surfaces[surface->backend_name] += delta;
+        
+        int64_t memory_delta = static_cast<int64_t>(surface->estimated_memory) * delta;
+        g_stats.total_memory += memory_delta;
+        g_stats.backend_memory[surface->backend_name] += memory_delta;
+    }
+    
+    void update_image_stats(const GraphicsImage* image, int delta) {
+        std::lock_guard<std::mutex> lock(g_stats_mutex);
+        g_stats.total_images += delta;
+        g_stats.backend_images[image->backend_name] += delta;
+        
+        int64_t memory_delta = static_cast<int64_t>(image->estimated_memory) * delta;
+        g_stats.total_memory += memory_delta;
+        g_stats.backend_memory[image->backend_name] += memory_delta;
+    }
+    
+    void cleanup_surface_internal(GraphicsSurface* surface) {
+        if (!surface) return;
+        
+        trace_log("Cleaning up surface handle %llu (%s)\n", 
+                  surface->handle_id, surface->backend_name);
+        
+        // Call backend-specific cleanup
+        if (surface->cleanup_func && surface->native_handle) {
+            surface->cleanup_func(surface->native_handle);
+        }
+        
+        // Update statistics
+        update_surface_stats(surface, -1);
+        
+        // Free the surface structure itself
+        delete surface;
+    }
+    
+    void cleanup_image_internal(GraphicsImage* image) {
+        if (!image) return;
+        
+        trace_log("Cleaning up image handle %llu (%s)\n", 
+                  image->handle_id, image->backend_name);
+        
+        // Call backend-specific cleanup
+        if (image->cleanup_func && image->native_handle) {
+            image->cleanup_func(image->native_handle);
+        }
+        
+        // Update statistics
+        update_image_stats(image, -1);
+        
+        // Free the image structure itself
+        delete image;
+    }
+}
+
+// =============================================================================
+// BACKEND REGISTRATION API
+// =============================================================================
+
+extern "C" int SAMM_register_graphics_backend(const GraphicsBackend* backend) {
+    if (!backend || !backend->backend_name) {
+        return 0;
+    }
+    
+    std::lock_guard<std::mutex> lock(g_backends_mutex);
+    
+    std::string name(backend->backend_name);
+    g_backends[name] = *backend;
+    
+    trace_log("Registered graphics backend: %s\n", backend->backend_name);
+    return 1;
+}
+
+extern "C" int SAMM_unregister_graphics_backend(const char* backend_name) {
+    if (!backend_name) return 0;
+    
+    std::lock_guard<std::mutex> lock(g_backends_mutex);
+    
+    auto it = g_backends.find(backend_name);
+    if (it != g_backends.end()) {
+        g_backends.erase(it);
+        trace_log("Unregistered graphics backend: %s\n", backend_name);
+        return 1;
+    }
+    
+    return 0;
+}
+
+extern "C" int SAMM_is_graphics_backend_available(const char* backend_name) {
+    if (!backend_name) return 0;
+    
+    std::lock_guard<std::mutex> lock(g_backends_mutex);
+    return g_backends.find(backend_name) != g_backends.end() ? 1 : 0;
+}
+
+extern "C" int SAMM_list_graphics_backends(const char** backends, int max_backends) {
+    std::lock_guard<std::mutex> lock(g_backends_mutex);
+    
+    if (!backends) {
+        return static_cast<int>(g_backends.size());
+    }
+    
+    int count = 0;
+    for (const auto& pair : g_backends) {
+        if (count >= max_backends) break;
+        backends[count++] = pair.first.c_str();
+    }
+    
+    return count;
+}
+
+// =============================================================================
+// GRAPHICS RESOURCE TRACKING API
+// =============================================================================
+
+extern "C" int SAMM_track_graphics_surface(GraphicsSurface* surface) {
+    if (!surface || !g_graphics_initialized) {
+        return 0;
+    }
+    
+    // Get current SAMM scope depth
+    int current_scope = HeapManager::getInstance().getCurrentScopeDepth();
+    
+    std::lock_guard<std::mutex> resources_lock(g_resources_mutex);
+    std::lock_guard<std::mutex> scopes_lock(g_scopes_mutex);
+    
+    // Store the surface
+    g_tracked_surfaces[surface->handle_id] = surface;
+    
+    // Add to current scope
+    g_surfaces_by_scope[current_scope].push_back(surface->handle_id);
+    
+    // Update statistics
+    update_surface_stats(surface, 1);
+    
+    trace_log("Tracked surface handle %llu in scope %d (%s, %dx%d, %zu bytes)\n",
+              surface->handle_id, current_scope, surface->backend_name,
+              surface->width, surface->height, surface->estimated_memory);
+    
+    return 1;
+}
+
+extern "C" int SAMM_track_graphics_image(GraphicsImage* image) {
+    if (!image || !g_graphics_initialized) {
+        return 0;
+    }
+    
+    // Get current SAMM scope depth
+    int current_scope = HeapManager::getInstance().getCurrentScopeDepth();
+    
+    std::lock_guard<std::mutex> resources_lock(g_resources_mutex);
+    std::lock_guard<std::mutex> scopes_lock(g_scopes_mutex);
+    
+    // Store the image
+    g_tracked_images[image->handle_id] = image;
+    
+    // Add to current scope
+    g_images_by_scope[current_scope].push_back(image->handle_id);
+    
+    // Update statistics
+    update_image_stats(image, 1);
+    
+    trace_log("Tracked image handle %llu in scope %d (%s, %dx%d, %zu bytes)\n",
+              image->handle_id, current_scope, image->backend_name,
+              image->width, image->height, image->estimated_memory);
+    
+    return 1;
+}
+
+extern "C" int SAMM_untrack_graphics_surface(uint64_t handle_id) {
+    std::lock_guard<std::mutex> resources_lock(g_resources_mutex);
+    std::lock_guard<std::mutex> scopes_lock(g_scopes_mutex);
+    
+    auto it = g_tracked_surfaces.find(handle_id);
+    if (it == g_tracked_surfaces.end()) {
+        return 0;
+    }
+    
+    GraphicsSurface* surface = it->second;
+    
+    // Remove from all scopes
+    for (auto& scope_pair : g_surfaces_by_scope) {
+        auto& handles = scope_pair.second;
+        handles.erase(std::remove(handles.begin(), handles.end(), handle_id), handles.end());
+    }
+    
+    // Remove from tracking
+    g_tracked_surfaces.erase(it);
+    
+    trace_log("Untracked surface handle %llu\n", handle_id);
+    
+    // Clean up the surface
+    cleanup_surface_internal(surface);
+    
+    return 1;
+}
+
+extern "C" int SAMM_untrack_graphics_image(uint64_t handle_id) {
+    std::lock_guard<std::mutex> resources_lock(g_resources_mutex);
+    std::lock_guard<std::mutex> scopes_lock(g_scopes_mutex);
+    
+    auto it = g_tracked_images.find(handle_id);
+    if (it == g_tracked_images.end()) {
+        return 0;
+    }
+    
+    GraphicsImage* image = it->second;
+    
+    // Remove from all scopes
+    for (auto& scope_pair : g_images_by_scope) {
+        auto& handles = scope_pair.second;
+        handles.erase(std::remove(handles.begin(), handles.end(), handle_id), handles.end());
+    }
+    
+    // Remove from tracking
+    g_tracked_images.erase(it);
+    
+    trace_log("Untracked image handle %llu\n", handle_id);
+    
+    // Clean up the image
+    cleanup_image_internal(image);
+    
+    return 1;
+}
+
+extern "C" int SAMM_move_graphics_surface_to_scope(uint64_t handle_id, int target_scope_offset) {
+    if (target_scope_offset <= 0) return 0;
+    
+    int current_scope = HeapManager::getInstance().getCurrentScopeDepth();
+    int target_scope = current_scope - target_scope_offset;
+    
+    if (target_scope < 0) return 0; // Cannot move to non-existent scope
+    
+    std::lock_guard<std::mutex> scopes_lock(g_scopes_mutex);
+    
+    // Remove from current scope
+    auto& current_handles = g_surfaces_by_scope[current_scope];
+    auto it = std::find(current_handles.begin(), current_handles.end(), handle_id);
+    if (it == current_handles.end()) {
+        return 0; // Handle not found in current scope
+    }
+    current_handles.erase(it);
+    
+    // Add to target scope
+    g_surfaces_by_scope[target_scope].push_back(handle_id);
+    
+    trace_log("Moved surface handle %llu from scope %d to scope %d\n",
+              handle_id, current_scope, target_scope);
+    
+    return 1;
+}
+
+extern "C" int SAMM_move_graphics_image_to_scope(uint64_t handle_id, int target_scope_offset) {
+    if (target_scope_offset <= 0) return 0;
+    
+    int current_scope = HeapManager::getInstance().getCurrentScopeDepth();
+    int target_scope = current_scope - target_scope_offset;
+    
+    if (target_scope < 0) return 0; // Cannot move to non-existent scope
+    
+    std::lock_guard<std::mutex> scopes_lock(g_scopes_mutex);
+    
+    // Remove from current scope
+    auto& current_handles = g_images_by_scope[current_scope];
+    auto it = std::find(current_handles.begin(), current_handles.end(), handle_id);
+    if (it == current_handles.end()) {
+        return 0; // Handle not found in current scope
+    }
+    current_handles.erase(it);
+    
+    // Add to target scope
+    g_images_by_scope[target_scope].push_back(handle_id);
+    
+    trace_log("Moved image handle %llu from scope %d to scope %d\n",
+              handle_id, current_scope, target_scope);
+    
+    return 1;
+}
+
+// =============================================================================
+// RESOURCE LOOKUP AND ACCESS
+// =============================================================================
+
+extern "C" GraphicsSurface* SAMM_get_graphics_surface(uint64_t handle_id) {
+    std::lock_guard<std::mutex> lock(g_resources_mutex);
+    
+    auto it = g_tracked_surfaces.find(handle_id);
+    return (it != g_tracked_surfaces.end()) ? it->second : nullptr;
+}
+
+extern "C" GraphicsImage* SAMM_get_graphics_image(uint64_t handle_id) {
+    std::lock_guard<std::mutex> lock(g_resources_mutex);
+    
+    auto it = g_tracked_images.find(handle_id);
+    return (it != g_tracked_images.end()) ? it->second : nullptr;
+}
+
+extern "C" int SAMM_is_graphics_surface_valid(uint64_t handle_id) {
+    std::lock_guard<std::mutex> lock(g_resources_mutex);
+    return g_tracked_surfaces.find(handle_id) != g_tracked_surfaces.end() ? 1 : 0;
+}
+
+extern "C" int SAMM_is_graphics_image_valid(uint64_t handle_id) {
+    std::lock_guard<std::mutex> lock(g_resources_mutex);
+    return g_tracked_images.find(handle_id) != g_tracked_images.end() ? 1 : 0;
+}
+
+// =============================================================================
+// SCOPE MANAGEMENT INTEGRATION
+// =============================================================================
+
+extern "C" void SAMM_cleanup_graphics_resources_for_scope(int scope_depth) {
+    trace_log("Cleaning up graphics resources for scope %d\n", scope_depth);
+    
+    std::lock_guard<std::mutex> resources_lock(g_resources_mutex);
+    std::lock_guard<std::mutex> scopes_lock(g_scopes_mutex);
+    
+    int cleaned_surfaces = 0;
+    int cleaned_images = 0;
+    
+    // Clean up surfaces in this scope
+    auto surfaces_it = g_surfaces_by_scope.find(scope_depth);
+    if (surfaces_it != g_surfaces_by_scope.end()) {
+        for (uint64_t handle_id : surfaces_it->second) {
+            auto surface_it = g_tracked_surfaces.find(handle_id);
+            if (surface_it != g_tracked_surfaces.end()) {
+                cleanup_surface_internal(surface_it->second);
+                g_tracked_surfaces.erase(surface_it);
+                cleaned_surfaces++;
+            }
+        }
+        g_surfaces_by_scope.erase(surfaces_it);
+    }
+    
+    // Clean up images in this scope
+    auto images_it = g_images_by_scope.find(scope_depth);
+    if (images_it != g_images_by_scope.end()) {
+        for (uint64_t handle_id : images_it->second) {
+            auto image_it = g_tracked_images.find(handle_id);
+            if (image_it != g_tracked_images.end()) {
+                cleanup_image_internal(image_it->second);
+                g_tracked_images.erase(image_it);
+                cleaned_images++;
+            }
+        }
+        g_images_by_scope.erase(images_it);
+    }
+    
+    if (cleaned_surfaces > 0 || cleaned_images > 0) {
+        trace_log("Cleaned up %d surfaces and %d images from scope %d\n",
+                  cleaned_surfaces, cleaned_images, scope_depth);
+    }
+}
+
+extern "C" void SAMM_force_graphics_cleanup(void) {
+    trace_log("Forcing cleanup of all graphics resources\n");
+    
+    std::lock_guard<std::mutex> resources_lock(g_resources_mutex);
+    std::lock_guard<std::mutex> scopes_lock(g_scopes_mutex);
+    
+    // Clean up all surfaces
+    for (auto& pair : g_tracked_surfaces) {
+        cleanup_surface_internal(pair.second);
+    }
+    g_tracked_surfaces.clear();
+    
+    // Clean up all images
+    for (auto& pair : g_tracked_images) {
+        cleanup_image_internal(pair.second);
+    }
+    g_tracked_images.clear();
+    
+    // Clear scope tracking
+    g_surfaces_by_scope.clear();
+    g_images_by_scope.clear();
+}
+
+extern "C" void SAMM_graphics_handle_memory_pressure(void) {
+    trace_log("Handling graphics memory pressure\n");
+    
+    // For now, just force cleanup of completed scopes
+    // In the future, we could implement more sophisticated policies
+    int current_scope = HeapManager::getInstance().getCurrentScopeDepth();
+    
+    std::lock_guard<std::mutex> scopes_lock(g_scopes_mutex);
+    
+    std::vector<int> scopes_to_clean;
+    for (const auto& pair : g_surfaces_by_scope) {
+        if (pair.first > current_scope) {
+            scopes_to_clean.push_back(pair.first);
+        }
+    }
+    for (const auto& pair : g_images_by_scope) {
+        if (pair.first > current_scope) {
+            scopes_to_clean.push_back(pair.first);
+        }
+    }
+    
+    for (int scope : scopes_to_clean) {
+        SAMM_cleanup_graphics_resources_for_scope(scope);
+    }
+}
+
+// =============================================================================
+// STATISTICS AND DEBUGGING
+// =============================================================================
+
+extern "C" void SAMM_get_graphics_stats(int64_t* active_surfaces, int64_t* active_images, int64_t* total_memory) {
+    std::lock_guard<std::mutex> lock(g_stats_mutex);
+    
+    if (active_surfaces) *active_surfaces = g_stats.total_surfaces;
+    if (active_images) *active_images = g_stats.total_images;
+    if (total_memory) *total_memory = g_stats.total_memory;
+}
+
+extern "C" int SAMM_get_graphics_backend_stats(const char* backend_name, 
+                                                int64_t* surfaces, int64_t* images, int64_t* memory) {
+    if (!backend_name) return 0;
+    
+    std::lock_guard<std::mutex> lock(g_stats_mutex);
+    
+    std::string name(backend_name);
+    
+    if (surfaces) {
+        auto it = g_stats.backend_surfaces.find(name);
+        *surfaces = (it != g_stats.backend_surfaces.end()) ? it->second : 0;
+    }
+    
+    if (images) {
+        auto it = g_stats.backend_images.find(name);
+        *images = (it != g_stats.backend_images.end()) ? it->second : 0;
+    }
+    
+    if (memory) {
+        auto it = g_stats.backend_memory.find(name);
+        *memory = (it != g_stats.backend_memory.end()) ? it->second : 0;
+    }
+    
+    return 1;
+}
+
+extern "C" void SAMM_dump_graphics_state(void) {
+    printf("\n=== SAMM Graphics Resource State ===\n");
+    
+    {
+        std::lock_guard<std::mutex> lock(g_stats_mutex);
+        printf("Total Resources: %lld surfaces, %lld images, %lld bytes\n",
+               g_stats.total_surfaces, g_stats.total_images, g_stats.total_memory);
+        
+        printf("By Backend:\n");
+        std::unordered_set<std::string> all_backends;
+        for (const auto& pair : g_stats.backend_surfaces) all_backends.insert(pair.first);
+        for (const auto& pair : g_stats.backend_images) all_backends.insert(pair.first);
+        
+        for (const std::string& backend : all_backends) {
+            int64_t surfaces = g_stats.backend_surfaces[backend];
+            int64_t images = g_stats.backend_images[backend];
+            int64_t memory = g_stats.backend_memory[backend];
+            printf("  %s: %lld surfaces, %lld images, %lld bytes\n",
+                   backend.c_str(), surfaces, images, memory);
+        }
+    }
+    
+    {
+        std::lock_guard<std::mutex> lock(g_scopes_mutex);
+        printf("By Scope:\n");
+        for (const auto& pair : g_surfaces_by_scope) {
+            if (!pair.second.empty()) {
+                printf("  Scope %d: %zu surfaces\n", pair.first, pair.second.size());
+            }
+        }
+        for (const auto& pair : g_images_by_scope) {
+            if (!pair.second.empty()) {
+                printf("  Scope %d: %zu images\n", pair.first, pair.second.size());
+            }
+        }
+    }
+    
+    printf("=====================================\n");
+}
+
+extern "C" int SAMM_validate_graphics_state(void) {
+    // Basic consistency checks
+    std::lock_guard<std::mutex> resources_lock(g_resources_mutex);
+    std::lock_guard<std::mutex> scopes_lock(g_scopes_mutex);
+    
+    // Check that all surfaces in scopes exist in tracking
+    for (const auto& scope_pair : g_surfaces_by_scope) {
+        for (uint64_t handle_id : scope_pair.second) {
+            if (g_tracked_surfaces.find(handle_id) == g_tracked_surfaces.end()) {
+                printf("ERROR: Surface handle %llu in scope %d but not in tracking\n",
+                       handle_id, scope_pair.first);
+                return 0;
+            }
+        }
+    }
+    
+    // Check that all images in scopes exist in tracking
+    for (const auto& scope_pair : g_images_by_scope) {
+        for (uint64_t handle_id : scope_pair.second) {
+            if (g_tracked_images.find(handle_id) == g_tracked_images.end()) {
+                printf("ERROR: Image handle %llu in scope %d but not in tracking\n",
+                       handle_id, scope_pair.first);
+                return 0;
+            }
+        }
+    }
+    
+    return 1;
+}
+
+extern "C" void SAMM_set_graphics_trace_enabled(int enabled) {
+    std::lock_guard<std::mutex> lock(g_config_mutex);
+    g_graphics_trace_enabled = (enabled != 0);
+    trace_log("Graphics tracing %s\n", g_graphics_trace_enabled ? "enabled" : "disabled");
+}
+
+// =============================================================================
+// INITIALIZATION AND SHUTDOWN
+// =============================================================================
+
+extern "C" int SAMM_initialize_graphics_resources(void) {
+    std::lock_guard<std::mutex> lock(g_config_mutex);
+    
+    if (g_graphics_initialized) {
+        return 1; // Already initialized
+    }
+    
+    // Clear all data structures
+    {
+        std::lock_guard<std::mutex> backends_lock(g_backends_mutex);
+        g_backends.clear();
+    }
+    
+    {
+        std::lock_guard<std::mutex> resources_lock(g_resources_mutex);
+        g_tracked_surfaces.clear();
+        g_tracked_images.clear();
+    }
+    
+    {
+        std::lock_guard<std::mutex> scopes_lock(g_scopes_mutex);
+        g_surfaces_by_scope.clear();
+        g_images_by_scope.clear();
+    }
+    
+    {
+        std::lock_guard<std::mutex> stats_lock(g_stats_mutex);
+        g_stats = GraphicsStats{};
+    }
+    
+    g_next_handle_id.store(1);
+    g_graphics_initialized = true;
+    
+    trace_log("Graphics resource tracking initialized\n");
+    return 1;
+}
+
+extern "C" void SAMM_shutdown_graphics_resources(void) {
+    trace_log("Shutting down graphics resource tracking\n");
+    
+    // Force cleanup of all resources
+    SAMM_force_graphics_cleanup();
+    
+    std::lock_guard<std::mutex> lock(g_config_mutex);
+    g_graphics_initialized = false;
+    
+    trace_log("Graphics resource tracking shutdown complete\n");
+}
+
+extern "C" int SAMM_is_graphics_initialized(void) {
+    std::lock_guard<std::mutex> lock(g_config_mutex);
+    return g_graphics_initialized ? 1 : 0;
+}
+
+// =============================================================================
+// HANDLE GENERATION
+// =============================================================================
+
+extern "C" uint64_t SAMM_generate_graphics_handle(void) {
+    return g_next_handle_id.fetch_add(1);
+}
+// -- end of file
+
 // -- start of file: HeapManager/heap_c_wrappers.cpp
 // NewBCPL/HeapManager/heap_c_wrappers.cpp
 // ============================================================================
@@ -11399,6 +12472,107 @@ extern "C" void* HeapManager_allocListRetained(int parent_scope_offset) {
     return HeapManager::getInstance().allocListRetained(parent_scope_offset);
 }
 
+// Graphics Resources C API wrapper implementations
+extern "C" int HeapManager_registerGraphicsBackend(const char* backend_name,
+                                        void (*surface_cleanup)(void*),
+                                        void (*image_cleanup)(void*)) {
+    if (!backend_name || !surface_cleanup || !image_cleanup) {
+        return 0;
+    }
+    
+    GraphicsBackend backend = {};
+    backend.backend_name = backend_name;
+    backend.surface_cleanup = surface_cleanup;
+    backend.image_cleanup = image_cleanup;
+    backend.surface_get_size = nullptr;  // Optional
+    backend.image_get_size = nullptr;    // Optional
+    backend.surface_get_dimensions = nullptr;  // Optional
+    backend.image_get_dimensions = nullptr;    // Optional
+    
+    return SAMM_register_graphics_backend(&backend);
+}
+
+extern "C" int HeapManager_trackGraphicsSurface(void* native_handle, const char* backend_name,
+                                     int width, int height, size_t memory_size) {
+    if (!native_handle || !backend_name) {
+        return 0;
+    }
+    
+    // Look up the backend to get cleanup function
+    if (!SAMM_is_graphics_backend_available(backend_name)) {
+        return 0;  // Backend not registered
+    }
+    
+    // Create a new GraphicsSurface
+    GraphicsSurface* surface = new GraphicsSurface();
+    surface->native_handle = native_handle;
+    surface->backend_name = backend_name;
+    surface->width = width;
+    surface->height = height;
+    surface->estimated_memory = memory_size;
+    surface->handle_id = SAMM_generate_graphics_handle();
+    surface->format = 0;  // Default
+    surface->user_data = nullptr;
+    
+    // Set cleanup function from registered backend
+    // This is a simplified approach - in practice we'd look up the backend
+    surface->cleanup_func = nullptr;  // Will be set by backend lookup
+    surface->get_size_func = nullptr;
+    
+    return SAMM_track_graphics_surface(surface);
+}
+
+extern "C" int HeapManager_trackGraphicsImage(void* native_handle, const char* backend_name,
+                                  int width, int height, size_t memory_size) {
+    if (!native_handle || !backend_name) {
+        return 0;
+    }
+    
+    // Look up the backend to get cleanup function
+    if (!SAMM_is_graphics_backend_available(backend_name)) {
+        return 0;  // Backend not registered
+    }
+    
+    // Create a new GraphicsImage
+    GraphicsImage* image = new GraphicsImage();
+    image->native_handle = native_handle;
+    image->backend_name = backend_name;
+    image->width = width;
+    image->height = height;
+    image->estimated_memory = memory_size;
+    image->handle_id = SAMM_generate_graphics_handle();
+    image->format = 0;  // Default
+    image->user_data = nullptr;
+    
+    // Set cleanup function from registered backend
+    image->cleanup_func = nullptr;  // Will be set by backend lookup
+    image->get_size_func = nullptr;
+    
+    return SAMM_track_graphics_image(image);
+}
+
+extern "C" int HeapManager_untrackGraphicsSurface(uint64_t handle_id) {
+    return SAMM_untrack_graphics_surface(handle_id);
+}
+
+extern "C" int HeapManager_untrackGraphicsImage(uint64_t handle_id) {
+    return SAMM_untrack_graphics_image(handle_id);
+}
+
+extern "C" void* HeapManager_getGraphicsSurface(uint64_t handle_id) {
+    GraphicsSurface* surface = SAMM_get_graphics_surface(handle_id);
+    return surface ? surface->native_handle : nullptr;
+}
+
+extern "C" void* HeapManager_getGraphicsImage(uint64_t handle_id) {
+    GraphicsImage* image = SAMM_get_graphics_image(handle_id);
+    return image ? image->native_handle : nullptr;
+}
+
+extern "C" void HeapManager_getGraphicsStats(int64_t* surfaces, int64_t* images, int64_t* memory) {
+    SAMM_get_graphics_stats(surfaces, images, memory);
+}
+
 // Manual SAMM tracking for custom allocators
 extern "C" void HeapManager_trackInCurrentScope(void* ptr) {
     HeapManager::getInstance().trackInCurrentScope(ptr);
@@ -11423,6 +12597,7 @@ extern "C" void BCPL_SET_ERROR(int code, const char* message, const char* contex
 // -- start of file: HeapManager/heap_manager_globals.cpp
 #include "heap_manager_defs.h"
 #include "HeapManager.h"
+#include "Stats.h"
 #include <stdio.h>
 #include <stdbool.h>
 
@@ -11436,86 +12611,95 @@ volatile bool g_is_heap_tracing_enabled = false;
 
 // (Global heap tracking array removed for JIT refactor)
 
-// Runtime metrics tracking
-static size_t g_total_bytes_allocated = 0;
-static size_t g_total_bytes_freed = 0;
-static size_t g_total_allocs = 0;
-static size_t g_total_frees = 0;
-static size_t g_vec_allocs = 0;
-static size_t g_string_allocs = 0;
-static size_t g_double_free_attempts = 0;
-
-// File I/O metrics tracking
-static size_t g_bytes_read = 0;
-static size_t g_bytes_written = 0;
-static size_t g_files_opened = 0;
-static size_t g_files_closed = 0;
+// Legacy global variables - now just wrappers for Stats class
+// These are kept for compatibility but redirect to the Stats singleton
+size_t g_total_bytes_allocated = 0;
+size_t g_total_bytes_freed = 0;
+size_t g_total_allocs = 0;
+size_t g_total_frees = 0;
+size_t g_vec_allocs = 0;
+size_t g_string_allocs = 0;
+size_t g_double_free_attempts = 0;
+size_t g_bytes_read = 0;
+size_t g_bytes_written = 0;
+size_t g_files_opened = 0;
+size_t g_files_closed = 0;
 
 // Functions to update metrics (for internal use)
 void update_alloc_metrics(size_t bytes, AllocType type) {
-    g_total_bytes_allocated += bytes;
-    g_total_allocs++;
-    
-    if (type == ALLOC_VEC) {
-        g_vec_allocs++;
-    } else if (type == ALLOC_STRING) {
-        g_string_allocs++;
+    // Convert AllocType to StatsAllocType
+    StatsAllocType stats_type;
+    switch (type) {
+        case ALLOC_VEC:
+            stats_type = STATS_ALLOC_VEC;
+            break;
+        case ALLOC_STRING:
+            stats_type = STATS_ALLOC_STRING;
+            break;
+        case ALLOC_OBJECT:
+            stats_type = STATS_ALLOC_OBJECT;
+            break;
+        case ALLOC_LIST:
+            stats_type = STATS_ALLOC_LIST;
+            break;
+        default:
+            stats_type = STATS_ALLOC_GENERIC;
+            break;
     }
+    
+    // Use Stats singleton
+    stats_update_alloc(bytes, stats_type);
+    
+    // Update legacy globals for compatibility
+    g_total_bytes_allocated = stats_get_total_bytes_allocated();
+    g_total_allocs = stats_get_total_allocs();
+    g_vec_allocs = stats_get_vec_allocs();
+    g_string_allocs = stats_get_string_allocs();
 }
 
 void update_free_metrics(size_t bytes) {
-    g_total_bytes_freed += bytes;
-    g_total_frees++;
+    stats_update_free(bytes);
+    
+    // Update legacy globals for compatibility
+    g_total_bytes_freed = stats_get_total_bytes_freed();
+    g_total_frees = stats_get_total_frees();
 }
 
 void update_double_free_metrics(void) {
-    g_double_free_attempts++;
+    stats_update_double_free();
+    
+    // Update legacy globals for compatibility
+    g_double_free_attempts = stats_get_double_free_attempts();
 }
 
 // File I/O metrics functions
 void update_io_metrics_read(size_t bytes) {
-    g_bytes_read += bytes;
+    stats_update_io_read(bytes);
+    g_bytes_read = stats_get_bytes_read();
 }
 
 void update_io_metrics_write(size_t bytes) {
-    g_bytes_written += bytes;
+    stats_update_io_write(bytes);
+    g_bytes_written = stats_get_bytes_written();
 }
 
 void update_io_metrics_file_opened(void) {
-    g_files_opened++;
+    stats_update_file_opened();
+    g_files_opened = stats_get_files_opened();
 }
 
 void update_io_metrics_file_closed(void) {
-    g_files_closed++;
+    stats_update_file_closed();
+    g_files_closed = stats_get_files_closed();
 }
 
 // Public API: Print runtime memory metrics
 void print_runtime_metrics(void) {
-    printf("\n--- BCPL Runtime Metrics ---\n");
-    printf("Memory allocations: %zu (%zu bytes)\n", g_total_allocs, g_total_bytes_allocated);
-    printf("Memory frees: %zu (%zu bytes)\n", g_total_frees, g_total_bytes_freed);
-    printf("Vector allocations: %zu\n", g_vec_allocs);
-    printf("String allocations: %zu\n", g_string_allocs);
-    printf("Double-free attempts: %zu\n", g_double_free_attempts);
-    printf("Current active allocations: %zu (%zu bytes)\n", 
-           g_total_allocs - g_total_frees, 
-           g_total_bytes_allocated - g_total_bytes_freed);
+    // Initialize Stats if not already done
+    stats_init();
     
-    // Bloom filter metrics
-    HeapManager& heap_mgr = HeapManager::getInstance();
-    printf("Bloom filter statistics:\n");
-    printf("  Items tracked: %zu\n", heap_mgr.getBloomFilterItemsAdded());
-    printf("  Memory usage: %zu bytes\n", heap_mgr.getBloomFilterMemoryUsage());
-    printf("  False positives: %zu\n", heap_mgr.getBloomFilterFalsePositives());
-    printf("  Est. false positive rate: %.4f%%\n", heap_mgr.getBloomFilterFalsePositiveRate() * 100.0);
-    
-    printf("File I/O operations:\n");
-    printf("  Files opened: %zu\n", g_files_opened);
-    printf("  Files closed: %zu\n", g_files_closed);
-    printf("  Bytes read: %zu\n", g_bytes_read);
-    printf("  Bytes written: %zu\n", g_bytes_written);
-    printf("  Open files: %zu\n", g_files_opened - g_files_closed);
-    printf("--------------------------\n");
+    // Use Stats singleton to print comprehensive metrics
+    stats_print_metrics();
 }
 
 // -- end of file
@@ -21852,6 +23036,15 @@ bool RegisterManager::is_scratch_register(const std::string& register_name) cons
         if (reg == register_name) return true;
     }
     return false;
+}
+
+// Check if a register is free (available for allocation)
+bool RegisterManager::is_register_free(const std::string& register_name) const {
+    auto it = registers.find(register_name);
+    if (it == registers.end()) {
+        return true; // Not tracked means it's available
+    }
+    return it->second.status == FREE;
 }
 
 
@@ -49178,6 +50371,187 @@ void CodeFormatter::visit(TableExpression&) {}
 
 // -- end of file
 
+// -- start of file: generators/gen_ArgumentOptimization.cpp
+// gen_ArgumentOptimization.cpp
+// Register-direct argument optimization for function calls with ≤3 arguments
+// This optimizes small function calls by using direct register allocation instead of stack operations
+
+#include "NewCodeGenerator.h"
+#include "Encoder.h"
+
+// Check if register-direct approach is safe for the given argument count
+bool NewCodeGenerator::can_use_register_direct_arguments(size_t arg_count) {
+    // Conservative safety check - only optimize small argument counts
+    if (arg_count > 3) {
+        return false; // Always use stack for 4+ arguments
+    }
+    
+    // Count available scratch registers
+    int available_scratch = count_available_scratch_registers();
+    
+    // Need at least arg_count + 2 registers for safety margin
+    // (arguments + intermediate expression results + method address loading)
+    int estimated_need = static_cast<int>(arg_count) + 2;
+    
+    bool can_use = available_scratch >= estimated_need;
+    
+    if (debug_enabled_) {
+        debug_print("Register-direct feasibility check: " + 
+                   std::to_string(arg_count) + " args, " +
+                   std::to_string(available_scratch) + " available, " +
+                   std::to_string(estimated_need) + " needed -> " +
+                   (can_use ? "FEASIBLE" : "NOT FEASIBLE"));
+    }
+    
+    return can_use;
+}
+
+// Count available scratch registers for register pressure analysis
+int NewCodeGenerator::count_available_scratch_registers() {
+    const std::vector<std::string> scratch_regs = {"X9", "X10", "X11", "X12", "X13", "X14", "X15"};
+    int available_count = 0;
+    
+    for (const auto& reg : scratch_regs) {
+        if (register_manager_.is_register_free(reg)) {
+            available_count++;
+        }
+    }
+    
+    return available_count;
+}
+
+// Register-direct argument handling for method calls (X0 = this, X1-X7 = args)
+void NewCodeGenerator::handle_method_call_arguments_direct(RoutineCallStatement& node) {
+    debug_print("Using REGISTER-DIRECT optimization for method call with " + 
+                std::to_string(node.arguments.size()) + " arguments");
+    
+    // Evaluate arguments left-to-right and place directly in ABI registers
+    for (size_t i = 0; i < node.arguments.size(); ++i) {
+        debug_print("Evaluating argument " + std::to_string(i + 1) + " for direct register placement");
+        
+        // Generate code for the argument expression
+        generate_expression_code(*node.arguments[i]);
+        
+        // Target ABI register (X1, X2, X3 for method calls - X0 reserved for 'this')
+        std::string target_abi_reg = "X" + std::to_string(i + 1);
+        
+        // If result is not already in the target register, move it
+        if (expression_result_reg_ != target_abi_reg) {
+            emit(Encoder::create_mov_reg(target_abi_reg, expression_result_reg_));
+            register_manager_.release_register(expression_result_reg_);
+            debug_print("Moved argument result from " + expression_result_reg_ + " to " + target_abi_reg);
+        } else {
+            debug_print("Argument already in correct register: " + target_abi_reg);
+        }
+        
+        // Mark ABI register as containing the argument
+        register_manager_.mark_register_as_used(target_abi_reg);
+    }
+}
+
+// Register-direct argument handling for regular function calls (X0-X7 = args)
+void NewCodeGenerator::handle_regular_call_arguments_direct(RoutineCallStatement& node) {
+    debug_print("Using REGISTER-DIRECT optimization for regular call with " + 
+                std::to_string(node.arguments.size()) + " arguments");
+    
+    // Evaluate arguments left-to-right and place directly in ABI registers
+    for (size_t i = 0; i < node.arguments.size(); ++i) {
+        debug_print("Evaluating argument " + std::to_string(i + 1) + " for direct register placement");
+        
+        // Generate code for the argument expression
+        generate_expression_code(*node.arguments[i]);
+        
+        // Target ABI register (X0, X1, X2 for regular calls)
+        std::string target_abi_reg = "X" + std::to_string(i);
+        
+        // If result is not already in the target register, move it
+        if (expression_result_reg_ != target_abi_reg) {
+            emit(Encoder::create_mov_reg(target_abi_reg, expression_result_reg_));
+            register_manager_.release_register(expression_result_reg_);
+            debug_print("Moved argument result from " + expression_result_reg_ + " to " + target_abi_reg);
+        } else {
+            debug_print("Argument already in correct register: " + target_abi_reg);
+        }
+        
+        // Mark ABI register as containing the argument
+        register_manager_.mark_register_as_used(target_abi_reg);
+    }
+}
+
+// Register-direct argument handling for super calls (X0 = this, X1-X7 = args)
+void NewCodeGenerator::handle_super_call_arguments_direct(RoutineCallStatement& node) {
+    debug_print("Using REGISTER-DIRECT optimization for super call with " + 
+                std::to_string(node.arguments.size()) + " arguments");
+    
+    // Super calls use same register layout as method calls
+    handle_method_call_arguments_direct(node);
+}
+
+// Existing stack-based implementation (extracted and refactored for reuse)
+void NewCodeGenerator::handle_arguments_stack_based(RoutineCallStatement& node, 
+                                                   bool is_method_call, 
+                                                   bool is_super_call) {
+    debug_print("Using STACK-BASED approach for " + std::to_string(node.arguments.size()) + " arguments");
+    
+    size_t total_stack_bytes = 0;
+    
+    if (!node.arguments.empty()) {
+        // Determine argument limit based on call type
+        size_t max_args = is_method_call || is_super_call ? 7 : 8;
+        
+        // Check for too many arguments
+        if (node.arguments.size() > max_args) {
+            std::string call_type = is_super_call ? "SUPER call" : 
+                                  (is_method_call ? "Method call" : "Routine call");
+            throw std::runtime_error(call_type + " with " + std::to_string(node.arguments.size()) + 
+                                   " arguments exceeds maximum of " + std::to_string(max_args) + " arguments");
+        }
+        
+        // Pre-allocate stack space (8 bytes per argument, 16-byte aligned)
+        total_stack_bytes = node.arguments.size() * 8;
+        if (total_stack_bytes % 16 != 0) {
+            total_stack_bytes = ((total_stack_bytes + 15) / 16) * 16;
+        }
+        emit(Encoder::create_sub_imm("SP", "SP", total_stack_bytes));
+        
+        // Evaluate arguments RIGHT-TO-LEFT and store immediately to stack
+        for (int i = static_cast<int>(node.arguments.size()) - 1; i >= 0; --i) {
+            generate_expression_code(*node.arguments[i]);
+            
+            // Store result immediately to stack (frees all scratch registers)
+            size_t stack_offset = i * 8;
+            if (register_manager_.is_fp_register(expression_result_reg_)) {
+                emit(Encoder::create_str_fp_imm(expression_result_reg_, "SP", stack_offset));
+            } else {
+                emit(Encoder::create_str_imm(expression_result_reg_, "SP", stack_offset));
+            }
+            
+            // Release the register - it's now safely on stack
+            register_manager_.release_register(expression_result_reg_);
+        }
+        
+        // Load arguments from stack into ABI registers
+        for (size_t i = 0; i < node.arguments.size(); ++i) {
+            size_t stack_offset = i * 8;
+            std::string abi_reg;
+            
+            if (is_method_call || is_super_call) {
+                // Method/Super calls: X0 reserved for 'this', args go in X1-X7
+                abi_reg = "X" + std::to_string(i + 1);
+            } else {
+                // Regular calls: args go in X0-X7
+                abi_reg = "X" + std::to_string(i);
+            }
+            
+            emit(Encoder::create_ldr_imm(abi_reg, "SP", stack_offset));
+        }
+        
+        // Clean up stack space
+        emit(Encoder::create_add_imm("SP", "SP", total_stack_bytes));
+    }
+}
+// -- end of file
+
 // -- start of file: generators/gen_AssignmentStatement.cpp
 #include "../NewCodeGenerator.h"
 #include "../LabelManager.h"
@@ -49551,6 +50925,7 @@ void NewCodeGenerator::handle_float_vector_indirection_assignment(FloatVectorInd
 #include "NewCodeGenerator.h"
 #include "LabelManager.h"
 #include "analysis/ASTAnalyzer.h"
+#include "../HeapManager/HeapManager.h"
 #include <iostream>
 #include <stdexcept>
 #include <sstream>
@@ -49563,6 +50938,12 @@ void NewCodeGenerator::visit(BlockStatement& node) {
         symbol_table_->enterScope();
     }
     // --- FIX END ---
+
+    // --- SAMM INTEGRATION: Enter HeapManager scope ---
+    if (HeapManager::getInstance().isSAMMEnabled()) {
+        HeapManager::getInstance().enterScope();
+        debug_print("SAMM: Entered scope for block " + current_scope_name_);
+    }
 
     std::string previous_scope = current_scope_name_;
     std::ostringstream block_name_ss;
@@ -49604,6 +50985,12 @@ void NewCodeGenerator::visit(BlockStatement& node) {
 
     // 4. Exit the scope (for the generator's internal state).
     exit_scope();
+    
+    // --- SAMM INTEGRATION: Exit HeapManager scope ---
+    if (HeapManager::getInstance().isSAMMEnabled()) {
+        HeapManager::getInstance().exitScope();
+        debug_print("SAMM: Exited scope for block " + current_scope_name_);
+    }
     
     // --- FIX START: Synchronize SymbolTable scope ---
     if (symbol_table_) {
@@ -52844,50 +54231,18 @@ void NewCodeGenerator::visit(RoutineCallStatement& node) {
     if (auto* member_access = dynamic_cast<MemberAccessExpression*>(node.routine_expr.get())) {
         debug_print("Detected a method call to: " + member_access->member_name);
 
-        // --- Stage 1: Stack-based argument evaluation (right-to-left) ---
-        std::vector<std::string> arg_value_regs;
-        size_t total_stack_bytes = 0;
+        // --- Stage 1: Optimized argument evaluation ---
+        // Use register-direct optimization for small argument counts, fallback to stack for larger ones
+        const bool ENABLE_REGISTER_DIRECT_OPTIMIZATION = true;
         
-        if (!node.arguments.empty()) {
-            // Check for too many arguments
-            if (node.arguments.size() > 7) {
-                throw std::runtime_error("Method call with " + std::to_string(node.arguments.size()) + 
-                                         " arguments exceeds maximum of 7 arguments");
-            }
-            
-            // Pre-allocate stack space (8 bytes per argument, 16-byte aligned)
-            total_stack_bytes = node.arguments.size() * 8;
-            if (total_stack_bytes % 16 != 0) {
-                total_stack_bytes = ((total_stack_bytes + 15) / 16) * 16;
-            }
-            emit(Encoder::create_sub_imm("SP", "SP", total_stack_bytes));
-            
-            // Evaluate arguments RIGHT-TO-LEFT and store immediately to stack
-            for (int i = static_cast<int>(node.arguments.size()) - 1; i >= 0; --i) {
-                generate_expression_code(*node.arguments[i]);
-                
-                // Store result immediately to stack (frees all scratch registers)
-                size_t stack_offset = i * 8;
-                if (register_manager_.is_fp_register(expression_result_reg_)) {
-                    emit(Encoder::create_str_fp_imm(expression_result_reg_, "SP", stack_offset));
-                } else {
-                    emit(Encoder::create_str_imm(expression_result_reg_, "SP", stack_offset));
-                }
-                
-                // Release the register - it's now safely on stack
-                register_manager_.release_register(expression_result_reg_);
-            }
-            
-            // Load arguments from stack into ABI registers (X1-X7, X0 reserved for 'this')
-            for (size_t i = 0; i < node.arguments.size(); ++i) {
-                size_t stack_offset = i * 8;
-                std::string abi_reg = "X" + std::to_string(i + 1);
-                emit(Encoder::create_ldr_imm(abi_reg, "SP", stack_offset));
-                arg_value_regs.push_back(abi_reg);
-            }
-            
-            // Clean up stack space
-            emit(Encoder::create_add_imm("SP", "SP", total_stack_bytes));
+        if (ENABLE_REGISTER_DIRECT_OPTIMIZATION && 
+            node.arguments.size() <= 3 && 
+            can_use_register_direct_arguments(node.arguments.size())) {
+            // Use optimized register-direct approach
+            handle_method_call_arguments_direct(node);
+        } else {
+            // Use existing stack-based approach
+            handle_arguments_stack_based(node, true, false);
         }
 
         // --- Stage 2: Evaluate the object pointer ('this') ---
@@ -52901,13 +54256,16 @@ void NewCodeGenerator::visit(RoutineCallStatement& node) {
         // --- Stage 4: Prepare argument type information for ARM64 ABI coercion ---
         std::vector<VarType> arg_types;
         std::vector<VarType> expected_types;
+        // --- Stage 3: Type coercion and validation ---
+        // Note: For register-direct optimization, arguments are already in ABI registers X1-X7
+        // For stack-based approach, type coercion will be handled in the argument handling functions
         
         // Look up method signature for parameter types
         std::string class_name = get_class_name_for_expression(member_access->object_expr.get());
         ClassMethodInfo* method_info = class_table_->lookup_class_method(class_name, member_access->member_name, true);
-        
+
         // Debug output to see method lookup results
-        std::cout << "*** ROUTINE CALL METHOD DEBUG *** method=" << member_access->member_name 
+        std::cout << "*** ROUTINE CALL METHOD DEBUG *** method=" << member_access->member_name
                   << " class=" << class_name;
         if (method_info) {
             std::cout << " qualified_name=" << method_info->qualified_name
@@ -52916,81 +54274,10 @@ void NewCodeGenerator::visit(RoutineCallStatement& node) {
         } else {
             std::cout << " method_info=NULL" << std::endl;
         }
-        Symbol method_symbol;
-        bool has_symbol_param_info = false;
-        std::string method_qualified_name = class_name + "::" + member_access->member_name;
-        if (symbol_table_->lookup(method_qualified_name, method_symbol)) {
-            has_symbol_param_info = true;
-        }
-
-        for (size_t i = 0; i < arg_value_regs.size(); ++i) {
-            // Infer the actual type of this argument expression
-            VarType arg_expr_type = infer_expression_type_local(node.arguments[i].get());
-            arg_types.push_back(arg_expr_type);
-            
-            // Determine expected parameter type based on method signature
-            VarType expected_type = VarType::UNKNOWN;
-            if (method_info && i < method_info->parameters.size()) {
-                expected_type = method_info->parameters[i].type;
-            } else if (has_symbol_param_info && i < method_symbol.parameters.size()) {
-                expected_type = method_symbol.parameters[i].type;
-            }
-            expected_types.push_back(expected_type);
-        }
         
-        // Use ARM64 ABI compliant argument coercion (starting from X1/D0 since X0 is 'this')
-        // We need to manually handle the offset since method args start at position 1
-        std::vector<VarType> method_expected_types;
-        for (size_t i = 0; i < expected_types.size(); ++i) {
-            method_expected_types.push_back(expected_types[i]);
-        }
-        
-        // For method calls, we need to manually place arguments starting from X1/D0
-        // since coerce_arguments_to_abi assumes arguments start from X0/D0
-        int ngrn = 1; // Start from X1 (X0 is 'this')
-        int nsrn = 0; // Start from D0
-        
-        for (size_t i = 0; i < arg_value_regs.size(); ++i) {
-            VarType expr_type = arg_types[i];
-            VarType expected_type = expected_types[i];
-            VarType target_type = (expected_type != VarType::UNKNOWN) ? expected_type : expr_type;
-            
-            const std::string& src_reg = arg_value_regs[i];
-            
-            if (target_type == VarType::FLOAT) {
-                if (nsrn >= 8) {
-                    throw std::runtime_error("Too many float arguments for ARM64 ABI (max 8 D registers)");
-                }
-                
-                std::string dest_d_reg = "D" + std::to_string(nsrn);
-                
-                if (register_manager_.is_fp_register(src_reg)) {
-                    if (src_reg != dest_d_reg) {
-                        emit(Encoder::create_fmov_reg(dest_d_reg, src_reg));
-                    }
-                } else {
-                    emit(Encoder::create_scvtf_reg(dest_d_reg, src_reg));
-                }
-                nsrn++;
-            } else {
-                if (ngrn >= 8) {
-                    throw std::runtime_error("Too many integer arguments for ARM64 ABI (max 8 X registers)");
-                }
-                
-                std::string dest_x_reg = "X" + std::to_string(ngrn);
-                
-                if (register_manager_.is_fp_register(src_reg)) {
-                    generate_float_to_int_truncation(dest_x_reg, src_reg);
-                } else {
-                    if (src_reg != dest_x_reg) {
-                        emit(Encoder::create_mov_reg(dest_x_reg, src_reg));
-                    }
-                }
-                ngrn++;
-            }
-            
-            register_manager_.release_register(src_reg);
-        }
+        // Arguments are already handled by the optimized argument processing above
+        // No additional type coercion needed for register-direct approach
+        // (Stack-based approach handles type coercion internally)
 
         // --- FIX: Direct call for constructors ---
         if (member_access->member_name == "CREATE") {
@@ -53031,50 +54318,18 @@ void NewCodeGenerator::visit(RoutineCallStatement& node) {
         // --- THIS IS A SUPER CALL (e.g., SUPER.CREATE(...)) ---
         debug_print("Detected a SUPER method call.");
 
-        // --- Stage 1: Stack-based argument evaluation (right-to-left) ---
-        std::vector<std::string> arg_value_regs;
-        size_t total_stack_bytes = 0;
+        // --- Stage 1: Optimized argument evaluation ---
+        // Use register-direct optimization for small argument counts, fallback to stack for larger ones
+        const bool ENABLE_REGISTER_DIRECT_OPTIMIZATION = true;
         
-        if (!node.arguments.empty()) {
-            // Check for too many arguments
-            if (node.arguments.size() > 7) {
-                throw std::runtime_error("SUPER call with " + std::to_string(node.arguments.size()) + 
-                                         " arguments exceeds maximum of 7 arguments");
-            }
-            
-            // Pre-allocate stack space (8 bytes per argument, 16-byte aligned)
-            total_stack_bytes = node.arguments.size() * 8;
-            if (total_stack_bytes % 16 != 0) {
-                total_stack_bytes = ((total_stack_bytes + 15) / 16) * 16;
-            }
-            emit(Encoder::create_sub_imm("SP", "SP", total_stack_bytes));
-            
-            // Evaluate arguments RIGHT-TO-LEFT and store immediately to stack
-            for (int i = static_cast<int>(node.arguments.size()) - 1; i >= 0; --i) {
-                generate_expression_code(*node.arguments[i]);
-                
-                // Store result immediately to stack (frees all scratch registers)
-                size_t stack_offset = i * 8;
-                if (register_manager_.is_fp_register(expression_result_reg_)) {
-                    emit(Encoder::create_str_fp_imm(expression_result_reg_, "SP", stack_offset));
-                } else {
-                    emit(Encoder::create_str_imm(expression_result_reg_, "SP", stack_offset));
-                }
-                
-                // Release the register - it's now safely on stack
-                register_manager_.release_register(expression_result_reg_);
-            }
-            
-            // Load arguments from stack into ABI registers (X1-X7, X0 reserved for 'this')
-            for (size_t i = 0; i < node.arguments.size(); ++i) {
-                size_t stack_offset = i * 8;
-                std::string abi_reg = "X" + std::to_string(i + 1);
-                emit(Encoder::create_ldr_imm(abi_reg, "SP", stack_offset));
-                arg_value_regs.push_back(abi_reg);
-            }
-            
-            // Clean up stack space
-            emit(Encoder::create_add_imm("SP", "SP", total_stack_bytes));
+        if (ENABLE_REGISTER_DIRECT_OPTIMIZATION && 
+            node.arguments.size() <= 3 && 
+            can_use_register_direct_arguments(node.arguments.size())) {
+            // Use optimized register-direct approach
+            handle_super_call_arguments_direct(node);
+        } else {
+            // Use existing stack-based approach
+            handle_arguments_stack_based(node, false, true);
         }
 
         // --- Stage 2: Get the '_this' pointer from its home register ---
@@ -53101,66 +54356,9 @@ void NewCodeGenerator::visit(RoutineCallStatement& node) {
             }
         }
 
-        for (size_t i = 0; i < arg_value_regs.size(); ++i) {
-            // Infer the actual type of this argument expression
-            VarType arg_expr_type = infer_expression_type_local(node.arguments[i].get());
-            arg_types.push_back(arg_expr_type);
-            
-            // Determine expected parameter type based on parent method signature
-            VarType expected_type = VarType::UNKNOWN;
-            if (method_info && i < method_info->parameters.size()) {
-                expected_type = method_info->parameters[i].type;
-            } else if (has_symbol_param_info && i < method_symbol.parameters.size()) {
-                expected_type = method_symbol.parameters[i].type;
-            }
-            expected_types.push_back(expected_type);
-        }
-        
-        // Use ARM64 ABI compliant argument coercion (starting from X1/D0 since X0 is 'this')
-        int ngrn = 1; // Start from X1 (X0 is 'this')
-        int nsrn = 0; // Start from D0
-        
-        for (size_t i = 0; i < arg_value_regs.size(); ++i) {
-            VarType expr_type = arg_types[i];
-            VarType expected_type = expected_types[i];
-            VarType target_type = (expected_type != VarType::UNKNOWN) ? expected_type : expr_type;
-            
-            const std::string& src_reg = arg_value_regs[i];
-            
-            if (target_type == VarType::FLOAT) {
-                if (nsrn >= 8) {
-                    throw std::runtime_error("Too many float arguments for ARM64 ABI (max 8 D registers)");
-                }
-                
-                std::string dest_d_reg = "D" + std::to_string(nsrn);
-                
-                if (register_manager_.is_fp_register(src_reg)) {
-                    if (src_reg != dest_d_reg) {
-                        emit(Encoder::create_fmov_reg(dest_d_reg, src_reg));
-                    }
-                } else {
-                    emit(Encoder::create_scvtf_reg(dest_d_reg, src_reg));
-                }
-                nsrn++;
-            } else {
-                if (ngrn >= 8) {
-                    throw std::runtime_error("Too many integer arguments for ARM64 ABI (max 8 X registers)");
-                }
-                
-                std::string dest_x_reg = "X" + std::to_string(ngrn);
-                
-                if (register_manager_.is_fp_register(src_reg)) {
-                    generate_float_to_int_truncation(dest_x_reg, src_reg);
-                } else {
-                    if (src_reg != dest_x_reg) {
-                        emit(Encoder::create_mov_reg(dest_x_reg, src_reg));
-                    }
-                }
-                ngrn++;
-            }
-            
-            register_manager_.release_register(src_reg);
-        }
+        // Arguments are already handled by the optimized argument processing above
+        // No additional type coercion needed for register-direct approach
+        // (Stack-based approach handles type coercion internally)
 
         // --- Stage 4: Find the parent method and make a direct call ---
         if (!class_entry || class_entry->parent_name.empty())
@@ -53262,50 +54460,65 @@ void NewCodeGenerator::visit(RoutineCallStatement& node) {
             } else {
                 // Regular function/routine call handling with ARM64 ABI compliant argument coercion
                 
-                // --- Stage 1: Stack-based argument evaluation (right-to-left) ---
+                // --- Stage 1: Optimized argument evaluation ---
+                // Use register-direct optimization for small argument counts, fallback to stack for larger ones
+                const bool ENABLE_REGISTER_DIRECT_OPTIMIZATION = true;
                 std::vector<ArgInfo> arg_result_regs;
-                size_t total_stack_bytes = 0;
                 
-                if (!node.arguments.empty()) {
-                    // Check for too many arguments
-                    if (node.arguments.size() > 8) {
-                        throw std::runtime_error("Routine call with " + std::to_string(node.arguments.size()) + 
-                                                 " arguments exceeds maximum of 8 arguments");
-                    }
+                if (ENABLE_REGISTER_DIRECT_OPTIMIZATION && 
+                    node.arguments.size() <= 3 && 
+                    can_use_register_direct_arguments(node.arguments.size())) {
+                    // Use optimized register-direct approach
+                    handle_regular_call_arguments_direct(node);
                     
-                    // Pre-allocate stack space (8 bytes per argument, 16-byte aligned)
-                    total_stack_bytes = node.arguments.size() * 8;
-                    if (total_stack_bytes % 16 != 0) {
-                        total_stack_bytes = ((total_stack_bytes + 15) / 16) * 16;
-                    }
-                    emit(Encoder::create_sub_imm("SP", "SP", total_stack_bytes));
-                    
-                    // Evaluate arguments RIGHT-TO-LEFT and store immediately to stack
-                    for (int i = static_cast<int>(node.arguments.size()) - 1; i >= 0; --i) {
-                        generate_expression_code(*node.arguments[i]);
-                        
-                        // Store result immediately to stack (frees all scratch registers)
-                        size_t stack_offset = i * 8;
-                        if (register_manager_.is_fp_register(expression_result_reg_)) {
-                            emit(Encoder::create_str_fp_imm(expression_result_reg_, "SP", stack_offset));
-                        } else {
-                            emit(Encoder::create_str_imm(expression_result_reg_, "SP", stack_offset));
-                        }
-                        
-                        // Release the register - it's now safely on stack
-                        register_manager_.release_register(expression_result_reg_);
-                    }
-                    
-                    // Load arguments from stack into ABI registers (X0-X7)
+                    // Build ArgInfo for downstream processing
                     for (size_t i = 0; i < node.arguments.size(); ++i) {
-                        size_t stack_offset = i * 8;
                         std::string abi_reg = "X" + std::to_string(i);
-                        emit(Encoder::create_ldr_imm(abi_reg, "SP", stack_offset));
                         arg_result_regs.push_back({abi_reg, false}); // ABI registers are not temps
                     }
-                    
-                    // Clean up stack space
-                    emit(Encoder::create_add_imm("SP", "SP", total_stack_bytes));
+                } else {
+                    // Use existing stack-based approach (creates arg_result_regs internally)
+                    if (!node.arguments.empty()) {
+                        // Check for too many arguments
+                        if (node.arguments.size() > 8) {
+                            throw std::runtime_error("Routine call with " + std::to_string(node.arguments.size()) + 
+                                                     " arguments exceeds maximum of 8 arguments");
+                        }
+                        
+                        // Pre-allocate stack space (8 bytes per argument, 16-byte aligned)
+                        size_t total_stack_bytes = node.arguments.size() * 8;
+                        if (total_stack_bytes % 16 != 0) {
+                            total_stack_bytes = ((total_stack_bytes + 15) / 16) * 16;
+                        }
+                        emit(Encoder::create_sub_imm("SP", "SP", total_stack_bytes));
+                        
+                        // Evaluate arguments RIGHT-TO-LEFT and store immediately to stack
+                        for (int i = static_cast<int>(node.arguments.size()) - 1; i >= 0; --i) {
+                            generate_expression_code(*node.arguments[i]);
+                            
+                            // Store result immediately to stack (frees all scratch registers)
+                            size_t stack_offset = i * 8;
+                            if (register_manager_.is_fp_register(expression_result_reg_)) {
+                                emit(Encoder::create_str_fp_imm(expression_result_reg_, "SP", stack_offset));
+                            } else {
+                                emit(Encoder::create_str_imm(expression_result_reg_, "SP", stack_offset));
+                            }
+                            
+                            // Release the register - it's now safely on stack
+                            register_manager_.release_register(expression_result_reg_);
+                        }
+                        
+                        // Load arguments from stack into ABI registers (X0-X7)
+                        for (size_t i = 0; i < node.arguments.size(); ++i) {
+                            size_t stack_offset = i * 8;
+                            std::string abi_reg = "X" + std::to_string(i);
+                            emit(Encoder::create_ldr_imm(abi_reg, "SP", stack_offset));
+                            arg_result_regs.push_back({abi_reg, false}); // ABI registers are not temps
+                        }
+                        
+                        // Clean up stack space
+                        emit(Encoder::create_add_imm("SP", "SP", total_stack_bytes));
+                    }
                 }
                 
                 // --- Stage 2: Collect type information for ARM64 ABI coercion ---
@@ -57786,8 +58999,8 @@ bool parse_arguments(int argc, char* argv[], bool& run_jit, bool& generate_asm, 
             std::cout << "Options:\n"
                       << "  --run, -r              : JIT compile and execute the code.\n"
                       << "  --asm, -a              : Generate ARM64 assembly file.\n"
-                      << "  --exec, -e             : Assemble, build with clang, and execute (uses unified runtime by default).\n"
-                      << "  --runtime=MODE         : Select runtime mode (jit, standalone, unified). Default: jit for --run, unified for --exec.\n"
+                      << "  --exec, -e             : Assemble, build with clang, and execute (uses graphics runtime by default).\n"
+                      << "  --runtime=MODE         : Select runtime mode (jit, standalone, unified). Default: jit for --run, unified (graphics) for --exec.\n"
                       << "  --opt, -o              : Enable AST-to-AST optimization passes (default: ON).\n"
                       << "  --no-opt               : Disable all AST-to-AST optimization passes.\n"
                       << "  --popt                 : Enable peephole optimizer (enabled by default).\n"
@@ -57933,13 +59146,16 @@ void handle_static_compilation(bool exec_mode, const std::string& base_name, con
         std::string effective_runtime_mode = runtime_mode;
         if (runtime_mode == "jit" && exec_mode) {
             effective_runtime_mode = "unified";
-            if (enable_debug_output) std::cout << "Note: Using unified runtime (default for --exec mode)\n";
+            if (enable_debug_output) std::cout << "Note: Using unified runtime with graphics support (default for --exec mode)\n";
         }
 
         if (effective_runtime_mode == "unified") {
-            // Check for SDL2-enabled runtime libraries first
-            if (enable_debug_output) std::cout << "Checking for SDL2 runtime libraries...\n";
-            if (access("./libbcpl_runtime_sdl2_static.a", F_OK) == 0) {
+            // Check for graphics runtime library first (new default)
+            if (enable_debug_output) std::cout << "Checking for graphics runtime library...\n";
+            if (access("./libbcpl_runtime_graphics_static.a", F_OK) == 0) {
+                runtime_lib = "./libbcpl_runtime_graphics_static.a";
+                if (enable_debug_output) std::cout << "Using graphics static runtime library (new default)\n";
+            } else if (access("./libbcpl_runtime_sdl2_static.a", F_OK) == 0) {
                 runtime_lib = "./libbcpl_runtime_sdl2_static.a";
                 if (enable_debug_output) std::cout << "Using SDL2 static runtime library\n";
             } else if (access("./libbcpl_runtime_sdl2.a", F_OK) == 0) {
@@ -57955,9 +59171,12 @@ void handle_static_compilation(bool exec_mode, const std::string& base_name, con
             runtime_lib = "./libbcpl_runtime_c.a";
             extra_flags = "";
         } else { // jit mode (fallback to unified for static compilation)
-            // Check for SDL2-enabled runtime libraries first for JIT fallback too
-            if (enable_debug_output) std::cout << "Checking for SDL2 runtime libraries (JIT fallback)...\n";
-            if (access("./libbcpl_runtime_sdl2_static.a", F_OK) == 0) {
+            // Check for graphics runtime library first for JIT fallback too (new default)
+            if (enable_debug_output) std::cout << "Checking for graphics runtime library (JIT fallback)...\n";
+            if (access("./libbcpl_runtime_graphics_static.a", F_OK) == 0) {
+                runtime_lib = "./libbcpl_runtime_graphics_static.a";
+                if (enable_debug_output) std::cout << "Note: JIT mode fallback to graphics static runtime for static compilation (new default)\n";
+            } else if (access("./libbcpl_runtime_sdl2_static.a", F_OK) == 0) {
                 runtime_lib = "./libbcpl_runtime_sdl2_static.a";
                 if (enable_debug_output) std::cout << "Note: JIT mode fallback to SDL2 static runtime for static compilation\n";
             } else if (access("./libbcpl_runtime_sdl2_dynamic.a", F_OK) == 0) {
@@ -57971,21 +59190,29 @@ void handle_static_compilation(bool exec_mode, const std::string& base_name, con
             extra_flags = " -lstdc++";
         }
 
-        // Add SDL2 linking flags if using SDL2 runtime
-        std::string sdl2_flags = "";
-        if (runtime_lib.find("sdl2") != std::string::npos) {
+        // Add graphics/SDL2 linking flags based on runtime library
+        std::string graphics_flags = "";
+        if (runtime_lib.find("graphics") != std::string::npos) {
+            // Graphics runtime - add necessary frameworks and libraries
+            graphics_flags = " -lm -framework CoreAudio -framework AudioToolbox -framework CoreHaptics -framework GameController -framework ForceFeedback -lobjc -framework CoreVideo -framework Cocoa -framework Carbon -framework IOKit -framework QuartzCore -framework Metal -framework CoreFoundation -framework Foundation";
+            
+            // Add SDL2 and Cairo libraries directly
+            graphics_flags += " -L/opt/homebrew/lib -lSDL2 -lcairo";
+            
+            if (enable_debug_output) std::cout << "Adding graphics runtime frameworks, SDL2, and Cairo libraries\n";
+        } else if (runtime_lib.find("sdl2") != std::string::npos) {
             if (runtime_lib.find("sdl2_static") != std::string::npos) {
                 // Static SDL2 linking - add system frameworks
-                sdl2_flags = " -lm -framework CoreAudio -framework AudioToolbox -framework CoreHaptics -framework GameController -framework ForceFeedback -lobjc -framework CoreVideo -framework Cocoa -framework Carbon -framework IOKit -framework QuartzCore -framework Metal -framework CoreFoundation -framework Foundation";
+                graphics_flags = " -lm -framework CoreAudio -framework AudioToolbox -framework CoreHaptics -framework GameController -framework ForceFeedback -lobjc -framework CoreVideo -framework Cocoa -framework Carbon -framework IOKit -framework QuartzCore -framework Metal -framework CoreFoundation -framework Foundation";
                 if (enable_debug_output) std::cout << "Adding SDL2 static linking frameworks\n";
             } else {
                 // Dynamic SDL2 linking
-                sdl2_flags = " -L/opt/homebrew/lib -lSDL2";
+                graphics_flags = " -L/opt/homebrew/lib -lSDL2";
                 if (enable_debug_output) std::cout << "Adding SDL2 dynamic linking flags\n";
             }
         }
 
-        std::string clang_command = "clang -g -o " + executable_output_path + " starter.o " + asm_output_path + " " + runtime_lib + extra_flags + sdl2_flags;
+        std::string clang_command = "clang -g -o " + executable_output_path + " starter.o " + asm_output_path + " " + runtime_lib + extra_flags + graphics_flags;
         if (enable_debug_output) std::cout << "Executing: " << clang_command << std::endl;
 
         int build_result = system(clang_command.c_str());
@@ -65517,6 +66744,8 @@ uint32_t* bcpl_vector_to_uint32_array(bcpl_vector_t bcpl_vec, size_t* count) {
 
 // -- start of file: runtime/cairo/cairo_core.cpp
 #include "cairo_core.h"
+#include "cairo_samm_allocator.h"
+#include "../../HeapManager/Stats.h"
 #include <stdexcept>
 #include <cstring>
 #include <iostream>
@@ -65585,7 +66814,7 @@ void CairoImage::saveAsPNG(const std::string& filepath) const {
     }
 }
 
-std::unique_ptr<CairoImage> CairoImage::clone() const {
+CairoSAMM::unique_ptr<CairoImage> CairoImage::clone() const {
     if (!surface_) return nullptr;
     
     int width = getWidth();
@@ -65597,7 +66826,7 @@ std::unique_ptr<CairoImage> CairoImage::clone() const {
     cairo_paint(cr);
     
     cairo_destroy(cr);
-    return std::make_unique<CairoImage>(new_surface);
+    return CairoSAMM::make_unique<CairoImage>(new_surface);
 }
 
 void CairoImage::cleanup() {
@@ -65625,6 +66854,11 @@ CairoSurface::CairoSurface(int width, int height) : width_(width), height_(heigh
         throw std::runtime_error("Failed to create Cairo surface: " + 
                                  std::string(cairo_status_to_string(cairo_surface_status(surface_))));
     }
+    
+    // Calculate surface size and update stats
+    size_t surface_size = width * height * 4; // ARGB32 = 4 bytes per pixel
+    printf("DEBUG: CairoSurface constructor - tracking surface creation (size: %zu bytes)\n", surface_size);
+    stats_update_graphics_surface_created(surface_size);
     
     printf("DEBUG: CairoSurface constructor - calling initializeContext\n");
     initializeContext();
@@ -65671,7 +66905,7 @@ void CairoSurface::saveAsPNG(const std::string& filepath) const {
     }
 }
 
-std::unique_ptr<CairoImage> CairoSurface::toImage() const {
+CairoSAMM::unique_ptr<CairoImage> CairoSurface::toImage() const {
     if (!surface_) return nullptr;
     
     cairo_surface_t* image_surface = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, width_, height_);
@@ -65681,7 +66915,7 @@ std::unique_ptr<CairoImage> CairoSurface::toImage() const {
     cairo_paint(cr);
     
     cairo_destroy(cr);
-    return std::make_unique<CairoImage>(image_surface);
+    return CairoSAMM::make_unique<CairoImage>(image_surface);
 }
 
 void CairoSurface::clear(const CairoColor& color) {
@@ -65694,10 +66928,10 @@ void CairoSurface::clear(const CairoColor& color) {
     cairo_restore(context_);
 }
 
-std::unique_ptr<CairoSurface> CairoSurface::clone() const {
+CairoSAMM::unique_ptr<CairoSurface> CairoSurface::clone() const {
     if (!surface_) return nullptr;
     
-    auto new_surface = std::make_unique<CairoSurface>(width_, height_);
+    auto new_surface = CairoSAMM::make_unique<CairoSurface>(width_, height_);
     cairo_set_source_surface(new_surface->context_, surface_, 0, 0);
     cairo_paint(new_surface->context_);
     
@@ -66061,12 +67295,12 @@ void CairoSurface::setPathFromPoints(const std::vector<CairoPoint>& points, bool
 // CairoResourceManager Implementation
 // =============================================================================
 
-std::unordered_map<CairoResourceManager::SurfaceHandle, std::unique_ptr<CairoSurface>> CairoResourceManager::surfaces_;
-std::unordered_map<CairoResourceManager::ImageHandle, std::unique_ptr<CairoImage>> CairoResourceManager::images_;
+std::unordered_map<CairoResourceManager::SurfaceHandle, CairoSAMM::unique_ptr<CairoSurface>> CairoResourceManager::surfaces_;
+std::unordered_map<CairoResourceManager::ImageHandle, CairoSAMM::unique_ptr<CairoImage>> CairoResourceManager::images_;
 std::atomic<uint64_t> CairoResourceManager::next_handle_{1};
 std::mutex CairoResourceManager::resource_mutex_;
 
-CairoResourceManager::SurfaceHandle CairoResourceManager::registerSurface(std::unique_ptr<CairoSurface> surface) {
+CairoResourceManager::SurfaceHandle CairoResourceManager::registerSurface(CairoSAMM::unique_ptr<CairoSurface> surface) {
     std::lock_guard<std::mutex> lock(resource_mutex_);
     SurfaceHandle handle = generateHandle();
     printf("DEBUG: registerSurface - generated handle=%llu, surface ptr=%p\n", handle, surface.get());
@@ -66075,7 +67309,7 @@ CairoResourceManager::SurfaceHandle CairoResourceManager::registerSurface(std::u
     return handle;
 }
 
-CairoResourceManager::ImageHandle CairoResourceManager::registerImage(std::unique_ptr<CairoImage> image) {
+CairoResourceManager::ImageHandle CairoResourceManager::registerImage(CairoSAMM::unique_ptr<CairoImage> image) {
     std::lock_guard<std::mutex> lock(resource_mutex_);
     ImageHandle handle = generateHandle();
     images_[handle] = std::move(image);
@@ -66238,6 +67472,7 @@ std::string getErrorString(cairo_status_t status) {
 #include "cairo_runtime.h"
 #include "cairo_core.h"
 #include "cairo_samm.h"
+#include "cairo_samm_allocator.h"
 #include <stdexcept>
 #include <cstring>
 #include <iostream>
@@ -66301,7 +67536,7 @@ CairoSurfaceHandle CAIRO_CREATE_SURFACE(int64_t width, int64_t height) {
             return 0;
         }
         
-        auto surface = std::make_unique<CairoSurface>(static_cast<int>(width), static_cast<int>(height));
+        auto surface = CairoSAMM::make_unique<CairoSurface>(static_cast<int>(width), static_cast<int>(height));
         printf("DEBUG: Created CairoSurface object at %p\n", surface.get());
         printf("DEBUG: Surface isValid: %s\n", surface->isValid() ? "true" : "false");
         
@@ -66329,8 +67564,8 @@ CairoSurfaceHandle CAIRO_LOAD_PNG(bcpl_string_t filename) {
             return 0;
         }
         
-        auto image = std::make_unique<CairoImage>(filepath);
-        auto surface = std::make_unique<CairoSurface>(*image);
+        auto image = CairoSAMM::make_unique<CairoImage>(filepath);
+        auto surface = CairoSAMM::make_unique<CairoSurface>(*image);
         CairoSurfaceHandle handle = CairoResourceManager::registerSurface(std::move(surface));
         
         // Track in SAMM if enabled
@@ -67013,7 +68248,7 @@ CairoImageHandle CAIRO_LOAD_IMAGE(bcpl_string_t filename) {
             return 0;
         }
         
-        auto image = std::make_unique<CairoImage>(filepath);
+        auto image = CairoSAMM::make_unique<CairoImage>(filepath);
         CairoImageHandle handle = CairoResourceManager::registerImage(std::move(image));
         
         // Track in SAMM if enabled
@@ -67920,6 +69155,7 @@ extern "C" {
 #include "cairo_samm.h"
 #include "cairo_core.h"
 #include "cairo_runtime.h"
+#include "cairo_samm_allocator.h"
 #include "../../HeapManager/HeapManager.h"
 #include <vector>
 #include <unordered_set>
@@ -68106,7 +69342,7 @@ CairoSurfaceHandle CAIRO_CREATE_SURFACE_RETAINED(int64_t width, int64_t height, 
     
     // Create surface normally but track in different scope
     try {
-        auto surface = std::make_unique<CairoSurface>(static_cast<int>(width), static_cast<int>(height));
+        auto surface = CairoSAMM::make_unique<CairoSurface>(static_cast<int>(width), static_cast<int>(height));
         CairoSurfaceHandle handle = CairoResourceManager::registerSurface(std::move(surface));
         
         g_scope_surfaces[target_scope].insert(handle);
@@ -68492,6 +69728,397 @@ void CAIRO_SAMM_EMERGENCY_RESET(void) {
 }
 
 } // extern "C"
+// -- end of file
+
+// -- start of file: runtime/cairo/cairo_samm_backend.cpp
+#include "cairo_samm_backend.h"
+#include "../../HeapManager/graphics_resources.h"
+#include "../../HeapManager/heap_c_wrappers.h"
+#include "../../HeapManager/Stats.h"
+#include "cairo_core.h"
+#include <cairo.h>
+#include <cstdio>
+#include <cstring>
+
+// =============================================================================
+// CAIRO BACKEND IMPLEMENTATION
+// =============================================================================
+
+namespace {
+    bool g_cairo_backend_registered = false;
+    bool g_cairo_trace_enabled = false;
+    
+    void trace_log(const char* format, ...) {
+        if (!g_cairo_trace_enabled) return;
+        
+        va_list args;
+        va_start(args, format);
+        printf("[Cairo Backend] ");
+        vprintf(format, args);
+        va_end(args);
+    }
+    
+    // Forward declaration
+    size_t cairo_surface_get_size(void* native_handle);
+    
+    // Cairo surface cleanup function
+    void cairo_surface_cleanup(void* native_handle) {
+        if (!native_handle) return;
+        
+        cairo_surface_t* surface = static_cast<cairo_surface_t*>(native_handle);
+        size_t surface_size = cairo_surface_get_size(surface);
+        trace_log("Cleaning up Cairo surface at %p (size: %zu bytes)\n", surface, surface_size);
+        
+        // Update stats for surface cleanup
+        stats_update_graphics_surface_freed(surface_size);
+        
+        cairo_surface_destroy(surface);
+    }
+    
+    // Cairo image cleanup function - for now, same as surface
+    void cairo_image_cleanup(void* native_handle) {
+        if (!native_handle) return;
+        
+        cairo_surface_t* surface = static_cast<cairo_surface_t*>(native_handle);
+        size_t image_size = cairo_surface_get_size(surface);
+        trace_log("Cleaning up Cairo image at %p (size: %zu bytes)\n", surface, image_size);
+        
+        // Update stats for image cleanup
+        stats_update_graphics_image_freed(image_size);
+        
+        cairo_surface_destroy(surface);
+    }
+    
+    // Get Cairo surface memory usage estimate
+    size_t cairo_surface_get_size(void* native_handle) {
+        if (!native_handle) return 0;
+        
+        cairo_surface_t* surface = static_cast<cairo_surface_t*>(native_handle);
+        
+        // Get surface dimensions
+        int width = cairo_image_surface_get_width(surface);
+        int height = cairo_image_surface_get_height(surface);
+        cairo_format_t format = cairo_image_surface_get_format(surface);
+        
+        // Calculate bytes per pixel based on format
+        int bytes_per_pixel = 4; // Default to ARGB32
+        switch (format) {
+            case CAIRO_FORMAT_ARGB32:
+            case CAIRO_FORMAT_RGB24:
+                bytes_per_pixel = 4;
+                break;
+            case CAIRO_FORMAT_A8:
+                bytes_per_pixel = 1;
+                break;
+            case CAIRO_FORMAT_A1:
+                bytes_per_pixel = 1; // Simplified
+                break;
+            case CAIRO_FORMAT_RGB16_565:
+                bytes_per_pixel = 2;
+                break;
+            default:
+                bytes_per_pixel = 4;
+                break;
+        }
+        
+        size_t estimated_size = static_cast<size_t>(width * height * bytes_per_pixel);
+        trace_log("Cairo surface %p estimated size: %dx%d * %d bpp = %zu bytes\n",
+                  surface, width, height, bytes_per_pixel, estimated_size);
+        
+        return estimated_size;
+    }
+    
+    // Get Cairo surface dimensions
+    int cairo_surface_get_dimensions(void* native_handle, int* width, int* height) {
+        if (!native_handle || !width || !height) return 0;
+        
+        cairo_surface_t* surface = static_cast<cairo_surface_t*>(native_handle);
+        
+        *width = cairo_image_surface_get_width(surface);
+        *height = cairo_image_surface_get_height(surface);
+        
+        return 1;
+    }
+}
+
+// =============================================================================
+// CAIRO BACKEND REGISTRATION
+// =============================================================================
+
+extern "C" int CairoSAMM_register_backend(void) {
+    if (g_cairo_backend_registered) {
+        return 1; // Already registered
+    }
+    
+    GraphicsBackend cairo_backend = {};
+    cairo_backend.backend_name = "cairo";
+    cairo_backend.surface_cleanup = cairo_surface_cleanup;
+    cairo_backend.image_cleanup = cairo_image_cleanup;
+    cairo_backend.surface_get_size = cairo_surface_get_size;
+    cairo_backend.image_get_size = cairo_surface_get_size; // Same for images
+    cairo_backend.surface_get_dimensions = cairo_surface_get_dimensions;
+    cairo_backend.image_get_dimensions = cairo_surface_get_dimensions; // Same for images
+    
+    if (SAMM_register_graphics_backend(&cairo_backend)) {
+        g_cairo_backend_registered = true;
+        trace_log("Cairo backend registered successfully\n");
+        return 1;
+    } else {
+        trace_log("Failed to register Cairo backend\n");
+        return 0;
+    }
+}
+
+extern "C" void CairoSAMM_unregister_backend(void) {
+    if (!g_cairo_backend_registered) {
+        return;
+    }
+    
+    if (SAMM_unregister_graphics_backend("cairo")) {
+        g_cairo_backend_registered = false;
+        trace_log("Cairo backend unregistered successfully\n");
+    } else {
+        trace_log("Failed to unregister Cairo backend\n");
+    }
+}
+
+extern "C" int CairoSAMM_is_backend_registered(void) {
+    return g_cairo_backend_registered ? 1 : 0;
+}
+
+extern "C" void CairoSAMM_set_trace_enabled(int enabled) {
+    g_cairo_trace_enabled = (enabled != 0);
+}
+
+// =============================================================================
+// CAIRO SURFACE TRACKING HELPERS
+// =============================================================================
+
+extern "C" uint64_t CairoSAMM_track_surface(cairo_surface_t* surface, int width, int height) {
+    if (!surface || !g_cairo_backend_registered) {
+        return 0;
+    }
+    
+    // Estimate memory usage
+    size_t memory_size = cairo_surface_get_size(surface);
+    
+    // Create GraphicsSurface
+    GraphicsSurface* graphics_surface = new GraphicsSurface();
+    graphics_surface->native_handle = surface;
+    graphics_surface->cleanup_func = cairo_surface_cleanup;
+    graphics_surface->get_size_func = cairo_surface_get_size;
+    graphics_surface->estimated_memory = memory_size;
+    graphics_surface->backend_name = "cairo";
+    graphics_surface->handle_id = SAMM_generate_graphics_handle();
+    graphics_surface->width = width;
+    graphics_surface->height = height;
+    graphics_surface->format = static_cast<uint32_t>(cairo_image_surface_get_format(surface));
+    graphics_surface->user_data = nullptr;
+    
+    if (SAMM_track_graphics_surface(graphics_surface)) {
+        trace_log("Tracked Cairo surface %p as handle %llu (%dx%d, %zu bytes)\n",
+                  surface, graphics_surface->handle_id, width, height, memory_size);
+        return graphics_surface->handle_id;
+    } else {
+        trace_log("Failed to track Cairo surface %p\n", surface);
+        delete graphics_surface;
+        return 0;
+    }
+}
+
+extern "C" uint64_t CairoSAMM_track_image(cairo_surface_t* image, int width, int height) {
+    if (!image || !g_cairo_backend_registered) {
+        return 0;
+    }
+    
+    // Estimate memory usage
+    size_t memory_size = cairo_surface_get_size(image);
+    
+    // Create GraphicsImage
+    GraphicsImage* graphics_image = new GraphicsImage();
+    graphics_image->native_handle = image;
+    graphics_image->cleanup_func = cairo_image_cleanup;
+    graphics_image->get_size_func = cairo_surface_get_size;
+    graphics_image->estimated_memory = memory_size;
+    graphics_image->backend_name = "cairo";
+    graphics_image->handle_id = SAMM_generate_graphics_handle();
+    graphics_image->width = width;
+    graphics_image->height = height;
+    graphics_image->format = static_cast<uint32_t>(cairo_image_surface_get_format(image));
+    graphics_image->user_data = nullptr;
+    
+    if (SAMM_track_graphics_image(graphics_image)) {
+        trace_log("Tracked Cairo image %p as handle %llu (%dx%d, %zu bytes)\n",
+                  image, graphics_image->handle_id, width, height, memory_size);
+        return graphics_image->handle_id;
+    } else {
+        trace_log("Failed to track Cairo image %p\n", image);
+        delete graphics_image;
+        return 0;
+    }
+}
+
+extern "C" cairo_surface_t* CairoSAMM_get_surface(uint64_t handle_id) {
+    GraphicsSurface* surface = SAMM_get_graphics_surface(handle_id);
+    if (!surface || strcmp(surface->backend_name, "cairo") != 0) {
+        return nullptr;
+    }
+    
+    return static_cast<cairo_surface_t*>(surface->native_handle);
+}
+
+extern "C" cairo_surface_t* CairoSAMM_get_image(uint64_t handle_id) {
+    GraphicsImage* image = SAMM_get_graphics_image(handle_id);
+    if (!image || strcmp(image->backend_name, "cairo") != 0) {
+        return nullptr;
+    }
+    
+    return static_cast<cairo_surface_t*>(image->native_handle);
+}
+
+extern "C" int CairoSAMM_untrack_surface(uint64_t handle_id) {
+    GraphicsSurface* surface = SAMM_get_graphics_surface(handle_id);
+    if (!surface || strcmp(surface->backend_name, "cairo") != 0) {
+        return 0;
+    }
+    
+    trace_log("Untracking Cairo surface handle %llu\n", handle_id);
+    return SAMM_untrack_graphics_surface(handle_id);
+}
+
+extern "C" int CairoSAMM_untrack_image(uint64_t handle_id) {
+    GraphicsImage* image = SAMM_get_graphics_image(handle_id);
+    if (!image || strcmp(image->backend_name, "cairo") != 0) {
+        return 0;
+    }
+    
+    trace_log("Untracking Cairo image handle %llu\n", handle_id);
+    return SAMM_untrack_graphics_image(handle_id);
+}
+
+// =============================================================================
+// CAIRO SURFACE CREATION WITH AUTOMATIC TRACKING
+// =============================================================================
+
+extern "C" uint64_t CairoSAMM_create_surface(int width, int height) {
+    if (!g_cairo_backend_registered) {
+        trace_log("Cannot create surface - Cairo backend not registered\n");
+        return 0;
+    }
+    
+    // Create Cairo surface using standard C++ allocation
+    cairo_surface_t* surface = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, width, height);
+    if (!surface || cairo_surface_status(surface) != CAIRO_STATUS_SUCCESS) {
+        trace_log("Failed to create Cairo surface %dx%d\n", width, height);
+        if (surface) {
+            cairo_surface_destroy(surface);
+        }
+        return 0;
+    }
+    
+    trace_log("Created Cairo surface %p (%dx%d)\n", surface, width, height);
+    
+    // Track in SAMM graphics system
+    uint64_t handle_id = CairoSAMM_track_surface(surface, width, height);
+    if (handle_id == 0) {
+        trace_log("Failed to track Cairo surface %p\n", surface);
+        cairo_surface_destroy(surface);
+        return 0;
+    }
+    
+    return handle_id;
+}
+
+extern "C" uint64_t CairoSAMM_load_png(const char* filename) {
+    if (!g_cairo_backend_registered) {
+        trace_log("Cannot load PNG - Cairo backend not registered\n");
+        return 0;
+    }
+    
+    // Load PNG using Cairo
+    cairo_surface_t* surface = cairo_image_surface_create_from_png(filename);
+    if (!surface || cairo_surface_status(surface) != CAIRO_STATUS_SUCCESS) {
+        trace_log("Failed to load PNG from %s\n", filename);
+        if (surface) {
+            cairo_surface_destroy(surface);
+        }
+        return 0;
+    }
+    
+    int width = cairo_image_surface_get_width(surface);
+    int height = cairo_image_surface_get_height(surface);
+    
+    trace_log("Loaded PNG %s as Cairo surface %p (%dx%d)\n", filename, surface, width, height);
+    
+    // Track as image in SAMM graphics system
+    uint64_t handle_id = CairoSAMM_track_image(surface, width, height);
+    if (handle_id == 0) {
+        trace_log("Failed to track Cairo image %p\n", surface);
+        cairo_surface_destroy(surface);
+        return 0;
+    }
+    
+    return handle_id;
+}
+
+// =============================================================================
+// INTEGRATION AND INITIALIZATION
+// =============================================================================
+
+extern "C" void CairoSAMM_initialize(void) {
+    trace_log("Initializing Cairo SAMM backend\n");
+    
+    // Graphics system should already be initialized by HeapManager
+    if (!SAMM_is_graphics_initialized()) {
+        trace_log("Warning: Graphics system not initialized\n");
+        return;
+    }
+    
+    // Register Cairo backend
+    if (!CairoSAMM_register_backend()) {
+        trace_log("Failed to register Cairo backend\n");
+        return;
+    }
+    
+    // Enable graphics tracing if heap tracing is enabled
+    // This can be controlled independently later
+    SAMM_set_graphics_trace_enabled(1);
+    
+    trace_log("Cairo SAMM backend initialization complete\n");
+}
+
+extern "C" void CairoSAMM_shutdown(void) {
+    trace_log("Shutting down Cairo SAMM backend\n");
+    
+    // Unregister backend
+    CairoSAMM_unregister_backend();
+    
+    trace_log("Cairo SAMM backend shutdown complete\n");
+}
+
+extern "C" int CairoSAMM_is_enabled(void) {
+    return (SAMM_is_graphics_initialized() && g_cairo_backend_registered) ? 1 : 0;
+}
+
+// =============================================================================
+// LEGACY COMPATIBILITY FUNCTIONS
+// =============================================================================
+
+// These functions provide compatibility with the old Cairo SAMM interface
+extern "C" void CairoSAMM_enterScope(void) {
+    // No-op - scope tracking is now handled automatically by HeapManager
+    trace_log("CairoSAMM_enterScope called (no-op with new system)\n");
+}
+
+extern "C" void CairoSAMM_exitScope(void) {
+    // No-op - scope cleanup is now handled automatically by HeapManager
+    trace_log("CairoSAMM_exitScope called (no-op with new system)\n");
+}
+
+extern "C" void CairoSAMM_trackSurface(uint64_t handle_id) {
+    // No-op - tracking is done automatically during creation
+    trace_log("CairoSAMM_trackSurface called for handle %llu (no-op with new system)\n", handle_id);
+}
 // -- end of file
 
 // -- start of file: runtime/cairo/test_cairo_cpp.cpp

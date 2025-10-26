@@ -41,11 +41,22 @@ extern volatile HeapBlock g_shadow_heap_blocks[MAX_HEAP_BLOCKS];
 extern volatile size_t g_shadow_heap_index;
 extern volatile bool g_is_heap_tracing_enabled;
 
+// Global runtime metrics variables (external linkage)
+extern size_t g_total_bytes_allocated;
+extern size_t g_total_bytes_freed;
+extern size_t g_total_allocs;
+extern size_t g_total_frees;
+extern size_t g_vec_allocs;
+extern size_t g_string_allocs;
+extern size_t g_double_free_attempts;
+extern size_t g_bytes_read;
+extern size_t g_bytes_written;
+extern size_t g_files_opened;
+extern size_t g_files_closed;
+
 // Functions to update metrics (for internal use)
 void update_alloc_metrics(size_t bytes, AllocType type);
 void update_free_metrics(size_t bytes);
-
-// Double-free tracking function
 void update_double_free_metrics(void);
 
 // File I/O metrics functions

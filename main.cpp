@@ -1187,8 +1187,8 @@ bool parse_arguments(int argc, char* argv[], bool& run_jit, bool& generate_asm, 
             std::cout << "Options:\n"
                       << "  --run, -r              : JIT compile and execute the code.\n"
                       << "  --asm, -a              : Generate ARM64 assembly file.\n"
-                      << "  --exec, -e             : Assemble, build with clang, and execute (uses unified runtime by default).\n"
-                      << "  --runtime=MODE         : Select runtime mode (jit, standalone, unified). Default: jit for --run, unified for --exec.\n"
+                      << "  --exec, -e             : Assemble, build with clang, and execute (uses graphics runtime by default).\n"
+                      << "  --runtime=MODE         : Select runtime mode (jit, standalone, unified). Default: jit for --run, unified (graphics) for --exec.\n"
                       << "  --opt, -o              : Enable AST-to-AST optimization passes (default: ON).\n"
                       << "  --no-opt               : Disable all AST-to-AST optimization passes.\n"
                       << "  --popt                 : Enable peephole optimizer (enabled by default).\n"
@@ -1334,13 +1334,16 @@ void handle_static_compilation(bool exec_mode, const std::string& base_name, con
         std::string effective_runtime_mode = runtime_mode;
         if (runtime_mode == "jit" && exec_mode) {
             effective_runtime_mode = "unified";
-            if (enable_debug_output) std::cout << "Note: Using unified runtime (default for --exec mode)\n";
+            if (enable_debug_output) std::cout << "Note: Using unified runtime with graphics support (default for --exec mode)\n";
         }
 
         if (effective_runtime_mode == "unified") {
-            // Check for SDL2-enabled runtime libraries first
-            if (enable_debug_output) std::cout << "Checking for SDL2 runtime libraries...\n";
-            if (access("./libbcpl_runtime_sdl2_static.a", F_OK) == 0) {
+            // Check for graphics runtime library first (new default)
+            if (enable_debug_output) std::cout << "Checking for graphics runtime library...\n";
+            if (access("./libbcpl_runtime_graphics_static.a", F_OK) == 0) {
+                runtime_lib = "./libbcpl_runtime_graphics_static.a";
+                if (enable_debug_output) std::cout << "Using graphics static runtime library (new default)\n";
+            } else if (access("./libbcpl_runtime_sdl2_static.a", F_OK) == 0) {
                 runtime_lib = "./libbcpl_runtime_sdl2_static.a";
                 if (enable_debug_output) std::cout << "Using SDL2 static runtime library\n";
             } else if (access("./libbcpl_runtime_sdl2.a", F_OK) == 0) {
@@ -1356,9 +1359,12 @@ void handle_static_compilation(bool exec_mode, const std::string& base_name, con
             runtime_lib = "./libbcpl_runtime_c.a";
             extra_flags = "";
         } else { // jit mode (fallback to unified for static compilation)
-            // Check for SDL2-enabled runtime libraries first for JIT fallback too
-            if (enable_debug_output) std::cout << "Checking for SDL2 runtime libraries (JIT fallback)...\n";
-            if (access("./libbcpl_runtime_sdl2_static.a", F_OK) == 0) {
+            // Check for graphics runtime library first for JIT fallback too (new default)
+            if (enable_debug_output) std::cout << "Checking for graphics runtime library (JIT fallback)...\n";
+            if (access("./libbcpl_runtime_graphics_static.a", F_OK) == 0) {
+                runtime_lib = "./libbcpl_runtime_graphics_static.a";
+                if (enable_debug_output) std::cout << "Note: JIT mode fallback to graphics static runtime for static compilation (new default)\n";
+            } else if (access("./libbcpl_runtime_sdl2_static.a", F_OK) == 0) {
                 runtime_lib = "./libbcpl_runtime_sdl2_static.a";
                 if (enable_debug_output) std::cout << "Note: JIT mode fallback to SDL2 static runtime for static compilation\n";
             } else if (access("./libbcpl_runtime_sdl2_dynamic.a", F_OK) == 0) {
@@ -1372,21 +1378,29 @@ void handle_static_compilation(bool exec_mode, const std::string& base_name, con
             extra_flags = " -lstdc++";
         }
 
-        // Add SDL2 linking flags if using SDL2 runtime
-        std::string sdl2_flags = "";
-        if (runtime_lib.find("sdl2") != std::string::npos) {
+        // Add graphics/SDL2 linking flags based on runtime library
+        std::string graphics_flags = "";
+        if (runtime_lib.find("graphics") != std::string::npos) {
+            // Graphics runtime - add necessary frameworks and libraries
+            graphics_flags = " -lm -framework CoreAudio -framework AudioToolbox -framework CoreHaptics -framework GameController -framework ForceFeedback -lobjc -framework CoreVideo -framework Cocoa -framework Carbon -framework IOKit -framework QuartzCore -framework Metal -framework CoreFoundation -framework Foundation";
+            
+            // Add SDL2 and Cairo libraries directly
+            graphics_flags += " -L/opt/homebrew/lib -lSDL2 -lcairo";
+            
+            if (enable_debug_output) std::cout << "Adding graphics runtime frameworks, SDL2, and Cairo libraries\n";
+        } else if (runtime_lib.find("sdl2") != std::string::npos) {
             if (runtime_lib.find("sdl2_static") != std::string::npos) {
                 // Static SDL2 linking - add system frameworks
-                sdl2_flags = " -lm -framework CoreAudio -framework AudioToolbox -framework CoreHaptics -framework GameController -framework ForceFeedback -lobjc -framework CoreVideo -framework Cocoa -framework Carbon -framework IOKit -framework QuartzCore -framework Metal -framework CoreFoundation -framework Foundation";
+                graphics_flags = " -lm -framework CoreAudio -framework AudioToolbox -framework CoreHaptics -framework GameController -framework ForceFeedback -lobjc -framework CoreVideo -framework Cocoa -framework Carbon -framework IOKit -framework QuartzCore -framework Metal -framework CoreFoundation -framework Foundation";
                 if (enable_debug_output) std::cout << "Adding SDL2 static linking frameworks\n";
             } else {
                 // Dynamic SDL2 linking
-                sdl2_flags = " -L/opt/homebrew/lib -lSDL2";
+                graphics_flags = " -L/opt/homebrew/lib -lSDL2";
                 if (enable_debug_output) std::cout << "Adding SDL2 dynamic linking flags\n";
             }
         }
 
-        std::string clang_command = "clang -g -o " + executable_output_path + " starter.o " + asm_output_path + " " + runtime_lib + extra_flags + sdl2_flags;
+        std::string clang_command = "clang -g -o " + executable_output_path + " starter.o " + asm_output_path + " " + runtime_lib + extra_flags + graphics_flags;
         if (enable_debug_output) std::cout << "Executing: " << clang_command << std::endl;
 
         int build_result = system(clang_command.c_str());

@@ -316,6 +316,14 @@ private:
     void handle_float_vector_indirection_assignment(FloatVectorIndirection* float_vec_indirection, const std::string& value_to_store_reg);
     void handle_indirection_assignment(UnaryOp* unary_op, const std::string& value_to_store_reg);
 
+    // Register-direct argument optimization functions
+    bool can_use_register_direct_arguments(size_t arg_count);
+    int count_available_scratch_registers();
+    void handle_method_call_arguments_direct(RoutineCallStatement& node);
+    void handle_regular_call_arguments_direct(RoutineCallStatement& node);
+    void handle_super_call_arguments_direct(RoutineCallStatement& node);
+    void handle_arguments_stack_based(RoutineCallStatement& node, bool is_method_call, bool is_super_call = false);
+
 private:
     // Tracks the current class context for mangling method names
     std::string current_class_name_;

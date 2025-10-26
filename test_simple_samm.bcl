@@ -1,0 +1,47 @@
+// Simple SAMM test with proper BCPL syntax
+LET START() BE
+{
+    LET surface = 0
+
+    WRITEF("=== SIMPLE SAMM TEST ===*N")
+
+    // Check Cairo availability
+    LET cairo_available = CAIRO_IS_AVAILABLE()
+    IF cairo_available = 0 THEN
+    {
+        WRITEF("ERROR: Cairo not available*N")
+        FINISH
+    }
+
+    WRITEF("Cairo is available*N")
+
+    // Check initial surface count
+    LET initial_count = CAIRO_SURFACE_COUNT()
+    WRITEF("Initial surface count: %N*N", initial_count)
+
+    // Create a surface
+    surface := CAIRO_CREATE_SURFACE(100, 100)
+    IF surface = 0 THEN
+    {
+        WRITEF("ERROR: Failed to create surface*N")
+        FINISH
+    }
+
+    WRITEF("Surface created with handle: %N*N", surface)
+
+    // Check surface count after creation
+    LET after_count = CAIRO_SURFACE_COUNT()
+    WRITEF("Surface count after creation: %N*N", after_count)
+
+    // Simple operation
+    CAIRO_CLEAR(surface, #xFFFFFFFF)
+    WRITEF("Surface cleared*N")
+
+    // Save to verify it works
+    CAIRO_SAVE_PNG(surface, "simple_samm_test.png")
+    WRITEF("Image saved*N")
+
+    WRITEF("*N=== SIMPLE SAMM TEST COMPLETE ===*N")
+
+    FINISH
+}

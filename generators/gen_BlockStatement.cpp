@@ -1,6 +1,7 @@
 #include "NewCodeGenerator.h"
 #include "LabelManager.h"
 #include "analysis/ASTAnalyzer.h"
+#include "../HeapManager/HeapManager.h"
 #include <iostream>
 #include <stdexcept>
 #include <sstream>
@@ -13,6 +14,12 @@ void NewCodeGenerator::visit(BlockStatement& node) {
         symbol_table_->enterScope();
     }
     // --- FIX END ---
+
+    // --- SAMM INTEGRATION: Enter HeapManager scope ---
+    if (HeapManager::getInstance().isSAMMEnabled()) {
+        HeapManager::getInstance().enterScope();
+        debug_print("SAMM: Entered scope for block " + current_scope_name_);
+    }
 
     std::string previous_scope = current_scope_name_;
     std::ostringstream block_name_ss;
@@ -54,6 +61,12 @@ void NewCodeGenerator::visit(BlockStatement& node) {
 
     // 4. Exit the scope (for the generator's internal state).
     exit_scope();
+    
+    // --- SAMM INTEGRATION: Exit HeapManager scope ---
+    if (HeapManager::getInstance().isSAMMEnabled()) {
+        HeapManager::getInstance().exitScope();
+        debug_print("SAMM: Exited scope for block " + current_scope_name_);
+    }
     
     // --- FIX START: Synchronize SymbolTable scope ---
     if (symbol_table_) {

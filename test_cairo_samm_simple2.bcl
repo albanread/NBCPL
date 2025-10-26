@@ -1,0 +1,56 @@
+// test_cairo_samm_simple2.bcl - Simple test to check Cairo SAMM integration
+
+LET START() BE {
+    WRITES("=== Cairo SAMM Integration Test ===*N")
+
+    // Enable Cairo SAMM tracing
+    CAIRO_SAMM_SET_TRACE(1)
+    WRITES("Cairo SAMM tracing enabled*N")
+
+    // Check initial scope depth
+    LET depth = CAIRO_SAMM_SCOPE_DEPTH()
+    WRITES("Initial scope depth: ")
+    WRITEN(depth)
+    WRITES("*N")
+
+    // Create a surface to see if it gets tracked
+    WRITES("Creating Cairo surface...*N")
+    LET surface = CAIRO_CREATE_SURFACE(100, 100)
+    TEST surface = 0 THEN {
+        WRITES("ERROR: Failed to create surface*N")
+        RETURN
+    } ELSE {
+        WRITES("Surface created with handle: ")
+        WRITEN(surface)
+        WRITES("*N")
+    }
+
+    // Test the surface
+    CAIRO_SET_COLOR(surface, 1.0, 0.0, 0.0, 1.0)
+    CAIRO_CLEAR(surface)
+    WRITES("Surface drawn*N")
+
+    // Test nested scope to see if Cairo SAMM tracks it
+    $(
+        WRITES("Entering nested scope...*N")
+        LET nested_surface = CAIRO_CREATE_SURFACE(50, 50)
+        TEST nested_surface ~= 0 THEN {
+            WRITES("Created nested surface: ")
+            WRITEN(nested_surface)
+            WRITES("*N")
+            CAIRO_SET_COLOR(nested_surface, 0.0, 1.0, 0.0, 1.0)
+            CAIRO_CLEAR(nested_surface)
+        } ELSE {
+            WRITES("Failed to create nested surface*N")
+        }
+        WRITES("Exiting nested scope...*N")
+    $)
+
+    WRITES("Back in main scope*N")
+
+    // Force cleanup to see what happens
+    CAIRO_SAMM_FORCE_CLEANUP()
+    WRITES("Forced Cairo SAMM cleanup*N")
+
+    WRITES("=== Test Complete ===*N")
+}

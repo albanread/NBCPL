@@ -1,0 +1,162 @@
+// test_cairo_samm.bcl - Test Cairo SAMM (Scope Aware Memory Management) integration
+// This test creates Cairo surfaces and images in nested scopes to verify automatic cleanup
+
+ROUTINE test_nested_scopes() BE {
+    WRITES("Entering outer scope...*N")
+
+    LET outer_surface = CAIRO_CREATE_SURFACE(200, 150)
+    TEST outer_surface = 0 THEN {
+        WRITES("ERROR: Failed to create outer surface*N")
+        RETURN
+    } ELSE {
+        WRITEF("Created outer surface: handle %D*N", outer_surface)
+    }
+
+    // Clear it with a color
+    CAIRO_SET_COLOR(outer_surface, 0.2, 0.4, 0.8, 1.0)  // Blue
+    CAIRO_CLEAR(outer_surface)
+
+    LET surfaces, images, memory = 0, 0, 0
+    CAIRO_SAMM_GET_STATS(@surfaces, @images, @memory)
+    WRITEF("After outer surface: %D surfaces, %D images, %D bytes*N", surfaces, images, memory)
+
+    // Enter inner scope
+    $(
+        WRITES("  Entering inner scope...*N")
+
+        LET inner_surface1 = CAIRO_CREATE_SURFACE(100, 100)
+        LET inner_surface2 = CAIRO_CREATE_SURFACE(150, 75)
+
+        TEST inner_surface1 = 0 OR inner_surface2 = 0 THEN {
+            WRITES("  ERROR: Failed to create inner surfaces*N")
+            RETURN
+        } ELSE {
+            WRITEF("  Created inner surfaces: %D and %D*N", inner_surface1, inner_surface2)
+        }
+
+        // Draw something on inner surfaces
+        CAIRO_SET_COLOR(inner_surface1, 1.0, 0.2, 0.2, 1.0)  // Red
+        CAIRO_CLEAR(inner_surface1)
+        CAIRO_FILL_RECT(inner_surface1, 10.0, 10.0, 50.0, 30.0)
+
+        CAIRO_SET_COLOR(inner_surface2, 0.2, 0.8, 0.2, 1.0)  // Green
+        CAIRO_CLEAR(inner_surface2)
+        CAIRO_FILL_CIRCLE(inner_surface2, 75.0, 37.5, 25.0)
+
+        CAIRO_SAMM_GET_STATS(@surfaces, @images, @memory)
+        WRITEF("  After inner surfaces: %D surfaces, %D images, %D bytes*N", surfaces, images, memory)
+
+        // Test even deeper nesting
+        $(
+            WRITES("    Entering deepest scope...*N")
+
+            LET deep_surface = CAIRO_CREATE_SURFACE(50, 50)
+            TEST deep_surface \= 0 THEN {
+                WRITEF("    Created deep surface: %D*N", deep_surface)
+
+                // Draw a small shape
+                CAIRO_SET_COLOR(deep_surface, 0.8, 0.8, 0.2, 1.0)  // Yellow
+                CAIRO_CLEAR(deep_surface)
+                CAIRO_FILL_RECT(deep_surface, 5.0, 5.0, 40.0, 40.0)
+
+                CAIRO_SAMM_GET_STATS(@surfaces, @images, @memory)
+                WRITEF("    In deepest scope: %D surfaces, %D images, %D bytes*N", surfaces, images, memory)
+            } ELSE {
+                WRITES("    ERROR: Failed to create deep surface*N")
+            }
+
+            WRITES("    Exiting deepest scope (should cleanup deep surface)...*N")
+        $)
+
+        // Check state after deepest scope exit
+        CAIRO_SAMM_GET_STATS(@surfaces, @images, @memory)
+        WRITEF("  After deepest scope exit: %D surfaces, %D images, %D bytes*N", surfaces, images, memory)
+
+        WRITES("  Exiting inner scope (should cleanup inner surfaces)...*N")
+    $)
+
+    // Check state after inner scope exit
+    CAIRO_SAMM_GET_STATS(@surfaces, @images, @memory)
+    WRITEF("After inner scope exit: %D surfaces, %D images, %D bytes*N", surfaces, images, memory)
+
+    // The outer surface should still be alive
+    WRITES("Testing outer surface still works...*N")
+    CAIRO_FILL_RECT(outer_surface, 50.0, 50.0, 100.0, 50.0)
+    WRITES("Outer surface still functional*N")
+
+    WRITES("Exiting outer scope (should cleanup outer surface)...*N")
+}
+
+// Test retained resources that survive scope exits
+ROUTINE test_retained_resources() BE {
+    WRITES("*N--- Testing retained resources ---*N")
+
+    LET retained_surface = 0
+
+    // Create retained surface in inner scope
+    $(
+        WRITES("Creating retained surface in inner scope...*N")
+        retained_surface := CAIRO_CREATE_SURFACE_RETAINED(100, 100, 1)  // Retain in parent scope
+
+        TEST retained_surface = 0 THEN {
+            WRITES("ERROR: Failed to create retained surface*N")
+            RETURN
+        } ELSE {
+            WRITEF("Created retained surface: %D*N", retained_surface)
+            CAIRO_SET_COLOR(retained_surface, 0.5, 0.3, 0.7, 1.0)  // Purple
+            CAIRO_CLEAR(retained_surface)
+        }
+
+        WRITES("Exiting inner scope (retained surface should survive)...*N")
+    $)
+
+    // Test that retained surface is still accessible
+    TEST retained_surface \= 0 THEN {
+        WRITES("Testing retained surface after scope exit...*N")
+        CAIRO_FILL_CIRCLE(retained_surface, 50.0, 50.0, 30.0)
+        WRITES("Retained surface still functional*N")
+
+        // Save it to verify it works
+        CAIRO_SAVE_PNG(retained_surface, "retained_test.png")
+        WRITES("Saved retained surface to retained_test.png*N")
+    } ELSE {
+        WRITES("ERROR: Retained surface was not retained!*N")
+    }
+}
+
+LET START() BE {
+    WRITES("=== Cairo SAMM Integration Test ===*N")
+
+    // Enable SAMM tracing to see what's happening
+    CAIRO_SAMM_SET_TRACE(1)
+
+    // Check initial state
+    LET surfaces, images, memory = 0, 0, 0
+    CAIRO_SAMM_GET_STATS(@surfaces, @images, @memory)
+    WRITEF("Initial state: %D surfaces, %D images, %D bytes*N", surfaces, images, memory)
+
+    // Test scope depth
+    LET depth = CAIRO_SAMM_SCOPE_DEPTH()
+    WRITEF("Current scope depth: %D*N", depth)
+
+    WRITES("*N--- Testing nested scope creation ---*N")
+
+    // Create some surfaces in nested scopes
+    test_nested_scopes()
+
+    // Check final state
+    CAIRO_SAMM_GET_STATS(@surfaces, @images, @memory)
+    WRITEF("Final state: %D surfaces, %D images, %D bytes*N", surfaces, images, memory)
+
+    // Test retained resources
+    test_retained_resources()
+
+    // Force cleanup to see if there are any leaks
+    WRITES("*N--- Forcing cleanup ---*N")
+    CAIRO_SAMM_FORCE_CLEANUP()
+
+    CAIRO_SAMM_GET_STATS(@surfaces, @images, @memory)
+    WRITEF("After forced cleanup: %D surfaces, %D images, %D bytes*N", surfaces, images, memory)
+
+    WRITES("*N=== Cairo SAMM Test Complete ===*N")
+}

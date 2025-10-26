@@ -133,6 +133,12 @@ compile_cairo_objects() {
             CAIRO_OBJECTS="${CAIRO_OBJECTS} ${build_dir}/cairo_bridge_utils.o"
         fi
 
+        if [ -f "${CAIRO_DIR}/cairo_samm_backend.cpp" ]; then
+            echo "   Compiling cairo_samm_backend.cpp..."
+            clang++ ${CXXFLAGS} ${DEFINES} ${INCLUDE_DIRS} -c ${CAIRO_DIR}/cairo_samm_backend.cpp -o ${build_dir}/cairo_samm_backend.o
+            CAIRO_OBJECTS="${CAIRO_OBJECTS} ${build_dir}/cairo_samm_backend.o"
+        fi
+
         if [ -f "${CAIRO_DIR}/cairo_vectors.cpp" ]; then
             echo "   Compiling cairo_vectors.cpp..."
             clang++ ${CXXFLAGS} ${DEFINES} ${INCLUDE_DIRS} -c ${CAIRO_DIR}/cairo_vectors.cpp -o ${build_dir}/cairo_vectors.o
@@ -350,6 +356,7 @@ case "${BUILD_MODE}" in
         echo "Step 3: Compiling HeapManager files..."
         clang++ ${CXXFLAGS} ${DEFINES} ${INCLUDE_DIRS} -c ${HEAP_DIR}/HeapManager.cpp -o ${JIT_BUILD_DIR}/HeapManager.o
         clang++ ${CXXFLAGS} ${DEFINES} ${INCLUDE_DIRS} -c ${HEAP_DIR}/heap_manager_globals.cpp -o ${JIT_BUILD_DIR}/heap_manager_globals.o
+        clang++ ${CXXFLAGS} ${DEFINES} ${INCLUDE_DIRS} -c ${HEAP_DIR}/Stats.cpp -o ${JIT_BUILD_DIR}/Stats.o
         clang++ ${CXXFLAGS} ${DEFINES} ${INCLUDE_DIRS} -c ${HEAP_DIR}/Heap_allocVec.cpp -o ${JIT_BUILD_DIR}/Heap_allocVec.o
         clang++ ${CXXFLAGS} ${DEFINES} ${INCLUDE_DIRS} -c ${HEAP_DIR}/Heap_allocString.cpp -o ${JIT_BUILD_DIR}/Heap_allocString.o
         clang++ ${CXXFLAGS} ${DEFINES} ${INCLUDE_DIRS} -c ${HEAP_DIR}/Heap_allocList.cpp -o ${JIT_BUILD_DIR}/Heap_allocList.o
@@ -360,6 +367,26 @@ case "${BUILD_MODE}" in
         clang++ ${CXXFLAGS} ${DEFINES} ${INCLUDE_DIRS} -c ${HEAP_DIR}/Heap_dumpHeap.cpp -o ${JIT_BUILD_DIR}/Heap_dumpHeap.o
         clang++ ${CXXFLAGS} ${DEFINES} ${INCLUDE_DIRS} -c ${HEAP_DIR}/Heap_dumpHeapSignalSafe.cpp -o ${JIT_BUILD_DIR}/Heap_dumpHeapSignalSafe.o
         clang++ ${CXXFLAGS} ${DEFINES} ${INCLUDE_DIRS} -c ${HEAP_DIR}/Heap_printMetrics.cpp -o ${JIT_BUILD_DIR}/Heap_printMetrics.o
+
+        # Check if heap_c_wrappers.cpp exists and compile it
+        if [ -f "${HEAP_DIR}/heap_c_wrappers.cpp" ]; then
+            echo "Step 3a: Compiling HeapManager C wrappers..."
+            clang++ ${CXXFLAGS} ${DEFINES} ${INCLUDE_DIRS} -c ${HEAP_DIR}/heap_c_wrappers.cpp -o ${JIT_BUILD_DIR}/heap_c_wrappers.o
+            JIT_HEAP_C_WRAPPERS_OBJ="${JIT_BUILD_DIR}/heap_c_wrappers.o"
+        else
+            echo "Note: heap_c_wrappers.cpp not found, skipping..."
+            JIT_HEAP_C_WRAPPERS_OBJ=""
+        fi
+
+        # Compile graphics resources system
+        if [ -f "${HEAP_DIR}/graphics_resources.cpp" ]; then
+            echo "Step 3b: Compiling Graphics Resources..."
+            clang++ ${CXXFLAGS} ${DEFINES} ${INCLUDE_DIRS} -c ${HEAP_DIR}/graphics_resources.cpp -o ${JIT_BUILD_DIR}/graphics_resources.o
+            JIT_GRAPHICS_RESOURCES_OBJ="${JIT_BUILD_DIR}/graphics_resources.o"
+        else
+            echo "Note: graphics_resources.cpp not found, skipping..."
+            JIT_GRAPHICS_RESOURCES_OBJ=""
+        fi
 
         # Compile Cairo objects
         compile_cairo_objects "${JIT_BUILD_DIR}"
@@ -378,6 +405,7 @@ case "${BUILD_MODE}" in
                      ${JIT_BUILD_DIR}/heap_interface.o \
                      ${JIT_BUILD_DIR}/HeapManager.o \
                      ${JIT_BUILD_DIR}/heap_manager_globals.o \
+                     ${JIT_BUILD_DIR}/Stats.o \
                      ${JIT_BUILD_DIR}/Heap_allocVec.o \
                      ${JIT_BUILD_DIR}/Heap_allocString.o \
                      ${JIT_BUILD_DIR}/Heap_allocList.o \
@@ -387,7 +415,9 @@ case "${BUILD_MODE}" in
                      ${JIT_BUILD_DIR}/Heap_resizeString.o \
                      ${JIT_BUILD_DIR}/Heap_dumpHeap.o \
                      ${JIT_BUILD_DIR}/Heap_dumpHeapSignalSafe.o \
-                     ${JIT_BUILD_DIR}/Heap_printMetrics.o"
+                     ${JIT_BUILD_DIR}/Heap_printMetrics.o \
+                     ${JIT_HEAP_C_WRAPPERS_OBJ} \
+                     ${JIT_GRAPHICS_RESOURCES_OBJ}"
 
         # Add SDL2 objects if enabled
         if [ "$SDL2_ENABLED" = true ]; then
@@ -513,6 +543,7 @@ case "${BUILD_MODE}" in
         echo "Step 3: Compiling HeapManager files..."
         clang++ ${CXXFLAGS} ${DEFINES} ${INCLUDE_DIRS} -c ${HEAP_DIR}/HeapManager.cpp -o ${UNIFIED_BUILD_DIR}/HeapManager.o
         clang++ ${CXXFLAGS} ${DEFINES} ${INCLUDE_DIRS} -c ${HEAP_DIR}/heap_manager_globals.cpp -o ${UNIFIED_BUILD_DIR}/heap_manager_globals.o
+        clang++ ${CXXFLAGS} ${DEFINES} ${INCLUDE_DIRS} -c ${HEAP_DIR}/Stats.cpp -o ${UNIFIED_BUILD_DIR}/Stats.o
         clang++ ${CXXFLAGS} ${DEFINES} ${INCLUDE_DIRS} -c ${HEAP_DIR}/Heap_allocVec.cpp -o ${UNIFIED_BUILD_DIR}/Heap_allocVec.o
         clang++ ${CXXFLAGS} ${DEFINES} ${INCLUDE_DIRS} -c ${HEAP_DIR}/Heap_allocString.cpp -o ${UNIFIED_BUILD_DIR}/Heap_allocString.o
         clang++ ${CXXFLAGS} ${DEFINES} ${INCLUDE_DIRS} -c ${HEAP_DIR}/Heap_allocList.cpp -o ${UNIFIED_BUILD_DIR}/Heap_allocList.o
@@ -534,6 +565,17 @@ case "${BUILD_MODE}" in
             HEAP_C_WRAPPERS_OBJ=""
         fi
 
+        # Compile graphics resources system
+        if [ -f "${HEAP_DIR}/graphics_resources.cpp" ]; then
+            echo "Step 4a: Compiling Graphics Resources..."
+            clang++ ${CXXFLAGS} ${DEFINES} ${INCLUDE_DIRS} -c ${HEAP_DIR}/graphics_resources.cpp -o ${UNIFIED_BUILD_DIR}/graphics_resources.o
+            GRAPHICS_RESOURCES_OBJ="${UNIFIED_BUILD_DIR}/graphics_resources.o"
+        else
+            echo "Note: graphics_resources.cpp not found, skipping..."
+            GRAPHICS_RESOURCES_OBJ=""
+        fi
+
+
         # Compile Cairo objects
         compile_cairo_objects "${UNIFIED_BUILD_DIR}"
 
@@ -554,6 +596,7 @@ case "${BUILD_MODE}" in
                          ${UNIFIED_BUILD_DIR}/RuntimeManager.o \
                          ${UNIFIED_BUILD_DIR}/HeapManager.o \
                          ${UNIFIED_BUILD_DIR}/heap_manager_globals.o \
+                         ${UNIFIED_BUILD_DIR}/Stats.o \
                          ${UNIFIED_BUILD_DIR}/Heap_allocVec.o \
                          ${UNIFIED_BUILD_DIR}/Heap_allocString.o \
                          ${UNIFIED_BUILD_DIR}/Heap_allocList.o \
@@ -564,7 +607,8 @@ case "${BUILD_MODE}" in
                          ${UNIFIED_BUILD_DIR}/Heap_dumpHeap.o \
                          ${UNIFIED_BUILD_DIR}/Heap_dumpHeapSignalSafe.o \
                          ${UNIFIED_BUILD_DIR}/Heap_printMetrics.o \
-                         ${HEAP_C_WRAPPERS_OBJ}"
+                         ${HEAP_C_WRAPPERS_OBJ} \
+                         ${GRAPHICS_RESOURCES_OBJ}"
 
         # Add SDL2 objects if enabled
         if [ "$SDL2_ENABLED" = true ]; then

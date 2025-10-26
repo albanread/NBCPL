@@ -1,0 +1,42 @@
+// test_samm_debug.bcl - Debug test to check SAMM status
+
+LET START() BE {
+    WRITES("=== SAMM Debug Test ===*N")
+
+    // Check if SAMM is enabled
+    LET samm_enabled = HEAPMANAGER_ISSAMMENABLED()
+    WRITES("SAMM enabled: ")
+    WRITEN(samm_enabled)
+    WRITES("*N")
+
+    TEST samm_enabled = 0 THEN {
+        WRITES("SAMM is DISABLED - enabling it now*N")
+        HEAPMANAGER_SETSAMMENABLED(1)
+
+        // Check again
+        LET samm_enabled2 = HEAPMANAGER_ISSAMMENABLED()
+        WRITES("SAMM enabled after setting: ")
+        WRITEN(samm_enabled2)
+        WRITES("*N")
+    } ELSE {
+        WRITES("SAMM is already ENABLED*N")
+    }
+
+    // Now test Cairo SAMM
+    WRITES("*NTesting Cairo SAMM...*N")
+    CAIRO_SAMM_SET_TRACE(1)
+
+    LET depth = CAIRO_SAMM_SCOPE_DEPTH()
+    WRITES("Cairo SAMM scope depth: ")
+    WRITEN(depth)
+    WRITES("*N")
+
+    // Create surface
+    WRITES("Creating Cairo surface...*N")
+    LET surface = CAIRO_CREATE_SURFACE(100, 100)
+    WRITES("Surface handle: ")
+    WRITEN(surface)
+    WRITES("*N")
+
+    WRITES("=== Test Complete ===*N")
+}

@@ -28,6 +28,20 @@ void* HeapManager_allocVecRetained(size_t numElements, int parent_scope_offset);
 void* HeapManager_allocStringRetained(size_t numChars, int parent_scope_offset);
 void* HeapManager_allocListRetained(int parent_scope_offset);
 
+// Graphics Resources C API wrappers
+int HeapManager_registerGraphicsBackend(const char* backend_name,
+                                        void (*surface_cleanup)(void*),
+                                        void (*image_cleanup)(void*));
+int HeapManager_trackGraphicsSurface(void* native_handle, const char* backend_name,
+                                     int width, int height, size_t memory_size);
+int HeapManager_trackGraphicsImage(void* native_handle, const char* backend_name,
+                                  int width, int height, size_t memory_size);
+int HeapManager_untrackGraphicsSurface(uint64_t handle_id);
+int HeapManager_untrackGraphicsImage(uint64_t handle_id);
+void* HeapManager_getGraphicsSurface(uint64_t handle_id);
+void* HeapManager_getGraphicsImage(uint64_t handle_id);
+void HeapManager_getGraphicsStats(int64_t* surfaces, int64_t* images, int64_t* memory);
+
 #ifdef __cplusplus
 }
 #endif

@@ -25,6 +25,7 @@
 // Include heap manager definitions
 #include "heap_manager_defs.h"
 #include "BloomFilter.h"
+#include "graphics_resources.h"
 
 // Global heap trace flag (set early in main.cpp)
 extern bool g_enable_heap_trace;
@@ -184,6 +185,14 @@ public:
     size_t getTotalBytesAllocated() const { return totalBytesAllocated; }
     size_t getTotalBytesFreed() const { return totalBytesFreed; }
     
+    // Individual allocation type metrics
+    size_t getTotalVectorsAllocated() const { return totalVectorsAllocated; }
+    size_t getTotalVectorsFreed() const { return totalVectorsFreed; }
+    size_t getTotalObjectsAllocated() const { return totalObjectsAllocated; }
+    size_t getTotalStringsAllocated() const { return totalStringsAllocated; }
+    size_t getTotalStringsFreed() const { return totalStringsFreed; }
+    size_t getTotalDoubleFreeAttempts() const { return totalDoubleFreeAttempts; }
+    
     // List-specific metrics
     size_t getTotalListsAllocated() const { return totalListsAllocated; }
     size_t getTotalListsFreed() const { return totalListsFreed; }
@@ -203,6 +212,7 @@ public:
     void trackInCurrentScope(void* ptr);
     void handleMemoryPressure();
     void waitForSAMM();
+    int getCurrentScopeDepth() const;
     void shutdown();
     
     // SAMM: Statistics and debugging

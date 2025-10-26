@@ -1,5 +1,6 @@
 #include "heap_manager_defs.h"
 #include "HeapManager.h"
+#include "Stats.h"
 #include <stdio.h>
 #include <stdbool.h>
 
@@ -13,84 +14,115 @@ volatile bool g_is_heap_tracing_enabled = false;
 
 // (Global heap tracking array removed for JIT refactor)
 
-// Runtime metrics tracking
-static size_t g_total_bytes_allocated = 0;
-static size_t g_total_bytes_freed = 0;
-static size_t g_total_allocs = 0;
-static size_t g_total_frees = 0;
-static size_t g_vec_allocs = 0;
-static size_t g_string_allocs = 0;
-static size_t g_double_free_attempts = 0;
-
-// File I/O metrics tracking
-static size_t g_bytes_read = 0;
-static size_t g_bytes_written = 0;
-static size_t g_files_opened = 0;
-static size_t g_files_closed = 0;
+// Legacy global variables - now just wrappers for Stats class
+// These are kept for compatibility but redirect to the Stats singleton
+size_t g_total_bytes_allocated = 0;
+size_t g_total_bytes_freed = 0;
+size_t g_total_allocs = 0;
+size_t g_total_frees = 0;
+size_t g_vec_allocs = 0;
+size_t g_string_allocs = 0;
+size_t g_double_free_attempts = 0;
+size_t g_bytes_read = 0;
+size_t g_bytes_written = 0;
+size_t g_files_opened = 0;
+size_t g_files_closed = 0;
 
 // Functions to update metrics (for internal use)
 void update_alloc_metrics(size_t bytes, AllocType type) {
-    g_total_bytes_allocated += bytes;
-    g_total_allocs++;
-    
-    if (type == ALLOC_VEC) {
-        g_vec_allocs++;
-    } else if (type == ALLOC_STRING) {
-        g_string_allocs++;
+    // Convert AllocType to StatsAllocType
+    StatsAllocType stats_type;
+    switch (type) {
+        case ALLOC_VEC:
+            stats_type = STATS_ALLOC_VEC;
+            break;
+        case ALLOC_STRING:
+            stats_type = STATS_ALLOC_STRING;
+            break;
+        case ALLOC_OBJECT:
+            stats_type = STATS_ALLOC_OBJECT;
+            break;
+        case ALLOC_LIST:
+            stats_type = STATS_ALLOC_LIST;
+            break;
+        default:
+            stats_type = STATS_ALLOC_GENERIC;
+            break;
     }
+    
+    // Use Stats singleton
+    stats_update_alloc(bytes, stats_type);
+    
+    // Update legacy globals for compatibility
+    g_total_bytes_allocated = stats_get_total_bytes_allocated();
+    g_total_allocs = stats_get_total_allocs();
+    g_vec_allocs = stats_get_vec_allocs();
+    g_string_allocs = stats_get_string_allocs();
 }
 
 void update_free_metrics(size_t bytes) {
-    g_total_bytes_freed += bytes;
-    g_total_frees++;
+    stats_update_free(bytes);
+    
+    // Update legacy globals for compatibility
+    g_total_bytes_freed = stats_get_total_bytes_freed();
+    g_total_frees = stats_get_total_frees();
 }
 
 void update_double_free_metrics(void) {
-    g_double_free_attempts++;
+    stats_update_double_free();
+    
+    // Update legacy globals for compatibility
+    g_double_free_attempts = stats_get_double_free_attempts();
 }
 
 // File I/O metrics functions
 void update_io_metrics_read(size_t bytes) {
-    g_bytes_read += bytes;
+    stats_update_io_read(bytes);
+    g_bytes_read = stats_get_bytes_read();
 }
 
 void update_io_metrics_write(size_t bytes) {
-    g_bytes_written += bytes;
+    stats_update_io_write(bytes);
+    g_bytes_written = stats_get_bytes_written();
 }
 
 void update_io_metrics_file_opened(void) {
-    g_files_opened++;
+    stats_update_file_opened();
+    g_files_opened = stats_get_files_opened();
 }
 
 void update_io_metrics_file_closed(void) {
-    g_files_closed++;
+    stats_update_file_closed();
+    g_files_closed = stats_get_files_closed();
 }
 
 // Public API: Print runtime memory metrics
 void print_runtime_metrics(void) {
+    // Get stats directly from HeapManager to avoid singleton issues
+    HeapManager& heap_mgr = HeapManager::getInstance();
+    
     printf("\n--- BCPL Runtime Metrics ---\n");
-    printf("Memory allocations: %zu (%zu bytes)\n", g_total_allocs, g_total_bytes_allocated);
-    printf("Memory frees: %zu (%zu bytes)\n", g_total_frees, g_total_bytes_freed);
-    printf("Vector allocations: %zu\n", g_vec_allocs);
-    printf("String allocations: %zu\n", g_string_allocs);
-    printf("Double-free attempts: %zu\n", g_double_free_attempts);
+    printf("Memory allocations: %zu (%zu bytes)\n", 
+           heap_mgr.getTotalObjectsAllocated() + heap_mgr.getTotalVectorsAllocated() + heap_mgr.getTotalStringsAllocated(),
+           heap_mgr.getTotalBytesAllocated());
+    printf("Memory frees: %zu (%zu bytes)\n", 
+           heap_mgr.getTotalVectorsFreed() + heap_mgr.getTotalStringsFreed(), 
+           heap_mgr.getTotalBytesFreed());
+    printf("Vector allocations: %zu\n", heap_mgr.getTotalVectorsAllocated());
+    printf("String allocations: %zu\n", heap_mgr.getTotalStringsAllocated());
+    printf("Object allocations: %zu\n", heap_mgr.getTotalObjectsAllocated());
+    printf("Double-free attempts: %zu\n", heap_mgr.getTotalDoubleFreeAttempts());
     printf("Current active allocations: %zu (%zu bytes)\n", 
-           g_total_allocs - g_total_frees, 
-           g_total_bytes_allocated - g_total_bytes_freed);
+           (heap_mgr.getTotalObjectsAllocated() + heap_mgr.getTotalVectorsAllocated() + heap_mgr.getTotalStringsAllocated()) -
+           (heap_mgr.getTotalVectorsFreed() + heap_mgr.getTotalStringsFreed()),
+           heap_mgr.getTotalBytesAllocated() - heap_mgr.getTotalBytesFreed());
     
     // Bloom filter metrics
-    HeapManager& heap_mgr = HeapManager::getInstance();
     printf("Bloom filter statistics:\n");
     printf("  Items tracked: %zu\n", heap_mgr.getBloomFilterItemsAdded());
     printf("  Memory usage: %zu bytes\n", heap_mgr.getBloomFilterMemoryUsage());
     printf("  False positives: %zu\n", heap_mgr.getBloomFilterFalsePositives());
     printf("  Est. false positive rate: %.4f%%\n", heap_mgr.getBloomFilterFalsePositiveRate() * 100.0);
     
-    printf("File I/O operations:\n");
-    printf("  Files opened: %zu\n", g_files_opened);
-    printf("  Files closed: %zu\n", g_files_closed);
-    printf("  Bytes read: %zu\n", g_bytes_read);
-    printf("  Bytes written: %zu\n", g_bytes_written);
-    printf("  Open files: %zu\n", g_files_opened - g_files_closed);
     printf("--------------------------\n");
 }

@@ -119,7 +119,6 @@
 .globl _SDL2_GET_CURRENT_VIDEO_DRIVER
 .globl _CAIRO_IS_AVAILABLE
 .globl _CAIRO_FILL_CIRCLE
-.globl _HeapManager_exit_scope
 .globl _BCPL_LIST_GET_HEAD_AS_OCT
 .globl _SDL2_GET_DISPLAY_MODES
 .globl _OBJECT_HEAP_ALLOC
@@ -222,215 +221,197 @@ _START:
     ; --- End Veneer Section ---
 
 L_START:
-    STP X29, X30, [SP, #-160]!
+    STP X29, X30, [SP, #-96]!
     MOV X29, SP
-    STP x19, x20, [x29, #72]
-    STP x21, x22, [x29, #88]
-    STP x23, x24, [x29, #104]
-    STP x25, x26, [x29, #120]
-    STP x27, x28, [x29, #136]
+    STP x19, x20, [x29, #40]
+    STP x21, x25, [x29, #56]
+    STP x26, x27, [x29, #72]
+    STR X28, [X29, #88] ; Saved Reg: X28 @ FP+88
     ADRP X28, L__data_segment_base@PAGE
     ADD X28, X28, L__data_segment_base@PAGEOFF
 L_START_Entry_0:
     ADRP X9, L_str0_plus_8@PAGE
     ADD X9, X9, L_str0_plus_8@PAGEOFF
     MOV X0, X9
-    BL _WRITEF
+    BL _WRITES
+    MOVZ X9, #1
+    MOV X0, X9
+    BL _CAIRO_SAMM_SET_TRACE
     ADRP X9, L_str1_plus_8@PAGE
     ADD X9, X9, L_str1_plus_8@PAGEOFF
     MOV X0, X9
-    BL _WRITEF
+    BL _WRITES
+    BL _CAIRO_SAMM_SCOPE_DEPTH
+    MOV X27, X0
+    ADRP X9, L_str2_plus_8@PAGE
+    ADD X9, X9, L_str2_plus_8@PAGEOFF
+    MOV X0, X9
+    BL _WRITES
+    MOV X0, X27
+    BL _WRITEN
+    ADRP X9, L_str3_plus_8@PAGE
+    ADD X9, X9, L_str3_plus_8@PAGEOFF
+    MOV X0, X9
+    BL _WRITES
+    ADRP X9, L_str4_plus_8@PAGE
+    ADD X9, X9, L_str4_plus_8@PAGEOFF
+    MOV X0, X9
+    BL _WRITES
     SUB SP, SP, #16
-    MOVZ X9, #32
+    MOVZ X9, #100
+    STR X9, [SP, #8]
+    MOVZ X9, #100
     STR X9, [SP, #0]
-    LDR X0, [SP, #0]
+    LDP x0, x1, [SP, #0]
     ADD SP, SP, #16
-    BL _SDL2_INIT_SUBSYSTEMS
-    MOV X20, X0
-    CMP x20, #0
+    BL _CAIRO_CREATE_SURFACE
+    MOV X25, X0
+    CMP x25, #0
     CSET X10, EQ
     CMP X10, XZR
     B.EQ L_START_Else_2
     B L_START_Then_1
 L_START_Else_2:
-    ADRP X9, L_str2_plus_8@PAGE
-    ADD X9, X9, L_str2_plus_8@PAGEOFF
+    ADRP X9, L_str5_plus_8@PAGE
+    ADD X9, X9, L_str5_plus_8@PAGEOFF
     MOV X0, X9
-    BL _WRITEF
-    BL _HeapManager_exit_scope
-    B L_START_FinishCleanup_4
-L_START_Else_6:
+    BL _WRITES
+    MOV X0, X25
+    BL _WRITEN
     ADRP X9, L_str3_plus_8@PAGE
     ADD X9, X9, L_str3_plus_8@PAGEOFF
     MOV X0, X9
-    BL _WRITEF
-    B L_START_Join_7
-L_START_Else_9:
-    ADRP X9, L_str4_plus_8@PAGE
-    ADD X9, X9, L_str4_plus_8@PAGEOFF
-    MOV X0, X9
-    BL _WRITEF
-    B L_START_Join_7
-L_START_Exit_20:
-    B L_0
-L_START_FinishCleanup_4:
-    MOVZ X9, #0
-    MOV X0, X9
-    MOVZ X9, #1
-    MOVK X9, #512, LSL #16
-    MOV X16, X9
-    SVC #128
-L_START_ForBody_17:
-    SUB SP, SP, #48
-    MOVZ X9, #2
-    STR X9, [SP, #32]
-    MOVZ X9, #2
-    STR X9, [SP, #24]
-    STR X23, [SP, #16]
-    STR X23, [SP, #8]
-    STR X27, [SP, #0]
-    LDP x0, x1, [SP, #0]
-    LDP x2, x3, [SP, #16]
-    LDR X4, [SP, #32]
-    ADD SP, SP, #48
-    BL _SDL2_DRAW_RECT
-    B L_START_ForIncrement_18
-L_START_ForExit_19:
-    MOV X0, X27
-    BL _SDL2_PRESENT
-    MOVZ X9, #16
-    MOV X0, X9
-    BL _SDL2_DELAY
-    B L_START_WhileHeader_11
-L_START_ForHeader_16:
-    MOV X9, X23
-    MOVZ X10, #200
-    CMP X9, X10
-    B.GT L_START_ForExit_19
-    B L_START_ForBody_17
-L_START_ForIncrement_18:
-    ADD X23, X23, #1
-    B L_START_ForHeader_16
-L_START_Join_15:
-    SUB SP, SP, #48
-    MOVZ X9, #255
-    STR X9, [SP, #32]
-    MOVZ X9, #50
-    STR X9, [SP, #24]
-    MOVZ X9, #30
-    STR X9, [SP, #16]
-    MOVZ X9, #30
-    STR X9, [SP, #8]
-    STR X27, [SP, #0]
-    LDP x0, x1, [SP, #0]
-    LDP x2, x3, [SP, #16]
-    LDR X4, [SP, #32]
-    ADD SP, SP, #48
-    BL _SDL2_SET_DRAW_COLOR
-    MOV X0, X27
-    BL _SDL2_CLEAR
-    SUB SP, SP, #48
-    MOVZ X9, #255
-    STR X9, [SP, #32]
-    MOVZ X9, #20
-    STR X9, [SP, #24]
-    MOVZ X9, #220
-    STR X9, [SP, #16]
-    MOVZ X9, #20
-    STR X9, [SP, #8]
-    STR X27, [SP, #0]
-    LDP x0, x1, [SP, #0]
-    LDP x2, x3, [SP, #16]
-    LDR X4, [SP, #32]
-    ADD SP, SP, #48
-    BL _SDL2_SET_DRAW_COLOR
-    MOVZ X9, #100
-    MOV X23, X9
-    B L_START_ForHeader_16
-L_START_Join_3:
-    SUB SP, SP, #16
-    ADRP X9, L_str5_plus_8@PAGE
-    ADD X9, X9, L_str5_plus_8@PAGEOFF
-    STR X9, [SP, #0]
-    LDR X0, [SP, #0]
-    ADD SP, SP, #16
-    BL _SDL2_CREATE_WINDOW
-    MOV X25, X0
-    CMP x25, #0
-    CSET X10, GT
-    CMP X10, XZR
-    B.EQ L_START_Else_6
-    B L_START_Then_5
-L_START_Join_7:
-    BL _SDL2_QUIT
+    BL _WRITES
+    B L_START_Join_3
+L_START_Else_7:
     ADRP X9, L_str6_plus_8@PAGE
     ADD X9, X9, L_str6_plus_8@PAGEOFF
     MOV X0, X9
-    BL _WRITEF
-    B L_START_Exit_20
-L_START_Then_1:
+    BL _WRITES
+    B L_START_Join_8
+L_START_Exit_5:
+    B L_0
+L_START_Join_3:
+    SUB SP, SP, #48
+    ADRP X10, L_float0@PAGE
+    ADD X10, X10, L_float0@PAGEOFF
+    LDR D0, [X10, #0]
+    STR D0, [SP, #32]
+    ADRP X11, L_float1@PAGE
+    ADD X11, X11, L_float1@PAGEOFF
+    LDR D0, [X11, #0]
+    STR D0, [SP, #24]
+    ADRP X12, L_float1@PAGE
+    ADD X12, X12, L_float1@PAGEOFF
+    LDR D0, [X12, #0]
+    STR D0, [SP, #16]
+    ADRP X13, L_float0@PAGE
+    ADD X13, X13, L_float0@PAGEOFF
+    LDR D0, [X13, #0]
+    STR D0, [SP, #8]
+    STR X25, [SP, #0]
+    LDP x0, x1, [SP, #0]
+    LDP x2, x3, [SP, #16]
+    LDR X4, [SP, #32]
+    ADD SP, SP, #48
+    SCVTF D0, X2
+    SCVTF D1, X3
+    SCVTF D2, X4
+    BL _CAIRO_SET_COLOR
+    MOV X0, X25
+    BL _CAIRO_CLEAR
     ADRP X9, L_str7_plus_8@PAGE
     ADD X9, X9, L_str7_plus_8@PAGEOFF
     MOV X0, X9
-    BL _WRITEF
-    B L_START_Join_3
-L_START_Then_14:
-    MOVZ X9, #0
-    MOV X26, X9
+    BL _WRITES
     ADRP X9, L_str8_plus_8@PAGE
     ADD X9, X9, L_str8_plus_8@PAGEOFF
     MOV X0, X9
     BL _WRITES
-    B L_START_Join_15
-L_START_Then_5:
     SUB SP, SP, #16
-    STR X25, [SP, #0]
-    LDR X0, [SP, #0]
+    MOVZ X9, #50
+    STR X9, [SP, #8]
+    MOVZ X9, #50
+    STR X9, [SP, #0]
+    LDP x0, x1, [SP, #0]
     ADD SP, SP, #16
-    BL _SDL2_CREATE_RENDERER
-    MOV X27, X0
-    CMP x27, #0
-    CSET X10, GT
+    BL _CAIRO_CREATE_SURFACE
+    MOV X26, X0
+    CMP x26, #0
+    CSET X10, NE
     CMP X10, XZR
-    B.EQ L_START_Else_9
-    B L_START_Then_8
-L_START_Then_8:
-    MOVZ X9, #1
-    MOV X26, X9
+    B.EQ L_START_Else_7
+    B L_START_Then_6
+L_START_Join_8:
     ADRP X9, L_str9_plus_8@PAGE
     ADD X9, X9, L_str9_plus_8@PAGEOFF
     MOV X0, X9
     BL _WRITES
-    B L_START_WhileHeader_11
-L_START_WhileBody_12:
-    BL _SDL2_POLL_EVENT
-    MOV X22, X0
-    MOV X21, X22
-    CMP x21, #256
-    CSET X10, EQ
-    CMP X10, XZR
-    B.EQ L_START_Join_15
-    B L_START_Then_14
-L_START_WhileExit_13:
     ADRP X9, L_str10_plus_8@PAGE
     ADD X9, X9, L_str10_plus_8@PAGEOFF
     MOV X0, X9
-    BL _WRITEF
-    MOV X0, X27
-    BL _SDL2_DESTROY_RENDERER
-    MOV X0, X25
-    BL _SDL2_DESTROY_WINDOW
-    B L_START_Join_7
-L_START_WhileHeader_11:
-    CMP X26, XZR
-    B.EQ L_START_WhileExit_13
-    B L_START_WhileBody_12
+    BL _WRITES
+    BL _CAIRO_SAMM_FORCE_CLEANUP
+    ADRP X9, L_str11_plus_8@PAGE
+    ADD X9, X9, L_str11_plus_8@PAGEOFF
+    MOV X0, X9
+    BL _WRITES
+    ADRP X9, L_str12_plus_8@PAGE
+    ADD X9, X9, L_str12_plus_8@PAGEOFF
+    MOV X0, X9
+    BL _WRITES
+    B L_START_Exit_5
+L_START_Then_1:
+    ADRP X9, L_str13_plus_8@PAGE
+    ADD X9, X9, L_str13_plus_8@PAGEOFF
+    MOV X0, X9
+    BL _WRITES
+    B L_START_Exit_5
+L_START_Then_6:
+    ADRP X9, L_str14_plus_8@PAGE
+    ADD X9, X9, L_str14_plus_8@PAGEOFF
+    MOV X0, X9
+    BL _WRITES
+    MOV X0, X26
+    BL _WRITEN
+    ADRP X9, L_str3_plus_8@PAGE
+    ADD X9, X9, L_str3_plus_8@PAGEOFF
+    MOV X0, X9
+    BL _WRITES
+    SUB SP, SP, #48
+    ADRP X10, L_float0@PAGE
+    ADD X10, X10, L_float0@PAGEOFF
+    LDR D0, [X10, #0]
+    STR D0, [SP, #32]
+    ADRP X11, L_float1@PAGE
+    ADD X11, X11, L_float1@PAGEOFF
+    LDR D0, [X11, #0]
+    STR D0, [SP, #24]
+    ADRP X12, L_float0@PAGE
+    ADD X12, X12, L_float0@PAGEOFF
+    LDR D0, [X12, #0]
+    STR D0, [SP, #16]
+    ADRP X13, L_float1@PAGE
+    ADD X13, X13, L_float1@PAGEOFF
+    LDR D0, [X13, #0]
+    STR D0, [SP, #8]
+    STR X26, [SP, #0]
+    LDP x0, x1, [SP, #0]
+    LDP x2, x3, [SP, #16]
+    LDR X4, [SP, #32]
+    ADD SP, SP, #48
+    SCVTF D0, X2
+    SCVTF D1, X3
+    SCVTF D2, X4
+    BL _CAIRO_SET_COLOR
+    MOV X0, X26
+    BL _CAIRO_CLEAR
+    B L_START_Join_8
 L_0:
-    LDP x19, x20, [x29, #72]
-    LDP x21, x22, [x29, #88]
-    LDP x23, x24, [x29, #104]
-    LDP x25, x26, [x29, #120]
-    LDP x27, x28, [x29, #136]
+    LDP x19, x20, [x29, #40]
+    LDP x21, x25, [x29, #56]
+    LDP x26, x27, [x29, #72]
+    LDR X28, [X29, #88] ; Restored Reg: X28 @ FP+88
     MOV SP, X29 ; Deallocate frame by moving FP to SP
     LDP x29, x30, [SP, #0]
     ADD SP, SP, #16 ; Deallocate space for saved FP/LR
@@ -439,143 +420,198 @@ L_0:
 .section __DATA,__const
 .p2align 3
 L_str0:
-    .quad 0x14
+    .quad 0x24
     ; (upper half)
 .p2align 2
 L_str0_plus_8:
-    .long 0x53
-    .long 0x44
-    .long 0x4c
-    .long 0x32
+    .long 0x3d
+    .long 0x3d
+    .long 0x3d
     .long 0x20
-    .long 0x57
-    .long 0x69
-    .long 0x6e
-    .long 0x64
-    .long 0x6f
-    .long 0x77
-    .long 0x20
-    .long 0x45
-    .long 0x78
+    .long 0x43
     .long 0x61
-    .long 0x6d
-    .long 0x70
-    .long 0x6c
+    .long 0x69
+    .long 0x72
+    .long 0x6f
+    .long 0x20
+    .long 0x53
+    .long 0x41
+    .long 0x4d
+    .long 0x4d
+    .long 0x20
+    .long 0x49
+    .long 0x6e
+    .long 0x74
     .long 0x65
+    .long 0x67
+    .long 0x72
+    .long 0x61
+    .long 0x74
+    .long 0x69
+    .long 0x6f
+    .long 0x6e
+    .long 0x20
+    .long 0x54
+    .long 0x65
+    .long 0x73
+    .long 0x74
+    .long 0x20
+    .long 0x3d
+    .long 0x3d
+    .long 0x3d
     .long 0xa
     .long 0x0
     .long 0x0
 .p2align 3
 L_str1:
-    .quad 0x14
+    .quad 0x1b
     ; (upper half)
 .p2align 2
 L_str1_plus_8:
-    .long 0x3d
-    .long 0x3d
-    .long 0x3d
-    .long 0x3d
-    .long 0x3d
-    .long 0x3d
-    .long 0x3d
-    .long 0x3d
-    .long 0x3d
-    .long 0x3d
-    .long 0x3d
-    .long 0x3d
-    .long 0x3d
-    .long 0x3d
-    .long 0x3d
-    .long 0x3d
-    .long 0x3d
-    .long 0x3d
-    .long 0x3d
+    .long 0x43
+    .long 0x61
+    .long 0x69
+    .long 0x72
+    .long 0x6f
+    .long 0x20
+    .long 0x53
+    .long 0x41
+    .long 0x4d
+    .long 0x4d
+    .long 0x20
+    .long 0x74
+    .long 0x72
+    .long 0x61
+    .long 0x63
+    .long 0x69
+    .long 0x6e
+    .long 0x67
+    .long 0x20
+    .long 0x65
+    .long 0x6e
+    .long 0x61
+    .long 0x62
+    .long 0x6c
+    .long 0x65
+    .long 0x64
     .long 0xa
     .long 0x0
     .long 0x0
 .p2align 3
 L_str2:
-    .quad 0x20
+    .quad 0x15
     ; (upper half)
 .p2align 2
 L_str2_plus_8:
-    .long 0x274c
-    .long 0x20
-    .long 0x53
-    .long 0x44
-    .long 0x4c
-    .long 0x32
-    .long 0x20
-    .long 0x69
+    .long 0x49
     .long 0x6e
     .long 0x69
     .long 0x74
     .long 0x69
     .long 0x61
     .long 0x6c
-    .long 0x69
-    .long 0x7a
-    .long 0x61
-    .long 0x74
-    .long 0x69
+    .long 0x20
+    .long 0x73
+    .long 0x63
     .long 0x6f
-    .long 0x6e
-    .long 0x20
-    .long 0x66
-    .long 0x61
-    .long 0x69
-    .long 0x6c
+    .long 0x70
     .long 0x65
+    .long 0x20
     .long 0x64
-    .long 0x2e
-    .long 0x2e
-    .long 0x2e
-    .long 0xa
+    .long 0x65
+    .long 0x70
+    .long 0x74
+    .long 0x68
+    .long 0x3a
+    .long 0x20
     .long 0x0
     .long 0x0
 .p2align 3
 L_str3:
-    .quad 0x1b
+    .quad 0x1
     ; (upper half)
 .p2align 2
 L_str3_plus_8:
-    .long 0x274c
-    .long 0x20
-    .long 0x46
-    .long 0x61
-    .long 0x69
-    .long 0x6c
-    .long 0x65
-    .long 0x64
-    .long 0x20
-    .long 0x74
-    .long 0x6f
-    .long 0x20
-    .long 0x63
-    .long 0x72
-    .long 0x65
-    .long 0x61
-    .long 0x74
-    .long 0x65
-    .long 0x20
-    .long 0x77
-    .long 0x69
-    .long 0x6e
-    .long 0x64
-    .long 0x6f
-    .long 0x77
-    .long 0x21
     .long 0xa
     .long 0x0
     .long 0x0
 .p2align 3
 L_str4:
-    .quad 0x1d
+    .quad 0x1a
     ; (upper half)
 .p2align 2
 L_str4_plus_8:
-    .long 0x274c
+    .long 0x43
+    .long 0x72
+    .long 0x65
+    .long 0x61
+    .long 0x74
+    .long 0x69
+    .long 0x6e
+    .long 0x67
     .long 0x20
+    .long 0x43
+    .long 0x61
+    .long 0x69
+    .long 0x72
+    .long 0x6f
+    .long 0x20
+    .long 0x73
+    .long 0x75
+    .long 0x72
+    .long 0x66
+    .long 0x61
+    .long 0x63
+    .long 0x65
+    .long 0x2e
+    .long 0x2e
+    .long 0x2e
+    .long 0xa
+    .long 0x0
+    .long 0x0
+.p2align 3
+L_str5:
+    .quad 0x1d
+    ; (upper half)
+.p2align 2
+L_str5_plus_8:
+    .long 0x53
+    .long 0x75
+    .long 0x72
+    .long 0x66
+    .long 0x61
+    .long 0x63
+    .long 0x65
+    .long 0x20
+    .long 0x63
+    .long 0x72
+    .long 0x65
+    .long 0x61
+    .long 0x74
+    .long 0x65
+    .long 0x64
+    .long 0x20
+    .long 0x77
+    .long 0x69
+    .long 0x74
+    .long 0x68
+    .long 0x20
+    .long 0x68
+    .long 0x61
+    .long 0x6e
+    .long 0x64
+    .long 0x6c
+    .long 0x65
+    .long 0x3a
+    .long 0x20
+    .long 0x0
+    .long 0x0
+.p2align 3
+L_str6:
+    .quad 0x20
+    ; (upper half)
+.p2align 2
+L_str6_plus_8:
     .long 0x46
     .long 0x61
     .long 0x69
@@ -593,65 +629,187 @@ L_str4_plus_8:
     .long 0x74
     .long 0x65
     .long 0x20
-    .long 0x72
-    .long 0x65
     .long 0x6e
+    .long 0x65
+    .long 0x73
+    .long 0x74
+    .long 0x65
     .long 0x64
-    .long 0x65
+    .long 0x20
+    .long 0x73
+    .long 0x75
     .long 0x72
+    .long 0x66
+    .long 0x61
+    .long 0x63
     .long 0x65
-    .long 0x72
-    .long 0x21
     .long 0xa
     .long 0x0
     .long 0x0
 .p2align 3
-L_str5:
-    .quad 0x10
+L_str7:
+    .quad 0xe
     ; (upper half)
 .p2align 2
-L_str5_plus_8:
-    .long 0x20
-    .long 0x54
-    .long 0x68
+L_str7_plus_8:
+    .long 0x53
+    .long 0x75
+    .long 0x72
+    .long 0x66
+    .long 0x61
+    .long 0x63
     .long 0x65
     .long 0x20
-    .long 0x42
-    .long 0x43
-    .long 0x50
-    .long 0x4c
-    .long 0x20
-    .long 0x57
-    .long 0x69
-    .long 0x6e
     .long 0x64
-    .long 0x6f
+    .long 0x72
+    .long 0x61
     .long 0x77
+    .long 0x6e
+    .long 0xa
     .long 0x0
     .long 0x0
 .p2align 3
-L_str6:
+L_str8:
+    .quad 0x19
+    ; (upper half)
+.p2align 2
+L_str8_plus_8:
+    .long 0x45
+    .long 0x6e
+    .long 0x74
+    .long 0x65
+    .long 0x72
+    .long 0x69
+    .long 0x6e
+    .long 0x67
+    .long 0x20
+    .long 0x6e
+    .long 0x65
+    .long 0x73
+    .long 0x74
+    .long 0x65
+    .long 0x64
+    .long 0x20
+    .long 0x73
+    .long 0x63
+    .long 0x6f
+    .long 0x70
+    .long 0x65
+    .long 0x2e
+    .long 0x2e
+    .long 0x2e
+    .long 0xa
+    .long 0x0
+    .long 0x0
+.p2align 3
+L_str9:
+    .quad 0x18
+    ; (upper half)
+.p2align 2
+L_str9_plus_8:
+    .long 0x45
+    .long 0x78
+    .long 0x69
+    .long 0x74
+    .long 0x69
+    .long 0x6e
+    .long 0x67
+    .long 0x20
+    .long 0x6e
+    .long 0x65
+    .long 0x73
+    .long 0x74
+    .long 0x65
+    .long 0x64
+    .long 0x20
+    .long 0x73
+    .long 0x63
+    .long 0x6f
+    .long 0x70
+    .long 0x65
+    .long 0x2e
+    .long 0x2e
+    .long 0x2e
+    .long 0xa
+    .long 0x0
+    .long 0x0
+.p2align 3
+L_str10:
+    .quad 0x13
+    ; (upper half)
+.p2align 2
+L_str10_plus_8:
+    .long 0x42
+    .long 0x61
+    .long 0x63
+    .long 0x6b
+    .long 0x20
+    .long 0x69
+    .long 0x6e
+    .long 0x20
+    .long 0x6d
+    .long 0x61
+    .long 0x69
+    .long 0x6e
+    .long 0x20
+    .long 0x73
+    .long 0x63
+    .long 0x6f
+    .long 0x70
+    .long 0x65
+    .long 0xa
+    .long 0x0
+    .long 0x0
+.p2align 3
+L_str11:
     .quad 0x1a
     ; (upper half)
 .p2align 2
-L_str6_plus_8:
-    .long 0x2705
+L_str11_plus_8:
+    .long 0x46
+    .long 0x6f
+    .long 0x72
+    .long 0x63
+    .long 0x65
+    .long 0x64
+    .long 0x20
+    .long 0x43
+    .long 0x61
+    .long 0x69
+    .long 0x72
+    .long 0x6f
     .long 0x20
     .long 0x53
-    .long 0x44
-    .long 0x4c
-    .long 0x32
-    .long 0x20
-    .long 0x73
-    .long 0x68
-    .long 0x75
-    .long 0x74
-    .long 0x64
-    .long 0x6f
-    .long 0x77
-    .long 0x6e
+    .long 0x41
+    .long 0x4d
+    .long 0x4d
     .long 0x20
     .long 0x63
+    .long 0x6c
+    .long 0x65
+    .long 0x61
+    .long 0x6e
+    .long 0x75
+    .long 0x70
+    .long 0xa
+    .long 0x0
+    .long 0x0
+.p2align 3
+L_str12:
+    .quad 0x16
+    ; (upper half)
+.p2align 2
+L_str12_plus_8:
+    .long 0x3d
+    .long 0x3d
+    .long 0x3d
+    .long 0x20
+    .long 0x54
+    .long 0x65
+    .long 0x73
+    .long 0x74
+    .long 0x20
+    .long 0x43
     .long 0x6f
     .long 0x6d
     .long 0x70
@@ -659,134 +817,97 @@ L_str6_plus_8:
     .long 0x65
     .long 0x74
     .long 0x65
-    .long 0x2e
+    .long 0x20
+    .long 0x3d
+    .long 0x3d
+    .long 0x3d
     .long 0xa
     .long 0x0
     .long 0x0
 .p2align 3
-L_str7:
-    .quad 0x21
+L_str13:
+    .quad 0x20
     ; (upper half)
 .p2align 2
-L_str7_plus_8:
-    .long 0x2705
-    .long 0x20
-    .long 0x53
-    .long 0x44
-    .long 0x4c
-    .long 0x32
-    .long 0x20
-    .long 0x69
-    .long 0x6e
-    .long 0x69
-    .long 0x74
-    .long 0x69
-    .long 0x61
-    .long 0x6c
-    .long 0x69
-    .long 0x7a
-    .long 0x65
-    .long 0x64
-    .long 0x20
-    .long 0x73
-    .long 0x75
-    .long 0x63
-    .long 0x63
-    .long 0x65
-    .long 0x73
-    .long 0x73
-    .long 0x66
-    .long 0x75
-    .long 0x6c
-    .long 0x6c
-    .long 0x79
-    .long 0x21
-    .long 0xa
-    .long 0x0
-    .long 0x0
-.p2align 3
-L_str8:
-    .quad 0xc
-    ; (upper half)
-.p2align 2
-L_str8_plus_8:
-    .long 0x51
-    .long 0x55
-    .long 0x49
-    .long 0x54
-    .long 0x20
-    .long 0x70
-    .long 0x72
-    .long 0x65
-    .long 0x73
-    .long 0x73
-    .long 0x65
-    .long 0x64
-    .long 0x0
-    .long 0x0
-.p2align 3
-L_str9:
-    .quad 0x9
-    ; (upper half)
-.p2align 2
-L_str9_plus_8:
+L_str13_plus_8:
+    .long 0x45
     .long 0x52
-    .long 0x75
-    .long 0x6e
-    .long 0x6e
-    .long 0x69
-    .long 0x6e
-    .long 0x67
+    .long 0x52
+    .long 0x4f
+    .long 0x52
+    .long 0x3a
     .long 0x20
+    .long 0x46
+    .long 0x61
+    .long 0x69
+    .long 0x6c
+    .long 0x65
+    .long 0x64
+    .long 0x20
+    .long 0x74
+    .long 0x6f
+    .long 0x20
+    .long 0x63
+    .long 0x72
+    .long 0x65
+    .long 0x61
+    .long 0x74
+    .long 0x65
+    .long 0x20
+    .long 0x73
+    .long 0x75
+    .long 0x72
+    .long 0x66
+    .long 0x61
+    .long 0x63
+    .long 0x65
     .long 0xa
     .long 0x0
     .long 0x0
 .p2align 3
-L_str10:
-    .quad 0x23
+L_str14:
+    .quad 0x18
     ; (upper half)
 .p2align 2
-L_str10_plus_8:
+L_str14_plus_8:
     .long 0x43
-    .long 0x6c
+    .long 0x72
     .long 0x65
     .long 0x61
-    .long 0x6e
-    .long 0x69
-    .long 0x6e
-    .long 0x67
+    .long 0x74
+    .long 0x65
+    .long 0x64
     .long 0x20
+    .long 0x6e
+    .long 0x65
+    .long 0x73
+    .long 0x74
+    .long 0x65
+    .long 0x64
+    .long 0x20
+    .long 0x73
     .long 0x75
-    .long 0x70
-    .long 0x20
     .long 0x72
-    .long 0x65
-    .long 0x6e
-    .long 0x64
-    .long 0x65
-    .long 0x72
-    .long 0x65
-    .long 0x72
-    .long 0x20
+    .long 0x66
     .long 0x61
-    .long 0x6e
-    .long 0x64
+    .long 0x63
+    .long 0x65
+    .long 0x3a
     .long 0x20
-    .long 0x77
-    .long 0x69
-    .long 0x6e
-    .long 0x64
-    .long 0x6f
-    .long 0x77
-    .long 0x2e
-    .long 0x2e
-    .long 0x2e
-    .long 0xa
     .long 0x0
     .long 0x0
+.p2align 3
+L_float0:
+    .quad 0x3ff0000000000000
+    ; (upper half)
+L_float1:
+    .quad 0x0
+    ; (upper half)
 
 .section __DATA,__data
 .p2align 3
+    .long 0x0
+    .long 0x0
     .long 0x0
     .long 0x0
     .long 0x0

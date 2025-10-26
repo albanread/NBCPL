@@ -1,4 +1,6 @@
 #include "cairo_core.h"
+#include "cairo_samm_allocator.h"
+#include "../../HeapManager/Stats.h"
 #include <stdexcept>
 #include <cstring>
 #include <iostream>
@@ -67,7 +69,7 @@ void CairoImage::saveAsPNG(const std::string& filepath) const {
     }
 }
 
-std::unique_ptr<CairoImage> CairoImage::clone() const {
+CairoSAMM::unique_ptr<CairoImage> CairoImage::clone() const {
     if (!surface_) return nullptr;
     
     int width = getWidth();
@@ -79,7 +81,7 @@ std::unique_ptr<CairoImage> CairoImage::clone() const {
     cairo_paint(cr);
     
     cairo_destroy(cr);
-    return std::make_unique<CairoImage>(new_surface);
+    return CairoSAMM::make_unique<CairoImage>(new_surface);
 }
 
 void CairoImage::cleanup() {
@@ -107,6 +109,11 @@ CairoSurface::CairoSurface(int width, int height) : width_(width), height_(heigh
         throw std::runtime_error("Failed to create Cairo surface: " + 
                                  std::string(cairo_status_to_string(cairo_surface_status(surface_))));
     }
+    
+    // Calculate surface size and update stats
+    size_t surface_size = width * height * 4; // ARGB32 = 4 bytes per pixel
+    printf("DEBUG: CairoSurface constructor - tracking surface creation (size: %zu bytes)\n", surface_size);
+    stats_update_graphics_surface_created(surface_size);
     
     printf("DEBUG: CairoSurface constructor - calling initializeContext\n");
     initializeContext();
@@ -153,7 +160,7 @@ void CairoSurface::saveAsPNG(const std::string& filepath) const {
     }
 }
 
-std::unique_ptr<CairoImage> CairoSurface::toImage() const {
+CairoSAMM::unique_ptr<CairoImage> CairoSurface::toImage() const {
     if (!surface_) return nullptr;
     
     cairo_surface_t* image_surface = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, width_, height_);
@@ -163,7 +170,7 @@ std::unique_ptr<CairoImage> CairoSurface::toImage() const {
     cairo_paint(cr);
     
     cairo_destroy(cr);
-    return std::make_unique<CairoImage>(image_surface);
+    return CairoSAMM::make_unique<CairoImage>(image_surface);
 }
 
 void CairoSurface::clear(const CairoColor& color) {
@@ -176,10 +183,10 @@ void CairoSurface::clear(const CairoColor& color) {
     cairo_restore(context_);
 }
 
-std::unique_ptr<CairoSurface> CairoSurface::clone() const {
+CairoSAMM::unique_ptr<CairoSurface> CairoSurface::clone() const {
     if (!surface_) return nullptr;
     
-    auto new_surface = std::make_unique<CairoSurface>(width_, height_);
+    auto new_surface = CairoSAMM::make_unique<CairoSurface>(width_, height_);
     cairo_set_source_surface(new_surface->context_, surface_, 0, 0);
     cairo_paint(new_surface->context_);
     
@@ -543,12 +550,12 @@ void CairoSurface::setPathFromPoints(const std::vector<CairoPoint>& points, bool
 // CairoResourceManager Implementation
 // =============================================================================
 
-std::unordered_map<CairoResourceManager::SurfaceHandle, std::unique_ptr<CairoSurface>> CairoResourceManager::surfaces_;
-std::unordered_map<CairoResourceManager::ImageHandle, std::unique_ptr<CairoImage>> CairoResourceManager::images_;
+std::unordered_map<CairoResourceManager::SurfaceHandle, CairoSAMM::unique_ptr<CairoSurface>> CairoResourceManager::surfaces_;
+std::unordered_map<CairoResourceManager::ImageHandle, CairoSAMM::unique_ptr<CairoImage>> CairoResourceManager::images_;
 std::atomic<uint64_t> CairoResourceManager::next_handle_{1};
 std::mutex CairoResourceManager::resource_mutex_;
 
-CairoResourceManager::SurfaceHandle CairoResourceManager::registerSurface(std::unique_ptr<CairoSurface> surface) {
+CairoResourceManager::SurfaceHandle CairoResourceManager::registerSurface(CairoSAMM::unique_ptr<CairoSurface> surface) {
     std::lock_guard<std::mutex> lock(resource_mutex_);
     SurfaceHandle handle = generateHandle();
     printf("DEBUG: registerSurface - generated handle=%llu, surface ptr=%p\n", handle, surface.get());
@@ -557,7 +564,7 @@ CairoResourceManager::SurfaceHandle CairoResourceManager::registerSurface(std::u
     return handle;
 }
 
-CairoResourceManager::ImageHandle CairoResourceManager::registerImage(std::unique_ptr<CairoImage> image) {
+CairoResourceManager::ImageHandle CairoResourceManager::registerImage(CairoSAMM::unique_ptr<CairoImage> image) {
     std::lock_guard<std::mutex> lock(resource_mutex_);
     ImageHandle handle = generateHandle();
     images_[handle] = std::move(image);

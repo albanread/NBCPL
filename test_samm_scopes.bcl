@@ -1,0 +1,65 @@
+// Test SAMM with nested scopes to trigger cleanup
+LET START() BE
+{
+    WRITEF("=== SAMM SCOPES TEST ===*N")
+    WRITEF("Testing SAMM allocation and deallocation with scopes*N*N")
+
+    // Check Cairo availability
+    LET cairo_available = CAIRO_IS_AVAILABLE()
+    IF cairo_available = 0 THEN
+    {
+        WRITEF("ERROR: Cairo not available*N")
+        FINISH
+    }
+
+    WRITEF("Cairo is available*N")
+    WRITEF("Initial surface count: %N*N", CAIRO_SURFACE_COUNT())
+
+    // Test with nested block scope
+    {
+        WRITEF("*N--- Entering nested scope ---*N")
+        LET surface1 = CAIRO_CREATE_SURFACE(100, 100)
+        WRITEF("Created surface1: %N*N", surface1)
+        WRITEF("Surface count in scope: %N*N", CAIRO_SURFACE_COUNT())
+
+        // Use the surface
+        CAIRO_CLEAR(surface1, #xFF0000FF)
+        WRITEF("Surface1 cleared*N")
+
+        // Create another surface in same scope
+        LET surface2 = CAIRO_CREATE_SURFACE(200, 200)
+        WRITEF("Created surface2: %N*N", surface2)
+        WRITEF("Surface count with both: %N*N", CAIRO_SURFACE_COUNT())
+
+        CAIRO_CLEAR(surface2, #x00FF00FF)
+        WRITEF("Surface2 cleared*N")
+
+        WRITEF("--- About to exit nested scope ---*N")
+    }
+
+    WRITEF("--- Exited nested scope ---*N")
+    WRITEF("Surface count after scope exit: %N*N", CAIRO_SURFACE_COUNT())
+
+    // Test with another nested scope
+    {
+        WRITEF("*N--- Entering second nested scope ---*N")
+        LET surface3 = CAIRO_CREATE_SURFACE(150, 150)
+        WRITEF("Created surface3: %N*N", surface3)
+        WRITEF("Surface count: %N*N", CAIRO_SURFACE_COUNT())
+
+        // Save to verify it works
+        CAIRO_CLEAR(surface3, #x0000FFFF)
+        CAIRO_SAVE_PNG(surface3, "samm_scope_test.png")
+        WRITEF("Surface3 saved*N")
+
+        WRITEF("--- About to exit second nested scope ---*N")
+    }
+
+    WRITEF("--- Exited second nested scope ---*N")
+    WRITEF("Final surface count: %N*N", CAIRO_SURFACE_COUNT())
+
+    WRITEF("*N=== SAMM SCOPES TEST COMPLETE ===*N")
+    WRITEF("Watch for SAMM cleanup messages above*N")
+
+    FINISH
+}

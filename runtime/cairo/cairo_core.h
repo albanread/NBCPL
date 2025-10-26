@@ -7,6 +7,15 @@
 #include <unordered_map>
 #include <atomic>
 
+// Forward declaration for SAMM allocators
+namespace CairoSAMM {
+    template<typename T>
+    struct BCPLDeleter;
+    
+    template<typename T>
+    using unique_ptr = std::unique_ptr<T, BCPLDeleter<T>>;
+}
+
 // Forward declarations
 struct CairoColor;
 struct CairoPoint;
@@ -109,7 +118,7 @@ public:
 
     // Image operations
     void saveAsPNG(const std::string& filepath) const;
-    std::unique_ptr<CairoImage> clone() const;
+    CairoSAMM::unique_ptr<CairoImage> clone() const;
 
 private:
     cairo_surface_t* surface_ = nullptr;
@@ -152,11 +161,11 @@ public:
 
     // File operations
     void saveAsPNG(const std::string& filepath) const;
-    std::unique_ptr<CairoImage> toImage() const;
+    CairoSAMM::unique_ptr<CairoImage> toImage() const;
 
     // Surface operations
     void clear(const CairoColor& color);
-    std::unique_ptr<CairoSurface> clone() const;
+    CairoSAMM::unique_ptr<CairoSurface> clone() const;
 
     // --- Drawing State Management ---
     void setColor(const CairoColor& color);
@@ -233,8 +242,8 @@ public:
     using ImageHandle = uint64_t;
 
     // Handle management
-    static SurfaceHandle registerSurface(std::unique_ptr<CairoSurface> surface);
-    static ImageHandle registerImage(std::unique_ptr<CairoImage> image);
+    static SurfaceHandle registerSurface(CairoSAMM::unique_ptr<CairoSurface> surface);
+    static ImageHandle registerImage(CairoSAMM::unique_ptr<CairoImage> image);
     
     // Resource access
     static CairoSurface* getSurface(SurfaceHandle handle);
@@ -250,8 +259,8 @@ public:
     static size_t getImageCount();
     
 private:
-    static std::unordered_map<SurfaceHandle, std::unique_ptr<CairoSurface>> surfaces_;
-    static std::unordered_map<ImageHandle, std::unique_ptr<CairoImage>> images_;
+    static std::unordered_map<SurfaceHandle, CairoSAMM::unique_ptr<CairoSurface>> surfaces_;
+    static std::unordered_map<ImageHandle, CairoSAMM::unique_ptr<CairoImage>> images_;
     static std::atomic<uint64_t> next_handle_;
     static std::mutex resource_mutex_;
     

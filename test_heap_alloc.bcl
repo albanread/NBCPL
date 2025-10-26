@@ -1,0 +1,72 @@
+// test_heap_alloc.bcl - Test that forces heap allocations via GETVEC
+
+LET START() BE {
+    WRITES("=== Heap Allocation Test ===*N")
+
+    // Check if SAMM is enabled
+    LET samm_enabled = HEAPMANAGER_ISSAMMENABLED()
+    WRITES("SAMM enabled: ")
+    WRITEN(samm_enabled)
+    WRITES("*N")
+
+    // Allocate some vectors that should go through the heap
+    WRITES("Allocating vectors...*N")
+
+    LET vec1 = GETVEC(100)
+    WRITES("Allocated vec1: ")
+    WRITEN(vec1)
+    WRITES("*N")
+
+    LET vec2 = GETVEC(200)
+    WRITES("Allocated vec2: ")
+    WRITEN(vec2)
+    WRITES("*N")
+
+    LET vec3 = GETVEC(50)
+    WRITES("Allocated vec3: ")
+    WRITEN(vec3)
+    WRITES("*N")
+
+    // Use the vectors to make sure they're real
+    vec1!0 := 42
+    vec1!1 := 123
+    vec2!0 := 999
+    vec3!0 := 777
+
+    WRITES("Vector contents: ")
+    WRITEN(vec1!0)
+    WRITES(", ")
+    WRITEN(vec1!1)
+    WRITES(", ")
+    WRITEN(vec2!0)
+    WRITES(", ")
+    WRITEN(vec3!0)
+    WRITES("*N")
+
+    // Test nested scope with allocation
+    WRITES("Entering nested scope...*N")
+    $(
+        LET nested_vec = GETVEC(75)
+        WRITES("Allocated nested_vec: ")
+        WRITEN(nested_vec)
+        WRITES("*N")
+
+        nested_vec!0 := 555
+        WRITES("Nested vector content: ")
+        WRITEN(nested_vec!0)
+        WRITES("*N")
+
+        WRITES("Exiting nested scope...*N")
+    $)
+
+    WRITES("Back in main scope*N")
+
+    // Free the vectors manually
+    WRITES("Freeing vectors...*N")
+    FREEVEC(vec1)
+    FREEVEC(vec2)
+    FREEVEC(vec3)
+    WRITES("Vectors freed*N")
+
+    WRITES("=== Test Complete ===*N")
+}
