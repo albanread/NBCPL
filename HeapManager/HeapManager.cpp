@@ -46,6 +46,8 @@ HeapManager::HeapManager()
         printf("DEBUG: HeapManager constructor called\n");
     }
     
+    printf("DEBUG: HeapManager singleton instance created at %p\n", this);
+    
     // Initialize Stats system
     stats_init();
     
@@ -66,6 +68,7 @@ HeapManager::HeapManager()
 
 // Destructor - ensures proper SAMM shutdown
 HeapManager::~HeapManager() {
+    printf("DEBUG: HeapManager singleton destructor called at %p\n", this);
     shutdown();
 }
 
@@ -84,9 +87,12 @@ void HeapManager::traceLog(const char* format, ...) {
 HeapManager& HeapManager::getInstance() {
     if (!HeapManager::instance) {
         HeapManager::instance = new HeapManager();
+        printf("DEBUG: HeapManager getInstance() - created new instance at %p\n", HeapManager::instance);
         if (instance->traceEnabled) {
             printf("DEBUG: Creating HeapManager singleton instance\n");
         }
+    } else {
+        printf("DEBUG: HeapManager getInstance() - returning existing instance at %p\n", HeapManager::instance);
     }
     return *HeapManager::instance;
 }
@@ -595,6 +601,13 @@ void HeapManager::shutdown() {
         if (traceEnabled) {
             printf("SAMM: Shutdown complete\n");
         }
+    }
+    
+    printf("DEBUG: HeapManager::shutdown() completed on instance at %p\n", this);
+    
+    // Auto-print metrics if heap tracing is enabled
+    if (traceEnabled) {
+        print_runtime_metrics();
     }
     
     // Note: Stats system remains active for final metrics reporting

@@ -193,6 +193,37 @@ public:
     size_t getTotalStringsFreed() const { return totalStringsFreed; }
     size_t getTotalDoubleFreeAttempts() const { return totalDoubleFreeAttempts; }
     
+    // Methods to update internal counters
+    void incrementObjectAllocations(size_t bytes) { 
+        printf("DEBUG: HeapManager::incrementObjectAllocations called - bytes=%zu\n", bytes);
+        totalObjectsAllocated++; 
+        totalBytesAllocated += bytes; 
+        printf("DEBUG: HeapManager counters - objects=%zu, total_bytes=%zu\n", totalObjectsAllocated, totalBytesAllocated);
+    }
+    void incrementVectorAllocations(size_t bytes) { 
+        printf("DEBUG: HeapManager::incrementVectorAllocations called - bytes=%zu\n", bytes);
+        totalVectorsAllocated++; 
+        totalBytesAllocated += bytes; 
+        printf("DEBUG: HeapManager counters - vectors=%zu, total_bytes=%zu\n", totalVectorsAllocated, totalBytesAllocated);
+    }
+    void incrementStringAllocations(size_t bytes) { 
+        printf("DEBUG: HeapManager::incrementStringAllocations called - bytes=%zu\n", bytes);
+        totalStringsAllocated++; 
+        totalBytesAllocated += bytes; 
+        printf("DEBUG: HeapManager counters - strings=%zu, total_bytes=%zu\n", totalStringsAllocated, totalBytesAllocated);
+    }
+    void incrementFrees(size_t bytes, AllocType type) {
+        printf("DEBUG: HeapManager::incrementFrees called - bytes=%zu, type=%d\n", bytes, (int)type);
+        totalBytesFreed += bytes;
+        if (type == ALLOC_VEC) totalVectorsFreed++;
+        else if (type == ALLOC_STRING) totalStringsFreed++;
+        printf("DEBUG: HeapManager counters - total_freed_bytes=%zu\n", totalBytesFreed);
+    }
+    void incrementDoubleFreeAttempts() { 
+        printf("DEBUG: HeapManager::incrementDoubleFreeAttempts called\n");
+        totalDoubleFreeAttempts++; 
+    }
+    
     // List-specific metrics
     size_t getTotalListsAllocated() const { return totalListsAllocated; }
     size_t getTotalListsFreed() const { return totalListsFreed; }

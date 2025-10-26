@@ -1,0 +1,12 @@
+total_allocs=0
+total_bytes=0
+total_frees=0
+total_freed_bytes=0
+vector_allocs=0
+string_allocs=0
+object_allocs=0
+double_free_attempts=0
+bloom_items=0
+bloom_memory=12000000
+bloom_false_positives=0
+bloom_false_positive_rate=0.000000

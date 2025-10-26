@@ -1063,9 +1063,9 @@ if (enable_tracing || trace_ast) std::cout << "AST transformation complete.\n";
         return 1;
     }
 
-    if (enable_tracing || trace_runtime || trace_heap) {
-        print_runtime_metrics();
-    }
+    // Metrics are printed by the executed program itself in --exec mode
+    // For JIT mode, metrics would be printed by the JIT runtime
+    // The compiler does not print metrics from executed programs
 
     return 0;
 }

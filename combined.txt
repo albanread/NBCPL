@@ -9770,6 +9770,8 @@ HeapManager::HeapManager()
         printf("DEBUG: HeapManager constructor called\n");
     }
     
+    printf("DEBUG: HeapManager singleton instance created at %p\n", this);
+    
     // Initialize Stats system
     stats_init();
     
@@ -9790,6 +9792,7 @@ HeapManager::HeapManager()
 
 // Destructor - ensures proper SAMM shutdown
 HeapManager::~HeapManager() {
+    printf("DEBUG: HeapManager singleton destructor called at %p\n", this);
     shutdown();
 }
 
@@ -9808,9 +9811,12 @@ void HeapManager::traceLog(const char* format, ...) {
 HeapManager& HeapManager::getInstance() {
     if (!HeapManager::instance) {
         HeapManager::instance = new HeapManager();
+        printf("DEBUG: HeapManager getInstance() - created new instance at %p\n", HeapManager::instance);
         if (instance->traceEnabled) {
             printf("DEBUG: Creating HeapManager singleton instance\n");
         }
+    } else {
+        printf("DEBUG: HeapManager getInstance() - returning existing instance at %p\n", HeapManager::instance);
     }
     return *HeapManager::instance;
 }
@@ -10319,6 +10325,13 @@ void HeapManager::shutdown() {
         if (traceEnabled) {
             printf("SAMM: Shutdown complete\n");
         }
+    }
+    
+    printf("DEBUG: HeapManager::shutdown() completed on instance at %p\n", this);
+    
+    // Auto-print metrics if heap tracing is enabled
+    if (traceEnabled) {
+        print_runtime_metrics();
     }
     
     // Note: Stats system remains active for final metrics reporting
@@ -12650,6 +12663,23 @@ void update_alloc_metrics(size_t bytes, AllocType type) {
     // Use Stats singleton
     stats_update_alloc(bytes, stats_type);
     
+    // IMPORTANT: Also update HeapManager counters for cross-process metrics
+    HeapManager& heap_mgr = HeapManager::getInstance();
+    switch (type) {
+        case ALLOC_VEC:
+            heap_mgr.incrementVectorAllocations(bytes);
+            break;
+        case ALLOC_STRING:
+            heap_mgr.incrementStringAllocations(bytes);
+            break;
+        case ALLOC_OBJECT:
+            heap_mgr.incrementObjectAllocations(bytes);
+            break;
+        default:
+            heap_mgr.incrementObjectAllocations(bytes); // Treat unknown as object
+            break;
+    }
+    
     // Update legacy globals for compatibility
     g_total_bytes_allocated = stats_get_total_bytes_allocated();
     g_total_allocs = stats_get_total_allocs();
@@ -12660,6 +12690,10 @@ void update_alloc_metrics(size_t bytes, AllocType type) {
 void update_free_metrics(size_t bytes) {
     stats_update_free(bytes);
     
+    // Update HeapManager counters as well
+    HeapManager& heap_mgr = HeapManager::getInstance();
+    heap_mgr.incrementFrees(bytes, ALLOC_GENERIC); // Generic type for frees
+    
     // Update legacy globals for compatibility
     g_total_bytes_freed = stats_get_total_bytes_freed();
     g_total_frees = stats_get_total_frees();
@@ -12667,6 +12701,10 @@ void update_free_metrics(size_t bytes) {
 
 void update_double_free_metrics(void) {
     stats_update_double_free();
+    
+    // Update HeapManager counters as well
+    HeapManager& heap_mgr = HeapManager::getInstance();
+    heap_mgr.incrementDoubleFreeAttempts();
     
     // Update legacy globals for compatibility
     g_double_free_attempts = stats_get_double_free_attempts();
@@ -12695,11 +12733,32 @@ void update_io_metrics_file_closed(void) {
 
 // Public API: Print runtime memory metrics
 void print_runtime_metrics(void) {
-    // Initialize Stats if not already done
-    stats_init();
+    HeapManager& heap_mgr = HeapManager::getInstance();
     
-    // Use Stats singleton to print comprehensive metrics
-    stats_print_metrics();
+    printf("\n--- BCPL Runtime Metrics ---\n");
+    printf("Memory allocations: %zu (%zu bytes)\n", 
+           heap_mgr.getTotalObjectsAllocated() + heap_mgr.getTotalVectorsAllocated() + heap_mgr.getTotalStringsAllocated(),
+           heap_mgr.getTotalBytesAllocated());
+    printf("Memory frees: %zu (%zu bytes)\n", 
+           heap_mgr.getTotalVectorsFreed() + heap_mgr.getTotalStringsFreed(), 
+           heap_mgr.getTotalBytesFreed());
+    printf("Vector allocations: %zu\n", heap_mgr.getTotalVectorsAllocated());
+    printf("String allocations: %zu\n", heap_mgr.getTotalStringsAllocated());
+    printf("Object allocations: %zu\n", heap_mgr.getTotalObjectsAllocated());
+    printf("Double-free attempts: %zu\n", heap_mgr.getTotalDoubleFreeAttempts());
+    printf("Current active allocations: %zu (%zu bytes)\n", 
+           (heap_mgr.getTotalObjectsAllocated() + heap_mgr.getTotalVectorsAllocated() + heap_mgr.getTotalStringsAllocated()) -
+           (heap_mgr.getTotalVectorsFreed() + heap_mgr.getTotalStringsFreed()),
+           heap_mgr.getTotalBytesAllocated() - heap_mgr.getTotalBytesFreed());
+    
+    // Bloom filter metrics
+    printf("Bloom filter statistics:\n");
+    printf("  Items tracked: %zu\n", heap_mgr.getBloomFilterItemsAdded());
+    printf("  Memory usage: %zu bytes\n", heap_mgr.getBloomFilterMemoryUsage());
+    printf("  False positives: %zu\n", heap_mgr.getBloomFilterFalsePositives());
+    printf("  Est. false positive rate: %.4f%%\n", heap_mgr.getBloomFilterFalsePositiveRate() * 100.0);
+    
+    printf("--------------------------\n");
 }
 
 // -- end of file
@@ -58875,9 +58934,9 @@ if (enable_tracing || trace_ast) std::cout << "AST transformation complete.\n";
         return 1;
     }
 
-    if (enable_tracing || trace_runtime || trace_heap) {
-        print_runtime_metrics();
-    }
+    // Metrics are printed by the executed program itself in --exec mode
+    // For JIT mode, metrics would be printed by the JIT runtime
+    // The compiler does not print metrics from executed programs
 
     return 0;
 }
@@ -64968,6 +65027,7 @@ void RegisterManager::reset_caller_saved_registers() {
 // -- start of file: runtime/RuntimeBridge.cpp
 #include "../HeapManager/HeapManager.h"
 #include "../HeapManager/heap_c_wrappers.h"
+#include "../HeapManager/heap_manager_defs.h"
 #include <cstdint>
 // --- C-style wrappers to bridge to the C++ HeapManager singleton ---
 extern "C" void* HeapManager_OBJECT_HEAP_ALLOC(void* class_ptr);
@@ -65128,6 +65188,11 @@ extern "C" {
 
 namespace runtime {
 
+// Runtime function for printing heap metrics
+void PRINT_HEAP_METRICS() {
+    ::print_runtime_metrics();
+}
+
 void register_runtime_functions() {
     auto& manager = RuntimeManager::instance();
     
@@ -65266,6 +65331,9 @@ void register_runtime_functions() {
     register_runtime_function("FINISH", 0, reinterpret_cast<void*>(finish));
     register_runtime_function("NEWLINE", 0, reinterpret_cast<void*>(NEWLINE));
     
+    // Heap management and debugging functions
+    register_runtime_function("PRINT_HEAP_METRICS", 0, reinterpret_cast<void*>(runtime::PRINT_HEAP_METRICS));
+    
     // Register fast freelist return for TL
     register_runtime_function("returnNodeToFreelist", 1, reinterpret_cast<void*>(returnNodeToFreelist_runtime));
 
@@ -65350,6 +65418,8 @@ extern "C" {
     void initialize_runtime() {
         runtime::initialize_runtime();
     }
+
+
 
     void register_runtime_functions() {
         runtime::register_runtime_functions();

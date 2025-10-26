@@ -1,5 +1,6 @@
 #include "../HeapManager/HeapManager.h"
 #include "../HeapManager/heap_c_wrappers.h"
+#include "../HeapManager/heap_manager_defs.h"
 #include <cstdint>
 // --- C-style wrappers to bridge to the C++ HeapManager singleton ---
 extern "C" void* HeapManager_OBJECT_HEAP_ALLOC(void* class_ptr);
@@ -160,6 +161,11 @@ extern "C" {
 
 namespace runtime {
 
+// Runtime function for printing heap metrics
+void PRINT_HEAP_METRICS() {
+    ::print_runtime_metrics();
+}
+
 void register_runtime_functions() {
     auto& manager = RuntimeManager::instance();
     
@@ -298,6 +304,9 @@ void register_runtime_functions() {
     register_runtime_function("FINISH", 0, reinterpret_cast<void*>(finish));
     register_runtime_function("NEWLINE", 0, reinterpret_cast<void*>(NEWLINE));
     
+    // Heap management and debugging functions
+    register_runtime_function("PRINT_HEAP_METRICS", 0, reinterpret_cast<void*>(runtime::PRINT_HEAP_METRICS));
+    
     // Register fast freelist return for TL
     register_runtime_function("returnNodeToFreelist", 1, reinterpret_cast<void*>(returnNodeToFreelist_runtime));
 
@@ -382,6 +391,8 @@ extern "C" {
     void initialize_runtime() {
         runtime::initialize_runtime();
     }
+
+
 
     void register_runtime_functions() {
         runtime::register_runtime_functions();

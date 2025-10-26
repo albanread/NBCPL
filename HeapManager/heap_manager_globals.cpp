@@ -53,6 +53,23 @@ void update_alloc_metrics(size_t bytes, AllocType type) {
     // Use Stats singleton
     stats_update_alloc(bytes, stats_type);
     
+    // IMPORTANT: Also update HeapManager counters for cross-process metrics
+    HeapManager& heap_mgr = HeapManager::getInstance();
+    switch (type) {
+        case ALLOC_VEC:
+            heap_mgr.incrementVectorAllocations(bytes);
+            break;
+        case ALLOC_STRING:
+            heap_mgr.incrementStringAllocations(bytes);
+            break;
+        case ALLOC_OBJECT:
+            heap_mgr.incrementObjectAllocations(bytes);
+            break;
+        default:
+            heap_mgr.incrementObjectAllocations(bytes); // Treat unknown as object
+            break;
+    }
+    
     // Update legacy globals for compatibility
     g_total_bytes_allocated = stats_get_total_bytes_allocated();
     g_total_allocs = stats_get_total_allocs();
@@ -63,6 +80,10 @@ void update_alloc_metrics(size_t bytes, AllocType type) {
 void update_free_metrics(size_t bytes) {
     stats_update_free(bytes);
     
+    // Update HeapManager counters as well
+    HeapManager& heap_mgr = HeapManager::getInstance();
+    heap_mgr.incrementFrees(bytes, ALLOC_GENERIC); // Generic type for frees
+    
     // Update legacy globals for compatibility
     g_total_bytes_freed = stats_get_total_bytes_freed();
     g_total_frees = stats_get_total_frees();
@@ -70,6 +91,10 @@ void update_free_metrics(size_t bytes) {
 
 void update_double_free_metrics(void) {
     stats_update_double_free();
+    
+    // Update HeapManager counters as well
+    HeapManager& heap_mgr = HeapManager::getInstance();
+    heap_mgr.incrementDoubleFreeAttempts();
     
     // Update legacy globals for compatibility
     g_double_free_attempts = stats_get_double_free_attempts();
@@ -98,7 +123,6 @@ void update_io_metrics_file_closed(void) {
 
 // Public API: Print runtime memory metrics
 void print_runtime_metrics(void) {
-    // Get stats directly from HeapManager to avoid singleton issues
     HeapManager& heap_mgr = HeapManager::getInstance();
     
     printf("\n--- BCPL Runtime Metrics ---\n");
