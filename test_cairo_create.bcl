@@ -1,0 +1,25 @@
+// test_cairo_create.bcl - Test Cairo surface creation
+
+LET START() BE
+{
+    WRITES("Testing CAIRO_CREATE_SURFACE*N")
+
+    // Create Cairo surface
+    LET surface = CAIRO_CREATE_SURFACE(200, 200)
+
+    TEST surface = 0 THEN
+    {
+        WRITES("FAILED: Could not create surface*N")
+    }
+    ELSE
+    {
+        WRITES("SUCCESS: Created surface with handle*N ")
+        WRITEF("Hex handle %X *N",surface)
+        WRITES("*N")
+    }
+
+    WRITES("Test completed*N")
+    FINISH
+    FINISH
+
+}

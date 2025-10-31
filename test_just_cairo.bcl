@@ -1,0 +1,29 @@
+// test_just_cairo.bcl - Test only Cairo functionality
+
+LET START() BE
+{
+    WRITES("Testing basic Cairo only*N")
+
+    // Create Cairo surface
+    LET surface = CAIRO_CREATE_SURFACE(200, 200)
+    TEST surface = 0 THEN
+    {
+        WRITES("ERROR: Failed to create Cairo surface*N")
+        RETURN
+    }
+
+    WRITES("Cairo surface created successfully*N")
+
+    // Draw something simple with integers only
+    CAIRO_SET_COLOR(surface, #xFF0000FF)  // Red
+    CAIRO_FILL_RECT(surface, 50, 50, 100, 100)
+
+    WRITES("Drawing completed*N")
+
+    // Save to PNG
+    CAIRO_SAVE_PNG(surface, "test_cairo_only.png")
+    WRITES("Saved test_cairo_only.png*N")
+
+    WRITES("Cairo test completed successfully*N")
+    FINISH
+}

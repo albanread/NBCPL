@@ -1,0 +1,94 @@
+// test_simple_event.bcl - Very simple SDL2 event test
+
+LET START() BE
+{
+    WRITES("Simple SDL2 Event Test*N")
+
+    // Initialize SDL2
+    LET result = SDL2_INIT()
+    TEST result < 0 THEN
+    {
+        WRITES("ERROR: SDL2 init failed*N")
+        FINISH
+    }
+    WRITES("SDL2 initialized*N")
+
+    // Create window
+    LET window = SDL2_CREATE_WINDOW("Simple Event Test")
+    TEST window = 0 THEN
+    {
+        WRITES("ERROR: Window creation failed*N")
+        SDL2_QUIT()
+        FINISH
+    }
+    WRITES("Window created*N")
+
+    // Create renderer
+    LET renderer = SDL2_CREATE_RENDERER(window)
+    TEST renderer = 0 THEN
+    {
+        WRITES("ERROR: Renderer creation failed*N")
+        SDL2_DESTROY_WINDOW(window)
+        SDL2_QUIT()
+        FINISH
+    }
+    WRITES("Renderer created*N")
+
+    WRITES("Window should be visible. Close it or wait 5 seconds.*N")
+
+    // Simple event loop - just count frames
+    LET running = TRUE
+    LET frame = 0
+    LET quit_event_code = 256  // SDL2_EVENT_QUIT is 0x100 = 256
+
+    WHILE running AND frame < 300 DO  // 5 seconds at 60fps
+    {
+        // Check for quit event
+        LET event = SDL2_POLL_EVENT()
+
+        TEST event = quit_event_code THEN
+        {
+            WRITES("Quit event received!*N")
+            running := FALSE
+        }
+
+        // Draw a simple animation
+        LET red = (frame * 5) REM 255
+        LET green = (frame * 3) REM 255
+        LET blue = (frame * 7) REM 255
+
+        SDL2_SET_DRAW_COLOR(renderer, red, green, blue, 255)
+        SDL2_CLEAR(renderer)
+
+        // Draw a white square that moves
+        SDL2_SET_DRAW_COLOR(renderer, 255, 255, 255, 255)
+        LET x = (frame * 2) REM 600
+        LET y = 50
+        SDL2_FILL_RECT(renderer, x, y, 50, 50)
+
+        SDL2_PRESENT(renderer)
+        SDL2_DELAY(16)
+
+        frame := frame + 1
+
+        // Progress every second
+        TEST (frame REM 60) = 0 THEN
+        {
+            WRITES("Second ")
+            WRITEN(frame / 60)
+            WRITES(" - still running*N")
+        }
+    }
+
+    TEST running THEN
+        WRITES("5 seconds completed*N")
+    ELSE
+        WRITES("User closed window*N")
+
+    // Cleanup
+    SDL2_DESTROY_RENDERER(renderer)
+    SDL2_DESTROY_WINDOW(window)
+    SDL2_QUIT()
+    WRITES("Test completed*N")
+    FINISH
+}

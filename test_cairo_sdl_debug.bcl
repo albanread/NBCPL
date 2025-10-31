@@ -1,0 +1,57 @@
+// test_cairo_sdl_debug.bcl - Debug SDL2 integration step by step
+
+LET START() BE
+{
+    WRITES("=== Cairo-SDL2 Debug Test ===*N")
+
+    // Test 1: Basic Cairo functionality
+    WRITES("Step 1: Testing basic Cairo...*N")
+    LET surface = CAIRO_CREATE_SURFACE(100, 100)
+    TEST surface = 0 THEN
+    {
+        WRITES("FAIL: Cairo surface creation failed*N")
+        FINISH
+    }
+    WRITES("OK: Cairo surface created*N")
+
+    // Test 2: Check if SDL2 functions are available
+    WRITES("Step 2: Testing SDL2 availability...*N")
+    LET sdl_result = SDL2_INIT()
+    TEST sdl_result < 0 THEN
+    {
+        WRITES("FAIL: SDL2_INIT failed*N")
+        FINISH
+    }
+    WRITES("OK: SDL2 initialized*N")
+
+    // Test 3: Create SDL2 window directly
+    WRITES("Step 3: Testing direct SDL2 window creation...*N")
+    LET sdl_window = SDL2_CREATE_WINDOW("Test Window")
+    TEST sdl_window = 0 THEN
+    {
+        WRITES("FAIL: SDL2_CREATE_WINDOW failed*N")
+        SDL2_QUIT()
+        FINISH
+    }
+    WRITES("OK: SDL2 window created*N")
+
+    // Test 4: Try Cairo-SDL integration
+    WRITES("Step 4: Testing Cairo-SDL integration...*N")
+    LET cairo_sdl_window = CAIRO_CREATE_SDL_WINDOW("Cairo Window", 200, 200)
+    TEST cairo_sdl_window = 0 THEN
+    {
+        WRITES("FAIL: CAIRO_CREATE_SDL_WINDOW failed*N")
+        SDL2_DESTROY_WINDOW(sdl_window)
+        SDL2_QUIT()
+        FINISH
+    }
+    WRITES("SUCCESS: Cairo-SDL integration working!*N")
+
+    // Cleanup
+    WRITES("Cleaning up...*N")
+    SDL2_DESTROY_WINDOW(sdl_window)
+    SDL2_QUIT()
+
+    WRITES("=== All tests passed! ===*N")
+    FINISH
+}

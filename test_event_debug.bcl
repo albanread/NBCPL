@@ -1,0 +1,131 @@
+// test_event_debug.bcl - Debug SDL2 event handling
+
+LET START() BE
+{
+    WRITES("Testing SDL2 event handling with debug*N")
+
+    // Initialize SDL2
+    LET result = SDL2_INIT()
+    TEST result < 0 THEN
+    {
+        WRITES("ERROR: SDL2 init failed*N")
+        FINISH
+    }
+    WRITES("SDL2 initialized*N")
+
+    // Create window
+    LET window = SDL2_CREATE_WINDOW("Event Debug Window")
+    TEST window = 0 THEN
+    {
+        WRITES("ERROR: Window creation failed*N")
+        SDL2_QUIT()
+        FINISH
+    }
+    WRITES("Window created*N")
+
+    // Create renderer
+    LET renderer = SDL2_CREATE_RENDERER(window)
+    TEST renderer = 0 THEN
+    {
+        WRITES("ERROR: Renderer creation failed*N")
+        SDL2_DESTROY_WINDOW(window)
+        SDL2_QUIT()
+        FINISH
+    }
+    WRITES("Renderer created*N")
+
+    WRITES("Starting event loop - checking what events we get*N")
+
+    LET running = TRUE
+    LET frame = 0
+    LET events_received = 0
+
+    WHILE running AND frame < 1000 DO  // Max 1000 frames (~16 seconds)
+    {
+        // Poll event and debug what we get
+        LET event = SDL2_POLL_EVENT()
+
+        TEST event <> 0 THEN
+        {
+            events_received := events_received + 1
+            WRITES("Frame ")
+            WRITEN(frame)
+            WRITES(": Received event type ")
+            WRITEN(event)
+
+            TEST event = #x100 THEN  // SDL2_EVENT_QUIT
+            {
+                WRITES(" (QUIT EVENT)*N")
+                running := FALSE
+            }
+            ELSE TEST event = #x300 THEN  // SDL2_KEYDOWN
+            {
+                WRITES(" (KEY DOWN)*N")
+            }
+            ELSE TEST event = #x301 THEN  // SDL2_KEYUP
+            {
+                WRITES(" (KEY UP)*N")
+            }
+            ELSE TEST event = #x401 THEN  // SDL2_MOUSEBUTTONDOWN
+            {
+                WRITES(" (MOUSE DOWN)*N")
+            }
+            ELSE TEST event = #x402 THEN  // SDL2_MOUSEBUTTONUP
+            {
+                WRITES(" (MOUSE UP)*N")
+            }
+            ELSE TEST event = #x400 THEN  // SDL2_MOUSEMOTION
+            {
+                WRITES(" (MOUSE MOTION)*N")
+            }
+            ELSE
+            {
+                WRITES(" (UNKNOWN EVENT)*N")
+            }
+        }
+
+        // Draw something so we know window is alive
+        LET red = (frame * 2) REM 256
+        LET green = (frame * 3) REM 256
+        LET blue = (frame * 5) REM 256
+
+        SDL2_SET_DRAW_COLOR(renderer, red, green, blue, 255)
+        SDL2_CLEAR(renderer)
+
+        // Draw frame counter
+        SDL2_SET_DRAW_COLOR(renderer, 255, 255, 255, 255)
+        LET bar_width = (frame * 640) / 1000
+        SDL2_FILL_RECT(renderer, 0, 0, bar_width, 10)
+
+        SDL2_PRESENT(renderer)
+        SDL2_DELAY(16)
+
+        frame := frame + 1
+
+        // Progress update every 60 frames
+        TEST (frame REM 60) = 0 THEN
+        {
+            WRITES("Frame ")
+            WRITEN(frame)
+            WRITES(", Events received so far: ")
+            WRITEN(events_received)
+            WRITES("*N")
+        }
+    }
+
+    TEST running THEN
+        WRITES("Timeout reached - window stayed open!*N")
+    ELSE
+        WRITES("Window closed by quit event*N")
+
+    WRITES("Total events received: ")
+    WRITEN(events_received)
+    WRITES("*N")
+
+    // Cleanup
+    SDL2_DESTROY_RENDERER(renderer)
+    SDL2_DESTROY_WINDOW(window)
+    SDL2_QUIT()
+    WRITES("Test completed*N")
+    FINISH
+}

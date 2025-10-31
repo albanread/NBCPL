@@ -1,0 +1,103 @@
+// test_sdl_persistent.bcl - SDL2 window that stays open longer
+
+LET START() BE
+{
+    WRITES("Testing persistent SDL2 window*N")
+
+    // Initialize SDL2
+    LET result = SDL2_INIT()
+    TEST result < 0 THEN
+    {
+        WRITES("ERROR: SDL2 init failed*N")
+        FINISH
+    }
+    WRITES("SDL2 initialized successfully*N")
+
+    // Create window
+    LET window = SDL2_CREATE_WINDOW("Persistent Test Window")
+    TEST window = 0 THEN
+    {
+        WRITES("ERROR: Window creation failed*N")
+        SDL2_QUIT()
+        FINISH
+    }
+    WRITES("Window created - ID: ")
+    WRITEN(window)
+    WRITES("*N")
+
+    // Create renderer
+    LET renderer = SDL2_CREATE_RENDERER(window)
+    TEST renderer = 0 THEN
+    {
+        WRITES("ERROR: Renderer creation failed*N")
+        SDL2_DESTROY_WINDOW(window)
+        SDL2_QUIT()
+        FINISH
+    }
+    WRITES("Renderer created - ID: ")
+    WRITEN(renderer)
+    WRITES("*N")
+
+    WRITES("Window should be visible now. It will stay open for 5 seconds.*N")
+    WRITES("You can also close it manually.*N")
+
+    // Keep window open for 5 seconds or until closed
+    LET frames = 0
+    LET max_frames = 300  // 5 seconds at 60fps
+    LET user_closed = FALSE
+
+    WHILE frames < max_frames AND NOT user_closed DO
+    {
+        // Poll events
+        LET event = SDL2_POLL_EVENT()
+        TEST event = SDL2_EVENT_QUIT THEN
+        {
+            WRITES("User closed the window*N")
+            user_closed := TRUE
+        }
+
+        // Change colors over time
+        LET red = (frames * 2) REM 255
+        LET green = ((frames * 3) REM 255)
+        LET blue = ((frames * 5) REM 255)
+
+        // Clear screen with changing color
+        SDL2_SET_DRAW_COLOR(renderer, red, green, blue, 255)
+        SDL2_CLEAR(renderer)
+
+        // Draw a white rectangle that moves
+        SDL2_SET_DRAW_COLOR(renderer, 255, 255, 255, 255)
+        LET x = (frames * 2) REM 600
+        LET y = (frames) REM 400
+        SDL2_FILL_RECT(renderer, x, y, 40, 40)
+
+        // Present the frame
+        SDL2_PRESENT(renderer)
+
+        // Wait for next frame
+        SDL2_DELAY(16)  // ~60 FPS
+        frames := frames + 1
+
+        // Progress indicator every second
+        TEST (frames REM 60) = 0 THEN
+        {
+            WRITES("Frame ")
+            WRITEN(frames)
+            WRITES(" - Window still open*N")
+        }
+    }
+
+    TEST user_closed THEN
+        WRITES("Window was closed by user*N")
+    ELSE
+        WRITES("5 seconds elapsed - closing window*N")
+
+    // Cleanup
+    WRITES("Cleaning up resources...*N")
+    SDL2_DESTROY_RENDERER(renderer)
+    SDL2_DESTROY_WINDOW(window)
+    SDL2_QUIT()
+    WRITES("All resources cleaned up*N")
+    WRITES("Test completed successfully*N")
+    FINISH
+}

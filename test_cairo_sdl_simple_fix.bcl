@@ -1,0 +1,70 @@
+// test_cairo_sdl_simple_fix.bcl - Simple test using regular SDL2 functions
+
+LET START() BE
+{
+    WRITES("Testing Cairo + SDL2 with regular functions*N")
+
+    // Initialize SDL2 first
+    LET sdl_result = SDL2_INIT()
+    TEST sdl_result < 0 THEN
+    {
+        WRITES("ERROR: SDL2 init failed*N")
+        FINISH
+    }
+
+    // Create Cairo surface
+    LET surface = CAIRO_CREATE_SURFACE(400, 300)
+    TEST surface = 0 THEN
+    {
+        WRITES("ERROR: Failed to create Cairo surface*N")
+        SDL2_QUIT()
+        FINISH
+    }
+
+    // Draw a blue rectangle
+    CAIRO_SET_COLOR(surface, #x0000FFFF)  // Blue
+    CAIRO_FILL_RECT(surface, 100, 75, 200, 150)
+
+    // Create regular SDL2 window
+    LET window = SDL2_CREATE_WINDOW("Simple Test")
+    TEST window = 0 THEN
+    {
+        WRITES("ERROR: Failed to create SDL2 window*N")
+        SDL2_QUIT()
+        FINISH
+    }
+
+    // Create renderer
+    LET renderer = SDL2_CREATE_RENDERER(window)
+    TEST renderer = 0 THEN
+    {
+        WRITES("ERROR: Failed to create renderer*N")
+        SDL2_DESTROY_WINDOW(window)
+        SDL2_QUIT()
+        FINISH
+    }
+
+    WRITES("Window created - close to exit*N")
+
+    // Simple event loop
+    LET running = TRUE
+    WHILE running DO
+    {
+        LET event = SDL2_POLL_EVENT()
+        TEST event = SDL2_EVENT_QUIT THEN
+            running := FALSE
+
+        // Clear to black and present
+        SDL2_SET_DRAW_COLOR(renderer, 0, 0, 0, 255)
+        SDL2_CLEAR(renderer)
+        SDL2_PRESENT(renderer)
+        SDL2_DELAY(16)
+    }
+
+    // Cleanup
+    SDL2_DESTROY_RENDERER(renderer)
+    SDL2_DESTROY_WINDOW(window)
+    SDL2_QUIT()
+    WRITES("Done*N")
+    FINISH
+}

@@ -1,0 +1,93 @@
+// simple_cairo_sdl2.bcl - Simplest Cairo + SDL2 example
+
+LET START() BE
+{
+    WRITES("Simple Cairo + SDL2 Example*N")
+
+    // Initialize SDL2
+    LET result = SDL2_INIT()
+    TEST result < 0 THEN
+    {
+        WRITES("ERROR: SDL2 init failed*N")
+        RETURN
+    }
+
+    // Create SDL2 window
+    LET window = SDL2_CREATE_WINDOW("Cairo + SDL2")
+    TEST window = 0 THEN
+    {
+        WRITES("ERROR: Window creation failed*N")
+        SDL2_QUIT()
+        RETURN
+    }
+
+    // Create SDL2 renderer
+    LET renderer = SDL2_CREATE_RENDERER(window)
+    TEST renderer = 0 THEN
+    {
+        WRITES("ERROR: Renderer creation failed*N")
+        SDL2_DESTROY_WINDOW(window)
+        SDL2_QUIT()
+        RETURN
+    }
+
+    // Create Cairo surface (200x200 pixels)
+    LET cairo_surface = CAIRO_CREATE_SURFACE(200, 200)
+    TEST cairo_surface = 0 THEN
+    {
+        WRITES("ERROR: Cairo surface creation failed*N")
+        SDL2_DESTROY_RENDERER(renderer)
+        SDL2_DESTROY_WINDOW(window)
+        SDL2_QUIT()
+        RETURN
+    }
+
+    WRITES("All resources created successfully*N")
+
+    // Draw with Cairo
+    CAIRO_SET_COLOR(cairo_surface, #xFF0000FF)  // Red
+    CAIRO_CLEAR(cairo_surface)
+
+    CAIRO_SET_COLOR(cairo_surface, #x00FF00FF)  // Green
+    CAIRO_FILL_CIRCLE(cairo_surface, 100.0, 100.0, 50.0)
+
+    CAIRO_SET_COLOR(cairo_surface, #x0000FFFF)  // Blue
+    CAIRO_FILL_RECT(cairo_surface, 50.0, 150.0, 100.0, 30.0)
+
+    WRITES("Drawing completed*N")
+
+    // Save Cairo surface as PNG
+    CAIRO_SAVE_PNG(cairo_surface, "cairo_sdl2_output.png")
+    WRITES("Image saved as cairo_sdl2_output.png*N")
+
+    // Simple event loop - wait for quit
+    LET running = TRUE
+    WRITES("Window open - close it to quit*N")
+
+    WHILE running DO
+    {
+        LET event_type = SDL2_POLL_EVENT()
+        TEST event_type = SDL2_EVENT_QUIT THEN
+        {
+            running := FALSE
+        }
+
+        // Clear SDL2 screen to black
+        SDL2_SET_DRAW_COLOR(renderer, 0, 0, 0, 255)
+        SDL2_CLEAR(renderer)
+
+        // Draw a simple SDL2 rectangle
+        SDL2_SET_DRAW_COLOR(renderer, 255, 255, 0, 255)  // Yellow
+        SDL2_FILL_RECT(renderer, 100, 100, 200, 150)
+
+        SDL2_PRESENT(renderer)
+        SDL2_DELAY(16)  // ~60 FPS
+    }
+
+    // Cleanup
+    WRITES("Cleaning up...*N")
+    SDL2_DESTROY_RENDERER(renderer)
+    SDL2_DESTROY_WINDOW(window)
+    SDL2_QUIT()
+    WRITES("Done*N")
+}

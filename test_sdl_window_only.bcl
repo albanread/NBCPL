@@ -1,0 +1,66 @@
+// test_sdl_window_only.bcl - Test just SDL2 window creation
+
+LET START() BE
+{
+    WRITES("Testing SDL2 window creation only*N")
+
+    // Initialize SDL2
+    LET result = SDL2_INIT()
+    TEST result < 0 THEN
+    {
+        WRITES("ERROR: SDL2 init failed*N")
+        FINISH
+    }
+    WRITES("SDL2 initialized*N")
+
+    // Create window
+    LET window = SDL2_CREATE_WINDOW("Test Window")
+    TEST window = 0 THEN
+    {
+        WRITES("ERROR: Window creation failed*N")
+        SDL2_QUIT()
+        FINISH
+    }
+    WRITES("Window created successfully*N")
+
+    // Create renderer
+    LET renderer = SDL2_CREATE_RENDERER(window)
+    TEST renderer = 0 THEN
+    {
+        WRITES("ERROR: Renderer creation failed*N")
+        SDL2_DESTROY_WINDOW(window)
+        SDL2_QUIT()
+        FINISH
+    }
+    WRITES("Renderer created successfully*N")
+
+    WRITES("Drawing red screen - window should be visible*N")
+
+    // Draw red screen for 3 seconds
+    LET i = 0
+    WHILE i < 180 DO  // ~3 seconds at 60fps
+    {
+        // Handle events
+        LET event = SDL2_POLL_EVENT()
+        TEST event = SDL2_EVENT_QUIT THEN
+        {
+            WRITES("User closed window*N")
+            BREAK
+        }
+
+        // Draw red screen
+        SDL2_SET_DRAW_COLOR(renderer, 255, 0, 0, 255)  // Red
+        SDL2_CLEAR(renderer)
+        SDL2_PRESENT(renderer)
+
+        SDL2_DELAY(16)  // ~60 FPS
+        i := i + 1
+    }
+
+    // Cleanup
+    SDL2_DESTROY_RENDERER(renderer)
+    SDL2_DESTROY_WINDOW(window)
+    SDL2_QUIT()
+    WRITES("Test completed*N")
+    FINISH
+}

@@ -121,10 +121,11 @@ compile_cairo_objects() {
             CAIRO_OBJECTS="${CAIRO_OBJECTS} ${build_dir}/cairo_runtime.o"
         fi
 
-        if [ -f "${CAIRO_DIR}/cairo_samm.cpp" ]; then
-            echo "   Compiling cairo_samm.cpp..."
-            clang++ ${CXXFLAGS} ${DEFINES} ${INCLUDE_DIRS} -c ${CAIRO_DIR}/cairo_samm.cpp -o ${build_dir}/cairo_samm.o
-            CAIRO_OBJECTS="${CAIRO_OBJECTS} ${build_dir}/cairo_samm.o"
+        # Skip cairo_samm.cpp - using cairo_samm_backend.cpp instead to avoid duplicate symbols
+        if [ -f "${CAIRO_DIR}/cairo_samm_backend.cpp" ]; then
+            echo "   Compiling cairo_samm_backend.cpp..."
+            clang++ ${CXXFLAGS} ${DEFINES} ${INCLUDE_DIRS} -c ${CAIRO_DIR}/cairo_samm_backend.cpp -o ${build_dir}/cairo_samm_backend.o
+            CAIRO_OBJECTS="${CAIRO_OBJECTS} ${build_dir}/cairo_samm_backend.o"
         fi
 
         if [ -f "${CAIRO_DIR}/cairo_bridge_utils.cpp" ]; then
@@ -133,11 +134,7 @@ compile_cairo_objects() {
             CAIRO_OBJECTS="${CAIRO_OBJECTS} ${build_dir}/cairo_bridge_utils.o"
         fi
 
-        if [ -f "${CAIRO_DIR}/cairo_samm_backend.cpp" ]; then
-            echo "   Compiling cairo_samm_backend.cpp..."
-            clang++ ${CXXFLAGS} ${DEFINES} ${INCLUDE_DIRS} -c ${CAIRO_DIR}/cairo_samm_backend.cpp -o ${build_dir}/cairo_samm_backend.o
-            CAIRO_OBJECTS="${CAIRO_OBJECTS} ${build_dir}/cairo_samm_backend.o"
-        fi
+        # cairo_samm_backend.cpp already compiled above
 
         if [ -f "${CAIRO_DIR}/cairo_vectors.cpp" ]; then
             echo "   Compiling cairo_vectors.cpp..."
@@ -296,6 +293,11 @@ case "${BUILD_MODE}" in
 
         if [ "$CAIRO_ENABLED" = true ]; then
             DEFINES="${DEFINES} -DCAIRO_RUNTIME_ENABLED"
+        fi
+
+        # Enable Cairo-SDL2 integration if both are available
+        if [ "$CAIRO_ENABLED" = true ] && [ "$SDL2_ENABLED" = true ]; then
+            DEFINES="${DEFINES} -DCAIRO_SDL_INTEGRATION_AVAILABLE"
         fi
 
         # Configure SDL2 if enabled
@@ -485,6 +487,11 @@ case "${BUILD_MODE}" in
 
         if [ "$CAIRO_ENABLED" = true ]; then
             DEFINES="${DEFINES} -DCAIRO_RUNTIME_ENABLED"
+        fi
+
+        # Enable Cairo-SDL2 integration if both are available
+        if [ "$CAIRO_ENABLED" = true ] && [ "$SDL2_ENABLED" = true ]; then
+            DEFINES="${DEFINES} -DCAIRO_SDL_INTEGRATION_AVAILABLE"
         fi
 
         # Configure SDL2 if enabled

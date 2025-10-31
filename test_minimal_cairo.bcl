@@ -1,0 +1,20 @@
+// test_minimal_cairo.bcl - Absolutely minimal Cairo test
+
+LET START() BE
+{
+    WRITES("Minimal Cairo test starting*N")
+
+    // Just create and release a surface
+    LET surface = CAIRO_CREATE_SURFACE(50, 50)
+    TEST surface = 0 THEN
+    {
+        WRITES("ERROR: Surface creation failed*N")
+        RETURN
+    }
+
+    WRITES("Surface created with handle: ")
+    WRITEN(surface)
+    WRITES("*N")
+
+    WRITES("Test completed - surface will be auto-cleaned*N")
+}

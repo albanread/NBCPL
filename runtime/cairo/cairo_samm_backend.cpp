@@ -386,3 +386,109 @@ extern "C" void CairoSAMM_trackSurface(uint64_t handle_id) {
     // No-op - tracking is done automatically during creation
     trace_log("CairoSAMM_trackSurface called for handle %llu (no-op with new system)\n", handle_id);
 }
+
+extern "C" void CairoSAMM_trackImage(uint64_t handle_id) {
+    // Track image handle - same as surface for now
+    trace_log("CairoSAMM_trackImage called for handle %llu\n", handle_id);
+    // Images are tracked automatically during creation in new system
+}
+
+// =============================================================================
+// COMPATIBILITY FUNCTIONS FOR OLD SAMM INTERFACE
+// =============================================================================
+
+extern "C" int64_t CAIRO_SAMM_SCOPE_DEPTH(void) {
+    // Return current scope depth from HeapManager
+    // For now, return a default value since we don't have direct scope depth access
+    return 1;
+}
+
+extern "C" void CAIRO_SAMM_GET_STATS(int64_t* active_surfaces, int64_t* active_images, int64_t* memory_usage) {
+    if (!active_surfaces || !active_images || !memory_usage) return;
+    
+    // Get stats from HeapManager graphics system
+    SAMM_get_graphics_stats(active_surfaces, active_images, memory_usage);
+    
+    trace_log("CAIRO_SAMM_GET_STATS: surfaces=%lld, images=%lld, memory=%lld\n", 
+              *active_surfaces, *active_images, *memory_usage);
+}
+
+extern "C" void CAIRO_SAMM_SET_TRACE(int64_t enabled) {
+    CairoSAMM_set_trace_enabled(enabled != 0);
+    trace_log("CAIRO_SAMM_SET_TRACE: %s\n", enabled ? "enabled" : "disabled");
+}
+
+extern "C" void CAIRO_SAMM_FORCE_CLEANUP(void) {
+    trace_log("CAIRO_SAMM_FORCE_CLEANUP called\n");
+    // Force cleanup of current scope - for now just log
+    // TODO: Implement proper scope cleanup if needed
+}
+
+extern "C" void CAIRO_SAMM_DUMP_STATE(void) {
+    trace_log("CAIRO_SAMM_DUMP_STATE called\n");
+    // Print current state information
+    printf("=== Cairo SAMM State ===\n");
+    printf("Backend registered: %s\n", g_cairo_backend_registered ? "Yes" : "No");
+    printf("Trace enabled: %s\n", g_cairo_trace_enabled ? "Yes" : "No");
+    
+    int64_t surfaces, images, memory;
+    SAMM_get_graphics_stats(&surfaces, &images, &memory);
+    printf("Surfaces: %lld\n", surfaces);
+    printf("Images: %lld\n", images);
+    printf("Total memory: %lld bytes\n", memory);
+    printf("========================\n");
+}
+
+// =============================================================================
+// RETAINED VERSIONS OF CAIRO FUNCTIONS
+// =============================================================================
+
+extern "C" uint64_t CAIRO_CREATE_SURFACE_RETAINED(int64_t width, int64_t height, int64_t parent_scope_offset) {
+    trace_log("CAIRO_CREATE_SURFACE_RETAINED called: %lldx%lld, scope_offset=%lld\n", width, height, parent_scope_offset);
+    
+    // For now, just create a regular surface - scope management is handled automatically
+    // TODO: Implement proper scope offset handling if needed
+    cairo_surface_t* surface = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, (int)width, (int)height);
+    if (!surface || cairo_surface_status(surface) != CAIRO_STATUS_SUCCESS) {
+        return 0;
+    }
+    
+    return CairoSAMM_track_surface(surface, (int)width, (int)height);
+}
+
+extern "C" uint64_t CAIRO_LOAD_PNG_RETAINED(uint32_t* filename, int64_t parent_scope_offset) {
+    trace_log("CAIRO_LOAD_PNG_RETAINED called with scope_offset=%lld\n", parent_scope_offset);
+    
+    // For now, just create a regular PNG load - scope management is handled automatically
+    // TODO: Implement proper scope offset handling if needed
+    if (!filename || filename[0] == 0) {
+        return 0;
+    }
+    
+    // Convert BCPL string to C string
+    int len = (int)filename[0];
+    if (len <= 0 || len > 1000) return 0;
+    
+    char c_filename[1024];
+    for (int i = 0; i < len; i++) {
+        c_filename[i] = (char)(filename[i + 1] & 0xFF);
+    }
+    c_filename[len] = '\0';
+    
+    cairo_surface_t* surface = cairo_image_surface_create_from_png(c_filename);
+    if (!surface || cairo_surface_status(surface) != CAIRO_STATUS_SUCCESS) {
+        return 0;
+    }
+    
+    int width = cairo_image_surface_get_width(surface);
+    int height = cairo_image_surface_get_height(surface);
+    
+    return CairoSAMM_track_surface(surface, width, height);
+}
+
+extern "C" uint64_t CAIRO_LOAD_IMAGE_RETAINED(uint32_t* filename, int64_t parent_scope_offset) {
+    trace_log("CAIRO_LOAD_IMAGE_RETAINED called with scope_offset=%lld\n", parent_scope_offset);
+    
+    // For now, same as PNG load since Cairo primarily handles PNG images
+    return CAIRO_LOAD_PNG_RETAINED(filename, parent_scope_offset);
+}

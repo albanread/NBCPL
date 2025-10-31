@@ -1042,26 +1042,35 @@ void CAIRO_CLEAR_ERROR(void) {
 }
 
 // =============================================================================
-// SDL2 DISPLAY INTEGRATION (Stub implementations)
+// SDL2 DISPLAY INTEGRATION
 // =============================================================================
+// These functions are implemented in cairo_sdl.cpp when SDL2 is available.
+// If SDL2 is not available, we provide stub implementations here.
 
+#ifdef CAIRO_SDL_INTEGRATION_AVAILABLE
+#pragma message("CAIRO_SDL_INTEGRATION_AVAILABLE is defined - using real implementations")
+#else
+#pragma message("CAIRO_SDL_INTEGRATION_AVAILABLE is NOT defined - using stub implementations")
 void CAIRO_DISPLAY_SDL(CairoSurfaceHandle surface_handle, int64_t sdl_window_id) {
-    setLastError("SDL2 integration not implemented in this module");
+    printf("DEBUG: Using STUB CAIRO_DISPLAY_SDL\n");
+    setLastError("SDL2 integration not available - rebuild with SDL2 support");
 }
 
 int64_t CAIRO_CREATE_SDL_WINDOW(bcpl_string_t title, int64_t width, int64_t height) {
-    setLastError("SDL2 integration not implemented in this module"); 
+    printf("DEBUG: Using STUB CAIRO_CREATE_SDL_WINDOW\n");
+    setLastError("SDL2 integration not available - rebuild with SDL2 support"); 
     return 0;
 }
 
 void CAIRO_UPDATE_SDL_WINDOW(CairoSurfaceHandle surface_handle, int64_t sdl_window_id) {
-    setLastError("SDL2 integration not implemented in this module");
+    setLastError("SDL2 integration not available - rebuild with SDL2 support");
 }
 
 int64_t CAIRO_TO_SDL_TEXTURE(CairoSurfaceHandle surface_handle, int64_t sdl_renderer_id) {
-    setLastError("SDL2 integration not implemented in this module");
+    setLastError("SDL2 integration not available - rebuild with SDL2 support");
     return 0;
 }
+#endif // CAIRO_SDL_INTEGRATION_AVAILABLE
 
 // C-compatible wrapper for testing
 void CAIRO_SAVE_PNG_C(CairoSurfaceHandle surface_handle, const char* filename) {

@@ -1,0 +1,18 @@
+// test_super_simple.bcl - Super simple Cairo test
+
+LET START() BE
+{
+    WRITES("Super simple test*N")
+
+    // Just create surface - no drawing, no saving
+    LET surface = CAIRO_CREATE_SURFACE(100, 100)
+
+    TEST surface = 0 THEN
+    {
+        WRITES("Failed*N")
+    }
+    ELSE
+    {
+        WRITES("Success*N")
+    }
+}

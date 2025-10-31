@@ -1,0 +1,45 @@
+// test_cairo_sdl_rectangle.bcl - Simple Cairo rectangle in SDL2 window
+
+LET START() BE
+{
+    WRITES("Cairo Rectangle in SDL2 Window*N")
+
+    // Create Cairo surface
+    LET surface = CAIRO_CREATE_SURFACE(400, 300)
+    TEST surface = 0 THEN
+    {
+        WRITES("ERROR: Failed to create Cairo surface*N")
+        FINISH
+    }
+
+    // Draw a red rectangle
+    CAIRO_SET_COLOR(surface, #xFF0000FF)  // Red
+    CAIRO_FILL_RECT(surface, 50, 50, 200, 100)
+
+    // Create SDL2 window and display Cairo surface
+    LET window = CAIRO_CREATE_SDL_WINDOW("Cairo Rectangle", 400, 300)
+    TEST window = 0 THEN
+    {
+        WRITES("ERROR: Failed to create SDL2 window*N")
+        FINISH
+    }
+
+    // Display the Cairo surface in the SDL2 window
+    CAIRO_DISPLAY_SDL(surface, window)
+
+    WRITES("Rectangle displayed - close window to exit*N")
+
+    // Wait for user to close window
+    LET running = TRUE
+    WHILE running DO
+    {
+        LET event = SDL2_POLL_EVENT()
+        TEST event = SDL2_EVENT_QUIT THEN
+            running := FALSE
+
+        SDL2_DELAY(16)  // Small delay
+    }
+
+    WRITES("Window closed - exiting*N")
+    FINISH
+}

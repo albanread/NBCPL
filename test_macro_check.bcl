@@ -1,0 +1,36 @@
+// test_macro_check.bcl - Check which version of Cairo-SDL functions are being used
+
+LET START() BE
+{
+    WRITES("Testing which Cairo-SDL functions are active...*N")
+
+    // This should tell us if we're using stub or real implementations
+    LET result = CAIRO_CREATE_SDL_WINDOW("Test", 100, 100)
+
+    // Get the last error to see which implementation was called
+    LET error_msg = CAIRO_GET_ERROR()
+
+    TEST error_msg = 0 THEN
+    {
+        WRITES("No error message available*N")
+    }
+    ELSE
+    {
+        WRITES("Error message: ")
+        WRITES(error_msg)
+        WRITES("*N")
+    }
+
+    TEST result = 0 THEN
+    {
+        WRITES("Function returned 0 (failed)*N")
+    }
+    ELSE
+    {
+        WRITES("Function returned: ")
+        WRITEN(result)
+        WRITES("*N")
+    }
+
+    FINISH
+}
