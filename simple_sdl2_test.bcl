@@ -1,0 +1,42 @@
+// simple_sdl2_test.bcl - Very simple SDL2 SAMM test
+
+LET START() BE
+{
+    WRITES("Simple SDL2 SAMM Test*N")
+
+    // Initialize SDL2
+    LET result = SDL2_INIT()
+    TEST result < 0 THEN
+    {
+        WRITES("ERROR: SDL2 init failed*N")
+        RETURN
+    }
+
+    WRITES("SDL2 initialized*N")
+
+    // Check SDL2 version instead
+    LET version = SDL2_GET_VERSION()
+    WRITES("SDL2 version: ")
+    WRITEN(version)
+    WRITES("*N")
+
+    // Create simple window
+    LET window = SDL2_CREATE_WINDOW("Simple Test")
+    TEST window = 0 THEN
+    {
+        WRITES("ERROR: Window creation failed*N")
+    }
+    ELSE
+    {
+        WRITES("Window created successfully*N")
+
+        // Clean up
+        SDL2_DESTROY_WINDOW(window)
+        WRITES("Window destroyed*N")
+    }
+
+    // Quit SDL2
+    SDL2_QUIT()
+    WRITES("SDL2 quit*N")
+    WRITES("Test complete*N")
+}

@@ -1,0 +1,226 @@
+// test_sdl2_samm.bcl - Test SDL2 SAMM integration
+
+LET START() BE {
+    WRITES("=== SDL2 SAMM Integration Test ===*N")
+
+    // Check if SDL2 is available
+    WRITES("Checking SDL2 availability...*N")
+    LET version = SDL2_GET_VERSION()
+    TEST version <= 0 THEN {
+        WRITES("ERROR: SDL2 not available*N")
+        RETURN
+    } ELSE {
+        WRITES("SDL2 version: ")
+        WRITEN(version)
+        WRITES("*N")
+    }
+
+    // Initialize SDL2
+    WRITES("Initializing SDL2...*N")
+    LET init_result = SDL2_INIT()
+    TEST init_result < 0 THEN {
+        WRITES("ERROR: Failed to initialize SDL2*N")
+        RETURN
+    } ELSE {
+        WRITES("SDL2 initialized successfully*N")
+    }
+
+    // Check if SDL2 SAMM backend is enabled
+    WRITES("Checking SDL2 SAMM backend...*N")
+    LET samm_enabled = SDL2_SAMM_IS_ENABLED()
+    TEST samm_enabled = 0 THEN {
+        WRITES("WARNING: SDL2 SAMM backend not enabled*N")
+    } ELSE {
+        WRITES("SDL2 SAMM backend is enabled*N")
+    }
+
+    // Enable SDL2 SAMM tracing
+    SDL2_SAMM_SET_TRACE(1)
+    WRITES("SDL2 SAMM tracing enabled*N")
+
+    // Test 1: Create window using regular SDL2 function
+    WRITES("*NTest 1: Creating window with regular SDL2_CREATE_WINDOW...*N")
+    LET window1 = SDL2_CREATE_WINDOW("Test Window 1")
+    TEST window1 = 0 THEN {
+        WRITES("ERROR: Failed to create window 1*N")
+    } ELSE {
+        WRITES("Window 1 created with ID: ")
+        WRITEN(window1)
+        WRITES("*N")
+    }
+
+    // Test 2: Create window using SAMM function (if available)
+    WRITES("*NTest 2: Creating window with SDL2_SAMM_CREATE_WINDOW...*N")
+    LET window2 = 0
+    TEST samm_enabled ~= 0 THEN {
+        // SDL2_SAMM_CREATE_WINDOW(title, x, y, width, height, flags)
+        window2 := SDL2_SAMM_CREATE_WINDOW("SAMM Test Window", 100, 100, 640, 480, SDL2_WINDOW_SHOWN)
+        TEST window2 = 0 THEN {
+            WRITES("ERROR: Failed to create SAMM window*N")
+        } ELSE {
+            WRITES("SAMM window created with handle: ")
+            WRITEN(window2)
+            WRITES("*N")
+        }
+    } ELSE {
+        WRITES("Skipping SAMM window test (backend not enabled)*N")
+    }
+
+    // Test 3: Create renderer for window 1
+    WRITES("*NTest 3: Creating renderer for window 1...*N")
+    LET renderer1 = 0
+    TEST window1 ~= 0 THEN {
+        renderer1 := SDL2_CREATE_RENDERER(window1)
+        TEST renderer1 = 0 THEN {
+            WRITES("ERROR: Failed to create renderer 1*N")
+        } ELSE {
+            WRITES("Renderer 1 created with ID: ")
+            WRITEN(renderer1)
+            WRITES("*N")
+        }
+    }
+
+    // Test 4: Create SAMM renderer for SAMM window
+    WRITES("*NTest 4: Creating SAMM renderer...*N")
+    LET renderer2 = 0
+    TEST window2 ~= 0 THEN {
+        TEST samm_enabled ~= 0 THEN {
+            // SDL2_SAMM_CREATE_RENDERER(window_handle, index, flags)
+            renderer2 := SDL2_SAMM_CREATE_RENDERER(window2, -1, SDL2_RENDERER_ACCELERATED)
+            TEST renderer2 = 0 THEN {
+                WRITES("ERROR: Failed to create SAMM renderer*N")
+            } ELSE {
+                WRITES("SAMM renderer created with handle: ")
+                WRITEN(renderer2)
+                WRITES("*N")
+            }
+        } ELSE {
+            WRITES("Skipping SAMM renderer test (SAMM not enabled)*N")
+        }
+    } ELSE {
+        WRITES("Skipping SAMM renderer test (no window)*N")
+    }
+
+    // Test 5: Basic drawing operations
+    TEST renderer1 ~= 0 THEN {
+        WRITES("*NTest 5: Testing drawing operations...*N")
+
+        // Set draw color to red
+        SDL2_SET_DRAW_COLOR(renderer1, 255, 0, 0, 255)
+        WRITES("Set draw color to red*N")
+
+        // Clear screen
+        SDL2_CLEAR(renderer1)
+        WRITES("Cleared screen*N")
+
+        // Draw a rectangle
+        SDL2_FILL_RECT(renderer1, 100, 100, 200, 150)
+        WRITES("Drew red rectangle*N")
+
+        // Set color to blue and draw line
+        SDL2_SET_DRAW_COLOR(renderer1, 0, 0, 255, 255)
+        SDL2_DRAW_LINE(renderer1, 50, 50, 350, 250)
+        WRITES("Drew blue line*N")
+
+        // Present the frame
+        SDL2_PRESENT(renderer1)
+        WRITES("Presented frame*N")
+    }
+
+    // Test 6: Event handling (brief test)
+    WRITES("*NTest 6: Testing event handling (3 second timeout)...*N")
+    LET start_time = SDL2_GET_TICKS()
+    LET timeout = 3000  // 3 seconds
+    LET events_processed = 0
+
+    WHILE (SDL2_GET_TICKS() - start_time) < timeout DO {
+        LET event_type = SDL2_POLL_EVENT()
+        TEST event_type ~= 0 THEN {
+            events_processed := events_processed + 1
+
+            TEST event_type = SDL2_EVENT_QUIT THEN {
+                WRITES("Quit event received*N")
+                BREAK
+            }
+
+            TEST event_type = SDL2_KEYDOWN THEN {
+                LET key = SDL2_GET_EVENT_KEY()
+                WRITES("Key pressed: ")
+                WRITEN(key)
+                WRITES("*N")
+            }
+
+            TEST event_type = SDL2_MOUSEBUTTONDOWN THEN {
+                STATIC $( mouse_x = 0 $)
+                STATIC $( mouse_y = 0 $)
+                SDL2_GET_EVENT_MOUSE(@mouse_x, @mouse_y)
+                WRITES("Mouse clicked at: ")
+                WRITEN(mouse_x)
+                WRITES(", ")
+                WRITEN(mouse_y)
+                WRITES("*N")
+            }
+        } ELSE {
+            // No events, small delay
+            SDL2_DELAY(10)
+        }
+    }
+
+    WRITES("Events processed: ")
+    WRITEN(events_processed)
+    WRITES("*N")
+
+    // Test 7: Check for SDL errors
+    WRITES("*NTest 7: Checking for SDL errors...*N")
+    LET error_msg = SDL2_GET_ERROR()
+    TEST error_msg = 0 THEN {
+        WRITES("No SDL errors detected*N")
+    } ELSE {
+        WRITES("SDL Error: ")
+        WRITES(error_msg)
+        WRITES("*N")
+    }
+
+    // Clean up resources
+    WRITES("*NCleaning up resources...*N")
+
+    TEST renderer1 ~= 0 THEN {
+        SDL2_DESTROY_RENDERER(renderer1)
+        WRITES("Destroyed renderer 1*N")
+    }
+
+    TEST renderer2 ~= 0 THEN {
+        // SAMM renderers are tracked automatically, but we can still destroy manually
+        WRITES("SAMM renderer 2 will be cleaned up automatically*N")
+    }
+
+    TEST window1 ~= 0 THEN {
+        SDL2_DESTROY_WINDOW(window1)
+        WRITES("Destroyed window 1*N")
+    }
+
+    TEST window2 ~= 0 THEN {
+        // SAMM windows are tracked automatically, but we can still destroy manually
+        WRITES("SAMM window 2 will be cleaned up automatically*N")
+    }
+
+    // Final statistics
+    WRITES("*NFinal checks...*N")
+
+    // Check for final errors
+    error_msg := SDL2_GET_ERROR()
+    TEST error_msg ~= 0 THEN {
+        WRITES("Final SDL Error: ")
+        WRITES(error_msg)
+        WRITES("*N")
+    } ELSE {
+        WRITES("No final SDL errors*N")
+    }
+
+    // Quit SDL2 (this should trigger SAMM cleanup)
+    WRITES("*NShutting down SDL2...*N")
+    SDL2_QUIT()
+    WRITES("SDL2 shutdown complete*N")
+
+    WRITES("*N=== SDL2 SAMM Integration Test Complete ===*N")
+}

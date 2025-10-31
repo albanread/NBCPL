@@ -1,4 +1,5 @@
 #include "sdl2_runtime.h"
+#include "sdl2_samm_backend.h"
 #include "../runtime.h"
 #include "../BCPLError.h"
 #include "../../HeapManager/HeapManager.h"
@@ -21,9 +22,11 @@
 // =============================================================================
 
 namespace {
-    // Resource management - map IDs to SDL objects
+    // Resource management - map IDs to SDL objects and SAMM handles
     std::unordered_map<int64_t, SDL_Window*> windows;
     std::unordered_map<int64_t, SDL_Renderer*> renderers;
+    std::unordered_map<int64_t, uint64_t> window_samm_handles;  // Maps window ID to SAMM handle
+    std::unordered_map<int64_t, uint64_t> renderer_samm_handles; // Maps renderer ID to SAMM handle
     
     // ID generators
     int64_t next_window_id = 1;
@@ -95,30 +98,59 @@ int64_t SDL2_INIT() {
         set_sdl_error("SDL2_INIT");
         return static_cast<int64_t>(result);
     }
+    
+    // Initialize SDL2 SAMM backend
+    SDL2SAMM_initialize();
+    
     return 0;
 }
 
-void SDL2_INIT_SUBSYSTEMS(int64_t flags) {
-    if (SDL_Init(static_cast<Uint32>(flags)) < 0) {
+int64_t SDL2_INIT_SUBSYSTEMS(int64_t flags) {
+    int result = SDL_Init(static_cast<Uint32>(flags));
+    if (result < 0) {
         set_sdl_error("SDL2_INIT_SUBSYSTEMS");
+        return static_cast<int64_t>(result);
     }
+    
+    // Initialize SDL2 SAMM backend if not already done
+    if (!SDL2SAMM_is_enabled()) {
+        SDL2SAMM_initialize();
+    }
+    
+    return 0;
 }
 
 void SDL2_QUIT_IMPL() {
-    // Clean up all windows and renderers
+    // Clean up all renderers (SAMM will handle cleanup if enabled)
     for (auto& pair : renderers) {
         if (pair.second) {
+            // If SAMM is enabled, untrack before destroying
+            auto samm_it = renderer_samm_handles.find(pair.first);
+            if (samm_it != renderer_samm_handles.end()) {
+                SDL2SAMM_untrack_renderer(samm_it->second);
+                renderer_samm_handles.erase(samm_it);
+            }
             SDL_DestroyRenderer(pair.second);
         }
     }
     renderers.clear();
     
+    // Clean up all windows (SAMM will handle cleanup if enabled)
     for (auto& pair : windows) {
         if (pair.second) {
+            // If SAMM is enabled, untrack before destroying
+            auto samm_it = window_samm_handles.find(pair.first);
+            if (samm_it != window_samm_handles.end()) {
+                SDL2SAMM_untrack_window(samm_it->second);
+                window_samm_handles.erase(samm_it);
+            }
             SDL_DestroyWindow(pair.second);
         }
     }
     windows.clear();
+    
+    // Shutdown SDL2 SAMM backend
+    SDL2SAMM_shutdown();
     
     SDL_Quit();
 }
@@ -164,12 +196,27 @@ int64_t SDL2_CREATE_WINDOW_EX(bcpl_string_t title, int64_t x, int64_t y,
     int64_t window_id = next_window_id++;
     windows[window_id] = window;
     
+    // Track with SAMM if enabled
+    if (SDL2SAMM_is_enabled()) {
+        uint64_t samm_handle = SDL2SAMM_track_window(window, static_cast<int>(width), static_cast<int>(height));
+        if (samm_handle != 0) {
+            window_samm_handles[window_id] = samm_handle;
+        }
+    }
+    
     return window_id;
 }
 
 void SDL2_DESTROY_WINDOW(int64_t window_id) {
     auto it = windows.find(window_id);
     if (it != windows.end()) {
+        // Untrack from SAMM if enabled
+        auto samm_it = window_samm_handles.find(window_id);
+        if (samm_it != window_samm_handles.end()) {
+            SDL2SAMM_untrack_window(samm_it->second);
+            window_samm_handles.erase(samm_it);
+        }
+        
         SDL_DestroyWindow(it->second);
         windows.erase(it);
     }
@@ -217,12 +264,31 @@ int64_t SDL2_CREATE_RENDERER_EX(int64_t window_id, int64_t flags) {
     int64_t renderer_id = next_renderer_id++;
     renderers[renderer_id] = renderer;
     
+    // Track with SAMM if enabled
+    if (SDL2SAMM_is_enabled()) {
+        // Get window dimensions for memory estimation
+        int width, height;
+        SDL_GetWindowSize(it->second, &width, &height);
+        
+        uint64_t samm_handle = SDL2SAMM_track_renderer(renderer, width, height);
+        if (samm_handle != 0) {
+            renderer_samm_handles[renderer_id] = samm_handle;
+        }
+    }
+    
     return renderer_id;
 }
 
 void SDL2_DESTROY_RENDERER(int64_t renderer_id) {
     auto it = renderers.find(renderer_id);
     if (it != renderers.end()) {
+        // Untrack from SAMM if enabled
+        auto samm_it = renderer_samm_handles.find(renderer_id);
+        if (samm_it != renderer_samm_handles.end()) {
+            SDL2SAMM_untrack_renderer(samm_it->second);
+            renderer_samm_handles.erase(samm_it);
+        }
+        
         SDL_DestroyRenderer(it->second);
         renderers.erase(it);
     }

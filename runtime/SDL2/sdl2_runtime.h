@@ -30,8 +30,9 @@ int64_t SDL2_INIT(void);
  * Initialize SDL2 with specific subsystems
  * BCPL Usage: SDL2_INIT_SUBSYSTEMS(flags)
  * @param flags: SDL subsystem flags (SDL_INIT_VIDEO, SDL_INIT_AUDIO, etc.)
+ * Returns: 0 on success, negative value on failure
  */
-void SDL2_INIT_SUBSYSTEMS(int64_t flags);
+int64_t SDL2_INIT_SUBSYSTEMS(int64_t flags);
 
 /**
  * Quit SDL2 and cleanup all subsystems

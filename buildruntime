@@ -333,6 +333,11 @@ case "${BUILD_MODE}" in
                 clang++ ${CXXFLAGS} ${DEFINES} ${INCLUDE_DIRS} -c ${RUNTIME_DIR}/SDL2/sdl2_registration.cpp -o ${JIT_BUILD_DIR}/sdl2_registration.o
                 SDL2_OBJECTS="${SDL2_OBJECTS} ${JIT_BUILD_DIR}/sdl2_registration.o"
             fi
+
+            if [ -f "${RUNTIME_DIR}/SDL2/sdl2_samm_backend.cpp" ]; then
+                clang++ ${CXXFLAGS} ${DEFINES} ${INCLUDE_DIRS} -c ${RUNTIME_DIR}/SDL2/sdl2_samm_backend.cpp -o ${JIT_BUILD_DIR}/sdl2_samm_backend.o
+                SDL2_OBJECTS="${SDL2_OBJECTS} ${JIT_BUILD_DIR}/sdl2_samm_backend.o"
+            fi
         fi
 
         # Configure Cairo if enabled
@@ -516,6 +521,11 @@ case "${BUILD_MODE}" in
             if [ -f "${RUNTIME_DIR}/SDL2/sdl2_registration.cpp" ]; then
                 clang++ ${CXXFLAGS} ${DEFINES} ${INCLUDE_DIRS} -c ${RUNTIME_DIR}/SDL2/sdl2_registration.cpp -o ${UNIFIED_BUILD_DIR}/sdl2_registration.o
                 SDL2_OBJECTS="${SDL2_OBJECTS} ${UNIFIED_BUILD_DIR}/sdl2_registration.o"
+            fi
+
+            if [ -f "${RUNTIME_DIR}/SDL2/sdl2_samm_backend.cpp" ]; then
+                clang++ ${CXXFLAGS} ${DEFINES} ${INCLUDE_DIRS} -c ${RUNTIME_DIR}/SDL2/sdl2_samm_backend.cpp -o ${UNIFIED_BUILD_DIR}/sdl2_samm_backend.o
+                SDL2_OBJECTS="${SDL2_OBJECTS} ${UNIFIED_BUILD_DIR}/sdl2_samm_backend.o"
             fi
         fi
 

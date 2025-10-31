@@ -1,4 +1,5 @@
 #include "sdl2_runtime.h"
+#include "sdl2_samm_backend.h"
 #include "../../RuntimeManager.h"
 #include <iostream>
 
@@ -22,6 +23,9 @@ void lazy_register_sdl2_runtime_functions() {
     }
     
     RuntimeManager& runtime = RuntimeManager::instance();
+    
+    // Initialize SDL2 SAMM backend
+    SDL2SAMM_initialize();
     
     try {
         // =============================================================================
@@ -174,6 +178,30 @@ void lazy_register_sdl2_runtime_functions() {
         
         runtime.register_function("SDL2_TEST_BASIC", 0, 
                                  reinterpret_cast<void*>(SDL2_TEST_BASIC), 
+                                 FunctionType::STANDARD);
+        
+        // =============================================================================
+        // SDL2 SAMM INTEGRATION FUNCTIONS
+        // =============================================================================
+        
+        runtime.register_function("SDL2_SAMM_CREATE_WINDOW", 6,
+                                 reinterpret_cast<void*>(SDL2SAMM_create_window),
+                                 FunctionType::STANDARD);
+        
+        runtime.register_function("SDL2_SAMM_CREATE_RENDERER", 3,
+                                 reinterpret_cast<void*>(SDL2SAMM_create_renderer),
+                                 FunctionType::STANDARD);
+        
+        runtime.register_function("SDL2_SAMM_CREATE_TEXTURE", 5,
+                                 reinterpret_cast<void*>(SDL2SAMM_create_texture),
+                                 FunctionType::STANDARD);
+        
+        runtime.register_function("SDL2_SAMM_IS_ENABLED", 0,
+                                 reinterpret_cast<void*>(SDL2SAMM_is_enabled),
+                                 FunctionType::STANDARD);
+        
+        runtime.register_function("SDL2_SAMM_SET_TRACE", 1,
+                                 reinterpret_cast<void*>(SDL2SAMM_set_trace_enabled),
                                  FunctionType::STANDARD);
         
         // Register a special function to report SDL2 linking type
